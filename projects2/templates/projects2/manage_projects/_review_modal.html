@@ -11,6 +11,8 @@
 
         <div class="modal-header">
           <slot name="header">
+
+
             <div v-if="!approval_form">
               <h3 v-if="isOldReview">
                 <span>{% trans "Edit Review" %}</span>
@@ -166,18 +168,36 @@
                   </div>
                 </div>
 
+                <p class="text-muted">{{ review_form.comments_for_staff.label }}</p>
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.comments_for_staff size='small' show_label=False %}
+                  </div>
+                </div>
+
                 <hr>
                 <p class="text-muted">{% trans "Review Score:" %} <span v-html="total_score"></span> / 15 (<span
                   v-html="total_score_percentage"></span>)</p>
+
+
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.review_email_update size='small' %}
+                    <p class="text-muted" v-if="project_year.review.review_notification_email_sent">
+                    {% trans "NOTE: An email has already been send to the project leads on " %}
+                    <span v-html="project_year.review.review_notification_email_sent"></span>
+                  </p>
+                  </div>
+                </div>
 
               </div>
 
               <div v-else>
                 {% bootstrap_form approval_form size='small' %}
                 <div class="mb-3">
-                  <p class="text-muted" v-if="project_year.review.notification_email_sent">
+                  <p class="text-muted" v-if="project_year.review.approval_notification_email_sent">
                     {% trans "NOTE: An email has already been send to the project leads on " %}
-                    <span v-html="project_year.review.notification_email_sent"></span>
+                    <span v-html="project_year.review.approval_notification_email_sent"></span>
                   </p>
                 </div>
               </div>

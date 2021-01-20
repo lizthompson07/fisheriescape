@@ -6,7 +6,8 @@ trigger:
 steps:
   - script: |
       # log into acr using msi
-      az login --identity
+      az account set --subscription="IMTS DEV/TEST"
+      az login --identity -u b9b8533b-430c-4b7a-95b7-0c8d43179f68
       az acr login --name dmappsdevtestacr
 
       # build the new docker image for the "latest" and the build number
@@ -14,11 +15,19 @@ steps:
         -t dmappsdevtestacr.azurecr.io/dmapps_img:latest \
         -t dmappsdevtestacr.azurecr.io/dmapps_img:$(Build.BuildNumber) .
 
-      # as a hack, we will do another build for the production tag is available
-      docker build -t dmappsdevtestacr.azurecr.io/dmapps_img:$(productionTag) .
+      # push those images to ACR
+      docker push dmappsdevtestacr.azurecr.io/dmapps_img:latest
+      docker push dmappsdevtestacr.azurecr.io/dmapps_img:$(Build.BuildNumber)
 
-      # push image (and all associated tags) to ACR
-      docker push dmappsdevtestacr.azurecr.io/dmapps_img
+      # if production tag is provided, do another build + push for the production tag
+      if [ -n "$(productionTag)" ]
+        then
+        docker build -t dmappsdevtestacr.azurecr.io/dmapps_img:$(productionTag) .
+        docker push dmappsdevtestacr.azurecr.io/dmapps_img:$(productionTag)
+      else
+        echo "No production tag provided."
+      fi
+
 
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Build Docker Image and Push to ACR'

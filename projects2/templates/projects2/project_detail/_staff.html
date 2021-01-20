@@ -41,9 +41,15 @@
       <thead>
       {% get_staff_field_list as staff_field_list %}
       {% for field in staff_field_list %}
-        <th>
-          {% get_verbose_label random_staff field %}
+          {% if field == "amount" %}
+        <th v-if="canModify">
+            {% trans "Approx. ammount (CAD)" %}
         </th>
+          {% else %}
+        <th>
+            {% get_verbose_label random_staff field %}
+        </th>
+          {% endif %}
       {% endfor %}
       </thead>
       <tbody>
@@ -67,7 +73,7 @@
           {% elif "student" in field %}
             <td>${s.student_program_display | nz}</td>
           {% elif "amount" in field %}
-            <td>${s.amount | currencyFormat}</td>
+            <td v-if="canModify">${s.amount | currencyFormat}</td>
           {% elif "duration" in field %}
             <td>
               <span v-if="s.duration_weeks == 0 || !s.duration_weeks" class="major-error py-1 px-1">0.00</span>
@@ -79,7 +85,7 @@
           {% endif %}
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
-          <button @click="openStaffModal(s)" class="no-print"><span class="mdi mdi-pencil" ></span></button>
+          <button @click="openStaffModal(s)" class="no-print"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteStaffMember(s)" class="no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>

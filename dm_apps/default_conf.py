@@ -22,6 +22,7 @@ APP_DICT = {
     'cruises': 'Cruises',
     'herring': 'HerMorrhage',
     'camp': 'CAMP db',
+    'scuba': 'SCUBA survey',
     'meq': 'Marine environmental quality (MEQ)',
     'diets': 'Marine diets',
     'projects': 'Science project planning',
@@ -43,6 +44,7 @@ APP_DICT = {
     'whalebrary': "Whalebrary Marine Mammal Tools",
     'spring_cleanup': "Gulf Region Spring Cleanup",
     'shiny': "DM Apps Shiny App Collection",
+    'bio_diversity' : "Biodiversity",
 }
 
 # Deal with fake apps...

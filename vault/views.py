@@ -160,6 +160,7 @@ class InstrumentTypeFormsetView(VaultAdminAccessRequired, CommonFormsetView):
     home_url_name = "vault:index"
     delete_url_name = "vault:delete_instrument_type"
 
+
 ## INSTRUMENT ##
 
 
@@ -268,7 +269,6 @@ class PersonFormsetView(VaultAdminAccessRequired, CommonFormsetView):
     delete_url_name = "vault:delete_person"
 
 
-
 # #
 # # # SPECIES #
 # # ###########
@@ -306,16 +306,16 @@ class SpeciesListView(VaultAccessRequired, CommonFilterView):
 class SpeciesDetailView(VaultAdminAccessRequired, CommonDetailView):
     model = models.Species
     field_list = [
-            'id',
-            'code',
-            'english_name',
-            'french_name',
-            'latin_name',
-            'vor_code',
-            'quebec_code',
-            'maritimes_code',
-            'aphia_id',
-        ]
+        'id',
+        'code',
+        'english_name',
+        'french_name',
+        'latin_name',
+        'vor_code',
+        'quebec_code',
+        'maritimes_code',
+        'aphia_id',
+    ]
     home_url_name = "vault:index"
     parent_crumb = {"title": gettext_lazy("Species List"), "url": reverse_lazy("vault:species_list")}
 
@@ -391,7 +391,8 @@ class OutingListView(VaultAccessRequired, CommonFilterView):
     new_btn_text = "New Outing"
 
     queryset = models.Outing.objects.annotate(
-        search_term=Concat('id', 'observation_platform__longname', 'region', 'purpose', 'identifier_string', output_field=TextField()))
+        search_term=Concat('id', 'observation_platform__longname', 'region', 'purpose', 'identifier_string',
+                           output_field=TextField()))
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -413,16 +414,16 @@ class OutingListView(VaultAccessRequired, CommonFilterView):
 class OutingDetailView(VaultAdminAccessRequired, CommonDetailView):
     model = models.Outing
     field_list = [
-            'id',
-            'observation_platform',
-            'region',
-            'purpose',
-            'start_date',
-            'start_time',
-            'end_time',
-            'duration',
-            'identifier_string',
-        ]
+        'id',
+        'observation_platform',
+        'region',
+        'purpose',
+        'start_date',
+        'start_time',
+        'end_time',
+        'duration',
+        'identifier_string',
+    ]
     home_url_name = "vault:index"
     parent_crumb = {"title": gettext_lazy("Outing List"), "url": reverse_lazy("vault:outing_list")}
 

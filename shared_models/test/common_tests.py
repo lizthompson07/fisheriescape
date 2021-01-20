@@ -371,7 +371,7 @@ class CommonTest(TestCase):
 
     def assert_mandatory_fields(self, model, field_names):
         """
-        assert that a field within a model is mandatory (blank=True, null=True)
+        assert that a field within a model is mandatory (blank=False, null=False)
         :param model: the model class to test
         :param field_names: list of  field names to check
         """
@@ -382,7 +382,7 @@ class CommonTest(TestCase):
 
     def assert_non_mandatory_fields(self, model, field_names):
         """
-        assert that a field within a model is not mandatory (blank=False, null=False)
+        assert that a field within a model is not mandatory (blank=True, null=True)
         :param model: the model class to test
         :param field_names: list of  field names to check
         """

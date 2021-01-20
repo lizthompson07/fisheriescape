@@ -22,19 +22,11 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
-    my_gc_cost: {
-      type: Object,
-      required: false,
-    },
     my_activity: {
       type: Object,
       required: false,
     },
-    my_collaborator: {
-      type: Object,
-      required: false,
-    },
-    my_agreement: {
+    my_collaboration: {
       type: Object,
       required: false,
     },
@@ -64,6 +56,7 @@ Vue.component("modal", {
         student_program: null,
         amount: 0,
       },
+      original_user: null,
       errors: null,
       disableNameField: false,
       disableStudentProgramField: false,
@@ -96,15 +89,6 @@ Vue.component("modal", {
         amount: 0,
       },
 
-      // gc costs
-      gc_cost: {
-        recipient_org: null,
-        project_lead: null,
-        proposed_title: null,
-        gc_program: null,
-        amount: 0,
-      },
-
       // activities
       activity: {
         name: "",
@@ -112,19 +96,13 @@ Vue.component("modal", {
         target_date: null,
       },
 
-      // collaborators
-      collaborator: {
-        name: "",
-        critical: false,
-        notes: null,
-      },
-
-      // agreements
-      agreement: {
-        partner_organization: null,
-        project_lead: null,
-        agreement_title: null,
-        new_or_existing: null,
+      // collaborations
+      collaboration: {
+        type: "",
+        organization: "",
+        new_or_existing: 1,
+        people: "",
+        critical: "True",
         notes: null,
       },
 
@@ -245,36 +223,6 @@ Vue.component("modal", {
         }
       }
 
-      // gc cost
-      else if (this.mtype === "gc_cost") {
-        if (this.my_gc_cost) {
-          let endpoint = `/api/project-planning/gc-costs/${this.my_gc_cost.id}/`;
-          apiService(endpoint, "PATCH", this.gc_cost).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        } else {
-          let endpoint = `/api/project-planning/project-years/${this.year.id}/gc-costs/`;
-          apiService(endpoint, "POST", this.gc_cost).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        }
-      }
 
       // activity
       else if (this.mtype === "activity") {
@@ -308,11 +256,11 @@ Vue.component("modal", {
         }
       }
 
-      // collaborator
-      else if (this.mtype === "collaborator") {
-        if (this.my_collaborator) {
-          let endpoint = `/api/project-planning/collaborators/${this.my_collaborator.id}/`;
-          apiService(endpoint, "PATCH", this.collaborator).then(response => {
+      // collaboration
+      else if (this.mtype === "collaboration") {
+        if (this.my_collaboration) {
+          let endpoint = `/api/project-planning/collaborations/${this.my_collaboration.id}/`;
+          apiService(endpoint, "PATCH", this.collaboration).then(response => {
             if (response.id) this.$emit('close')
             else {
               var myString = "";
@@ -324,8 +272,8 @@ Vue.component("modal", {
             }
           })
         } else {
-          let endpoint = `/api/project-planning/project-years/${this.year.id}/collaborators/`;
-          apiService(endpoint, "POST", this.collaborator).then(response => {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/collaborations/`;
+          apiService(endpoint, "POST", this.collaboration).then(response => {
             if (response.id) this.$emit('close')
             else {
               var myString = "";
@@ -339,36 +287,6 @@ Vue.component("modal", {
         }
       }
 
-      // agreement
-      else if (this.mtype === "agreement") {
-        if (this.my_agreement) {
-          let endpoint = `/api/project-planning/agreements/${this.my_agreement.id}/`;
-          apiService(endpoint, "PATCH", this.agreement).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        } else {
-          let endpoint = `/api/project-planning/project-years/${this.year.id}/agreements/`;
-          apiService(endpoint, "POST", this.agreement).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
-            }
-          })
-        }
-      }
 
       // status report
       else if (this.mtype === "status_report") {
@@ -488,10 +406,17 @@ Vue.component("modal", {
       // if the current user is changing themselves away from project lead, give them a warning
       // only do this if we are editing an existing user
       if (this.my_staff) {
+
+        // issue a warning if changing away from project lead
         if (this.currentUser && this.currentUser.id == this.my_staff.user && !this.projectLeadWarningIssued && this.staff.is_lead === "False") {
           alert(warningMsg);
           this.projectLeadWarningIssued = true
         }
+        else if (this.currentUser && this.currentUser.id == this.original_user && !this.projectLeadWarningIssued && this.my_staff.user !== this.original_user) {
+          alert(warningMsg);
+          this.projectLeadWarningIssued = true
+        }
+
       }
 
     },
@@ -555,15 +480,15 @@ Vue.component("modal", {
             this.currentUser = response;
           })
     },
-    populateTargetDate(quarter){
+    populateTargetDate(quarter) {
       sap_year = this.year.fiscal_year
-      if(quarter === "q1") {
-        this.activity.target_date = `${sap_year-1}-06-30`
-      } else if(quarter === "q2") {
-        this.activity.target_date = `${sap_year-1}-09-30`
-      } else if(quarter === "q3") {
-        this.activity.target_date = `${sap_year-1}-12-31`
-      } else if(quarter === "q4") {
+      if (quarter === "q1") {
+        this.activity.target_date = `${sap_year - 1}-06-30`
+      } else if (quarter === "q2") {
+        this.activity.target_date = `${sap_year - 1}-09-30`
+      } else if (quarter === "q3") {
+        this.activity.target_date = `${sap_year - 1}-12-31`
+      } else if (quarter === "q4") {
         this.activity.target_date = `${sap_year}-03-31`
       }
 
@@ -574,7 +499,7 @@ Vue.component("modal", {
 
     this.getCurrentUser();
 
-    if (this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
+    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
       this.isACRDP = true;
     }
 
@@ -586,6 +511,7 @@ Vue.component("modal", {
           if (this.staff.is_lead) this.staff.is_lead = "True"
           else this.staff.is_lead = "False"
         }
+        this.original_user = this.staff.user
         this.adjustStaffFields()
       }
       // om costs
@@ -600,12 +526,6 @@ Vue.component("modal", {
           this.capital_cost = this.my_capital_cost
         }
       }
-      // gc costs
-      else if (this.mtype === "gc_cost") {
-        if (this.my_gc_cost && this.my_gc_cost.id) {
-          this.gc_cost = this.my_gc_cost
-        }
-      }
 
       // activities
       else if (this.mtype === "activity") {
@@ -616,22 +536,13 @@ Vue.component("modal", {
           else this.activity.target_date = null
         }
       }
-      // collaborators
-      else if (this.mtype === "collaborator") {
-        if (this.my_collaborator && this.my_collaborator.id) {
-          this.collaborator = this.my_collaborator
+      // collaborations
+      else if (this.mtype === "collaboration") {
+        if (this.my_collaboration && this.my_collaboration.id) {
+          this.collaboration = this.my_collaboration
           // there is an annoying thing that has to happen to convert the html to js to pytonese...
-          if (this.collaborator.critical) this.collaborator.critical = "True"
-          else this.collaborator.critical = "False"
-        }
-      }
-      // agreements
-      else if (this.mtype === "agreement") {
-        if (this.my_agreement && this.my_agreement.id) {
-          this.agreement = this.my_agreement
-          // there is an annoying thing that has to happen to convert the html to js to pytonese...
-          if (this.agreement.critical) this.agreement.critical = "True"
-          else this.agreement.critical = "False"
+          if (this.collaboration.critical) this.collaboration.critical = "True"
+          else this.collaboration.critical = "False"
         }
       }
 

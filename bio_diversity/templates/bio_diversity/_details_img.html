@@ -1,0 +1,27 @@
+{% load verbose_names %}
+
+<div class="container" >
+    <div class="row">
+        <div class="col-sm">
+            <div><span class="font-weight-bold">{% get_verbose_label img 'imgc_id' %} : </span><span>{% get_field_value img 'imgc_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'loc_id' %} : </span><span>{% get_field_value img 'loc_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'cntd_id' %} : </span><span>{% get_field_value img 'cntd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'grpd_id' %} : </span><span>{% get_field_value img 'grpd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'sampd_id' %} : </span><span>{% get_field_value img 'sampd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'indvd_id' %} : </span><span>{% get_field_value img 'indvd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'spwnd_id' %} : </span><span>{% get_field_value img 'spwnd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'tankd_id' %} : </span><span>{% get_field_value img 'tankd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'heatd_id' %} : </span><span>{% get_field_value img 'heatd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'draw_id' %} : </span><span>{% get_field_value img 'draw_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'trofd_id' %} : </span><span>{% get_field_value img 'trofd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'trayd_id' %} : </span><span>{% get_field_value img 'trayd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'cup_id' %} : </span><span>{% get_field_value img 'cupd_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'img_png' %} : </span><span>{% if img.img_png %}
+                <a href="{{ MEDIA_URL }}{{img.img_png.url}}">Preview Image</a>
+            {% endif %} </span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'comments' %} : </span><span>{% get_field_value img 'comments' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'created_by' %} : </span><span>{% get_field_value img 'created_by' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label img 'created_date' %} : </span><span>{% get_field_value img 'created_date' %}</span></div>
+        </div>
+    </div>
+</div>

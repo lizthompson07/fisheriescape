@@ -1,0 +1,508 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-11 12:44-0400\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"X-Generator: Poedit 2.4.1\n"
+
+#: .\scuba\filters.py:25
+msgid "Search term"
+msgstr "Terme à rechercher"
+
+#: .\scuba\filters.py:41
+msgid "Region"
+msgstr "Région"
+
+#: .\scuba\forms.py:95
+msgid "This must occur on the same day as the sample: {}"
+msgstr "This must occur on the same day as the sample: {}"
+
+#: .\scuba\forms.py:174
+msgid "Year"
+msgstr "Année"
+
+#: .\scuba\models.py:12 .\scuba\models.py:27
+msgid "abbreviation"
+msgstr "abréviation"
+
+#: .\scuba\models.py:28
+msgid "region"
+msgstr "région"
+
+#: .\scuba\models.py:29
+msgid "latitude (decimal degrees)"
+msgstr "latitude (degrés décimaux)"
+
+#: .\scuba\models.py:30
+msgid "longitude (decimal degrees)"
+msgstr "longitude (degrés décimaux)"
+
+#: .\scuba\models.py:52
+msgid "name"
+msgstr "nom"
+
+#: .\scuba\models.py:53 .\scuba\models.py:98 .\scuba\views.py:335
+msgid "site"
+msgstr "emplacement"
+
+#: .\scuba\models.py:54 .\scuba\models.py:140
+msgid "start latitude (decimal degrees)"
+msgstr "latitude de départ (degrés décimaux)"
+
+#: .\scuba\models.py:55 .\scuba\models.py:141
+msgid "start longitude (decimal degrees)"
+msgstr "longitude de départ (degrés décimaux)"
+
+#: .\scuba\models.py:56
+msgid "end latitude (decimal degrees)"
+msgstr "latitude de fin (degrés décimaux)"
+
+#: .\scuba\models.py:57
+msgid "end longitude (decimal degrees)"
+msgstr "longitude de fin (degrés décimaux)"
+
+#: .\scuba\models.py:80
+msgid "first name"
+msgstr "prénom"
+
+#: .\scuba\models.py:81
+msgid "last name"
+msgstr "nom de famille"
+
+#: .\scuba\models.py:100
+msgid "weather notes"
+msgstr "notes météorologiques"
+
+#: .\scuba\models.py:101 .\scuba\models.py:145 .\scuba\models.py:192
+#: .\scuba\models.py:249
+msgid "comment"
+msgstr "commentaire"
+
+#: .\scuba\models.py:108
+msgid "Sample #"
+msgstr "No. d'échantillon "
+
+#: .\scuba\models.py:123
+msgid "North"
+msgstr "nord"
+
+#: .\scuba\models.py:124
+msgid "South"
+msgstr "sud"
+
+#: .\scuba\models.py:125
+msgid "East"
+msgstr "est"
+
+#: .\scuba\models.py:126
+msgid "West"
+msgstr "ouest"
+
+#: .\scuba\models.py:129
+msgid "Left"
+msgstr "à gauche"
+
+#: .\scuba\models.py:130
+msgid "Right"
+msgstr "à droite"
+
+#: .\scuba\models.py:132
+msgid "sample"
+msgstr "échantillon"
+
+#: .\scuba\models.py:133
+msgid "transect"
+msgstr "transect"
+
+#: .\scuba\models.py:134
+msgid "diver"
+msgstr "plongeur/euse"
+
+#: .\scuba\models.py:135
+msgid "start descent"
+msgstr "commencer la descente"
+
+#: .\scuba\models.py:136
+msgid "bottom time (min)"
+msgstr "temps au fond (min)"
+
+#: .\scuba\models.py:137
+msgid "max depth (ft)"
+msgstr "profondeur max (ft)"
+
+#: .\scuba\models.py:138
+msgid "PSI in"
+msgstr ""
+
+#: .\scuba\models.py:139
+msgid "PSI out"
+msgstr ""
+
+#: .\scuba\models.py:142
+msgid "heading"
+msgstr ""
+
+#: .\scuba\models.py:143
+msgid "side"
+msgstr "côté"
+
+#: .\scuba\models.py:144
+msgid "width (m)"
+msgstr "largeur (m)"
+
+#: .\scuba\models.py:182
+msgid "dive"
+msgstr "ploge"
+
+#: .\scuba\models.py:183
+msgid "5m interval (1-20)"
+msgstr "Intervalle de 5 m (1-20)"
+
+#: .\scuba\models.py:184
+msgid "depth (ft)"
+msgstr "profondeur (ft)"
+
+#: .\scuba\models.py:185
+#, python-format
+msgid "% sand"
+msgstr "% sable"
+
+#: .\scuba\models.py:186
+msgid "% mud"
+msgstr "% vase"
+
+#: .\scuba\models.py:187
+msgid "% hard"
+msgstr "% dur"
+
+#: .\scuba\models.py:188
+msgid "% algae"
+msgstr "% algue"
+
+#: .\scuba\models.py:189
+#, python-format
+msgid "% gravel"
+msgstr "% gravier"
+
+#: .\scuba\models.py:190
+#, python-format
+msgid "% cobble"
+msgstr "% cobble"
+
+#: .\scuba\models.py:191
+msgid "% pebble"
+msgstr "% caillou"
+
+#: .\scuba\models.py:211
+msgid "sand"
+msgstr "sable"
+
+#: .\scuba\models.py:212
+msgid "mud"
+msgstr "vase"
+
+#: .\scuba\models.py:213
+msgid "hard"
+msgstr "dur"
+
+#: .\scuba\models.py:214
+msgid "algae"
+msgstr "algue"
+
+#: .\scuba\models.py:215
+msgid "gravel"
+msgstr "gravier"
+
+#: .\scuba\models.py:216
+msgid "cobble"
+msgstr "cobble"
+
+#: .\scuba\models.py:217
+msgid "pebble"
+msgstr "caillou"
+
+#: .\scuba\models.py:230
+msgid "male"
+msgstr "mâle"
+
+#: .\scuba\models.py:231
+msgid "female"
+msgstr "femâle"
+
+#: .\scuba\models.py:232
+msgid "unknown"
+msgstr "inconnue"
+
+#: .\scuba\models.py:235
+msgid "b (berried)"
+msgstr "b (berried)"
+
+#: .\scuba\models.py:236
+msgid "b1 (berried with new eggs)"
+msgstr "b1 (berried avec œufs nouveau)"
+
+#: .\scuba\models.py:237
+msgid "b2 (berried with black eggs)"
+msgstr "b2 (berried avec œufs noirs)"
+
+#: .\scuba\models.py:238
+msgid "b3 (berried with developed eggs)"
+msgstr "b3 (berried avec œufs développés)"
+
+#: .\scuba\models.py:241
+msgid "certain"
+msgstr "certain"
+
+#: .\scuba\models.py:242
+msgid "uncertain"
+msgstr "pas certain"
+
+#: .\scuba\models.py:244
+msgid "section"
+msgstr "section"
+
+#: .\scuba\models.py:245
+msgid "sex"
+msgstr "sexe"
+
+#: .\scuba\models.py:246
+msgid "egg status"
+msgstr "statut des œufs"
+
+#: .\scuba\models.py:247
+msgid "carapace length (mm)"
+msgstr "longueur de la carapace (mm)"
+
+#: .\scuba\models.py:248
+msgid "certainty rating"
+msgstr "cote de certitude"
+
+#: .\scuba\templates\scuba\base\_app_title.html:2
+#: .\scuba\templates\scuba\index.html:20
+msgid "SCUBA Survey"
+msgstr "Relevé de SCUBA"
+
+#: .\scuba\templates\scuba\base\_nav_left_auth.html:4
+msgid "Home"
+msgstr "Accueil"
+
+#: .\scuba\templates\scuba\base\_nav_left_auth.html:8
+msgid "Reports"
+msgstr "Rapports"
+
+#: .\scuba\templates\scuba\base\_nav_left_auth.html:17
+msgid "Settings"
+msgstr "Paramètres"
+
+#: .\scuba\templates\scuba\base\_nav_left_auth.html:21
+msgid "Regions, Sites and Transects"
+msgstr "Régions, emplacement et transects"
+
+#: .\scuba\templates\scuba\base\_nav_left_auth.html:24
+msgid "Divers"
+msgstr "Plongeur/euse"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:32
+msgid "All Done!"
+msgstr "Terminé!"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:34
+#: .\scuba\templates\scuba\dive_data_entry\main.html:58
+#: .\scuba\templates\scuba\dive_data_entry\main.html:152
+#: .\scuba\templates\scuba\dive_detail.html:45
+#: .\scuba\templates\scuba\dive_detail.html:57
+msgid "Observations"
+msgstr "Les observations"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:47
+#: .\scuba\templates\scuba\dive_data_entry\main.html:119
+msgid "New Section"
+msgstr "Nouvelle section"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:100
+msgid "No observations"
+msgstr "Aucune observations"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:112
+msgid "No sections have been added to this dive yet."
+msgstr "Aucune section n'a encore été ajoutée à cette plongée."
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:134
+msgid "Substrate total percentage:"
+msgstr "Pourcentage total du substrat:"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:144
+msgid "Save Section"
+msgstr "Enregistrer la section"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:174
+msgid "Add (Enter)"
+msgstr "Ajouter (retour)"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:204
+msgid "This section has no observations"
+msgstr "Cette section n'a pas d'observations"
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:212
+msgid "Back"
+msgstr "Retour"
+
+#: .\scuba\templates\scuba\dive_detail.html:16
+#: .\scuba\templates\scuba\region_detail.html:16
+#: .\scuba\templates\scuba\sample_detail.html:21
+#: .\scuba\templates\scuba\site_detail.html:16
+#: .\scuba\templates\scuba\site_detail.html:65
+msgid "Edit"
+msgstr "Modifier"
+
+#: .\scuba\templates\scuba\dive_detail.html:17
+#: .\scuba\templates\scuba\region_detail.html:17
+#: .\scuba\templates\scuba\sample_detail.html:22
+#: .\scuba\templates\scuba\site_detail.html:17
+#: .\scuba\templates\scuba\site_detail.html:70
+msgid "Delete"
+msgstr "Supprimer"
+
+#: .\scuba\templates\scuba\dive_detail.html:18 .\scuba\views.py:495
+msgid "Data Entry Mode"
+msgstr "Mode de saisie des données"
+
+#: .\scuba\templates\scuba\dive_detail.html:135
+msgid "This dive has no observations."
+msgstr "Cette plongée n'a pas d'observation."
+
+#: .\scuba\templates\scuba\form.html:36
+msgid "Markdown syntax is supported in this field"
+msgstr "La syntaxe Markdown est prise en charge dans ce champ"
+
+#: .\scuba\templates\scuba\index.html:23
+msgid "Gulf Region Lobster Survey Data Entry and Archiving Tool"
+msgstr ""
+"Outil de saisie et d'archivage des données de la relevé de homard de la "
+"région du Golfe"
+
+#: .\scuba\templates\scuba\index.html:27
+msgid "View Samples"
+msgstr "Afficher les échantillons"
+
+#: .\scuba\templates\scuba\region_detail.html:36
+msgid "Add Site"
+msgstr "Ajouter un emplacement"
+
+#: .\scuba\templates\scuba\region_detail.html:38
+msgid "Sites"
+msgstr "Les emplacements"
+
+#: .\scuba\templates\scuba\region_detail.html:51
+msgid "No. of transects"
+msgstr "Nombre des transects"
+
+#: .\scuba\templates\scuba\region_detail.html:52
+msgid "No. of samples"
+msgstr "Nombre des echantillons"
+
+#: .\scuba\templates\scuba\region_detail.html:73
+msgid "This region has no sites."
+msgstr "Cette région n'a pas d'emplacements."
+
+#: .\scuba\templates\scuba\report_search.html:12
+msgid "Please select a report"
+msgstr "Veuillez sélectionner un rapport"
+
+#: .\scuba\templates\scuba\sample_detail.html:41
+msgid "New Dive"
+msgstr "Nouvelle plongée"
+
+#: .\scuba\templates\scuba\sample_detail.html:43
+msgid "Dives"
+msgstr "Les plongées"
+
+#: .\scuba\templates\scuba\sample_detail.html:78
+msgid "This sample has no dives."
+msgstr "Cet échantillon n'a pas de plongées."
+
+#: .\scuba\templates\scuba\site_detail.html:36
+msgid "Add Transect"
+msgstr "Ajouter un transect"
+
+#: .\scuba\templates\scuba\site_detail.html:38
+msgid "Transects"
+msgstr "Les transects"
+
+#: .\scuba\templates\scuba\site_detail.html:51
+msgid "No. of dives"
+msgstr "No. de plongées"
+
+#: .\scuba\templates\scuba\site_detail.html:80
+msgid "This site has no transects."
+msgstr "Ce emplacement n'a pas de transects."
+
+#: .\scuba\views.py:72 .\scuba\views.py:82 .\scuba\views.py:90
+#: .\scuba\views.py:129 .\scuba\views.py:150 .\scuba\views.py:177
+#: .\scuba\views.py:193 .\scuba\views.py:212 .\scuba\views.py:237
+#: .\scuba\views.py:262 .\scuba\views.py:277
+msgid "Regions"
+msgstr "Régions"
+
+#: .\scuba\views.py:96
+msgid "sample count"
+msgstr "nombre des échantillons"
+
+#: .\scuba\views.py:296
+msgid "Add a New Sample"
+msgstr "Ajouter un échantillon"
+
+#: .\scuba\views.py:303
+msgid "dive count"
+msgstr "nombre des plongées"
+
+#: .\scuba\views.py:312 .\scuba\views.py:324 .\scuba\views.py:332
+#: .\scuba\views.py:363 .\scuba\views.py:378 .\scuba\views.py:410
+#: .\scuba\views.py:426 .\scuba\views.py:439
+msgid "Samples"
+msgstr "Les échantillons"
+
+#: .\scuba\views.py:350
+msgid "lobster count"
+msgstr "nombre des homards"
+
+#: .\scuba\views.py:463 .\scuba\views.py:502
+msgid "substrate profile"
+msgstr "profil de substrat"
+
+#: .\scuba\views.py:485
+msgid "dive Id"
+msgstr "identifiant de la ploge"
+
+#: .\scuba\views.py:503
+msgid "observation count"
+msgstr "nombre d'observations"
+
+#: .\scuba\views.py:530
+msgid "Scuba Reports"
+msgstr "Rapports"
+
+#~ msgid "latitude"
+#~ msgstr "latitude"
+
+#~ msgid "longitude"
+#~ msgstr "longitude"
+
+#~ msgid "immature"
+#~ msgstr "immature"
+
+#~ msgid "n/a"
+#~ msgstr "n / a"
+
+#~ msgid "section comment"
+#~ msgstr "commentaire de section"
+
+#~ msgid "% rock"
+#~ msgstr "% roche"

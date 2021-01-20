@@ -26,21 +26,13 @@
               <span v-if="!my_capital_cost">{% trans "New Capital Cost" %}</span>
               <span v-else>{% trans "Edit Capital Cost" %}</span>
             </h3>
-            <h3 v-else-if="mtype === 'gc_cost'">
-              <span v-if="!my_gc_cost">{% trans "New G&C Cost" %}</span>
-              <span v-else>{% trans "Edit G&C Cost" %}</span>
-            </h3>
             <h3 v-else-if="mtype === 'activity'">
               <span v-if="!my_activity">{% trans "New Activity" %}</span>
               <span v-else>{% trans "Edit Activity" %}</span>
             </h3>
-            <h3 v-else-if="mtype === 'collaborator'">
-              <span v-if="!my_collaborator">{% trans "New External Collaborator" %}</span>
-              <span v-else>{% trans "Edit External Collaborator" %}</span>
-            </h3>
-            <h3 v-else-if="mtype === 'agreement'">
-              <span v-if="!my_agreement">{% trans "New Collaborative Agreement" %}</span>
-              <span v-else>{% trans "Edit Collaborative Agreement" %}</span>
+            <h3 v-else-if="mtype === 'collaboration'">
+              <span v-if="!my_collaboration">{% trans "New Collaboration" %}</span>
+              <span v-else>{% trans "Edit Collaboration" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'status_report'">
               <span v-if="!my_status_report">{% trans "New Status Report (Still under development)" %}</span>
@@ -138,11 +130,6 @@
               <div v-else-if="mtype=='capital_cost'">
                 {% bootstrap_form capital_cost_form size='small' %}
               </div>
-              {# CAPITAL COST FORM             #}
-              <div v-else-if="mtype=='gc_cost'">
-                {% bootstrap_form gc_cost_form size='small' %}
-              </div>
-
               {# ACTIVITY FORM             #}
               <div v-else-if="mtype=='activity'">
                 {% for field in activity_form %}
@@ -163,12 +150,8 @@
                 {% endfor %}
               </div>
               {# COLLABORATOR FORM             #}
-              <div v-else-if="mtype=='collaborator'">
-                {% bootstrap_form collaborator_form size='small' %}
-              </div>
-              {# AGREEEMENT FORM             #}
-              <div v-else-if="mtype=='agreement'">
-                {% bootstrap_form agreement_form size='small' %}
+              <div v-else-if="mtype=='collaboration'">
+                {% bootstrap_form collaboration_form size='small' %}
               </div>
               {# STATUS REPORT FORM             #}
               <div v-else-if="mtype=='status_report'">
