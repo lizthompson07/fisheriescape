@@ -30,9 +30,10 @@ steps:
       # but bash variables created in one step do not get carried over to subsequent steps
 
       # these are used in the pipeline and will be written temporarily to the linux env
-      AZURE_MSI_CLIENT_ID=$( jq .AZURE_MSI_CLIENT_ID.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export AZURE_MSI_CLIENT_ID=$( jq .AZURE_MSI_CLIENT_ID.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export AZURE_STORAGE_ACCOUNT_NAME=$( jq .AZURE_STORAGE_ACCOUNT_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_HOST=$( jq .DB_HOST.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_PORT=$( jq .DB_PORT ./azure_scripts/public_environmental_vars.json)
       export DB_MODE=$( jq .DB_MODE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_NAME=$( jq .DB_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_USER_PIPELINE=$( jq .DB_USER_PIPELINE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
