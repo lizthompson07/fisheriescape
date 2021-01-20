@@ -140,8 +140,10 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         if 'evnt' in self.kwargs:
             init['evnt_id'] = self.kwargs['evnt']
             init['evntc_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id
+            init['facic_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
         return init
 
     def get_context_data(self, **kwargs):
@@ -152,13 +154,10 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             context["title"] = "Add {} data".format(evnt_code)
             context["template_url"] = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             context["template_name"] = "{}-{}".format(facility_code, evnt_code)
-
         return context
 
     def get_success_url(self):
-        # make parent refresh on close
         success_url = reverse_lazy("bio_diversity:data_log")
-
         return success_url
 
 

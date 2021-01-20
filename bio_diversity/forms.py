@@ -125,6 +125,7 @@ class CupdForm(CreateTimePrams, forms.ModelForm):
 
 
 class DataForm(CreatePrams, forms.ModelForm):
+
     class Meta:
         model = models.DataLoader
         exclude = []
@@ -132,6 +133,10 @@ class DataForm(CreatePrams, forms.ModelForm):
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
         super(DataForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        # never save this form to db
+        super().save(commit=False)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -141,7 +146,7 @@ class DataForm(CreatePrams, forms.ModelForm):
         rows_entered = 0
 
         # --------------------------ELECTROFISHING DATA ENTRY-----------------------------------
-        if cleaned_data["evntc_id"].__str__() == "Electrofishing":
+        if cleaned_data["evntc_id"].__str__() == "Electrofishing" and cleaned_data["facic_id"].__str__()=="Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"])
                 data_dict = data.to_dict('records')
@@ -259,7 +264,7 @@ class DataForm(CreatePrams, forms.ModelForm):
                     self.request.session["load_success"] = False
 
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Tagging":
+        elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__()=="Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0, converters={'to tank': str})
                 data_dict = data.to_dict('records')
