@@ -1,7 +1,8 @@
 #!/bin/bash
 service ssh start
-git rev-parse --short HEAD
-python create_env_file_from_json.py "$ENVIRONMENT_NAME"
+GIT_VERSION=$(git rev-parse --short HEAD)
+export GIT_VERSION
+python create_env_file_from_json.py --environment-name "$ENVIRONMENT_NAME" --output-file-name=".env"
 python manage.py compilemessages
 python manage.py collectstatic --no-input
 python manage.py migrate

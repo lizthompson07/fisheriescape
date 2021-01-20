@@ -218,10 +218,10 @@
 
           <div class="mb-5 center-col">
 
-            {% if build_number or deploy_number %}
+            {% if git_version_number %}
               <div class="mb-3 mt-5">
                 <p style="font-size: small" class="text-muted my-1">
-                  <u>Deploy</u>: {{ deploy_number|nz:"-----" }} / <u>Build</u>: {{ build_number|nz:"-----" }}
+                  <u>version</u>: {{ git_version_number|nz:"-----" }}
                 </p>
               </div>
             {% endif %}
