@@ -274,6 +274,17 @@ class DataForm(CreatePrams, forms.ModelForm):
                 log_data += "Error: {}\n\n".format(err.__str__())
                 self.request.session["load_success"] = False
 
+            grp_anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                            grp_id_id=grp_id,
+                                            created_by=cleaned_data["created_by"],
+                                            created_date=cleaned_data["created_date"],
+                                            )
+            try:
+                grp_anix.clean()
+                grp_anix.save()
+            except ValidationError:
+                pass
+
             for row in data_dict:
                 row_parsed = True
                 row_entered = True

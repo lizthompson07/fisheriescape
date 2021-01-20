@@ -716,9 +716,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        anix_set = self.object.animal_details.all()
-
-        anix_set = self.object.animal_details.filter(evnt_id__isnull=False)
+        anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
+                                                     indvt_id__isnull=True, indv_id__isnull=True, spwn_id__isnull=True)
         context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
@@ -782,7 +781,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "est_fecu",
         ]
 
-        anix_set = self.object.animal_details.filter(evnt_id__isnull=False)
+        anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
+                                                     indvt_id__isnull=True, indv_id__isnull=True, spwn_id__isnull=True)
         context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
