@@ -29,6 +29,11 @@
     "test": "IMTS DEV/TEST",
     "prod": "IMTS PROD UNCLASS"
   },
+  "AZURE_RESOURCE_GROUP": {
+    "dev": "DMAPPS-DEV-RG",
+    "test": "DMAPPS-DEV-RG",
+    "prod": "DMAPPS-PROD-RG"
+  },
   "AZURE_SERVICE_CONNECTION": {
     "dev": "msi.dmapps-dev",
     "test": "msi.dmapps-dev",
@@ -70,7 +75,7 @@
     "test": "TEST",
     "prod": "PROD"
   },
-  "DOCKER_NAMESPACE": "dmappsdevtestacr.azurecr.io",
+  "AZURE_ACR": "dmappsdevtestacr",
   "DOCKER_REPOSITORY": "dmapps_img",
   "DOCKER_IMAGE_TAG": {
     "dev": "latest",

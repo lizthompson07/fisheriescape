@@ -32,13 +32,14 @@ steps:
       # these are used in the pipeline and will be written temporarily to the linux env
       export AZURE_MSI_CLIENT_ID=$( jq -r .AZURE_MSI_CLIENT_ID.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export AZURE_SUBSCRIPTION=$( jq -r .AZURE_SUBSCRIPTION.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export AZURE_RESOURCE_GROUP=$( jq -r .AZURE_RESOURCE_GROUP.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export AZURE_STORAGE_ACCOUNT_NAME=$( jq -r .AZURE_STORAGE_ACCOUNT_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_HOST=$( jq -r .DB_HOST.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_PORT=$( jq -r .DB_PORT ./azure_scripts/public_environmental_vars.json)
       export DB_MODE=$( jq -r .DB_MODE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_NAME=$( jq -r .DB_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_USER=$( jq -r .DB_USER_PIPELINE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export DOCKER_NAMESPACE=$( jq -r .DOCKER_NAMESPACE ./azure_scripts/public_environmental_vars.json)
+      export AZURE_ACR=$( jq -r .AZURE_ACR ./azure_scripts/public_environmental_vars.json)
       export DOCKER_REPOSITORY=$( jq -r .DOCKER_REPOSITORY ./azure_scripts/public_environmental_vars.json)
       export DOCKER_IMAGE_TAG=$( jq -r .DOCKER_IMAGE_TAG.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export WEB_APP_NAME=$( jq -r .WEB_APP_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
@@ -66,10 +67,27 @@ steps:
       echo "STEP 4: Export static files to cloud storage blob"
       python3.8 manage.py collectstatic --no-input
 
-      echo "STEP 5: Unset environmental variables"
+      echo "STEP 5: Deploy ACR image ($AZURE_ACR/$DOCKER_IMAGE:DOCKER_tag) to web app ($WEB_APP_NAME)"
+
+      # config
+      az webapp deployment container config --enable-cd true -n "$WEB_APP_NAME" -g "$AZURE_RESOURCE_GROUP"
+      az webapp restart -n "$WEB_APP_NAME" -g "$AZURE_RESOURCE_GROUP"
+      az webapp deployment container config --enable-cd false -n "$WEB_APP_NAME" -g "$AZURE_RESOURCE_GROUP"
+
+      az webapp config appsettings set -g "$AZURE_RESOURCE_GROUP" -n "$WEB_APP_NAME" --settings AAD_APP_SECRET=$AAD_APP_SECRET
+      az webapp config appsettings set -g "$AZURE_RESOURCE_GROUP" -n "$WEB_APP_NAME" --settings DB_PASSWORD=$DB_PASSWORD_WEB
+      az webapp config appsettings set -g "$AZURE_RESOURCE_GROUP" -n "$WEB_APP_NAME" --settings SECRET_KEY=$SECRET_KEY
+      az webapp config appsettings set -g "$AZURE_RESOURCE_GROUP" -n "$WEB_APP_NAME" --settings SENDGRID_API_KEY=$SENDGRID_API_KEY
+      az webapp config appsettings set -g "$AZURE_RESOURCE_GROUP" -n "$WEB_APP_NAME" --settings GITHUB_API_KEY=$GITHUB_API_KEY
+      az webapp config appsettings set -g "$AZURE_RESOURCE_GROUP" -n "$WEB_APP_NAME" --settings ENVIRONMENT_NAME=$ENVIRONMENT_NAME
+
+
+      echo "STEP 6: Unset environmental variables"
       # these are used in the pipeline and will be written temporarily to the linux env
       unset AZURE_MSI_CLIENT_ID
       unset AZURE_STORAGE_ACCOUNT_NAME
+      unset AZURE_SUBSCRIPTION
+      unset AZURE_RESOURCE_GROUP
       unset DB_HOST
       unset DB_MODE
       unset DB_NAME
@@ -81,7 +99,7 @@ steps:
       unset WEB_APP_NAME
       unset DB_PASSWORD
     workingDirectory: '$(System.DefaultWorkingDirectory)'
-    displayName: 'Migrations and Static Files'
+    displayName: 'Migrations and Staticfiles'
 
 
 #  - task: AzureRmWebAppDeployment@4
