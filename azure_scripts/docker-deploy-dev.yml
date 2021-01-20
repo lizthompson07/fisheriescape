@@ -70,6 +70,9 @@ steps:
       echo "STEP 5: Deploy ACR image ($AZURE_ACR/$DOCKER_IMAGE:DOCKER_tag) to web app ($WEB_APP_NAME)"
 
       # config
+
+      az acr webhook update -n $AZURE_WEBHOOK_NAME -r "$AZURE_ACR" -g "$AZURE_RESOURCE_GROUP"
+
       az webapp deployment container config --enable-cd true -n "$WEB_APP_NAME" -g "$AZURE_RESOURCE_GROUP"
       az webapp restart -n "$WEB_APP_NAME" -g "$AZURE_RESOURCE_GROUP"
       az webapp deployment container config --enable-cd false -n "$WEB_APP_NAME" -g "$AZURE_RESOURCE_GROUP"

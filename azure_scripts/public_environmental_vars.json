@@ -82,6 +82,11 @@
     "test": "latest",
     "prod": "prod"
   },
+  "AZURE_WEBHOOK_NAME": {
+    "dev": "webappdmappsdevdocker",
+    "test": "latest",
+    "prod": "prod"
+  },
   "SHOW_TICKETING_APP": {
     "dev": "True",
     "test": "False",
