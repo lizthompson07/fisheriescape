@@ -23,8 +23,8 @@ steps:
       export DB_MODE=$( jq .DB_MODE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_NAME=$( jq .DB_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export DB_USER_PIPELINE=$( jq .DB_USER_PIPELINE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export DOCKER_NAMESPACE=$( jq .DOCKER_NAMESPACE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export DOCKER_REPOSITORY=$( jq .DOCKER_REPOSITORY.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DOCKER_NAMESPACE=$( jq .DOCKER_NAMESPACE ./azure_scripts/public_environmental_vars.json)
+      export DOCKER_REPOSITORY=$( jq .DOCKER_REPOSITORY ./azure_scripts/public_environmental_vars.json)
       export DOCKER_IMAGE_TAG=$( jq .DOCKER_IMAGE_TAG.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
       export WEB_APP_NAME=$( jq .WEB_APP_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
 
@@ -36,7 +36,7 @@ steps:
       SENDGRID_API_KEY="$(SENDGRID_API_KEY)"
       GITHUB_API_KEY="$(GITHUB_API_KEY)"
       ENVIRONMENT_NAME="$(ENVIRONMENT_NAME)"
-
+      printenv
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Variable Declaration'
 
