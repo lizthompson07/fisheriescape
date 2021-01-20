@@ -30,18 +30,18 @@ steps:
       # but bash variables created in one step do not get carried over to subsequent steps
 
       # these are used in the pipeline and will be written temporarily to the linux env
-      export AZURE_MSI_CLIENT_ID=$( jq .AZURE_MSI_CLIENT_ID.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export $AZURE_SUBSCRIPTION=$( jq .$AZURE_SUBSCRIPTION.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export AZURE_STORAGE_ACCOUNT_NAME=$( jq .AZURE_STORAGE_ACCOUNT_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export DB_HOST=$( jq .DB_HOST.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export DB_PORT=$( jq .DB_PORT ./azure_scripts/public_environmental_vars.json)
-      export DB_MODE=$( jq .DB_MODE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export DB_NAME=$( jq .DB_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export DB_USER_PIPELINE=$( jq .DB_USER_PIPELINE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export DOCKER_NAMESPACE=$( jq .DOCKER_NAMESPACE ./azure_scripts/public_environmental_vars.json)
-      export DOCKER_REPOSITORY=$( jq .DOCKER_REPOSITORY ./azure_scripts/public_environmental_vars.json)
-      export DOCKER_IMAGE_TAG=$( jq .DOCKER_IMAGE_TAG.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      export WEB_APP_NAME=$( jq .WEB_APP_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export AZURE_MSI_CLIENT_ID=$( jq -r .AZURE_MSI_CLIENT_ID.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export AZURE_SUBSCRIPTION=$( jq -r .AZURE_SUBSCRIPTION.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export AZURE_STORAGE_ACCOUNT_NAME=$( jq -r .AZURE_STORAGE_ACCOUNT_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_HOST=$( jq -r .DB_HOST.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_PORT=$( jq -r .DB_PORT ./azure_scripts/public_environmental_vars.json)
+      export DB_MODE=$( jq -r .DB_MODE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_NAME=$( jq -r .DB_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_USER_PIPELINE=$( jq -r .DB_USER_PIPELINE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DOCKER_NAMESPACE=$( jq -r .DOCKER_NAMESPACE ./azure_scripts/public_environmental_vars.json)
+      export DOCKER_REPOSITORY=$( jq -r .DOCKER_REPOSITORY ./azure_scripts/public_environmental_vars.json)
+      export DOCKER_IMAGE_TAG=$( jq -r .DOCKER_IMAGE_TAG.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export WEB_APP_NAME=$( jq -r .WEB_APP_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
 
       # these have to be written into the web app confirguration and they are being pulled from the devops pipeline variables
       AAD_APP_SECRET="$(AAD_APP_SECRET)"
