@@ -29,6 +29,11 @@
     "test": "IMTS DEV/TEST",
     "prod": "IMTS PROD UNCLASS"
   },
+  "AZURE_RESOURCE_GROUP": {
+    "dev": "DMAPPS-DEV-RG",
+    "test": "DMAPPS-DEV-RG",
+    "prod": "DMAPPS-PROD-RG"
+  },
   "AZURE_SERVICE_CONNECTION": {
     "dev": "msi.dmapps-dev",
     "test": "msi.dmapps-dev",
@@ -49,15 +54,11 @@
     "test": "dmapps_test",
     "prod": "dmapps"
   },
-  "DB_USER_PIPELINE": {
+  "DB_PORT": 3306,
+  "DB_USER": {
     "dev": "pipeline_user@dmapps-dev-mysql",
     "test": "pipeline_user@dmapps-dev-mysql",
     "prod": "pipeline_user@dmapps-prod-db"
-  },
-  "DB_USER_WEB": {
-    "dev": "dmapps_user@dmapps-dev-mysql",
-    "test": "dmapps_user@dmapps-dev-mysql",
-    "prod": "dmapps_user@dmapps-prod-db"
   },
   "DEBUG": {
     "dev": "True",
@@ -69,20 +70,17 @@
     "test": "TEST",
     "prod": "PROD"
   },
-  "DockerImageTag": {
+  "AZURE_ACR": "dmappsdevtestacr",
+  "DOCKER_REPOSITORY": "dmapps_img",
+  "DOCKER_IMAGE_TAG": {
     "dev": "latest",
     "test": "latest",
     "prod": "prod"
   },
-  "DockerNamespace": {
-    "dev": "dmappsdevtestacr.azurecr.io",
-    "test": "dmappsdevtestacr.azurecr.io",
-    "prod": "dmappsdevtestacr.azurecr.io"
-  },
-  "DockerRepository": {
-    "dev": "dmapps_img",
-    "test": "dmapps_img",
-    "prod": "dmapps_img"
+  "AZURE_WEBHOOK_NAME": {
+    "dev": "webappdmappsdevdocker",
+    "test": "latest",
+    "prod": "prod"
   },
   "SHOW_TICKETING_APP": {
     "dev": "True",
