@@ -59,6 +59,7 @@ def db_connection_values_exist(connection_dict):
     ]
     # if all values are present, below expression should be evaluated as False
     there_is_something_missing = False in [connection_dict[key] != "" for key in key_list]
+    print(there_is_something_missing)
     return there_is_something_missing is False
 
 
