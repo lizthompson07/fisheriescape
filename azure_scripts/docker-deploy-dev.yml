@@ -16,40 +16,6 @@ trigger:
 
 steps:
   - script: |
-      # these are used in the pipeline and will be written temporarily to the linux env
-      AZURE_MSI_CLIENT_ID=$( jq .AZURE_MSI_CLIENT_ID.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      AZURE_STORAGE_ACCOUNT_NAME=$( jq .AZURE_STORAGE_ACCOUNT_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      DB_HOST=$( jq .DB_HOST.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      DB_MODE=$( jq .DB_MODE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      DB_NAME=$( jq .DB_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      DB_USER_PIPELINE=$( jq .DB_USER_PIPELINE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      DOCKER_NAMESPACE=$( jq .DOCKER_NAMESPACE ./azure_scripts/public_environmental_vars.json)
-      DOCKER_REPOSITORY=$( jq .DOCKER_REPOSITORY ./azure_scripts/public_environmental_vars.json)
-      DOCKER_IMAGE_TAG=$( jq .DOCKER_IMAGE_TAG.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-      WEB_APP_NAME=$( jq .WEB_APP_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
-
-      # these have to be written into the web app confirguration and they are being pulled from the devops pipeline variables
-      AAD_APP_SECRET="$(AAD_APP_SECRET)"
-      DB_PASSWORD_PIPELINE="$(DB_PASSWORD_PIPELINE)"
-      DB_PASSWORD_WEB="$(DB_PASSWORD_WEB)"
-      SECRET_KEY="$(SECRET_KEY)"
-      SENDGRID_API_KEY="$(SENDGRID_API_KEY)"
-      GITHUB_API_KEY="$(GITHUB_API_KEY)"
-      ENVIRONMENT_NAME="$(ENVIRONMENT_NAME)"
-      echo $AZURE_MSI_CLIENT_ID
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
-    displayName: 'Variable Declaration'
-
-
-  - script: |
-      echo $AZURE_MSI_CLIENT_ID
-
-      az login --identity -u $AZURE_MSI_CLIENT_ID
-      az account set --subscription="$AZURE_SUBSCRIPTION"
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
-    displayName: 'AZ CLI Login'
-
-  - script: |
       python3.8 -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
       python3.8 -m pip install -r requirements.txt
@@ -59,25 +25,53 @@ steps:
     displayName: 'Install Dependencies'
 
   - script: |
+      echo "STEP 1: Declare Variables"
+      # These steps were parsed out in the past into different steps in the pipeline,
+      # but bash variables created in one step do not get carried over to subsequent steps
+
+      # these are used in the pipeline and will be written temporarily to the linux env
+      AZURE_MSI_CLIENT_ID=$( jq .AZURE_MSI_CLIENT_ID.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export AZURE_STORAGE_ACCOUNT_NAME=$( jq .AZURE_STORAGE_ACCOUNT_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_HOST=$( jq .DB_HOST.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_MODE=$( jq .DB_MODE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_NAME=$( jq .DB_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DB_USER_PIPELINE=$( jq .DB_USER_PIPELINE.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export DOCKER_NAMESPACE=$( jq .DOCKER_NAMESPACE ./azure_scripts/public_environmental_vars.json)
+      export DOCKER_REPOSITORY=$( jq .DOCKER_REPOSITORY ./azure_scripts/public_environmental_vars.json)
+      export DOCKER_IMAGE_TAG=$( jq .DOCKER_IMAGE_TAG.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+      export WEB_APP_NAME=$( jq .WEB_APP_NAME.$(ENVIRONMENT_NAME) ./azure_scripts/public_environmental_vars.json)
+
+      # these have to be written into the web app confirguration and they are being pulled from the devops pipeline variables
+      AAD_APP_SECRET="$(AAD_APP_SECRET)"
+      export DB_PASSWORD_PIPELINE="$(DB_PASSWORD_PIPELINE)"
+      DB_PASSWORD_WEB="$(DB_PASSWORD_WEB)"
+      SECRET_KEY="$(SECRET_KEY)"
+      SENDGRID_API_KEY="$(SENDGRID_API_KEY)"
+      GITHUB_API_KEY="$(GITHUB_API_KEY)"
+      ENVIRONMENT_NAME="$(ENVIRONMENT_NAME)"
+
+      echo "STEP 2: Login to az-cli"
+      az login --identity -u $AZURE_MSI_CLIENT_ID
+      az account set --subscription="$AZURE_SUBSCRIPTION"
+
+      echo "STEP 3: Run migrations and export static files to cloud storage blob"
       # run migrations and collect static files
       python3.8 manage.py migrate
       python3.8 manage.py collectstatic --no-input
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
-    displayName: 'Run Migrations and Staticfiles'
 
-  - script: |
+      echo "STEP 4: Unset environmental variables"
       # these are used in the pipeline and will be written temporarily to the linux env
-       unset AZURE_MSI_CLIENT_ID
-       unset AZURE_STORAGE_ACCOUNT_NAME
-       unset DB_HOST
-       unset DB_MODE
-       unset DB_NAME
-       unset DB_USER_PIPELINE
-       unset DOCKER_NAMESPACE
-       unset DOCKER_REPOSITORY
-       unset DOCKER_IMAGE_TAG
-       unset WEB_APP_NAME
-       unset DB_PASSWORD_PIPELINE
+      unset AZURE_MSI_CLIENT_ID
+      unset AZURE_STORAGE_ACCOUNT_NAME
+      unset DB_HOST
+      unset DB_MODE
+      unset DB_NAME
+      unset DB_USER_PIPELINE
+      unset DOCKER_NAMESPACE
+      unset DOCKER_REPOSITORY
+      unset DOCKER_IMAGE_TAG
+      unset WEB_APP_NAME
+      unset DB_PASSWORD_PIPELINE
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Unset Variables'
 
