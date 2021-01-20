@@ -55,15 +55,10 @@
     "prod": "dmapps"
   },
   "DB_PORT": 3306,
-  "DB_USER_PIPELINE": {
+  "DB_USER": {
     "dev": "pipeline_user@dmapps-dev-mysql",
     "test": "pipeline_user@dmapps-dev-mysql",
     "prod": "pipeline_user@dmapps-prod-db"
-  },
-  "DB_USER_WEB": {
-    "dev": "dmapps_user@dmapps-dev-mysql",
-    "test": "dmapps_user@dmapps-dev-mysql",
-    "prod": "dmapps_user@dmapps-prod-db"
   },
   "DEBUG": {
     "dev": "True",
