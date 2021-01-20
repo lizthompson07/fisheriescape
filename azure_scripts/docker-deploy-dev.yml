@@ -45,7 +45,7 @@ steps:
 
       # these have to be written into the web app confirguration and they are being pulled from the devops pipeline variables
       AAD_APP_SECRET="$(AAD_APP_SECRET)"
-      export DB_PASSWORD_PIPELINE="$(DB_PASSWORD_PIPELINE)"
+      export DB_PASSWORD="$(DB_PASSWORD_PIPELINE)"
       DB_PASSWORD_WEB="$(DB_PASSWORD_WEB)"
       SECRET_KEY="$(SECRET_KEY)"
       SENDGRID_API_KEY="$(SENDGRID_API_KEY)"
@@ -53,9 +53,6 @@ steps:
       ENVIRONMENT_NAME="$(ENVIRONMENT_NAME)"
 
       echo "STEP 2: Login to az-cli"
-      echo $AZURE_MSI_CLIENT_ID
-      echo $AZURE_SUBSCRIPTION
-
       az login --identity -u $AZURE_MSI_CLIENT_ID
       az account set --subscription="$AZURE_SUBSCRIPTION"
 
