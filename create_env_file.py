@@ -81,6 +81,6 @@ with open(new_file, 'w') as write_file:
     #
     # write_file.write("\n# Oauth Credentials for AAD\n")
     # write_file.write("AZURE_STORAGE_ACCOUNT_NAME = {}\n".format(nz(args.azure_storage_account_name, "")))
-    write_file.write("DEVOPS_BUILD_NUMBER = {}\n".format(nz(args.devops_build_number, "")))
+    write_file.write("DEVOPS_DEPLOYMENT_NUMBER = {}\n".format(nz(args.devops_build_number, "")))
 
 

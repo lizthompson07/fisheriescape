@@ -69,20 +69,12 @@
     "test": "TEST",
     "prod": "PROD"
   },
-  "DockerImageTag": {
+  "DOCKER_NAMESPACE": "dmappsdevtestacr.azurecr.io",
+  "DOCKER_REPOSITORY": "dmapps_img",
+  "DOCKER_IMAGE_TAG": {
     "dev": "latest",
     "test": "latest",
     "prod": "prod"
-  },
-  "DockerNamespace": {
-    "dev": "dmappsdevtestacr.azurecr.io",
-    "test": "dmappsdevtestacr.azurecr.io",
-    "prod": "dmappsdevtestacr.azurecr.io"
-  },
-  "DockerRepository": {
-    "dev": "dmapps_img",
-    "test": "dmapps_img",
-    "prod": "dmapps_img"
   },
   "SHOW_TICKETING_APP": {
     "dev": "True",

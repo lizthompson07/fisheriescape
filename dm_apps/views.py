@@ -157,7 +157,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-
     try:
         app_dict["scifi"] = {
             "title": _("SciFi"),
@@ -404,8 +403,8 @@ class IndexView(TemplateView):
         #               mark_safe(_("<b>On Friday January 10, 2020 at 12pm AST, the site will be down for a few hours for scheduled maintenance. Sorry for any inconvenience.</b>")))
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         app_odict = get_app_dict(self.request)
         app_dict_shared = OrderedDict()
         app_dict_regional = OrderedDict()
@@ -420,6 +419,8 @@ class IndexView(TemplateView):
         context["app_dict_regional"] = app_dict_regional
         context["app_dict"] = app_odict
         context["announcements"] = [a for a in Announcement.objects.all() if a.is_current]
-        if settings.DEVOPS_BUILD_NUMBER and settings.DEVOPS_BUILD_NUMBER != "":
-            context["build_number"] = settings.DEVOPS_BUILD_NUMBER
+        if settings.DEVOPS_DEPLOYMENT_NUMBER and settings.DEVOPS_DEPLOYMENT_NUMBER != "":
+            context["deploy_number"] = settings.DEVOPS_DEPLOYMENT_NUMBER
+        if settings.DOCKER_BUILD_NUMBER and settings.DOCKER_BUILD_NUMBER != "":
+            context["build_number"] = settings.DOCKER_BUILD_NUMBER
         return context

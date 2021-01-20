@@ -47,7 +47,8 @@ GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 # Should the ticketing app be displayed on the main index page?
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 # DevOps build number to display on index.html
-DEVOPS_BUILD_NUMBER = config("DEVOPS_BUILD_NUMBER", cast=str, default="")
+DOCKER_BUILD_NUMBER = config("DOCKER_BUILD_NUMBER", cast=str, default="")
+DEVOPS_DEPLOYMENT_NUMBER = config("DEVOPS_DEPLOYMENT_NUMBER", cast=str, default="")
 # Azure Instrumentation KEy for application insights
 USE_AZURE_APPLICATION_INSIGHT = config("USE_AZURE_APPLICATION_INSIGHT", cast=bool, default=False)
 AZURE_INSTRUMENTATION_KEY = config("AZURE_INSTRUMENTATION_KEY", cast=str, default="")
