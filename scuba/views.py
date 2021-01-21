@@ -165,6 +165,8 @@ class SiteDetailView(ScubaAdminRequiredMixin, CommonDetailView):
             'name',
             'starting_coordinates_ddmm|{}'.format(_("starting coordinates")),
             'ending_coordinates_ddmm|{}'.format(_("ending coordinates")),
+            'transect_distance|{}'.format(_("transect distance (m)")),
+
         ]
         context["transect_field_list"] = transect_field_list
         return context
@@ -229,29 +231,6 @@ class TransectCreateView(ScubaAdminRequiredMixin, CommonCreateView):
         obj = form.save(commit=False)
         obj.site = self.get_site()
         return super().form_valid(form)
-
-
-class TransectDetailView(ScubaAdminRequiredMixin, CommonDetailView):
-    model = models.Transect
-    template_name = 'scuba/site_detail.html'
-    home_url_name = "scuba:index"
-    grandparent_crumb = {"title": gettext_lazy("Regions"), "url": reverse_lazy("scuba:region_list")}
-    container_class = "container bg-light curvy"
-
-    def get_site(self):
-        site = get_object_or_404(models.Site, pk=self.kwargs["site"])
-        return site
-
-    def get_parent_crumb(self):
-        return {"title": self.get_site(), "url": reverse_lazy("scuba:site_detail", args=[self.get_site().id])}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        site_field_list = [
-            'name',
-        ]
-        context["site_field_list"] = site_field_list
-        return context
 
 
 class TransectUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
@@ -444,6 +423,7 @@ class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         'diver',
         'starting_coordinates_ddmm|{}'.format(_("starting coordinates")),
         'ending_coordinates_ddmm|{}'.format(_("ending coordinates")),
+        'dive_distance|{}'.format(_("dive distance (m)")),
         'start_descent',
         'bottom_time',
         'max_depth_ft',
@@ -469,10 +449,10 @@ class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         context["section_field_list"] = section_field_list
         observation_field_list = [
             'id',
-            'sex',
-            'egg_status',
+            'sex_special_display|{}'.format("sex"),
+            'egg_status_special_display|{}'.format("egg status"),
             'carapace_length_mm',
-            'certainty_rating',
+            'certainty_rating_special_display|{}'.format("length certainty"),
             'comment',
         ]
         context["observation_field_list"] = observation_field_list
