@@ -80,6 +80,9 @@ urlpatterns = [
     path("project-planning/citations/", views.CitationListCreateAPIView.as_view(), name="citation-list"),
     path("project-planning/citations/<int:pk>/", views.CitationRetrieveUpdateDestroyAPIView.as_view(), name="citation-detail"),
 
+    # publications
+    path("project-planning/publications/", views.PublicationListAPIView.as_view(), name="publication-list"),
+    # path("project-planning/publication/<int:pk>/", views.PublicationRetrieveUpdateDestroyAPIView.as_view(), name="publication-detail"),
 
 
 ]
