@@ -150,24 +150,30 @@
                 {% endif %}
             </div>
         {% endif %}
-        {% if "contx" in table_list %}
-            <div class="card border border-dark my-1" name="contx-details">
-                <h5 class="card-header">{% trans "Event Container Details" %}
+        {% if "tank" in table_list %}
+            <div class="card border border-dark my-1" name="tank-details">
+                <h5 class="card-header">{% trans "Event Tank Details" %}
                     <span class="px-1">
-                        <a class="btn btn-primary" name="add-new-contx-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_contx' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Container Detail' %}</a>
+                        <a class="btn btn-primary" name="add-new-tank-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_tank' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Tank' %}</a>
+                    </span>
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-existing-tank-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_contx' object.pk 'tank_id' 'pop' %}', 'all')" title="{% trans 'Add' %}">{% trans 'Add Existing Tank' %}</a>
+                    </span>
+                    <span>
+                        <a class="btn btn-secondary" href="#evnt-tank-list" data-toggle="collapse">+</a>
                     </span>
                 </h5>
-                {% if object.containers.count > 0 %}
-                    <table class="table table-sm sortable table-hover">
+                {% if tank_list %}
+                    <table class="table table-sm sortable table-hover collapse" id="evnt-tank-list">
                         <thead>
-                            {% for field in contx_field_list %}
-                                <th>{% get_verbose_label contx_object field %}</th>
+                            {% for field in tank_field_list %}
+                                <th>{% get_verbose_label tank_object field %}</th>
                             {% endfor %}
                         </thead>
                         <tbody>
-                            {% for obj in object.containers.all %}
-                                <tr href="{% url 'bio_diversity:details_contx' 'evnt' object.id obj.id %}">
-                                {% for field in contx_field_list %}
+                            {% for obj in tank_list %}
+                                <tr href="{% url 'bio_diversity:details_tank' 'evnt' object.id obj.id %}">
+                                {% for field in tank_field_list %}
                                     <td>
                                         {% get_field_value obj field %}
                                     </td>

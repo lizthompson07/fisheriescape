@@ -705,7 +705,6 @@ class ProgForm(CreateTimePrams, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['proga_id'].create_url = 'bio_diversity:create_proga'
         self.fields['orga_id'].create_url = 'bio_diversity:create_orga'
 
 

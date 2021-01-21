@@ -112,6 +112,17 @@ class ContxCreate(mixins.ContxMixin, CommonCreate):
         initial = super().get_initial()
         if 'evnt' in self.kwargs:
             initial['evnt_id'] = self.kwargs['evnt']
+
+        if 'visible' in self.kwargs:
+            for field in self.get_form_class().base_fields:
+                if field in self.kwargs['visible']:
+                    self.get_form_class().base_fields[field].widget = forms.Select()
+                else:
+                    self.get_form_class().base_fields[field].widget = forms.HiddenInput()
+        else:
+            for field in self.get_form_class().base_fields:
+                self.get_form_class().base_fields[field].widget = forms.Select()
+
         return initial
 
 
@@ -226,7 +237,17 @@ class FeedmCreate(mixins.FeedmMixin, CommonCreate):
 
 
 class GrpCreate(mixins.GrpMixin, CommonCreate):
-    pass
+
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                             grp_id=self.object, created_by=self.object.created_by,
+                                             created_date=self.object.created_date)
+            anix_link.clean()
+            anix_link.save()
+        return super().form_valid(form)
 
 
 class GrpdCreate(mixins.GrpdMixin, CommonCreate):
@@ -439,7 +460,16 @@ class SubrCreate(mixins.SubrMixin, CommonCreate):
 
 
 class TankCreate(mixins.TankMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                              tank_id=self.object, created_by=self.object.created_by,
+                                              created_date=self.object.created_date)
+            contx_link.clean()
+            contx_link.save()
+        return super().form_valid(form)
 
 
 class TankdCreate(mixins.TankdMixin, CommonCreate):
@@ -633,12 +663,15 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "tray_id",
             "cup_id",
         ]
-        context["anix_object"] = models.AniDetailXref.objects.first()
-        context["anix_field_list"] = [
-            "indv_id",
-            "grp_id",
+        contx_set = self.object.containers.filter(tank_id__isnull=False, cup_id__isnull=True, heat_id__isnull=True,
+                                                  tray_id__isnull=True, trof_id__isnull=True, draw_id__isnull=True)
+        context["tank_list"] = list(dict.fromkeys([contx.tank_id for contx in contx_set]))
+        context["tank_object"] = models.Tank.objects.first()
+        context["tank_field_list"] = [
+            "name",
         ]
-        anix_set = self.object.animal_details.filter(indv_id__isnull=False)
+        anix_set = self.object.animal_details.filter(indv_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
+                                                     loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
         context["indv_list"] = list(dict.fromkeys([anix.indv_id for anix in anix_set]))
         context["indv_object"] = models.Individual.objects.first()
         context["indv_field_list"] = [
@@ -646,7 +679,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "pit_tag",
             "grp_id",
         ]
-        anix_set = self.object.animal_details.filter(grp_id__isnull=False)
+        anix_set = self.object.animal_details.filter(grp_id__isnull=False, indv_id__isnull=True, contx_id__isnull=True,
+                                                     loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
         context["grp_list"] = list(dict.fromkeys([anix.grp_id for anix in anix_set]))  # get unique values
         context["grp_object"] = models.Group.objects.first()
         context["grp_field_list"] = [
@@ -663,7 +697,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "end_date",
         ]
 
-        anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
+        anix_set = self.object.animal_details.filter(spwn_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
+                                                     loc_id__isnull=True, indvt_id__isnull=True, indv_id__isnull=True)
         context["spwn_list"] = list(dict.fromkeys([anix.spwn_id for anix in anix_set]))
         context["spwn_object"] = models.Spawning.objects.first()
         context["spwn_field_list"] = [
@@ -672,12 +707,12 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "spwn_date",
         ]
 
-        context["table_list"] = ["loc", "indv", "grp", "contx", "spwn"]
+        context["table_list"] = ["loc", "indv", "grp", "tank", "spwn"]
         evnt_code =self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
-            context["table_list"] = ["loc", "grp", "contx"]
+            context["table_list"] = ["loc", "grp", "tank"]
         elif evnt_code == "Tagging":
-            context["table_list"] = ["indv", "grp", "contx"]
+            context["table_list"] = ["indv", "grp", "tank"]
 
         return context
 
@@ -780,9 +815,10 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "est_fecu",
         ]
 
-        anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, indv_id__isnull=True, spwn_id__isnull=True)
-        context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
+        anix_evnt_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True,
+                                                          loc_id__isnull=True, indvt_id__isnull=True,
+                                                          indv_id__isnull=True, spwn_id__isnull=True)
+        context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
             "evntc_id",
@@ -790,9 +826,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "prog_id",
             "evnt_start",
         ]
-
-        anix_set = self.object.animal_details.all()
-        indvd_set = list(dict.fromkeys([anix.individual_details.all() for anix in anix_set]))
+        indvd_set = list(dict.fromkeys([anix.individual_details.all() for anix in anix_evnt_set]))
         context["indvd_list"] = list(dict.fromkeys([indvd for qs in indvd_set for indvd in qs]))
         context["indvd_object"] = models.Event.objects.first()
         context["indvd_field_list"] = [

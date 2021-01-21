@@ -13,16 +13,25 @@
                 <div class="col">
                     <hr>
                     <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_orga'%}">{% trans "Organization" %}</a>
-                    </div>
-                    <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prog'%}">{% trans "Program " %}</a>
                     </div>
                     <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_proga'%}">{% trans "Program Authority" %}</a>
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_evnt'%}">{% trans "Event" %}</a>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <hr>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_orga'%}">{% trans "Organization" %}</a>
                     </div>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prot'%}">{% trans "Protocol " %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_proga'%}">{% trans "Program Authority" %}</a>
                     </div>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_protc'%}">{% trans "Protocol Code" %}</a>
@@ -33,9 +42,6 @@
                 </div>
                  <div class="col">
                      <hr>
-                    <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_evnt'%}">{% trans "Event" %}</a>
-                    </div>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_evntc'%}">{% trans "Event Code" %}</a>
                     </div>

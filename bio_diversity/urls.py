@@ -53,6 +53,7 @@ urlpatterns = [
 
     path('create/contx/', views.ContxCreate.as_view(), name="create_contx"),
     path('create/contx/<int:evnt>/<str:pop>/', views.ContxCreate.as_view(), name="create_contx"),
+    path('create/contx/<int:evnt>/<str:visible>/<str:pop>/', views.ContxCreate.as_view(), name="create_contx"),
     path('details/contx/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
     path('details/contx/<str:back>/<int:back_id>/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
     path('list/contx/', views.ContxList.as_view(), name="list_contx"),
@@ -269,7 +270,6 @@ urlpatterns = [
     path('update/prog/<int:pk>/', views.ProgUpdate.as_view(), name="update_prog"),
 
     path('create/proga/', views.ProgaCreate.as_view(), name="create_proga"),
-    path('create/proga/<str:pop>/', views.ProgaCreate.as_view(), name="create_proga"),
     path('details/proga/<int:pk>/', views.ProgaDetails.as_view(), name="details_proga"),
     path('list/proga/', views.ProgaList.as_view(), name="list_proga"),
     path('update/proga/<int:pk>/', views.ProgaUpdate.as_view(), name="update_proga"),
@@ -373,7 +373,9 @@ urlpatterns = [
     path('update/subr/<int:pk>/', views.SubrUpdate.as_view(), name="update_subr"),
 
     path('create/tank/', views.TankCreate.as_view(), name="create_tank"),
+    path('create/tank/<int:evnt>/<str:pop>/', views.TankCreate.as_view(), name="create_tank"),
     path('details/tank/<int:pk>/', views.TankDetails.as_view(), name="details_tank"),
+    path('details/tank/<str:back>/<int:back_id>/<int:pk>/', views.TankDetails.as_view(), name="details_tank"),
     path('list/tank/', views.TankList.as_view(), name="list_tank"),
     path('update/tank/<int:pk>/', views.TankUpdate.as_view(), name="update_tank"),
 
