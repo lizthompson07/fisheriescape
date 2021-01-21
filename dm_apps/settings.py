@@ -49,7 +49,7 @@ GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 # get the git commit number from the ENV to display on index.html
 try:
-    GIT_VERSION = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode()
+    GIT_VERSION = subprocess.check_output(['git', "-C", BASE_DIR, 'rev-parse', '--short', 'HEAD']).decode()
 except Exception as E:
     print(E)
     GIT_VERSION = "n/a"
