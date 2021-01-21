@@ -729,8 +729,8 @@ class CSRFClientInformationForm(forms.ModelForm):
         widgets = {
             'name': forms.Textarea(attrs={}),
             'nom': forms.Textarea(attrs={}),
-            'description_en': forms.Textarea(attrs={"style":"width:400px"}),
-            'description_fr': forms.Textarea(attrs={"style":"width:400px"}),
+            'description_en': forms.Textarea(attrs={"style": "width:400px"}),
+            'description_fr': forms.Textarea(attrs={"style": "width:400px"}),
         }
 
 
@@ -792,6 +792,8 @@ class ReportSearchForm(forms.Form):
 
 
 class CitationForm(forms.ModelForm):
+    new_publication = forms.CharField(required=False)
+
     class Meta:
         model = shared_models.Citation
         fields = "__all__"
@@ -801,12 +803,14 @@ class CitationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        klass = "form-control form-control-sm"
-        self.fields["name"].widget.attrs = {"v-model": "citationToEdit.name", "class": klass}
+        klass = "form-control form-control-sm w100percent"
+        self.fields["name"].widget.attrs = {"v-model": "citationToEdit.name", "class": klass, "ref": "edit_home"}
         self.fields["nom"].widget.attrs = {"v-model": "citationToEdit.nom", "class": klass}
         self.fields["authors"].widget.attrs = {"v-model": "citationToEdit.authors", "class": klass}
         self.fields["year"].widget.attrs = {"v-model": "citationToEdit.year", "class": klass}
-        self.fields["publication"].widget.attrs = {"v-model": "citationToEdit.publication", "class": klass}
+        self.fields["publication"].widget.attrs = {"v-model": "citationToEdit.publication", "class": klass, "v-if": "!newPublication"}
+        self.fields["new_publication"].widget.attrs = {"v-model": "citationToEdit.new_publication", "class": klass, "v-if": "newPublication",
+                                                       "placeholder": gettext("Enter new publication name here")}
         self.fields["pub_number"].widget.attrs = {"v-model": "citationToEdit.pub_number", "class": klass}
         self.fields["url_en"].widget.attrs = {"v-model": "citationToEdit.url_en", "class": klass}
         self.fields["url_fr"].widget.attrs = {"v-model": "citationToEdit.url_fr", "class": klass}

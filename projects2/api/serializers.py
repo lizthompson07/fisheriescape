@@ -547,3 +547,9 @@ class CitationSerializer(serializers.ModelSerializer):
 
     def get_short_citation_html(self, instance):
         return instance.short_citation_html
+
+
+class PublicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = shared_models.Publication
+        fields = "__all__"

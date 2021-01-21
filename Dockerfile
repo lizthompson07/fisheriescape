@@ -50,8 +50,8 @@ COPY . /opt/services/djangoapp/src
 
 EXPOSE 8000 2222
 
-COPY ./azure_scripts/init.sh /usr/local/bin/
+COPY Procfile.sh /usr/local/bin/
 	
-RUN chmod u+x /usr/local/bin/init.sh
+RUN chmod u+x /usr/local/bin/Procfile.sh
 
-ENTRYPOINT ["bash","init.sh"]
+ENTRYPOINT ["bash","Procfile.sh"]
