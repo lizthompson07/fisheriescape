@@ -710,9 +710,9 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         context["table_list"] = ["loc", "indv", "grp", "tank", "spwn"]
         evnt_code =self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
-            context["table_list"] = ["loc", "grp", "tank"]
+            context["table_list"] = ["data", "loc", "grp", "tank"]
         elif evnt_code == "Tagging":
-            context["table_list"] = ["indv", "grp", "tank"]
+            context["table_list"] = ["data", "indv", "grp", "tank"]
 
         return context
 

@@ -146,7 +146,7 @@ class DataForm(CreatePrams, forms.ModelForm):
         rows_entered = 0
 
         # --------------------------ELECTROFISHING DATA ENTRY-----------------------------------
-        if cleaned_data["evntc_id"].__str__() == "Electrofishing" and cleaned_data["facic_id"].__str__()=="Coldbrook":
+        if cleaned_data["evntc_id"].__str__() == "Electrofishing" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"])
                 data_dict = data.to_dict('records')
@@ -262,9 +262,10 @@ class DataForm(CreatePrams, forms.ModelForm):
                     log_data += "Error parsing common data: \n"
                     log_data += "\n Error: {}".format(err.__str__())
                     self.request.session["load_success"] = False
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__()=="Coldbrook":
+        elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0, converters={'to tank': str})
                 data_dict = data.to_dict('records')
@@ -409,9 +410,10 @@ class DataForm(CreatePrams, forms.ModelForm):
                     rows_parsed += 1
             if not parsed:
                 self.request.session["load_success"] = False
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
-        log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-
+        else:
+            log_data = "Data loading not set up for this event type.  No data loaded."
         self.request.session["log_data"] = log_data
 
 

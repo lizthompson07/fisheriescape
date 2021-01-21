@@ -36,6 +36,7 @@
             {% endfor %}
             </div>
         </div>
+        {% if "data" in table_list %}
         <div class="card border border-dark my-1" name="evnt_data">
             <h5 class="card-header">{% trans "Add program event data" %}
                 <span class="px-1">
@@ -43,6 +44,7 @@
                 </span>
             </h5>
         </div>
+        {% endif %}
         {% if "loc" in table_list %}
             <div class="card border border-dark my-1" name="loc-details">
                 <h5 class="card-header">{% trans "Event Locations" %}
