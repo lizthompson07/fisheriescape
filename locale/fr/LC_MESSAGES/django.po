@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 09:51-0400\n"
+"POT-Creation-Date: 2021-01-21 10:30-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1005,7 +1005,7 @@ msgid "Update"
 msgstr "Mettre à jour"
 
 #: .\bio_diversity\templates\bio_diversity\bio_diversity_nav.html:8
-#: .\dm_apps\views.py:332
+#: .\dm_apps\views.py:331
 msgid "Biodiversity"
 msgstr ""
 
@@ -1335,7 +1335,7 @@ msgstr "fra_text"
 #: .\cruises\templates\cruises\base\_app_title.html:2 .\cruises\views.py:96
 #: .\cruises\views.py:131 .\cruises\views.py:145 .\cruises\views.py:162
 #: .\cruises\views.py:289 .\cruises\views.py:308 .\cruises\views.py:339
-#: .\cruises\views.py:361 .\dm_apps\views.py:189
+#: .\cruises\views.py:361 .\dm_apps\views.py:188
 msgid "Cruises"
 msgstr "Croisières"
 
@@ -1448,11 +1448,11 @@ msgstr "période de temps"
 msgid "Instruments"
 msgstr "Instruments"
 
-#: .\dm_apps\my_conf.py:384 .\dm_apps\settings.py:255
+#: .\dm_apps\my_conf.py:385 .\dm_apps\settings.py:256
 msgid "English"
 msgstr "Anglais"
 
-#: .\dm_apps\my_conf.py:385 .\dm_apps\settings.py:256
+#: .\dm_apps\my_conf.py:386 .\dm_apps\settings.py:257
 msgid "French"
 msgstr "Français"
 
@@ -1491,7 +1491,7 @@ msgstr ""
 msgid "Project Planning (Version 2)"
 msgstr "Planification de projets"
 
-#: .\dm_apps\views.py:85 .\dm_apps\views.py:385
+#: .\dm_apps\views.py:85 .\dm_apps\views.py:384
 msgid ""
 "Tool for the tracking, development and coordination of science project "
 "workplans."
@@ -1550,141 +1550,141 @@ msgstr ""
 "Outil de saisie et d'archivage de données sur les espèces aquatiques "
 "envahissantes de la région du Golfe."
 
-#: .\dm_apps\views.py:163 .\scifi\templates\scifi\scifi_base.html:12
+#: .\dm_apps\views.py:162 .\scifi\templates\scifi\scifi_base.html:12
 msgid "SciFi"
 msgstr ""
 
-#: .\dm_apps\views.py:164
+#: .\dm_apps\views.py:163
 #, fuzzy
 #| msgid "Gulf Science finance tracking and reporting tool."
 msgid "Science finance tracking and reporting tool."
 msgstr "Outil de suivi et de reporting financier de Science."
 
-#: .\dm_apps\views.py:176
+#: .\dm_apps\views.py:175
 msgid "GFC Spring Cleanup!"
 msgstr ""
 
-#: .\dm_apps\views.py:177
+#: .\dm_apps\views.py:176
 msgid ""
 "App to coordinate a spring cleanup in the area around the GFC. Sign up "
 "today!!."
 msgstr ""
 
-#: .\dm_apps\views.py:190
+#: .\dm_apps\views.py:189
 #, fuzzy
 msgid "Collection of regional cruise metadata and oceanographic data."
 msgstr ""
 "Collecte, traitement et stockage des données océanographiques régionales."
 
-#: .\dm_apps\views.py:202
+#: .\dm_apps\views.py:201
 msgid "Marine Diets"
 msgstr ""
 
-#: .\dm_apps\views.py:203
+#: .\dm_apps\views.py:202
 msgid "Stomach contents analysis database / application."
 msgstr "Base de données / application d'analyse du contenu de l'estomac."
 
-#: .\dm_apps\views.py:215
+#: .\dm_apps\views.py:214
 msgid "R Shiny Apps"
 msgstr ""
 
-#: .\dm_apps\views.py:216
+#: .\dm_apps\views.py:215
 msgid "Collection of Shiny Apps hosted on the DM Apps server"
 msgstr ""
 
-#: .\dm_apps\views.py:228
+#: .\dm_apps\views.py:227
 msgid "TrapNet"
 msgstr ""
 
-#: .\dm_apps\views.py:229
+#: .\dm_apps\views.py:228
 msgid "Diadromous Data Entry Tool."
 msgstr ""
 
-#: .\dm_apps\views.py:241
+#: .\dm_apps\views.py:240
 msgid "IOS Instrument Tracking"
 msgstr ""
 
-#: .\dm_apps\views.py:242
+#: .\dm_apps\views.py:241
 msgid "IOS Instrument Tracking Application."
 msgstr ""
 
-#: .\dm_apps\views.py:254
+#: .\dm_apps\views.py:253
 msgid "Project Inventory"
 msgstr "Inventaire du projet"
 
-#: .\dm_apps\views.py:255
+#: .\dm_apps\views.py:254
 msgid "Tools for viewing information on completed projects"
 msgstr "Outils pour visualiser les informations sur les projets terminés"
 
-#: .\dm_apps\views.py:267
+#: .\dm_apps\views.py:266
 msgid "Staff Planning Tool"
 msgstr ""
 
-#: .\dm_apps\views.py:268
+#: .\dm_apps\views.py:267
 msgid "Tool for staff planning."
 msgstr ""
 
-#: .\dm_apps\views.py:280
+#: .\dm_apps\views.py:279
 msgid "SAR Search"
 msgstr ""
 
-#: .\dm_apps\views.py:281
+#: .\dm_apps\views.py:280
 msgid "Species at Risk Search Tool."
 msgstr "Outil de recherche sur les espèces en peril."
 
-#: .\dm_apps\views.py:293 .\shares\templates\shares\shares_base.html:9
+#: .\dm_apps\views.py:292 .\shares\templates\shares\shares_base.html:9
 msgid "Gulf Shares"
 msgstr ""
 
-#: .\dm_apps\views.py:294
+#: .\dm_apps\views.py:293
 msgid "Administrative tool for managing gulf region shares."
 msgstr "Outil administratif de gestion des parts de la région du golfe."
 
-#: .\dm_apps\views.py:306
+#: .\dm_apps\views.py:305
 msgid "Whale Equipment Deployment Inventory"
 msgstr ""
 
-#: .\dm_apps\views.py:307
+#: .\dm_apps\views.py:306
 msgid "Tool for managing whale equipment, deployments and recordings."
 msgstr ""
 
-#: .\dm_apps\views.py:319
+#: .\dm_apps\views.py:318
 msgid "Canadian Science Advisory Secretariat"
 msgstr ""
 
-#: .\dm_apps\views.py:320
+#: .\dm_apps\views.py:319
 msgid "Tool for tracking meetings, requests and publications."
 msgstr ""
 
-#: .\dm_apps\views.py:333
+#: .\dm_apps\views.py:332
 msgid "Tool for Biodiversity project"
 msgstr ""
 
-#: .\dm_apps\views.py:345
+#: .\dm_apps\views.py:344
 msgid "Megafauna media vault"
 msgstr ""
 
-#: .\dm_apps\views.py:346
+#: .\dm_apps\views.py:345
 msgid "Media vault for marine megafauna."
 msgstr ""
 
-#: .\dm_apps\views.py:358
+#: .\dm_apps\views.py:357
 msgid "Whalebrary / Baleinothèque"
 msgstr ""
 
-#: .\dm_apps\views.py:359
+#: .\dm_apps\views.py:358
 msgid "Tools for Marine Mammal Teams and Necropsy Organization"
 msgstr ""
 
-#: .\dm_apps\views.py:371
+#: .\dm_apps\views.py:370
 msgid "Grants & Contributions"
 msgstr "Subventions et contributions"
 
-#: .\dm_apps\views.py:372
+#: .\dm_apps\views.py:371
 msgid "Gulf Region application for the tracking of Gs & Cs."
 msgstr "Application de la région du Golfe pour le suivi des contributions."
 
-#: .\dm_apps\views.py:384
+#: .\dm_apps\views.py:383
 #, fuzzy
 msgid "Project Planning (ARCHIVE ONLY)"
 msgstr "Planification de projets"

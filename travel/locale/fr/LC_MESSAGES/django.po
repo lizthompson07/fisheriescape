@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 09:51-0400\n"
+"POT-Creation-Date: 2021-01-21 10:30-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -738,19 +738,19 @@ msgid "Click on a row to edit traveller informations."
 msgstr ""
 "Cliquez sur une ligne pour modifier les informations relatives au voyageur."
 
-#: .\travel\templates\travel\_group_travellers.html:78
+#: .\travel\templates\travel\_group_travellers.html:77
 msgid "DENIED"
 msgstr "REFUSÉE"
 
-#: .\travel\templates\travel\_group_travellers.html:96
+#: .\travel\templates\travel\_group_travellers.html:95
 msgid "Show costs"
 msgstr "Afficher les coûts"
 
-#: .\travel\templates\travel\_group_travellers.html:102
+#: .\travel\templates\travel\_group_travellers.html:101
 msgid "Clone"
 msgstr "Clone"
 
-#: .\travel\templates\travel\_group_travellers.html:107
+#: .\travel\templates\travel\_group_travellers.html:106
 #: .\travel\templates\travel\default_reviewer_confirm_delete.html:13
 #: .\travel\templates\travel\default_reviewer_confirm_delete.html:27
 #: .\travel\templates\travel\default_reviewer_form.html:45
@@ -763,15 +763,15 @@ msgstr "Clone"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: .\travel\templates\travel\_group_travellers.html:118
+#: .\travel\templates\travel\_group_travellers.html:117
 msgid "TOTAL COST:"
 msgstr "COÛT TOTAL:"
 
-#: .\travel\templates\travel\_group_travellers.html:124
+#: .\travel\templates\travel\_group_travellers.html:123
 msgid "TOTAL DFO FUNDING:"
 msgstr "FINANCEMENT TOTAL DU MPO:"
 
-#: .\travel\templates\travel\_group_travellers.html:130
+#: .\travel\templates\travel\_group_travellers.html:129
 msgid "TOTAL NON-DFO FUNDING:"
 msgstr "FINANCEMENT TOTAL NON-MPO:"
 
@@ -879,34 +879,38 @@ msgstr ""
 msgid "Approval Queue"
 msgstr "Queue d'approbation"
 
-#: .\travel\templates\travel\_reviewers.html:16
+#: .\travel\templates\travel\_reviewers.html:13
+msgid "see note about group requests in help bubble"
+msgstr ""
+
+#: .\travel\templates\travel\_reviewers.html:20
 #: .\travel\templates\travel\trip_request_form.html:98
 msgid "Trip Request Reviewers"
 msgstr "Examinateurs des demandes de voyage"
 
-#: .\travel\templates\travel\_reviewers.html:25
+#: .\travel\templates\travel\_reviewers.html:29
 msgid "You cannot reset the reviewers while a request is submitted."
 msgstr ""
 "Vous ne pouvez pas réinitialiser les examinateurs pendant qu'une demande est "
 "soumise."
 
-#: .\travel\templates\travel\_reviewers.html:32
+#: .\travel\templates\travel\_reviewers.html:36
 #: .\travel\templates\travel\_trip_reviewers.html:38
 #: .\travel\templates\travel\reviewer_formset.html:83
 #: .\travel\templates\travel\reviewer_formset.html:164
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: .\travel\templates\travel\_reviewers.html:36
+#: .\travel\templates\travel\_reviewers.html:40
 #: .\travel\templates\travel\_trip_reviewers.html:42
 msgid "Modify"
 msgstr "Modifier"
 
-#: .\travel\templates\travel\_reviewers.html:81
+#: .\travel\templates\travel\_reviewers.html:85
 msgid "Skip"
 msgstr "Sauter"
 
-#: .\travel\templates\travel\_reviewers.html:99
+#: .\travel\templates\travel\_reviewers.html:103
 msgid ""
 "No reviewers, recommenders or approvers have been added to this request."
 msgstr ""
