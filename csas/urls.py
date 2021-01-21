@@ -40,6 +40,16 @@ urlpatterns = [
     path('request/details/<int:pk>/',               views.RequestDetails.as_view(),       name="details_req"),
     path('request_CSAS/details/<int:pk>/',          views.RequestDetailsCSAS.as_view(),   name="details_req_CSAS"),
 
+    # =========================================================================================================
+    path('confirm_delete_req_fr_lists/<int:pk>/',        views.RequestConfirmDeleteFrLists.as_view(),       name="confirm_delete_req_fr_lists"),
+    path('confirm_delete_req_fr_details/<int:pk>/',      views.RequestConfirmDeleteFrDetails.as_view(),     name="confirm_delete_req_fr_details"),
+    path('confirm_delete_req_CSAS_fr_details/<int:pk>/', views.RequestCSASConfirmDeleteFrDetails.as_view(), name="confirm_delete_req_CSAS_fr_details"),
+
+    path('delete_fr_lists/request/<int:pk>/',        views.req_delete_fr_lists,        name="delete_req_fr_lists"),
+    path('delete_fr_details/request/<int:pk>/',      views.req_delete_fr_details,      name="delete_req_fr_details"),
+    path('delete_fr_details/request_CSAS/<int:pk>/', views.req_csas_delete_fr_details, name="delete_req_CSAS_fr_details"),
+    # =========================================================================================================
+
     # for Meetings
     path('meeting/',                       views.MeetingList.as_view(),          name="list_met"),
     path('meeting/national/',              views.MeetingListNA.as_view(),        name="list_met_na"),
@@ -85,6 +95,16 @@ urlpatterns = [
     path('meeting_OM_costs/details/<int:pk>/',           views.MeetingDetailsOMCosts.as_view(),   name="details_met_OM_costs"),
     path('meeting_media/details/<int:pk>/',              views.MeetingDetailsMedia.as_view(),     name="details_met_media"),
 
+    # =========================================================================================================
+    path('confirm_delete_met_fr_lists/<int:pk>/',        views.MeetingConfirmDeleteFrLists.as_view(),       name="confirm_delete_met_fr_lists"),
+    # path('confirm_delete_req_fr_details/<int:pk>/',      views.RequestConfirmDeleteFrDetails.as_view(),     name="confirm_delete_req_fr_details"),
+    # path('confirm_delete_req_CSAS_fr_details/<int:pk>/', views.RequestCSASConfirmDeleteFrDetails.as_view(), name="confirm_delete_req_CSAS_fr_details"),
+
+    path('delete_fr_lists/meeting/<int:pk>/',        views.met_delete_fr_lists,        name="delete_met_fr_lists"),
+    # path('delete_fr_details/request/<int:pk>/',      views.req_delete_fr_details,      name="delete_req_fr_details"),
+    # path('delete_fr_details/request_CSAS/<int:pk>/', views.req_csas_delete_fr_details, name="delete_req_CSAS_fr_details"),
+    # =========================================================================================================
+
     # for Publications
     path('publication/',                                         views.PublicationList.as_view(),             name="list_pub"),
     path('publication/national/',                                views.PublicationListNA.as_view(),           name="list_pub_na"),
@@ -128,20 +148,37 @@ urlpatterns = [
     path('publication_OM_costs/details/<int:pk>/',     views.PublicationDetailsOMCosts.as_view(),     name="details_pub_OM_costs"),
     path('publication_com_results/details/<int:pk>/',  views.PublicationDetailsComResults.as_view(),  name="details_pub_com_results"),
 
+    # =========================================================================================================
+    path('confirm_delete_pub_fr_lists/<int:pk>/',        views.PublicationConfirmDeleteFrLists.as_view(),       name="confirm_delete_pub_fr_lists"),
+    # path('confirm_delete_req_fr_details/<int:pk>/',      views.RequestConfirmDeleteFrDetails.as_view(),     name="confirm_delete_req_fr_details"),
+    # path('confirm_delete_req_CSAS_fr_details/<int:pk>/', views.RequestCSASConfirmDeleteFrDetails.as_view(), name="confirm_delete_req_CSAS_fr_details"),
+
+    path('delete_fr_lists/publication/<int:pk>/',        views.pub_delete_fr_lists,        name="delete_pub_fr_lists"),
+    # path('delete_fr_details/request/<int:pk>/',      views.req_delete_fr_details,      name="delete_req_fr_details"),
+    # path('delete_fr_details/request_CSAS/<int:pk>/', views.req_csas_delete_fr_details, name="delete_req_CSAS_fr_details"),
+    # =========================================================================================================
+
     # for Contacts
-    path('contacts/',                              views.ContactList.as_view(),        name="list_con"),
-    path('contacts/national/',                     views.ContactListNA.as_view(),      name="list_con_na"),
-    path('contacts/maritimes/',                    views.ContactListMA.as_view(),      name="list_con_ma"),
-    path('contacts/newfoundland_labrador/',        views.ContactListNL.as_view(),      name="list_con_nl"),
-    path('contacts/gulf/',                         views.ContactListGF.as_view(),      name="list_con_gf"),
-    path('contacts/quebec/',                       views.ContactListQB.as_view(),      name="list_con_qb"),
-    path('contacts/arctic/',                       views.ContactListAC.as_view(),      name="list_con_ac"),
-    path('contacts/ontario_prairie/',              views.ContactListOP.as_view(),      name="list_con_op"),
-    path('contacts/pacific/',                      views.ContactListPC.as_view(),      name="list_con_pc"),
-    path('contacts/new/',                          views.ContactEntry.as_view(),       name="create_con"),
-    path('contacts/update/<int:pk>/<str:pop>/',    views.ContactUpdate.as_view(),      name="update_con"),
-    path('contacts/update/<int:pk>/',              views.ContactUpdate.as_view(),      name="update_con"),
-    path('contacts/details/<int:pk>/',             views.ContactDetails.as_view(),     name="details_con"),
+    path('contacts/',                              views.ContactList.as_view(),          name="list_con"),
+    path('contacts/national/',                     views.ContactListNA.as_view(),        name="list_con_na"),
+    path('contacts/maritimes/',                    views.ContactListMA.as_view(),        name="list_con_ma"),
+    path('contacts/newfoundland_labrador/',        views.ContactListNL.as_view(),        name="list_con_nl"),
+    path('contacts/gulf/',                         views.ContactListGF.as_view(),        name="list_con_gf"),
+    path('contacts/quebec/',                       views.ContactListQB.as_view(),        name="list_con_qb"),
+    path('contacts/arctic/',                       views.ContactListAC.as_view(),        name="list_con_ac"),
+    path('contacts/ontario_prairie/',              views.ContactListOP.as_view(),        name="list_con_op"),
+    path('contacts/pacific/',                      views.ContactListPC.as_view(),        name="list_con_pc"),
+    path('contacts/new/',                          views.ContactEntry.as_view(),         name="create_con"),
+    path('contacts/update/<int:pk>/<str:pop>/',    views.ContactUpdate.as_view(),        name="update_con"),
+    path('contacts/update/<int:pk>/',              views.ContactUpdate.as_view(),        name="update_con"),
+    path('contacts/details/<int:pk>/',             views.ContactDetails.as_view(),       name="details_con"),
+    # =========================================================================================================
+    path('confirm_delete_con_fr_lists/<int:pk>/',   views.ContactConfirmDeleteFrLists.as_view(),   name="confirm_delete_con_fr_lists"),
+    path('confirm_delete_con_fr_details/<int:pk>/', views.ContactConfirmDeleteFrDetails.as_view(), name="confirm_delete_con_fr_details"),
+
+    path('delete_fr_lists/contact/<int:pk>/',       views.con_delete_fr_lists,            name="delete_con_fr_lists"),
+    path('delete_fr_details/contact/<int:pk>/',     views.con_delete_fr_details,          name="delete_con_fr_details"),
+    # =========================================================================================================
 
     path('close/',                                 views.CloserTemplateView.as_view(), name="close_me"),
     # path('create/honorific/',                    views.HonorificView.as_view(),      name="create_coh"),

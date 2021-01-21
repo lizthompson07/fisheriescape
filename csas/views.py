@@ -1,11 +1,103 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import CreateView, DetailView, TemplateView
 
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.http import HttpResponse
+
 from django.urls import reverse_lazy
 from csas import models, forms, filters, utils
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import views as shared_view
+
+
+# ======================================================================================================
+def con_delete_fr_lists(request, pk):
+    con = models.ConContact.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        con.delete()
+        return HttpResponse('<script> window.close(); window.opener.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def con_delete_fr_details(request, pk):
+    con = models.ConContact.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        con.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/contacts/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def req_delete_fr_lists(request, pk):
+    req = models.ReqRequest.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        req.delete()
+        return HttpResponse('<script> window.close(); window.opener.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def req_delete_fr_details(request, pk):
+    req = models.ReqRequest.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        req.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/request/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def req_csas_delete_fr_details(request, pk):
+    req_CSAS = models.ReqRequestCSAS.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        req_CSAS.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/request/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def met_delete_fr_lists(request, pk):
+    met = models.MetMeeting.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        met.delete()
+        return HttpResponse('<script> window.close(); window.opener.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def met_delete_fr_details(request, pk):
+    met = models.MetMeeting.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        met.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/contacts/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def pub_delete_fr_lists(request, pk):
+    pub = models.PubPublication.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        pub.delete()
+        return HttpResponse('<script> window.close(); window.opener.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def pub_delete_fr_details(request, pk):
+    met = models.PubPublication.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        pub.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/contacts/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+# ======================================================================================================
 
 
 class FilterCommon(shared_view.CommonFilterView):
@@ -487,7 +579,9 @@ class RequestList(CsasListCommon):
     title = _('Request List')
     model = models.ReqRequest
     filterset_class = filters.RequestFilter
-    fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'client_email', 'funding']
+    # fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'client_email', 'funding']
+    # fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'funding']
+    fields = ['id', 'title', 'client_name']
 
 
 class RequestListNA(CsasListCommon):
@@ -576,9 +670,11 @@ class RequestDetails(DetailsCommon):
     model = models.ReqRequest
     template_name = "csas/csas_details_req.html"
 
-    fields = ['assigned_req_id', 'title', 'in_year_request', 'region', 'client_sector', 'client_name',
-              'client_title', 'client_email', 'issue', 'priority', 'rationale', 'proposed_timing',
-              'rationale_for_timing', 'funding', 'funding_notes', 'science_discussion', 'science_discussion_notes',
+    fields = ['assigned_req_id', 'in_year_request', 'title', 'file', 'region', 'directorate_branch',
+              'client_sector', 'client_title', 'client_name', 'client_email', 'manager_name', 'request_type',
+              'zonal', 'zonal_text', 'issue', 'consequence_text', 'assistance', 'assistance_text', 'priority',
+              'rationale', 'proposed_timing', 'rationale_for_timing', 'funding', 'funding_notes',
+              'science_discussion', 'science_discussion_notes', 'coordinator_name', 'director_name',
               'adviser_submission', 'rd_submission', 'decision_date', ]
 
 
@@ -589,6 +685,33 @@ class RequestDetailsCSAS(DetailsCommon):
     template_name = "csas/csas_details_req_status.html"
 
     fields = ['request', 'status', 'trans_title', 'decision', 'decision_exp', 'decision_date', ]
+
+
+class RequestConfirmDeleteFrLists(DetailsCommon):
+    key = 'req_fr_lists'
+    title = _('Delete Request')
+    model = models.ReqRequest
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class RequestConfirmDeleteFrDetails(DetailsCommon):
+    key = 'req_fr_details'
+    title = _('Delete Request')
+    model = models.ReqRequest
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class RequestCSASConfirmDeleteFrDetails(DetailsCommon):
+    key = 'req_CSAS_fr_details'
+    title = _('Delete Request CSAS')
+    model = models.ReqRequestCSAS
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -629,7 +752,9 @@ class ContactList(CsasListCommon):
     title = _('Contact List')
     model = models.ConContact
     filterset_class = filters.ContactFilter
-    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+    # fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+    fields = ['id', 'last_name', 'first_name', 'job_title', 'affiliation', 'contact_type', 'region', 'phone', 'email']
+    # fields = ['id', 'last_name', 'first_name', 'contact_type']
 
 
 class ContactListNA(CsasListCommon):
@@ -721,6 +846,24 @@ class ContactDetails(DetailsCommon):
     fields = ['id', 'honorific', 'first_name', 'last_name', 'affiliation', 'job_title', 'language', 'contact_type',
               'notification_preference', 'phone', 'email', 'region', 'sector', 'role', 'expertise', 'cc_grad',
               'notes']
+
+
+class ContactConfirmDeleteFrLists(DetailsCommon):
+    key = 'con_fr_lists'
+    title = _('Delete Contact')
+    model = models.ConContact
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class ContactConfirmDeleteFrDetails(DetailsCommon):
+    key = 'con_fr_details'
+    title = _('Delete Contact')
+    model = models.ConContact
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -892,7 +1035,8 @@ class MeetingList(CsasListCommon):
     title = _('Meeting List')
     model = models.MetMeeting
     filterset_class = filters.MeetingFilter
-    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+    # fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+    fields = ['id', 'start_date', 'title_fr', 'location_city', 'process_type']
 
 
 class MeetingListNA(CsasListCommon):
@@ -1038,6 +1182,24 @@ class MeetingDetailsMedia(DetailsCommon):
     title = _('Meeting Media')
     model = models.MetMeeting
     template_name = "csas/csas_details_met_media.html"
+    fields = []
+
+
+class MeetingConfirmDeleteFrLists(DetailsCommon):
+    key = 'met_fr_lists'
+    title = _('Delete Meeting')
+    model = models.MetMeeting
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class MeetingConfirmDeleteFrDetails(DetailsCommon):
+    key = 'met_fr_details'
+    title = _('Delete Meeting')
+    model = models.MetMeeting
+    template_name = "csas/csas_confirm_delete_con.html"
+
     fields = []
 
 
@@ -1319,6 +1481,24 @@ class PublicationDetailsComResults(DetailsCommon):
     title = _('Publication Com. of Results')
     model = models.PubPublication
     template_name = "csas/csas_details_pub_com_results.html"
+    fields = []
+
+
+class PublicationConfirmDeleteFrLists(DetailsCommon):
+    key = 'pub_fr_lists'
+    title = _('Delete Publication')
+    model = models.PubPublication
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class PublicationConfirmDeleteFrDetails(DetailsCommon):
+    key = 'pub_fr_details'
+    title = _('Delete Publication')
+    model = models.PubPublication
+    template_name = "csas/csas_confirm_delete_con.html"
+
     fields = []
 
 

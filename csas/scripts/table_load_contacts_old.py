@@ -4,7 +4,8 @@ import os
 from csas.models import ConContact
 
 # data file name
-file_name = 'contacts.csv'
+# file_name = 'contacts.csv'
+file_name = 'Publications_Contacts.csv'
 # The data file is expected to be in the [app]/scripts/data folder
 file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + file_name
 

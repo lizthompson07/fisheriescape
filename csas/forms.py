@@ -13,7 +13,8 @@ class RequestForm(forms.ModelForm):
         model = models.ReqRequest
 
         # fields shown on screen
-        exclude = ["assigned_req_id", "adviser_submission", "rd_submission", "decision_date"]    # except listed fields
+        # exclude = ["assigned_req_id", "adviser_submission", "rd_submission", "decision_date"]  # except listed fields
+        exclude = []
 
         # use some widgets
         widgets = {
@@ -21,6 +22,10 @@ class RequestForm(forms.ModelForm):
             "rationale": Textarea(attrs={"rows": 1, "cols": 20}),
             "rationale_for_timing": Textarea(attrs={"rows": 1, "cols": 20}),
             "funding_notes": Textarea(attrs={"rows": 1, "cols": 20}),
+            "zonal_text": Textarea(attrs={"rows": 1, "cols": 20}),
+            "assistance_text": Textarea(attrs={"rows": 1, "cols": 20}),
+            "consequence_text": Textarea(attrs={"rows": 1, "cols": 20}),
+            "fiscal_year_text": Textarea(attrs={"rows": 1, "cols": 20}),
             # "region": forms.Select(attrs={"class": "chosen-select-contains"})
         }
 
