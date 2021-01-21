@@ -413,8 +413,8 @@ class TeaTeamMember(models.Model):
 
 # This is a special table used to house application help text
 class HelpText(models.Model):
-    field_name = models.CharField(max_length=255)
     model = models.CharField(max_length=255, blank=True, null=True)
+    field_name = models.CharField(max_length=255)
     eng_text = models.TextField(verbose_name=_("English text"))
     fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
 
