@@ -1263,10 +1263,6 @@ class ObjectiveDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-
-
-
-
 class MethodListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/method_list.html'
     #filterset NEED TO DO
@@ -1341,10 +1337,87 @@ class MethodCreateView(SpotAccessRequiredMixin, CreateView):
 
 class MethodDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/method_confirm_delete.html'
-    model = models.method
+    model = models.Method
     success_url = reverse_lazy('spot:meth_list')
     success_message = 'The Method was deleted successfully!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+class DatabaseListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/database_list.html'
+    #filterset NEED TO DO
+    model = models.Database
+    queryset = models.Database.objects.annotate()
+    search_term = Concat('database', 'id', output_field=TextField())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Database.objects.first()
+        context["field_list"] = [
+            'database',
+            'analysis_program',
+            'models_used',
+        ]
+        return context
+
+
+class DatabaseDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.Method
+    template_name = 'spot/method_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'database',
+            'analysis_program',
+            'models_used',
+            'data_format',
+            'data_fn',
+            'data_DFO',
+            'data_quality',
+            'date_last_modified',
+            'last_modified_by',
+        ]
+        return context
+
+
+class DatabaseUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/database_form.html'
+    model = models.Database
+    form_class = forms.DatabaseForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_data = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:data_detail", kwargs={"pk": my_data.id}))
+
+
+class DatabaseCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/database_form.html'
+    model = models.Database
+    form_class = forms.DatabaseForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_data = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:data_detail", kwargs={"pk": my_data.id}))
+
+
+class DatabaseDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/database_confirm_delete.html'
+    model = models.Database
+    success_url = reverse_lazy('spot:data_list')
+    success_message = 'The Database was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+

@@ -47,6 +47,16 @@
         </a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="{% url 'spot:meth_list' %}">
+            {% trans "Methods" %}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'spot:data_list' %}">
+            {% trans "Database" %}
+        </a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="{% url 'spot:report_search' %}">
             {% trans "Reports" %}
         </a>

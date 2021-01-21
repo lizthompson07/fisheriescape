@@ -578,3 +578,49 @@ class ObjectiveForm(forms.ModelForm):
             'sil_req': forms.Select(choices=YES_NO_CHOICES),
             'last_modified_by': forms.HiddenInput(),
         }
+
+
+class MethodForm(forms.ModelForm):
+    class Meta:
+        model = models.Method
+        fields = [
+            'doc_num',
+            'doc_cat',
+            'authors',
+            'year_pub',
+            'title',
+            'ref_num',
+            'publisher',
+            'doc_link',
+            'database',
+            'meth_cat',
+            'meth_type',
+            'form_name',
+            'region',
+            'form_cat',
+            'form_link',
+            'date_last_modified',
+            'last_modified_by',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
+class DatabaseForm(forms.ModelForm):
+    class Meta:
+        model = models.Database
+        fields = [
+            'database',
+            'analysis_program',
+            'models_used',
+            'data_format',
+            'data_fn',
+            'data_DFO',
+            'data_quality',
+            'date_last_modified',
+            'last_modified_by',
+        ]
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
