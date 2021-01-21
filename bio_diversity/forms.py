@@ -4,6 +4,7 @@ from datetime import date, datetime
 from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import IntegrityError
+from django.forms import modelformset_factory
 from django.utils.translation import gettext
 import pandas as pd
 
@@ -313,18 +314,31 @@ class DataForm(CreatePrams, forms.ModelForm):
                         row_entered = False
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                    tank_id=models.Tank.objects.filter(name=row["to tank"]).get(),
-                                                    created_by=cleaned_data["created_by"],
-                                                    created_date=cleaned_data["created_date"],
-                                                    )
-                    try:
-                        contx_to.clean()
-                        contx_to.save()
-                    except ValidationError:
-                        row_entered = False
-                        contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
-                                                                       tank_id=contx_to.tank_id).get()
+                    if not math.isnan(row["to tank"]):
+                        contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                        tank_id=models.Tank.objects.filter(name=row["to tank"]).get(),
+                                                        created_by=cleaned_data["created_by"],
+                                                        created_date=cleaned_data["created_date"],
+                                                        )
+                        try:
+                            contx_to.clean()
+                            contx_to.save()
+                        except ValidationError:
+                            row_entered = False
+                            contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
+                                                                           tank_id=contx_to.tank_id).get()
+
+                        anix_to = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                       indv_id_id=indv.pk,
+                                                       contx_id_id=contx_to.pk,
+                                                       created_by=cleaned_data["created_by"],
+                                                       created_date=cleaned_data["created_date"],
+                                                       )
+                        try:
+                            anix_to.clean()
+                            anix_to.save()
+                        except ValidationError:
+                            row_entered = False
 
                     anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                      indv_id_id=indv.pk,
@@ -344,18 +358,6 @@ class DataForm(CreatePrams, forms.ModelForm):
                                                                         grp_id__isnull=True,
                                                                         indvt_id__isnull=True,
                                                                         ).get()
-
-                    anix_to = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                   indv_id_id=indv.pk,
-                                                   contx_id_id=contx_to.pk,
-                                                   created_by=cleaned_data["created_by"],
-                                                   created_date=cleaned_data["created_date"],
-                                                   )
-                    try:
-                        anix_to.clean()
-                        anix_to.save()
-                    except ValidationError:
-                        row_entered = False
 
                     anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                     indv_id_id=indv.pk,
@@ -567,6 +569,22 @@ class HeatdForm(CreateTimePrams, forms.ModelForm):
         model = models.HeathUnitDet
         exclude = []
 
+
+class HelpTextForm(forms.ModelForm):
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+HelpTextFormset = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
+)
 
 class ImgForm(CreatePrams, forms.ModelForm):
     class Meta:

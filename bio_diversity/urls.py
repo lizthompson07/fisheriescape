@@ -175,6 +175,9 @@ urlpatterns = [
     path('list/heatd/', views.HeatdList.as_view(), name="list_heatd"),
     path('update/heatd/<int:pk>/', views.HeatdUpdate.as_view(), name="update_heatd"),
 
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
+
     path('create/img/', views.ImgCreate.as_view(), name="create_img"),
     path('details/img/<int:pk>/', views.ImgDetails.as_view(), name="details_img"),
     path('list/img/', views.ImgList.as_view(), name="list_img"),

@@ -1,11 +1,15 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.templatetags.static import static
 from django.views.generic import TemplateView, DetailView
-from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView
+from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
+    CommonFormsetView, CommonHardDeleteView
 from django.urls import reverse_lazy
 from django import forms
+from bio_diversity.forms import HelpTextForm, HelpTextFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
+from django.utils.translation import gettext_lazy as _
 
 
 class IndexTemplateView(TemplateView):
@@ -50,6 +54,12 @@ class CommonCreate(CommonAuthCreateView):
     # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
     def test_func(self):
         return utils.bio_diverisity_authorized(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['editable'] = context['auth']
+        context['help_text_dict'] = utils.get_help_text_dict()
+        return context
 
     # def form_invalid(self, form):
     #     if form.errors:
@@ -1898,3 +1908,25 @@ class CommonLog(CommonTemplateView):
 
 class DataLog(CommonLog):
     pass
+
+
+class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
+    template_name = 'bio_diversity/formset.html'
+    title = _("Bio Diversity Help Text")
+    h1 = _("Manage Help Texts")
+    queryset = models.HelpText.objects.all()
+    formset_class = HelpTextFormset
+    success_url_name = "bio_diversity:manage_help_texts"
+    home_url_name = "bio_diversity:index"
+    delete_url_name = "bio_diversity:delete_help_text"
+
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.request.user)
+
+
+class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("bio_diversity:manage_help_texts")
+
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.request.user)
