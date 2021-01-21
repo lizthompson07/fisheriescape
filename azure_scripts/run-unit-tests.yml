@@ -1,7 +1,7 @@
-pool: dmapps
+pool: Azure Pipelines
 
 trigger:
-  - master
+  - glf_dev
 
 steps:
   - script: |
