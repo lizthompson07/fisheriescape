@@ -108,5 +108,19 @@ urlpatterns = [
     path('obj/<int:pk>/edit/', views.ObjectiveUpdateView.as_view(), name="obj_edit"),
     path('obj/<int:pk>/delete/', views.ObjectiveDeleteView.as_view(), name="obj_delete"),
 
+    # Methods #
+    ###########
+    path('meths/', views.ObjectiveListView.as_view(), name="meth_list"),
+    path('meth/new/', views.ObjectiveCreateView.as_view(), name="meth_new"),
+    path('meth/<int:pk>/view/', views.ObjectiveDetailView.as_view(), name="meth_detail"),
+    path('meth/<int:pk>/edit/', views.ObjectiveUpdateView.as_view(), name="meth_edit"),
+    path('meth/<int:pk>/delete/', views.ObjectiveDeleteView.as_view(), name="meth_delete"),
 
+    # Databases #
+    #############
+    path('datas/', views.ObjectiveListView.as_view(), name="data_list"),
+    path('data/new/', views.ObjectiveCreateView.as_view(), name="data_new"),
+    path('data/<int:pk>/view/', views.ObjectiveDetailView.as_view(), name="data_detail"),
+    path('data/<int:pk>/edit/', views.ObjectiveUpdateView.as_view(), name="data_edit"),
+    path('data/<int:pk>/delete/', views.ObjectiveDeleteView.as_view(), name="data_delete"),
 ]
