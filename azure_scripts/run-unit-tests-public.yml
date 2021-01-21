@@ -1,18 +1,23 @@
-pool: dmapps
+pool:
+  vmImage: 'Ubuntu 18.04'
 
 trigger:
-  - none
+  - glf_dev
 
 steps:
+  - task: UsePythonVersion@0
+      displayName: 'Use Python 3.8'
+      inputs:
+        versionSpec: 3.8
+
   - script: |
       # install pre-requisites
-      whoami
-      python3.8 -V
-      python3.8 -m pip install --upgrade pip setuptools wheel
-      python3.8 -m pip install -r requirements.txt
-      python3.8 -m pip uninstall --yes django-easy-pdf
-      python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
+      python -m pip install --upgrade pip setuptools wheel
+      python -m pip install -r requirements.txt
+      python -m pip uninstall --yes django-easy-pdf
+      python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
       mkdir media
+      mkdir media/temp
       mkdir media/travel
       mkdir media/travel/temp
       mkdir media/projects
@@ -21,65 +26,60 @@ steps:
       mkdir media/inventory/temp
       mkdir media/ihub
       mkdir media/ihub/temp
-      python3.8 manage.py collectstatic --no-input
-      # python3.8 manage.py migrate
     workingDirectory: '$(System.DefaultWorkingDirectory)'
-    displayName: 'Install Prerequisites and Run Local Migrations '
+    displayName: 'Install Prerequisites '
 
   - script: |
-      python3.8 manage.py test -b  shared_models.test
+      python manage.py test -b  shared_models.test
     condition: succeededOrFailed()
     displayName: 'Tests for shared models'
 
   - script: |
-      mkdir ./media
-      mkdir ./media/projects
-      mkdir ./media/projects/temp
-      python3.8 manage.py test -b projects2.test
+      python manage.py test -b projects2.test
     condition: succeededOrFailed()
     displayName: 'Tests for projects (v2)'
 
   - script: |
-      python3.8 manage.py test -b travel.test
+      python manage.py test -b travel.test
     condition: succeededOrFailed()
     displayName: 'Tests for travel'
 
   - script: |
-      python3.8 manage.py test -b whalesdb.test
+      python manage.py test -b whalesdb.test
     condition: succeededOrFailed()
     displayName: 'Tests for whalesdb'
 
   - script: |
-      python3.8 manage.py test -b inventory.test
+      python manage.py test -b inventory.test
     condition: succeededOrFailed()
     displayName: 'Tests for inventory'
 
   - script: |
-      python3.8 manage.py test -b shiny.test
+      python manage.py test -b shiny.test
     condition: succeededOrFailed()
     displayName: 'Tests for shiny'
 
   - script: |
-      python3.8 manage.py test -b ihub.test
+      python manage.py test -b ihub.test
     condition: succeededOrFailed()
     displayName: 'Tests for ihub'
 
   - script: |
-      python3.8 manage.py test -b csas.test
+      python manage.py test -b csas.test
     condition: succeededOrFailed()
     displayName: 'Tests for csas'
 
   - script: |
-      python3.8 manage.py test -b cruises.test
+      python manage.py test -b cruises.test
     condition: succeededOrFailed()
     displayName: 'Tests for cruises'
 
   - script: |
-      python3.8 manage.py test -b whalebrary.test
+      python manage.py test -b whalebrary.test
     condition: succeededOrFailed()
     displayName: 'Tests for whalebrary'
 
   - script: |
-      python3.8 manage.py test --exclude-tag=Functional -b bio_diversity.test
+      python manage.py test --exclude-tag=Functional -b bio_diversity.test
     condition: succeededOrFailed()
     displayName: 'Tests for biodiversity'
