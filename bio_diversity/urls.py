@@ -196,6 +196,7 @@ urlpatterns = [
     path('details/indv/<str:back>/<int:back_id>/<int:pk>/', views.IndvDetails.as_view(), name="details_indv"),
     path('list/indv/', views.IndvList.as_view(), name="list_indv"),
     path('update/indv/<int:pk>/', views.IndvUpdate.as_view(), name="update_indv"),
+    path('delete/indv/<int:pk>/', views.IndvDelete.as_view(), name="delete_indv"),
 
     path('create/indvd/', views.IndvdCreate.as_view(), name="create_indvd"),
     path('details/indvd/<int:pk>/', views.IndvdDetails.as_view(), name="details_indvd"),

@@ -1,6 +1,7 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseRedirect
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, DeleteView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
     CommonFormsetView, CommonHardDeleteView
 from django.urls import reverse_lazy
@@ -1359,6 +1360,7 @@ class ImgcList(mixins.ImgcMixin, CommonList):
 class IndvList(mixins.IndvMixin, CommonList):
     filterset_class = filters.IndvFilter
     fields = ["ufid", "spec_id", "stok_id", ]
+    delete_url = "bio_diversity:delete_indv"
 
 
 class IndvdList(mixins.IndvdMixin, CommonList):
@@ -1935,6 +1937,41 @@ class CommonLog(CommonTemplateView):
 
 
 class DataLog(CommonLog):
+    pass
+
+
+def indv_delete(request, pk):
+    indv = models.Individual.objects.get(pk=pk)
+    if utils.bio_diverisity_admin(request.user):
+        indv.delete()
+        messages.success(request, _("The Individual has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+class CommonDelete(UserPassesTestMixin, DeleteView):
+    success_url = reverse_lazy("shared_models:close_me")
+    template_name = 'bio_diversity/delete_confirm.html'
+    success_message = 'The dataset was successfully deleted!'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title_msg'] = _("Are you sure you want to delete the following from the database?")
+        context['confirm_msg'] = _("You will not be able to recover this object.")
+
+        return context
+
+    def test_func(self):
+        return utils.bio_diverisity_admin(self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class IndvDelete(mixins.IndvMixin, CommonDelete):
     pass
 
 
