@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, DetailView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
     CommonFormsetView, CommonHardDeleteView
@@ -17,6 +18,27 @@ class IndexTemplateView(TemplateView):
     home_url_name = "bio_diversity:index"
 
     template_name = 'bio_diversity/index.html'
+
+
+class AdminIndexTemplateView(TemplateView):
+    nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
+    site_css = 'bio_diversity/bio_diversity_css.css'
+    home_url_name = "bio_diversity:index"
+
+    template_name = 'bio_diversity/admin_index.html'
+
+    def get(self, request, *args, **kwargs):
+        if not utils.bio_diverisity_admin(self.request.user):
+            return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        return context
 
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
