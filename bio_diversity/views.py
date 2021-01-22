@@ -786,6 +786,12 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 class GrpdDetails(mixins.GrpdMixin, CommonDetails):
     fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context["title"] = "Group: {}".format(self.object.__str__())
+
+        return context
+
 
 class HeatDetails(mixins.HeatMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
@@ -815,6 +821,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass fields/sample object to template
         context = super().get_context_data(**kwargs)
+        context["title"] = "Individual: {}".format(self.object.__str__())
 
         anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
         context["spwn_list"] = list(dict.fromkeys([anix.spwn_id for anix in anix_set]))

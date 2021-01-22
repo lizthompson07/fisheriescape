@@ -521,7 +521,7 @@ class Group(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{} group".format(self.spec_id.__str__(), self.stok_id.__str__())
+        return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
 class GroupDet(BioDet):
@@ -686,12 +686,7 @@ class Individual(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        if self.ufid:
-            return "{}".format(self.ufid)
-        elif self.pit_tag:
-            return "{}".format(self.pit_tag)
-        else:
-            return "Non Id'd {} from {}".format(self.spec_id.__str__(), self.stok_id.__str__())
+        return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
 class IndividualDet(BioDet):
