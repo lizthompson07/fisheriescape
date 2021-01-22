@@ -233,6 +233,8 @@ class ImgcFilter(django_filters.FilterSet):
 
 class IndvFilter(django_filters.FilterSet):
 
+    ufid = django_filters.CharFilter(field_name='ufid', lookup_expr='icontains')
+
     class Meta:
         model = models.Individual
         fields = ["ufid", "spec_id", "stok_id", ]
