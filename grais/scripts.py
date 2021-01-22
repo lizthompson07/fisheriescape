@@ -134,23 +134,23 @@ def print_list_of_duplicates():
 def print_notes():
     activate('en')
     print("SAMPLE NOTES")
-    print(f'sample_id;note_id;date;author;note;url')
+    print(f'sample_id|note_id|date|author|note|url')
     for n in models.SampleNote.objects.order_by("sample_id"):
-        note = n.note.replace("\n", "| ")
-        print(f'{n.sample_id};{n.id};{n.date.strftime("%Y-%m-%d")};{n.author};{note};http://dmapps{reverse("grais:sample_detail", args=[n.sample_id])}')
+        note = n.note.replace("\r\n", "; ")
+        print(f'{n.sample_id}|{n.id}|{n.date.strftime("%Y-%m-%d")}|{n.author}|{note}|http://dmapps{reverse("grais:sample_detail", args=[n.sample_id])}')
 
     print("")
     print("")
     print("LINE NOTES")
-    print(f'sample_id;line_id;date;author;notes;url')
+    print(f'sample_id|line_id|date|author|notes|url')
     for l in models.Line.objects.filter(notes__isnull=False).filter(~Q(notes="")).order_by("sample_id"):
-        note = l.notes.replace("\n", "| ")
-        print(f'{l.sample.id};{l.id};{note};http://dmapps{reverse("grais:line_detail", args=[l.id])}')
+        note = l.notes.replace("\r\n", "; ")
+        print(f'{l.sample.id}|{l.id}|{note}|http://dmapps{reverse("grais:line_detail", args=[l.id])}')
 
     print("")
     print("")
     print("SURFACE NOTES")
-    print(f'sample_id;surface_id;note_id;notes;url')
+    print(f'sample_id|surface_id|note_id|notes|url')
     for s in models.Surface.objects.filter(notes__isnull=False).filter(~Q(notes="")).order_by("line__sample_id"):
-        note = s.notes.replace("\n", "| ")
-        print(f'{s.line.sample.id};{s.id};{note};http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
+        note = s.notes.replace("\r\n", "; ")
+        print(f'{s.line.sample.id}|{s.id}|{note}|http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
