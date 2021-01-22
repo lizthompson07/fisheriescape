@@ -229,7 +229,6 @@ class ImgMixin:
     title = "Image"
 
 
-
 class ImgcMixin:
     key = "imgc"
     form_class = forms.ImgcForm

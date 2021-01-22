@@ -1,11 +1,10 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.templatetags.static import static
 from django.views.generic import TemplateView, DetailView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
     CommonFormsetView, CommonHardDeleteView
 from django.urls import reverse_lazy
 from django import forms
-from bio_diversity.forms import HelpTextForm, HelpTextFormset
+from bio_diversity.forms import HelpTextFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
@@ -718,7 +717,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         ]
 
         context["table_list"] = ["loc", "indv", "grp", "tank", "spwn"]
-        evnt_code =self.object.evntc_id.__str__()
+        evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
             context["table_list"] = ["data", "loc", "grp", "tank"]
         elif evnt_code == "Tagging":

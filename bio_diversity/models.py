@@ -22,7 +22,8 @@ class BioModel(models.Model):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
-        uniqueness_constraints = [constraint for constraint in self._meta.constraints if isinstance(constraint, models.UniqueConstraint)]
+        uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                  if isinstance(constraint, models.UniqueConstraint)]
         for constraint in uniqueness_constraints:
             # from stackoverflow
             unique_filter = {}
@@ -90,7 +91,8 @@ class BioLookup(shared_models.Lookup):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioLookup, self).clean()
-        uniqueness_constraints = [constraint for constraint in self._meta.constraints if isinstance(constraint, models.UniqueConstraint)]
+        uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                  if isinstance(constraint, models.UniqueConstraint)]
         for constraint in uniqueness_constraints:
             # from stackoverflow
             unique_filter = {}
@@ -226,7 +228,8 @@ class ContainerXRef(BioModel):
 
 class Count(BioModel):
     # cnt tag
-    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, verbose_name=_("Location"), related_name="counts")
+    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, verbose_name=_("Location"),
+                               related_name="counts")
     contx_id = models.ForeignKey("ContainerXRef", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"))
     cntc_id = models.ForeignKey("CountCode", on_delete=models.DO_NOTHING, verbose_name=_("Count Code"))

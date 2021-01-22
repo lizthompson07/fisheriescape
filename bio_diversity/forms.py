@@ -2,7 +2,7 @@ import math
 from datetime import date, datetime
 
 from django import forms
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.forms import modelformset_factory
 from django.utils.translation import gettext
@@ -175,7 +175,9 @@ class DataForm(CreatePrams, forms.ModelForm):
                         loc.save()
                     except ValidationError:
                         row_entered = False
-                        loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id, rive_id=loc.rive_id, subr_id=loc.subr_id, relc_id=loc.relc_id, loc_date=loc.loc_date).get()
+                        loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
+                                                             rive_id=loc.rive_id, subr_id=loc.subr_id,
+                                                             relc_id=loc.relc_id, loc_date=loc.loc_date).get()
 
                     if not math.isnan(row["temp"]):
                         env = models.EnvCondition(loc_id_id=loc.pk,
@@ -235,7 +237,8 @@ class DataForm(CreatePrams, forms.ModelForm):
                         grp.clean()
                         grp.save()
                     except ValidationError:
-                        grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id, coll_id=grp.coll_id).get()
+                        grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
+                                                          coll_id=grp.coll_id).get()
                     anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                 grp_id_id=grp.pk,
                                                 created_by=cleaned_data["created_by"],
@@ -263,7 +266,8 @@ class DataForm(CreatePrams, forms.ModelForm):
                     log_data += "Error parsing common data: \n"
                     log_data += "\n Error: {}".format(err.__str__())
                     self.request.session["load_success"] = False
-            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
+                        " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
@@ -275,7 +279,8 @@ class DataForm(CreatePrams, forms.ModelForm):
             parsed = True
             self.request.session["load_success"] = True
             try:
-                grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
+                grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
+                                                     coll_id__name=data_dict[0]["Group"]).get().pk
             except Exception as err:
                 log_data += "Error finding origin group (check first row): \n"
                 log_data += "Error: {}\n\n".format(err.__str__())
@@ -412,7 +417,8 @@ class DataForm(CreatePrams, forms.ModelForm):
                     rows_parsed += 1
             if not parsed:
                 self.request.session["load_success"] = False
-            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
         else:
             log_data = "Data loading not set up for this event type.  No data loaded."
@@ -585,6 +591,7 @@ HelpTextFormset = modelformset_factory(
     form=HelpTextForm,
     extra=1,
 )
+
 
 class ImgForm(CreatePrams, forms.ModelForm):
     class Meta:

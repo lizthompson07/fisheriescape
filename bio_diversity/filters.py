@@ -1,9 +1,6 @@
-import django
 import django_filters
-from django.utils.translation import gettext as _
 
 from . import models
-import shared_models.models as shared_models
 
 
 class AnidcFilter(django_filters.FilterSet):
@@ -207,7 +204,7 @@ class HeatFilter(django_filters.FilterSet):
     class Meta:
         model = models.HeathUnit
         fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
-                 ]
+                  ]
 
 
 class HeatdFilter(django_filters.FilterSet):
