@@ -131,6 +131,13 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
         return models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        orphens = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user)
+        context["orphens"] = orphens
+
+        return context
+
 
 class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
     model = models.Project
