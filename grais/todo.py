@@ -4,6 +4,8 @@
 
 
 
-
+# 2021-2022 work list
+# TODO: unit tests
+# TODO: percent coverage check
 
 # probelms: confirm trapid 125 bycatch, 102 bycatch, 319, 320, 321

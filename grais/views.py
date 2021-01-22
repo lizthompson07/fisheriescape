@@ -488,11 +488,6 @@ class SurfaceDetailView(GraisAccessRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         surface = self.kwargs['pk']
         surface_spp = models.Surface.objects.get(id=surface).surface_spp.all()
-        total_coverage = 0
-        for sp in surface_spp:
-            total_coverage += sp.percent_coverage
-
-        context['total_coverage'] = total_coverage
         return context
 
 

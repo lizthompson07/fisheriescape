@@ -154,3 +154,15 @@ def print_notes():
     for s in models.Surface.objects.filter(notes__isnull=False).filter(~Q(notes="")).order_by("line__sample_id"):
         note = s.notes.replace("\r\n", "; ")
         print(f'{s.line.sample.id}|{s.id}|{note}|http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
+
+
+def print_bad_surfaces():
+    activate('en')
+    surfaces = models.Surface.objects.all()
+    print(f'surface_id|total_coverage|url')
+    for s in surfaces:
+        coverage = s.total_coverage
+        if coverage and coverage > 1:
+            print(f'{s.id}|{coverage}|http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
+
+
