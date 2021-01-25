@@ -225,7 +225,15 @@ var app = new Vue({
             })
       }
     },
-
+    updateEggStatus(){
+      if(this.new_observation.sex === 'f') this.new_observation.egg_status = 0
+      else this.new_observation.egg_status = ""
+    },
+    updateLengthCertainty(){
+      let length = Number(this.new_observation.carapace_length_mm)
+      if(this.new_observation.sex === 'u' && length > 20 ) this.new_observation.certainty_rating = 0
+      else this.new_observation.certainty_rating = 1
+    },
 
   },
   filters: {

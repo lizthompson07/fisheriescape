@@ -99,7 +99,7 @@
                   </td>
                 {% elif "certain" in field %}
                   <td>
-                    <span class="{{ obs.get_certainty_rating_display }} py-1 px-2">{% get_field_value obs field %}</span>
+                    <span class="{{ obs.certainty_rating_special_display }} py-1 px-2">{% get_field_value obs field %}</span>
                   </td>
                 {% else %}
                   <td>{% get_field_value obs field %}</td>

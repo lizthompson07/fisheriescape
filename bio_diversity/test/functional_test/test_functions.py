@@ -5,7 +5,7 @@ from django.test import tag
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.select import Select
 
-from bio_diversity.models import EventCode, LocCode, Tank, ProtoCode, Pairing, EnvCode, Program
+from bio_diversity.models import EventCode, LocCode, Tank, ProtoCode, Pairing, EnvCode, Program, StockCode
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 from django.contrib.auth.models import User
@@ -224,6 +224,14 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         indv_clone_data = {"ufid": "new_ufid"}
         rows = add_feature(self, indv_clone_data, "indv", "", True)
         self.assertIn("new_ufid", [get_col_val(row, 0) for row in rows])
+
+    def test_add_group(self):
+        self.nav_to_details_view()
+        # user adds a new individual to the event
+        grp_data = BioFactoryFloor.GrpFactory.build_valid_data()
+        rows = add_feature(self, grp_data, "grp", "")
+        stok_used = StockCode.objects.filter(pk=grp_data["stok_id"]).get().__str__()
+        self.assertIn(stok_used, [get_col_val(row, 0) for row in rows])
 
     def test_add_contx(self):
         self.nav_to_details_view()

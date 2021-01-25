@@ -3,7 +3,9 @@ var app = new Vue({
   delimiters: ["${", "}"],
   data: {
     citations_loading: false,
+    newPublication: false,
     project_citations_loading: false,
+    publications: [],
     citations: [],
     project_citations: [],
     hasSearched: null,
@@ -14,6 +16,7 @@ var app = new Vue({
       nom: null,
       authors: null,
       year: null,
+      new_publication: null,
       publication: null,
       pub_number: null,
       url_en: null,
@@ -32,6 +35,15 @@ var app = new Vue({
           .then(response => {
             this.project_citations_loading = false;
             this.project_citations = response;
+          })
+    },
+    getPublications() {
+      this.citations_loading = true;
+      let endpoint = `/api/project-planning/publications/`;
+      apiService(endpoint)
+          .then(response => {
+            this.citations_loading = false;
+            this.publications = response;
           })
     },
     getCitations() {
@@ -89,6 +101,7 @@ var app = new Vue({
     },
     editCitation(citation) {
       this.editMode = true;
+      this.newPublication = false;
       if (citation) {
         this.citationToEdit = citation;
       } else {
@@ -107,6 +120,17 @@ var app = new Vue({
           region: null,
         }
       }
+      this.$nextTick(() => {
+        this.$refs.edit_home.focus()
+      })
+    },
+    cancelEditCitation() {
+      this.editMode = false;
+      this.citationToEdit = {};
+      this.newPublication = false;
+    },
+    toggleNewPublication() {
+      this.newPublication = !this.newPublication;
     },
     submitCitationForm() {
       if (this.citationToEdit.id) {
@@ -114,6 +138,9 @@ var app = new Vue({
         apiService(endpoint, "PUT", this.citationToEdit)
             .then(response => {
               this.getProjectCitations()
+              if (this.citationToEdit.new_publication) {
+                this.publications.push({id: response.publication, name: this.citationToEdit.new_publication})
+              }
             })
 
       } else {
@@ -123,6 +150,9 @@ var app = new Vue({
               this.getProjectCitations()
               this.searchTerm = null
               this.citations = []
+              if (this.citationToEdit.new_publication) {
+                this.publications.push({id: response.publication, name: this.citationToEdit.new_publication})
+              }
             })
       }
       this.editMode = false;
@@ -180,6 +210,7 @@ var app = new Vue({
   },
   created() {
     this.getProjectCitations()
+    this.getPublications()
   },
   mounted() {
   },

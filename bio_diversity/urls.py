@@ -6,6 +6,7 @@ app_name = 'bio_diversity'
 urlpatterns = [
     # for home/index page
     path('', views.IndexTemplateView.as_view(),    name="index"),
+    path('admin/index/', views.AdminIndexTemplateView.as_view(),    name="admin_index"),
 
     path('create/anidc/', views.AnidcCreate.as_view(), name="create_anidc"),
     path('details/anidc/<int:pk>/', views.AnidcDetails.as_view(), name="details_anidc"),
@@ -25,7 +26,9 @@ urlpatterns = [
     path('update/adsc/<int:pk>/', views.AdscUpdate.as_view(), name="update_adsc"),
     
     path('create/cnt/', views.CntCreate.as_view(), name="create_cnt"),
+    path('create/cnt/<int:loc>/<str:pop>/', views.CntCreate.as_view(), name="create_cnt"),
     path('details/cnt/<int:pk>/', views.CntDetails.as_view(), name="details_cnt"),
+    path('details/cnt/<str:back>/<int:back_id>/<int:pk>/', views.CntDetails.as_view(), name="details_cnt"),
     path('list/cnt/', views.CntList.as_view(), name="list_cnt"),
     path('update/cnt/<int:pk>/', views.CntUpdate.as_view(), name="update_cnt"),
     
@@ -51,6 +54,7 @@ urlpatterns = [
 
     path('create/contx/', views.ContxCreate.as_view(), name="create_contx"),
     path('create/contx/<int:evnt>/<str:pop>/', views.ContxCreate.as_view(), name="create_contx"),
+    path('create/contx/<int:evnt>/<str:visible>/<str:pop>/', views.ContxCreate.as_view(), name="create_contx"),
     path('details/contx/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
     path('details/contx/<str:back>/<int:back_id>/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
     path('list/contx/', views.ContxList.as_view(), name="list_contx"),
@@ -70,12 +74,17 @@ urlpatterns = [
     path('details/cupd/<int:pk>/', views.CupdDetails.as_view(), name="details_cupd"),
     path('list/cupd/', views.CupdList.as_view(), name="list_cupd"),
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
-        
+
+    path('create/data/', views.DataCreate.as_view(), name="create_data"),
+    path('create/data/<int:evnt>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
+
+    path('log/data/', views.DataLog.as_view(), name="data_log"),
+
     path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),
     path('details/draw/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),
     path('list/draw/', views.DrawList.as_view(), name="list_draw"),
     path('update/draw/<int:pk>/', views.DrawUpdate.as_view(), name="update_draw"),
-        
+
     path('create/env/', views.EnvCreate.as_view(), name="create_env"),
     path('create/env/<int:loc>/<str:pop>/', views.EnvCreate.as_view(), name="create_env"),
     path('details/env/<int:pk>/', views.EnvDetails.as_view(), name="details_env"),
@@ -145,12 +154,15 @@ urlpatterns = [
     path('update/feedm/<int:pk>/', views.FeedmUpdate.as_view(), name="update_feedm"),
                  
     path('create/grp/', views.GrpCreate.as_view(), name="create_grp"),
+    path('create/grp/<int:evnt>/<str:pop>', views.GrpCreate.as_view(), name="create_grp"),
     path('details/grp/<int:pk>/', views.GrpDetails.as_view(), name="details_grp"),
+    path('details/grp/<str:back>/<int:back_id>/<int:pk>/', views.GrpDetails.as_view(), name="details_grp"),
     path('list/grp/', views.GrpList.as_view(), name="list_grp"),
     path('update/grp/<int:pk>/', views.GrpUpdate.as_view(), name="update_grp"),
     
     path('create/grpd/', views.GrpdCreate.as_view(), name="create_grpd"),
     path('details/grpd/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
+    path('details/grpd//<str:back>/<int:back_id>/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
     path('list/grpd/', views.GrpdList.as_view(), name="list_grpd"),
     path('update/grpd/<int:pk>/', views.GrpdUpdate.as_view(), name="update_grpd"),
     
@@ -163,6 +175,9 @@ urlpatterns = [
     path('details/heatd/<int:pk>/', views.HeatdDetails.as_view(), name="details_heatd"),
     path('list/heatd/', views.HeatdList.as_view(), name="list_heatd"),
     path('update/heatd/<int:pk>/', views.HeatdUpdate.as_view(), name="update_heatd"),
+
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
 
     path('create/img/', views.ImgCreate.as_view(), name="create_img"),
     path('details/img/<int:pk>/', views.ImgDetails.as_view(), name="details_img"),
@@ -181,9 +196,11 @@ urlpatterns = [
     path('details/indv/<str:back>/<int:back_id>/<int:pk>/', views.IndvDetails.as_view(), name="details_indv"),
     path('list/indv/', views.IndvList.as_view(), name="list_indv"),
     path('update/indv/<int:pk>/', views.IndvUpdate.as_view(), name="update_indv"),
+    path('delete/indv/<int:pk>/', views.IndvDelete.as_view(), name="delete_indv"),
 
     path('create/indvd/', views.IndvdCreate.as_view(), name="create_indvd"),
     path('details/indvd/<int:pk>/', views.IndvdDetails.as_view(), name="details_indvd"),
+    path('details/indvd/<str:back>/<int:back_id>/<int:pk>/', views.IndvdDetails.as_view(), name="details_indvd"),
     path('list/indvd/', views.IndvdList.as_view(), name="list_indvd"),
     path('update/indvd/<int:pk>/', views.IndvdUpdate.as_view(), name="update_indvd"),
 
@@ -258,7 +275,6 @@ urlpatterns = [
     path('update/prog/<int:pk>/', views.ProgUpdate.as_view(), name="update_prog"),
 
     path('create/proga/', views.ProgaCreate.as_view(), name="create_proga"),
-    path('create/proga/<str:pop>/', views.ProgaCreate.as_view(), name="create_proga"),
     path('details/proga/<int:pk>/', views.ProgaDetails.as_view(), name="details_proga"),
     path('list/proga/', views.ProgaList.as_view(), name="list_proga"),
     path('update/proga/<int:pk>/', views.ProgaUpdate.as_view(), name="update_proga"),
@@ -362,7 +378,9 @@ urlpatterns = [
     path('update/subr/<int:pk>/', views.SubrUpdate.as_view(), name="update_subr"),
 
     path('create/tank/', views.TankCreate.as_view(), name="create_tank"),
+    path('create/tank/<int:evnt>/<str:pop>/', views.TankCreate.as_view(), name="create_tank"),
     path('details/tank/<int:pk>/', views.TankDetails.as_view(), name="details_tank"),
+    path('details/tank/<str:back>/<int:back_id>/<int:pk>/', views.TankDetails.as_view(), name="details_tank"),
     path('list/tank/', views.TankList.as_view(), name="list_tank"),
     path('update/tank/<int:pk>/', views.TankUpdate.as_view(), name="update_tank"),
 

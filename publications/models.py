@@ -214,8 +214,6 @@ class Project(models.Model):
 
     title = models.CharField(max_length=255, verbose_name=_("Project Title"))
     year = models.IntegerField(default=0000)
-    division = models.ForeignKey(shared_models.Division, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                 verbose_name=_("Division"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
                                               verbose_name=_("Date last modified"))
 

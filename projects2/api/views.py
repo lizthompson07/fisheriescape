@@ -468,6 +468,12 @@ class CitationListCreateAPIView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         obj = serializer.save()
+
+        if self.request.data.get("new_publication") and self.request.data.get("new_publication") != "":
+            pub, created = shared_models.Publication.objects.get_or_create(name=self.request.data.get("new_publication"))
+            obj.publication = pub
+            obj.save()
+
         if self.request.query_params.get("project"):
             project = get_object_or_404(models.Project, pk=self.request.query_params.get("project"))
             project.references.add(obj)
@@ -477,6 +483,26 @@ class CitationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = shared_models.Citation.objects.all()
     serializer_class = serializers.CitationSerializer
     permission_classes = [IsAuthenticated]
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        # if there is a new publication being passed in... create it and then add it to citation
+        if self.request.data.get("new_publication") and self.request.data.get("new_publication") != "":
+            pub, created = shared_models.Publication.objects.get_or_create(name=self.request.data.get("new_publication"))
+            obj.publication = pub
+            obj.save()
+
+
+
+
+# Publications
+##############
+class PublicationListAPIView(ListAPIView):
+    queryset = shared_models.Publication.objects.all()
+    serializer_class = serializers.PublicationSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+
 
 
 # STATUS REPORTS
