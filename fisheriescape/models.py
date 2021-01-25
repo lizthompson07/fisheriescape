@@ -55,9 +55,9 @@ LICENSE_CHOICES = (
 
 
 class Species(models.Model):
-    english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("English name"))
-    french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("French name"))
-    latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Scientific name"))
+    english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("english name"))
+    french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
+    latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("scientific name"))
     website = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("website"))
 
     def __str__(self):
@@ -73,6 +73,36 @@ class Species(models.Model):
         return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})
 
 
+COSEWIC_STATUS_CHOICES = (
+    ("Not at Risk", "Not at Risk"),
+    ("Special Concern", "Special Concern"),
+    ("Threatened", "Threatened"),
+    ("Endangered", "Endangered"),
+    ("Extirpated", "Extirpated"),
+    ("Extinct", "Extinct"),
+)
+
+
+class MarineMammals(models.Model):
+    english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("english name"))
+    french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
+    latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("scientific name"))
+    cosewic_status = models.CharField(max_length=255, null=True, blank=True, choices=COSEWIC_STATUS_CHOICES, verbose_name=_("cosewic status"))
+    website = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("website"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("english_name"))):
+
+            return "{}".format(getattr(self, str(_("english_name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.english_name)
+    #
+    # def get_absolute_url(self):
+    #     return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})
+
+
 class Fishery(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="fisherys",
                                 verbose_name=_("species"))
@@ -82,7 +112,7 @@ class Fishery(models.Model):
     fishery_status = models.CharField(max_length=255, null=True, blank=True, choices=STATUS_CHOICES,
                                       verbose_name=_("fishery status"))
     gear_type = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear type"))
-
+    marine_mammals = models.ManyToManyField(MarineMammals, related_name="fisherys", verbose_name=_("marine mammals"))
     # license_type = models.CharField(max_length=255, null=True, blank=True, choices=LICENSE_CHOICES,
     #                                 verbose_name=_("type of license"))
 

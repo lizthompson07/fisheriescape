@@ -339,6 +339,7 @@ class FisheryListView(FisheriescapeAccessRequired, CommonFilterView):
         {"name": 'end_date', "class": "", "width": ""},
         {"name": 'fishery_status', "class": "", "width": ""},
         {"name": 'gear_type', "class": "", "width": ""},
+        {"name": 'marine_mammals', "class": "", "width": ""},
     ]
 
     def get_new_object_url(self):
@@ -355,10 +356,25 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         'end_date',
         'fishery_status',
         'gear_type',
-        'website',
+        'marine_mammals',
     ]
     home_url_name = "fisheriescape:index"
     parent_crumb = {"title": gettext_lazy("Fishery List"), "url": reverse_lazy("fisheriescape:fishery_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # contexts for _mammals.html file
+        context["random_mammals"] = models.MarineMammals.objects.first()
+        context["mammals_field_list"] = [
+            'english_name',
+            'french_name',
+            'latin_name',
+            'cosewic_status',
+            'website',
+        ]
+
+        return context
 
 
 class FisheryUpdateView(FisheriescapeAdminAccessRequired, CommonUpdateView):

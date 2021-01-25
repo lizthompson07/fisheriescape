@@ -26,6 +26,7 @@ class FisheryForm(forms.ModelForm):
             'fishery_area': forms.SelectMultiple(attrs=chosen_js),
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
+            'marine_mammals': forms.SelectMultiple(attrs=chosen_js),
         }
 
 
