@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shared_models', '0032_auto_20201201_1040'),
+        ('shared_models', '0001_initial'),
         ('masterlist', '0008_remove_person_ihub_vetted'),
     ]
 

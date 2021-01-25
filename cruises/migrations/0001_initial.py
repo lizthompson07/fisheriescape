@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('shared_models', '0009_auto_20201023_0836'),
+        ('shared_models', '0001_initial'),
     ]
 
     operations = [
