@@ -43,6 +43,7 @@ Vue.component("modal", {
     return {
       currentUser: null,
       isACRDP: false,
+      isCSRF: false,
       staff: {
         name: null,
         user: null,
@@ -501,6 +502,9 @@ Vue.component("modal", {
 
     if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
       this.isACRDP = true;
+    }
+    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("csrf") > -1) {
+      this.isCSRF = true;
     }
 
     this.$nextTick(() => {

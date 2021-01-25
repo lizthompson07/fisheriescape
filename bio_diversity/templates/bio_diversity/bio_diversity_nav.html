@@ -15,6 +15,27 @@
         -->
     </div>
 </li>
+{% for group in user.groups.all %}
+  {% if group.name == "bio_diversity_admin" %}
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+         aria-haspopup="true" aria-expanded="false">
+        {% trans "Settings" %}
+      </a>
+      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+        <a class="dropdown-item" href="{% url 'bio_diversity:manage_help_texts' %}">
+          {% trans "Help Text" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'bio_diversity:admin_index' %}">
+          {% trans "Admin Page" %}
+        </a>
+      </div>
+    </li>
+
+  {% endif %}
+{% endfor %}
+
 
 {% if bio_diversity_super %}
 <li class="nav-item dropdown">

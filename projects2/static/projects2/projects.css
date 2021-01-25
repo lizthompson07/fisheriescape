@@ -139,6 +139,10 @@ h1 {
     width: 300px;
 }
 
+.w100percent {
+    width: 100%;
+}
+
 .clickable {
     cursor: pointer;
 }

@@ -2,7 +2,6 @@
 
 # Create your models here.
 import os
-
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 
@@ -11,7 +10,43 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class BioContainerDet(models.Model):
+class BioModel(models.Model):
+    # normal model with created by and created date fields
+    class Meta:
+        abstract = True
+
+    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
+    created_date = models.DateField(verbose_name=_("Created Date"))
+
+    def clean(self):
+        # handle null values in uniqueness constraint foreign keys.
+        # eg. should only be allowed one instance of a=5, b=null
+        super(BioModel, self).clean()
+        uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                  if isinstance(constraint, models.UniqueConstraint)]
+        for constraint in uniqueness_constraints:
+            # from stackoverflow
+            unique_filter = {}
+            unique_fields = []
+            null_found = False
+            for field_name in constraint.fields:
+                field_value = getattr(self, field_name)
+                if getattr(self, field_name) is None:
+                    unique_filter['%s__isnull' % field_name] = True
+                    null_found = True
+                else:
+                    unique_filter['%s' % field_name] = field_value
+                    unique_fields.append(field_name)
+            if null_found:
+                unique_queryset = self.__class__.objects.filter(**unique_filter)
+                if self.pk:
+                    unique_queryset = unique_queryset.exclude(pk=self.pk)
+                if unique_queryset.exists():
+                    msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                    raise ValidationError(msg)
+
+
+class BioContainerDet(BioModel):
     class Meta:
         abstract = True
 
@@ -24,10 +59,10 @@ class BioContainerDet(models.Model):
     end_date = models.DateField(null=True, blank=True, verbose_name=_("Last Date Detail is valid"))
     det_valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
-    created_date = models.DateField(verbose_name=_("Created Date"))
 
     def clean(self):
+        super(BioContainerDet, self).clean()
+
         if self.det_value > self.contdc_id.max_val or self.det_value < self.contdc_id.min_val:
             raise ValidationError({
                 "det_value": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_value,
@@ -36,15 +71,13 @@ class BioContainerDet(models.Model):
             })
 
 
-class BioDet(models.Model):
+class BioDet(BioModel):
     class Meta:
         abstract = True
 
     det_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
     qual_id = models.ForeignKey('QualCode', on_delete=models.DO_NOTHING, verbose_name=_("Quality"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
-    created_date = models.DateField(verbose_name=_("Created Date"))
 
 
 class BioLookup(shared_models.Lookup):
@@ -54,17 +87,35 @@ class BioLookup(shared_models.Lookup):
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
 
+    def clean(self):
+        # handle null values in uniqueness constraint foreign keys.
+        # eg. should only be allowed one instance of a=5, b=null
+        super(BioLookup, self).clean()
+        uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                  if isinstance(constraint, models.UniqueConstraint)]
+        for constraint in uniqueness_constraints:
+            # from stackoverflow
+            unique_filter = {}
+            unique_fields = []
+            null_found = False
+            for field_name in constraint.fields:
+                field_value = getattr(self, field_name)
+                if getattr(self, field_name) is None:
+                    unique_filter['%s__isnull' % field_name] = True
+                    null_found = True
+                else:
+                    unique_filter['%s' % field_name] = field_value
+                    unique_fields.append(field_name)
+            if null_found:
+                unique_queryset = self.__class__.objects.filter(**unique_filter)
+                if self.pk:
+                    unique_queryset = unique_queryset.exclude(pk=self.pk)
+                if unique_queryset.exists():
+                    msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                    raise ValidationError(msg)
 
-class BioModel(models.Model):
-    # normal model with created by and created date fields
-    class Meta:
-        abstract = True
 
-    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
-    created_date = models.DateField(verbose_name=_("Created Date"))
-
-
-class BioTimeModel(models.Model):
+class BioTimeModel(BioModel):
     # model with start date/end date, still valid, created by and created date fields
     class Meta:
         abstract = True
@@ -73,8 +124,6 @@ class BioTimeModel(models.Model):
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
     valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
-    created_date = models.DateField(verbose_name=_("Created Date"))
 
 
 class AnimalDetCode(BioLookup):
@@ -83,6 +132,9 @@ class AnimalDetCode(BioLookup):
     max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
     unit_id = models.ForeignKey("UnitCode", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Units"))
     ani_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
+
+    def __str__(self):
+        return "{}-{}".format(self.name, self.unit_id.__str__())
 
 
 class AniDetSubjCode(BioLookup):
@@ -105,7 +157,8 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details", verbose_name=_("Individual"))
     spwn_id = models.ForeignKey("Spawning", on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Spawning"))
-    grp_id = models.ForeignKey("Group", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Group"))
+    grp_id = models.ForeignKey("Group", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Group"),
+                               related_name="animal_details")
 
     class Meta:
         constraints = [
@@ -114,6 +167,7 @@ class AniDetailXref(BioModel):
         ]
 
     def clean(self):
+        super(AniDetailXref, self).clean()
         if not (self.contx_id or self.loc_id or self.indvt_id or self.indv_id or self.spwn_id or self.grp_id):
             raise ValidationError("You must specify at least one item to reference to the event")
 
@@ -167,14 +221,16 @@ class ContainerXRef(BioModel):
         return "Container X Ref for {}".format(self.evnt_id.__str__())
 
     def clean(self):
+        super(ContainerXRef, self).clean()
         if not (self.tank_id or self.tray_id or self.trof_id or self.heat_id or self.draw_id or self.cup_id):
             raise ValidationError("You must specify at least one container to reference to the event")
 
 
 class Count(BioModel):
     # cnt tag
-    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, verbose_name=_("Location"))
-    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.DO_NOTHING,
+    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, verbose_name=_("Location"),
+                               related_name="counts")
+    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"))
     cntc_id = models.ForeignKey("CountCode", on_delete=models.DO_NOTHING, verbose_name=_("Count Code"))
     spec_id = models.ForeignKey("SpeciesCode", on_delete=models.DO_NOTHING, verbose_name=_("Species"))
@@ -200,7 +256,7 @@ class CountDet(BioDet):
     # cntd tag
     cnt_id = models.ForeignKey("Count", on_delete=models.DO_NOTHING, verbose_name=_("Count"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
-    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING,
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Animal Detail Subjective Code"))
 
     class Meta:
@@ -212,6 +268,7 @@ class CountDet(BioDet):
         return "{} - {}".format(self.cnt_id.__str__(), self.anidc_id.__str__())
 
     def clean(self):
+        super(CountDet, self).clean()
         if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
@@ -237,6 +294,14 @@ class CupDet(BioContainerDet):
 
     def __str__(self):
         return "{} - {}".format(self.cup_id.__str__(), self.contdc_id.__str__())
+
+
+class DataLoader(BioModel):
+    # data tag
+    evnt_id = models.ForeignKey('Event', on_delete=models.DO_NOTHING, verbose_name=_("Event"))
+    evntc_id = models.ForeignKey('EventCode', on_delete=models.DO_NOTHING, verbose_name=_("Data Format"))
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.DO_NOTHING, verbose_name=_("Data Format"))
+    data_csv = models.FileField(upload_to="", null=True, blank=True, verbose_name=_("Datafile"))
 
 
 class Drawer(BioLookup):
@@ -283,6 +348,7 @@ class EnvCondition(BioModel):
             return "{}-{}".format(self.envc_id.__str__(), self.env_start)
 
     def clean(self):
+        super(EnvCondition, self).clean()
         if self.env_val > self.envc_id.max_val or self.env_val < self.envc_id.min_val:
             raise ValidationError({
                 "env_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
@@ -453,18 +519,17 @@ class Group(BioModel):
                                    verbose_name=_("From Parent Group"))
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
     stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
-    coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
-                                verbose_name=_("Collection"))
+    coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, verbose_name=_("Collection"))
     grp_valid = models.BooleanField(default="True", verbose_name=_("Group still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{} group".format(self.spec_id.__str__(), self.stok_id.__str__())
+        return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
 class GroupDet(BioDet):
     # grpd tag
-    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING,
+    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING, related_name="group_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
@@ -479,6 +544,7 @@ class GroupDet(BioDet):
         return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
 
     def clean(self):
+        super(GroupDet, self).clean()
         if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
@@ -506,6 +572,24 @@ class HeathUnitDet(BioContainerDet):
 
     def __str__(self):
         return "{} - {}".format(self.heat_id.__str__(), self.contdc_id.__str__())
+
+
+# This is a special table used to house application help text
+class HelpText(models.Model):
+    field_name = models.CharField(max_length=255)
+    eng_text = models.TextField(verbose_name=_("English text"))
+    fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("eng_text"))):
+            return "{}".format(getattr(self, str(_("eng_text"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.eng_text)
+
+    class Meta:
+        ordering = ['field_name', ]
 
 
 def img_directory_path(instance, filename):
@@ -605,17 +689,12 @@ class Individual(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        if self.ufid:
-            return "{}".format(self.ufid)
-        elif self.pit_tag:
-            return "{}".format(self.pit_tag)
-        else:
-            return "Non Id'd {} from {}".format(self.spec_id.__str__(), self.stok_id.__str__())
+        return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
 class IndividualDet(BioDet):
     # indvd tag
-    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING,
+    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING, related_name="individual_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
@@ -631,6 +710,7 @@ class IndividualDet(BioDet):
         return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
 
     def clean(self):
+        super(IndividualDet, self).clean()
         if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
@@ -697,7 +777,7 @@ class InstDetCode(BioLookup):
 
 
 class Location(BioModel):
-    # Loc tag
+    # loc tag
     evnt_id = models.ForeignKey('Event', on_delete=models.DO_NOTHING, verbose_name=_("Event"), related_name="location")
     locc_id = models.ForeignKey('LocCode', on_delete=models.DO_NOTHING, verbose_name=_("Location Code"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
@@ -932,6 +1012,7 @@ class SampleDet(BioDet):
         return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
 
     def clean(self):
+        super(SampleDet, self).clean()
         if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
@@ -987,6 +1068,7 @@ class SpawnDet(BioDet):
         return "{} - {}".format(self.spwn_id.__str__(), self.spwndc_id.__str__())
 
     def clean(self):
+        super(SpawnDet, self).clean()
         if self.det_val > self.spwndc_id.max_val or self.det_val < self.spwndc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
@@ -1012,7 +1094,7 @@ class SpeciesCode(BioModel):
     # spec tag
     name = models.CharField(max_length=10, verbose_name=_("Species Name"))
     species = models.CharField(max_length=100, verbose_name=_("Species"))
-    com_name = models.CharField(max_length=35, null=True, blank=True, verbose_name=_("Species Common Nme"))
+    com_name = models.CharField(max_length=35, null=True, blank=True, verbose_name=_("Species Common Name"))
 
     def __str__(self):
         return self.name

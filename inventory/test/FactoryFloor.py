@@ -5,6 +5,7 @@ from faker import Faker
 
 from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory
 from .. import models
+from shared_models import models as shared_models
 
 faker = Faker()
 
@@ -40,16 +41,16 @@ class KeywordFactory(factory.django.DjangoModelFactory):
 
 class PublicationFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.Publication
+        model = shared_models.Publication
 
     name = factory.lazy_attribute(lambda o: faker.company())
 
 
 class CitationFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.Citation
+        model = shared_models.Citation
 
-    title_eng = factory.lazy_attribute(lambda o: faker.phrase())
+    name = factory.lazy_attribute(lambda o: faker.phrase())
     authors = factory.lazy_attribute(lambda o: faker.name())
     publication = factory.SubFactory(PublicationFactory)
 

@@ -414,7 +414,7 @@ def generate_resources_report(sections):
     "last_revision_date",
     "open_data_notes",
     "notes",
-    "citations",
+    "citations2",
     "keywords",
     "people",
     "paa_items",

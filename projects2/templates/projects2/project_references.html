@@ -1,0 +1,158 @@
+{% extends "projects2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load project_tags %}
+
+
+{% block title_area %}
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+{% endblock %}
+
+{% block subcontent %}
+  <div id="app">
+    <div class="mb-3 row jumbotron px-1 py-3 row" style="width: 40%">
+      <label for="search" class="col-4 col-form-label">{% trans "Find a Reference" %}</label>
+      <div class="col">
+        <input v-model="searchTerm" type="text" class="form-control" id="search" @keyup="submitSearch">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p class="h3 lead text-muted">{% trans "Current References:" %}</p>
+        <div v-if="!project_citations_loading">
+          <div v-for="(citation, index) in project_citations">
+            <div class="alert alert-success" role="alert">
+              <p v-html="citation.short_citation_html"></p>
+              <button @click="editCitation(citation)"><span class="mdi mdi-pencil"></span> {% trans "Edit Reference" %}</button>
+              <button @click="removeCitation(citation)"><span class="mdi mdi-minus"></span> {% trans "Remove" %}</button>
+
+              <button v-if="citation.project_count<2" @click="deleteCitation(citation)" class="float-right">
+                <span class="mdi mdi-delete"></span> {% trans "Delete" %}</button>
+
+            </div>
+          </div>
+          <p v-if="!project_citations.length"><em>{% trans "This project does not currently have any references" %}</em></p>
+
+        </div>
+        <div v-else class="loading mb-3 mt-3 text-center mt-5">
+          <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        {# Edit Mode #}
+        <div v-if="editMode">
+          {# new citation #}
+          <div v-if="citationToEdit.id">
+            <p class="h3 lead text-muted">{% trans "Edit Reference:" %}</p>
+          </div>
+          <div v-else>
+            <p class="h3 lead text-muted">{% trans "New Reference:" %}</p>
+          </div>
+          <form @submit.prevent="submitCitationForm">
+            <table class="w100percent">
+
+              {% for field in citation_form %}
+                {% if field.name == "publication" %}
+                  <tr>
+                  <th class="w150">{{ field.label }}</th>
+                  <td>
+                    <select
+                      v-if="!newPublication"
+                      v-model="citationToEdit.publication"
+                      class="form-control form-control-sm w100percent">
+                      <option v-for="(pub, index) in publications" :value="pub.id" v-html="pub.name"></option>
+                    </select>
+
+                    {{ citation_form.new_publication }}
+                  </td>
+                  <td class="w100">
+                    <button
+                      v-if="!newPublication"
+                      @click="toggleNewPublication"
+                      class="btn btn-sm btn-success py-0" type="button"
+                    >{% trans "new" %}</button>
+                    <button
+                      v-if="newPublication"
+                      @click="toggleNewPublication"
+                      class="btn btn-sm btn-secondary py-0" type="button"
+                    >{% trans "nevermind" %}</button>
+
+                  </td>
+                {% elif field.name == "new_publication" %}
+                  {# display nothing #}
+                {% else %}
+
+                  <th>{{ field.label }}</th>
+                  <td>{{ field }}</td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+
+            </table>
+            <div class="text-center py-3">
+              <input v-if="citationToEdit.id" type="submit" value="{% trans "Save" %}" class="btn btn-sm btn-primary">
+              <input v-else type="submit" value="{% trans "Add" %}" class="btn btn-sm btn-primary">
+              <button @click="cancelEditCitation" type="button" class="btn btn-sm btn-secondary"> {% trans "Cancel" %}</button>
+            </div>
+          </form>
+
+        </div>
+
+
+        {# Search Mode #}
+        <div v-else>
+          <div class="float-right">
+            <button class="btn btn-sm btn-success py-0" @click="editCitation(null)">{% trans "New" %}</button>
+          </div>
+
+          <p class="h3 lead text-muted">{% trans "Search Results " %}(<span v-html="citations.length"></span>):</p>
+
+          <div v-if="!citations_loading">
+            <div v-for="(citation, index) in citations">
+              <div class="alert alert-secondary" role="alert">
+                <p v-html="citation.short_citation_html">
+
+                </p>
+                <button @click="addCitation(citation)"><span class="mdi mdi-plus"></span> {% trans "Add Reference" %}</button>
+              </div>
+            </div>
+            <div v-if="!citations.length">
+              <span v-if="hasSearched"><em>{% trans "No results found..." %}</em></span>
+              <span v-else><em>{% trans "Please use the search bar to find references" %}</em></span>
+            </div>
+
+          </div>
+          <div v-else class="loading mb-3 mt-3 text-center mt-5">
+            <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+              <span class="sr-only"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+  </div>
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script type="application/javascript">
+  let projectId = {{ object.id }};
+  </script>
+  <script src="{% static '/projects2/mainProjectReferences.js' %}?version=1.6" type="application/javascript"></script>
+
+
+{% endblock %}

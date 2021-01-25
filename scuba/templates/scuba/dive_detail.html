@@ -35,6 +35,10 @@
       </table>
     </div>
     <div class="col">
+      {% if not object.transect.get_starting_coordinates %}
+        <p class="text-muted"><em>{% trans "Cannot display map because transect has no coordinates" %}</em></p>
+
+      {% endif %}
       <div id="map">
       </div>
     </div>
@@ -95,7 +99,7 @@
                   </td>
                 {% elif "certain" in field %}
                   <td>
-                    <span class="{{ obs.get_certainty_rating_display }} py-1 px-2">{% get_field_value obs field %}</span>
+                    <span class="{{ obs.certainty_rating_special_display }} py-1 px-2">{% get_field_value obs field %}</span>
                   </td>
                 {% else %}
                   <td>{% get_field_value obs field %}</td>
@@ -137,7 +141,6 @@
     {% endif %}
   </div>
 
-
 {% endblock %}
 {% block body_js %}
   {{ block.super }}
@@ -168,10 +171,23 @@
         [{{object.transect.get_ending_coordinates.x }}, {{object.transect.get_ending_coordinates.y }}],
       ];
       L.polyline([lineCoords], {
-        color: 'red',
+        color: 'black',
         dashArray: '4',
         weight: 1,
       }).addTo(map).bindPopup("Transect: {{object.transect}}}");
+
+      {% if object.get_starting_coordinates and object.get_ending_coordinates %}
+        var lineCoords1 = [
+          [{{object.get_starting_coordinates.x }}, {{object.get_starting_coordinates.y }}],
+          [{{object.get_ending_coordinates.x }}, {{object.get_ending_coordinates.y }}],
+        ];
+        L.polyline([lineCoords1], {
+          color: 'green',
+          dashArray: '4',
+          weight: 1,
+        }).addTo(map).bindPopup("Dive: {{object}}}");
+        lineCoords.concat(lineCoords1)
+      {% endif %}
 
       map.fitBounds(lineCoords);
     }

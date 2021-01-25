@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-11 12:44-0400\n"
+"POT-Creation-Date: 2021-01-21 15:41-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -15,17 +15,19 @@ msgstr ""
 msgid "Region"
 msgstr "Région"
 
-#: .\projects2\filters.py:46 .\projects2\models.py:588
+#: .\projects2\filters.py:46 .\projects2\models.py:743
 msgid "Name"
 msgstr "Nom"
 
-#: .\projects2\forms.py:22 .\projects2\forms.py:27 .\projects2\models.py:21
+#: .\projects2\forms.py:22 .\projects2\forms.py:27 .\projects2\models.py:22
+#: .\projects2\reports.py:477 .\projects2\reports.py:483
 #: .\projects2\templates\projects2\explore_projects\main.html:76
 #: .\projects2\templates\projects2\manage_projects\_project_list.html:78
 msgid "Yes"
 msgstr "Oui"
 
-#: .\projects2\forms.py:23 .\projects2\forms.py:28 .\projects2\models.py:22
+#: .\projects2\forms.py:23 .\projects2\forms.py:28 .\projects2\models.py:23
+#: .\projects2\reports.py:474 .\projects2\reports.py:480
 #: .\projects2\templates\projects2\explore_projects\main.html:77
 #: .\projects2\templates\projects2\manage_projects\_project_list.html:79
 msgid "No"
@@ -35,33 +37,67 @@ msgstr "Non"
 msgid "----"
 msgstr ""
 
-#: .\projects2\forms.py:123
+#: .\projects2\forms.py:150
 msgid " /  ACRDP objectives"
 msgstr ""
 
-#: .\projects2\forms.py:200 .\projects2\forms.py:210
+#: .\projects2\forms.py:162
+msgid ""
+"Provide a brief overview of the project outlining how it specifically "
+"addresses the priority identified "
+msgstr ""
+
+#: .\projects2\forms.py:163
+msgid "Describe the objective(s) of the project (CSRF)"
+msgstr ""
+
+#: .\projects2\forms.py:166
+msgid "Describe how the project will generate or promote innovation (CSRF)"
+msgstr ""
+
+#: .\projects2\forms.py:168
+msgid ""
+"Provide any additional information on the other sources of funding relevant "
+"to the project (e.g. type of in-kind contribution) (CSRF)"
+msgstr ""
+
+#: .\projects2\forms.py:169 .\projects2\forms.py:170
+msgid "SEE PRIORITIES DOCUMENT"
+msgstr ""
+
+#: .\projects2\forms.py:242
+msgid ""
+"Outline the methods applied to achieve the objective(s) of the project, and "
+"the main steps of the work plan FOR THIS PROJECT YEAR ONLY (CSRF)"
+msgstr ""
+
+#: .\projects2\forms.py:243
+msgid "And what is the plan for the publication of these products (CSRF)?"
+msgstr ""
+
+#: .\projects2\forms.py:256 .\projects2\forms.py:266
 msgid "Sorry, there is already a {fy} year in this project."
 msgstr ""
 
-#: .\projects2\forms.py:225
+#: .\projects2\forms.py:281
 #, fuzzy
 msgid "The end date must be after the start date!"
 msgstr "La date de début du voyage doit survenir après la date de fin."
 
-#: .\projects2\forms.py:230
+#: .\projects2\forms.py:286
 msgid "The start and end dates must be within the same fiscal year!"
 msgstr ""
 
-#: .\projects2\forms.py:261
+#: .\projects2\forms.py:331 .\projects2\forms.py:778
 msgid "DFO User"
 msgstr "Utilisateur du MPO"
 
-#: .\projects2\forms.py:262
+#: .\projects2\forms.py:332
 msgid ""
 "Approximate amount (CAD) (will only be visible to project leads and managers)"
 msgstr ""
 
-#: .\projects2\forms.py:391
+#: .\projects2\forms.py:443
 #, fuzzy
 #| msgid ""
 #| "major accomplishments (this can be left blank if reported at the activity "
@@ -73,17 +109,21 @@ msgstr ""
 "réalisations majeures (ceci peut être laissé en blanc si signalé au niveau "
 "de l'étape)"
 
-#: .\projects2\forms.py:415
+#: .\projects2\forms.py:467
 #, fuzzy
 #| msgid "Start a Review"
 msgid "Mark as reviewed"
 msgstr "Commencer un examen"
 
-#: .\projects2\forms.py:468
+#: .\projects2\forms.py:483 .\projects2\forms.py:525
 #, fuzzy
 #| msgid "End date of project"
 msgid "send an email update to project leads"
 msgstr "Date de fin du projet"
+
+#: .\projects2\forms.py:813
+msgid "Enter new publication name here"
+msgstr ""
 
 #: .\projects2\mixins.py:43 .\projects2\mixins.py:56
 msgid ""
@@ -92,206 +132,289 @@ msgstr ""
 "Désolé, vous devez être un gestionnaire de ce projet afin d'accéder à cette "
 "page."
 
-#: .\projects2\models.py:32 .\projects2\models.py:905
+#: .\projects2\models.py:35 .\projects2\models.py:54
+#, fuzzy
+#| msgid "name"
+msgid "name (en)"
+msgstr "nom"
+
+#: .\projects2\models.py:36 .\projects2\utils.py:378
+msgid "CSRF theme"
+msgstr ""
+
+#: .\projects2\models.py:40 .\projects2\utils.py:379
+msgid "CSRF sub-theme"
+msgstr ""
+
+#: .\projects2\models.py:41
+msgid "Priority identification number"
+msgstr ""
+
+#: .\projects2\models.py:42
+msgid "priority for research (en)"
+msgstr ""
+
+#: .\projects2\models.py:43
+msgid "priority for research (fr)"
+msgstr ""
+
+#: .\projects2\models.py:53 .\projects2\utils.py:380
+msgid "CSRF priority"
+msgstr ""
+
+#: .\projects2\models.py:55
+#, fuzzy
+#| msgid "name"
+msgid "name (fr)"
+msgstr "nom"
+
+#: .\projects2\models.py:56
+#, fuzzy
+#| msgid "additional notes"
+msgid "additional client information (en)"
+msgstr "notes supplémentaires"
+
+#: .\projects2\models.py:57
+msgid "additional client information (fr)"
+msgstr ""
+
+#: .\projects2\models.py:88 .\projects2\models.py:1120
 msgid "region"
 msgstr ""
 
-#: .\projects2\models.py:33
+#: .\projects2\models.py:89
 #, fuzzy
 msgid "description (en)"
 msgstr "description (ang)"
 
-#: .\projects2\models.py:34
+#: .\projects2\models.py:90
 #, fuzzy
 msgid "description (fr)"
 msgstr "description (fra)"
 
-#: .\projects2\models.py:44 .\projects2\models.py:45
+#: .\projects2\models.py:100 .\projects2\models.py:101
 msgid "description_en"
 msgstr "description_fr"
 
-#: .\projects2\models.py:64
+#: .\projects2\models.py:120
 msgid "A-base"
 msgstr ""
 
-#: .\projects2\models.py:65
+#: .\projects2\models.py:121
 msgid "B-base"
 msgstr ""
 
-#: .\projects2\models.py:66
+#: .\projects2\models.py:122
 msgid "C-base"
 msgstr ""
 
-#: .\projects2\models.py:98
+#: .\projects2\models.py:131
+msgid "is competitive funding?"
+msgstr ""
+
+#: .\projects2\models.py:144
+#, fuzzy
+msgid "competitive"
+msgstr "Commentaires"
+
+#: .\projects2\models.py:162
 msgid "section"
 msgstr "section"
 
-#: .\projects2\models.py:99
+#: .\projects2\models.py:163
 msgid "Project title"
 msgstr "Titre du projet"
 
-#: .\projects2\models.py:100
+#: .\projects2\models.py:164
 #, fuzzy
 msgid "activity type"
 msgstr "date d'activité initiale"
 
-#: .\projects2\models.py:102
+#: .\projects2\models.py:166
 msgid "Functional group"
 msgstr ""
 
-#: .\projects2\models.py:104
+#: .\projects2\models.py:168
 #, fuzzy
 msgid "primary funding source"
 msgstr "source de financement"
 
-#: .\projects2\models.py:105
+#: .\projects2\models.py:169
 #, fuzzy
 msgid "Tags / keywords"
 msgstr "Mots clés"
 
-#: .\projects2\models.py:108
+#: .\projects2\models.py:170
+#, fuzzy
+#| msgid "Reference"
+msgid "references"
+msgstr "Référence"
+
+#: .\projects2\models.py:173
 #, fuzzy
 msgid "Project overview"
 msgstr "titre du projet"
 
-#: .\projects2\models.py:110
+#: .\projects2\models.py:175
 msgid "Should the project be hidden from other users?"
 msgstr "Le projet doit-il être caché des autres utilisateurs?"
 
-#: .\projects2\models.py:114
+#: .\projects2\models.py:179
 msgid "physical location (ACRDP)"
 msgstr ""
 
-#: .\projects2\models.py:115
+#: .\projects2\models.py:180
 msgid "species involved (ACRDP)"
 msgstr ""
 
-#: .\projects2\models.py:116
+#: .\projects2\models.py:181 .\projects2\utils.py:372
 msgid "description of team and required qualifications (ACRDP)"
 msgstr ""
 
-#: .\projects2\models.py:117
+#: .\projects2\models.py:182 .\projects2\utils.py:373
 msgid "project problem / rationale (ACRDP)"
 msgstr ""
 
-#: .\projects2\models.py:118
+#: .\projects2\models.py:183 .\projects2\utils.py:374
 msgid "experimental protocol (ACRDP)"
 msgstr ""
 
-#: .\projects2\models.py:121
+#: .\projects2\models.py:187
+msgid "Additional info supplied by client (#1) (CSRF)"
+msgstr ""
+
+#: .\projects2\models.py:189
+msgid "Linkage to second priority (CSRF)"
+msgstr ""
+
+#: .\projects2\models.py:191 .\projects2\utils.py:383
+#, fuzzy
+#| msgid "Project title"
+msgid "project objectives (CSRF)"
+msgstr "Titre du projet"
+
+#: .\projects2\models.py:193 .\projects2\utils.py:385
+msgid "innovation (CSRF)"
+msgstr ""
+
+#: .\projects2\models.py:194 .\projects2\utils.py:386
+msgid "other sources of funding (CSRF)"
+msgstr ""
+
+#: .\projects2\models.py:197
 msgid "Start date of project"
 msgstr "Date de début du projet"
 
-#: .\projects2\models.py:122
+#: .\projects2\models.py:198
 msgid "End date of project"
 msgstr "Date de fin du projet"
 
-#: .\projects2\models.py:123
+#: .\projects2\models.py:199
 #, fuzzy
 msgid "complete list of funding sources"
 msgstr "source de financement"
 
-#: .\projects2\models.py:125
+#: .\projects2\models.py:201
 #, fuzzy
 msgid "project leads"
 msgstr "Chef de projet"
 
-#: .\projects2\models.py:223
+#: .\projects2\models.py:339
 msgid "This project has no fiscal years added yet."
 msgstr ""
 
-#: .\projects2\models.py:236
+#: .\projects2\models.py:353
 msgid "project"
 msgstr "projet"
 
-#: .\projects2\models.py:237
+#: .\projects2\models.py:354
 #, fuzzy
 msgid "Start date for this year of the project"
 msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
-#: .\projects2\models.py:238
+#: .\projects2\models.py:355
 #, fuzzy
 msgid "End date for this year of the project"
 msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
-#: .\projects2\models.py:241
+#: .\projects2\models.py:358
 #, fuzzy
 msgid "year-specific priorities"
 msgstr "Priorités spécifiques au projet"
 
-#: .\projects2\models.py:243
+#: .\projects2\models.py:360
 #, fuzzy
 msgid "deliverables / activities"
 msgstr "Livrables du projet"
 
-#: .\projects2\models.py:248
+#: .\projects2\models.py:365
 msgid ""
 "Will the project require the purchase, design or fabrication of specialized "
 "laboratory or field equipment?"
 msgstr ""
 
-#: .\projects2\models.py:249
+#: .\projects2\models.py:366
 msgid "What technical services are being requested?"
 msgstr ""
 
-#: .\projects2\models.py:251
+#: .\projects2\models.py:368
 msgid ""
 "Do you anticipate needing assistance with mobilization/demobilization of "
 "this equipment?"
 msgstr ""
 
-#: .\projects2\models.py:255
+#: .\projects2\models.py:372
 msgid "Does this project involved a field component?"
 msgstr ""
 
-#: .\projects2\models.py:257
+#: .\projects2\models.py:374
 msgid ""
 "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"
 msgstr ""
 "Décrivez le besoin de véhicule (type de véhicule, nombre de semaines, "
 "calendrier)"
 
-#: .\projects2\models.py:258
+#: .\projects2\models.py:375
 msgid "Ship (Coast Guard, charter vessel) Requirements"
 msgstr "Navires (garde côtière, charter)"
 
-#: .\projects2\models.py:260
+#: .\projects2\models.py:377
 msgid ""
 "If this project links to a ship time request in COIP, please include the "
 "COIP application number here."
 msgstr ""
 
-#: .\projects2\models.py:262
+#: .\projects2\models.py:379
 msgid "What field instrumentation will be deployed during this project?"
 msgstr ""
 
-#: .\projects2\models.py:264
+#: .\projects2\models.py:381
 msgid "Who is the owner/curator of this instrumentation, if known?"
 msgstr ""
 
-#: .\projects2\models.py:266
+#: .\projects2\models.py:383
 msgid "Do you require field support staff?"
 msgstr ""
 
-#: .\projects2\models.py:267
+#: .\projects2\models.py:384
 msgid ""
 "If so, please include some additional detail, e.g., how many people are "
 "likely to be required and when"
 msgstr ""
 
-#: .\projects2\models.py:272
+#: .\projects2\models.py:389
 msgid "Will new data be collected or generated?"
 msgstr ""
 
-#: .\projects2\models.py:273
+#: .\projects2\models.py:390
 msgid "What type of data will be collected"
 msgstr "Quel type de données sera collecté"
 
-#: .\projects2\models.py:274
+#: .\projects2\models.py:391
 msgid "What data products will be generated (e.g. models, indices)?"
 msgstr ""
 
-#: .\projects2\models.py:275
+#: .\projects2\models.py:392
 #, fuzzy
 msgid ""
 "Are these data / data products eligible to be placed on the Open Data "
@@ -300,547 +423,626 @@ msgstr ""
 "Lesquels de ces données / produits de données seront placés sur la plate-"
 "forme Open Data cette année?"
 
-#: .\projects2\models.py:277
+#: .\projects2\models.py:394
 #, fuzzy
 msgid "Data storage / archiving plan"
 msgstr "Plan de stockage / archivage des données"
 
-#: .\projects2\models.py:278
+#: .\projects2\models.py:395
 msgid "Describe what data management support is required, if any."
 msgstr ""
 
-#: .\projects2\models.py:283
+#: .\projects2\models.py:400
 msgid "Does this project involve laboratory work?"
 msgstr ""
 
-#: .\projects2\models.py:286
+#: .\projects2\models.py:403
 msgid ""
 "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"
 msgstr ""
 
-#: .\projects2\models.py:287
+#: .\projects2\models.py:404
 msgid "Is laboratory space required?"
 msgstr ""
 
-#: .\projects2\models.py:289
+#: .\projects2\models.py:406
 msgid ""
 "Does this project require other specialized laboratory support or services "
 "(provide details below)?"
 msgstr ""
 
-#: .\projects2\models.py:291
+#: .\projects2\models.py:408
 msgid ""
 "Describe other laboratory requirements relevant for project planning "
 "purposes."
 msgstr ""
 
-#: .\projects2\models.py:293
+#: .\projects2\models.py:410
 #, fuzzy
 msgid "Special IT requirements (software, licenses, hardware)"
 msgstr "Configuration informatique requise (logiciels, licences, matériel)"
 
-#: .\projects2\models.py:294
+#: .\projects2\models.py:411
 msgid "additional notes"
 msgstr "notes supplémentaires"
 
-#: .\projects2\models.py:301
+#: .\projects2\models.py:418
 msgid "responsibility center (if known)"
 msgstr "centre de responsabilité (s'il est connu)"
 
-#: .\projects2\models.py:303
+#: .\projects2\models.py:420
 msgid "allotment code (if known)"
 msgstr "code d'allotissement (s'il est connu)"
 
-#: .\projects2\models.py:304
+#: .\projects2\models.py:421
 msgid "existing project codes (if known)"
 msgstr "codes de projet existants (s'ils sont connus)"
 
-#: .\projects2\models.py:309
+#: .\projects2\models.py:426
 #, fuzzy
 msgid "administrative notes"
 msgstr "Notes complémentaires"
 
-#: .\projects2\models.py:319
+#: .\projects2\models.py:436
 msgid "fiscal year"
 msgstr "exercice fiscal"
 
-#: .\projects2\models.py:320
+#: .\projects2\models.py:437
 #, fuzzy
 msgid "financial coding"
 msgstr "Résumé financier:"
 
-#: .\projects2\models.py:339
+#: .\projects2\models.py:456
 msgid "NEW PROJECT YEAR"
 msgstr ""
 
-#: .\projects2\models.py:456 .\projects2\models.py:571
-#: .\projects2\models.py:587 .\projects2\models.py:610
+#: .\projects2\models.py:573 .\projects2\models.py:697
+#: .\projects2\models.py:722 .\projects2\models.py:742
+#: .\projects2\models.py:765
 #, fuzzy
 msgid "project year"
 msgstr "Chef de projet"
 
-#: .\projects2\models.py:457
+#: .\projects2\models.py:574
 msgid "funding source"
 msgstr "source de financement"
 
-#: .\projects2\models.py:458 .\projects2\models.py:577
+#: .\projects2\models.py:575 .\projects2\models.py:703
 msgid "amount (CAD)"
 msgstr "montant (CAD)"
 
-#: .\projects2\models.py:471
+#: .\projects2\models.py:588
 msgid "Salary"
 msgstr "Salaire"
 
-#: .\projects2\models.py:472
+#: .\projects2\models.py:589
 msgid "O&M"
 msgstr "F & E"
 
-#: .\projects2\models.py:487
+#: .\projects2\models.py:604
 msgid "employee type"
 msgstr "type d'employé"
 
-#: .\projects2\models.py:488 .\projects2\models.py:573
-#: .\projects2\models.py:606
+#: .\projects2\models.py:605 .\projects2\models.py:699
+#: .\projects2\models.py:761
 msgid "project lead"
 msgstr "chef de projet"
 
-#: .\projects2\models.py:488
+#: .\projects2\models.py:605
 msgid "yes"
 msgstr "oui"
 
-#: .\projects2\models.py:488
+#: .\projects2\models.py:605
 msgid "no"
 msgstr "non"
 
-#: .\projects2\models.py:489
+#: .\projects2\models.py:606
 msgid "User"
 msgstr "Utilisateur"
 
-#: .\projects2\models.py:491
+#: .\projects2\models.py:608
 msgid "Person name (leave blank if user is selected)"
 msgstr "Nom de la personne (laisser vide si l'utilisateur est sélectionné)"
 
-#: .\projects2\models.py:492
+#: .\projects2\models.py:609
 msgid "level"
 msgstr "niveau"
 
-#: .\projects2\models.py:493
+#: .\projects2\models.py:610
 msgid "student program"
 msgstr "programme pour étudiants"
 
-#: .\projects2\models.py:494
+#: .\projects2\models.py:611
 #, fuzzy
 msgid "duration (weeks)"
 msgstr "Durée en semaines"
 
-#: .\projects2\models.py:495
+#: .\projects2\models.py:612
 #, fuzzy
 msgid "overtime (hours)"
 msgstr "Heures supplémentaires"
 
-#: .\projects2\models.py:496
+#: .\projects2\models.py:613
 msgid "overtime description"
 msgstr "description d'heures supplémentaires"
 
-#: .\projects2\models.py:516
+#: .\projects2\models.py:615
+#, fuzzy
+#| msgid "End date of project"
+msgid "role in the project"
+msgstr "Date de fin du projet"
+
+#: .\projects2\models.py:616
+msgid "key expertise"
+msgstr ""
+
+#: .\projects2\models.py:642
 msgid "Travel"
 msgstr "Voyage"
 
-#: .\projects2\models.py:517
+#: .\projects2\models.py:643
 msgid "Equipment Purchase"
 msgstr "Achat d'équipement"
 
-#: .\projects2\models.py:518
+#: .\projects2\models.py:644
 msgid "Material and Supplies"
 msgstr "Matériel et fournitures"
 
-#: .\projects2\models.py:519
+#: .\projects2\models.py:645
 msgid "Human Resources"
 msgstr "Ressources humaines"
 
-#: .\projects2\models.py:520
+#: .\projects2\models.py:646
 msgid "Contracts, Leases, Services"
 msgstr "Contrats, baux, services"
 
-#: .\projects2\models.py:521 .\projects2\models.py:558
+#: .\projects2\models.py:647 .\projects2\models.py:684
 msgid "Other"
 msgstr "Autre"
 
-#: .\projects2\models.py:535 .\projects2\models.py:819
-#: .\projects2\utils.py:150 .\projects2\utils.py:437 .\projects2\views.py:153
-#: .\projects2\views.py:154 .\projects2\views.py:750
+#: .\projects2\models.py:661 .\projects2\models.py:1033
+#: .\projects2\utils.py:150 .\projects2\utils.py:471 .\projects2\views.py:154
+#: .\projects2\views.py:155 .\projects2\views.py:811
 msgid "name"
 msgstr "nom"
 
-#: .\projects2\models.py:539 .\projects2\models.py:560
+#: .\projects2\models.py:665 .\projects2\models.py:686
 msgid "category"
 msgstr "catégorie"
 
-#: .\projects2\models.py:540 .\projects2\models.py:561
-#: .\projects2\models.py:821
+#: .\projects2\models.py:666 .\projects2\models.py:687
+#: .\projects2\models.py:1035
 msgid "description"
 msgstr "description"
 
-#: .\projects2\models.py:555
+#: .\projects2\models.py:681
 msgid "IM / IT - computers, hardware"
 msgstr "GI / TI - ordinateurs, matériel"
 
-#: .\projects2\models.py:556
+#: .\projects2\models.py:682
 msgid "Lab Equipment"
 msgstr "Équipement de laboratoire"
 
-#: .\projects2\models.py:557
+#: .\projects2\models.py:683
 msgid "Field Equipment"
 msgstr "Équipement de terrain"
 
-#: .\projects2\models.py:572
+#: .\projects2\models.py:698
 msgid "Recipient organization"
 msgstr "Organisation destinataire"
 
-#: .\projects2\models.py:575
+#: .\projects2\models.py:701
 msgid "Proposed title of agreement"
 msgstr "Titre de l'accord proposé"
 
-#: .\projects2\models.py:576
+#: .\projects2\models.py:702 .\projects2\models.py:729
 msgid "Name of G&C program"
 msgstr "Nom du programme de S & C"
 
-#: .\projects2\models.py:589
-msgid "Critical to project delivery"
-msgstr "Critique à la livraison du projet"
+#: .\projects2\models.py:714
+#, fuzzy
+msgid "External Collaborator"
+msgstr "Collaborateurs externes:"
 
-#: .\projects2\models.py:590 .\projects2\models.py:609
-msgid "notes"
-msgstr "remarques"
+#: .\projects2\models.py:715
+#, fuzzy
+msgid "Grant & Contribution Agreement"
+msgstr "Subventions et contributions:"
 
-#: .\projects2\models.py:601
+#: .\projects2\models.py:716
+#, fuzzy
+msgid "Collaborative Agreement"
+msgstr "Ententes de collaboration"
+
+#: .\projects2\models.py:719 .\projects2\models.py:756
+#: .\projects2\templates\projects2\project_references.html:114
 msgid "New"
 msgstr "Nouveau"
 
-#: .\projects2\models.py:602
+#: .\projects2\models.py:720 .\projects2\models.py:757
 msgid "Existing"
 msgstr "Existant"
 
-#: .\projects2\models.py:605
-msgid "collaborating organization"
+#: .\projects2\models.py:723
+#, fuzzy
+#| msgid "collaborating organization"
+msgid "collaboration type"
 msgstr "organisation collaboratrice"
 
-#: .\projects2\models.py:607
-msgid "Title of the agreement"
-msgstr "Titre de l'accord"
-
-#: .\projects2\models.py:608
+#: .\projects2\models.py:724 .\projects2\models.py:763
 msgid "new or existing"
 msgstr "nouveau ou existant"
 
-#: .\projects2\models.py:626
+#: .\projects2\models.py:725 .\projects2\models.py:760
+msgid "collaborating organization"
+msgstr "organisation collaboratrice"
+
+#: .\projects2\models.py:726
+#, fuzzy
+msgid "project lead(s)"
+msgstr "Chef de projet"
+
+#: .\projects2\models.py:727
+#, fuzzy
+#| msgid "Critical to project delivery"
+msgid "Critical to project delivery?"
+msgstr "Critique à la livraison du projet"
+
+#: .\projects2\models.py:728 .\projects2\models.py:762
+msgid "Title of the agreement"
+msgstr "Titre de l'accord"
+
+#: .\projects2\models.py:730
+msgid "Contribution agreement amount"
+msgstr ""
+
+#: .\projects2\models.py:731 .\projects2\models.py:745
+#: .\projects2\models.py:764
+msgid "notes"
+msgstr "remarques"
+
+#: .\projects2\models.py:744
+msgid "Critical to project delivery"
+msgstr "Critique à la livraison du projet"
+
+#: .\projects2\models.py:781
 msgid "resource name"
 msgstr "nom de la ressource"
 
-#: .\projects2\models.py:627
+#: .\projects2\models.py:782
 msgid "file attachment"
 msgstr "pièce jointe"
 
-#: .\projects2\models.py:630
+#: .\projects2\models.py:785
 msgid "external URL"
 msgstr "URL externe"
 
-#: .\projects2\models.py:651
+#: .\projects2\models.py:806
 msgid "On-track"
 msgstr ""
 
-#: .\projects2\models.py:652
+#: .\projects2\models.py:807
 #, fuzzy
 msgid "Complete"
 msgstr "Commentaires"
 
-#: .\projects2\models.py:653
+#: .\projects2\models.py:808
 msgid "Encountering issues"
 msgstr ""
 
-#: .\projects2\models.py:654 .\projects2\models.py:849
+#: .\projects2\models.py:809 .\projects2\models.py:1064
 msgid "Aborted / cancelled"
 msgstr ""
 
-#: .\projects2\models.py:659 .\projects2\utils.py:519
+#: .\projects2\models.py:814 .\projects2\utils.py:552
 #, fuzzy
 #| msgid "Major Accomplishments"
 msgid "major accomplishments"
 msgstr "Principales réalisations"
 
-#: .\projects2\models.py:660
+#: .\projects2\models.py:815
 msgid "major issues encountered"
 msgstr "problèmes majeurs rencontrés"
 
-#: .\projects2\models.py:661
+#: .\projects2\models.py:816
 msgid "target completion date"
 msgstr "date d'achèvement prévue"
 
-#: .\projects2\models.py:663
+#: .\projects2\models.py:818
 msgid "rationale for a modified completion date"
 msgstr "justification d'une date d'achèvement modifiée"
 
-#: .\projects2\models.py:664 .\projects2\models.py:735
+#: .\projects2\models.py:819 .\projects2\models.py:895
 msgid "general comments"
 msgstr "observations générales"
 
-#: .\projects2\models.py:665
+#: .\projects2\models.py:820
 msgid "section head comment"
 msgstr "commentaire de chefde section"
 
-#: .\projects2\models.py:666
+#: .\projects2\models.py:821
 msgid "reviewed by section head"
 msgstr "examiné par le chef de section"
 
-#: .\projects2\models.py:691
+#: .\projects2\models.py:846
 msgid "Status Report #"
 msgstr "No. de rapport d'état"
 
-#: .\projects2\models.py:708
+#: .\projects2\models.py:863
 #, fuzzy
 msgid "approved"
 msgstr "Non approuvé"
 
-#: .\projects2\models.py:709
+#: .\projects2\models.py:864
 #, fuzzy
 #| msgid "Unapproved"
 msgid "not approved"
 msgstr "Non approuvé"
 
-#: .\projects2\models.py:710
+#: .\projects2\models.py:865
 #, fuzzy
 #| msgid "Cancel"
 msgid "cancelled"
 msgstr "Annuler"
 
-#: .\projects2\models.py:713
+#: .\projects2\models.py:868
+#, fuzzy
+#| msgid "Division"
+msgid "Division-level"
+msgstr "Division"
+
+#: .\projects2\models.py:869
+msgid "Branch-level"
+msgstr ""
+
+#: .\projects2\models.py:870
+#, fuzzy
+#| msgid "National"
+msgid "National"
+msgstr "National"
+
+#: .\projects2\models.py:873
 msgid "high"
 msgstr ""
 
-#: .\projects2\models.py:714
+#: .\projects2\models.py:874
 msgid "medium"
 msgstr ""
 
-#: .\projects2\models.py:715
+#: .\projects2\models.py:875
 msgid "low"
 msgstr ""
 
-#: .\projects2\models.py:719
+#: .\projects2\models.py:879
 #, fuzzy
 msgid "External Pressures"
 msgstr "Collaborateurs externes:"
 
-#: .\projects2\models.py:721
+#: .\projects2\models.py:881
 #, fuzzy
 #| msgid "general comments"
 msgid "External Pressures comments"
 msgstr "observations générales"
 
-#: .\projects2\models.py:723
+#: .\projects2\models.py:883
 #, fuzzy
 #| msgid "Save comments"
 msgid "Strategic Direction"
 msgstr "Enregistrer les commentaires"
 
-#: .\projects2\models.py:724
+#: .\projects2\models.py:884
 #, fuzzy
 #| msgid "Save comments"
 msgid "Strategic Direction comments"
 msgstr "Enregistrer les commentaires"
 
-#: .\projects2\models.py:726
+#: .\projects2\models.py:886
 #, fuzzy
 #| msgid "general comments"
 msgid "Operational Considerations"
 msgstr "observations générales"
 
-#: .\projects2\models.py:727
+#: .\projects2\models.py:887
 #, fuzzy
 #| msgid "general comments"
 msgid "Operational Considerations comments"
 msgstr "observations générales"
 
-#: .\projects2\models.py:729
+#: .\projects2\models.py:889
 #, fuzzy
 #| msgid "general comments"
 msgid "Ecological Impact"
 msgstr "observations générales"
 
-#: .\projects2\models.py:730
+#: .\projects2\models.py:890
 #, fuzzy
 #| msgid "general comments"
 msgid "Ecological Impact comments"
 msgstr "observations générales"
 
-#: .\projects2\models.py:732
+#: .\projects2\models.py:892
 #, fuzzy
 #| msgid "Fiscal Year"
 msgid "scale"
 msgstr "Exercice fiscal"
 
-#: .\projects2\models.py:733
+#: .\projects2\models.py:893
 #, fuzzy
 #| msgid "Save comments"
 msgid "scale comments"
 msgstr "Enregistrer les commentaires"
 
-#: .\projects2\models.py:736
+#: .\projects2\models.py:896
+#, fuzzy
+#| msgid "End date of project"
+msgid "questions and comments for project leads"
+msgstr "Date de fin du projet"
+
+#: .\projects2\models.py:898
 #, fuzzy
 #| msgid "project status"
 msgid "Approval status"
 msgstr "l'état du projet"
 
-#: .\projects2\models.py:738
+#: .\projects2\models.py:899
+msgid "level of approval"
+msgstr ""
+
+#: .\projects2\models.py:901
 #: .\projects2\templates\projects2\manage_projects\_console.html:244
 msgid "Allocated budget"
 msgstr ""
 
-#: .\projects2\models.py:739
+#: .\projects2\models.py:902 .\projects2\models.py:903
 msgid "Notification Email Sent"
 msgstr ""
 
-#: .\projects2\models.py:740
+#: .\projects2\models.py:904
 msgid "Approver comments (shared with project leads)"
 msgstr ""
 
-#: .\projects2\models.py:750
+#: .\projects2\models.py:914
 msgid "total score"
 msgstr ""
 
-#: .\projects2\models.py:793
+#: .\projects2\models.py:1007
 msgid "Milestone"
 msgstr "Jalons"
 
-#: .\projects2\models.py:794
+#: .\projects2\models.py:1008
 msgid "Deliverable"
 msgstr ""
 
-#: .\projects2\models.py:797
+#: .\projects2\models.py:1011
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:51
 msgid "1-Very unlikely"
 msgstr ""
 
-#: .\projects2\models.py:798
+#: .\projects2\models.py:1012
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:52
 msgid "2-Unlikely"
 msgstr ""
 
-#: .\projects2\models.py:799
+#: .\projects2\models.py:1013
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:53
 msgid "3-Low"
 msgstr ""
 
-#: .\projects2\models.py:800
+#: .\projects2\models.py:1014
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:54
 msgid "4-Likely"
 msgstr ""
 
-#: .\projects2\models.py:801
+#: .\projects2\models.py:1015
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:55
 msgid "5-Almost certain"
 msgstr ""
 
-#: .\projects2\models.py:804
+#: .\projects2\models.py:1018
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:42
 msgid "1-Negligible"
 msgstr ""
 
-#: .\projects2\models.py:805
+#: .\projects2\models.py:1019
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:34
 msgid "2-Low"
 msgstr ""
 
-#: .\projects2\models.py:806
+#: .\projects2\models.py:1020
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:26
 msgid "3-Medium"
 msgstr ""
 
-#: .\projects2\models.py:807
+#: .\projects2\models.py:1021
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:18
 msgid "4-High"
 msgstr ""
 
-#: .\projects2\models.py:808
+#: .\projects2\models.py:1022
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:10
 msgid "5-Extreme"
 msgstr ""
 
-#: .\projects2\models.py:812
+#: .\projects2\models.py:1026
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:35
 msgid "Low"
 msgstr ""
 
-#: .\projects2\models.py:813
+#: .\projects2\models.py:1027
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:29
 msgid "Medium"
 msgstr ""
 
-#: .\projects2\models.py:814
+#: .\projects2\models.py:1028
 #: .\projects2\templates\projects2\project_detail\_risk_rating_diagram.html:23
 msgid "High"
 msgstr ""
 
-#: .\projects2\models.py:820
+#: .\projects2\models.py:1034
 #, fuzzy
 msgid "Target date (optional)"
 msgstr "Date d'achèvement prévue"
 
-#: .\projects2\models.py:822
+#: .\projects2\models.py:1036
 msgid "responsible party"
 msgstr ""
 
-#: .\projects2\models.py:823
-msgid "Description of risks and their consequences (ACRDP)"
+#: .\projects2\models.py:1037
+msgid "Description of risks and their consequences"
 msgstr ""
 
-#: .\projects2\models.py:824
-msgid "what will be the impact if the risks occurs (ACRDP)"
+#: .\projects2\models.py:1038
+msgid "what will be the impact if the risks occurs"
 msgstr ""
 
-#: .\projects2\models.py:825
-msgid "what is the likelihood of the risks occurring (ACRDP)"
+#: .\projects2\models.py:1040
+msgid "what is the likelihood of the risks occurring"
 msgstr ""
 
-#: .\projects2\models.py:827
-msgid "what measures will be used to mitigate the risks (ACRDP)"
+#: .\projects2\models.py:1042
+msgid "what measures will be used to mitigate the risks"
 msgstr ""
 
-#: .\projects2\models.py:847
+#: .\projects2\models.py:1062
 #, fuzzy
 msgid "In progress"
 msgstr "j'approuve"
 
-#: .\projects2\models.py:848
+#: .\projects2\models.py:1063
 msgid "Completed"
 msgstr ""
 
-#: .\projects2\models.py:854
+#: .\projects2\models.py:1069
 msgid "Notes"
 msgstr "Remarques"
 
-#: .\projects2\models.py:863
+#: .\projects2\models.py:1078
 msgid "Update on "
 msgstr "Mise à jour sur"
 
-#: .\projects2\models.py:902
+#: .\projects2\models.py:1117
 #, fuzzy
 #| msgid "file attachment"
 msgid "file attachment (English)"
 msgstr "pièce jointe"
 
-#: .\projects2\models.py:903
+#: .\projects2\models.py:1118
 #, fuzzy
 #| msgid "file attachment"
 msgid "file attachment (French)"
 msgstr "pièce jointe"
 
-#: .\projects2\reports.py:31
+#: .\projects2\reports.py:39
 msgid ""
 "{full_address}\n"
 "\n"
 "{email}\n"
 "\n"
 "{phone}"
+msgstr ""
+
+#: .\projects2\reports.py:628
+msgid "DFO-"
 msgstr ""
 
 #: .\projects2\templates\projects2\_upcoming_dates.html:16
@@ -864,9 +1066,9 @@ msgid "Past Dates"
 msgstr "Date de début"
 
 #: .\projects2\templates\projects2\_upcoming_dates.html:104
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:194
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:203
-#: .\projects2\templates\projects2\project_detail\main.html:180
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:214
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:172
+#: .\projects2\templates\projects2\project_detail\main.html:225
 #: .\projects2\templates\projects2\status_report\_modal_form.html:65
 msgid "Close"
 msgstr "Fermer"
@@ -885,14 +1087,19 @@ msgid "French"
 msgstr ""
 
 #: .\projects2\templates\projects2\base\_app_title.html:2
-#: .\projects2\views.py:58 .\projects2\views.py:82
+#: .\projects2\views.py:59 .\projects2\views.py:83
 msgid "Projects"
 msgstr "Projets"
 
 #: .\projects2\templates\projects2\base\_nav_left_auth.html:4
-#: .\projects2\views.py:30
+#: .\projects2\views.py:31
 msgid "Home"
 msgstr "Accueil"
+
+#: .\projects2\templates\projects2\base\_nav_left_auth.html:8
+#: .\projects2\templates\projects2\project_detail\_console.html:12
+msgid "Reports"
+msgstr "Rapports"
 
 #: .\projects2\templates\projects2\base\_nav_left_auth.html:18
 msgid "Settings"
@@ -942,14 +1149,38 @@ msgstr "Gérer les tarifs NJC"
 msgid "Manage Reference Materials"
 msgstr "Référence"
 
-#: .\projects2\templates\projects2\base\_nav_left_auth.html:59
+#: .\projects2\templates\projects2\base\_nav_left_auth.html:57
+#, fuzzy
+msgid "Manage CSRF Theme"
+msgstr "Gérer les étiquettes"
+
+#: .\projects2\templates\projects2\base\_nav_left_auth.html:61
+#, fuzzy
+msgid "Manage CSRF Sub-Theme"
+msgstr "Gérer les étiquettes"
+
+#: .\projects2\templates\projects2\base\_nav_left_auth.html:65
+#, fuzzy
+msgid "Manage CSRF Priority"
+msgstr "Mes projets"
+
+#: .\projects2\templates\projects2\base\_nav_left_auth.html:68
+#, fuzzy
+msgid "Manage CSRF Client Information"
+msgstr "Ajouter / Modifier les détails du projet"
+
+#: .\projects2\templates\projects2\base\_nav_left_auth.html:75
 #, fuzzy
 msgid "Manage Functional Groups"
 msgstr "Gérer les source de financement"
 
-#: .\projects2\templates\projects2\base\_nav_left_auth.html:62
+#: .\projects2\templates\projects2\base\_nav_left_auth.html:78
 msgid "ADMIN: Manage DFO Organizations"
 msgstr "ADMIN : Gérer les organisations du MPO"
+
+#: .\projects2\templates\projects2\base\_nav_left_auth.html:81
+msgid "ADMIN: Non-DMApps Staff List"
+msgstr ""
 
 #: .\projects2\templates\projects2\explore_projects\_console.html:7
 #: .\projects2\templates\projects2\manage_projects\_console.html:7
@@ -1065,12 +1296,12 @@ msgid "Load more results..."
 msgstr ""
 
 #: .\projects2\templates\projects2\form.html:37
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:180
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:149
 #: .\projects2\templates\projects2\status_report\_modal_form.html:44
 msgid "Markdown syntax is supported in this field"
 msgstr ""
 
-#: .\projects2\templates\projects2\index.html:20 .\projects2\views.py:29
+#: .\projects2\templates\projects2\index.html:20 .\projects2\views.py:30
 #, fuzzy
 msgid "DFO Science Project Planning"
 msgstr "Planification de projets (Science)"
@@ -1085,7 +1316,7 @@ msgstr "Date de début du projet"
 msgid "Your Projects"
 msgstr "Projets"
 
-#: .\projects2\templates\projects2\index.html:35 .\projects2\views.py:62
+#: .\projects2\templates\projects2\index.html:35 .\projects2\views.py:63
 #, fuzzy
 msgid "Explore Projects"
 msgstr "Cloner le projet"
@@ -1095,7 +1326,7 @@ msgstr "Cloner le projet"
 msgid "Manager Menu"
 msgstr "Gérer les étiquettes"
 
-#: .\projects2\templates\projects2\index.html:45 .\projects2\views.py:86
+#: .\projects2\templates\projects2\index.html:45 .\projects2\views.py:87
 #, fuzzy
 msgid "Manage Projects"
 msgstr "Mes projets"
@@ -1204,8 +1435,7 @@ msgid "Review score"
 msgstr "Examinateur"
 
 #: .\projects2\templates\projects2\manage_projects\_project_list.html:88
-#: .\projects2\templates\projects2\project_detail\_console.html:59
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:294
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:263
 msgid "Submit"
 msgstr "Soumettre"
 
@@ -1230,77 +1460,79 @@ msgstr "Date de début"
 msgid "Approvals"
 msgstr "Approuver"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:16
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:18
 #, fuzzy
 msgid "Edit Review"
 msgstr "Gérer les réviseurs"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:19
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:21
 msgid "Start a Review"
 msgstr "Commencer un examen"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:21
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:23
 #, fuzzy
 msgid "Title:"
 msgstr "Titre"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:24
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:26
 #, fuzzy
 msgid "Review History:"
 msgstr "Examinateur"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:30
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:32
 #, fuzzy
 #| msgid "Approve"
 msgid "Approval Form"
 msgstr "Approuver"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:37
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:55
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:39
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:47
 #: .\projects2\templates\projects2\status_report\_modal_form.html:26
 msgid "The form has a few errors:"
 msgstr ""
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:66
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:89
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:110
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:131
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:152
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:68
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:91
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:112
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:133
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:154
 msgid "Score Criteria"
 msgstr ""
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:70
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:93
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:114
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:135
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:156
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:72
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:95
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:116
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:137
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:158
 msgid "Examples"
 msgstr ""
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:170
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:179
 #, fuzzy
 msgid "Review Score:"
 msgstr "Examinateur"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:179
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:187
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:199
 #, fuzzy
 #| msgid "Success! An email has been sent to the trip request owner."
 msgid "NOTE: An email has already been send to the project leads on "
 msgstr ""
 "Succès ! Un courriel a été envoyé au responsable de la demande de voyage."
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:190
-#: .\projects2\templates\projects2\project_detail\_console.html:53
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:210
 #: .\projects2\templates\projects2\project_detail\_project_year_detail.html:14
+#: .\projects2\templates\projects2\project_references.html:37
 #: .\projects2\templates\projects2\status_report\main.html:18
 msgid "Delete"
 msgstr "Supprimer"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:191
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:211
 msgid "Update"
 msgstr "Mettre à jour"
 
-#: .\projects2\templates\projects2\manage_projects\_review_modal.html:192
+#: .\projects2\templates\projects2\manage_projects\_review_modal.html:212
+#: .\projects2\templates\projects2\project_references.html:103
 msgid "Add"
 msgstr "Ajouter"
 
@@ -1318,7 +1550,7 @@ msgid "FTE (weeks)"
 msgstr "No. de semaines"
 
 #: .\projects2\templates\projects2\manage_projects\_staff.html:33
-#: .\projects2\templates\projects2\my_project_list.html:22
+#: .\projects2\templates\projects2\my_project_list.html:21
 #, fuzzy
 msgid "Draft"
 msgstr "Date"
@@ -1329,7 +1561,7 @@ msgid "Submitted, Unapproved"
 msgstr "Projets soumis"
 
 #: .\projects2\templates\projects2\manage_projects\_staff.html:35
-#: .\projects2\templates\projects2\my_project_list.html:24
+#: .\projects2\templates\projects2\my_project_list.html:23
 msgid "Approved"
 msgstr "Approuvé"
 
@@ -1374,13 +1606,13 @@ msgid "Financial Summary"
 msgstr "Résumé financier:"
 
 #: .\projects2\templates\projects2\manage_projects\main.html:68
-#: .\projects2\templates\projects2\project_detail\main.html:195
+#: .\projects2\templates\projects2\project_detail\main.html:240
 #, fuzzy
 msgid "Are certain you want to submit the following year of the project?"
 msgstr "Êtes-vous sûr de vouloir soumettre le projet"
 
 #: .\projects2\templates\projects2\manage_projects\main.html:69
-#: .\projects2\templates\projects2\project_detail\main.html:196
+#: .\projects2\templates\projects2\project_detail\main.html:241
 msgid ""
 "Are certain you want to un-submit the following year of the project? The "
 "status of the project year will be reset!"
@@ -1393,19 +1625,19 @@ msgid ""
 "is not reversible."
 msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
 
-#: .\projects2\templates\projects2\my_project_list.html:14
+#: .\projects2\templates\projects2\my_project_list.html:13
 msgid "Here's a breakdown of your time allocation:"
 msgstr "Voici une ventilation de votre allocation de temps:"
 
-#: .\projects2\templates\projects2\my_project_list.html:18
+#: .\projects2\templates\projects2\my_project_list.html:17
 msgid "Fiscal year"
 msgstr "Exercice fiscal"
 
-#: .\projects2\templates\projects2\my_project_list.html:19
+#: .\projects2\templates\projects2\my_project_list.html:18
 msgid "Time in weeks"
 msgstr "Durée en semaines"
 
-#: .\projects2\templates\projects2\my_project_list.html:23
+#: .\projects2\templates\projects2\my_project_list.html:22
 #, fuzzy
 msgid "Submitted (unapproved)"
 msgstr "Projets soumis"
@@ -1426,20 +1658,6 @@ msgstr ""
 msgid "No activities have been added to this year of the project"
 msgstr "Aucun jalon n'a été ajouté à ce projet."
 
-#: .\projects2\templates\projects2\project_detail\_agreements.html:9
-#, fuzzy
-msgid "Collaborative Agreements"
-msgstr "Ententes de collaboration"
-
-#: .\projects2\templates\projects2\project_detail\_agreements.html:13
-msgid "Add Agreement"
-msgstr "Ajouter un accord"
-
-#: .\projects2\templates\projects2\project_detail\_agreements.html:31
-#, fuzzy
-msgid "No agreements have been added to this year of the project"
-msgstr "Aucun jalon n'a été ajouté à ce projet."
-
 #: .\projects2\templates\projects2\project_detail\_capital_costs.html:9
 #, fuzzy
 msgid "Capital Costs"
@@ -1455,23 +1673,22 @@ msgstr "Coûts en capital:"
 msgid "No capital costs have been added to this year of the project"
 msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
-#: .\projects2\templates\projects2\project_detail\_collaborators.html:9
+#: .\projects2\templates\projects2\project_detail\_collaborations.html:9
 #, fuzzy
-msgid "External Collaborators"
-msgstr "Collaborateurs externes:"
+#| msgid "No Collaborators"
+msgid "Collaborations"
+msgstr "Pas de collaborateurs"
 
-#: .\projects2\templates\projects2\project_detail\_collaborators.html:13
-msgid "Add Collaborator"
+#: .\projects2\templates\projects2\project_detail\_collaborations.html:13
+#, fuzzy
+#| msgid "Add Collaborator"
+msgid "Add Collaboration"
 msgstr "Ajout d'un collaborateur"
 
-#: .\projects2\templates\projects2\project_detail\_collaborators.html:31
+#: .\projects2\templates\projects2\project_detail\_collaborations.html:31
 #, fuzzy
-msgid "No collaborators have been added to this year of the project"
+msgid "No collaborations have been added to this year of the project"
 msgstr "Aucun jalon n'a été ajouté à ce projet."
-
-#: .\projects2\templates\projects2\project_detail\_console.html:12
-msgid "Reports"
-msgstr "Rapports"
 
 #: .\projects2\templates\projects2\project_detail\_console.html:17
 #: .\projects2\templates\projects2\status_report\main.html:21
@@ -1482,54 +1699,82 @@ msgstr ""
 msgid "ACRDP Application"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\_console.html:33
+#: .\projects2\templates\projects2\project_detail\_console.html:25
+msgid "CSRF Application (EN)"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_detail\_console.html:29
+msgid "CSRF Application (FR)"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_detail\_console.html:42
 msgid "ACRDP Budget"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\_console.html:39
+#: .\projects2\templates\projects2\project_detail\_console.html:48
 #, fuzzy
 msgid "Actions"
 msgstr "Section"
 
-#: .\projects2\templates\projects2\project_detail\_console.html:47
+#: .\projects2\templates\projects2\project_detail\_console.html:56
 #, fuzzy
 msgid "Edit Overview"
 msgstr "Gérer les réviseurs"
 
-#: .\projects2\templates\projects2\project_detail\_console.html:60
-msgid "Unsubmit"
-msgstr "Annuler la soumission"
+#: .\projects2\templates\projects2\project_detail\_console.html:61
+#, fuzzy
+msgid "Manage References"
+msgstr "Référence"
 
 #: .\projects2\templates\projects2\project_detail\_console.html:67
+#, fuzzy
+#| msgid "New Project"
+msgid "Delete Project"
+msgstr "Nouveau projet"
+
+#: .\projects2\templates\projects2\project_detail\_console.html:73
+#, fuzzy
+#| msgid "Submitted projects"
+msgid "Submit Project"
+msgstr "Projets soumis"
+
+#: .\projects2\templates\projects2\project_detail\_console.html:74
+#, fuzzy
+#| msgid "Un-submitted projects"
+msgid "Unsubmit Project"
+msgstr "Projets non soumis"
+
+#: .\projects2\templates\projects2\project_detail\_console.html:81
 msgid "Use this project as a template for a new project"
 msgstr "Utilisez ce projet comme modèle pour un nouveau projet"
 
-#: .\projects2\templates\projects2\project_detail\_console.html:70
-#: .\projects2\templates\projects2\project_detail\_project_year_detail.html:19
-msgid "Clone"
-msgstr "Clone"
+#: .\projects2\templates\projects2\project_detail\_console.html:84
+#, fuzzy
+msgid "Clone Project"
+msgstr "Cloner le projet"
 
-#: .\projects2\templates\projects2\project_detail\_console.html:76
+#: .\projects2\templates\projects2\project_detail\_console.html:90
 #, fuzzy
 msgid "Project Years"
 msgstr "Chef de projet"
 
-#: .\projects2\templates\projects2\project_detail\_console.html:83
+#: .\projects2\templates\projects2\project_detail\_console.html:97
 #, fuzzy
 msgid "Overview"
 msgstr "Gérer les réviseurs"
 
-#: .\projects2\templates\projects2\project_detail\_console.html:90
+#: .\projects2\templates\projects2\project_detail\_console.html:104
 #, fuzzy
 msgid "draft"
 msgstr "Mettre à jour"
 
-#: .\projects2\templates\projects2\project_detail\_console.html:94
+#: .\projects2\templates\projects2\project_detail\_console.html:108
 #, fuzzy
 msgid "Add a new year to this project"
 msgstr "Créer un nouveau rapport de statut pour ce projet"
 
-#: .\projects2\templates\projects2\project_detail\_console.html:96
+#: .\projects2\templates\projects2\project_detail\_console.html:110
+#: .\projects2\templates\projects2\project_detail\_console.html:114
 #, fuzzy
 msgid "Add New Year"
 msgstr "Ajouter un enregistrement"
@@ -1552,21 +1797,6 @@ msgstr "Ressources de support"
 #, fuzzy
 msgid "No supporting resources have been added to this year of the project"
 msgstr "Aucun jalon n'a été ajouté à ce projet."
-
-#: .\projects2\templates\projects2\project_detail\_gc_costs.html:9
-#, fuzzy
-msgid "Grant & Contributions"
-msgstr "Subventions et contributions:"
-
-#: .\projects2\templates\projects2\project_detail\_gc_costs.html:13
-#, fuzzy
-msgid "Add G&C Cost"
-msgstr "Ajouter S & C"
-
-#: .\projects2\templates\projects2\project_detail\_gc_costs.html:31
-#, fuzzy
-msgid "No G&C costs have been added to this year of the project"
-msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
 #: .\projects2\templates\projects2\project_detail\_om_costs.html:9
 #, fuzzy
@@ -1603,8 +1833,21 @@ msgstr "Résumé financier:"
 msgid "Edit"
 msgstr "Modifier"
 
+#: .\projects2\templates\projects2\project_detail\_project_year_detail.html:19
+msgid "Clone"
+msgstr "Clone"
+
+#: .\projects2\templates\projects2\project_detail\_project_year_detail.html:58
+msgid "Methods applied to achieve project objectives (CSRF)"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_detail\_project_year_detail.html:72
+#, fuzzy
+msgid "Visible Only to Project Leads "
+msgstr "Chef de projet"
+
 #: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:17
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:125
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:69
 msgid "Overtime Calculator"
 msgstr "Calculatrice d'heures supplémentaires"
 
@@ -1640,82 +1883,73 @@ msgstr "Coûts en capital:"
 
 #: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:30
 #, fuzzy
-msgid "New G&C Cost"
-msgstr "Aucune de F et E"
+msgid "New Activity"
+msgstr "Gérer les types d'employés"
 
 #: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:31
-msgid "Edit G&C Cost"
+msgid "Edit Activity"
 msgstr ""
 
 #: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:34
 #, fuzzy
-msgid "New Activity"
-msgstr "Gérer les types d'employés"
+#| msgid "No Collaborators"
+msgid "New Collaboration"
+msgstr "Pas de collaborateurs"
 
 #: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:35
-msgid "Edit Activity"
-msgstr ""
+#, fuzzy
+#| msgid "Add Collaborator"
+msgid "Edit Collaboration"
+msgstr "Ajout d'un collaborateur"
 
 #: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:38
-#, fuzzy
-msgid "New External Collaborator"
-msgstr "Collaborateurs externes:"
-
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:39
-#, fuzzy
-msgid "Edit External Collaborator"
-msgstr "Collaborateurs externes:"
-
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:42
-#, fuzzy
-msgid "New Collaborative Agreement"
-msgstr "Aucun accord de collaboration"
-
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:43
-#, fuzzy
-msgid "Edit Collaborative Agreement"
-msgstr "Ajout d'un accord de collaboration"
-
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:46
 #, fuzzy
 #| msgid "New Status Report for: "
 msgid "New Status Report (Still under development)"
 msgstr "Nouveau rapport pour : "
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:47
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:39
 msgid "Edit Status Report (Still under development)"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:50
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:42
 #: .\projects2\templates\projects2\status_report\_modal_form.html:21
 #, fuzzy
 msgid "New Supporting Resource"
 msgstr "Ressources de support"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:51
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:43
 #: .\projects2\templates\projects2\status_report\_modal_form.html:22
 #, fuzzy
 msgid "Edit Supporting Resource"
 msgstr "Ressources de support"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:123
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:67
 msgid "OT Calculator"
 msgstr "Calculatrice d'heures supplémentaires"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:154
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:112
+msgid ""
+"Briefly identify and assess the risks for this activity's completion within "
+"the planned timeframe (e.g. COVID-19 restrictions, vessel availability, lab "
+"space, etc.)"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:127
 msgid "Shortcuts"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:154
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:127
 msgid "End of "
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:201
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:170
+#: .\projects2\templates\projects2\project_references.html:102
 #: .\projects2\templates\projects2\status_report\_modal_form.html:63
 msgid "Save"
 msgstr "Sauvegarder"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:215
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:184
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -1728,12 +1962,12 @@ msgstr ""
 "chaque jour de l'exercice %(year)s\n"
 "                "
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:220
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:189
 msgid "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes"
 msgstr ""
 "Utilisez <b> tab </b> et <b> shift + tab </b> pour naviguer les champs."
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:223
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:192
 msgid ""
 "For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard "
 "working day</b>"
@@ -1741,7 +1975,7 @@ msgstr ""
 "Du lundi au vendredi, insérez les heures à travailler <b> au-delà de 7,5 "
 "heures par jour ouvrable standard </b>"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:227
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:196
 msgid ""
 "For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to "
 "be worked"
@@ -1749,40 +1983,41 @@ msgstr ""
 "Pour le samedi, le dimanche et les jours fériés (zone rouge), entrez toutes "
 "les heures à travailler"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:230
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:199
 msgid "When you are done, submit the form"
 msgstr "Lorsque vous avez terminé, envoyez le formulaire"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:240
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:209
 msgid "Date"
 msgstr "Date"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:241
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:210
 msgid "Weekday"
 msgstr "Jour de la semaine"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:242
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:211
 msgid "Overtime hours"
 msgstr "Heures supplémentaires"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:258
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:227
 msgid "hours"
 msgstr "heures"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:270
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:239
 msgid "Extra Hours to be Worked:"
 msgstr "Heures supplémentaires à travailler:"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:276
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:245
 msgid "Calculated Overtime Hours:"
 msgstr "Heures supplémentaires calculées:"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:282
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:251
 #, fuzzy
 msgid "Overtime Description:"
 msgstr "description d'heures supplémentaires"
 
-#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:295
+#: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:264
+#: .\projects2\templates\projects2\project_references.html:104
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -1858,19 +2093,25 @@ msgid "Project Overview"
 msgstr "titre du projet"
 
 #: .\projects2\templates\projects2\project_detail\main.html:65
-msgid "<span class='lead red-font'>missing data</span>"
+msgid "<span class='red-font'>missing</span>"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\main.html:158
+#: .\projects2\templates\projects2\project_detail\main.html:80
+#, fuzzy
+#| msgid "name"
+msgid "manage"
+msgstr "nom"
+
+#: .\projects2\templates\projects2\project_detail\main.html:203
 msgid "Add a New Year to This Project"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\main.html:166
+#: .\projects2\templates\projects2\project_detail\main.html:211
 #, fuzzy
 msgid "Please select among the following:"
 msgstr "Veuillez sélectionner le rapport"
 
-#: .\projects2\templates\projects2\project_detail\main.html:171
+#: .\projects2\templates\projects2\project_detail\main.html:216
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -1881,11 +2122,11 @@ msgstr ""
 "                    %(o)s\n"
 "                "
 
-#: .\projects2\templates\projects2\project_detail\main.html:176
+#: .\projects2\templates\projects2\project_detail\main.html:221
 msgid "Start from Scratch"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\main.html:194
+#: .\projects2\templates\projects2\project_detail\main.html:239
 msgid ""
 "WARNING! If you remove yourself as project lead you will loose the ability "
 "to further modify this project."
@@ -1893,18 +2134,18 @@ msgstr ""
 "ATTENTION! Si vous vous retirez en tant que responsable de projet, vous ne "
 "pourrez plus modifier ce projet."
 
-#: .\projects2\templates\projects2\project_detail\main.html:197
+#: .\projects2\templates\projects2\project_detail\main.html:242
 #: .\projects2\templates\projects2\status_report\main.html:67
 #, fuzzy
 msgid "Are you sure you want to delete this item: "
 msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 
-#: .\projects2\templates\projects2\project_detail\main.html:198
+#: .\projects2\templates\projects2\project_detail\main.html:243
 #, fuzzy
 msgid "Are you sure you want to remove yourself?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 
-#: .\projects2\templates\projects2\project_detail\main.html:198
+#: .\projects2\templates\projects2\project_detail\main.html:243
 #, fuzzy
 msgid ""
 "WARNING: This action might result in you loosing the ability to modify this "
@@ -1913,7 +2154,7 @@ msgstr ""
 "ATTENTION! Si vous vous retirez en tant que responsable de projet, vous ne "
 "pourrez plus modifier ce projet."
 
-#: .\projects2\templates\projects2\project_detail\main.html:199
+#: .\projects2\templates\projects2\project_detail\main.html:244
 msgid "Do you want to add this OT description to the current staff member?"
 msgstr ""
 
@@ -1937,6 +2178,77 @@ msgid ""
 "          <b>project year</b> instead of the entire project.\n"
 "        "
 msgstr ""
+
+#: .\projects2\templates\projects2\project_references.html:21
+#, fuzzy
+#| msgid "Reference"
+msgid "Find a Reference"
+msgstr "Référence"
+
+#: .\projects2\templates\projects2\project_references.html:28
+#, fuzzy
+#| msgid "Reference"
+msgid "Current References:"
+msgstr "Référence"
+
+#: .\projects2\templates\projects2\project_references.html:33
+#, fuzzy
+#| msgid "Reference"
+msgid "Edit Reference"
+msgstr "Référence"
+
+#: .\projects2\templates\projects2\project_references.html:34
+msgid "Remove"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_references.html:41
+msgid "This project does not currently have any references"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_references.html:55
+#, fuzzy
+#| msgid "Reference"
+msgid "Edit Reference:"
+msgstr "Référence"
+
+#: .\projects2\templates\projects2\project_references.html:58
+#, fuzzy
+#| msgid "Reference"
+msgid "New Reference:"
+msgstr "Référence"
+
+#: .\projects2\templates\projects2\project_references.html:82
+#, fuzzy
+#| msgid "New"
+msgid "new"
+msgstr "Nouveau"
+
+#: .\projects2\templates\projects2\project_references.html:87
+msgid "nevermind"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_references.html:117
+msgid "Search Results "
+msgstr ""
+
+#: .\projects2\templates\projects2\project_references.html:125
+#, fuzzy
+#| msgid "Reference"
+msgid "Add Reference"
+msgstr "Référence"
+
+#: .\projects2\templates\projects2\project_references.html:129
+msgid "No results found..."
+msgstr ""
+
+#: .\projects2\templates\projects2\project_references.html:130
+msgid "Please use the search bar to find references"
+msgstr ""
+
+#: .\projects2\templates\projects2\report_search.html:12
+#, fuzzy
+msgid "Please select a report"
+msgstr "Veuillez sélectionner le rapport"
 
 #: .\projects2\templates\projects2\status_report\_modal_form.html:17
 #, fuzzy
@@ -1982,282 +2294,366 @@ msgstr "Détails du rapport:"
 msgid "You are not logged in"
 msgstr ""
 
-#: .\projects2\utils.py:354
+#: .\projects2\utils.py:359
 #, fuzzy
-msgid "Project overview / ACRDP objectives"
-msgstr "Livrables du projet"
+#| msgid "Other"
+msgid "theme"
+msgstr "Autre"
 
-#: .\projects2\utils.py:361
+#: .\projects2\utils.py:364
 #, fuzzy
 msgid "Project years"
 msgstr "Chef de projet"
 
-#: .\projects2\utils.py:373 .\projects2\utils.py:426
+#: .\projects2\utils.py:369
+#, fuzzy
+msgid "Project overview / ACRDP objectives"
+msgstr "Livrables du projet"
+
+#: .\projects2\utils.py:381
+msgid "Additional info supplied by client"
+msgstr ""
+
+#: .\projects2\utils.py:390 .\projects2\utils.py:443
 #, fuzzy
 msgid "metadata"
 msgstr "Mes métadonnées"
 
-#: .\projects2\utils.py:423
+#: .\projects2\utils.py:440
 msgid "status"
 msgstr "statut"
 
-#: .\projects2\utils.py:424
-msgid "allocated budget"
+#: .\projects2\utils.py:487
+#, fuzzy
+#| msgid "Title"
+msgid "title"
+msgstr "Titre"
+
+#: .\projects2\utils.py:493
+msgid "abstract"
 msgstr ""
 
-#: .\projects2\utils.py:425
-#, fuzzy
-msgid "review score"
-msgstr "Examinateur"
-
-#: .\projects2\utils.py:453
+#: .\projects2\utils.py:502
 #, fuzzy
 msgid "category type"
 msgstr "Type de catégorie"
 
-#: .\projects2\utils.py:479
+#: .\projects2\utils.py:528
 #, fuzzy
 msgid "latest status"
 msgstr "Dernier statut"
 
-#: .\projects2\utils.py:520
+#: .\projects2\utils.py:553
 #, fuzzy
 #| msgid "major issues encountered"
 msgid "major issues"
 msgstr "problèmes majeurs rencontrés"
 
-#: .\projects2\utils.py:523
+#: .\projects2\utils.py:556
 #, fuzzy
 #| msgid "Supporting Resources"
 msgid "supporting resources"
 msgstr "Ressources de support"
 
-#: .\projects2\utils.py:557
+#: .\projects2\utils.py:590
 msgid ""
 "no formal commitments; limited interest from stakeholders; limited "
 "opportunity for partnership or collaboration."
 msgstr ""
 
-#: .\projects2\utils.py:559
+#: .\projects2\utils.py:592
 msgid ""
 "No expressed interest or identified as a low priority (or potential "
 "conflict) by a stakeholder advisory committee."
 msgstr ""
 
-#: .\projects2\utils.py:562
+#: .\projects2\utils.py:595
 msgid ""
 "Informal departmental commitments; some interest from stakeholders; internal "
 "collaboration."
 msgstr ""
 
-#: .\projects2\utils.py:564
+#: .\projects2\utils.py:597
 msgid ""
 "Verbal agreement with stakeholders or external partner. Collaboration "
 "between internal programs of science staff."
 msgstr ""
 
-#: .\projects2\utils.py:568
+#: .\projects2\utils.py:601
 msgid ""
 "regulatory or legal commitment; high interest from stakeholders; strong "
 "opportunity for external partnership and collaboration."
 msgstr ""
 
-#: .\projects2\utils.py:569
+#: .\projects2\utils.py:602
 msgid "Signed G&C agreement with external partner."
 msgstr ""
 
-#: .\projects2\utils.py:574
+#: .\projects2\utils.py:607
 msgid "limited long-term value; short-term benefit (fire-fighting)"
 msgstr ""
 
-#: .\projects2\utils.py:576
+#: .\projects2\utils.py:609
 msgid ""
 "Local, archived dataset, with limited likelihood of replication going "
 "forward.   No clear link to decision-making."
 msgstr ""
 
-#: .\projects2\utils.py:579
+#: .\projects2\utils.py:612
 msgid "some strategic value to department; medium-term benefit"
 msgstr ""
 
-#: .\projects2\utils.py:581
+#: .\projects2\utils.py:614
 msgid ""
 "Regional dataset of current high value, but potential to be replaced by "
 "emerging technology.  Indirect link to decision."
 msgstr ""
 
-#: .\projects2\utils.py:584
+#: .\projects2\utils.py:617
 msgid ""
 "high long-term strategic value to the department; high innovation value; "
 "broad applicability"
 msgstr ""
 
-#: .\projects2\utils.py:586
+#: .\projects2\utils.py:619
 msgid ""
 "High value/priority, nationally consistent dataset using emerging, more cost "
 "effective (emerging) technology.  Clear link to high-priority decision-"
 "making."
 msgstr ""
 
-#: .\projects2\utils.py:591
+#: .\projects2\utils.py:624
 msgid "One-off project; feasible now but not sustainable in the long-term."
 msgstr ""
 
-#: .\projects2\utils.py:592
+#: .\projects2\utils.py:625
 msgid "New data collection. Significant admin work required."
 msgstr ""
 
-#: .\projects2\utils.py:596
+#: .\projects2\utils.py:629
 msgid ""
 "Moderate level of feasibility or operational efficiency, e.g. equipment/"
 "tools readily available to be implemented within year"
 msgstr ""
 
-#: .\projects2\utils.py:597
+#: .\projects2\utils.py:630
 msgid "Some processing/analysis required of an existing dataset."
 msgstr ""
 
-#: .\projects2\utils.py:601
+#: .\projects2\utils.py:634
 msgid ""
 "high feasibility, e.g. data availability, expertise, existing monitoring "
 "platforms, and regulatory tools available"
 msgstr ""
 
-#: .\projects2\utils.py:603
+#: .\projects2\utils.py:636
 msgid ""
 "Open publication of an existing data layer.  Low administrative burden (e.g. "
 "existing agreements in place)."
 msgstr ""
 
-#: .\projects2\utils.py:608
+#: .\projects2\utils.py:641
 msgid "limited ecological value, or lower priority species/habitats"
 msgstr ""
 
-#: .\projects2\utils.py:609
+#: .\projects2\utils.py:642
 msgid ""
 "Project related to a species or area with limited or unknown ecological "
 "role, or of localized interest."
 msgstr ""
 
-#: .\projects2\utils.py:612
+#: .\projects2\utils.py:645
 msgid "Evidence of ecological value, e.g., prey linkages to key species."
 msgstr ""
 
-#: .\projects2\utils.py:614
+#: .\projects2\utils.py:647
 msgid ""
 "Project related to a species or area with known linkages to a species of "
 "high ecological value (prey species), or importance identified through "
 "ecological modelling."
 msgstr ""
 
-#: .\projects2\utils.py:617
+#: .\projects2\utils.py:650
 msgid ""
 "high ecological value (important species) or high ecological risk (SARA-"
 "listed species)"
 msgstr ""
 
-#: .\projects2\utils.py:619
+#: .\projects2\utils.py:652
 msgid ""
 "Project related to a nationally or regionally recognized ESS (Eelgrass) or "
 "EBSA (Minas Basin), or SAR (Blue Whale)."
 msgstr ""
 
-#: .\projects2\utils.py:624
+#: .\projects2\utils.py:657
 msgid ""
 "limited geographic or temporal scope; site-specific and lessons not readily "
 "applicable to other areas"
 msgstr ""
 
-#: .\projects2\utils.py:625
+#: .\projects2\utils.py:658
 msgid "Data only available for a single location or bay."
 msgstr ""
 
-#: .\projects2\utils.py:628
+#: .\projects2\utils.py:661
 msgid "broad geographic/temporal scope; area of some significance"
 msgstr ""
 
-#: .\projects2\utils.py:629
+#: .\projects2\utils.py:662
 msgid "Subregional data layer, e.g., for a single NAFO Unit or MPA."
 msgstr ""
 
-#: .\projects2\utils.py:632
+#: .\projects2\utils.py:665
 msgid "broad geographic or temporal scope; area of high significance"
 msgstr ""
 
-#: .\projects2\utils.py:633
+#: .\projects2\utils.py:666
 msgid "Bioregional data layers, e.g. remote sensing, RV Survey."
 msgstr ""
 
-#: .\projects2\views.py:112
+#: .\projects2\views.py:113
 #, fuzzy
-msgid "My projects"
+msgid "My Projects"
 msgstr "Mes projets"
 
-#: .\projects2\views.py:123
+#: .\projects2\views.py:124
 #, fuzzy
 msgid "fiscal years"
 msgstr "exercice fiscal"
 
-#: .\projects2\views.py:125
+#: .\projects2\views.py:126
 msgid "hidden?"
 msgstr ""
 
-#: .\projects2\views.py:175
+#: .\projects2\views.py:177
 msgid ""
-"Your new project was created successfully! To get started, <b>add a new "
-"project year</b>."
+"<span class='h4'>Your new project was created successfully! To get started, "
+"<b class='highlight'>add a new project year</b>.</span>"
 msgstr ""
 
-#: .\projects2\views.py:277 .\projects2\views.py:461
+#: .\projects2\views.py:276 .\projects2\views.py:472
 #, fuzzy
 msgid "Cloning: "
 msgstr "Financement"
 
-#: .\projects2\views.py:419
+#: .\projects2\views.py:369 .\projects2\views.py:370
+#, fuzzy
+msgid "Project References"
+msgstr "Chef de projet"
+
+#: .\projects2\views.py:430
 #, fuzzy
 msgid "Edit "
 msgstr "Modifier"
 
-#: .\projects2\views.py:577 .\projects2\views.py:587
+#: .\projects2\views.py:574 .\projects2\views.py:584
 #, fuzzy
 msgid "Functional Groups"
 msgstr "Gérer les source de financement"
 
-#: .\projects2\views.py:752
+#: .\projects2\views.py:813
 #, fuzzy
 msgid "File attachment (EN)"
 msgstr "pièce jointe"
 
-#: .\projects2\views.py:753
+#: .\projects2\views.py:814
 #, fuzzy
 msgid "File attachment (FR)"
 msgstr "pièce jointe"
 
-#: .\projects2\views.py:760 .\projects2\views.py:768 .\projects2\views.py:781
-#: .\projects2\views.py:791 .\projects2\views.py:871
+#: .\projects2\views.py:821 .\projects2\views.py:829 .\projects2\views.py:842
+#: .\projects2\views.py:852 .\projects2\views.py:1010
 #, fuzzy
 msgid "Reference Materials"
 msgstr "Référence"
 
+#: .\projects2\views.py:866
+#, fuzzy
+msgid "Non-DMApps Staff List"
+msgstr "Section"
+
+#: .\projects2\views.py:868
+msgid ""
+"The purpose of this list view is to check if any DFO staff were listed on "
+"projects, but were not connected to their dmapps user accounts"
+msgstr ""
+
+#: .\projects2\views.py:894
+#, fuzzy
+#| msgid "Editing Staff Member:"
+msgid "Edit Non-DMApps Staff Member"
+msgstr "Modification au personnel:"
+
 #: .\projects2\views.py:895
+msgid "Non-registered Staff List"
+msgstr ""
+
+#: .\projects2\views.py:1034
 msgid "Please provide review comments"
 msgstr ""
 
-#: .\projects2\views.py:930
+#: .\projects2\views.py:1070
+#, fuzzy
+msgid "Project Planning Reports"
+msgstr "Planification de projets (Science)"
+
+#: .\projects2\views.py:1106 .\projects2\views.py:1147
 msgid "Warning: There are no lead staff on this project!!"
 msgstr ""
 
-#: .\projects2\views.py:933 .\projects2\views.py:952
+#: .\projects2\views.py:1109 .\projects2\views.py:1128
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (position "
 "title)"
 msgstr ""
 
-#: .\projects2\views.py:935 .\projects2\views.py:954
+#: .\projects2\views.py:1111 .\projects2\views.py:1130
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (phone "
 "number)"
 msgstr ""
+
+#~ msgid "Add Agreement"
+#~ msgstr "Ajouter un accord"
+
+#, fuzzy
+#~ msgid "No agreements have been added to this year of the project"
+#~ msgstr "Aucun jalon n'a été ajouté à ce projet."
+
+#~ msgid "Unsubmit"
+#~ msgstr "Annuler la soumission"
+
+#, fuzzy
+#~ msgid "Add G&C Cost"
+#~ msgstr "Ajouter S & C"
+
+#, fuzzy
+#~ msgid "No G&C costs have been added to this year of the project"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "New G&C Cost"
+#~ msgstr "Aucune de F et E"
+
+#, fuzzy
+#~ msgid "New External Collaborator"
+#~ msgstr "Collaborateurs externes:"
+
+#, fuzzy
+#~ msgid "Edit External Collaborator"
+#~ msgstr "Collaborateurs externes:"
+
+#, fuzzy
+#~ msgid "New Collaborative Agreement"
+#~ msgstr "Aucun accord de collaboration"
+
+#, fuzzy
+#~ msgid "Edit Collaborative Agreement"
+#~ msgstr "Ajout d'un accord de collaboration"
+
+#, fuzzy
+#~ msgid "review score"
+#~ msgstr "Examinateur"
 
 #~ msgid "Staff name"
 #~ msgstr "Nom du personnel"
@@ -2321,9 +2717,6 @@ msgstr ""
 #~ msgid "Add External Collaborator"
 #~ msgstr "Collaborateurs externes:"
 
-#~ msgid "No Collaborators"
-#~ msgstr "Pas de collaborateurs"
-
 #~ msgid "Critical to project?"
 #~ msgstr "Critique au projet?"
 
@@ -2341,9 +2734,6 @@ msgstr ""
 
 #~ msgid "Resource Name"
 #~ msgstr "Nom de la ressource"
-
-#~ msgid "Reference"
-#~ msgstr "Référence"
 
 #~ msgid "External URL"
 #~ msgstr "URL externe"
@@ -2380,11 +2770,6 @@ msgstr ""
 
 #~ msgid "Funding Amount"
 #~ msgstr "Montant du financement"
-
-#, fuzzy
-#~| msgid "Project title"
-#~ msgid "Project Activities"
-#~ msgstr "Titre du projet"
 
 #, fuzzy
 #~ msgid "No activities"
@@ -2696,20 +3081,11 @@ msgstr ""
 #~ "                Liste de projets de %(name)s:\n"
 #~ "            "
 
-#~ msgid "Submitted projects"
-#~ msgstr "Projets soumis"
-
-#~ msgid "Un-submitted projects"
-#~ msgstr "Projets non soumis"
-
 #~ msgid "Unapproved"
 #~ msgstr "Non approuvé"
 
 #~ msgid "record"
 #~ msgstr "enregistrement"
-
-#~ msgid "New Project"
-#~ msgstr "Nouveau projet"
 
 #, fuzzy
 #~ msgid "Editing note for group:"
@@ -2772,18 +3148,11 @@ msgstr ""
 #~ msgid "End Date of Project"
 #~ msgstr "Date de fin du projet"
 
-#, fuzzy
-#~ msgid "Other Relevant Information"
-#~ msgstr "Ajouter / Modifier les détails du projet"
-
 #~ msgid "Amount"
 #~ msgstr "Montant"
 
 #~ msgid "DFO Project"
 #~ msgstr "Projet du MPO"
-
-#~ msgid "Editing Staff Member:"
-#~ msgstr "Modification au personnel:"
 
 #~ msgid "Adding Staff Member"
 #~ msgstr "Ajouter de personnel"
@@ -2864,11 +3233,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "externals / partnerships / collaborations"
 #~ msgstr "Collaborateurs externes:"
-
-#, fuzzy
-#~| msgid "National"
-#~ msgid "operational"
-#~ msgstr "National"
 
 #, fuzzy
 #~ msgid "Complete list of funding sources"

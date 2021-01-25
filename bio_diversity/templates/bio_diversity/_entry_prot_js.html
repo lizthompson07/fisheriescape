@@ -1,0 +1,16 @@
+<script type="application/javascript">
+
+    $("#id_protc_id").change(function (e) {
+        setEvntc();
+
+
+    })
+
+    function setEvntc() {
+        var protc = $("#id_protc_id option:selected").text();
+
+        if ( $("#id_evntc_id option:contains(" + protc + ")").length > 0 ) {
+            $("#id_evntc_id option:contains(" + protc + ")" ).attr('selected', 'selected');
+        }
+    }
+</script>

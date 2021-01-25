@@ -1,8 +1,8 @@
 <ul>
-    {% if object.citations.count == 0 %}
+    {% if object.citations2.count == 0 %}
         <em>No citations</em>
     {% else %}
-        {% for item in object.citations.all %}
+        {% for item in object.citations2.all %}
             <li style="font-size: small;">
                 {{ item.short_citation_html|safe }}
                 (<a href="{% url 'inventory:citation_detail' object.id item.id %}">view details</a>)&nbsp;

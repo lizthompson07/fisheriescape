@@ -32,13 +32,13 @@ class ObservationSerializer(serializers.ModelSerializer):
     certainty_rating_display = serializers.SerializerMethodField()
 
     def get_certainty_rating_display(self, instance):
-        return instance.get_certainty_rating_display()
+        return instance.certainty_rating_special_display
 
     def get_egg_status_display(self, instance):
-        return instance.get_egg_status_display()
+        return instance.egg_status_special_display
 
     def get_sex_display(self, instance):
-        return instance.get_sex_display()
+        return instance.sex_special_display
 
     class Meta:
         model = models.Observation

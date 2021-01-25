@@ -68,7 +68,6 @@ class Lookup(SimpleLookup):
         return my_str
 
 
-
 class UnilingualLookup(UnilingualSimpleLookup):
     class Meta:
         abstract = True
@@ -772,4 +771,74 @@ class Organization(SimpleLookup):
             if my_str:
                 my_str += ", "
             my_str += self.postal_code
+        return my_str
+
+
+class Publication(SimpleLookup):
+    pass
+
+
+class Citation(models.Model):
+    name = models.TextField(blank=True, null=True, verbose_name="title (en)")
+    nom = models.TextField(blank=True, null=True, verbose_name="title (fr)")
+    authors = models.TextField(blank=True, null=True, verbose_name=_("authors"))
+    year = models.IntegerField(blank=True, null=True, verbose_name=_("year"))
+    publication = models.ForeignKey(Publication, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("publication name"))
+    pub_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("publication number"))
+    url_en = models.TextField(blank=True, null=True, verbose_name=_("URL (en)"))
+    url_fr = models.TextField(blank=True, null=True, verbose_name=_("URL (fr)"))
+    abstract_en = models.TextField(blank=True, null=True, verbose_name=_("abstract (en)"))
+    abstract_fr = models.TextField(blank=True, null=True, verbose_name=_("abstract (fr)"))
+    series = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("series"))
+    region = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("region"))
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str = "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.name
+        return my_str
+
+    @property
+    def turl(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("url_en"))):
+            my_str = "{}".format(getattr(self, str(_("url_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.url_en
+        return my_str
+
+    @property
+    def tabstract(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("abstract_en"))):
+            my_str = "{}".format(getattr(self, str(_("abstract_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.abstract_en
+        return my_str
+
+    def __str__(self):
+        return self.tname
+
+    @property
+    def short_citation(self):
+        my_str = f"{self.authors}. {self.year}. {self.tname}. {self.publication} {self.pub_number}."
+        return my_str
+
+    @property
+    def short_citation_html(self):
+        if not self.turl:
+            my_str = self.short_citation
+        else:
+            my_str = f'{self.authors}. {self.year}. <a href="{self.turl}"> {self.tname}</a>. {self.publication} {self.pub_number}.'
+        return my_str
+
+    @property
+    def citation_br(self):
+        my_str = f"<b>Title:</b> {self.tname}<br><b>Authors:</b> {self.authors}<br><b>Year:</b> {self.year}<br><b>Publication:</b> {self.publication}. {self.pub_number}"
         return my_str

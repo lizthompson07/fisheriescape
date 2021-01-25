@@ -108,8 +108,10 @@
 
     <div class="mb-3 text" style="font-size: 16px;">
       <p>
+{#      TODO: add styling and case where user not logged in add login prompt#}
+      {{ user.first_name }},
         {% blocktrans %}
-          Welcome to the Marine Mammal Vault. You can access your Task Dashboard below.
+          Welcome to the Marine Mammal Vault {{ user.username }}. You can access your Task Dashboard below.
         {% endblocktrans %}
       </p>
     </div>

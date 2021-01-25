@@ -1,45 +1,62 @@
 {% extends "ihub/base.html" %}
 {% load i18n %}
-
+{% load static %}
 {% block content %}
 
-    <div class="container">
-        <br>
-        <div class="container">
-            <div class="jumbotron">
-                <h1 class="three-em">
-                    {% trans "Welcome to the iHub" %}
-                </h1>
-                <hr>
-                <h3>
-{#                    {% trans "" %}#}
-                </h3>
 
-            </div>
+  {% url 'ihub:entry_new' as new_entry_url %}
+  {% url 'ihub:entry_list' as entry_list_url %}
+  {% url 'ihub:org_list' as org_list_url %}
+  {% url 'ihub:person_list' as contact_list_url %}
 
-        </div>
+  <div class="container">
+    <h1 class="three-em text-center">
+      {% trans "Welcome to the iHub" %}
+    </h1>
 
-{#        {% if user.is_authenticated %}#}
-            <div align="center">
-                {% url 'ihub:entry_new' as new_entry_url %}
-                {% url 'ihub:entry_list' as entry_list_url %}
-
-
-                <h4>
-                    {% blocktrans %}
-                        Click
-                        <a href="{{ new_entry_url }}">HERE</a> to create a new iHub entry.
-                        <br><br>
-                        Or you can click
-                        <a href="{{ entry_list_url }}">HERE</a> to view a full list.
-                        <br><br>
-                    {% endblocktrans %}
-                </h4>
-            </div>
-{#        {% endif %}#}
-
-
+  </div>
+  <style>
+  .spacer {
+      padding-bottom: 200px;
+  }
+  </style>
+  <div class="row mb-2">
+    <div class="col">
+      <div class="float-right">
+        <div class="spacer"></div>
+        <a href="{{ entry_list_url }}" class="btn btn-lg btn-dark ">{% trans "Entries" %}</a>
+      </div>
+    </div>
+    <div class="text-center  col">
+      <img src="{% static 'ihub/logo.jpg' %}" alt="">
+    </div>
+    <div class="col">
+      <div class="spacer"></div>
+      <a href="{{ contact_list_url }}" class="btn btn-lg btn-danger ">{% trans "Contacts" %}</a>
 
     </div>
+  </div>
+  <div class="text-center mt-5">
+    <a href="{{ org_list_url }}" class="btn btn-lg btn-warning ">{% trans "Organizations" %}</a>
+  </div>
+
+  {#        {% if user.is_authenticated %}#}
+  <div align="center">
+
+
+    <h4>
+      {#      {% blocktrans %}#}
+      {#        Click#}
+      {#        <a href="{{ new_entry_url }}">HERE</a> to create a new iHub entry.#}
+      {#        <br><br>#}
+      {#        Or you can click#}
+      {#        <a href="{{ entry_list_url }}">HERE</a> to view a full list.#}
+      {#        <br><br>#}
+      {#      {% endblocktrans %}#}
+    </h4>
+  </div>
+  {#        {% endif %}#}
+
+
 
 {% endblock content %}
