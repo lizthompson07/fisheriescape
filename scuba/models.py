@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 
+from scuba.utils import calc_nautical_dist
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup
 from shared_models.utils import decdeg2dm, dm2decdeg
@@ -108,6 +109,12 @@ class Transect(UnilingualLookup):
             return dict(x=self.end_latitude, y=self.end_longitude)
 
     @property
+    def transect_distance(self):
+        if self.get_starting_coordinates() and self.get_ending_coordinates():
+            dist = calc_nautical_dist(self.get_starting_coordinates(), self.get_ending_coordinates())
+            return round(dist * 1852, 2)
+
+    @property
     def starting_coordinates_ddmm(self):
         coords = self.get_starting_coordinates()
         if coords:
@@ -173,9 +180,14 @@ class Sample(models.Model):
 class Dive(models.Model):
     heading_choices = (
         ('n', _("North")),
-        ('s', _("South")),
+        ('ne', _("Northeast")),
         ('e', _("East")),
+        ('se', _("Southeast")),
+        ('s', _("South")),
+        ('sw', _("Southwest")),
         ('w', _("West")),
+        ('nw', _("Northwest")),
+
     )
     side_choices = (
         ('l', _("Left")),
@@ -198,7 +210,7 @@ class Dive(models.Model):
     end_longitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("end longitude"))
     end_longitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("end longitude (minutes)"))
 
-    heading = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
+    heading = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
     side = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("side"), choices=side_choices)
     width_m = models.FloatField(verbose_name=_("width (m)"))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
@@ -249,6 +261,12 @@ class Dive(models.Model):
     def get_ending_coordinates(self):
         if self.end_latitude and self.end_longitude:
             return dict(x=self.end_latitude, y=self.end_longitude)
+
+    @property
+    def dive_distance(self):
+        if self.get_starting_coordinates() and self.get_ending_coordinates():
+            dist = calc_nautical_dist(self.get_starting_coordinates(), self.get_ending_coordinates())
+            return round(dist * 1852, 2)
 
 
 class Section(models.Model):
@@ -323,19 +341,20 @@ class Section(models.Model):
 
 class Observation(models.Model):
     sex_choices = (
-        ('m', _("male")),
-        ('f', _("female")),
-        ('u', _("unknown")),
+        ('u', _("0 - unknown")),
+        ('m', _("1 - male")),
+        ('f', _("2 - female")),
     )
     egg_status_choices = (
-        ("b", _("b (berried)")),
-        ("b1", _("b1 (berried with new eggs)")),
-        ("b2", _("b2 (berried with black eggs)")),
-        ("b3", _("b3 (berried with developed eggs)")),
+        ("0", _("0 - no eggs")),
+        ("b", _("b - berried")),
+        ("b1", _("b1 - berried with new eggs")),
+        ("b2", _("b2 - berried with black eggs")),
+        ("b3", _("b3 - berried with developed eggs")),
     )
     certainty_rating_choices = (
-        (1, _("certain")),  #
-        (0, _("uncertain")),
+        (1, _("1 - certain")),  #
+        (0, _("0 - uncertain")),
     )
     section = models.ForeignKey(Section, related_name='observations', on_delete=models.CASCADE, verbose_name=_("section"))
     sex = models.CharField(max_length=2, verbose_name=_("sex"), choices=sex_choices)
@@ -343,3 +362,25 @@ class Observation(models.Model):
     carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
     certainty_rating = models.IntegerField(verbose_name=_("length certainty"), default=1, choices=certainty_rating_choices)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+
+    @property
+    def sex_special_display(self):
+        try:
+            return self.get_sex_display().split("-")[1].strip()
+        except Exception as e:
+            print(e)
+
+    @property
+    def egg_status_special_display(self):
+        try:
+            if self.get_egg_status_display():
+                return self.get_egg_status_display().split("-")[1].strip()
+        except:
+            pass
+
+    @property
+    def certainty_rating_special_display(self):
+        try:
+            return self.get_certainty_rating_display().split("-")[1].strip()
+        except:
+            pass

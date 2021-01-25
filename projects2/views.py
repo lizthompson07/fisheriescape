@@ -48,6 +48,11 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
             "region",
             "tdescription|{}".format("description"),
         ]
+        # project count
+        project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
+        project_count = models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title").count()
+        orphen_count = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user).count()
+        context["my_project_count"] =project_count+ orphen_count
         return context
 
 
@@ -130,6 +135,13 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     def get_queryset(self):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
         return models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        orphens = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user)
+        context["orphens"] = orphens
+
+        return context
 
 
 class ProjectCreateView(LoginRequiredMixin, CommonCreateView):

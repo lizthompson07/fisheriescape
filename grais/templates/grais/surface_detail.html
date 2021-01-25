@@ -155,8 +155,13 @@
             </tbody>
 
         </table>
-        <p>
-            <b>Total Coverage: {{ total_coverage|percentage:0 }}</b>
+        <p class="lead">
+          <b>Total Coverage: </b>
+          {% if object.total_coverage > 1%}
+            <span class="bad py-1 px-1">{{ object.total_coverage|percentage:0 }}</span>
+          {% else %}
+            <span class="good py-1 px-1">{{ object.total_coverage|percentage:0 }}</span>
+          {% endif %}
         </p>
     </div>
 
