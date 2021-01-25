@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _, gettext_lazy
+from django.utils.translation import gettext as _, gettext_lazy, get_language
 
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
@@ -1151,7 +1151,7 @@ def export_acrdp_budget(request, pk):
 
 
 @login_required()
-def csrf_application(request, pk, lang):
+def csrf_application(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
 
     # check if the project lead's profile is up-to-date
@@ -1162,6 +1162,7 @@ def csrf_application(request, pk, lang):
     #         messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (position title)"))
     #     if not project.lead_staff.first().user.profile.phone:
     #         messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
+    lang = get_language()
     file_url = reports.generate_csrf_application(project, lang)
 
     if os.path.exists(file_url):
