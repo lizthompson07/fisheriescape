@@ -31,27 +31,8 @@ var map = L.map('map', {
     layers: [light, streets]
 });
 
-// Create Lobster polygon layer
 
-    // First parse JSON
-
-const loadLobster = JSON.parse(document.getElementById('fa-data').textContent);
-
-    // Then create the layer with name popup
-
-function openUrl(feature) {
-
-    // var url = "http://127.0.0.1:8000/en/fisheriescape/fisheryarea/" +str(feature.properties.id)+"/view/";
-    // var url2 = "/view/";
-    // var id = feature.properties.id;
-    // var urls = url + id + url2;
-    // window.open(url, '_self');
-
-    window.open("http://127.0.0.1:8000/en/fisheriescape/fisheryarea/1/view/");
-    // 'fisheryarea/<int:pk>/view/'
-    // window.open("fisheriescape/fishery_area_detail");
-    // window.location.href = "{% url 'fisheriescape:fishery_area_detail' object.id  %}";
-}
+// Create subfunctions for lobsterFishery polygon layer
 
 function showInfo() {
     this.setStyle({
@@ -59,26 +40,51 @@ function showInfo() {
     });
 }
 
-function removeInfo() {
+function removeInfoLobster() {
     lobsterFishery.resetStyle(this);
     }
 
+function removeInfoCrab() {
+    snowCrabFishery.resetStyle(this);
+}
 
-var lobsterFishery = L.geoJSON(loadLobster, {
+
+// Create Lobster polygon layer and use onEachFeature to show certain info for each feature
+
+var lobsterFishery = L.geoJSON(lobsterObj, {
     style: function() {
         return {
             color: 'blue'
         }
     },
     onEachFeature: function (feature, layer) {
-        layer.bindPopup(feature.properties.name);
+        myUrl = `http://127.0.0.1:8000/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
         layer.on({
             mouseover: showInfo,
-            mouseout: removeInfo,
-            click: openUrl
+            mouseout: removeInfoLobster
         });
         }
 });
+
+// Create Snowcrab polygon layer and use onEachFeature to show certain info for each feature
+
+var snowCrabFishery = L.geoJSON(snowCrabObj, {
+    style: function() {
+        return {
+            color: 'yellow'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://127.0.0.1:8000/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoCrab
+        });
+        }
+});
+
 
 // Create basemaps variable and add basemaps desired to it as options
 
@@ -90,8 +96,9 @@ var baseMaps = {
 // Create overlay variable and add overlays desired
 
 var overlayMaps = {
-    "test": tests,
-    "lobster areas": lobsterFishery
+    "Test": tests,
+    "Lobster Areas": lobsterFishery,
+    "Snow Crab Areas": snowCrabFishery
 };
 
 // Create the control layer box and add baseMaps and overlayMaps to it

@@ -1,6 +1,7 @@
-from django import forms
+# from django import forms
 from django.forms import modelformset_factory
-
+from django.contrib.gis import forms
+import floppyforms as ff
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
@@ -13,6 +14,15 @@ class SpeciesForm(forms.ModelForm):
         model = models.Species
         fields = "__all__"
         widgets = {
+
+        }
+
+
+class FisheryForm(forms.ModelForm):
+    class Meta:
+        model = models.Fishery
+        fields = "__all__"
+        widgets = {
             'fishery_area': forms.SelectMultiple(attrs=chosen_js),
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -20,9 +30,20 @@ class SpeciesForm(forms.ModelForm):
 
 
 class FisheryAreaForm(forms.ModelForm):
+    # polygon = forms.MultiPolygonField(widget=forms.OSMWidget(attrs={'map_width': 800, 'map_height': 500}))
+
+    class Meta:
+        model = models.FisheryArea
+        fields = "__all__"
+        # polygon = forms.MultiPolygonField(widget=forms.OSMWidget(attrs={'map_width': 800, 'map_height': 500}))
+        widgets = {
+            'polygon': forms.OSMWidget(attrs={'map_width': 800, 'map_height': 500})
+        }
+
+
+class FisheryAreaForm2(forms.ModelForm):
     class Meta:
         model = models.FisheryArea
         fields = "__all__"
         widgets = {
-
         }

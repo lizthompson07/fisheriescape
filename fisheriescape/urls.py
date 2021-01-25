@@ -29,4 +29,12 @@ urlpatterns = [
     path('fisheryarea/<int:pk>/edit/', views.FisheryAreaUpdateView.as_view(), name="fishery_area_edit"),
     path('fisheryarea/<int:pk>/delete/', views.FisheryAreaDeleteView.as_view(), name="fishery_area_delete"),
 
+    # FISHERY #
+
+    path('fishery-list/', views.FisheryListView.as_view(), name="fishery_list"),
+    path('fishery/new/', views.FisheryCreateView.as_view(), name="fishery_new"),
+    path('fishery/<int:pk>/view/', views.FisheryDetailView.as_view(), name="fishery_detail"),
+    path('fishery/<int:pk>/edit/', views.FisheryUpdateView.as_view(), name="fishery_edit"),
+    path('fishery/<int:pk>/delete/', views.FisheryDeleteView.as_view(), name="fishery_delete"),
+
 ]
