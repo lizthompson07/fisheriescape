@@ -10,6 +10,7 @@ class AnidcMixin:
     form_class = forms.AnidcForm
     model = models.AnimalDetCode
     title = "Animal Detail Code"
+    admin_only = True
 
 
 class AnixMixin:
@@ -17,6 +18,7 @@ class AnixMixin:
     form_class = forms.AnixForm
     model = models.AniDetailXref
     title = "Animal Detail Cross Reference"
+    admin_only = False
 
 
 class AdscMixin:
@@ -24,6 +26,7 @@ class AdscMixin:
     form_class = forms.AdscForm
     model = models.AniDetSubjCode
     title = "Animal Detail Subjective Code"
+    admin_only = True
 
 
 class CntMixin:
@@ -31,6 +34,7 @@ class CntMixin:
     form_class = forms.CntForm
     model = models.Count
     title = "Count"
+    admin_only = False
 
 
 class CntcMixin:
@@ -38,6 +42,7 @@ class CntcMixin:
     form_class = forms.CntcForm
     model = models.CountCode
     title = "Count Code"
+    admin_only = True
 
 
 class CntdMixin:
@@ -45,6 +50,7 @@ class CntdMixin:
     form_class = forms.CntdForm
     model = models.CountDet
     title = "Count Detail"
+    admin_only = False
 
 
 class CollMixin:
@@ -52,6 +58,7 @@ class CollMixin:
     form_class = forms.CollForm
     model = models.Collection
     title = "Collection"
+    admin_only = False
 
 
 class ContdcMixin:
@@ -59,6 +66,7 @@ class ContdcMixin:
     form_class = forms.ContdcForm
     model = models.ContainerDetCode
     title = "Container Detail Code"
+    admin_only = True
 
 
 class ContxMixin:
@@ -66,6 +74,7 @@ class ContxMixin:
     form_class = forms.ContxForm
     model = models.ContainerXRef
     title = "Container Cross Reference"
+    admin_only = False
 
 
 class CdscMixin:
@@ -73,6 +82,7 @@ class CdscMixin:
     form_class = forms.CdscForm
     model = models.ContDetSubjCode
     title = "Container Detail Subjective Code"
+    admin_only = True
 
 
 class CupMixin:
@@ -80,6 +90,7 @@ class CupMixin:
     form_class = forms.CupForm
     model = models.Cup
     title = "Cup"
+    admin_only = False
 
 
 class CupdMixin:
@@ -87,6 +98,7 @@ class CupdMixin:
     form_class = forms.CupdForm
     model = models.CupDet
     title = "Cup Detail"
+    admin_only = False
 
 
 class DataMixin:
@@ -94,6 +106,7 @@ class DataMixin:
     form_class = forms.DataForm
     model = models.DataLoader
     title = "Data"
+    admin_only = False
 
 
 class DrawMixin:
@@ -101,6 +114,7 @@ class DrawMixin:
     form_class = forms.DrawForm
     model = models.Drawer
     title = "Drawer"
+    admin_only = False
 
 
 class EnvcMixin:
@@ -108,6 +122,7 @@ class EnvcMixin:
     form_class = forms.EnvcForm
     model = models.EnvCode
     title = "Environment Code"
+    admin_only = True
 
 
 class EnvMixin:
@@ -115,6 +130,7 @@ class EnvMixin:
     form_class = forms.EnvForm
     model = models.EnvCondition
     title = "Environment Condition"
+    admin_only = False
 
 
 class EnvcfMixin:
@@ -122,6 +138,7 @@ class EnvcfMixin:
     form_class = forms.EnvcfForm
     model = models.EnvCondFile
     title = "Environment Condition File"
+    admin_only = True
 
 
 class EnvscMixin:
@@ -129,6 +146,7 @@ class EnvscMixin:
     form_class = forms.EnvscForm
     model = models.EnvSubjCode
     title = "Environment Subjective Code"
+    admin_only = True
 
 
 class EnvtMixin:
@@ -136,6 +154,7 @@ class EnvtMixin:
     form_class = forms.EnvtForm
     model = models.EnvTreatment
     title = "Environment Treatment"
+    admin_only = False
 
 
 class EnvtcMixin:
@@ -143,6 +162,7 @@ class EnvtcMixin:
     form_class = forms.EnvtcForm
     model = models.EnvTreatCode
     title = "Environment Treatment Code"
+    admin_only = True
 
 
 class EvntMixin:
@@ -150,6 +170,7 @@ class EvntMixin:
     form_class = forms.EvntForm
     model = models.Event
     title = "Event"
+    admin_only = False
 
 
 class EvntcMixin:
@@ -157,6 +178,7 @@ class EvntcMixin:
     form_class = forms.EvntcForm
     model = models.EventCode
     title = "Event Code"
+    admin_only = True
 
 
 class FacicMixin:
@@ -164,6 +186,7 @@ class FacicMixin:
     form_class = forms.FacicForm
     model = models.FacilityCode
     title = "Facility Code"
+    admin_only = True
 
 
 class FecuMixin:
@@ -171,6 +194,7 @@ class FecuMixin:
     form_class = forms.FecuForm
     model = models.Fecundity
     title = "Fecundity"
+    admin_only = False
 
 
 class FeedMixin:
@@ -178,6 +202,7 @@ class FeedMixin:
     form_class = forms.FeedForm
     model = models.Feeding
     title = "Feeding"
+    admin_only = False
 
 
 class FeedcMixin:
@@ -185,6 +210,7 @@ class FeedcMixin:
     form_class = forms.FeedcForm
     model = models.FeedCode
     title = "Feeding Code"
+    admin_only = True
 
 
 class FeedmMixin:
@@ -192,6 +218,7 @@ class FeedmMixin:
     form_class = forms.FeedmForm
     model = models.FeedMethod
     title = "Feeding Method"
+    admin_only = False
 
 
 class GrpMixin:
@@ -199,6 +226,7 @@ class GrpMixin:
     form_class = forms.GrpForm
     model = models.Group
     title = "Group"
+    admin_only = False
 
 
 class GrpdMixin:
@@ -206,6 +234,7 @@ class GrpdMixin:
     form_class = forms.GrpdForm
     model = models.GroupDet
     title = "Group Detail"
+    admin_only = False
 
 
 class HeatMixin:
@@ -213,6 +242,7 @@ class HeatMixin:
     form_class = forms.HeatForm
     model = models.HeathUnit
     title = "Heath Unit"
+    admin_only = False
 
 
 class HeatdMixin:
@@ -220,6 +250,7 @@ class HeatdMixin:
     form_class = forms.HeatdForm
     model = models.HeathUnitDet
     title = "Heath Unit Detail"
+    admin_only = False
 
 
 class ImgMixin:
@@ -227,6 +258,7 @@ class ImgMixin:
     form_class = forms.ImgForm
     model = models.Image
     title = "Image"
+    admin_only = False
 
 
 class ImgcMixin:
@@ -234,6 +266,7 @@ class ImgcMixin:
     form_class = forms.ImgcForm
     model = models.ImageCode
     title = "Image Code"
+    admin_only = True
 
 
 class IndvMixin:
@@ -241,6 +274,7 @@ class IndvMixin:
     form_class = forms.IndvForm
     model = models.Individual
     title = "Individual"
+    admin_only = False
 
 
 class IndvdMixin:
@@ -248,6 +282,7 @@ class IndvdMixin:
     form_class = forms.IndvdForm
     model = models.IndividualDet
     title = "Individual Detail"
+    admin_only = False
 
 
 class IndvtMixin:
@@ -255,6 +290,7 @@ class IndvtMixin:
     form_class = forms.IndvtForm
     model = models.IndTreatment
     title = "Individual Treatment"
+    admin_only = False
 
 
 class IndvtcMixin:
@@ -262,6 +298,7 @@ class IndvtcMixin:
     form_class = forms.IndvtcForm
     model = models.IndTreatCode
     title = "Individual Treatment Code"
+    admin_only = True
 
 
 class InstMixin:
@@ -269,6 +306,7 @@ class InstMixin:
     form_class = forms.InstForm
     model = models.Instrument
     title = "Instrument"
+    admin_only = False
 
 
 class InstcMixin:
@@ -276,6 +314,7 @@ class InstcMixin:
     form_class = forms.InstcForm
     model = models.InstrumentCode
     title = "Instrument Code"
+    admin_only = True
 
 
 class InstdMixin:
@@ -283,6 +322,7 @@ class InstdMixin:
     form_class = forms.InstdForm
     model = models.InstrumentDet
     title = "Instrument Detail"
+    admin_only = False
 
 
 class InstdcMixin:
@@ -290,6 +330,7 @@ class InstdcMixin:
     model = models.InstDetCode
     form_class = forms.InstdcForm
     title = _("Instrument Detail Code")
+    admin_only = True
 
 
 class LocMixin:
@@ -304,6 +345,7 @@ class LoccMixin:
     model = models.LocCode
     form_class = forms.LoccForm
     title = _("Location Code")
+    admin_only = True
 
 
 class OrgaMixin:
@@ -311,6 +353,7 @@ class OrgaMixin:
     model = models.Organization
     form_class = forms.OrgaForm
     title = _("Organization")
+    admin_only = True
 
 
 class PairMixin:
@@ -325,6 +368,7 @@ class PercMixin:
     model = models.PersonnelCode
     form_class = forms.PercForm
     title = _("Personnel Code")
+    admin_only = True
 
 
 class PrioMixin:
@@ -332,6 +376,7 @@ class PrioMixin:
     model = models.PriorityCode
     form_class = forms.PrioForm
     title = _("Priority Code")
+    admin_only = True
 
 
 class ProgMixin:
@@ -360,6 +405,7 @@ class ProtcMixin:
     model = models.ProtoCode
     form_class = forms.ProtcForm
     title = _("Protocol Code")
+    admin_only = True
 
 
 class ProtfMixin:
@@ -374,6 +420,7 @@ class QualMixin:
     model = models.QualCode
     form_class = forms.QualForm
     title = _("Quality Code")
+    admin_only = True
 
 
 class RelcMixin:
@@ -381,6 +428,7 @@ class RelcMixin:
     model = models.ReleaseSiteCode
     form_class = forms.RelcForm
     title = _("Release Site Code")
+    admin_only = True
 
 
 class RiveMixin:
@@ -388,6 +436,7 @@ class RiveMixin:
     model = models.RiverCode
     form_class = forms.RiveForm
     title = _("River Code")
+    admin_only = True
 
 
 class RoleMixin:
@@ -395,6 +444,7 @@ class RoleMixin:
     model = models.RoleCode
     form_class = forms.RoleForm
     title = _("Role Code")
+    admin_only = True
 
 
 class SampMixin:
@@ -409,6 +459,7 @@ class SampcMixin:
     model = models.SampleCode
     form_class = forms.SampcForm
     title = _("Sample Code")
+    admin_only = True
 
 
 class SampdMixin:
@@ -444,6 +495,7 @@ class SpwndcMixin:
     model = models.SpawnDetCode
     form_class = forms.SpwndcForm
     title = _("Spawn Detail Code")
+    admin_only = True
 
 
 class SpwnscMixin:
@@ -451,6 +503,7 @@ class SpwnscMixin:
     model = models.SpawnDetSubjCode
     form_class = forms.SpwnscForm
     title = _("Spawn Detail Subjective Code")
+    admin_only = True
 
 
 class SpecMixin:
@@ -458,6 +511,7 @@ class SpecMixin:
     model = models.SpeciesCode
     form_class = forms.SpecForm
     title = _("Species Code")
+    admin_only = True
 
 
 class StokMixin:
@@ -465,6 +519,7 @@ class StokMixin:
     model = models.StockCode
     form_class = forms.StokForm
     title = _("Stock Code")
+    admin_only = True
 
 
 class SubrMixin:
@@ -472,6 +527,7 @@ class SubrMixin:
     model = models.SubRiverCode
     form_class = forms.SubrForm
     title = _("Sub river Code")
+    admin_only = True
 
 
 class TankMixin:
@@ -514,6 +570,7 @@ class TribMixin:
     model = models.Tributary
     form_class = forms.TribForm
     title = _("Tributary")
+    admin_only = True
 
 
 class TrofMixin:
@@ -535,3 +592,4 @@ class UnitMixin:
     model = models.UnitCode
     form_class = forms.UnitForm
     title = _("Unit")
+    admin_only = True

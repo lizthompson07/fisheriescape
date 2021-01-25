@@ -75,7 +75,10 @@ class CommonCreate(CommonAuthCreateView):
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -554,6 +557,12 @@ class CommonDetails(DetailView):
     # By default detail objects are editable, set to false to remove update buttons
     editable = True
 
+    def get_auth(self):
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -572,7 +581,7 @@ class CommonDetails(DetailView):
         context['update_url'] = self.update_url if self.update_url else "bio_diversity:update_{}".format(self.key)
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
+        context['auth'] = self.get_auth()
         context['editable'] = context['auth'] and self.editable
 
         return context
@@ -1170,6 +1179,12 @@ class CommonList(CommonAuthFilterView):
     def get_delete_url(self):
         return self.delete_url if self.delete_url is not None else "bio_diversity:delete_{}".format(self.key)
 
+    def get_auth(self):
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
+
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
@@ -1188,7 +1203,7 @@ class CommonList(CommonAuthFilterView):
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
+        context['auth'] = self.get_auth()
         context['editable'] = context['auth'] and self.editable
 
         if self.creation_form_height:
@@ -1607,7 +1622,10 @@ class CommonUpdate(CommonAuthUpdateView):
     # This function could be overridden in extending classes to preform further testing to see if
     # an object is editable
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
 
     # Get context returns elements used on the page. Make sure when extending to call
     # context = super().get_context_data(**kwargs) so that elements created in the parent
