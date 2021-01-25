@@ -9,7 +9,7 @@ class AnidcMixin:
     key = "anidc"
     form_class = forms.AnidcForm
     model = models.AnimalDetCode
-    title = "Animal Detail Code"
+    title = _("Animal Detail Code")
     admin_only = True
 
 
@@ -17,7 +17,7 @@ class AnixMixin:
     key = "anix"
     form_class = forms.AnixForm
     model = models.AniDetailXref
-    title = "Animal Detail Cross Reference"
+    title = _("Animal Detail Cross Reference")
     admin_only = False
 
 
@@ -25,7 +25,7 @@ class AdscMixin:
     key = "adsc"
     form_class = forms.AdscForm
     model = models.AniDetSubjCode
-    title = "Animal Detail Subjective Code"
+    title = _("Animal Detail Subjective Code")
     admin_only = True
 
 
@@ -33,7 +33,7 @@ class CntMixin:
     key = "cnt"
     form_class = forms.CntForm
     model = models.Count
-    title = "Count"
+    title = _("Count")
     admin_only = False
 
 
@@ -41,7 +41,7 @@ class CntcMixin:
     key = "cntc"
     form_class = forms.CntcForm
     model = models.CountCode
-    title = "Count Code"
+    title = _("Count Code")
     admin_only = True
 
 
@@ -49,7 +49,7 @@ class CntdMixin:
     key = "cntd"
     form_class = forms.CntdForm
     model = models.CountDet
-    title = "Count Detail"
+    title = _("Count Detail")
     admin_only = False
 
 
@@ -57,7 +57,7 @@ class CollMixin:
     key = "coll"
     form_class = forms.CollForm
     model = models.Collection
-    title = "Collection"
+    title = _("Collection")
     admin_only = False
 
 
@@ -65,7 +65,7 @@ class ContdcMixin:
     key = "contdc"
     form_class = forms.ContdcForm
     model = models.ContainerDetCode
-    title = "Container Detail Code"
+    title = _("Container Detail Code")
     admin_only = True
 
 
@@ -73,7 +73,7 @@ class ContxMixin:
     key = "contx"
     form_class = forms.ContxForm
     model = models.ContainerXRef
-    title = "Container Cross Reference"
+    title = _("Container Cross Reference")
     admin_only = False
 
 
@@ -81,7 +81,7 @@ class CdscMixin:
     key = "cdsc"
     form_class = forms.CdscForm
     model = models.ContDetSubjCode
-    title = "Container Detail Subjective Code"
+    title = _("Container Detail Subjective Code")
     admin_only = True
 
 
@@ -89,7 +89,7 @@ class CupMixin:
     key = "cup"
     form_class = forms.CupForm
     model = models.Cup
-    title = "Cup"
+    title = _("Cup")
     admin_only = False
 
 
@@ -97,7 +97,7 @@ class CupdMixin:
     key = "cupd"
     form_class = forms.CupdForm
     model = models.CupDet
-    title = "Cup Detail"
+    title = _("Cup Detail")
     admin_only = False
 
 
@@ -105,7 +105,7 @@ class DataMixin:
     key = "data"
     form_class = forms.DataForm
     model = models.DataLoader
-    title = "Data"
+    title = _("Data")
     admin_only = False
 
 
@@ -113,7 +113,7 @@ class DrawMixin:
     key = "draw"
     form_class = forms.DrawForm
     model = models.Drawer
-    title = "Drawer"
+    title = _("Drawer")
     admin_only = False
 
 
@@ -121,7 +121,7 @@ class EnvcMixin:
     key = "envc"
     form_class = forms.EnvcForm
     model = models.EnvCode
-    title = "Environment Code"
+    title = _("Environment Code")
     admin_only = True
 
 
@@ -129,7 +129,7 @@ class EnvMixin:
     key = "env"
     form_class = forms.EnvForm
     model = models.EnvCondition
-    title = "Environment Condition"
+    title = _("Environment Condition")
     admin_only = False
 
 
@@ -137,7 +137,7 @@ class EnvcfMixin:
     key = "envcf"
     form_class = forms.EnvcfForm
     model = models.EnvCondFile
-    title = "Environment Condition File"
+    title = _("Environment Condition File")
     admin_only = True
 
 
@@ -145,7 +145,7 @@ class EnvscMixin:
     key = "envsc"
     form_class = forms.EnvscForm
     model = models.EnvSubjCode
-    title = "Environment Subjective Code"
+    title = _("Environment Subjective Code")
     admin_only = True
 
 
@@ -153,7 +153,7 @@ class EnvtMixin:
     key = "envt"
     form_class = forms.EnvtForm
     model = models.EnvTreatment
-    title = "Environment Treatment"
+    title = _("Environment Treatment")
     admin_only = False
 
 
@@ -161,7 +161,7 @@ class EnvtcMixin:
     key = "envtc"
     form_class = forms.EnvtcForm
     model = models.EnvTreatCode
-    title = "Environment Treatment Code"
+    title = _("Environment Treatment Code")
     admin_only = True
 
 
@@ -169,7 +169,7 @@ class EvntMixin:
     key = "evnt"
     form_class = forms.EvntForm
     model = models.Event
-    title = "Event"
+    title = _("Event")
     admin_only = False
 
 
@@ -177,7 +177,7 @@ class EvntcMixin:
     key = "evntc"
     form_class = forms.EvntcForm
     model = models.EventCode
-    title = "Event Code"
+    title = _("Event Code")
     admin_only = True
 
 
@@ -185,7 +185,7 @@ class FacicMixin:
     key = "facic"
     form_class = forms.FacicForm
     model = models.FacilityCode
-    title = "Facility Code"
+    title = _("Facility Code")
     admin_only = True
 
 
@@ -193,7 +193,7 @@ class FecuMixin:
     key = "fecu"
     form_class = forms.FecuForm
     model = models.Fecundity
-    title = "Fecundity"
+    title = _("Fecundity")
     admin_only = False
 
 
@@ -201,7 +201,7 @@ class FeedMixin:
     key = "feed"
     form_class = forms.FeedForm
     model = models.Feeding
-    title = "Feeding"
+    title = _("Feeding")
     admin_only = False
 
 
@@ -209,7 +209,7 @@ class FeedcMixin:
     key = "feedc"
     form_class = forms.FeedcForm
     model = models.FeedCode
-    title = "Feeding Code"
+    title = _("Feeding Code")
     admin_only = True
 
 
@@ -217,7 +217,7 @@ class FeedmMixin:
     key = "feedm"
     form_class = forms.FeedmForm
     model = models.FeedMethod
-    title = "Feeding Method"
+    title = _("Feeding Method")
     admin_only = False
 
 
@@ -225,7 +225,7 @@ class GrpMixin:
     key = "grp"
     form_class = forms.GrpForm
     model = models.Group
-    title = "Group"
+    title = _("Group")
     admin_only = False
 
 
@@ -233,7 +233,7 @@ class GrpdMixin:
     key = "grpd"
     form_class = forms.GrpdForm
     model = models.GroupDet
-    title = "Group Detail"
+    title = _("Group Detail")
     admin_only = False
 
 
@@ -241,7 +241,7 @@ class HeatMixin:
     key = "heat"
     form_class = forms.HeatForm
     model = models.HeathUnit
-    title = "Heath Unit"
+    title = _("Heath Unit")
     admin_only = False
 
 
@@ -249,7 +249,7 @@ class HeatdMixin:
     key = "heatd"
     form_class = forms.HeatdForm
     model = models.HeathUnitDet
-    title = "Heath Unit Detail"
+    title = _("Heath Unit Detail")
     admin_only = False
 
 
@@ -257,7 +257,7 @@ class ImgMixin:
     key = "img"
     form_class = forms.ImgForm
     model = models.Image
-    title = "Image"
+    title = _("Image")
     admin_only = False
 
 
@@ -265,7 +265,7 @@ class ImgcMixin:
     key = "imgc"
     form_class = forms.ImgcForm
     model = models.ImageCode
-    title = "Image Code"
+    title = _("Image Code")
     admin_only = True
 
 
@@ -273,7 +273,7 @@ class IndvMixin:
     key = "indv"
     form_class = forms.IndvForm
     model = models.Individual
-    title = "Individual"
+    title = _("Individual")
     admin_only = False
 
 
@@ -281,7 +281,7 @@ class IndvdMixin:
     key = "indvd"
     form_class = forms.IndvdForm
     model = models.IndividualDet
-    title = "Individual Detail"
+    title = _("Individual Detail")
     admin_only = False
 
 
@@ -289,7 +289,7 @@ class IndvtMixin:
     key = "indvt"
     form_class = forms.IndvtForm
     model = models.IndTreatment
-    title = "Individual Treatment"
+    title = _("Individual Treatment")
     admin_only = False
 
 
@@ -297,7 +297,7 @@ class IndvtcMixin:
     key = "indvtc"
     form_class = forms.IndvtcForm
     model = models.IndTreatCode
-    title = "Individual Treatment Code"
+    title = _("Individual Treatment Code")
     admin_only = True
 
 
@@ -305,7 +305,7 @@ class InstMixin:
     key = "inst"
     form_class = forms.InstForm
     model = models.Instrument
-    title = "Instrument"
+    title = _("Instrument")
     admin_only = False
 
 
@@ -313,7 +313,7 @@ class InstcMixin:
     key = "instc"
     form_class = forms.InstcForm
     model = models.InstrumentCode
-    title = "Instrument Code"
+    title = _("Instrument Code")
     admin_only = True
 
 
@@ -321,7 +321,7 @@ class InstdMixin:
     key = "instd"
     form_class = forms.InstdForm
     model = models.InstrumentDet
-    title = "Instrument Detail"
+    title = _("Instrument Detail")
     admin_only = False
 
 
@@ -338,6 +338,7 @@ class LocMixin:
     model = models.Location
     form_class = forms.LocForm
     title = _("Location")
+    admin_only = False
 
 
 class LoccMixin:
@@ -361,7 +362,7 @@ class PairMixin:
     model = models.Pairing
     form_class = forms.PairForm
     title = _("Pairing")
-
+    admin_only = False
 
 class PercMixin:
     key = 'perc'
@@ -384,6 +385,7 @@ class ProgMixin:
     model = models.Program
     form_class = forms.ProgForm
     title = _("Program")
+    admin_only = False
 
 
 class ProgaMixin:
@@ -391,6 +393,7 @@ class ProgaMixin:
     model = models.ProgAuthority
     form_class = forms.ProgaForm
     title = _("Program Authority")
+    admin_only = False
 
 
 class ProtMixin:
@@ -398,6 +401,7 @@ class ProtMixin:
     model = models.Protocol
     form_class = forms.ProtForm
     title = _("Protocol")
+    admin_only = False
 
 
 class ProtcMixin:
@@ -413,7 +417,7 @@ class ProtfMixin:
     model = models.Protofile
     form_class = forms.ProtfForm
     title = _("Protocol File")
-
+    admin_only = False
 
 class QualMixin:
     key = 'qual'
@@ -452,7 +456,7 @@ class SampMixin:
     model = models.Sample
     form_class = forms.SampForm
     title = _("Sample ")
-
+    admin_only = False
 
 class SampcMixin:
     key = 'sampc'
@@ -467,28 +471,28 @@ class SampdMixin:
     model = models.SampleDet
     form_class = forms.SampdForm
     title = _("Sample Detail")
-
+    admin_only = False
 
 class SireMixin:
     key = 'sire'
     model = models.Sire
     form_class = forms.SireForm
     title = _("Sire")
-
+    admin_only = False
 
 class SpwnMixin:
     key = 'spwn'
     model = models.Spawning
     form_class = forms.SpwnForm
     title = _("Spawning")
-
+    admin_only = False
 
 class SpwndMixin:
     key = 'spwnd'
     model = models.SpawnDet
     form_class = forms.SpwndForm
     title = _("Spawning Detail")
-
+    admin_only = False
 
 class SpwndcMixin:
     key = 'spwndc'
@@ -535,35 +539,35 @@ class TankMixin:
     model = models.Tank
     form_class = forms.TankForm
     title = _("Tank")
-
+    admin_only = False
 
 class TankdMixin:
     key = 'tankd'
     model = models.TankDet
     form_class = forms.TankdForm
     title = _("Tank Detail")
-
+    admin_only = False
 
 class TeamMixin:
     key = 'team'
     model = models.Team
     form_class = forms.TeamForm
     title = _("Team")
-
+    admin_only = False
 
 class TrayMixin:
     key = 'tray'
     model = models.Tray
     form_class = forms.TrayForm
     title = _("Tray")
-
+    admin_only = False
 
 class TraydMixin:
     key = 'trayd'
     model = models.TrayDet
     form_class = forms.TraydForm
     title = _("Tray Detail")
-
+    admin_only = False
 
 class TribMixin:
     key = 'trib'
@@ -578,14 +582,14 @@ class TrofMixin:
     model = models.Trough
     form_class = forms.TrofForm
     title = _("Trough")
-
+    admin_only = False
 
 class TrofdMixin:
     key = 'trofd'
     model = models.TroughDet
     form_class = forms.TrofdForm
     title = _("Trough Detail")
-
+    admin_only = False
 
 class UnitMixin:
     key = 'unit'

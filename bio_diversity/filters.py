@@ -330,6 +330,8 @@ class PrioFilter(django_filters.FilterSet):
 
 class ProgFilter(django_filters.FilterSet):
 
+    prog_name = django_filters.CharFilter(field_name='prog_name', lookup_expr='icontains')
+
     class Meta:
         model = models.Program
         fields = ["prog_name", "proga_id", "orga_id", ]
