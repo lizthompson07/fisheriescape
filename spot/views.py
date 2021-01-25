@@ -37,7 +37,6 @@ def in_spot_group(user):
 
 class SpotAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
-
     def test_func(self):
         return in_spot_group(self.request.user)
 
@@ -1346,16 +1345,16 @@ class MethodDeleteView(SpotAccessRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class DatabaseListView(SpotAccessRequiredMixin, FilterView):
+class DatabasesUsedListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/database_list.html'
     #filterset NEED TO DO
-    model = models.Database
-    queryset = models.Database.objects.annotate()
+    model = models.DatabasesUsed
+    queryset = models.DatabasesUsed.objects.annotate()
     search_term = Concat('database', 'id', output_field=TextField())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Database.objects.first()
+        context["my_object"] = models.DatabasesUsed.objects.first()
         context["field_list"] = [
             'database',
             'analysis_program',
@@ -1364,9 +1363,9 @@ class DatabaseListView(SpotAccessRequiredMixin, FilterView):
         return context
 
 
-class DatabaseDetailView(SpotAccessRequiredMixin, DetailView):
-    model = models.Method
-    template_name = 'spot/method_detail.html'
+class DatabasesUsedDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.DatabasesUsed
+    template_name = 'spot/database_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1384,10 +1383,10 @@ class DatabaseDetailView(SpotAccessRequiredMixin, DetailView):
         return context
 
 
-class DatabaseUpdateView(SpotAccessRequiredMixin, UpdateView):
+class DatabasesUsedUpdateView(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/database_form.html'
-    model = models.Database
-    form_class = forms.DatabaseForm
+    model = models.DatabasesUsed
+    form_class = forms.DatabasesUsedForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -1397,10 +1396,10 @@ class DatabaseUpdateView(SpotAccessRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("spot:data_detail", kwargs={"pk": my_data.id}))
 
 
-class DatabaseCreateView(SpotAccessRequiredMixin, CreateView):
+class DatabasesUsedCreateView(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/database_form.html'
-    model = models.Database
-    form_class = forms.DatabaseForm
+    model = models.DatabasesUsed
+    form_class = forms.DatabasesUsedForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -1410,9 +1409,9 @@ class DatabaseCreateView(SpotAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("spot:data_detail", kwargs={"pk": my_data.id}))
 
 
-class DatabaseDeleteView(SpotAccessRequiredMixin, DeleteView):
+class DatabasesUsedDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/database_confirm_delete.html'
-    model = models.Database
+    model = models.DatabasesUsed
     success_url = reverse_lazy('spot:data_list')
     success_message = 'The Database was deleted successfully!'
 

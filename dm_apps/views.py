@@ -369,7 +369,7 @@ def get_app_dict(request):
     try:
         app_dict["spot"] = {
             "title": _("Grants & Contributions"),
-            "description": _("Gulf Region application for the tracking of Gs & Cs."),
+            "description": _("Salmon Science Projects"),
             "status": "beta",
             "access": "permission-required",
             "url": reverse('spot:index'),

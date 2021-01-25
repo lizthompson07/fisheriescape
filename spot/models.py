@@ -1237,7 +1237,7 @@ class Method(models.Model):
         ordering = ['doc_num']
 
 
-class Database(models.Model):
+class DatabasesUsed(models.Model):
     database = models.ForeignKey(Database, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("database"))
     analysis_program = models.ForeignKey(AnalysisProgramUsed, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("analysis program used"))
     models_used = models.ForeignKey(ModelsUsed, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("models used"))

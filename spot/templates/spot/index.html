@@ -23,7 +23,7 @@
                 </h1>
                 <hr>
                 <h3>
-                    {% trans "The Application for Tracking and Managing Grants & Contributions" %}
+                    {% trans "G&C Salmon Science Project Dashboard" %}
                 </h3>
                 <br><br>
                 <div align="center">
@@ -40,6 +40,12 @@
                         </a>
                         <a href="{% url 'spot:obj_list' %}" class="btn btn-dark">
                             {% trans "Objectives" %}
+                        </a>
+                        <a href="{% url 'spot:meth_list' %}" class="btn btn-dark">
+                            {% trans "Methods" %}
+                        </a>
+                        <a href="{% url 'spot:data_list' %}" class="btn btn-dark">
+                            {% trans "Databases" %}
                         </a>
                     </h4>
                 </div>

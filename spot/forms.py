@@ -607,9 +607,9 @@ class MethodForm(forms.ModelForm):
         }
 
 
-class DatabaseForm(forms.ModelForm):
+class DatabasesUsedForm(forms.ModelForm):
     class Meta:
-        model = models.Database
+        model = models.DatabasesUsed
         fields = [
             'database',
             'analysis_program',
