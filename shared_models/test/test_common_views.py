@@ -654,7 +654,7 @@ class TestIndexTemplateView(CommonTest):
 
     @tag("index", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user1)
 

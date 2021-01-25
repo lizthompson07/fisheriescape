@@ -204,7 +204,7 @@ class TestEheCreate(CommonCreateTest, TestCase):
 
         self.data = Factory.EheFactory.get_valid_data()
 
-        self.test_url = reverse_lazy('whalesdb:create_ehe', args=(self.data['ecp'], 'pop',))
+        self.test_url = reverse_lazy('whalesdb:create_ehe', args=(self.data['hyd'], self.data['ecp_channel_no'], 'pop',))
 
         self.test_expected_template = 'shared_models/shared_entry_form.html'
 

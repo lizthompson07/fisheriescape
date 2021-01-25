@@ -27,7 +27,7 @@ def get_section_choices(all=False, full_name=True):
                 )]
     else:
         return [(s.id, getattr(s, my_attr)) for s in
-                shared_models.Section.objects.filter(division__branch__name__icontains="science")]
+                shared_models.Section.objects.all()]
 
 
 def get_division_choices(all=False):
@@ -201,13 +201,17 @@ def end_trip_review_process(trip, reset=False):
     if not reset:
         # trip.review_start_date = None NEVER reset the review start date!
         trip.status_id = 41
-        trip.save()
+    else:
+        trip.status_id = 31
+    trip.save()
 
     for reviewer in trip.reviewers.all():
-        reviewer.status_id = 23
         if not reset:
+            reviewer.status_id = 23
             reviewer.status_date = None
             reviewer.comments = None
+        else:
+            reviewer.status_id = 24
         reviewer.save()
 
 
@@ -292,10 +296,10 @@ def __set_request_status__(trip_request, request):
                         trip_request.status_id = 12
                     # if role is 'ncr reviewer'
                     elif reviewer.role_id == 3:
-                        trip_request.status_id = 18
+                        trip_request.status_id = 17
                     # if role is 'ncr recommender'
                     elif reviewer.role_id == 4:
-                        trip_request.status_id = 19
+                        trip_request.status_id = 12
                     # if role is 'adm'
                     elif reviewer.role_id == 5:
                         trip_request.status_id = 14
@@ -338,7 +342,7 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
             if next_reviewer.role_id in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
                 email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
 
-            elif next_reviewer.role_id in [5, 6] and request:  # if we are going for ADM or RDG signature...
+            elif next_reviewer.role_id in [6,] and request:  # if we are going for RDG signature...
                 email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id, request)
 
             if email and not suppress_email:

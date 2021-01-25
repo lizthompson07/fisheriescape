@@ -1,12 +1,13 @@
+from django.contrib import auth
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib import auth
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from shared_models import models as shared_models
 
 YES_NO_CHOICES = (
@@ -19,7 +20,6 @@ NULL_YES_NO_CHOICES = (
     (1, _("Yes")),
     (0, _("No")),
 )
-
 
 
 # Create your models here.
@@ -168,6 +168,7 @@ class Sample(models.Model):
                 return True
         return False
 
+
 class SampleSpecies(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="sample_spp")
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="sample_spp")
@@ -296,6 +297,10 @@ class Surface(models.Model):
             if sp.invasive:
                 return True
         return False
+
+    @property
+    def total_coverage(self):
+        return self.surface_spp.all().aggregate(dsum=Sum("percent_coverage"))["dsum"] if self.surface_spp.exists() else 0
 
 
 class SurfaceSpecies(models.Model):

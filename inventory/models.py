@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from lib.functions.custom_functions import truncate, fiscal_year
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from dm_apps import custom_widgets
 
@@ -211,102 +212,6 @@ class Keyword(models.Model):
             return self.text_value_fre
 
 
-class Publication(models.Model):
-    name = models.CharField(max_length=1000)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['name']
-
-
-class Citation(models.Model):
-    title_eng = models.TextField(blank=True, null=True, verbose_name="Title (English)")
-    title_fre = models.TextField(blank=True, null=True, verbose_name="Title (French)")
-    authors = models.TextField(blank=True, null=True)
-    year = models.IntegerField(blank=True, null=True)
-    publication = models.ForeignKey(Publication, on_delete=models.DO_NOTHING, blank=True, null=True)
-    pub_number = models.CharField(max_length=255, blank=True, null=True, verbose_name="Publication Number")
-    url_eng = models.TextField(blank=True, null=True, verbose_name="URL (English)")
-    url_fre = models.TextField(blank=True, null=True, verbose_name="URL (French)")
-    abstract_eng = models.TextField(blank=True, null=True, verbose_name="Abstract (English)")
-    abstract_fre = models.TextField(blank=True, null=True, verbose_name="Abstract (French)")
-    series = models.CharField(max_length=1000, blank=True, null=True)
-    region = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.title_eng
-
-    @property
-    def short_citation(self):
-        if self.title_eng != None:
-            title = self.title_eng
-        else:
-            title = self.title_fre
-
-        my_str = "{authors}. {year}. {title}. {publication} {pub_number}.".format(
-            authors=self.authors,
-            year=self.year,
-            title=title,
-            publication=self.publication,
-            pub_number=self.pub_number,
-        )
-
-        return my_str
-
-    @property
-    def short_citation_html(self):
-        if self.title_eng != None:
-            title = self.title_eng
-        else:
-            title = self.title_fre
-
-        if self.url_eng == None:
-            my_str = "{authors}. {year}. {title}. {publication} {pub_number}.".format(
-                authors=self.authors,
-                year=self.year,
-                title=title,
-                publication=self.publication,
-                pub_number=self.pub_number,
-            )
-        else:
-            my_str = "{authors}. {year}. <a href=""{url_eng}""> {title}</a>. {publication} {pub_number}.".format(
-                authors=self.authors,
-                year=self.year,
-                title=title,
-                publication=self.publication,
-                pub_number=self.pub_number,
-                url_eng=self.url_eng,
-            )
-        return my_str
-
-    @property
-    def citation_br(self):
-        if self.title_eng != None:
-            title = self.title_eng
-        else:
-            title = self.title_fre
-
-        my_str = "<b>Title:</b> {title}<br><b>Authors:</b> {authors}<br><b>Year:</b> {year}<br><b>Publication:</b> {publication}. {pub_number}".format(
-            authors=self.authors,
-            year=self.year,
-            title=title,
-            publication=self.publication,
-            pub_number=self.pub_number,
-        )
-        return my_str
-
-    @property
-    def title(self):
-        if self.title_eng != None:
-            title = self.title_eng
-        else:
-            title = self.title_fre
-
-        return title
-
-
 class DistributionFormat(SimpleLookup):
     pass
 
@@ -380,7 +285,7 @@ class Resource(models.Model):
     open_data_notes = models.TextField(blank=True, null=True,
                                        verbose_name="Open data notes")
     notes = models.TextField(blank=True, null=True, verbose_name="General notes")
-    citations = models.ManyToManyField(Citation, related_name='resources', blank=True)
+    citations2 = models.ManyToManyField(shared_models.Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
     people = models.ManyToManyField(Person, through='ResourcePerson')
     paa_items = models.ManyToManyField(shared_models.PAAItem, blank=True, verbose_name=_("Program Alignment Architecture (PAA) references"))
@@ -532,6 +437,8 @@ class ResourcePerson(models.Model):
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.resource.id})
 
+    def __str__(self):
+        return f"{self.person} ({self.role})"
 
 class BoundingBox(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
@@ -545,7 +452,7 @@ class BoundingBox(models.Model):
 
 
 class ResourceCertification(models.Model):
-    resource = models.ForeignKey(Resource, on_delete=models.DO_NOTHING, related_name="certification_history")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="certification_history")
     certifying_user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     certification_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     notes = models.TextField(blank=False, null=True)

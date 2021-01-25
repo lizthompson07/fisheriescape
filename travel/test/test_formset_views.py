@@ -24,6 +24,7 @@ class TestAllFormsets(CommonTest):
             "manage_njc_rates",
             "manage_trip_subcategories",
             "manage_trip_categories",
+            "manage_roles",
             # "manage_reasons",
         ]
 
@@ -36,6 +37,7 @@ class TestAllFormsets(CommonTest):
             views.NJCRatesFormsetView,
             views.TripSubcategoryFormsetView,
             views.TripCategoryFormsetView,
+            views.RoleFormsetView,
             # views.ReasonFormsetView,
         ]
         self.expected_template = 'travel/formset.html'
@@ -50,7 +52,7 @@ class TestAllFormsets(CommonTest):
     @tag('formsets', "access")
     def test_view(self):
         for url in self.test_urls:
-            self.assert_not_broken(url)
+            self.assert_good_response(url)
             self.assert_non_public_view(test_url=url, expected_template=self.expected_template, user=self.user)
 
     @tag('formsets', "submit")
@@ -68,6 +70,7 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.Cost, "url_name": "delete_cost", "view": views.CostHardDeleteView},
             {"model": models.CostCategory, "url_name": "delete_cost_category", "view": views.CostCategoryHardDeleteView},
             {"model": models.TripSubcategory, "url_name": "delete_trip_subcategory", "view": views.TripSubcategoryHardDeleteView},
+            {"model": models.Role, "url_name": "delete_role", "view": views.RoleHardDeleteView},
             # {"model": models.Reason, "url_name": "delete_reason", "view": views.ReasonHardDeleteView},
         ]
         self.test_dicts = list()
@@ -99,7 +102,7 @@ class TestAllHardDeleteViews(CommonTest):
     @tag('hard_delete', "access")
     def test_view(self):
         for d in self.test_dicts:
-            self.assert_not_broken(d["url"])
+            self.assert_good_response(d["url"])
             # only have one chance to test this url
             self.assert_non_public_view(test_url=d["url"], user=self.user, expected_code=302, locales=["en"])
 

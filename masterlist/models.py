@@ -65,7 +65,7 @@ class Organization(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     key_species = models.TextField(blank=True, null=True, verbose_name=_("key species"))
     grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"), blank=False)
-    regions = models.ManyToManyField(shared_models.Region, verbose_name=_("region"), blank=True)
+    regions = models.ManyToManyField(shared_models.Region, verbose_name=_("regions"), blank=True)
     sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
 
     # ihub only
@@ -172,7 +172,6 @@ class Person(models.Model):
 
     old_id = models.IntegerField(blank=True, null=True)
     connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
-    ihub_vetted = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("vetted by iHub"))
 
     # is_consultation_contact = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Consultation contact?"))
 

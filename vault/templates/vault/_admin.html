@@ -1,0 +1,70 @@
+{% extends "vault/base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+
+    <style>
+        body{
+            background-image: url({% static "/img/vault/whales.png" %});
+            background-size: cover;
+        }
+
+        .big {
+            font-size: 7em;
+            font-weight: bold;
+        }
+
+        .my-btn {
+            margin-top: 5px;
+            width: 65%
+        }
+
+        .jumbotron {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+    </style>
+
+    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Admin Settings</h1>
+        </div>
+    </div>
+
+
+<!--Card container-->
+
+<div class="container">
+    <div class="row" style="text-align: center">
+        <div class="col-4">
+            <div><h2>Lists</h2></div>
+            <div class="btns">
+                <a href="{% url 'vault:index' %}" class="btn my-btn btn btn-primary">placeholder</a>
+            </div>
+            <br>
+        </div>
+
+        <div class="col-4">
+            <div><h2>Add/Remove Data</h2></div>
+            <div class="btns">
+                <a href="{% url 'vault:index' %}" class="btn my-btn btn btn-primary">placeholder</a>
+            </div>
+            <br>
+        </div>
+
+        <div class="col-4">
+            <div><h2>TBD - maybe csvs?</h2></div>
+            <div class="btns">
+                <a href="{% url 'vault:index' %}" class="btn my-btn btn btn-danger">placeholder</a>
+
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

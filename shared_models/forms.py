@@ -81,6 +81,12 @@ class RegionForm(forms.ModelForm):
         }
 
 
+class OrganizationForm(forms.ModelForm):
+    class Meta:
+        model = models.Organization
+        fields = "__all__"
+
+
 class UserCreateForm(forms.Form):
     first_name = forms.CharField(label=gettext_lazy("First name"))
     last_name = forms.CharField(label=gettext_lazy("Last name"))
@@ -120,3 +126,16 @@ class ScriptForm(forms.ModelForm):
         widgets = {
             'modified_by': forms.HiddenInput(),
         }
+
+
+
+class ResponsibilityCenterForm(forms.ModelForm):
+    class Meta:
+        model = models.ResponsibilityCenter
+        fields = "__all__"
+
+
+class ProjectCodeForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = "__all__"

@@ -1,10 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.core import validators
 from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
-from lib.templatetags.custom_filters import nz
 
+from lib.templatetags.custom_filters import nz
 from . import models
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -291,6 +290,7 @@ class ReportSearchForm(forms.Form):
         (None, ""),
         (None, "----- BIOFOULING ------"),
         (1, "Biofouling: Species observations by sample"),
+        (9, "Biofouling: AIS presence / absence"),
         (None, ""),
         (None, "----- GREEN CRAB ------"),
         (8, "Green Crab: Site descriptions (xlsx)"),
@@ -307,7 +307,7 @@ class ReportSearchForm(forms.Form):
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     species = forms.MultipleChoiceField(required=False)
-    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year")
+    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (leave blank for all years)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -376,3 +376,16 @@ class NewCatchForm(forms.Form):
         # if the species in not a bycatch spp, then remove the notes fields
         if my_species.green_crab_monitoring:
             del self.fields["notes"]
+
+
+class ProbeForm(forms.ModelForm):
+    class Meta:
+        model = models.Probe
+        fields = "__all__"
+
+
+ProbeFormset = modelformset_factory(
+    model=models.Probe,
+    form=ProbeForm,
+    extra=1,
+)

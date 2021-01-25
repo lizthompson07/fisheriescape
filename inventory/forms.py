@@ -24,7 +24,7 @@ class ResourceCreateForm(forms.ModelForm):
             'date_verified',
             'date_last_modified',
             'fgp_publication_date',
-            'citations',
+            'citations2',
             'keywords',
             'people',
             'flagged_4_publication',
@@ -93,7 +93,7 @@ class ResourceForm(forms.ModelForm):
             'date_verified',
             # 'date_last_modified',
             # 'fgp_publication_date',
-            'citations',
+            'citations2',
             'keywords',
             'people',
             'flagged_4_publication',
@@ -231,6 +231,19 @@ class ResourceForm(forms.ModelForm):
                     self.fields[field_key].label,
                 ))
 
+        if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
+            # m2m
+            del self.fields["paa_items"]
+            del self.fields["distribution_formats"]
+            # non-cloning fields
+            del self.fields["odi_id"]
+            del self.fields["fgp_url"]
+            del self.fields["public_url"]
+            del self.fields["fgp_publication_date"]
+            del self.fields["od_publication_date"]
+            del self.fields["od_release_date"]
+            del self.fields["last_revision_date"]
+
 
 class ResourceKeywordForm(forms.ModelForm):
     class Meta:
@@ -346,7 +359,7 @@ class KeywordForm(forms.ModelForm):
 
 class CitationForm(forms.ModelForm):
     class Meta:
-        model = models.Citation
+        model = shared_models.Citation
         fields = ("__all__")
         # exclude = [
         #     'concept_scheme',
@@ -420,6 +433,7 @@ class ReportSearchForm(forms.Form):
         (1, "Batch XML export"),
         (2, "Open Data Inventory - Quarterly Report"),
         (3, "Physical Collections Report (xlsx)"),
+        (4, "Resources Report (xlsx)"),
         # (2, "Organizational Report / Cue Card (PDF)"),
     )
 

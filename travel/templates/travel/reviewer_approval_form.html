@@ -23,10 +23,12 @@
 {% endblock %}
 
 {% block pre_form_div %}
-
+    {% bootstrap_form_errors form %}
 
     <hr>
+  <div id="app">
     {% include "travel/_trip_request_detail.html" %}
+  </div>
     <br><br>
 {#    <div class="center-col">#}
 {#        <h2>#}
@@ -36,7 +38,7 @@
 
     <div class="float-right mb-3">
         <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}" target="_blank">
-            {% trans "Print Travel Plan" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+            {% trans "Print Travel Request and Approval Form (TRAF)" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
         </a>
         <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_request' triprequest.id %}" target="_blank">
             {% trans "CFTS Report" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
@@ -51,16 +53,16 @@
 {% block form_buttons %}
 
     <div class="">
-        <a class="btn btn-secondary" id="save" href="#">
+        <a class="btn btn-secondary" id="save" href="#id_comments">
             {% trans "Save comments" %}
         </a>
-        <a class="btn btn-success" id="yes" href="#">
+        <a class="btn btn-success" id="yes" href="#id_comments">
             {% trans "I approve" %}
         </a>
-        <a class="btn btn-danger" id="no" href="#">
+        <a class="btn btn-danger" id="no" href="#id_comments">
             {% trans "I do not approve" %}
         </a>
-        <a class="btn" id="request_changes" href="#" style="background-color: orange">
+        <a class="btn" id="request_changes" href="#id_comments" style="background-color: orange">
             {% trans "Request changes" %}
         </a>
         <a class="btn btn-primary" href="{% url 'travel:request_detail' triprequest.id "all" %}" target="_blank">
@@ -83,6 +85,12 @@
 
 
 {% block body_js %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+    <script type="application/javascript">
+    var trip_request_id = {{ triprequest.id }};
+    </script>
+    <script src="{% static 'travel/mainTripRequest.js' %}"></script>
 
     <script type="application/javascript">
         $("#yes").click(function () {
@@ -104,4 +112,9 @@
 
     </script>
 
+{#    // have to reload some other JS scripts... due to import of vue js#}
+    <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
+    <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
+
 {% endblock %}
+

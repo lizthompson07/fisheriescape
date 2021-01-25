@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import subprocess
 import sys
 
 from decouple import config
@@ -33,7 +34,7 @@ LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 # Django security keye
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
 # should debug mode be turned on or off? default = False
-DEBUG = config("DEBUG", cast=bool, default=False)
+DEBUG = config("DEBUG", cast=bool, default=True)
 # Where do you want to set the bar for logging? {DEBUG, INFO, WARNING, ERROR, CRITICAL}
 LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
 # What is the path to the log file?
@@ -46,6 +47,8 @@ GOOGLE_API_KEY = config("GOOGLE_API_KEY", cast=str, default="")
 GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 # Should the ticketing app be displayed on the main index page?
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
+# >>>>>>> HEAD
+# HEAD
 
 # adding following (Jan.25, 2021) for updating migration files for dm_apps
 # try:
@@ -57,6 +60,14 @@ SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 
 # DevOps build number to display on index.html
 DEVOPS_BUILD_NUMBER = config("DEVOPS_BUILD_NUMBER", cast=str, default="")
+# =======
+# get the git commit number from the ENV to display on index.html
+try:
+    GIT_VERSION = subprocess.check_output(['git', "-C", BASE_DIR, 'rev-parse', '--short', 'HEAD']).decode()
+except Exception as E:
+    print(E)
+    GIT_VERSION = "n/a"
+# >>>>>>> 6d65c410223c40693b5868c70c285d152b7c7167
 # Azure Instrumentation KEy for application insights
 USE_AZURE_APPLICATION_INSIGHT = config("USE_AZURE_APPLICATION_INSIGHT", cast=bool, default=False)
 AZURE_INSTRUMENTATION_KEY = config("AZURE_INSTRUMENTATION_KEY", cast=str, default="")

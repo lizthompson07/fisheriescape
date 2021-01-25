@@ -1,0 +1,102 @@
+{
+  "AAD_APP_ID": {
+    "dev": "7c0933f3-9e00-4070-bcd8-bb48a4bec0f1",
+    "test": "aa5e4b7e-86d6-4d01-aa96-f0e9eed37b2c",
+    "prod": "8e613a08-d201-4b80-b6a9-6cc9fb1b0995"
+  },
+  "AAD_REDIRECT": {
+    "dev": "https://dmapps-dev-docker.azurewebsites.net/accounts/callback",
+    "test": "https://dmapps-test-docker.azurewebsites.net/accounts/callback",
+    "prod": "https://sci-zone.dfo-mpo.gc.ca/accounts/callback"
+  },
+  "AZURE_INSTRUMENTATION_KEY": {
+    "dev": "729045e9-9337-4f7b-a6b9-6910e3abfde6",
+    "test": "729045e9-9337-4f7b-a6b9-6910e3abfde6",
+    "prod": "729045e9-9337-4f7b-a6b9-6910e3abfde6"
+  },
+  "AZURE_MSI_CLIENT_ID": {
+    "dev": "b9b8533b-430c-4b7a-95b7-0c8d43179f68",
+    "test": "b9b8533b-430c-4b7a-95b7-0c8d43179f68",
+    "prod": "369c4d1e-a0d1-4257-ac4c-ed887662808a"
+  },
+  "AZURE_STORAGE_ACCOUNT_NAME": {
+    "dev": "dmappsdev",
+    "test": "dmappstest",
+    "prod": "dmappsprod"
+  },
+  "AZURE_SUBSCRIPTION": {
+    "dev": "IMTS DEV/TEST",
+    "test": "IMTS DEV/TEST",
+    "prod": "IMTS PROD UNCLASS"
+  },
+  "AZURE_RESOURCE_GROUP": {
+    "dev": "DMAPPS-DEV-RG",
+    "test": "DMAPPS-DEV-RG",
+    "prod": "DMAPPS-PROD-RG"
+  },
+  "AZURE_SERVICE_CONNECTION": {
+    "dev": "msi.dmapps-dev",
+    "test": "msi.dmapps-dev",
+    "prod": "msi.dmapps"
+  },
+  "DB_HOST": {
+    "dev": "dmapps-dev-mysql.mysql.database.azure.com",
+    "test": "dmapps-dev-mysql.mysql.database.azure.com",
+    "prod": "dmapps-prod-db.mysql.database.azure.com"
+  },
+  "DB_MODE": {
+    "dev": "DEV",
+    "test": "TEST",
+    "prod": "PROD"
+  },
+  "DB_NAME": {
+    "dev": "dmapps_dev",
+    "test": "dmapps_test",
+    "prod": "dmapps"
+  },
+  "DB_PORT": 3306,
+  "DB_USER": {
+    "dev": "pipeline_user@dmapps-dev-mysql",
+    "test": "pipeline_user@dmapps-dev-mysql",
+    "prod": "pipeline_user@dmapps-prod-db"
+  },
+  "DEBUG": {
+    "dev": "True",
+    "test": "True",
+    "prod": "False"
+  },
+  "DEPLOYMENT_STAGE": {
+    "dev": "DEV",
+    "test": "TEST",
+    "prod": "PROD"
+  },
+  "AZURE_ACR": "dmappsdevtestacr",
+  "DOCKER_REPOSITORY": "dmapps_img",
+  "DOCKER_IMAGE_TAG": {
+    "dev": "latest",
+    "test": "latest",
+    "prod": "prod"
+  },
+  "AZURE_WEBHOOK_NAME": {
+    "dev": "webappdmappsdevdocker",
+    "test": "latest",
+    "prod": "prod"
+  },
+  "SHOW_TICKETING_APP": {
+    "dev": "True",
+    "test": "False",
+    "prod": "False"
+  },
+  "USE_AZURE_APPLICATION_INSIGHT": {
+    "dev": "False",
+    "test": "False",
+    "prod": "False"
+  },
+  "WEB_APP_NAME": {
+    "dev": "dmapps-dev-docker",
+    "test": "dmapps-test-docker",
+    "prod": "dmapps-prod-web"
+  }
+}
+
+

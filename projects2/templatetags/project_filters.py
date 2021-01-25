@@ -4,6 +4,47 @@ register = template.Library()
 
 
 @register.filter
+def is_markdown_field(value):
+    target_field_list = [
+        # project
+        'overview',
+        ## CSRF
+        'objectives',
+        'innovation',
+        'other_funding',
+        ## ACRDP
+        'team_description',
+        'rationale',
+        'experimental_protocol',
+
+        # project-year
+        'deliverables',
+        'priorities',
+        'technical_service_needs',
+        'mobilization_needs',
+        'vehicle_needs',
+        'ship_needs',
+        'field_staff_needs',
+        'instrumentation',
+        'data_collected',
+        'data_products',
+        'data_storage_plan',
+        'data_management_needs',
+        'other_lab_support_needs',
+        'it_needs',
+
+        # status report
+        'major_accomplishments',
+        'major_issues',
+
+        # activity update
+        'notes',
+
+    ]
+    return value in target_field_list
+
+
+@register.filter
 def in_field_group(value, arg):
     if arg == "specialized_equipment":
         if value in [

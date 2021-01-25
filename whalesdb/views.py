@@ -8,10 +8,12 @@ from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
 from django.contrib.auth.mixins import UserPassesTestMixin
-from shared_models.views import CommonTemplateView, CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView
+from shared_models.views import CommonTemplateView, CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView, \
+    CommonHardDeleteView, CommonFormsetView
 
 import json
 import shared_models.models as shared_models
+
 
 from . import mixins
 
@@ -47,7 +49,7 @@ def rst_delete(request, pk):
 
 
 class IndexView(CommonTemplateView):
-    nav_menu = 'whalesdb/whale_nav_menu.html'
+    nav_menu = 'whalesdb/whales_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
     title = _("Whale Equipment Metadata Database")
     template_name = 'whalesdb/index.html'
@@ -66,7 +68,7 @@ class IndexView(CommonTemplateView):
 # has the correct privileges to interact with Creation Views
 class CommonCreate(CommonAuthCreateView):
 
-    nav_menu = 'whalesdb/whale_nav_menu.html'
+    nav_menu = 'whalesdb/whales_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
     home_url_name = "whalesdb:index"
 
@@ -97,6 +99,7 @@ class CommonCreate(CommonAuthCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
+        context['help_text_dict'] = utils.get_help_text_dict()
         return context
 
 
@@ -131,6 +134,15 @@ class EcaCreate(mixins.EcaMixin, CommonCreate):
     pass
 
 
+class EcpCreate(mixins.EcpMixin, CommonCreate):
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['eqr'] = self.kwargs['eqr']
+
+        return initial
+
+
 class EdaCreate(mixins.EdaMixin, CommonCreate):
 
     def get_initial(self):
@@ -155,7 +167,8 @@ class EheCreate(mixins.EheMixin, CommonCreate):
 
     def get_initial(self):
         initial = super().get_initial()
-        initial['ecp'] = self.kwargs['ecp']
+        initial['rec'] = self.kwargs['rec']
+        initial['ecp_channel_no'] = self.kwargs['ecp_channel_no']
 
         return initial
 
@@ -282,7 +295,7 @@ class TeaCreate(mixins.TeaMixin, CommonCreate):
 
 class CommonUpdate(CommonAuthUpdateView):
 
-    nav_menu = 'whalesdb/whale_nav_menu.html'
+    nav_menu = 'whalesdb/whales_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
     home_url_name = "whalesdb:index"
 
@@ -345,6 +358,16 @@ class DepUpdate(mixins.DepMixin, CommonUpdate):
 class EcaUpdate(mixins.EcaMixin, CommonUpdate):
     def get_success_url(self):
         return reverse_lazy("whalesdb:details_eca", args=(self.kwargs['pk'],))
+
+
+class EheUpdateRemove(mixins.EheMixin, CommonUpdate):
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        initial['rec'] = None
+        initial['ecp_channel_no'] = 0
+        return initial
 
 
 class EmmUpdate(mixins.EmmMixin, CommonUpdate):
@@ -464,28 +487,6 @@ class DepDetails(mixins.DepMixin, CommonDetails):
     template_name = 'whalesdb/details_dep.html'
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['google_api_key'] = settings.GOOGLE_API_KEY
-
-        context['edit_attachments'] = self.model.objects.get(pk=self.kwargs['pk']).station_events.count()
-        if models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk']):
-            edas = models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk'])
-            for eda in edas:
-                if models.RecDataset.objects.filter(eda_id=eda.pk):
-                    if not hasattr(context, 'rec'):
-                        context['rec'] = []
-
-                    rec = models.RecDataset.objects.get(eda_id=eda.pk)
-                    context['rec'].append({
-                        'text': str(rec),
-                        'id': rec.pk,
-                    })
-
-        return context
-
-
 class EcaDetails(mixins.EcaMixin, CommonDetails):
     template_name = 'whalesdb/details_eca.html'
     fields = ['eca_date', 'eca_attachment', 'eca_hydrophone', 'eca_notes']
@@ -504,10 +505,20 @@ class EqpDetails(mixins.EqpMixin, CommonDetails):
     template_name = "whalesdb/details_eqp.html"
     fields = ['emm', 'eqp_serial', 'eqp_asset_id', 'eqp_date_purchase', 'eqp_notes', 'eqp_retired', 'eqo_owned_by']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        channels = {}
+        for hyd in self.object.hydrophones.all():
+            channels[hyd.ecp_channel_no] = hyd
+
+        context["channels"] = channels
+        return context
+
 
 class MorDetails(mixins.MorMixin, CommonDetails):
     template_name = 'whalesdb/details_mor.html'
-    fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_additional_equipment",
+    fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_link_setup_pdf","mor_additional_equipment",
               "mor_general_moor_description", "mor_notes"]
     creation_form_height = 600
 
@@ -550,7 +561,7 @@ class StnDetails(mixins.StnMixin, CommonDetails):
 
 class CommonList(CommonAuthFilterView):
 
-    nav_menu = 'whalesdb/whale_nav_menu.html'
+    nav_menu = 'whalesdb/whales_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
     home_url_name = "whalesdb:index"
 
@@ -721,10 +732,18 @@ class CruList(mixins.CruMixin, CommonList):
         return super().dispatch(request, *args, **kwargs)
 
 
-class CruDeleteView(mixins.CruMixin, UserPassesTestMixin, DeleteView):
-    success_url = reverse_lazy('whalesdb:list_cru')
-    success_message = 'The cruise was successfully deleted!'
-    template_name = 'whalesdb/cruise_confirm_delete.html'
+class CommonDelete(UserPassesTestMixin, DeleteView):
+    success_url = reverse_lazy("shared_models:close_me")
+    template_name = 'whalesdb/delete_confirm.html'
+    success_message = 'The dataset was successfully deleted!'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title_msg'] = _("Are you sure you want to delete the following from the database?")
+        context['confirm_msg'] = _("You will not be able to recover this object.")
+
+        return context
 
     def test_func(self):
         return utils.whales_authorized(self.request.user)
@@ -734,3 +753,44 @@ class CruDeleteView(mixins.CruMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class RecDelete(mixins.RecMixin, CommonDelete):
+    pass
+
+
+class SteDelete(mixins.SteMixin, CommonDelete):
+    pass
+
+
+class CruDelete(mixins.CruMixin, UserPassesTestMixin, DeleteView):
+    success_url = reverse_lazy('whalesdb:list_cru')
+    success_message = 'The cruise was successfully deleted!'
+    template_name = 'whalesdb/delete_cruise_confirm.html'
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
+    template_name = 'whalesdb/formset.html'
+    title = _("Whales Help Text")
+    h1 = _("Manage Help Texts")
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "whalesdb:manage_help_texts"
+    home_url_name = "whalesdb:index"
+    delete_url_name = "whalesdb:delete_help_text"
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
+
+
+class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("whalesdb:manage_help_texts")
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)

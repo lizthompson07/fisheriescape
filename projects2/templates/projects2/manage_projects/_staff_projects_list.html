@@ -1,0 +1,17 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load static %}
+
+<script type="text/x-template" id="staff-project-template">
+<ul>
+  <li v-for="(s, index) in staff.staff_instances">
+    <span v-html="s.project_year.formatted_status"></span> &rarr;
+    <span v-html="s.project_year.display_name"></span>
+    -
+    <a v-html="s.project_year.project.title" href="#" @click="goProjectDetail(s.project_year)"></a>
+    (<span v-html="s.project_year.project.section"></span>)  &rarr;
+    <span v-html="s.duration_weeks"></span> {% trans "weeks" %}
+  </li>
+</ul>
+</script>

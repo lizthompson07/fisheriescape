@@ -55,7 +55,7 @@ def get_app_dict(request):
     # if we are going to fake the travel app, we add it no matter what
     if settings.FAKE_TRAVEL_APP:
         app_dict["travel"] = {
-            "title": _("Conference and Travel Management System"),
+            "title": _("EOS Conference and Travel Management System"),
             "description": _("Management tool to facilitate regional and national travel pre-approvals."),
             "status": "production",
             "access": "permission-required",
@@ -68,7 +68,7 @@ def get_app_dict(request):
     else:
         try:
             app_dict["travel"] = {
-                "title": _("Conference and Travel Management System"),
+                "title": _("EOS Conference and Travel Management System"),
                 "description": _("Management tool to facilitate regional and national travel pre-approvals."),
                 "status": "production",
                 "access": "permission-required",
@@ -80,12 +80,12 @@ def get_app_dict(request):
             pass
 
     try:
-        app_dict["projects"] = {
-            "title": _("Project Planning"),
+        app_dict["projects2"] = {
+            "title": _("Project Planning (Version 2)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "production",
+            "status": "dev",
             "access": "login-required",
-            "url": reverse('projects:index'),
+            "url": reverse('projects2:index'),
             "icon_path": 'img/icons/scope.svg',
             "region": "all",
         }
@@ -145,9 +145,22 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["scuba"] = {
+            "title": _("SCUBA"),
+            "description": _("Lobster SCUBA survey data entry and archiving tool."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('scuba:index'),
+            "icon_path": 'img/icons/diving-mask.png',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["scifi"] = {
             "title": _("SciFi"),
-            "description": _("Gulf Science finance tracking and reporting tool."),
+            "description": _("Science finance tracking and reporting tool."),
             "status": "production",
             "access": "permission-required",
             "url": reverse('scifi:index'),
@@ -314,10 +327,23 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["bio_diversity"] = {
+            "title": _("Biodiversity"),
+            "description": _("Tool for Biodiversity project"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('bio_diversity:index'),
+            "icon_path": 'img/bio_diversity/bio_diversity_image.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["vault"] = {
             "title": _("Megafauna media vault"),
             "description": _("Media vault for marine megafauna."),
-            "status": "production",
+            "status": "dev",
             "access": "permission-required",
             "url": reverse('vault:index'),
             "icon_path": 'img/icons/vault.svg',
@@ -327,13 +353,13 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["necropsy"] = {
-            "title": _("Necropsy Tools and Marine Mammal Inventory"),
-            "description": _("Tools for necropsies and inventory of marine mammal equipment"),
-            "status": "production",
+        app_dict["whalebrary"] = {
+            "title": _("Whalebrary / Baleinothèque"),
+            "description": _("Tools for Marine Mammal Teams and Necropsy Organization"),
+            "status": "beta",
             "access": "permission-required",
-            "url": reverse('necropsy:index'),
-            "icon_path": 'img/icons/necropsy.svg',
+            "url": reverse('whalebrary:index'),
+            "icon_path": 'img/icons/whalebrary.svg',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -351,32 +377,19 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
-    #
-    # try:
-    #     app_dict["masterlist"] = {
-    #         "title": _("MasterList"),
-    #         "description": _("Regional master list and consultation instructions."),
-    #         "status": "dev",
-    #         "access": "permission-required",
-    #         "url": reverse('masterlist:index'),
-    #         "icon_path": 'img/icons/connection.svg',
-    #         "region": "regional",
-    #     }
-    # except NoReverseMatch:
-    #     pass
+
     try:
-        app_dict["projects2"] = {
-            "title": _("Project Planning V2"),
+        app_dict["projects"] = {
+            "title": _("Project Planning (ARCHIVE ONLY)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "dev",
+            "status": "production",
             "access": "login-required",
-            "url": reverse('projects2:index'),
+            "url": reverse('projects:index'),
             "icon_path": 'img/icons/scope.svg',
             "region": "all",
         }
     except NoReverseMatch:
         pass
-
     return OrderedDict(app_dict)
 
 
@@ -390,8 +403,8 @@ class IndexView(TemplateView):
         #               mark_safe(_("<b>On Friday January 10, 2020 at 12pm AST, the site will be down for a few hours for scheduled maintenance. Sorry for any inconvenience.</b>")))
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         app_odict = get_app_dict(self.request)
         app_dict_shared = OrderedDict()
         app_dict_regional = OrderedDict()
@@ -406,6 +419,6 @@ class IndexView(TemplateView):
         context["app_dict_regional"] = app_dict_regional
         context["app_dict"] = app_odict
         context["announcements"] = [a for a in Announcement.objects.all() if a.is_current]
-        if settings.DEVOPS_BUILD_NUMBER and settings.DEVOPS_BUILD_NUMBER != "":
-            context["build_number"] = settings.DEVOPS_BUILD_NUMBER
+        if settings.GIT_VERSION and settings.GIT_VERSION != "":
+            context["git_version_number"] = settings.GIT_VERSION
         return context

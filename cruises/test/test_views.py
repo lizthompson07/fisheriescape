@@ -27,7 +27,7 @@ class TestCruiseCreateView(CommonTest):
 
     @tag("Cruise", "cruise_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Cruise", "cruise_new", "submit")
@@ -55,7 +55,7 @@ class TestCruiseDeleteView(CommonTest):
 
     @tag("Cruise", "cruise_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Cruise", "cruise_delete", "submit")
@@ -86,7 +86,7 @@ class TestCruiseDetailView(CommonTest):
 
     @tag("Cruise", "cruise_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # @tag("Cruise", "cruise_detail", "context")
@@ -115,7 +115,7 @@ class TestCruiseListView(CommonTest):
 
     @tag("Cruise", "cruise_list", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Cruise", "cruise_list", "correct_url")
@@ -138,7 +138,7 @@ class TestCruiseUpdateView(CommonTest):
 
     @tag("Cruise", "cruise_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Cruise", "cruise_edit", "submit")
@@ -166,7 +166,7 @@ class TestFileCreateView(CommonTest):
 
     @tag("File", "file_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("File", "file_new", "submit")
@@ -194,7 +194,7 @@ class TestFileDeleteView(CommonTest):
 
     @tag("File", "file_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("File", "file_delete", "submit")
@@ -225,7 +225,7 @@ class TestFileUpdateView(CommonTest):
 
     @tag("File", "file_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("File", "file_edit", "submit")
@@ -252,7 +252,7 @@ class TestIndexTemplateView(CommonTest):
 
     @tag("Index", "index", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # @tag("Index", "index", "context")
@@ -282,7 +282,7 @@ class TestInstrumentComponentCreateView(CommonTest):
 
     @tag("InstrumentComponent", "component_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("InstrumentComponent", "component_new", "submit")
@@ -310,7 +310,7 @@ class TestInstrumentComponentDeleteView(CommonTest):
 
     @tag("InstrumentComponent", "component_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("InstrumentComponent", "component_delete", "submit")
@@ -341,7 +341,7 @@ class TestInstrumentComponentUpdateView(CommonTest):
 
     @tag("InstrumentComponent", "component_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("InstrumentComponent", "component_edit", "submit")
@@ -369,7 +369,7 @@ class TestInstrumentCreateView(CommonTest):
 
     @tag("Instrument", "file_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Instrument", "file_new", "submit")
@@ -397,7 +397,7 @@ class TestInstrumentDeleteView(CommonTest):
 
     @tag("Instrument", "instrument_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Instrument", "instrument_delete", "submit")
@@ -428,7 +428,7 @@ class TestInstrumentDetailView(CommonTest):
 
     @tag("Instrument", "instrument_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Instrument", "instrument_detail", "context")
@@ -457,7 +457,7 @@ class TestInstrumentUpdateView(CommonTest):
 
     @tag("Instrument", "instrument_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Instrument", "instrument_edit", "submit")

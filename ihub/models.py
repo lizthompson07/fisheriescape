@@ -57,6 +57,7 @@ class Entry(models.Model):
     # basic
     title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
+    proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
                                            limit_choices_to={'grouping__is_indigenous': True})
     initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
@@ -137,7 +138,7 @@ class EntryPerson(models.Model):
         (SUPPORT, 'Support'),
     )
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="people", blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"), related_name="ihub_entry_people")
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name"))
     organization = models.CharField(max_length=50)
     role = models.IntegerField(choices=ROLE_CHOICES, blank=True, null=True, verbose_name=_("role"))

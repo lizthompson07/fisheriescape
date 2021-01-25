@@ -6,6 +6,7 @@
 {#  GROUP TRAVELLERS  #}
 {% if triprequest.is_group_request %}
 
+  <span id="group-travellers"></span>
 
 
 
@@ -59,7 +60,6 @@
             <tr {% if not report_mode %}pop href="{% url 'travel:request_edit' child.id "pop" %}" {% endif %}
                 class="{% if child.total_cost == 0 %}bad{% endif %}{% if child.status_id == 10 %}bad red-font{% endif %}"
                 data-toggle="tooltip" title="{% trans "Click on a row to edit traveller informations." %}"
-
             >
 
               {% for field in child_field_list %}

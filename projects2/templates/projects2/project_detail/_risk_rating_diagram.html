@@ -1,0 +1,61 @@
+{% load i18n %}
+
+<div class="mb-3">
+
+  <h4><span class="mdi mdi-information-outline"></span> {% trans "RISK RATING TABLE" %}</h4>
+
+  <table class="table table-bordered table-sm" style="width: auto;">
+    <tr>
+      <td class="rotate py-5 text-center" rowspan="5"><span class="text-muted h5">{% trans "Impact" %}</span></td>
+      <td class="w150">{% trans "5-Extreme" %}</td>
+      <td class="medium w150"></td>
+      <td class="medium w150"></td>
+      <td class="high w150"></td>
+      <td class="high w150"></td>
+      <td class="high w150"></td>
+    </tr>
+    <tr>
+      <td>{% trans "4-High" %}</td>
+      <td class="medium"></td>
+      <td class="medium"></td>
+      <td class="medium"></td>
+      <td class="high"></td>
+      <td class="high text-center">{% trans "High" %}</td>
+    </tr>
+    <tr>
+      <td>{% trans "3-Medium" %}</td>
+      <td class="low"></td>
+      <td class="medium"></td>
+      <td class="medium text-center">{% trans "Medium" %}</td>
+      <td class="medium"></td>
+      <td class="high"></td>
+    </tr>
+    <tr>
+      <td>{% trans "2-Low" %}</td>
+      <td class="low text-center">{% trans "Low" %}</td>
+      <td class="low"></td>
+      <td class="medium"></td>
+      <td class="medium"></td>
+      <td class="medium"></td>
+    </tr>
+    <tr>
+      <td>{% trans "1-Negligible" %}</td>
+      <td class="low"></td>
+      <td class="low"></td>
+      <td class="low"></td>
+      <td class="medium"></td>
+      <td class="medium"></td>
+    </tr>
+    <tr>
+      <td colspan="2" rowspan="2"></td>
+      <td>{% trans "1-Very unlikely" %}</td>
+      <td>{% trans "2-Unlikely" %}</td>
+      <td>{% trans "3-Low" %}</td>
+      <td>{% trans "4-Likely" %}</td>
+      <td>{% trans "5-Almost certain" %}</td>
+    </tr>
+    <tr>
+      <td class="text-center" colspan="5"><span class="text-muted h5">{% trans "Likelihood" %}</span></td>
+    </tr>
+  </table>
+</div>

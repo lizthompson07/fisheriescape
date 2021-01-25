@@ -10,6 +10,17 @@ from django.utils.translation import gettext as _
 from shared_models.utils import get_metadata_string
 
 
+class UnilingualSimpleLookup(models.Model):
+    class Meta:
+        abstract = True
+        ordering = ["name", ]
+
+    name = models.CharField(unique=True, max_length=255, verbose_name=_("name"))
+
+    def __str__(self):
+        return self.name
+
+
 class SimpleLookup(models.Model):
     class Meta:
         abstract = True
@@ -40,6 +51,24 @@ class SimpleLookupWithUUID(SimpleLookup):
 
 
 class Lookup(SimpleLookup):
+    class Meta:
+        abstract = True
+
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
+
+    @property
+    def tdescription(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("description_en"))):
+            my_str = "{}".format(getattr(self, str(_("description_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.description_en
+        return my_str
+
+
+class UnilingualLookup(UnilingualSimpleLookup):
     class Meta:
         abstract = True
 
@@ -183,28 +212,43 @@ class Section(SimpleLookupWithUUID):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     # calculated fields (for quick acquisition)
-    shortish_name = models.CharField(max_length=1000, blank=True, null=True)
-    full_name = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_ver1 = models.CharField(max_length=1000, blank=True, null=True)
+    shortish_name = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_en = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_en_ver1 = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_fr = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_fr_ver1 = models.CharField(max_length=1000, blank=True, null=True, editable=False)
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
         verbose_name = _("Section - Team (NCR)")
         verbose_name_plural = _("Sections - Teams (NCR)")
 
-    def get_full_name(self):
+    def get_full_name_en(self):
         try:
-            my_str = f"{self.division.branch.region.tname} - {self.division.branch.tname} - {self.division.tname} - {self.tname}"
+            my_str = f"{self.division.branch.region.name} - {self.division.branch.name} - {self.division.name} - {self.name}"
         except AttributeError:
-            my_str = self.tname
+            my_str = self.name
         return my_str
 
-    def get_full_name_ver1(self):
+    def get_full_name_en_ver1(self):
         try:
-            my_str = f"{self.tname} ({self.division.branch.region.tname}/{self.division.tname})"
+            my_str = f"{self.name} ({self.division.branch.region.name}/{self.division.name})"
         except AttributeError:
-            my_str = self.tname
+            my_str = self.name
         return my_str
+
+    def get_full_name_fr(self):
+        r = self.division.branch.region.nom if self.division.branch.region.nom else self.division.branch.region.name
+        b = self.division.branch.nom if self.division.branch.nom else self.division.branch.name
+        d = self.division.nom if self.division.nom else self.division.name
+        s = self.nom if self.nom else self.name
+        return f"{r} - {b} - {d} - {s}"
+
+    def get_full_name_fr_ver1(self):
+        r = self.division.branch.region.nom if self.division.branch.region.nom else self.division.branch.region.name
+        d = self.division.nom if self.division.nom else self.division.name
+        s = self.nom if self.nom else self.name
+        return f"{s} ({r}/{d})"
 
     def get_shortish_name(self):
         try:
@@ -215,9 +259,27 @@ class Section(SimpleLookupWithUUID):
 
     def save(self, *args, **kwargs):
         self.shortish_name = self.get_shortish_name()
-        self.full_name = self.get_full_name()
-        self.full_name_ver1 = self.get_full_name_ver1()
+        self.full_name_en = self.get_full_name_en()
+        self.full_name_en_ver1 = self.get_full_name_en_ver1()
+        self.full_name_fr = self.get_full_name_fr()
+        self.full_name_fr_ver1 = self.get_full_name_fr_ver1()
         super().save(*args, **kwargs)
+
+    @property
+    def full_name(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("full_name_en"))):
+            return str(getattr(self, str(_("full_name_en"))))
+        # if there is no translated term, just pull from the english field
+        return self.full_name_en
+
+    @property
+    def full_name_ver1(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("full_name_en_ver1"))):
+            return str(getattr(self, str(_("full_name_en_ver1"))))
+        # if there is no translated term, just pull from the english field
+        return self.full_name_en_ver1
 
 
 class AllotmentCategory(models.Model):
@@ -631,3 +693,152 @@ class Script(Lookup):
     @property
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+
+
+class Location(models.Model):
+    # Choices for surface_type
+    CAN = 'Canada'
+    US = 'United States'
+    COUNTRY_CHOICES = (
+        (CAN, 'Canada'),
+        (US, 'United States'),
+    )
+    location_en = models.CharField(max_length=1000)
+    location_fr = models.CharField(max_length=1000, blank=True, null=True)
+    country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
+    abbrev_en = models.CharField(max_length=25, blank=True, null=True)
+    abbrev_fr = models.CharField(max_length=25, blank=True, null=True)
+    uuid_gcmd = models.CharField(max_length=255, blank=True, null=True)
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("location_en"))):
+            my_str = "{}".format(getattr(self, str(_("location_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.location_en
+        return my_str
+
+    def __str__(self):
+        return f"{self.location_en}, {self.get_country_display()}"
+
+    class Meta:
+        ordering = ["country", "location_en"]
+
+
+class Organization(SimpleLookup):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
+    address = models.TextField(blank=True, null=True, verbose_name=_("address"))
+    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
+    postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    def __str__(self):
+        return self.full_name_and_address
+
+    @property
+    def full_name_and_address(self):
+        mystr = self.tname
+        if self.abbrev:
+            mystr += f", ({self.abbrev})"
+        mystr += f" - {self.full_address}"
+        return mystr
+
+    @property
+    def full_address(self):
+        # initial my_str with either address or None
+        if self.address:
+            my_str = self.address
+        else:
+            my_str = ""
+
+        # add city
+        if self.city:
+            if my_str:
+                my_str += ", "
+            my_str += self.city
+
+        # add province abbrev.
+        if self.location:
+            if my_str:
+                my_str += ", "
+            my_str += str(self.location)
+
+        # add postal code
+        if self.postal_code:
+            if my_str:
+                my_str += ", "
+            my_str += self.postal_code
+        return my_str
+
+
+class Publication(SimpleLookup):
+    pass
+
+
+class Citation(models.Model):
+    name = models.TextField(blank=True, null=True, verbose_name="title (en)")
+    nom = models.TextField(blank=True, null=True, verbose_name="title (fr)")
+    authors = models.TextField(blank=True, null=True, verbose_name=_("authors"))
+    year = models.IntegerField(blank=True, null=True, verbose_name=_("year"))
+    publication = models.ForeignKey(Publication, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("publication name"))
+    pub_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("publication number"))
+    url_en = models.TextField(blank=True, null=True, verbose_name=_("URL (en)"))
+    url_fr = models.TextField(blank=True, null=True, verbose_name=_("URL (fr)"))
+    abstract_en = models.TextField(blank=True, null=True, verbose_name=_("abstract (en)"))
+    abstract_fr = models.TextField(blank=True, null=True, verbose_name=_("abstract (fr)"))
+    series = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("series"))
+    region = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("region"))
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str = "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.name
+        return my_str
+
+    @property
+    def turl(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("url_en"))):
+            my_str = "{}".format(getattr(self, str(_("url_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.url_en
+        return my_str
+
+    @property
+    def tabstract(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("abstract_en"))):
+            my_str = "{}".format(getattr(self, str(_("abstract_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.abstract_en
+        return my_str
+
+    def __str__(self):
+        return self.tname
+
+    @property
+    def short_citation(self):
+        my_str = f"{self.authors}. {self.year}. {self.tname}. {self.publication} {self.pub_number}."
+        return my_str
+
+    @property
+    def short_citation_html(self):
+        if not self.turl:
+            my_str = self.short_citation
+        else:
+            my_str = f'{self.authors}. {self.year}. <a href="{self.turl}"> {self.tname}</a>. {self.publication} {self.pub_number}.'
+        return my_str
+
+    @property
+    def citation_br(self):
+        my_str = f"<b>Title:</b> {self.tname}<br><b>Authors:</b> {self.authors}<br><b>Year:</b> {self.year}<br><b>Publication:</b> {self.publication}. {self.pub_number}"
+        return my_str

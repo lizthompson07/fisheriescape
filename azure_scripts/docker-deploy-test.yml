@@ -1,0 +1,90 @@
+pool: dmapps
+
+trigger:
+  - none
+
+# secret pipeline vars:
+######################
+# AAD_APP_SECRET
+# DB_PASSWORD_WEB
+# DB_PASSWORD_PIPELINE
+# SECRET_KEY
+# SENDGRID_API_KEY
+# GITHUB_API_KEY
+###############
+
+steps:
+  - task: OneLuckiDev.json2variable.vsts-json-to-variable.oneLuckiDevJson2Variable@1
+    displayName: 'JSON to Variable'
+    inputs:
+      jsonFile: $(Build.SourcesDirectory)/azure_scripts/pipeline_vars.json
+      shouldPrefixVariables: false
+
+  - script: |
+      az login --identity -u $(AZURE_MSI_CLIENT_ID.test)
+      az account set --subscription="$(AZURE_SUBSCRIPTION.test)"
+
+      # install pre-requisites
+      python3.8 -m pip install --upgrade pip setuptools wheel
+      sudo apt-get install libmysqlclient-dev
+      python3.8 -m pip install -r requirements.txt
+      python3.8 -m pip uninstall -y django-easy-pdf
+      python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
+
+      # create env file
+      python3.8 create_env_file.py \
+      --db-host "$(DB_HOST.test)" \
+      --db-port 3306 \
+      --db-name "$(DB_NAME.test)" \
+      --db-user "$(DB_USER_PIPELINE.test)" \
+      --db-password "$(DB_PASSWORD_PIPELINE)" \
+      --deployment-stage "$(DEPLOYMENT_STAGE.test)" \
+      --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME.test)" \
+      --azure-msi-client-id "$(AZURE_MSI_CLIENT_ID.test)"
+
+      # run migrations and collect static files
+      python3.8 manage.py migrate
+      python3.8 manage.py collectstatic --no-input
+
+      # remove the env file
+      rm .env
+
+
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    displayName: 'Run Migrations and Staticfiles'
+
+  - task: AzureRmWebAppDeployment@4
+    displayName: 'Deploy Docker Image'
+    inputs:
+      ConnectedServiceName: msi.dmapps-dev
+      appType: webAppContainer
+      WebAppName: $(WEB_APP_NAME.test)
+      DockerNamespace: $(DockerNamespace.test)
+      DockerRepository: $(DockerRepository.test)
+      DockerImageTag: $(DockerImageTag.test)
+      StartupCommand: init.sh
+      AppSettings: >-
+        -WEBSITES_PORT 8000
+        -AAD_APP_ID $(AAD_APP_ID.test)
+        -AAD_APP_SECRET $(AAD_APP_SECRET)
+        -AAD_REDIRECT $(AAD_REDIRECT.test)
+        -AZURE_STORAGE_ACCOUNT_NAME $(AZURE_STORAGE_ACCOUNT_NAME.test)
+        -SECRET_KEY $(SECRET_KEY)
+        -ALLOWED_HOST_TO_ADD $(WEB_APP_NAME.test).azurewebsites.net
+        -SITE_FROM_EMAIL "DoNotReply@Sci-Zone.dfo-mpo.gc.ca"
+        -SHOW_TICKETING_APP $(SHOW_TICKETING_APP.test)
+        -DEPLOYMENT_STAGE $(DEPLOYMENT_STAGE.test)
+        -DB_HOST $(DB_HOST.test)
+        -DB_MODE $(DB_MODE.test)
+        -DB_NAME $(DB_NAME.test)
+        -DB_USER $(DB_USER_WEB.test)
+        -DB_PASSWORD $(DB_PASSWORD_WEB)
+        -DB_PORT 3306
+        -DEBUG $(DEBUG.test)
+        -AZURE_INSTRUMENTATION_KEY $(AZURE_INSTRUMENTATION_KEY.test)
+        -USE_AZURE_APPLICATION_INSIGHT $(USE_AZURE_APPLICATION_INSIGHT.test)
+        -SENDGRID_API_KEY $(SENDGRID_API_KEY)
+        -GITHUB_API_KEY $(GITHUB_API_KEY)
+        -DEVOPS_DEPLOYMENT_NUMBER $(Build.BuildNumber)
+        -AZURE_MSI_CLIENT_ID $(AZURE_MSI_CLIENT_ID.test)
+

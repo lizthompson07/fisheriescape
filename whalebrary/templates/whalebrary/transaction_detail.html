@@ -1,0 +1,33 @@
+{% extends "whalebrary/base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block subcontent %}
+
+    <div class="mb-4">
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'whalebrary:transaction_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'whalebrary:transaction_delete' object.id %}">Delete</a>
+            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
+        </div>
+    </div>
+
+        <br><br>
+
+        <div class="row">
+            <div class="col-3">
+                <table class="table table-sm table-striped">
+                    {% for field in field_list %}
+                        {% if field == "location" %}
+                            {% url 'whalebrary:location_detail' object.location.id as my_url %}
+                            {% verbose_td_display object field url=my_url %}
+                        {% else %}
+                            {% verbose_td_display object field %}
+                        {% endif %}
+                    {% endfor %}
+                </table>
+        </div>
+    </div>
+
+
+{% endblock %}

@@ -77,4 +77,32 @@ stat_holiday_list = [
     datetime.datetime.strptime("December 26, 2021", "%B %d, %Y"),
 
 
+    # 2022 #
+    ########
+
+    # New Year's Day
+    datetime.datetime.strptime("January 1, 2022", "%B %d, %Y"),
+    # Good Friday
+    datetime.datetime.strptime("April 15, 2022", "%B %d, %Y"),
+    # Easter Monday
+    datetime.datetime.strptime("April 17, 2022", "%B %d, %Y"),
+    # Victoria Day
+    datetime.datetime.strptime("May 23, 2022", "%B %d, %Y"),
+    # Canada Day
+    datetime.datetime.strptime("July 1, 2022", "%B %d, %Y"),
+    # Civic Holiday
+    datetime.datetime.strptime("August 1, 2022", "%B %d, %Y"),
+    # Labour Day
+    datetime.datetime.strptime("September 5, 2022", "%B %d, %Y"),
+    # Thanksgiving Day
+    datetime.datetime.strptime("October 10, 2022", "%B %d, %Y"),
+    # Remembrance Day
+    datetime.datetime.strptime("November 11, 2022", "%B %d, %Y"),
+    # Christmas Day
+    datetime.datetime.strptime("December 25, 2022", "%B %d, %Y"),
+    # Boxing Day
+    datetime.datetime.strptime("December 26, 2022", "%B %d, %Y"),
+
+
+
 ]

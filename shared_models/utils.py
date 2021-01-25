@@ -70,13 +70,42 @@ def get_region_choices():
             models.Region.objects.filter(id__in=region_list).order_by("name", )]
 
 
-def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_modified_by=None):
-    my_str = f"<u>Created:</u> {created_at.strftime('%Y-%m-%d %H:%M:%S %Z')}"
+def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_modified_by=None, with_tz=False, with_time=True):
+    format_str = '%Y-%m-%d'
+    if with_time:
+        format_str += " %H:%M:%S"
+    if with_tz:
+        format_str += " %Z"
+
+    my_str = f"<u>Created:</u> {created_at.strftime(format_str)}"
     if created_by:
         my_str += f" by {created_by}"
     if updated_at:
-        my_str += f"<br><u>Updated:</u> {updated_at.strftime('%Y-%m-%d %H:%M:%S %Z')}"
+        my_str += f"<br><u>Last updated:</u> {updated_at.strftime(format_str)}"
         if last_modified_by:
             my_str += f" by {last_modified_by}"
 
     return mark_safe(my_str)
+
+
+# https://stackoverflow.com/questions/2579535/convert-dd-decimal-degrees-to-dms-degrees-minutes-seconds-in-python (thanks)
+def decdeg2dm(dd):
+    is_positive = dd >= 0
+    dd = abs(dd)
+    minutes, seconds = divmod(dd * 3600, 60)
+    degrees, minutes = divmod(minutes, 60)
+    degrees = degrees if is_positive else -degrees
+    decmin = minutes + seconds / 60
+    return (degrees, decmin)
+
+
+def dm2decdeg(d, m):
+    try:
+        is_positive = d >= 0
+        dd = abs(d)
+
+        mm = (abs(m) / 60) + ((m - abs(m)) / 3600)
+
+        return dd + mm if is_positive else (dd + mm) * -1
+    except Exception as E:
+        print(E)

@@ -3,6 +3,17 @@
 {% load custom_filters %}
 {% load verbose_names %}
 
+
+{% block content %}
+  <div id="mySidebar" class="sidebar">
+    {% include "ihub/_filters.html" %}
+  </div>
+  <div id="main">
+  {{ block.super }}
+  </div>
+{% endblock %}
+{% block filter %}{% endblock %}
+
 {% block table_td %}
 
   {% if "entry_type" in field.name %}

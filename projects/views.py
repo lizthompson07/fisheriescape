@@ -43,6 +43,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
     active_page_name_crumb = gettext_lazy("Home")
 
     def get_context_data(self, **kwargs):
+        messages.warning(self.request, "Please note that this application is no longer in use. Please use the newer version. ")
         context = super().get_context_data(**kwargs)
         section_id_list = []
         if self.request.user.id:
@@ -83,7 +84,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 # PROJECTS #
 ############
-class MyProjectListView(LoginRequiredMixin, CommonFilterView):
+class MyProjectListView(AdminRequiredMixin, CommonFilterView):
     template_name = 'projects/my_project_list.html'
     filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
@@ -261,7 +262,7 @@ class SectionProjectListView(LoginRequiredMixin, CommonFilterView):
         return context
 
 
-class ProjectListView(LoginRequiredMixin, CommonFilterView):
+class ProjectListView(AdminRequiredMixin, CommonFilterView):
     template_name = 'projects/project_list.html'
 
     # get all submitted and unhidden projects
@@ -286,7 +287,7 @@ class ProjectListView(LoginRequiredMixin, CommonFilterView):
     paginate_by = 50
 
 
-class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
+class ProjectDetailView(AdminRequiredMixin, CommonDetailView):
     model = models.Project
     template_name = 'projects/project_detail.html'
     home_url_name = "projects:index"
@@ -360,7 +361,7 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonPopoutUpdateView):
+class ProjectUpdateView(AdminRequiredMixin, CommonPopoutUpdateView):
     model = models.Project
     form_class = forms.ProjectForm
     template_name = 'projects/project_form_popout.html'
@@ -391,7 +392,7 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonPopoutUpdateView):
         return my_dict
 
 
-class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
+class ProjectSubmitUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Project
     form_class = forms.ProjectSubmitForm
     home_url_name = "projects:index"
@@ -520,7 +521,7 @@ class ProjectRecommendationUpdateView(CanModifyProjectRequiredMixin, UpdateView)
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
+class ProjectCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Project
     form_class = forms.NewProjectForm
     home_url_name = "projects:index"

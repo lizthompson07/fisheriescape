@@ -1,0 +1,27 @@
+{% extends "whalebrary/base.html" %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+
+    <div class="mb-4">
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'whalebrary:personnel_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'whalebrary:personnel_delete' object.id %}">Delete</a>
+            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
+        </div>
+    </div>
+
+        <div class="row">
+            <div class="col-4">
+                <table class="table table-sm table-striped">
+                {% for field in field_list %}
+                    {% verbose_td_display object field %}
+                {% endfor %}
+                </table>
+            </div>
+        </div>
+
+
+{% endblock %}

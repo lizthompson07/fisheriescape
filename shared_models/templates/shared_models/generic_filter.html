@@ -48,7 +48,7 @@
   {% block table_and_table_header %}
 
     {% block table_header %}
-      <div class="row">
+      <div class="row mb-3">
         <div class="col">
           {% trans "(click on a header to sort table)" %}
         </div>
@@ -73,6 +73,14 @@
               <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
             </div>
           {% endif %}
+          {% if extra_button_dict1 %}
+            <a href="{{ extra_button_dict1.url }}"
+               class="btn btn-sm {{ extra_button_dict1.class|nz:"btn-outline-primary" }}">{{ extra_button_dict1.name|safe }}</a>
+          {% endif %}
+          {% if extra_button_dict2 %}
+            <a href="{{ extra_button_dict2.url }}"
+               class="btn btn-sm {{ extra_button_dict2.class|nz:"btn-outline-primary" }}">{{ extra_button_dict2.name|safe }}</a>
+          {% endif %}
         {% endblock %}
       </div>
     {% endblock %}
@@ -88,25 +96,33 @@
           {% endfor %}
         {% endblock %}
         </thead>
-
         <tbody>
-
-        {% for object in list %}
-          {% block table_tr %}
-            {% url row_object_url_name object.id as my_url %}
-            <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
-              {% for field in field_list %}
-                <td class="{{ field.class }}">
-                  {% block table_td %}
-                    {% get_field_value object field.name safe=True %}
-                  {% endblock %}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endblock %}
-        {% endfor %}
+        {% block table_body_0 %}{% endblock %}
         </tbody>
+        {% block table_body_1 %}
+          <tbody>
+          {% for object in list %}
+            {% block table_tr %}
+              {% url row_object_url_name object.id as my_url %}
+              <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
+                {% for field in field_list %}
+                  <td class="{{ field.class }}">
+                    {% block table_td %}
+                      {% get_field_value object field.name safe=True %}
+                    {% endblock %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endblock %}
+          {% endfor %}
+          </tbody>
+        {% endblock %}
+        <tbody>
+        {% block table_body_2 %}{% endblock %}
+        </tbody>
+
       </table>
+
     {% endblock %}
   {% endblock %}
 

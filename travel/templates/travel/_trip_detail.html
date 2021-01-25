@@ -34,7 +34,7 @@
                 {% for field in conf_field_list %}
                     {% if "has_event_template" in field %}
                         {% trans "Unsure" as not_sure %}
-                        {% verbose_td_display trip field format="currency" th_width="30%" nullmark=not_sure date_format="%B %d, %Y" %}
+                        {% verbose_td_display trip field format="currency" th_width="30%" nullmark=not_sure %}
                     {% elif "ADM Office" in field %}
                         <tr>
                             <th>
@@ -56,7 +56,7 @@
                         </tr>
                     {% else %}
 
-                        {% verbose_td_display trip field format="currency" th_width="30%" date_format="%B %d, %Y" %}
+                        {% verbose_td_display trip field format="currency" th_width="30%" %}
                     {% endif %}
                 {% endfor %}
 

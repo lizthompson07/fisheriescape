@@ -95,7 +95,7 @@ class IndexTemplateView(SiteLoginRequiredMixin, CommonTemplateView):
 ##########
 
 class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
-    template_name = 'ihub/list.html'
+    template_name = 'ihub/person_list.html'
     filterset_class = filters.PersonFilter
     model = ml_models.Person
     queryset = ml_models.Person.objects.annotate(
@@ -104,13 +104,13 @@ class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
         {"name": 'full_name_with_title|Full name', "class": "", "width": ""},
         {"name": 'phone_1', "class": "", "width": ""},
         {"name": 'phone_2', "class": "", "width": ""},
-        {"name": 'ihub_vetted', "class": "", "width": ""},
     ]
     new_object_url_name = "ihub:person_new"
     row_object_url_name = "ihub:person_detail"
     home_url_name = "ihub:index"
     paginate_by = 100
     h1 = gettext_lazy("Contacts")
+    container_class = "container-fluid"
 
 
 class PersonDetailView(SiteLoginRequiredMixin, CommonDetailView):
@@ -128,7 +128,6 @@ class PersonDetailView(SiteLoginRequiredMixin, CommonDetailView):
         "fax",
         "language",
         "notes",
-        "ihub_vetted",
         "last_modified_by",
     ]
     home_url_name = "ihub:index"
@@ -147,7 +146,6 @@ class PersonUpdateView(iHubEditRequiredMixin, CommonUpdateView):
 
     def get_initial(self):
         return {
-            'ihub_vetted': True,
             'last_modified_by': self.request.user,
         }
 
@@ -172,7 +170,6 @@ class PersonCreateView(iHubEditRequiredMixin, CommonCreateView):
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,
-            'ihub_vetted': True,
         }
 
 
@@ -219,13 +216,14 @@ class OrganizationListView(SiteLoginRequiredMixin, CommonFilterView):
         {"name": 'name_ind', "class": "", "width": ""},
         {"name": 'abbrev', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
-        {"name": 'grouping', "class": "", "width": ""},
-        {"name": 'full_address|' + _("Full address"), "class": "", "width": ""},
+        {"name": 'grouping', "class": "", "width": "200px"},
+        {"name": 'full_address|' + _("Full address"), "class": "", "width": "300px"},
         {"name": 'Audio recording', "class": "", "width": ""},
     ]
     home_url_name = "ihub:index"
     new_object_url_name = "ihub:org_new"
     row_object_url_name = "ihub:org_detail"
+    container_class = "container-fluid"
 
 
 class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
@@ -244,6 +242,8 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
         'phone',
         'fax',
         'notes',
+        'regions',
+        'sectors',
         'dfo_contact_instructions',
         'relationship_rating',
         'orgs',
@@ -348,12 +348,13 @@ class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
     template_name = "ihub/entry_list.html"
     model = models.Entry
     filterset_class = filters.EntryFilter
+    paginate_by = 100
     field_list = [
-        {"name": 'title', "class": "", "width": ""},
+        {"name": 'title', "class": "", "width": "400px"},
         {"name": 'entry_type', "class": "", "width": ""},
         {"name": 'regions', "class": "", "width": ""},
-        {"name": 'organizations', "class": "", "width": ""},
-        {"name": 'sectors', "class": "", "width": ""},
+        {"name": 'organizations', "class": "", "width": "400px"},
+        {"name": 'sectors', "class": "", "width": "200px"},
         {"name": 'status', "class": "", "width": "170px"},
     ]
     new_object_url_name = "ihub:entry_new"
@@ -373,6 +374,7 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'title',
+            'proponent',
             'location',
             'organizations',
             'status',

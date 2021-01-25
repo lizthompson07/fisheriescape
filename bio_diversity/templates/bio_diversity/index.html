@@ -1,0 +1,26 @@
+{% extends "bio_diversity/bio_diversity_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block body %}
+    <div class="container pt-5 text-center">
+        <div class="jumbotron border border-dark">
+            <h1>{% trans "Biodiversity Tool" %}</h1>
+            <div class="row">
+                <div class="col">
+                    <hr>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prog'%}">{% trans "Program " %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_evnt'%}">{% trans "Event" %}</a>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

@@ -4,22 +4,21 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.templatetags.static import static
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
-from django.utils import timezone
-
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
+from django.templatetags.static import static
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
 
-from lib.templatetags.custom_filters import nz
-from . import models
-from . import forms
+from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from . import filters
+from . import forms
+from . import models
 from . import reports
 
 
@@ -489,11 +488,6 @@ class SurfaceDetailView(GraisAccessRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         surface = self.kwargs['pk']
         surface_spp = models.Surface.objects.get(id=surface).surface_spp.all()
-        total_coverage = 0
-        for sp in surface_spp:
-            total_coverage += sp.percent_coverage
-
-        context['total_coverage'] = total_coverage
         return context
 
 
@@ -1485,6 +1479,8 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("grais:gc_envr_report", kwargs={"year": year}))
         elif report == 8:
             return HttpResponseRedirect(reverse("grais:gc_site_report"))
+        elif report == 9:
+            return HttpResponseRedirect(reverse("grais:biofouling_pa_xlsx") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -1496,6 +1492,18 @@ def species_sample_spreadsheet_export(request, species_list):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="grais export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def biofouling_presence_absence_spreadsheet_export(request):
+    year = request.GET["year"] if request.GET["year"] != "None" else None
+
+    file_url = reports.generate_biofouling_pa_spreadsheet(year)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="biofouling presence absence {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
 
@@ -1546,3 +1554,19 @@ def export_gc_sites(request):
             response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
             return response
     raise Http404
+
+
+# SETTINGS
+class ProbeFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
+    template_name = 'shared_models/generic_formset.html'
+    h1 = "Manage Probes"
+    queryset = models.Probe.objects.all()
+    formset_class = forms.ProbeFormset
+    success_url_name = "grais:manage_probes"
+    home_url_name = "grais:index"
+    delete_url_name = "grais:delete_probe"
+
+class ProbeHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Probe
+    success_url = reverse_lazy("grais:manage_probes")
+

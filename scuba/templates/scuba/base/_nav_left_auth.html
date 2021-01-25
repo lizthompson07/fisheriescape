@@ -1,0 +1,35 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'scuba:index' %}">
+  {% trans "Home" %}
+</a></li>
+
+<li class="nav-item"><a class="nav-link" href="{% url 'scuba:reports' %}">
+  {% trans "Reports" %}
+</a></li>
+
+{% for group in user.groups.all %}
+  {% if group.name == "scuba_admin" %}
+
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+         aria-haspopup="true" aria-expanded="false">
+        {% trans "Settings" %}
+      </a>
+      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="{% url 'scuba:region_list' %}">
+          {% trans "Regions, Sites and Transects" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'scuba:manage_divers' %}">
+          {% trans "Divers" %}
+        </a>
+      </div>
+    </li>
+
+  {% endif %}
+
+{% endfor %}
+
+
+
+

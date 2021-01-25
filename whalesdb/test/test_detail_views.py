@@ -68,9 +68,8 @@ class TestDepDetails(CommonDetailsTest, TestCase):
         self.assertEqual(response.context["object"], self.createDict()['dep_1'])
         super().assert_field_in_fields(response)
 
-        # Test that the context contains the proper fields
-
-        # If there is a Dataset associated with the deployment it should be passed as a context variable to the
+    # Test that the context contains the proper fields
+    # If there is a Dataset associated with the deployment it should be passed as a context variable to the
     # Deployment details page so it can be linked to.
     def test_context_fields_dep_w_rec(self):
         rec = Factory.RecFactory()
@@ -194,8 +193,8 @@ class TestMorDetails(CommonDetailsTest, TestCase):
 
         self.test_url = reverse_lazy('whalesdb:details_mor', args=(mor_dic['mor_1'].pk,))
         self.test_expected_template = 'whalesdb/details_mor.html'
-        self.fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_additional_equipment',
-                       'mor_general_moor_description', 'mor_notes']
+        self.fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_link_setup_pdf',
+                       'mor_additional_equipment', 'mor_general_moor_description', 'mor_notes']
 
     # Test that the context contains the proper fields
     def test_context_fields_mor(self):

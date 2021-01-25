@@ -1,0 +1,22 @@
+{% extends "whalebrary/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block subcontent %}
+
+    <div class="container">
+
+        <h1>Are you sure you want to change status of <em>{{ object }}</em> to "returned"?</h1>
+
+        <br><br>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Change</button>
+            <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">Cancel</a>
+        </form>
+
+    </div>
+
+
+{% endblock %}

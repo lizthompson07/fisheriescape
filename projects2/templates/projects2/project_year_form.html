@@ -4,24 +4,7 @@
 {% load bootstrap4 %}
 {% load i18n %}
 {% load custom_filters %}
-
-{% block form_field %}
-  <div class="{{ field.name }}_div">
-    {% if "deliverable" in field.name or "priorit" in field.name %}
-
-      <label for="id_priorities">{{ field.label}}</label>
-      <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
-         title="{% trans "Markdown syntax is supported in this field" %}">
-        <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px"></span>
-      </a>
-      {% bootstrap_field field placeholder="" show_label=False %}
-
-    {% else %}
-      {% bootstrap_field field placeholder="" %}
-    {% endif %}
-
-  </div>
-{% endblock %}
+{% load project_filters %}
 
 
 {% block body_js %}

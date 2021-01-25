@@ -12,7 +12,7 @@ urlpatterns = [
     path('create/cru/', views.CruCreate.as_view(), name="create_cru"),
     path('details/cru/<int:pk>/', views.CruDetails.as_view(), name="details_cru"),
     path('update/cru/<int:pk>/', views.CruUpdate.as_view(), name="update_cru"),
-    path('delete/cru/<int:pk>/', views.CruDeleteView.as_view(), name="delete_cru"),
+    path('delete/cru/<int:pk>/', views.CruDelete.as_view(), name="delete_cru"),
 
     path('create/dep/', views.DepCreate.as_view(), name="create_dep"),
     path('create/dep/<str:pop>/', views.DepCreate.as_view(), name="create_dep"),
@@ -25,6 +25,8 @@ urlpatterns = [
     path('create/eca/', views.EcaCreate.as_view(), name="create_eca"),
     path('update/eca/<int:pk>/', views.EcaUpdate.as_view(), name="update_eca"),
     path('details/eca/<int:pk>/', views.EcaDetails.as_view(), name="details_eca"),
+
+    path('create/ecp/<int:eqr>/<str:pop>/', views.EcpCreate.as_view(), name="create_ecp"),
 
     path('create/ecc/<int:eca>/<str:pop>/', views.EccCreate.as_view(), name="create_ecc"),
     path('delete/ecc/<int:pk>/', views.ecc_delete, name="delete_ecc"),
@@ -39,7 +41,8 @@ urlpatterns = [
     path('details/emm/<int:pk>/', views.EmmDetails.as_view(), name="details_emm"),
     path('list/emm/', views.EmmList.as_view(), name="list_emm"),
 
-    path('create/ehe/<int:ecp>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
+    path('create/ehe/<int:rec>/<int:ecp_channel_no>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
+    path('remove/ehe/<int:pk>/<str:pop>/', views.EheUpdateRemove.as_view(), name="remove_ehe"),
 
     path('create/eqh/<int:pk>/<str:pop>/', views.EqhCreate.as_view(), name="create_eqh"),
     path('update/eqh/<int:pk>/<str:pop>/', views.EqhUpdate.as_view(), name="update_eqh"),
@@ -84,6 +87,7 @@ urlpatterns = [
     path('delete/rst/<int:pk>/', views.rst_delete, name="delete_rst"),
 
     path('create/ste/<int:dep_id>/<int:set_id>/<str:pop>/', views.SteCreate.as_view(), name="create_ste"),
+    path('delete/ste/<int:pk>/<str:pop>/', views.SteDelete.as_view(), name="delete_ste"),
     path('update/ste/<int:pk>/<str:pop>/', views.SteUpdate.as_view(), name="update_ste"),
 
     path('create/stn/', views.StnCreate.as_view(), name="create_stn"),
@@ -106,6 +110,8 @@ urlpatterns = [
     path('list/rec/', views.RecList.as_view(), name="list_rec"),
     path('details/rec/<int:pk>/', views.RecDetails.as_view(), name="details_rec"),
     path('update/rec/<int:pk>/', views.RecUpdate.as_view(), name="update_rec"),
+    path('update/rec/<int:pk>/<str:pop>/', views.RecUpdate.as_view(), name="update_rec"),
+    path('delete/rec/<int:pk>/<str:pop>/', views.RecDelete.as_view(), name="delete_rec"),
 
     path('create/ret/', views.RetCreate.as_view(), name="create_ret"),
     path('list/ret/', views.RetList.as_view(), name="list_ret"),
@@ -114,5 +120,9 @@ urlpatterns = [
     path('create/rci/<int:rec_id>/<str:pop>/', views.RciCreate.as_view(), name="create_rci"),
 
     path('create/ree/<int:rec_id>/<str:pop>/', views.ReeCreate.as_view(), name="create_ree"),
+
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
+
 ]
 

@@ -1,0 +1,218 @@
+[
+  {
+    "model": "projects2.omcategory",
+    "pk": 2,
+    "fields": {
+      "name": "DFO Business Travel (meeting etc.)",
+      "nom": "Voyage d'affaires du MPO (reunion, etc.)",
+      "group": 1
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 1,
+    "fields": {
+      "name": "Field Travel",
+      "nom": "Voyage sur le terrain",
+      "group": 1
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 22,
+    "fields": {
+      "name": "International travel for meetings, science collaboration and conferences",
+      "nom": "Voyages internationaux pour reunions, collaboration scientifique et conferences",
+      "group": 1
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 4,
+    "fields": {
+      "name": "Other",
+      "nom": "Autre",
+      "group": 1
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 3,
+    "fields": {
+      "name": "Training, domestic conferences",
+      "nom": "Formation, conferences domestiques",
+      "group": 1
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 7,
+    "fields": {
+      "name": "Field Equipment",
+      "nom": "Equipement de terrain",
+      "group": 2
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 5,
+    "fields": {
+      "name": "IM/IT - computers, hardware, software",
+      "nom": "GI / TI - ordinateurs, materiel informatique, logiciels",
+      "group": 2
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 6,
+    "fields": {
+      "name": "Lab Equipment",
+      "nom": "Equipement de laboratoire",
+      "group": 2
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 8,
+    "fields": {
+      "name": "Other",
+      "nom": "Autre",
+      "group": 2
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 11,
+    "fields": {
+      "name": "Field",
+      "nom": "Terrain",
+      "group": 3
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 21,
+    "fields": {
+      "name": "Fuel (e.g., boats)",
+      "nom": "Carburant (par exemple, bateaux)",
+      "group": 3
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 10,
+    "fields": {
+      "name": "Lab",
+      "nom": "Laboratoire",
+      "group": 3
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 9,
+    "fields": {
+      "name": "Office",
+      "nom": "Bureau",
+      "group": 3
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 12,
+    "fields": {
+      "name": "Other",
+      "nom": "Autre",
+      "group": 3
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 14,
+    "fields": {
+      "name": "Post-Doctoral Candidates",
+      "nom": "Candidats postdoctoraux",
+      "group": 4
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 13,
+    "fields": {
+      "name": "Students (FSWEP, Coop etc.)",
+      "nom": "Etudiants (PFETE, Coop, etc.)",
+      "group": 4
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 15,
+    "fields": {
+      "name": "Contracts",
+      "nom": "Les contrats",
+      "group": 5
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 19,
+    "fields": {
+      "name": "Facilities",
+      "nom": "Installations",
+      "group": 5
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 20,
+    "fields": {
+      "name": "Other",
+      "nom": "Autre",
+      "group": 5
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 17,
+    "fields": {
+      "name": "Publication costs",
+      "nom": "Frais de publication",
+      "group": 5
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 16,
+    "fields": {
+      "name": "Translation",
+      "nom": "Traduction",
+      "group": 5
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 18,
+    "fields": {
+      "name": "Vessels, Boats",
+      "nom": "Navires, Bateaux",
+      "group": 5
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 23,
+    "fields": {
+      "name": "Equipment Maintenance",
+      "nom": "L'entretien de l'equipement",
+      "group": 6
+    }
+  },
+  {
+    "model": "projects2.omcategory",
+    "pk": 24,
+    "fields": {
+      "name": "Regional Overhead Tax",
+      "nom": "taxe regionale sur les frais generaux",
+      "group": 6
+    }
+  }
+]

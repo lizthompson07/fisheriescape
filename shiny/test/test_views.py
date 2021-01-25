@@ -22,7 +22,7 @@ class TestAppCreateView(CommonTest):
 
     @tag("shiny", 'create', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     @tag("shiny", 'create', "submit")
@@ -44,7 +44,7 @@ class TestAppDeleteView(CommonTest):
 
     @tag("shiny", 'delete', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     @tag("shiny", 'delete', "submit")
@@ -69,7 +69,7 @@ class TestAppListView(CommonTest):
 
     @tag("shiny", 'list', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     @tag("shiny", 'list', "context")
@@ -93,7 +93,7 @@ class TestAppUpdateView(CommonTest):
 
     @tag("shiny", 'update', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     @tag("shiny", 'update', "submit")

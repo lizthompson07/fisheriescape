@@ -1,38 +1,35 @@
+import json
 import os
+###
+from collections import OrderedDict
+from copy import deepcopy
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-import json
-
+from django.db.models import Value, TextField, Q, Count
+from django.db.models.functions import Concat
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.shortcuts import render
+from django.urls import reverse_lazy, reverse
+from django.utils import timezone
+from django.utils.translation import gettext as _
+from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
 from dm_apps.utils import custom_send_mail
-from django.db.models import Value, TextField, Q, Count
-from django.db.models.functions import Concat
-from django.shortcuts import render
-from django.utils.translation import gettext as _
-from django_filters.views import FilterView
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.urls import reverse_lazy, reverse
-from django.utils import timezone
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
-
-###
-from collections import OrderedDict
-
 from lib.functions.custom_functions import fiscal_year, listrify
-from shared_models.views import CommonDetailView
-from . import models
-from . import forms
-from . import filters
-from . import emails
-from . import xml_export
-from . import reports
 from shared_models import models as shared_models
+from . import emails
+from . import filters
+from . import forms
+from . import models
+from . import reports
+from . import xml_export
 
 
 # @login_required(login_url='/accounts/login/')
@@ -312,6 +309,81 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
                          for obj in models.Resource.objects.all()]
         context['resource_list'] = resource_list
         return context
+
+
+class ResourceCloneUpdateView(ResourceUpdateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloning"] = True
+        return context
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def get_initial(self):
+        init = super().get_initial()
+        init["cloning"] = True
+        init["title_eng"] = "CLONE OF: " + self.get_object().title_eng
+        return init
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Resource.objects.get(pk=new_obj.pk)
+
+        new_obj.pk = None
+        new_obj.uuid = None
+        new_obj.odi_id = None
+        new_obj.public_url = None
+        new_obj.fgp_url = None
+        new_obj.od_publication_date = None
+        new_obj.fgp_publication_date = None
+        new_obj.od_release_date = None
+        new_obj.last_revision_date = None
+        new_obj.date_verified = None
+        new_obj.save()
+
+        """
+    people = models.ManyToManyField(Person, through='ResourcePerson')
+    
+    
+    
+        """
+        for item in old_obj.paa_items.all():
+            new_obj.paa_items.add(item)
+
+        for item in old_obj.keywords.all():
+            new_obj.keywords.add(item)
+
+        for item in old_obj.distribution_formats.all():
+            new_obj.distribution_formats.add(item)
+
+        for item in old_obj.citations2.all():
+            new_obj.citations2.add(item)
+
+        # Now we need to replicate all the related records:
+        # 1) resource people
+        for old_rel_obj in old_obj.resource_people.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.resource = new_obj
+            new_rel_obj.save()
+
+        # 2) data resources
+        for old_rel_obj in old_obj.data_resources.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.resource = new_obj
+            new_rel_obj.save()
+
+        # 3) web services
+        for old_rel_obj in old_obj.web_services.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.resource = new_obj
+            new_rel_obj.save()
+
+        return HttpResponseRedirect(reverse_lazy("inventory:resource_detail", args=[new_obj.id]))
 
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
@@ -982,9 +1054,9 @@ def keyword_delete(request, resource, keyword):
 class ResourceCitationFilterView(FilterView):
     filterset_class = filters.CitationFilter
     template_name = "inventory/resource_citation_filter.html"
-    queryset = models.Citation.objects.annotate(
-        search_term=Concat('title_eng', Value(' '), 'title_fre', Value(' '), 'pub_number', Value(' '), 'year',
-                           Value(' '), 'series', output_field=TextField())).order_by('title_eng')
+    queryset = shared_models.Citation.objects.annotate(
+        search_term=Concat('name', Value(' '), 'nom', Value(' '), 'pub_number', Value(' '), 'year',
+                           Value(' '), 'series', output_field=TextField())).order_by('name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -995,23 +1067,23 @@ class ResourceCitationFilterView(FilterView):
 
 
 def resource_citation_add(request, resource, citation):
-    my_citation = models.Citation.objects.get(pk=citation)
+    my_citation = shared_models.Citation.objects.get(pk=citation)
     my_resource = models.Resource.objects.get(pk=resource)
 
-    if my_resource.citations.filter(pk=citation).count() > 0:
+    if my_resource.citations2.filter(pk=citation).count() > 0:
         messages.warning(request, "'{}' has already been added as a citation.".format(my_citation.title))
     else:
-        my_resource.citations.add(citation)
+        my_resource.citations2.add(citation)
         messages.success(request, "'{}' has been added as a citation.".format(my_citation.title))
 
     return HttpResponseRedirect(reverse('inventory:resource_citation_filter', kwargs={'resource': resource}))
 
 
 def resource_citation_delete(request, resource, citation):
-    my_citation = models.Citation.objects.get(pk=citation)
+    my_citation = shared_models.Citation.objects.get(pk=citation)
     my_resource = models.Resource.objects.get(pk=resource)
 
-    my_resource.citations.remove(citation)
+    my_resource.citations2.remove(citation)
     messages.success(request, "'{}' has been removed.".format(my_citation.title))
 
     return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
@@ -1021,7 +1093,8 @@ def resource_citation_delete(request, resource, citation):
 ############
 
 class CitationDetailView(DetailView):
-    model = models.Citation
+    model = shared_models.Citation
+    template_name = 'inventory/citation_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1031,8 +1104,9 @@ class CitationDetailView(DetailView):
 
 
 class CitationUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Citation
+    model = shared_models.Citation
     form_class = forms.CitationForm
+    template_name = 'inventory/citation_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1048,8 +1122,9 @@ class CitationUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class CitationCreateView(LoginRequiredMixin, CreateView):
-    model = models.Citation
+    model = shared_models.Citation
     form_class = forms.CitationForm
+    template_name = 'inventory/citation_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1059,14 +1134,14 @@ class CitationCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).citations.add(self.object.id)
+        my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).citations2.add(self.object.id)
         messages.success(self.request, "'{}' has been added as a citation.".format(self.object.title))
         return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': self.kwargs['resource']}))
 
 
 @login_required(login_url='/accounts/login/')
 def citation_delete(request, resource, citation):
-    my_citation = models.Citation.objects.get(pk=citation)
+    my_citation = shared_models.Citation.objects.get(pk=citation)
     my_citation.delete()
     messages.success(request, "'{}' has been removed from the database.".format(my_citation.title))
     return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
@@ -1076,7 +1151,7 @@ def citation_delete(request, resource, citation):
 ###############
 
 class PublicationCreateView(LoginRequiredMixin, CreateView):
-    model = models.Publication
+    model = shared_models.Publication
     fields = "__all__"
 
     template_name = 'inventory/publication_form_popout.html'
@@ -1644,7 +1719,7 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        sections = str(form.cleaned_data["sections"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        sections = listrify(form.cleaned_data["sections"],",")
 
         if sections == "":
             sections = "None"
@@ -1657,6 +1732,8 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("inventory:export_odi_report"))
         if report == 3:
             return HttpResponseRedirect(reverse("inventory:export_phyiscal_samples"))
+        if report == 4:
+            return HttpResponseRedirect(reverse("inventory:export_resources") + f"?sections={sections}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("inventory:report_search"))
@@ -1702,15 +1779,17 @@ def export_phyiscal_samples(request):
     raise Http404
 
 
-# def capacity_export_spreadsheet(request, fy=None, orgs=None):
-#     file_url = reports.generate_capacity_spreadsheet(fy, orgs)
-#
-#     if os.path.exists(file_url):
-#         with open(file_url, 'rb') as fh:
-#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-#             response['Content-Disposition'] = 'inline; filename="iHub export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
-#             return response
-#     raise Http404
+@login_required()
+def export_resources(request):
+    sections = request.GET.get("sections") if request.GET.get("sections") else None
+    file_url = reports.generate_resources_report(sections)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="resources report {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
 
 
 # TEMP #

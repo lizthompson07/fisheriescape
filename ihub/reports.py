@@ -535,8 +535,11 @@ def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, 
 
     # define the header
     header = [
-        "Project / Location",
+        "Project title",
         "Proponent",
+        "Location",
+        "Type if interaction",
+        "Indigenous Group(s)",
         "Date offer to Consult",
         "Departments Involved\n(Prov & Fed)",
         "Project Status/ Correspondence / Notes",
@@ -552,16 +555,8 @@ def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, 
     my_ws.write_row(2, 0, header, header_format)
     i = 3
     for e in entry_list.all():
-        col_1 = "TITLE: {}\n\nTYPE: {}\n\nLOCATION: {}".format(
-            e.title,
-            e.entry_type,
-            nz(e.location, "----"),
-        )
-        col_2 = "ORGANIZATIONS: {}\n\nDFO SECTORS: {}".format(
-            e.orgs_str,
-            e.sectors_str,
-        )
-        people = listrify([p for p in e.people.all()], "\n")
+        sectors = f"\n\nDFO SECTORS: {e.sectors_str,}"
+        people = nz(listrify([p for p in e.people.all()], "\n\n"),"") + nz(sectors,"")
 
         other_notes = "Overall status: {}".format(e.status)
         if e.other_notes.count() > 0:
@@ -578,8 +573,11 @@ def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, 
                 followups += "\n\n*************************\n" + str(n)
 
         data_row = [
-            col_1,
-            col_2,
+            e.title,
+            e.proponent,
+            nz(e.location, "----"),
+            str(e.entry_type),
+            e.orgs_str,
             e.initial_date.strftime("%m/%d/%Y") if e.initial_date else "n/a",
             people,
             other_notes.replace("\\r\\n", "\r\n"),

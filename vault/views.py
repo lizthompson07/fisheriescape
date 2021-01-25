@@ -1,32 +1,36 @@
-from django.utils.translation import gettext as _
+from copy import deepcopy
+
+from django.utils.translation import gettext as _, gettext_lazy
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import TextField
+from django.db.models import TextField, Value
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
+from django.contrib.auth.models import User, Group
+
+from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonUpdateView, \
+    CommonDeleteView, CommonHardDeleteView, CommonFormsetView
 from . import models
 from . import forms
 from . import filters
+
 
 class CloserTemplateView(TemplateView):
     template_name = 'vault/close_me.html'
 
 
-def in_vault_group(user):
-    if user:
-        return True
+### Permissions ###
 
 
 class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return in_vault_group(self.request.user)
+        return True
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -35,10 +39,235 @@ class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_vault_group, login_url='/accounts/denied/')
+def in_vault_admin_group(user):
+    if "vault_admin" in [g.name for g in user.groups.all()]:
+        return True
+
+
+class VaultAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return in_vault_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+def in_vault_edit_group(user):
+    """this group includes the admin group so there is no need to add an admin to this group"""
+    if user:
+        if in_vault_admin_group(user) or user.groups.filter(name='vault_edit').count() != 0:
+            return True
+
+
+class VaultEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return in_vault_edit_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+@login_required(login_url='/accounts/login/')
 def index(request):
     return render(request, 'vault/index.html')
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_vault_admin_group, login_url='/accounts/denied/')
+def admin_tools(request):
+    return render(request, 'vault/_admin.html')
+
+
+## ADMIN USER ACCESS CONTROL ##
+
+
+class UserListView(VaultAdminAccessRequired, CommonFilterView):
+    template_name = "vault/user_list.html"
+    filterset_class = filters.UserFilter
+    home_url_name = "index"
+    paginate_by = 25
+    h1 = "Vault App User List"
+    field_list = [
+        {"name": 'first_name', "class": "", "width": ""},
+        {"name": 'last_name', "class": "", "width": ""},
+        {"name": 'email', "class": "", "width": ""},
+        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
+    ]
+    new_object_url = reverse_lazy("shared_models:user_new")
+
+    def get_queryset(self):
+        queryset = User.objects.order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
+        )
+        if self.kwargs.get("vault"):
+            queryset = queryset.filter(groups__name__icontains="vault").distinct()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["vault_admin"] = get_object_or_404(Group, name="vault_admin")
+        context["vault_edit"] = get_object_or_404(Group, name="vault_edit")
+        return context
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_vault_admin_group, login_url='/accounts/denied/')
+def toggle_user(request, pk, type):
+    my_user = User.objects.get(pk=pk)
+    vault_admin = get_object_or_404(Group, name="vault_admin")
+    vault_edit = get_object_or_404(Group, name="vault_edit")
+    if type == "admin":
+        # if the user is in the admin group, remove them
+        if vault_admin in my_user.groups.all():
+            my_user.groups.remove(vault_admin)
+        # otherwise add them
+        else:
+            my_user.groups.add(vault_admin)
+    elif type == "edit":
+        # if the user is in the edit group, remove them
+        if vault_edit in my_user.groups.all():
+            my_user.groups.remove(vault_edit)
+        # otherwise add them
+        else:
+            my_user.groups.add(vault_edit)
+    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+
+
+## ADMIN FORMSETS ##
+
+## INSTRUMENT TYPE ##
+
+
+class InstrumentTypeHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.InstrumentType
+    success_url = reverse_lazy("vault:manage_instrument_type")
+
+
+class InstrumentTypeFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Instrument Type"
+    queryset = models.InstrumentType.objects.all()
+    formset_class = forms.InstrumentTypeFormset
+    success_url = reverse_lazy("vault:manage_instrument_type")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_instrument_type"
+
+
+## INSTRUMENT ##
+
+
+class InstrumentHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.Instrument
+    success_url = reverse_lazy("vault:manage_instrument")
+
+
+class InstrumentFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Instrument"
+    queryset = models.Instrument.objects.all()
+    formset_class = forms.InstrumentFormset
+    success_url = reverse_lazy("vault:manage_instrument")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_instrument"
+
+
+## ORGANISATION ##
+
+
+class OrganisationHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.Organisation
+    success_url = reverse_lazy("vault:manage_organisation")
+
+
+class OrganisationFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Organisation"
+    queryset = models.Organisation.objects.all()
+    formset_class = forms.OrganisationFormset
+    success_url = reverse_lazy("vault:manage_organisation")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_organisation"
+
+
+## PLATFORM TYPE ##
+
+
+class ObservationPlatformTypeHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.ObservationPlatformType
+    success_url = reverse_lazy("vault:manage_platform_type")
+
+
+class ObservationPlatformTypeFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Platform Type"
+    queryset = models.ObservationPlatformType.objects.all()
+    formset_class = forms.ObservationPlatformTypeFormset
+    success_url = reverse_lazy("vault:manage_platform_type")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_platform_type"
+
+
+## PLATFORM ##
+
+
+class ObservationPlatformHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.ObservationPlatform
+    success_url = reverse_lazy("vault:manage_platform")
+
+
+class ObservationPlatformFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Platforms"
+    queryset = models.ObservationPlatform.objects.all()
+    formset_class = forms.ObservationPlatformFormset
+    success_url = reverse_lazy("vault:manage_platform")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_platform"
+
+
+## ROLE ##
+
+
+class RoleHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.Role
+    success_url = reverse_lazy("vault:manage_role")
+
+
+class RoleFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Roles"
+    queryset = models.Role.objects.all()
+    formset_class = forms.RoleFormset
+    success_url = reverse_lazy("vault:manage_role")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_role"
+
+
+## PERSON ##
+
+
+class PersonHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.Person
+    success_url = reverse_lazy("vault:manage_person")
+
+
+class PersonFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Person"
+    queryset = models.Person.objects.all()
+    formset_class = forms.PersonFormset
+    success_url = reverse_lazy("vault:manage_person")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_person"
+
 
 # #
 # # # SPECIES #
@@ -46,211 +275,209 @@ def index(request):
 # #
 #
 
-class SpeciesListView(VaultAccessRequired, FilterView):
-    template_name = "vault/species_list.html"
+
+class SpeciesListView(VaultAccessRequired, CommonFilterView):
+    template_name = "vault/list.html"
     filterset_class = filters.SpeciesFilter
+    h1 = "Species List"
+    home_url_name = "vault:index"
+    row_object_url_name = "vault:species_detail"
+    new_btn_text = "New Species"
+
     queryset = models.Species.objects.annotate(
         search_term=Concat('code', 'english_name', 'french_name', 'latin_name', 'id', output_field=TextField()))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Species.objects.first()
-        context["field_list"] = [
-            'id',
-            'code',
-            'french_name',
-            'english_name',
-            'latin_name',
-            'vor_code',
-            'quebec_code',
-            'aphia_id',
-        ]
-        return context
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'code', "class": "", "width": ""},
+        {"name": 'french_name', "class": "", "width": ""},
+        {"name": 'english_name', "class": "", "width": ""},
+        {"name": 'latin_name', "class": "", "width": ""},
+        {"name": 'vor_code', "class": "red-font", "width": ""},
+        {"name": 'quebec_code', "class": "", "width": ""},
+        {"name": 'aphia_code', "class": "", "width": ""},
 
-#
-class SpeciesDetailView(VaultAccessRequired, DetailView):
+    ]
+
+    def get_new_object_url(self):
+        return reverse("vault:species_new", kwargs=self.kwargs)
+
+
+class SpeciesDetailView(VaultAdminAccessRequired, CommonDetailView):
     model = models.Species
+    field_list = [
+        'id',
+        'code',
+        'english_name',
+        'french_name',
+        'latin_name',
+        'vor_code',
+        'quebec_code',
+        'maritimes_code',
+        'aphia_id',
+    ]
+    home_url_name = "vault:index"
+    parent_crumb = {"title": gettext_lazy("Species List"), "url": reverse_lazy("vault:species_list")}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'code',
-            'english_name',
-            'french_name',
-            'latin_name',
-            'vor_code',
-            'quebec_code',
-            'aphia_id',
-        ]
-        return context
 
-#
-class SpeciesUpdateView(VaultAccessRequired, UpdateView):
+class SpeciesUpdateView(VaultAdminAccessRequired, CommonUpdateView):
     model = models.Species
     form_class = forms.SpeciesForm
+    template_name = 'vault/form.html'
+    cancel_text = _("Cancel")
+    home_url_name = "vault:index"
 
     def form_valid(self, form):
-        messages.success(self.request, _("Species record successfully updated for : {}".format(self.object)))
+        my_object = form.save()
+        messages.success(self.request, _(f"Species record successfully updated for : {my_object}"))
+        return HttpResponseRedirect(reverse("vault:species_detail", kwargs=self.kwargs))
+
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("vault:species_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        kwargs = deepcopy(self.kwargs)
+        del kwargs["pk"]
+        return {"title": _("Species List"), "url": reverse("vault:species_list", kwargs=kwargs)}
+
+
+class SpeciesCreateView(VaultAdminAccessRequired, CommonCreateView):
+    model = models.Species
+    form_class = forms.SpeciesForm
+    template_name = 'vault/form.html'
+    home_url_name = "vault:index"
+    h1 = gettext_lazy("Add New Species")
+    parent_crumb = {"title": gettext_lazy("Species List"), "url": reverse_lazy("vault:species_list")}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Species record successfully created for : {my_object}"))
         return super().form_valid(form)
 
 
-class SpeciesCreateView(VaultAccessRequired, CreateView):
-    model = models.Species
-    form_class = forms.SpeciesForm
-
-    def form_valid(self, form):
-        messages.success(self.request, _("Species record successfully created for : {}".format(self.object)))
-        return super().form_valid(form)
-
-class SpeciesDeleteView(VaultAccessRequired, DeleteView):
+class SpeciesDeleteView(VaultAdminAccessRequired, CommonDeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('vault:species_list')
-    success_message = 'The species was successfully deleted!'
+    template_name = 'vault/confirm_delete.html'
+    home_url_name = "vault:index"
+    grandparent_crumb = {"title": gettext_lazy("Species List"), "url": reverse_lazy("vault:species_list")}
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("vault:species_detail", kwargs=self.kwargs)}
 
-#
-#
+
 # #
-# # # OBSERVATIONPLATFORM #
+# # # OUTING #
 # # ###########
 # #
 #
-class ObservationPlatformListView(VaultAccessRequired, FilterView):
-    template_name = "vault/observationplatform_list.html"
-    filterset_class = filters.ObservationPlatformFilter
-    queryset = models.ObservationPlatform.objects.annotate(
-        search_term=Concat('authority', 'owner', 'make_model', 'name', 'longname', 'id', output_field=TextField()))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.ObservationPlatform.objects.first()
-        context["field_list"] = [
-            'id',
-            'observation_platform_type',
-            'authority',
-            'make_model',
-            'owner',
-            'name',
-            'longname',
-            'foldername|folder name'
-        ]
-        return context
 
-#
-class ObservationPlatformDetailView(VaultAccessRequired, DetailView):
-    model = models.ObservationPlatform
+class OutingListView(VaultAccessRequired, CommonFilterView):
+    template_name = "vault/list.html"
+    filterset_class = filters.OutingFilter
+    h1 = "Outing List"
+    home_url_name = "vault:index"
+    row_object_url_name = "vault:outing_detail"
+    new_btn_text = "New Outing"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'observation_platform_type',
-            'authority',
-            'make_model',
-            'owner',
-            'name',
-            'longname',
-        ]
-        return context
+    queryset = models.Outing.objects.annotate(
+        search_term=Concat('id', 'observation_platform__longname', 'region', 'purpose', 'identifier_string',
+                           output_field=TextField()))
 
-#
-class ObservationPlatformUpdateView(VaultAccessRequired, UpdateView):
-    model = models.ObservationPlatform
-    form_class = forms.ObservationPlatformForm
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'observation_platform', "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 'purpose', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'start_time', "class": "", "width": ""},
+        {"name": 'end_time', "class": "red-font", "width": ""},
+        {"name": 'duration', "class": "", "width": ""},
+        {"name": 'identifier_string', "class": "", "width": ""},
+
+    ]
+
+    def get_new_object_url(self):
+        return reverse("vault:outing_new", kwargs=self.kwargs)
+
+
+class OutingDetailView(VaultAdminAccessRequired, CommonDetailView):
+    model = models.Outing
+    field_list = [
+        'id',
+        'observation_platform',
+        'region',
+        'purpose',
+        'start_date',
+        'start_time',
+        'end_time',
+        'duration',
+        'identifier_string',
+    ]
+    home_url_name = "vault:index"
+    parent_crumb = {"title": gettext_lazy("Outing List"), "url": reverse_lazy("vault:outing_list")}
+
+
+class OutingUpdateView(VaultAdminAccessRequired, CommonUpdateView):
+    model = models.Outing
+    form_class = forms.OutingForm
+    template_name = 'vault/form.html'
+    cancel_text = _("Cancel")
+    home_url_name = "vault:index"
 
     def form_valid(self, form):
-        messages.success(self.request, _("ObservationPlatform record successfully updated for : {}".format(self.object)))
+        my_object = form.save()
+        messages.success(self.request, _(f"Outing record successfully updated for : {my_object}"))
+        return HttpResponseRedirect(reverse("vault:outing_detail", kwargs=self.kwargs))
+
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("vault:outing_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        kwargs = deepcopy(self.kwargs)
+        del kwargs["pk"]
+        return {"title": _("Outing List"), "url": reverse("vault:outing_list", kwargs=kwargs)}
+
+
+class OutingCreateView(VaultAdminAccessRequired, CommonCreateView):
+    model = models.Outing
+    form_class = forms.OutingForm
+    template_name = 'vault/form.html'
+    home_url_name = "vault:index"
+    h1 = gettext_lazy("Add New Outing")
+    parent_crumb = {"title": gettext_lazy("Outing List"), "url": reverse_lazy("vault:outing_list")}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Outing record successfully created for : {my_object}"))
         return super().form_valid(form)
 
 
-class ObservationPlatformCreateView(VaultAccessRequired, CreateView):
-    model = models.ObservationPlatform
-    form_class = forms.ObservationPlatformForm
-
-    def form_valid(self, form):
-        messages.success(self.request, _("ObservationPlatform record successfully created for : {}".format(self.object)))
-        return super().form_valid(form)
-
-
-class ObservationPlatformDeleteView(VaultAccessRequired, DeleteView):
-    model = models.ObservationPlatform
+class OutingDeleteView(VaultAdminAccessRequired, CommonDeleteView):
+    model = models.Outing
     permission_required = "__all__"
-    success_url = reverse_lazy('vault:observationplatform_list')
-    success_message = 'The observation plaform was successfully deleted!'
+    success_url = reverse_lazy('vault:outing_list')
+    template_name = 'vault/confirm_delete.html'
+    home_url_name = "vault:index"
+    grandparent_crumb = {"title": gettext_lazy("Outing List"), "url": reverse_lazy("vault:outing_list")}
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-# #
-# # # INSTRUMENTS #
-# # ###########
-# #
-#
-class InstrumentListView(VaultAccessRequired, FilterView):
-    template_name = "vault/instrument_list.html"
-    filterset_class = filters.InstrumentFilter
-    queryset = models.Instrument.objects.annotate(
-        search_term=Concat('id', 'name', 'nom', output_field=TextField()))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Instrument.objects.first()
-        context["field_list"] = [
-            'id',
-            'instrument_type',
-            'name',
-            'nom',
-            #'metadata',
-
-        ]
-        return context
-
-#
-class InstrumentDetailView(VaultAccessRequired, DetailView):
-    model = models.Instrument
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'name',
-            'nom',
-            # 'metadata',
-            'instrument_type',
-
-        ]
-        return context
-
-#
-class InstrumentUpdateView(VaultAccessRequired, UpdateView):
-    model = models.Instrument
-    form_class = forms.InstrumentForm
-
-    def form_valid(self, form):
-        messages.success(self.request, _("Instrument record successfully updated for : {}".format(self.object)))
-        return super().form_valid(form)
-
-
-class InstrumentCreateView(VaultAccessRequired, CreateView):
-    model = models.Instrument
-    form_class = forms.InstrumentForm
-
-    def form_valid(self, form):
-        messages.success(self.request, _("Instrument record successfully created for : {}".format(self.object)))
-        return super().form_valid(form)
-
-class InstrumentDeleteView(VaultAccessRequired, DeleteView):
-    model = models.Instrument
-    permission_required = "__all__"
-    success_url = reverse_lazy('vault:instrument_list')
-    success_message = 'The instrument was successfully deleted!'
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("vault:outing_detail", kwargs=self.kwargs)}

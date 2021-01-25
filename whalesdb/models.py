@@ -22,6 +22,24 @@ class DepDeployment(models.Model):
     def __str__(self):
         return "{}".format(self.dep_name)
 
+    @property
+    def has_deployment_event(self):
+        if SteStationEvent.objects.filter(dep=self.pk):
+            for ste in SteStationEvent.objects.filter(dep=self.pk):
+                if ste.set_type_id == 1:
+                    return True
+
+        return False
+
+    @property
+    def has_recovery_event(self):
+        if SteStationEvent.objects.filter(dep=self.pk):
+            for ste in SteStationEvent.objects.filter(dep=self.pk):
+                if ste.set_type_id == 2:
+                    return True
+
+        return False
+
 
 class EcaCalibrationEvent(models.Model):
     eca_date = models.DateField(verbose_name=_("Calibration Date"))
@@ -82,14 +100,17 @@ class EcpChannelProperty(models.Model):
 
 
 class EheHydrophoneEvent(models.Model):
-    # The hyd could be null if a hydrophone was being removed from a recorder and no replacement was being added
-    hyd = models.ForeignKey('EqhHydrophoneProperty', blank=True, null=True, on_delete=models.DO_NOTHING,
-                            verbose_name=_("Hydrophone"), related_name="channels")
-
-    ecp = models.ForeignKey('EcpChannelProperty', on_delete=models.DO_NOTHING, verbose_name=_("Channel"),
-                            related_name="hydrophones")
-
     ehe_date = models.DateField(verbose_name=_("Attachment Date"))
+
+    hyd = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING,
+                            verbose_name=_("Hydrophone"), related_name="recorders")
+
+    # The hyd could be null if a hydrophone was being removed from a recorder and no replacement was being added.
+    # if removed ecp_channel_no should be set to zero as well.
+    rec = models.ForeignKey('EqpEquipment', blank=True, null=True, on_delete=models.DO_NOTHING,
+                            verbose_name=_("Recorder"), related_name="hydrophones")
+
+    ecp_channel_no = models.IntegerField(blank=True, null=True, verbose_name=_("Channel"))
 
     class Meta:
         ordering = ["-ehe_date"]
@@ -181,6 +202,8 @@ class MorMooringSetup(models.Model):
     # Note: I added the setup image field to try out putting the mooring setup image directly in the database
     mor_setup_image = models.ImageField(upload_to=mooring_directory_path, blank=True, null=True, verbose_name=_("Setup Image"))
 
+    mor_setup_pdf = models.FileField(upload_to=mooring_directory_path, blank=True, null=True, verbose_name=_("Setup PDF"))
+
     mor_additional_equipment = models.TextField(blank=True, null=True, verbose_name=_("Equipment"))
     mor_general_moor_description = models.TextField(blank=True, null=True, verbose_name=_("Description"))
     mor_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
@@ -199,6 +222,10 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         if os.path.isfile(instance.mor_setup_image.path):
             os.remove(instance.mor_setup_image.path)
 
+    if instance.mor_setup_pdf:
+        if os.path.isfile(instance.mor_setup_pdf.path):
+            os.remove(instance.mor_setup_pdf.path)
+
 
 @receiver(models.signals.pre_save, sender=MorMooringSetup)
 def auto_delete_file_on_change(sender, instance, **kwargs):
@@ -214,7 +241,16 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     except MorMooringSetup.DoesNotExist:
         return False
     new_file = instance.mor_setup_image
-    if not old_file == new_file:
+    if old_file and not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+    try:
+        old_file = MorMooringSetup.objects.get(pk=instance.pk).mor_setup_pdf
+    except MorMooringSetup.DoesNotExist:
+        return False
+    new_file = instance.mor_setup_pdf
+    if old_file and not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
@@ -288,7 +324,7 @@ class StnStation(models.Model):
 
 
 class RciChannelInfo(models.Model):
-    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"),
+    rec_id = models.ForeignKey("RecDataset", on_delete=models.CASCADE, verbose_name=_("Dataset"),
                                related_name='channels')
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
@@ -319,7 +355,7 @@ class RecDataset(models.Model):
 
 
 class ReeRecordingEvent(models.Model):
-    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"),
+    rec_id = models.ForeignKey("RecDataset", on_delete=models.CASCADE, verbose_name=_("Dataset"),
                                related_name='events')
     ret_id = models.ForeignKey("RetRecordingEventType", on_delete=models.DO_NOTHING, verbose_name=_("Event Type"))
     rtt_id = models.ForeignKey("RttTimezoneCode", on_delete=models.DO_NOTHING, verbose_name=_("Timezone"))
@@ -373,3 +409,21 @@ class TeaTeamMember(models.Model):
 
     def __str__(self):
         return "{}, {} ({})".format(self.tea_last_name, self.tea_first_name, self.tea_abb)
+
+
+# This is a special table used to house application help text
+class HelpText(models.Model):
+    field_name = models.CharField(max_length=255)
+    eng_text = models.TextField(verbose_name=_("English text"))
+    fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("eng_text"))):
+            return "{}".format(getattr(self, str(_("eng_text"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.eng_text)
+
+    class Meta:
+        ordering = ['field_name', ]

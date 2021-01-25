@@ -2,7 +2,7 @@
 python manage.py test -b shared_models.test --keepdb
 
 :: testing for projects app
-python manage.py test -b projects.test --keepdb
+python manage.py test -b projects2.test --keepdb
 
 :: testing for travel app
 python manage.py test -b travel.test --keepdb
@@ -24,3 +24,9 @@ python manage.py test -b csas.test --keepdb
 
 :: run tests for cruises
 python manage.py test -b cruises.test --keepdb
+
+:: run tests for whalebrary
+python manage.py test -b whalebrary.test --keepdb
+
+:: run tests for bio_diversity
+python manage.py test --exclude-tag=Functional -b bio_diversity.test --keepdb

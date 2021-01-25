@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load bootstrap4 %}
+{% load custom_filters %}
 
 {% block content %}<div class="container">
     <div class="card border border-dark mt-2 pt-1">
@@ -13,12 +14,17 @@
         <div class="card-body">
             <form method="post" class="form" enctype='multipart/form-data' >
                 {% csrf_token %}
+                {{ form.non_field_errors }}
 
                 {% for field in form %}
                    {% if field.field.create_url %}
                     <div>
-                       {% bootstrap_label field.label %}
-                    </div>
+                        {% bootstrap_label field.label %}
+                         {% if field.name in help_text_dict %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" title="{{ field.label }}"
+                             data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover">
+                        {% endif %}
+                   </div>
                     <div class="row col pl-0">
                         <span class="col">
                         {% bootstrap_field field placeholder="" size="small" show_label=false %}
@@ -28,7 +34,11 @@
                     </div>
                     {% else %}
 
-                   {% bootstrap_field field placeholder="" size="small" %}
+                        {% if field.name in help_text_dict %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" title="{{ field.label }}"
+                             data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover">
+                        {% endif %}
+                        {% bootstrap_field field placeholder="" size="small" %}
 
                    {% endif %}
                 {% endfor %}

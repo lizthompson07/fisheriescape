@@ -1,0 +1,302 @@
+{% extends "bio_diversity/bio_diversity_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block title %}
+    {% trans title %}
+{% endblock title %}
+
+{% block body %}
+<div class="container mt-1">
+    {% if back %}
+        <a class="btn btn-primary" name="back-btn" href="{% url ''|add:list_url back_id %}" title="{% trans 'Back to Details' %}">{% trans 'Back to Details' %}</a>
+    {% else %}
+        <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
+    {% endif %}
+    {% if editable and update_url%}
+        {# if the update url contains /pop/ then open the url in a popup window #}
+        {% if '/pop/' in update_url %}
+            <a class="btn btn-primary" href="#" onclick="return pop('{% url ''|add:update_url object.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+        {% else %}
+            <a class="btn btn-primary" href="{% url ''|add:update_url object.pk %}" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+        {% endif %}
+    {% endif %}
+
+    {% block field_override %}
+        <div class="card border border-dark my-1">
+            <h5 class="card-header">{% trans title %}</h5>
+            <div class="card-body">
+            {% for field in fields %}
+            <div class="row" >
+                    <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+        {% if "data" in table_list %}
+        <div class="card border border-dark my-1" name="evnt_data">
+            <h5 class="card-header">{% trans "Add program event data" %}
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-data-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_data' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Data' %}</a>
+                </span>
+            </h5>
+        </div>
+        {% endif %}
+        {% if "loc" in table_list %}
+            <div class="card border border-dark my-1" name="loc-details">
+                <h5 class="card-header">{% trans "Event Locations" %}
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-new-loc-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_loc' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Location' %}</a>
+                    </span>
+                    <span>
+                        <a class="btn btn-secondary" href="#evnt-loc-list" data-toggle="collapse">+</a>
+                    </span>
+                </h5>
+                {% if object.location.count > 0 %}
+                    <table class="table table-sm sortable table-hover collapse" id="evnt-loc-list">
+                        <thead>
+                            {% for field in loc_field_list %}
+                                <th>{% get_verbose_label loc_object field %}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for obj in object.location.all %}
+                                <tr href="{% url 'bio_diversity:details_loc' 'evnt' object.id obj.id %}">
+                                {% for field in loc_field_list %}
+                                    <td>
+                                        {% get_field_value obj field %}
+                                    </td>
+                                {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if "indv" in table_list %}
+            <div class="card border border-dark my-1" name="indv-details">
+                <h5 class="card-header">{% trans "Event Individuals" %}
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-new-indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_indv' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Individual' %}</a>
+                    </span>
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-existing_indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'indv_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Individual' %}</a>
+                    </span>
+                    <span>
+                        <a class="btn btn-secondary" href="#evnt-indv-list" data-toggle="collapse">+</a>
+                    </span>
+                </h5>
+                {% if indv_list %}
+                    <table class="table table-sm sortable table-hover collapse" id="evnt-indv-list">
+                        <thead>
+                            {% for field in indv_field_list %}
+                                <th>{% get_verbose_label indv_object field %}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for obj in indv_list %}
+                                <tr>
+                                {% for field in indv_field_list %}
+                                    <td>
+                                        {% get_field_value obj field %}
+                                    </td>
+                                {% endfor %}
+                                <td>
+                                    <a class="btn btn-primary btn-sm" name="clone-indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_indv' object.pk 'clone' obj.pk 'pop' %}','all')" title="{% trans 'Clone' %}">{% trans 'Clone' %}</a>
+                                    <a class="btn btn-primary btn-sm" name="indv-details-btn" href="{% url 'bio_diversity:details_indv' 'evnt' object.id obj.id %}" title="{% trans 'Details' %}">{% trans 'Details' %}</a>
+                                </td>
+                                </tr>
+
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if "grp" in table_list %}
+            <div class="card border border-dark my-1" name="grp-details">
+                <h5 class="card-header">{% trans "Event Groups" %}
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-new-grp-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_grp' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Group' %}</a>
+                    </span>
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-existing_grp-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'grp_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Group' %}</a>
+                    </span>
+                    <span>
+                        <a class="btn btn-secondary" href="#evnt-grp-list" data-toggle="collapse">+</a>
+                    </span>
+                </h5>
+                {% if grp_list %}
+                    <table class="table table-sm sortable table-hover collapse" id="evnt-grp-list">
+                        <thead>
+                            {% for field in grp_field_list %}
+                                <th>{% get_verbose_label grp_object field %}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for obj in grp_list %}
+                                <tr href="{% url 'bio_diversity:details_grp' 'evnt' object.id obj.id %}">
+                                {% for field in grp_field_list %}
+                                    <td>
+                                        {% get_field_value obj field %}
+                                    </td>
+                                {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if "tank" in table_list %}
+            <div class="card border border-dark my-1" name="tank-details">
+                <h5 class="card-header">{% trans "Event Tank Details" %}
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-new-tank-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_tank' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Tank' %}</a>
+                    </span>
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-existing-tank-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_contx' object.pk 'tank_id' 'pop' %}', 'all')" title="{% trans 'Add' %}">{% trans 'Add Existing Tank' %}</a>
+                    </span>
+                    <span>
+                        <a class="btn btn-secondary" href="#evnt-tank-list" data-toggle="collapse">+</a>
+                    </span>
+                </h5>
+                {% if tank_list %}
+                    <table class="table table-sm sortable table-hover collapse" id="evnt-tank-list">
+                        <thead>
+                            {% for field in tank_field_list %}
+                                <th>{% get_verbose_label tank_object field %}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for obj in tank_list %}
+                                <tr href="{% url 'bio_diversity:details_tank' 'evnt' object.id obj.id %}">
+                                {% for field in tank_field_list %}
+                                    <td>
+                                        {% get_field_value obj field %}
+                                    </td>
+                                {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="card border border-dark my-1" name="prot-details">
+            <h5 class="card-header">{% trans "Event Protocols" %}
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-new-prot-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_prot' object.prog_id.id 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Protocol' %}</a>
+                </span>
+                <span>
+                    <a class="btn btn-secondary" href="#evnt-prot-list" data-toggle="collapse">+</a>
+                </span>
+            </h5>
+            {% if prot_list %}
+                <table class="table table-sm sortable table-hover collapse" id="evnt-prot-list">
+                    <thead>
+                        {% for field in prot_field_list %}
+                            <th>{% get_verbose_label prot_object field %}</th>
+                        {% endfor %}
+                    </thead>
+                    <tbody>
+                        {% for obj in prot_list %}
+                            <tr href="{% url 'bio_diversity:details_prot' 'evnt' object.id obj.id %}">
+                            {% for field in prot_field_list %}
+                                <td>
+                                    {% get_field_value obj field %}
+                                </td>
+                            {% endfor %}
+                            </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+        {% if "spwn" in table_list %}
+            <div class="card border border-dark my-1" name="spwn-details">
+                <h5 class="card-header">{% trans "Event Spawnings" %}
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-new-spwn-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_spwn' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Spawning' %}</a>
+                    </span>
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-existing_spwn-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'spwn_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Spawning' %}</a>
+                    </span>
+                    <span>
+                        <a class="btn btn-secondary" href="#evnt-spwn-list" data-toggle="collapse">+</a>
+                    </span>
+                </h5>
+                {% if spwn_list %}
+                    <table class="table table-sm sortable table-hover collapse" id="evnt-spwn-list">
+                        <thead>
+                            {% for field in spwn_field_list %}
+                                <th>{% get_verbose_label spwn_object field %}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for obj in spwn_list %}
+                                <tr href="{% url 'bio_diversity:details_spwn' 'evnt' object.id obj.id %}">
+                                {% for field in spwn_field_list %}
+                                    <td>
+                                        {% get_field_value obj field %}
+                                    </td>
+                                {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endblock field_override %}
+  </div>
+{% endblock %}
+
+{% block body_js %}
+
+{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
+{% if java_script %}
+{% include ''|add:java_script %}
+{% endif %}
+
+<script>
+
+var interval;
+
+// This is a method of opening a child window and testing to see if/when it closes
+// upon closing the drop menu the window is associated with is updated adding the new element
+// and setting it as the selected option
+function pop(url, tag) {
+    child = window.open(url, tag,'toolbar=0,status=0,height=500,width=600');
+    child.onbeforeunload = function() {
+        if(child.refresh && $('.is-invalid').length <= 0) {
+            refreshTag(tag);
+        }
+    }
+
+    return false;
+}
+
+function refreshTag(tag) {
+    if( tag == "all" ) {
+        interval = setInterval( function() {
+            location.reload(true);
+            clearInterval(interval);
+        }, 1000);
+    } else {
+        console.log("refresh called on: '" + tag + "'");
+        var id_tag = "#"+tag;
+        $(id_tag).load("# "+id_tag+">*");
+    }
+}
+</script>
+{% endblock %}
+
+
+
+
