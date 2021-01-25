@@ -1,10 +1,16 @@
-from django.views.generic import TemplateView, DetailView
-from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView
+from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import HttpResponseRedirect
+from django.views.generic import TemplateView, DetailView, DeleteView
+from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
+    CommonFormsetView, CommonHardDeleteView
 from django.urls import reverse_lazy
 from django import forms
+from bio_diversity.forms import HelpTextFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
+from django.utils.translation import gettext_lazy as _
 
 
 class IndexTemplateView(TemplateView):
@@ -13,6 +19,27 @@ class IndexTemplateView(TemplateView):
     home_url_name = "bio_diversity:index"
 
     template_name = 'bio_diversity/index.html'
+
+
+class AdminIndexTemplateView(TemplateView):
+    nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
+    site_css = 'bio_diversity/bio_diversity_css.css'
+    home_url_name = "bio_diversity:index"
+
+    template_name = 'bio_diversity/admin_index.html'
+
+    def get(self, request, *args, **kwargs):
+        if not utils.bio_diverisity_admin(self.request.user):
+            return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        return context
 
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
@@ -50,6 +77,12 @@ class CommonCreate(CommonAuthCreateView):
     def test_func(self):
         return utils.bio_diverisity_authorized(self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['editable'] = context['auth']
+        context['help_text_dict'] = utils.get_help_text_dict()
+        return context
+
     # def form_invalid(self, form):
     #     if form.errors:
     #         form.add_error(, form.errors['__all__'][0])
@@ -84,7 +117,10 @@ class AdscCreate(mixins.AdscMixin, CommonCreate):
 
 
 class CntCreate(mixins.CntMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'loc' in self.kwargs:
+            initial['loc_id'] = self.kwargs['loc']
 
 
 class CntcCreate(mixins.CntcMixin, CommonCreate):
@@ -108,6 +144,17 @@ class ContxCreate(mixins.ContxMixin, CommonCreate):
         initial = super().get_initial()
         if 'evnt' in self.kwargs:
             initial['evnt_id'] = self.kwargs['evnt']
+
+        if 'visible' in self.kwargs:
+            for field in self.get_form_class().base_fields:
+                if field in self.kwargs['visible']:
+                    self.get_form_class().base_fields[field].widget = forms.Select()
+                else:
+                    self.get_form_class().base_fields[field].widget = forms.HiddenInput()
+        else:
+            for field in self.get_form_class().base_fields:
+                self.get_form_class().base_fields[field].widget = forms.Select()
+
         return initial
 
 
@@ -121,6 +168,40 @@ class CupCreate(mixins.CupMixin, CommonCreate):
 
 class CupdCreate(mixins.CupdMixin, CommonCreate):
     pass
+
+
+class DataCreate(mixins.DataMixin, CommonCreate):
+    template_name = 'bio_diversity/data_entry_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_initial(self):
+        init = super().get_initial()
+        if 'evnt' in self.kwargs:
+            init['evnt_id'] = self.kwargs['evnt']
+            init['evntc_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id
+            init['facic_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id
+            self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
+        return init
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'evnt' in self.kwargs:
+            evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
+            facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
+            context["title"] = "Add {} data".format(evnt_code)
+            context["template_url"] = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+            context["template_name"] = "{}-{}".format(facility_code, evnt_code)
+        return context
+
+    def get_success_url(self):
+        success_url = reverse_lazy("bio_diversity:data_log")
+        return success_url
 
 
 class DrawCreate(mixins.DrawMixin, CommonCreate):
@@ -188,7 +269,17 @@ class FeedmCreate(mixins.FeedmMixin, CommonCreate):
 
 
 class GrpCreate(mixins.GrpMixin, CommonCreate):
-    pass
+
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                             grp_id=self.object, created_by=self.object.created_by,
+                                             created_date=self.object.created_date)
+            anix_link.clean()
+            anix_link.save()
+        return super().form_valid(form)
 
 
 class GrpdCreate(mixins.GrpdMixin, CommonCreate):
@@ -229,6 +320,7 @@ class IndvCreate(mixins.IndvMixin, CommonCreate):
             anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
                                              indv_id=self.object, created_by=self.object.created_by, 
                                              created_date=self.object.created_date)
+            anix_link.clean()
             anix_link.save()
         return super().form_valid(form)
 
@@ -307,6 +399,12 @@ class ProtCreate(mixins.ProtMixin, CommonCreate):
             initial['prog_id'] = self.kwargs['prog']
         return initial
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['java_script'] = 'bio_diversity/_entry_prot_js.html'
+
+        return context
+
 
 class ProtcCreate(mixins.ProtcMixin, CommonCreate):
     pass
@@ -364,6 +462,7 @@ class SpwnCreate(mixins.SpwnMixin, CommonCreate):
             anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(), 
                                              spwn_id=self.object, created_by=self.object.created_by, 
                                              created_date=self.object.created_date)
+            anix_link.clean()
             anix_link.save()
         return super().form_valid(form)
 
@@ -393,7 +492,16 @@ class SubrCreate(mixins.SubrMixin, CommonCreate):
 
 
 class TankCreate(mixins.TankMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                              tank_id=self.object, created_by=self.object.created_by,
+                                              created_date=self.object.created_date)
+            contx_link.clean()
+            contx_link.save()
+        return super().form_valid(form)
 
 
 class TankdCreate(mixins.TankdMixin, CommonCreate):
@@ -579,6 +687,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "locc_id",
             "rive_id",
             "subr_id",
+            "loc_date",
         ]
         context["contx_object"] = models.ContainerXRef.objects.first()
         context["contx_field_list"] = [
@@ -586,21 +695,33 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "tray_id",
             "cup_id",
         ]
-        context["anix_object"] = models.AniDetailXref.objects.first()
-        context["anix_field_list"] = [
-            "indv_id",
-            "grp_id",
+        contx_set = self.object.containers.filter(tank_id__isnull=False, cup_id__isnull=True, heat_id__isnull=True,
+                                                  tray_id__isnull=True, trof_id__isnull=True, draw_id__isnull=True)
+        context["tank_list"] = list(dict.fromkeys([contx.tank_id for contx in contx_set]))
+        context["tank_object"] = models.Tank.objects.first()
+        context["tank_field_list"] = [
+            "name",
         ]
-        anix_set = self.object.animal_details.filter(indv_id__isnull=False)
-        context["indv_list"] = [anix.indv_id for anix in anix_set]
+        anix_set = self.object.animal_details.filter(indv_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
+                                                     loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
+        context["indv_list"] = list(dict.fromkeys([anix.indv_id for anix in anix_set]))
         context["indv_object"] = models.Individual.objects.first()
         context["indv_field_list"] = [
             "ufid",
             "pit_tag",
             "grp_id",
         ]
+        anix_set = self.object.animal_details.filter(grp_id__isnull=False, indv_id__isnull=True, contx_id__isnull=True,
+                                                     loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
+        context["grp_list"] = list(dict.fromkeys([anix.grp_id for anix in anix_set]))  # get unique values
+        context["grp_object"] = models.Group.objects.first()
+        context["grp_field_list"] = [
+            "stok_id",
+            "coll_id",
+            "spec_id",
+        ]
         prot_set = models.Protocol.objects.filter(prog_id=self.object.prog_id, evntc_id=self.object.evntc_id)
-        context["prot_list"] = [prot for prot in prot_set]
+        context["prot_list"] = list(dict.fromkeys([prot for prot in prot_set]))
         context["prot_object"] = models.Protocol.objects.first()
         context["prot_field_list"] = [
             "evntc_id",
@@ -608,14 +729,23 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "end_date",
         ]
 
-        anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
-        context["spwn_list"] = [anix.spwn_id for anix in anix_set]
+        anix_set = self.object.animal_details.filter(spwn_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
+                                                     loc_id__isnull=True, indvt_id__isnull=True, indv_id__isnull=True)
+        context["spwn_list"] = list(dict.fromkeys([anix.spwn_id for anix in anix_set]))
         context["spwn_object"] = models.Spawning.objects.first()
         context["spwn_field_list"] = [
             "pair_id",
             "est_fecu",
             "spwn_date",
         ]
+
+        context["table_list"] = ["loc", "indv", "grp", "tank", "spwn"]
+        evnt_code = self.object.evntc_id.__str__()
+        if evnt_code == "Electrofishing":
+            context["table_list"] = ["data", "loc", "grp", "tank"]
+        elif evnt_code == "Tagging":
+            context["table_list"] = ["data", "indv", "grp", "tank"]
+
         return context
 
 
@@ -646,11 +776,43 @@ class FeedmDetails(mixins.FeedmMixin, CommonDetails):
 
 
 class GrpDetails(mixins.GrpMixin, CommonDetails):
+    template_name = "bio_diversity/details_grp.html"
     fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_valid", "comments", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
+                                                     indvt_id__isnull=True, indv_id__isnull=True, spwn_id__isnull=True)
+        context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
+        context["evnt_object"] = models.Event.objects.first()
+        context["evnt_field_list"] = [
+            "evntc_id",
+            "facic_id",
+            "prog_id",
+            "evnt_start",
+        ]
+
+        context["grpd_list"] = list(dict.fromkeys([models.GroupDet.objects.filter(anix_id=anix.pk).get()
+                                                   for anix in anix_set
+                                                   if models.GroupDet.objects.filter(anix_id=anix.pk)]))
+        context["grpd_object"] = models.GroupDet.objects.first()
+        context["grpd_field_list"] = [
+            "anidc_id",
+            "det_val",
+        ]
+
+        return context
 
 
 class GrpdDetails(mixins.GrpdMixin, CommonDetails):
     fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context["title"] = "Group: {}".format(self.object.__str__())
+
+        return context
 
 
 class HeatDetails(mixins.HeatMixin, CommonDetails):
@@ -681,9 +843,10 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass fields/sample object to template
         context = super().get_context_data(**kwargs)
+        context["title"] = "Individual: {}".format(self.object.__str__())
 
         anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
-        context["spwn_list"] = [anix.spwn_id for anix in anix_set]
+        context["spwn_list"] = list(dict.fromkeys([anix.spwn_id for anix in anix_set]))
         context["spwn_object"] = models.Spawning.objects.first()
         context["spwn_field_list"] = [
             "spwn_date",
@@ -691,14 +854,24 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "est_fecu",
         ]
 
-        anix_set = self.object.animal_details.filter()
-        context["evnt_list"] = [anix.evnt_id for anix in anix_set]
+        anix_evnt_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True,
+                                                          loc_id__isnull=True, indvt_id__isnull=True,
+                                                          indv_id__isnull=False, spwn_id__isnull=True)
+        context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
             "evntc_id",
             "facic_id",
             "prog_id",
             "evnt_start",
+        ]
+        indvd_set = list(dict.fromkeys([anix.individual_details.all() for anix in anix_evnt_set]))
+        context["indvd_list"] = list(dict.fromkeys([indvd for qs in indvd_set for indvd in qs]))
+        context["indvd_object"] = models.Event.objects.first()
+        context["indvd_field_list"] = [
+            "anidc_id",
+            "adsc_id",
+            "det_val",
         ]
 
         context["pair_object"] = models.Pairing.objects.first()
@@ -759,6 +932,14 @@ class LocDetails(mixins.LocMixin, CommonDetails):
             "envc_id",
             "env_val",
             "env_start",
+        ]
+
+        context["cnt_object"] = models.Count.objects.first()
+        context["cnt_field_list"] = [
+            "cntc_id",
+            "spec_id",
+            "cnt",
+            "est",
         ]
         return context
 
@@ -1007,7 +1188,7 @@ class CommonList(CommonAuthFilterView):
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        # context['auth'] = utils.whales_authorized(self.request.user)
+        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
         context['editable'] = context['auth'] and self.editable
 
         if self.creation_form_height:
@@ -1179,6 +1360,7 @@ class ImgcList(mixins.ImgcMixin, CommonList):
 class IndvList(mixins.IndvMixin, CommonList):
     filterset_class = filters.IndvFilter
     fields = ["ufid", "spec_id", "stok_id", ]
+    delete_url = "bio_diversity:delete_indv"
 
 
 class IndvdList(mixins.IndvdMixin, CommonList):
@@ -1734,3 +1916,82 @@ class TrofdUpdate(mixins.TrofdMixin, CommonUpdate):
 
 class UnitUpdate(mixins.UnitMixin, CommonUpdate):
     pass
+
+
+class CommonLog(CommonTemplateView):
+    success_url = reverse_lazy("shared_models:close_me")
+    template_name = 'bio_diversity/bio_log.html'
+    title = "Data Log"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        log_data = self.request.session.get("log_data")
+        context['log_data'] = log_data
+        context["load_success"] = self.request.session.get("load_success")
+
+        return context
+
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.request.user)
+
+
+class DataLog(CommonLog):
+    pass
+
+
+def indv_delete(request, pk):
+    indv = models.Individual.objects.get(pk=pk)
+    if utils.bio_diverisity_admin(request.user):
+        indv.delete()
+        messages.success(request, _("The Individual has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+class CommonDelete(UserPassesTestMixin, DeleteView):
+    success_url = reverse_lazy("shared_models:close_me")
+    template_name = 'bio_diversity/delete_confirm.html'
+    success_message = 'The dataset was successfully deleted!'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title_msg'] = _("Are you sure you want to delete the following from the database?")
+        context['confirm_msg'] = _("You will not be able to recover this object.")
+
+        return context
+
+    def test_func(self):
+        return utils.bio_diverisity_admin(self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class IndvDelete(mixins.IndvMixin, CommonDelete):
+    pass
+
+
+class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
+    template_name = 'bio_diversity/formset.html'
+    title = _("Bio Diversity Help Text")
+    h1 = _("Manage Help Texts")
+    queryset = models.HelpText.objects.all()
+    formset_class = HelpTextFormset
+    success_url_name = "bio_diversity:manage_help_texts"
+    home_url_name = "bio_diversity:index"
+    delete_url_name = "bio_diversity:delete_help_text"
+
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.request.user)
+
+
+class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("bio_diversity:manage_help_texts")
+
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.request.user)

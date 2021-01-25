@@ -1325,6 +1325,47 @@ class CupdUpdateView(CommonTest):
                                 [self.instance.pk])
 
 
+
+@tag("Data")
+class TestDataCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('bio_diversity:create_data')
+        self.expected_template = 'shared_models/shared_entry_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.DataCreate, CommonCreate)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:create_data", "/en/bio_diversity/create/data/")
+
+
+@tag("Data")
+class TestDataCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('bio_diversity:create_data')
+        self.expected_template = 'shared_models/data_entry_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.DrawCreate, CommonCreate)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:create_data", "/en/bio_diversity/create/data/")
+
+
 @tag("Draw")
 class TestDrawCreateView(CommonTest):
     def setUp(self):
