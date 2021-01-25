@@ -184,9 +184,9 @@ class SupplemantInformation:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
 
         # citations
-        if self.resource.citations.count() > 0:
+        if self.resource.citations2.count() > 0:
             citation_list = ""
-            for citation in self.resource.citations.all():
+            for citation in self.resource.citations2.all():
                 if citation_list == "":
                     citation_list = "{}".format(citation.short_citation)
                 else:
@@ -234,9 +234,9 @@ class SupplemantInformation:
                 xml_block = "{}\n\n{}".format(xml_block, xml_temp)
 
         # citations
-        if self.resource.citations.count() > 0:
+        if self.resource.citations2.count() > 0:
             citation_list = ""
-            for citation in self.resource.citations.all():
+            for citation in self.resource.citations2.all():
                 if citation_list == "":
                     citation_list = "{}".format(citation.short_citation)
                 else:

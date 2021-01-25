@@ -56,7 +56,12 @@
           <tr>
             {% for field in transect_field_list %}
               <td>
-                {% get_field_value transect field %}
+{#                {% if "coordinates" in field %}#}
+{#                  {{ transect.has_coordinates|yesno:"yes,no,no" }}#}
+{#                {% else %}#}
+                  {% get_field_value transect field %}
+{#                {% endif %}#}
+
               </td>
             {% endfor %}
             <td>{{ transect.dives.count }}</td>

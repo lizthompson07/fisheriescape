@@ -1,10 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.core import validators
 from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
-from lib.templatetags.custom_filters import nz
 
+from lib.templatetags.custom_filters import nz
 from . import models
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -377,3 +376,16 @@ class NewCatchForm(forms.Form):
         # if the species in not a bycatch spp, then remove the notes fields
         if my_species.green_crab_monitoring:
             del self.fields["notes"]
+
+
+class ProbeForm(forms.ModelForm):
+    class Meta:
+        model = models.Probe
+        fields = "__all__"
+
+
+ProbeFormset = modelformset_factory(
+    model=models.Probe,
+    form=ProbeForm,
+    extra=1,
+)

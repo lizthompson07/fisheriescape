@@ -11,8 +11,11 @@
 
 {% block body %}
 <div class="container mt-1">
-    <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
-    {% if editable and update_url%}
+    {% if back %}
+        <a class="btn btn-primary" name="back-btn" href="{% url ''|add:list_url back_id %}" title="{% trans 'Back to Details' %}">{% trans 'Back to Details' %}</a>
+    {% else %}
+        <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
+    {% endif %}    {% if editable and update_url%}
         {# if the update url contains /pop/ then open the url in a popup window #}
         {% if '/pop/' in update_url %}
             <a class="btn btn-primary" href="#" onclick="return pop('{% url ''|add:update_url object.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a>

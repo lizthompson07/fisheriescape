@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shared_models', '0015_auto_20201028_1048'),
+        ('shared_models', '0001_initial'),
         ('missions', '0006_auto_20201028_1048'),
     ]
 

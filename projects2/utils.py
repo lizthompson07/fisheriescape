@@ -346,12 +346,14 @@ def multiple_financial_project_year_summary_data(project_years):
 
 def get_project_field_list(project):
     is_acrdp = project.is_acrdp
+    is_csrf = project.is_csrf
+    general_project = not project.is_csrf and not project.is_acrdp
 
     my_list = [
         'id',
         'section',
         # 'title',
-        'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),
+        'overview' if general_project else None,
         # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
         'functional_group.theme|{}'.format(_("theme")),
@@ -364,13 +366,27 @@ def get_project_field_list(project):
         'lead_staff',
 
         # acrdp fields
+        'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")) if is_acrdp else None,
         'organization' if is_acrdp else None,
         'species_involved' if is_acrdp else None,
-        'team_description' if is_acrdp else None,
-        'rationale' if is_acrdp else None,
-        'experimental_protocol' if is_acrdp else None,
+        'team_description_html|{}'.format(_("description of team and required qualifications (ACRDP)")) if is_acrdp else None,
+        'rationale_html|{}'.format(_("project problem / rationale (ACRDP)")) if is_acrdp else None,
+        'experimental_protocol_html|{}'.format(_("experimental protocol (ACRDP)")) if is_acrdp else None,
+
+        # csrf fields
+        'overview' if is_csrf else None,
+        'csrf_theme|{}'.format(_("CSRF theme")) if is_csrf else None,
+        'csrf_sub_theme|{}'.format(_("CSRF sub-theme")) if is_csrf else None,
+        'csrf_priority|{}'.format(_("CSRF priority")) if is_csrf else None,
+        'client_information_html|{}'.format(_("Additional info supplied by client")) if is_csrf else None,
+        'second_priority' if is_csrf else None,
+        'objectives_html|{}'.format(_("project objectives (CSRF)")) if is_csrf else None,
+        # 'objectives_methods_html|{}'.format(_("methods applied to achieve objectives (CSRF)")) if is_csrf else None,
+        'innovation_html|{}'.format(_("innovation (CSRF)")) if is_csrf else None,
+        'other_funding_html|{}'.format(_("other sources of funding (CSRF)")) if is_csrf else None,
 
         'tags',
+        'references',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)
@@ -458,10 +474,25 @@ def get_staff_field_list():
         'employee_type',
         'level',
         'duration_weeks',
-        'overtime_hours',
+        # 'overtime_hours',
         # 'overtime_description',
-        'student_program',
+        # 'student_program',
         'amount',
+    ]
+    return my_list
+
+
+def get_citation_field_list():
+    my_list = [
+        'tname|{}'.format(_("title")),
+        'authors',
+        'year',
+        'publication',
+        'pub_number',
+        # 'turl|{}'.format(_("url")),
+        'tabstract|{}'.format(_("abstract")),
+        'series',
+        'region',
     ]
     return my_list
 
@@ -507,8 +538,8 @@ def get_collaboration_field_list():
         'people',
         'critical',
         'agreement_title',
-        'gc_program',
-        'amount',
+        # 'gc_program',
+        # 'amount',
         'notes',
     ]
     return my_list

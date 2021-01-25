@@ -15,6 +15,7 @@ urlpatterns = [
     path('projects/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),  # tested
     path('projects/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),  # tested
     path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),  # tested
+    path('projects/<int:pk>/references/', views.ProjectReferencesDetailView.as_view(), name="project_references"),  # tested
 
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),  # tested
     path('projects/explore/', views.ExploreProjectsTemplateView.as_view(), name="explore_projects"),  # tested
@@ -35,8 +36,8 @@ urlpatterns = [
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),  # tested
     path('status-reports/<int:pk>/print/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
 
-    # # SETTINGS #
-    # ############
+    # SETTINGS #
+    ############
     # formsets
     path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),  # tested
     path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),  # tested
@@ -73,6 +74,9 @@ urlpatterns = [
 
     path('settings/csrf-priorities/', views.CSRFPriorityFormsetView.as_view(), name="manage_csrf_priorities"),
     path('settings/csrf-prioritie/<int:pk>/delete/', views.CSRFPriorityHardDeleteView.as_view(), name="delete_csrf_priority"),
+
+    path('settings/csrf-client-information/', views.CSRFClientInformationFormsetView.as_view(), name="manage_csrf_client_information"),
+    path('settings/csrf-client-information/<int:pk>/delete/', views.CSRFClientInformationHardDeleteView.as_view(), name="delete_csrf_client_information"),
 
 
     # full
