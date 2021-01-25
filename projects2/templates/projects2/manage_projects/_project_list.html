@@ -93,11 +93,11 @@
       </td>
 
       <td class="w90">
-        <button v-if="p.submitted && p.status != 4 && p.review && p.review.id" @click="openReviewModal(p)"
+        <button v-if="p.status != 4 && p.review && p.review.id" @click="openReviewModal(p)"
                 class="px-1 {{ btn_class }} btn-warning">
           {% trans "Edit review" %}
         </button>
-        <button v-else-if="p.submitted && p.status != 4" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-info">
+        <button v-else-if="p.status != 4" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-info">
           {% trans "Start review" %}
         </button>
       </td>
