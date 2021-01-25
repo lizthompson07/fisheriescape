@@ -6,10 +6,18 @@ register = template.Library()
 @register.filter
 def is_markdown_field(value):
     target_field_list = [
-        #project
+        # project
         'overview',
+        ## CSRF
+        'objectives',
+        'innovation',
+        'other_funding',
+        ## ACRDP
+        'team_description',
+        'rationale',
+        'experimental_protocol',
 
-        #project-year
+        # project-year
         'deliverables',
         'priorities',
         'technical_service_needs',

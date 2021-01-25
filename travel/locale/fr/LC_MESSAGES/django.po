@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-11 12:44-0400\n"
+"POT-Creation-Date: 2021-01-21 15:41-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -154,7 +154,7 @@ msgstr ""
 
 #: .\travel\forms.py:554
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:9
-#: .\travel\templates\travel\index.html:126
+#: .\travel\templates\travel\index.html:129
 msgid "Traveller"
 msgstr "Voyageur"
 
@@ -377,8 +377,8 @@ msgid "address"
 msgstr "adresse"
 
 #: .\travel\models.py:525
-msgid "phone"
-msgstr "téléphone"
+msgid "phone (xxx-xxx-xxxx)"
+msgstr ""
 
 #: .\travel\models.py:526
 msgid "email"
@@ -581,7 +581,7 @@ msgstr "date du statut"
 msgid "Comments"
 msgstr "Commentaires"
 
-#: .\travel\models.py:1009 .\travel\templates\travel\index.html:132
+#: .\travel\models.py:1009 .\travel\templates\travel\index.html:135
 msgid "Reviewer"
 msgstr "Examinateur"
 
@@ -738,19 +738,19 @@ msgid "Click on a row to edit traveller informations."
 msgstr ""
 "Cliquez sur une ligne pour modifier les informations relatives au voyageur."
 
-#: .\travel\templates\travel\_group_travellers.html:78
+#: .\travel\templates\travel\_group_travellers.html:77
 msgid "DENIED"
 msgstr "REFUSÉE"
 
-#: .\travel\templates\travel\_group_travellers.html:96
+#: .\travel\templates\travel\_group_travellers.html:95
 msgid "Show costs"
 msgstr "Afficher les coûts"
 
-#: .\travel\templates\travel\_group_travellers.html:102
+#: .\travel\templates\travel\_group_travellers.html:101
 msgid "Clone"
 msgstr "Clone"
 
-#: .\travel\templates\travel\_group_travellers.html:107
+#: .\travel\templates\travel\_group_travellers.html:106
 #: .\travel\templates\travel\default_reviewer_confirm_delete.html:13
 #: .\travel\templates\travel\default_reviewer_confirm_delete.html:27
 #: .\travel\templates\travel\default_reviewer_form.html:45
@@ -763,15 +763,15 @@ msgstr "Clone"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: .\travel\templates\travel\_group_travellers.html:118
+#: .\travel\templates\travel\_group_travellers.html:117
 msgid "TOTAL COST:"
 msgstr "COÛT TOTAL:"
 
-#: .\travel\templates\travel\_group_travellers.html:124
+#: .\travel\templates\travel\_group_travellers.html:123
 msgid "TOTAL DFO FUNDING:"
 msgstr "FINANCEMENT TOTAL DU MPO:"
 
-#: .\travel\templates\travel\_group_travellers.html:130
+#: .\travel\templates\travel\_group_travellers.html:129
 msgid "TOTAL NON-DFO FUNDING:"
 msgstr "FINANCEMENT TOTAL NON-MPO:"
 
@@ -879,34 +879,38 @@ msgstr ""
 msgid "Approval Queue"
 msgstr "Queue d'approbation"
 
-#: .\travel\templates\travel\_reviewers.html:16
+#: .\travel\templates\travel\_reviewers.html:13
+msgid "see note about group requests in help bubble"
+msgstr ""
+
+#: .\travel\templates\travel\_reviewers.html:20
 #: .\travel\templates\travel\trip_request_form.html:98
 msgid "Trip Request Reviewers"
 msgstr "Examinateurs des demandes de voyage"
 
-#: .\travel\templates\travel\_reviewers.html:25
+#: .\travel\templates\travel\_reviewers.html:29
 msgid "You cannot reset the reviewers while a request is submitted."
 msgstr ""
 "Vous ne pouvez pas réinitialiser les examinateurs pendant qu'une demande est "
 "soumise."
 
-#: .\travel\templates\travel\_reviewers.html:32
+#: .\travel\templates\travel\_reviewers.html:36
 #: .\travel\templates\travel\_trip_reviewers.html:38
 #: .\travel\templates\travel\reviewer_formset.html:83
 #: .\travel\templates\travel\reviewer_formset.html:164
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: .\travel\templates\travel\_reviewers.html:36
+#: .\travel\templates\travel\_reviewers.html:40
 #: .\travel\templates\travel\_trip_reviewers.html:42
 msgid "Modify"
 msgstr "Modifier"
 
-#: .\travel\templates\travel\_reviewers.html:81
+#: .\travel\templates\travel\_reviewers.html:85
 msgid "Skip"
 msgstr "Sauter"
 
-#: .\travel\templates\travel\_reviewers.html:99
+#: .\travel\templates\travel\_reviewers.html:103
 msgid ""
 "No reviewers, recommenders or approvers have been added to this request."
 msgstr ""
@@ -1280,7 +1284,13 @@ msgstr "Ajouter"
 msgid "EOS Conference and Travel Management System"
 msgstr "Système de gestion des conferences et des voyages du SEO"
 
-#: .\travel\templates\travel\index.html:86
+#: .\travel\templates\travel\index.html:76
+#, fuzzy
+#| msgid "\"Get Your Pre-approval to Travel Today!!\""
+msgid "\"Pre-approval for travel\""
+msgstr "\"Obtenez votre pré-autorisation pour voyager aujourd'hui !!\""
+
+#: .\travel\templates\travel\index.html:89
 msgid ""
 "\n"
 "          This application process supersedes existing mechanisms for "
@@ -1293,7 +1303,7 @@ msgstr ""
 "SEO.\n"
 "                "
 
-#: .\travel\templates\travel\index.html:91
+#: .\travel\templates\travel\index.html:94
 msgid ""
 "\n"
 "          A travel request can have multiple travellers from various sectors "
@@ -1315,7 +1325,7 @@ msgstr ""
 "anticipé les fonds disponibles pour financer le voyage.\n"
 "                "
 
-#: .\travel\templates\travel\index.html:98
+#: .\travel\templates\travel\index.html:101
 msgid ""
 "\n"
 "          Please ensure your request is properly completed and submitted on "
@@ -1334,41 +1344,41 @@ msgstr ""
 "page\n"
 "          d'accueil et en sélectionnant \"voir vos demande\"."
 
-#: .\travel\templates\travel\index.html:171
+#: .\travel\templates\travel\index.html:174
 msgid "Create a New Request"
 msgstr "Créer une nouvelle demande"
 
-#: .\travel\templates\travel\index.html:177
+#: .\travel\templates\travel\index.html:180
 msgid "View Your Requests"
 msgstr "Voir vos demandes"
 
-#: .\travel\templates\travel\index.html:184
+#: .\travel\templates\travel\index.html:187
 msgid "Browse Upcoming Trips"
 msgstr "Parcourir les voyages à venir"
 
-#: .\travel\templates\travel\index.html:193
+#: .\travel\templates\travel\index.html:196
 msgid "There are trip requests requiring your attention!"
 msgstr "Il y a des demandes de voyage qui requièrent votre attention !"
 
-#: .\travel\templates\travel\index.html:217
+#: .\travel\templates\travel\index.html:220
 msgid "Your Reviews"
 msgstr "Vos évaluations"
 
-#: .\travel\templates\travel\index.html:218
+#: .\travel\templates\travel\index.html:221
 msgid "View and manage trips and/or trip requests for which you are a reviewer"
 msgstr ""
 "Affichez et gérez les demandes de voyage pour lesquelles vous êtes des "
 "réviseurs"
 
-#: .\travel\templates\travel\index.html:224
+#: .\travel\templates\travel\index.html:227
 msgid "Trips Awaiting Review"
 msgstr "Voyages en attente d'un examen"
 
-#: .\travel\templates\travel\index.html:234
+#: .\travel\templates\travel\index.html:237
 msgid "Requests Awaiting Review"
 msgstr "Demandes en cours de traitement"
 
-#: .\travel\templates\travel\index.html:250
+#: .\travel\templates\travel\index.html:253
 #, python-format
 msgid ""
 "\n"
@@ -1379,20 +1389,20 @@ msgstr ""
 "               %(r)s Région - Admin\n"
 "                "
 
-#: .\travel\templates\travel\index.html:257
+#: .\travel\templates\travel\index.html:260
 msgid "Perform tasks reserved for travel app administrators"
 msgstr ""
 "Effectuer des tâches réservées aux administrateurs d'applications de voyage"
 
-#: .\travel\templates\travel\index.html:262
+#: .\travel\templates\travel\index.html:265
 msgid "Requests Awaiting ADM"
 msgstr "Demandes en cours de traitement par la SMA"
 
-#: .\travel\templates\travel\index.html:272
+#: .\travel\templates\travel\index.html:275
 msgid "Requests Awaiting RDG"
 msgstr "Demandes en cours de traitement par le DGR"
 
-#: .\travel\templates\travel\index.html:282
+#: .\travel\templates\travel\index.html:285
 msgid "Trip Verifications"
 msgstr "Vérifications de voyage"
 
@@ -2518,6 +2528,9 @@ msgstr "Le coût a été supprimé avec succès."
 msgid "All empty costs have been cleared."
 msgstr "Tous les frais vides ont été supprimés."
 
+#~ msgid "phone"
+#~ msgstr "téléphone"
+
 #~ msgid ""
 #~ "What do you think of the trip purpose? It is really important that this "
 #~ "was selected correctly."
@@ -2535,6 +2548,3 @@ msgstr "Tous les frais vides ont été supprimés."
 # please chance the source text to the above.
 #~ msgid "you wish to re-open the review of this trip?"
 #~ msgstr "souhaitez-vous réexaminer ce voyage ?"
-
-#~ msgid "\"Get Your Pre-approval to Travel Today!!\""
-#~ msgstr "\"Obtenez votre pré-autorisation pour voyager aujourd'hui !!\""

@@ -4,8 +4,10 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 
+from scuba.utils import calc_nautical_dist
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup
+from shared_models.utils import decdeg2dm, dm2decdeg
 
 
 class Region(UnilingualLookup):
@@ -26,8 +28,20 @@ class Region(UnilingualLookup):
 class Site(UnilingualLookup):
     abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='sites', verbose_name=_("region"), editable=False)
-    latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude (decimal degrees)"))
-    longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude (decimal degrees)"))
+    latitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("latitude (degrees)"))
+    latitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("latitude (minutes)"))
+    longitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("longitude (degrees)"))
+    longitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("longitude (minutes)"))
+
+    # calculated
+    latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude (decimal degrees)"), editable=False)
+    longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude (decimal degrees)"), editable=False)
+
+    def save(self, *args, **kwargs):
+        self.latitude = dm2decdeg(self.latitude_d, self.latitude_mm)
+        self.longitude = dm2decdeg(self.longitude_d, self.longitude_mm)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Site {self.name}"
@@ -44,17 +58,44 @@ class Site(UnilingualLookup):
     def coordinates(self):
         my_str = "---"
         if self.get_coordinates():
-            my_str = f"{round(self.get_coordinates().get('x'), 6)}, {round(self.get_coordinates().get('y'), 6)}"
+            my_str = self.get_coordinates_ddmm()
         return mark_safe(my_str)
+
+    def get_coordinates_ddmm(self):
+        coords = self.get_coordinates()
+        if coords:
+            dmx = decdeg2dm(coords.get("x"))
+            dmy = decdeg2dm(coords.get("y"))
+            return mark_safe(f"lat: {int(dmx[0])}° {format(dmx[1], '4f')}'<br>lng: {int(dmy[0])}° {format(dmy[1], '4f')}'")
 
 
 class Transect(UnilingualLookup):
     name = models.CharField(max_length=255, verbose_name=_("name"))
     site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False)
-    start_latitude = models.FloatField(blank=True, null=True, verbose_name=_("start latitude (decimal degrees)"))
-    start_longitude = models.FloatField(blank=True, null=True, verbose_name=_("start longitude (decimal degrees)"))
-    end_latitude = models.FloatField(blank=True, null=True, verbose_name=_("end latitude (decimal degrees)"))
-    end_longitude = models.FloatField(blank=True, null=True, verbose_name=_("end longitude (decimal degrees)"))
+
+    start_latitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("start latitude"))
+    start_latitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("start latitude (minutes)"))
+    start_longitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("start longitude"))
+    start_longitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("start longitude (minutes)"))
+    end_latitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("end latitude"))
+    end_latitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("end latitude (minutes)"))
+    end_longitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("end longitude"))
+    end_longitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("end longitude (minutes)"))
+
+    # calculated
+
+    start_latitude = models.FloatField(blank=True, null=True, verbose_name=_("start latitude (decimal degrees)"), editable=False)
+    start_longitude = models.FloatField(blank=True, null=True, verbose_name=_("start longitude (decimal degrees)"), editable=False)
+    end_latitude = models.FloatField(blank=True, null=True, verbose_name=_("end latitude (decimal degrees)"), editable=False)
+    end_longitude = models.FloatField(blank=True, null=True, verbose_name=_("end longitude (decimal degrees)"), editable=False)
+
+    def save(self, *args, **kwargs):
+        self.start_latitude = dm2decdeg(self.start_latitude_d, self.start_latitude_mm)
+        self.start_longitude = dm2decdeg(self.start_longitude_d, self.start_longitude_mm)
+        self.end_latitude = dm2decdeg(self.end_latitude_d, self.end_latitude_mm)
+        self.end_longitude = dm2decdeg(self.end_longitude_d, self.end_longitude_mm)
+
+        super().save(*args, **kwargs)
 
     class Meta:
         unique_together = (("name", "site"),)
@@ -68,13 +109,31 @@ class Transect(UnilingualLookup):
             return dict(x=self.end_latitude, y=self.end_longitude)
 
     @property
-    def coordinates(self):
-        my_str = "---"
-        if self.get_starting_coordinates():
-            my_str = f"<u>Starting:</u> {round(self.get_starting_coordinates().get('x'), 6)}, {round(self.get_starting_coordinates().get('y'), 6)}"
-        if self.get_ending_coordinates():
-            my_str += f"<br><u>Ending:</u> {round(self.get_ending_coordinates().get('x'), 6)}, {round(self.get_ending_coordinates().get('y'), 6)}"
-        return mark_safe(my_str)
+    def transect_distance(self):
+        if self.get_starting_coordinates() and self.get_ending_coordinates():
+            dist = calc_nautical_dist(self.get_starting_coordinates(), self.get_ending_coordinates())
+            return round(dist * 1852, 2)
+
+    @property
+    def starting_coordinates_ddmm(self):
+        coords = self.get_starting_coordinates()
+        if coords:
+            dmx = decdeg2dm(coords.get("x"))
+            dmy = decdeg2dm(coords.get("y"))
+            return mark_safe(f"lat: {int(dmx[0])}° {format(dmx[1], '4f')}'<br>lng: {int(dmy[0])}° {format(dmy[1], '4f')}'")
+
+    @property
+    def ending_coordinates_ddmm(self):
+        coords = self.get_ending_coordinates()
+        if coords:
+            dmx = decdeg2dm(coords.get("x"))
+            dmy = decdeg2dm(coords.get("y"))
+            return mark_safe(f"lat: {int(dmx[0])}° {format(dmx[1], '4f')}'<br>lng: {int(dmy[0])}° {format(dmy[1], '4f')}'")
+
+    @property
+    def has_coordinates(self):
+        return self.get_starting_coordinates() and self.get_ending_coordinates()
+
 
 class Diver(models.Model):
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
@@ -121,9 +180,14 @@ class Sample(models.Model):
 class Dive(models.Model):
     heading_choices = (
         ('n', _("North")),
-        ('s', _("South")),
+        ('ne', _("Northeast")),
         ('e', _("East")),
+        ('se', _("Southeast")),
+        ('s', _("South")),
+        ('sw', _("Southwest")),
         ('w', _("West")),
+        ('nw', _("Northwest")),
+
     )
     side_choices = (
         ('l', _("Left")),
@@ -137,12 +201,48 @@ class Dive(models.Model):
     max_depth_ft = models.FloatField(verbose_name=_("max depth (ft)"), blank=True, null=True)
     psi_in = models.IntegerField(verbose_name=_("PSI in"), blank=True, null=True)
     psi_out = models.IntegerField(verbose_name=_("PSI out"), blank=True, null=True)
-    start_latitude = models.FloatField(blank=True, null=True, verbose_name=_("start latitude (decimal degrees)"))
-    start_longitude = models.FloatField(blank=True, null=True, verbose_name=_("start longitude (decimal degrees)"))
-    heading = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
+    start_latitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("start latitude"))
+    start_latitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("start latitude (minutes)"))
+    start_longitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("start longitude"))
+    start_longitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("start longitude (minutes)"))
+    end_latitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("end latitude"))
+    end_latitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("end latitude (minutes)"))
+    end_longitude_d = models.IntegerField(blank=True, null=True, verbose_name=_("end longitude"))
+    end_longitude_mm = models.FloatField(blank=True, null=True, verbose_name=_("end longitude (minutes)"))
+
+    heading = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
     side = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("side"), choices=side_choices)
     width_m = models.FloatField(verbose_name=_("width (m)"))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+
+    # calculated
+    start_latitude = models.FloatField(blank=True, null=True, verbose_name=_("start latitude (decimal degrees)"), editable=False)
+    start_longitude = models.FloatField(blank=True, null=True, verbose_name=_("start longitude (decimal degrees)"), editable=False)
+    end_latitude = models.FloatField(blank=True, null=True, verbose_name=_("end latitude (decimal degrees)"), editable=False)
+    end_longitude = models.FloatField(blank=True, null=True, verbose_name=_("end longitude (decimal degrees)"), editable=False)
+
+    def save(self, *args, **kwargs):
+        self.start_latitude = dm2decdeg(self.start_latitude_d, self.start_latitude_mm)
+        self.start_longitude = dm2decdeg(self.start_longitude_d, self.start_longitude_mm)
+        self.end_latitude = dm2decdeg(self.end_latitude_d, self.end_latitude_mm)
+        self.end_longitude = dm2decdeg(self.end_longitude_d, self.end_longitude_mm)
+        super().save(*args, **kwargs)
+
+    @property
+    def starting_coordinates_ddmm(self):
+        coords = self.get_starting_coordinates()
+        if coords:
+            dmx = decdeg2dm(coords.get("x"))
+            dmy = decdeg2dm(coords.get("y"))
+            return mark_safe(f"lat: {int(dmx[0])}° {format(dmx[1], '4f')}'<br>lng: {int(dmy[0])}° {format(dmy[1], '4f')}'")
+
+    @property
+    def ending_coordinates_ddmm(self):
+        coords = self.get_ending_coordinates()
+        if coords:
+            dmx = decdeg2dm(coords.get("x"))
+            dmy = decdeg2dm(coords.get("y"))
+            return mark_safe(f"lat: {int(dmx[0])}° {format(dmx[1], '4f')}'<br>lng: {int(dmy[0])}° {format(dmy[1], '4f')}'")
 
     class Meta:
         ordering = ["sample", "transect", "diver"]
@@ -153,6 +253,20 @@ class Dive(models.Model):
     @property
     def observation_count(self):
         return Observation.objects.filter(section__dive=self).count()
+
+    def get_starting_coordinates(self):
+        if self.start_latitude and self.start_longitude:
+            return dict(x=self.start_latitude, y=self.start_longitude)
+
+    def get_ending_coordinates(self):
+        if self.end_latitude and self.end_longitude:
+            return dict(x=self.end_latitude, y=self.end_longitude)
+
+    @property
+    def dive_distance(self):
+        if self.get_starting_coordinates() and self.get_ending_coordinates():
+            dist = calc_nautical_dist(self.get_starting_coordinates(), self.get_ending_coordinates())
+            return round(dist * 1852, 2)
 
 
 class Section(models.Model):
@@ -180,15 +294,15 @@ class Section(models.Model):
     )
 
     dive = models.ForeignKey(Dive, related_name='sections', on_delete=models.CASCADE, verbose_name=_("dive"))
-    interval = models.IntegerField(verbose_name=_("5m interval (1-20)"), validators=(MinValueValidator(1), MaxValueValidator(20)), choices=interval_choices)
+    interval = models.IntegerField(verbose_name=_("5m interval [1-20]"), validators=(MinValueValidator(1), MaxValueValidator(20)), choices=interval_choices)
     depth_ft = models.FloatField(verbose_name=_("depth (ft)"), blank=True, null=True)
-    percent_sand = models.FloatField(default=0, verbose_name=_("% sand"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_mud = models.FloatField(default=0, verbose_name=_("% mud"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_hard = models.FloatField(default=0, verbose_name=_("% hard"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_algae = models.FloatField(default=0, verbose_name=_("% algae"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_gravel = models.FloatField(default=0, verbose_name=_("% gravel"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_cobble = models.FloatField(default=0, verbose_name=_("% cobble"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_pebble = models.FloatField(default=0, verbose_name=_("% pebble"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_sand = models.FloatField(default=0, verbose_name=_("sand [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_mud = models.FloatField(default=0, verbose_name=_("mud [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_hard = models.FloatField(default=0, verbose_name=_("hard [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_algae = models.FloatField(default=0, verbose_name=_("algae [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_gravel = models.FloatField(default=0, verbose_name=_("gravel [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_cobble = models.FloatField(default=0, verbose_name=_("cobble [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_pebble = models.FloatField(default=0, verbose_name=_("pebble [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     class Meta:
@@ -227,23 +341,46 @@ class Section(models.Model):
 
 class Observation(models.Model):
     sex_choices = (
-        ('m', _("male")),
-        ('f', _("female")),
-        ('u', _("unknown")),
+        ('u', _("0 - unknown")),
+        ('m', _("1 - male")),
+        ('f', _("2 - female")),
     )
     egg_status_choices = (
-        ("b", _("b (berried)")),
-        ("b1", _("b1 (berried with new eggs)")),
-        ("b2", _("b2 (berried with black eggs)")),
-        ("b3", _("b3 (berried with developed eggs)")),
+        ("0", _("0 - no eggs")),
+        ("b", _("b - berried")),
+        ("b1", _("b1 - berried with new eggs")),
+        ("b2", _("b2 - berried with black eggs")),
+        ("b3", _("b3 - berried with developed eggs")),
     )
     certainty_rating_choices = (
-        (1, _("certain")),  #
-        (0, _("uncertain")),
+        (1, _("1 - certain")),  #
+        (0, _("0 - uncertain")),
     )
     section = models.ForeignKey(Section, related_name='observations', on_delete=models.CASCADE, verbose_name=_("section"))
     sex = models.CharField(max_length=2, verbose_name=_("sex"), choices=sex_choices)
     egg_status = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("egg status"), choices=egg_status_choices)
     carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
-    certainty_rating = models.IntegerField(verbose_name=_("certainty rating"), default=1, choices=certainty_rating_choices)
+    certainty_rating = models.IntegerField(verbose_name=_("length certainty"), default=1, choices=certainty_rating_choices)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+
+    @property
+    def sex_special_display(self):
+        try:
+            return self.get_sex_display().split("-")[1].strip()
+        except Exception as e:
+            print(e)
+
+    @property
+    def egg_status_special_display(self):
+        try:
+            if self.get_egg_status_display():
+                return self.get_egg_status_display().split("-")[1].strip()
+        except:
+            pass
+
+    @property
+    def certainty_rating_special_display(self):
+        try:
+            return self.get_certainty_rating_display().split("-")[1].strip()
+        except:
+            pass

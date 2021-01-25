@@ -96,25 +96,33 @@
           {% endfor %}
         {% endblock %}
         </thead>
-
         <tbody>
-
-        {% for object in list %}
-          {% block table_tr %}
-            {% url row_object_url_name object.id as my_url %}
-            <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
-              {% for field in field_list %}
-                <td class="{{ field.class }}">
-                  {% block table_td %}
-                    {% get_field_value object field.name safe=True %}
-                  {% endblock %}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endblock %}
-        {% endfor %}
+        {% block table_body_0 %}{% endblock %}
         </tbody>
+        {% block table_body_1 %}
+          <tbody>
+          {% for object in list %}
+            {% block table_tr %}
+              {% url row_object_url_name object.id as my_url %}
+              <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
+                {% for field in field_list %}
+                  <td class="{{ field.class }}">
+                    {% block table_td %}
+                      {% get_field_value object field.name safe=True %}
+                    {% endblock %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endblock %}
+          {% endfor %}
+          </tbody>
+        {% endblock %}
+        <tbody>
+        {% block table_body_2 %}{% endblock %}
+        </tbody>
+
       </table>
+
     {% endblock %}
   {% endblock %}
 
