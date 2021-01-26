@@ -42,3 +42,36 @@ class TestCurrentUser(CommonTest):
         self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 
+
+@tag("api", 'api-indv')
+class TestIndividual(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.instance = BioFactoryFloor.IndvFactory()
+        self.test_url = "{}?pit_tag={}".format(reverse("api-indv"), self.instance.pit_tag)
+
+    def test_url(self):
+        self.assert_correct_url("api-indv", expected_url_path=f"/api/bio_diversity/indv/")
+
+    def test_authenticated(self):
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unauthenticated(self):
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_response_data(self):
+        data = self.client.get(self.test_url).data[0]
+        keys = ["id", "ufid", "pit_tag", "coll_id", "spec_id"]
+        self.assert_dict_has_keys(data, keys)
+
+    def test_safe_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+

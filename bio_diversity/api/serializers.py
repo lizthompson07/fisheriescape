@@ -19,3 +19,26 @@ class UserDisplaySerializer(serializers.ModelSerializer):
     def get_is_admin(self, instance):
         return bio_diverisity_admin(instance)
 
+
+class IndividualDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Individual
+        fields = "__all__"
+
+    stok = serializers.SerializerMethodField()
+    coll = serializers.SerializerMethodField()
+    spec = serializers.SerializerMethodField()
+    grp = serializers.SerializerMethodField()
+
+    def get_stok(self, instance):
+        return instance.stok_id.__str__()
+
+    def get_coll(self, instance):
+        return instance.coll_id.__str__()
+
+    def get_spec(self, instance):
+        return instance.spec_id.__str__()
+
+    def get_grp(self, instance):
+        return instance.grp_id.__str__()
+
