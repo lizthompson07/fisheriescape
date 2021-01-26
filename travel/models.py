@@ -64,10 +64,46 @@ class NJCRates(SimpleLookup):
 
 class ProcessStep(Lookup):
     stage_choices = (
+        (0, _("Information Section")),
         (1, _("Travel Request Process Outline")),
         (2, _("Review Process Outline")),
     )
     stage = models.IntegerField(blank=True, null=True, choices=stage_choices)
+    order = models.IntegerField(blank=True, null=True)
+    is_visible = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['stage', 'order']
+
+
+
+class FAQ(models.Model):
+    question_en = models.TextField(blank=True, null=True, verbose_name=_("question (en)"))
+    question_fr = models.TextField(blank=True, null=True, verbose_name=_("question (fr)"))
+    answer_en = models.TextField(blank=True, null=True, verbose_name=_("answer (en)"))
+    answer_fr = models.TextField(blank=True, null=True, verbose_name=_("answer (fr)"))
+
+    @property
+    def tquestion(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("question_en"))):
+            my_str = "{}".format(getattr(self, str(_("question_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.question_en
+        return my_str
+
+    @property
+    def tanswer(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("answer_en"))):
+            my_str = "{}".format(getattr(self, str(_("answer_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.answer_en
+        return my_str
+
+
 
 
 class CostCategory(SimpleLookup):

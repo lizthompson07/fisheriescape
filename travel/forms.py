@@ -793,6 +793,19 @@ ProcessStepFormset = modelformset_factory(
 )
 
 
+class FAQForm(forms.ModelForm):
+    class Meta:
+        model = models.FAQ
+        fields = "__all__"
+
+
+FAQFormset = modelformset_factory(
+    model=models.FAQ,
+    form=FAQForm,
+    extra=1,
+)
+
+
 class RoleForm(forms.ModelForm):
     class Meta:
         model = models.Role
