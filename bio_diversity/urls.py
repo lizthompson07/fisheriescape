@@ -396,7 +396,9 @@ urlpatterns = [
     path('update/team/<int:pk>/', views.TeamUpdate.as_view(), name="update_team"),
 
     path('create/tray/', views.TrayCreate.as_view(), name="create_tray"),
+    path('create/tray/<int:evnt>/<str:pop>/', views.TrayCreate.as_view(), name="create_tray"),
     path('details/tray/<int:pk>/', views.TrayDetails.as_view(), name="details_tray"),
+    path('details/tray/<str:back>/<int:back_id>/<int:pk>/', views.TrayDetails.as_view(), name="details_tray"),
     path('list/tray/', views.TrayList.as_view(), name="list_tray"),
     path('update/tray/<int:pk>/', views.TrayUpdate.as_view(), name="update_tray"),
     
@@ -411,7 +413,9 @@ urlpatterns = [
     path('update/trib/<int:pk>/', views.TribUpdate.as_view(), name="update_trib"),
 
     path('create/trof/', views.TrofCreate.as_view(), name="create_trof"),
+    path('create/trof/<int:evnt>/<str:pop>/', views.TrofCreate.as_view(), name="create_trof"),
     path('details/trof/<int:pk>/', views.TrofDetails.as_view(), name="details_trof"),
+    path('details/trof/<str:back>/<int:back_id>/<int:pk>/', views.TrofDetails.as_view(), name="details_trof"),
     path('list/trof/', views.TrofList.as_view(), name="list_trof"),
     path('update/trof/<int:pk>/', views.TrofUpdate.as_view(), name="update_trof"),
     

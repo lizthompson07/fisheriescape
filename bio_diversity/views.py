@@ -516,7 +516,16 @@ class TeamCreate(mixins.TeamMixin, CommonCreate):
 
 
 class TrayCreate(mixins.TrayMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                              tank_id=self.object, created_by=self.object.created_by,
+                                              created_date=self.object.created_date)
+            contx_link.clean()
+            contx_link.save()
+        return super().form_valid(form)
 
 
 class TraydCreate(mixins.TraydMixin, CommonCreate):
@@ -528,7 +537,16 @@ class TribCreate(mixins.TribMixin, CommonCreate):
 
 
 class TrofCreate(mixins.TrofMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                              tank_id=self.object, created_by=self.object.created_by,
+                                              created_date=self.object.created_date)
+            contx_link.clean()
+            contx_link.save()
+        return super().form_valid(form)
 
 
 class TrofdCreate(mixins.TrofdMixin, CommonCreate):
@@ -711,6 +729,13 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         context["tank_field_list"] = [
             "name",
         ]
+        contx_set = self.object.containers.filter(tank_id__isnull=True, cup_id__isnull=True, heat_id__isnull=True,
+                                                  tray_id__isnull=False, trof_id__isnull=False, draw_id__isnull=True)
+        context["trof_list"] = list(dict.fromkeys([contx.trof_id for contx in contx_set]))
+        context["trof_object"] = models.Trough.objects.first()
+        context["trof_field_list"] = [
+            "name",
+        ]
         anix_set = self.object.animal_details.filter(indv_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
                                                      loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
         context["indv_list"] = list(dict.fromkeys([anix.indv_id for anix in anix_set]))
@@ -748,12 +773,14 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "spwn_date",
         ]
 
-        context["table_list"] = ["loc", "indv", "grp", "tank", "spwn"]
+        context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "spwn"]
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
             context["table_list"] = ["data", "loc", "grp", "tank"]
         elif evnt_code == "Tagging":
             context["table_list"] = ["data", "indv", "grp", "tank"]
+        elif evnt_code == "Egg Development":
+            context["table_list"] = ["data", "grp", "trof"]
 
         return context
 

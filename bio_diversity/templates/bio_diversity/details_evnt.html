@@ -187,6 +187,41 @@
                 {% endif %}
             </div>
         {% endif %}
+        {% if "trof" in table_list %}
+            <div class="card border border-dark my-1" name="trof-details">
+                <h5 class="card-header">{% trans "Event Trough Details" %}
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-new-trof-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_trof' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Trough' %}</a>
+                    </span>
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-existing-trof-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_contx' object.pk 'trof_id' 'pop' %}', 'all')" title="{% trans 'Add' %}">{% trans 'Add Existing Trough' %}</a>
+                    </span>
+                    <span>
+                        <a class="btn btn-secondary" href="#evnt-trof-list" data-toggle="collapse">+</a>
+                    </span>
+                </h5>
+                {% if trof_list %}
+                    <table class="table table-sm sortable table-hover collapse" id="evnt-trof-list">
+                        <thead>
+                            {% for field in trof_field_list %}
+                                <th>{% get_verbose_label trof_object field %}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for obj in trof_list %}
+                                <tr href="{% url 'bio_diversity:details_trof' 'evnt' object.id obj.id %}">
+                                {% for field in trof_field_list %}
+                                    <td>
+                                        {% get_field_value obj field %}
+                                    </td>
+                                {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        {% endif %}
         <div class="card border border-dark my-1" name="prot-details">
             <h5 class="card-header">{% trans "Event Protocols" %}
                 <span class="px-1">
