@@ -137,6 +137,7 @@ class SpeciesDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         'english_name',
         'french_name',
         'latin_name',
+        'website',
 
     ]
     home_url_name = "fisheriescape:index"

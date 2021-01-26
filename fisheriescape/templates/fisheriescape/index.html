@@ -8,7 +8,7 @@
 
     <style>
         body{
-            background-image: url({% static "/img/fisheriescape/halibut-map.jpg" %});
+            background-image: url({% static "/img/fisheriescape/water.jpg" %});
             background-size: cover;
         }
 
@@ -68,7 +68,8 @@
         }
 
         .jumbotron {
-            background-color: rgba(255, 255, 255, 1);
+            {#background-color: rgba(255, 255, 255, 1);#}
+            background-color: transparent;
             padding-top: 10px;
             padding-bottom: 10px;
         }
@@ -104,13 +105,19 @@
     <div class="mb-3 text" style="font-size: 16px;">
       <p>
         {% blocktrans %}
-          Welcome to the Fisheries Risk Landscape Tool.
+            <h3>Welcome to the Fisheries Risk Landscape Tool.</h3>This tool is under development, but feel free to explore the database below.<br><br>
+            <ul>
+                <li><b>'Species List'</b> refers to the species fished.</li>
+                <li><b>'Fishery List'</b> is a database of fisheries with their areas, dates, gear types, and marine mammal potential interactions.</li>
+                <li><b>'Fishery Area List'</b> is a list of all the fishery areas and their maps.</li>
+                <li><b>'MAP'</b> is an interactive map where you can turn on and off fishing area layers and then click on the one you want to take you to the information page.</li>
+            </ul>
+
         {% endblocktrans %}
       </p>
     </div>
   </div>
  </div>
-
 
 <!--Card container-->
 
