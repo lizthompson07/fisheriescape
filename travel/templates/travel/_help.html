@@ -51,7 +51,7 @@
 
           <div id="collapse{{ forloop.counter }}" class="collapse" aria-labelledby="heading{{ forloop.counter }}" data-parent="#accordion">
             <div class="card-body">
-              {{ q.tanswer }}
+              {{ q.tanswer|safe }}
             </div>
           </div>
         </div>
