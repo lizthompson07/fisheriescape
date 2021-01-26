@@ -542,7 +542,7 @@ class TrofCreate(mixins.TrofMixin, CommonCreate):
         self.object = form.save()
         if 'evnt' in self.kwargs:
             contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
-                                              tank_id=self.object, created_by=self.object.created_by,
+                                              trof_id=self.object, created_by=self.object.created_by,
                                               created_date=self.object.created_date)
             contx_link.clean()
             contx_link.save()
@@ -730,7 +730,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "name",
         ]
         contx_set = self.object.containers.filter(tank_id__isnull=True, cup_id__isnull=True, heat_id__isnull=True,
-                                                  tray_id__isnull=False, trof_id__isnull=False, draw_id__isnull=True)
+                                                  trof_id__isnull=False, draw_id__isnull=True)
         context["trof_list"] = list(dict.fromkeys([contx.trof_id for contx in contx_set]))
         context["trof_object"] = models.Trough.objects.first()
         context["trof_field_list"] = [
@@ -1151,8 +1151,25 @@ class TrofDetails(mixins.TrofMixin, CommonDetails):
 
 
 class TrofdDetails(mixins.TrofdMixin, CommonDetails):
+    template_name = "bio_diversity/details_trof.html"
+
     fields = ["trof_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
               "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        contx_set = models.ContainerXRef.objects.filter(trof_id=self.object)
+        env_sets = [contx.env_condition for contx in contx_set]
+        context["env_list"] = list(dict.fromkeys([env for qs in env_sets for env in qs]))
+        context["env_object"] = models.EnvCondition.objects.first()
+        context["env_field_list"] = [
+            "envc_id",
+            "env_val",
+            "env_start",
+        ]
+
+        return context
 
 
 class UnitDetails(mixins.UnitMixin, CommonDetails):

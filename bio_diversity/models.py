@@ -134,7 +134,7 @@ class AnimalDetCode(BioLookup):
     ani_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
 
     def __str__(self):
-        return "{}-{}".format(self.name, self.unit_id.__str__())
+        return "{} ({})".format(self.name, self.unit_id.__str__())
 
 
 class AniDetSubjCode(BioLookup):
@@ -321,7 +321,7 @@ class EnvCode(BioLookup):
 class EnvCondition(BioModel):
     # env tag
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, null=True, blank=True,
-                                 verbose_name=_("Container Cross Reference"))
+                                 related_name="env_condition", verbose_name=_("Container Cross Reference"))
     loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, null=True, blank=True,
                                verbose_name=_("Location"), related_name="env_condition")
     inst_id = models.ForeignKey('Instrument', on_delete=models.CASCADE, verbose_name=_("Instrument"))

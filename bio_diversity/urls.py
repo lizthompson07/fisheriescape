@@ -162,7 +162,7 @@ urlpatterns = [
     
     path('create/grpd/', views.GrpdCreate.as_view(), name="create_grpd"),
     path('details/grpd/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
-    path('details/grpd//<str:back>/<int:back_id>/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
+    path('details/grpd/<str:back>/<int:back_id>/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
     path('list/grpd/', views.GrpdList.as_view(), name="list_grpd"),
     path('update/grpd/<int:pk>/', views.GrpdUpdate.as_view(), name="update_grpd"),
     
