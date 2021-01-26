@@ -108,7 +108,9 @@ def ref_mat_directory_path(instance, filename):
 
 
 class ReferenceMaterial(SimpleLookup):
-    file_en = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (English)"))
+    order = models.IntegerField(blank=True, null=True)
+    url = models.URLField(verbose_name=_("url"), blank=True, null=True)
+    file_en = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
     file_fr = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -123,7 +125,7 @@ class ReferenceMaterial(SimpleLookup):
             return self.file_en
 
     class Meta:
-        ordering = ["-updated_at"]
+        ordering = ["order"]
 
 
 class CostCategory(SimpleLookup):
