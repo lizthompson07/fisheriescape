@@ -2535,6 +2535,7 @@ class ReferenceMaterialListView(TravelAdminRequiredMixin, CommonListView):
     model = models.ReferenceMaterial
     field_list = [
         {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
+        {"name": "url", "class": "", "width": ""},
         {"name": "file_en", "class": "", "width": ""},
         {"name": "file_fr", "class": "", "width": ""},
         {"name": "created_at", "class": "", "width": ""},
