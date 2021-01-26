@@ -1990,7 +1990,7 @@ class CommonDelete(UserPassesTestMixin, DeleteView):
 
 
 class IndvDelete(mixins.IndvMixin, CommonDelete):
-    pass
+    success_url = reverse_lazy("bio_diversity:list_indv")
 
 
 class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
