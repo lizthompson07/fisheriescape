@@ -900,13 +900,17 @@ class TripRequest(models.Model):
 
     @property
     def requester_info(self):
+        company = nz(self.company_name, "<span class='red-font'>{}</span>".format(gettext('missing company name')))
+        address = nz(self.address, "<span class='red-font'>{}</span>".format(_('missing address')))
+        phone = nz(self.phone, "<span class='red-font'>{}</span>".format(_('missing phone number')))
+        email = nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>', "<span class='red-font'>{}</span>".format(_('missing email address')))
+
         mystr = ""
         if not self.is_public_servant:
-            mystr += _("Company: ") + nz(self.company_name, "<span class='red-font'>{}</span><br>".format(_('missing company name')))
-        mystr += _("Address: ") + nz(self.address, "<span class='red-font'>{}</span><br>".format(_('missing address')))
-        mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>{}</span><br>".format(_('missing phone number')))
-        mystr += _("Email: ") + nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
-                               "<span class='red-font'>{}</span><br>".format(_('missing email address')))
+            mystr += "<u>{}</u>: {}<br>".format(gettext("Company"), company)
+        mystr += "<u>{}</u>: {}<br>".format(gettext("Address"), address)
+        mystr += "<u>{}</u>: {}<br>".format(gettext("Phone"), phone)
+        mystr += "<u>{}</u>: {}<br>".format(gettext("Email"), email)
         return mark_safe(mystr)
 
     @property
