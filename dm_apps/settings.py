@@ -48,18 +48,9 @@ GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 # Should the ticketing app be displayed on the main index page?
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 # >>>>>>> HEAD
-# HEAD
-
-# adding following (Jan.25, 2021) for updating migration files for dm_apps
-# try:
-#     GIT_VERSION = subprocess.check_output(['git', "-c", BASE_DIR, 'rev-parse', '--short', 'HEAD']).decode()
-# except Exception as E:
-#     print(E)
-#     GIT_VERSION = "n/a"
-# ----------------------------------------------------------------------------------------------------------
 
 # DevOps build number to display on index.html
-DEVOPS_BUILD_NUMBER = config("DEVOPS_BUILD_NUMBER", cast=str, default="")
+# DEVOPS_BUILD_NUMBER = config("DEVOPS_BUILD_NUMBER", cast=str, default="")
 # =======
 # get the git commit number from the ENV to display on index.html
 try:
@@ -67,6 +58,7 @@ try:
 except Exception as E:
     print(E)
     GIT_VERSION = "n/a"
+
 # >>>>>>> 6d65c410223c40693b5868c70c285d152b7c7167
 # Azure Instrumentation KEy for application insights
 USE_AZURE_APPLICATION_INSIGHT = config("USE_AZURE_APPLICATION_INSIGHT", cast=bool, default=False)
