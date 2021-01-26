@@ -1,5 +1,4 @@
 import json
-import json
 import os
 from copy import deepcopy
 
@@ -8,7 +7,7 @@ from decouple import config
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
 from django.db.models import Sum, Q, Value, TextField
@@ -38,12 +37,17 @@ from . import forms
 from . import models
 from . import reports
 from . import utils
+from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin
+from .utils import is_manager_or_assistant_or_admin, in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver
 
 
 def get_file(request, file):
-
-    my_file = models.File.objects.get(pk=file)
-    blob_name = my_file.file
+    if request.GET.get("reference"):
+        my_file = models.ReferenceMaterial.objects.get(pk=file)
+        blob_name = my_file.tfile
+    else:
+        my_file = models.File.objects.get(pk=file)
+        blob_name = my_file.file
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
@@ -54,7 +58,7 @@ def get_file(request, file):
         response = HttpResponse(blob_file.content, content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
     else:
-        response = HttpResponse(my_file.file.read(), content_type='application/zip')
+        response = HttpResponse(blob_name.read(), content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
 
     return response
@@ -69,124 +73,6 @@ def get_conf_details(request):
         conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
 
     return JsonResponse(conf_dict)
-
-
-def in_travel_admin_group(user):
-    if user.id:
-        return user.groups.filter(name='travel_admin').count() != 0
-
-
-def in_adm_admin_group(user):
-    if user.id:
-        return user.groups.filter(name='travel_adm_admin').count() != 0
-
-
-def is_approver(user, trip_request):
-    if trip_request.current_reviewer and user == trip_request.current_reviewer.user:
-        return True
-
-
-def is_trip_approver(user, trip):
-    if trip.current_reviewer and user == trip.current_reviewer.user:
-        return True
-
-
-def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
-    """
-    returns True if user has permissions to delete or modify a request
-
-    The answer of this question will depend on whether the trip is submitted.
-    owners cannot edit a submitted trip
-
-    :param user:
-    :param trip_request_id:
-    :param trip_request_submit: If true, it means this function is being used to answer the question about whether a user can unsubmit a trip
-    :return:
-    """
-    if user.id:
-        my_trip_request = models.TripRequest.objects.get(pk=trip_request_id)
-
-        # check to see if a travel_admin
-        if in_travel_admin_group(user):
-            return True
-
-        # check to see if they are the active reviewer
-        # determine if this is a child trip or not.
-        if not my_trip_request.parent_request:
-            if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
-                return True
-        # This is a child trip request
-        else:
-            if my_trip_request.parent_request.current_reviewer and my_trip_request.parent_request.current_reviewer.user == user:
-                return True
-        # if the project is unsubmitted, the project lead is also able to edit the project... obviously
-        # check to see if they are either the owner OR a traveller
-        # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
-        if not my_trip_request.submitted and \
-                (not my_trip_request.user or  # anybody can edit
-                 my_trip_request.user == user or  # the user is the traveller and / or requester
-                 user in my_trip_request.travellers or  # the user is a traveller on the trip
-                 (my_trip_request.parent_request and my_trip_request.parent_request.user == user)):  # the user is the requester
-            return True
-
-        if trip_request_unsubmit and user == my_trip_request.user:
-            return True
-
-
-class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_travel_admin_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
-
-
-class TravelADMAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return in_adm_admin_group(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
-
-
-class CanModifyMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return can_modify_request(self.request.user, self.kwargs.get("pk"))
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
-
-
-class AdminOrApproverRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        my_trip_request = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
-        my_user = self.request.user
-        if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
-            return True
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
-
-
-# This allows any logged in user to access the view
-class TravelAccessRequiredMixin(LoginRequiredMixin):
-    login_url = '/accounts/login/'
 
 
 class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
@@ -278,6 +164,9 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         context["is_trip_reviewer"] = True if number_of_trip_reviews > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
+
+        context["can_see_all_requests"] = is_manager_or_assistant_or_admin(self.request.user)
+
         context["tab_dict"] = tab_dict
         context["processes"] = [
             models.ProcessStep.objects.filter(stage=1),
@@ -285,6 +174,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         ]
         context["information_sections"] = models.ProcessStep.objects.filter(stage=0, is_visible=True)
         context["faqs"] = models.FAQ.objects.all()
+        context["refs"] = models.ReferenceMaterial.objects.all()
 
         return context
 
@@ -450,15 +340,15 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
     ]
 
     def get_queryset(self):
-        if self.kwargs.get("type") == "all" and in_travel_admin_group(self.request.user):
-            queryset = models.TripRequest.objects.filter(parent_request__isnull=True)
+        if self.kwargs.get("type") == "all" and is_manager_or_assistant_or_admin(self.request.user):
+            queryset = utils.get_trip_with_managerial_access(self.request.user)
         else:
             queryset = utils.get_related_trips(self.request.user)
         return queryset
 
     def get_h1(self):
         subtitle = self.subtitle
-        if self.kwargs.get("type") == "all" and in_travel_admin_group(self.request.user):
+        if self.kwargs.get("type") == "all" and is_manager_or_assistant_or_admin(self.request.user):
             return f"{subtitle}"
         else:
             return f"{subtitle} - {self.request.user}"
@@ -567,6 +457,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
         user_json = json.dumps(user_dict)
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
+        context['org_form'] = forms.OrganizationForm1
 
         conf_dict = {}
         for conf in models.Conference.objects.all():
@@ -674,6 +565,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
         user_json = json.dumps(user_dict)
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
+        context['org_form'] = forms.OrganizationForm1
 
         conf_dict = {}
         for conf in models.Conference.objects.all():
@@ -1674,6 +1566,35 @@ class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         return context
 
 
+class TripCloneView(TripUpdateView):
+    h1 = gettext_lazy("Clone a Trip")
+    h2 = gettext_lazy("Please update the trip details")
+
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def get_initial(self):
+        my_object = models.Conference.objects.get(pk=self.kwargs["pk"])
+        init = super().get_initial()
+        init["name"] = "CLONE OF: " + my_object.name
+        # init["created_by"] = self.request.user
+        return init
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloned"] = True
+        return context
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Conference.objects.get(pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.verified_by = self.request.user
+        new_obj.save()
+        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": new_obj.id, "type": self.kwargs.get("type")}))
+
+
 class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
     model = models.Conference
     form_class = forms.TripForm
@@ -2577,6 +2498,20 @@ class FAQHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("travel:manage_faqs")
 
 
+class OrganizationFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+    template_name = 'travel/formset.html'
+    h1 = "Manage Organizations"
+    queryset = shared_models.Organization.objects.filter(is_dfo=True)
+    formset_class = forms.OrganizationFormset
+    success_url_name = "travel:manage_organizations"
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_organization"
+    container_class = "container-fluid"
+
+
+class OrganizationHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+    model = shared_models.Organization
+    success_url = reverse_lazy("travel:manage_organizations")
 
 
 class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
@@ -2592,6 +2527,57 @@ class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
 class RoleHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.Role
     success_url = reverse_lazy("travel:manage_roles")
+
+
+# Reference Materials
+class ReferenceMaterialListView(TravelAdminRequiredMixin, CommonListView):
+    template_name = "travel/list.html"
+    model = models.ReferenceMaterial
+    field_list = [
+        {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
+        {"name": "file_en", "class": "", "width": ""},
+        {"name": "file_fr", "class": "", "width": ""},
+        {"name": "created_at", "class": "", "width": ""},
+        {"name": "updated_at", "class": "", "width": ""},
+    ]
+    new_object_url_name = "travel:ref_mat_new"
+    row_object_url_name = "travel:ref_mat_edit"
+    home_url_name = "travel:index"
+    h1 = gettext_lazy("Reference Materials")
+    container_class = "container bg-light curvy"
+
+
+class ReferenceMaterialUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "travel:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
+    template_name = "travel/form.html"
+    is_multipart_form_data = True
+    container_class = "container bg-light curvy"
+
+    def get_delete_url(self):
+        return reverse("travel:ref_mat_delete", args=[self.get_object().id])
+
+
+class ReferenceMaterialCreateView(TravelAdminRequiredMixin, CommonCreateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "travel:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
+    template_name = "travel/form.html"
+    is_multipart_form_data = True
+    container_class = "container bg-light curvy"
+
+
+class ReferenceMaterialDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
+    model = models.ReferenceMaterial
+    success_url = reverse_lazy('travel:ref_mat_list')
+    home_url_name = "travel:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("travel:ref_mat_list")}
+    template_name = "travel/confirm_delete.html"
+    delete_protection = False
+    container_class = "container bg-light curvy"
 
 
 # Default Reviewer Settings

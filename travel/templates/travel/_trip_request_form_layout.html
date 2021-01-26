@@ -90,25 +90,7 @@
             <span style="font-size: small">
                 {% trans "Use a Predefined Address:" %}
             </span> &nbsp;
-        <select name="" id="predefined-addresses">
-          <option value="">-----</option>
-          <option value="343 Université Avenue, Moncton, NB, E1C 9B6">{% trans "Gulf Fisheries Centre" %}</option>
-          <option value="1 Challenger Drive, Datmouth, NS B2y 4A2">{% trans "Bedford Institute of Oceanography" %}</option>
-          <option value="125 Marine Science Dr, St. Andrews, NB E5B">{% trans "St. Andrews Biological Station" %}</option>
-          <option value="850 Route de la Mer, Mont-Joli, QC G5H 3Z4">{% trans "Maurice Lamontagne Institute" %}</option>
-          <option value="9860 W Saanich Rd, Sidney, BC V8L 5T5">{% trans "Institute of Ocean Sciences" %}</option>
-          <option value="3190 Hammond Bay Road, Nanaimo, BC, V9T 6N7">{% trans "Pacific Biological Station" %}</option>
-          <option
-            value="4222 Columbia Valley Highway, Cultus Lake, BC, V2R 5B6">{% trans "Cultus Lake Salmon Research Laboratory" %}</option>
-          <option value="520 Exmouth St, Sarnia ON  N7T 8B1">{% trans "C&A (Sarnia)" %}</option>
-          <option
-            value="867 Lakeshore Rd, Burlington ON, L7S 1A1">{% trans "C&A (Burlington) - (Canada Centre for Inland Waters)" %}</option>
-          <option value="501 University Cres, Winnipeg MB, R3T 2N6">{% trans "C&A (Winnipeg) - Freshwater Institute" %}</option>
-          <option value="">-----</option>
-          <option value="">-----</option>
-          <option value="">-----</option>
-          <option value="">-----</option>
-        </select>
+        {{ org_form.orgs }}
       </div>
     {% endif %}
   {% endif %}

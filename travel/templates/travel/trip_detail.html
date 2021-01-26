@@ -64,6 +64,15 @@
             <a class="btn btn-admin" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
                 {% trans "Edit" %}
             </a>
+          <a class="btn btn-admin" href="{% url 'travel:trip_clone' object.id view.kwargs.type %}">
+                {% trans "Clone" %}
+            </a>
+          {% if not object.is_verified %}
+
+          <a class="btn btn-admin" href="{% url 'travel:trip_verify' object.id view.kwargs.type %}">
+                {% trans "Verify" %}
+            </a>
+          {% endif %}
         {% endif %}
 
         {% if is_adm_admin %}
