@@ -3,9 +3,9 @@ import os
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -22,7 +22,7 @@ from . import filters, forms, models, reports
 from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
-    get_review_score_rubric, get_status_report_field_list, get_review_field_list
+    get_review_score_rubric, get_status_report_field_list, get_review_field_list, in_projects_admin_group
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -1176,3 +1176,50 @@ def csrf_application(request, pk):
             response['Content-Disposition'] = f'inline; filename="{filename}"'
             return response
     raise Http404
+
+
+
+# ADMIN USERS
+
+class UserListView(AdminRequiredMixin, CommonFilterView):
+    template_name = "projects2/user_list.html"
+    filterset_class = filters.UserFilter
+    home_url_name = "index"
+    paginate_by = 25
+    h1 = "Project Planning User Permissions"
+    field_list = [
+        {"name": 'first_name', "class": "", "width": ""},
+        {"name": 'last_name', "class": "", "width": ""},
+        {"name": 'email', "class": "", "width": ""},
+        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
+    ]
+    new_object_url = reverse_lazy("shared_models:user_new")
+
+    def get_queryset(self):
+        queryset = User.objects.order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
+        )
+        if self.request.GET.get("projects"):
+            group = Group.objects.get(name="projects_admin")
+            queryset = queryset.filter(groups__in=[group.id]).distinct()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["admin_group"] = Group.objects.get(name="projects_admin")
+        return context
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+def toggle_user(request, pk, type):
+    my_user = User.objects.get(pk=pk)
+    admin_group = Group.objects.get(name="projects_admin")
+    if type == "admin":
+        # if the user is in the admin group, remove them
+        if admin_group in my_user.groups.all():
+            my_user.groups.remove(admin_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(admin_group)
+    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))

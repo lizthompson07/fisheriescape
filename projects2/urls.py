@@ -106,5 +106,9 @@ urlpatterns = [
 
     path('projects/<int:pk>/csrf-application/', views.csrf_application, name="csrf_application"),
 
+    # Admin Users
+    path('settings/users/', views.UserListView.as_view(), name='user_list'),
+    path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+
 
 ]
