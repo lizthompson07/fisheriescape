@@ -82,7 +82,7 @@ def digest_qc_data():
                 if not qs.exists():
                     # then we just create a new org
                     org = ml_models.Organization.objects.create(name_eng=org_txt)
-                    print(f"Creating new organization: {org.name_eng} ({org.id}) --> {reverse('ihub:org_detail', args=[org.id])}")
+                    print(f"Creating new organization: {org.name_eng} ({org.id}) --> http://dmapps{reverse('ihub:org_detail', args=[org.id])}")
                 elif qs.count() == 1:
                     # means we have a direct hit
                     org = qs.first()
