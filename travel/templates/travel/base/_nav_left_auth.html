@@ -7,10 +7,10 @@
 {% for group in user.groups.all %}
   {% if group.name == "travel_admin" %}
     <li class="nav-item"><a class="nav-link" href="{% url 'travel:trip_list' "all" %}">
-      {% trans "All Trips" %}
+      {% trans "Trips" %}
     </a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'travel:request_list' "all" %}">
-      {% trans "All Requests" %}
+      {% trans "Requests" %}
     </a></li>
 
     <li class="nav-item dropdown">
@@ -58,6 +58,9 @@
         </a>
         <a class="dropdown-item" href="{% url 'travel:manage_process_steps' %}" target="_blank">
           {% trans "Manage Process Steps" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'travel:manage_faqs' %}">
+          {% trans "Manage FAQs" %}
         </a>
       </div>
     </li>
