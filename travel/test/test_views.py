@@ -214,6 +214,11 @@ class TestIndexView(CommonTest):
             "is_admin",
             "is_adm_admin",
             "tab_dict",
+
+            "processes",
+            "information_sections",
+            "faqs",
+            "refs",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 

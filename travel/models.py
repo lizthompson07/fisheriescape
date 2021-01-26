@@ -76,7 +76,6 @@ class ProcessStep(Lookup):
         ordering = ['stage', 'order']
 
 
-
 class FAQ(models.Model):
     question_en = models.TextField(blank=True, null=True, verbose_name=_("question (en)"))
     question_fr = models.TextField(blank=True, null=True, verbose_name=_("question (fr)"))
@@ -104,6 +103,27 @@ class FAQ(models.Model):
         return my_str
 
 
+def ref_mat_directory_path(instance, filename):
+    return f'travel/{filename}'
+
+
+class ReferenceMaterial(SimpleLookup):
+    file_en = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (English)"))
+    file_fr = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def tfile(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("file_en")):
+            return getattr(self, gettext("file_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.file_en
+
+    class Meta:
+        ordering = ["-updated_at"]
 
 
 class CostCategory(SimpleLookup):
@@ -939,7 +959,8 @@ class TripRequest(models.Model):
         company = nz(self.company_name, "<span class='red-font'>{}</span>".format(gettext('missing company name')))
         address = nz(self.address, "<span class='red-font'>{}</span>".format(_('missing address')))
         phone = nz(self.phone, "<span class='red-font'>{}</span>".format(_('missing phone number')))
-        email = nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>', "<span class='red-font'>{}</span>".format(_('missing email address')))
+        email = nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
+                   "<span class='red-font'>{}</span>".format(_('missing email address')))
 
         mystr = ""
         if not self.is_public_servant:

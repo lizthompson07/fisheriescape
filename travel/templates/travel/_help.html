@@ -1,14 +1,22 @@
 {% load i18n %}
 
-<h2 class="center-col mb-5">
+<h2 class="center-col mb-3">
   {% trans "Support Centre" %}
 </h2>
 
-
 <div class="mb-5">
-  <h3>{% trans "Travel Application Resources" %}</h3>
+  <h3>{% trans "Resources" %}</h3>
   <p class="text-muted lead mt-3">
-    Here are the manuals
+    {% for ref in refs %}
+      {% if ref.tfile %}
+        <a href="{% url 'travel:get_file' ref.id %}?reference=true" class="btn btn-lg btn-outline-primary">
+          {{ ref.tname }} <span class="mdi mdi-file-pdf  text-dark"></span>
+        </a>
+
+
+      {% endif %}
+    {% endfor %}
+
   </p>
 </div>
 
@@ -24,7 +32,6 @@
     {% endblocktrans %}
   </p>
 </div>
-
 
 <div class="mb-5">
   <h3>{% trans "Frequently Asked Questions (FAQ)" %}</h3>

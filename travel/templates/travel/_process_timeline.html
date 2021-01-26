@@ -5,15 +5,16 @@
 </h2>
 
 {% for s in information_sections %}
-  <div class="mb-3 mt-5 text-center">
+  <div class="mb-3 mt-5 ">
     <h3>{{ s.tname }} </h3>
   </div>
-  <div class="container-fluid">
-    <div class="text-black text-center">
-      {{ s.tdescription|safe }}
-    </div>
+  <div class="text-black ">
+    {{ s.tdescription|safe }}
   </div>
 {% endfor %}
+<div class="mb-3 mt-5">
+  <hr>
+</div>
 
 <div id="app">
   <v-app id="inspire">
