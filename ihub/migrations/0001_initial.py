@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('shared_models', '0001_initial'),
-        ('masterlist', '0009_auto_20201218_1111'),
+        ('masterlist', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

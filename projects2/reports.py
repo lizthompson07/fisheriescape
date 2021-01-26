@@ -396,10 +396,10 @@ def generate_culture_committee_report():
 
             elif "Region" in field:
                 if project.division.exists():
-                   regions = Region.objects.filter(id__in=[p.branch.region.id for p in project.division.all()])
-                   my_val = listrify([r.tname for r in regions])
+                    regions = Region.objects.filter(id__in=[p.branch.region.id for p in project.division.all()])
+                    my_val = listrify([r.tname for r in regions])
                 else:
-                   my_val = "n/a"
+                    my_val = "n/a"
                 my_ws.write(i, j, my_val, normal_format)
 
             elif "Program / Funding Source" in field:
@@ -522,13 +522,13 @@ def generate_csrf_application(project, lang):
             cost_dict[f'{c[0]}_{t}'] = val
     i = 1
     for year in years:
-
-        #captial costs
+        # captial costs
         for cost in year.capitalcost_set.filter(amount__gt=0):
             cost_dict[f'equipment_y{i}'] += cost.amount
             cost_dict[f'equipment_total'] += cost.amount
-            cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description,"MISSING DESCRIPTION")} = {currency(cost.amount, True)} (Captial)\n'
+            cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description, "MISSING DESCRIPTION")} = {currency(cost.amount, True)} (Captial)\n'
             cost_dict[f'equipment_detail'] += cost_description
+            cost_dict[f'total_y{i}'] += cost.amount
 
         # rest of the costs
         for c in cats:
@@ -541,6 +541,7 @@ def generate_csrf_application(project, lang):
                     for staff in year.staff_set.filter(amount__isnull=False, amount__gt=0):
                         cost_dict[f'salary_y{i}'] += staff.amount
                         cost_dict[f'salary_total'] += staff.amount
+                        cost_dict[f'total_y{i}'] += staff.amount
 
                         staff_description = f'{year.fiscal_year} - {staff.smart_name}'
                         if staff.level: staff_description += f" ({staff.level})"
@@ -563,9 +564,13 @@ def generate_csrf_application(project, lang):
                 for cost in qs:
                     cost_dict[f'{cost_name}_y{i}'] += cost.amount
                     cost_dict[f'{cost_name}_total'] += cost.amount
-                    cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description,"MISSING DESCRIPTION")} = {currency(cost.amount, True)} (O&M)\n'
+                    cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description, "MISSING DESCRIPTION")} = {currency(cost.amount, True)} (O&M)\n'
                     cost_dict[f'{cost_name}_detail'] += cost_description
+                    cost_dict[f'total_y{i}'] += cost.amount
         i += 1
+
+    # calc the total_total
+    cost_dict['total_total'] = cost_dict['total_y1'] + cost_dict['total_y2'] + cost_dict['total_y3']
 
     field_dict = dict(
         TAG_THEME=str(project.client_information.csrf_priority.csrf_sub_theme.csrf_theme) if project.client_information else "MISSING!",

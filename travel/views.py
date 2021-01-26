@@ -283,6 +283,9 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             models.ProcessStep.objects.filter(stage=1),
             models.ProcessStep.objects.filter(stage=2)
         ]
+        context["information_sections"] = models.ProcessStep.objects.filter(stage=0, is_visible=True)
+        context["faqs"] = models.FAQ.objects.all()
+
         return context
 
 
@@ -2550,11 +2553,30 @@ class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("travel:manage_process_steps")
     home_url_name = "travel:index"
     delete_url_name = "travel:delete_process_step"
+    container_class = "container-fluid"
 
 
 class ProcessStepHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.ProcessStep
     success_url = reverse_lazy("travel:manage_process_steps")
+
+
+class FAQFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+    template_name = 'travel/formset.html'
+    h1 = "Manage FAQs"
+    queryset = models.FAQ.objects.all()
+    formset_class = forms.FAQFormset
+    success_url_name = "travel:manage_faqs"
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_faq"
+    container_class = "container-fluid"
+
+
+class FAQHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+    model = models.FAQ
+    success_url = reverse_lazy("travel:manage_faqs")
+
+
 
 
 class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
