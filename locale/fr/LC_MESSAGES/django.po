@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-26 16:50-0400\n"
+"POT-Creation-Date: 2021-01-27 14:34-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -3890,49 +3890,68 @@ msgstr "Applications GD"
 msgid "close"
 msgstr "Fermer"
 
-#: .\templates\index.html:162
+#: .\templates\index.html:163
 #, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                        Welcome back, %(name)s! Please select an "
+#| "application below.\n"
+#| "                    "
 msgid ""
 "\n"
-"                      Please <a href=\"%(sign_in_url)s\">sign in</a> or "
-"select an application below. <br>If you do not\n"
-"                      have an account, you can register for one\n"
-"                      <a href=\"%(sign_up_url)s\">here.</a>\n"
-"                    "
+"                        Please <a href=\"%(sign_in_url)s\">sign in</a> or "
+"select an application below.\n"
+"                      "
 msgstr ""
 "\n"
-"                        Veuillez vous <a href=\"%(sign_in_url)s\">connecter</"
-"a> ou sélectionner une application ci-dessous. Si vous n'avez pas de\n"
-"                        compte, vous pouvez en créer un\n"
-"                        <a href=\"%(sign_up_url)s\">ici.</a>\n"
+"                        Bienvenue, %(name)s! Veuillez sélectionner une "
+"application ci-dessous.\n"
 "                    "
 
-#: .\templates\index.html:172 .\templates\index_OLD.html:74
+#: .\templates\index.html:167
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                        If you do not have an account, you can create one "
+#| "<a href=\"%(sign_up_url)s\">here</a>.\n"
+#| "                    "
+msgid ""
+"\n"
+"                        If you do not have an account, you can register for "
+"one <a href=\"%(sign_up_url)s\">here.</a>\n"
+"                      "
+msgstr ""
+"\n"
+"                            Si vous n'avez pas de compte, vous pouvez en "
+"créer <a href=\"%(sign_up_url)s\">ici</a>.\n"
+"                        "
+
+#: .\templates\index.html:176 .\templates\index_OLD.html:74
 #: .\templates\index_OLD.html:138
 msgid "Select"
 msgstr "Sélectionner"
 
-#: .\templates\index.html:191 .\templates\index_OLD.html:105
+#: .\templates\index.html:195 .\templates\index_OLD.html:105
 #: .\templates\index_OLD.html:169
 msgid "access to this app requires special permissions"
 msgstr "l'accès à cette application nécessite des autorisations spéciales"
 
-#: .\templates\index.html:192 .\templates\index_OLD.html:106
+#: .\templates\index.html:196 .\templates\index_OLD.html:106
 #: .\templates\index_OLD.html:170
 msgid "access to this app requires you to be logged in"
 msgstr "l'accès à cette application nécessite que vous soyez connecté"
 
-#: .\templates\index.html:193 .\templates\index_OLD.html:107
+#: .\templates\index.html:197 .\templates\index_OLD.html:107
 #: .\templates\index_OLD.html:171
 msgid "this app is opened to all users"
 msgstr "cette application est ouverte à tous les utilisateurs"
 
-#: .\templates\index.html:196 .\templates\index_OLD.html:91
+#: .\templates\index.html:200 .\templates\index_OLD.html:91
 #: .\templates\index_OLD.html:155
 msgid "beta"
 msgstr "bêta"
 
-#: .\templates\index.html:200
+#: .\templates\index.html:204
 msgid "dev"
 msgstr ""
 
@@ -4023,6 +4042,23 @@ msgstr ""
 #: .\tickets\templates\tickets\ticket_form_popout.html:33
 msgid "Feedback / Bug Form"
 msgstr "Commentaires / Bugs"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                      Please <a href=\"%(sign_in_url)s\">sign in</a> or "
+#~ "select an application below. <br>If you do not\n"
+#~ "                      have an account, you can register for one\n"
+#~ "                      <a href=\"%(sign_up_url)s\">here.</a>\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Veuillez vous <a href=\"%(sign_in_url)s"
+#~ "\">connecter</a> ou sélectionner une application ci-dessous. Si vous "
+#~ "n'avez pas de\n"
+#~ "                        compte, vous pouvez en créer un\n"
+#~ "                        <a href=\"%(sign_up_url)s\">ici.</a>\n"
+#~ "                    "
 
 #, fuzzy
 #~ msgid "Add Container Detail"

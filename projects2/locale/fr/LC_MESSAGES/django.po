@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-26 16:50-0400\n"
+"POT-Creation-Date: 2021-01-27 14:34-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,14 +24,14 @@ msgid "Name contains"
 msgstr ""
 
 #: .\projects2\forms.py:22 .\projects2\forms.py:27 .\projects2\models.py:22
-#: .\projects2\reports.py:477 .\projects2\reports.py:483
+#: .\projects2\reports.py:533 .\projects2\reports.py:539
 #: .\projects2\templates\projects2\explore_projects\main.html:76
 #: .\projects2\templates\projects2\manage_projects\_project_list.html:78
 msgid "Yes"
 msgstr "Oui"
 
 #: .\projects2\forms.py:23 .\projects2\forms.py:28 .\projects2\models.py:23
-#: .\projects2\reports.py:474 .\projects2\reports.py:480
+#: .\projects2\reports.py:530 .\projects2\reports.py:536
 #: .\projects2\templates\projects2\explore_projects\main.html:77
 #: .\projects2\templates\projects2\manage_projects\_project_list.html:79
 msgid "No"
@@ -125,7 +125,19 @@ msgstr "Commencer un examen"
 msgid "send an email update to project leads"
 msgstr "Date de fin du projet"
 
-#: .\projects2\forms.py:813
+#: .\projects2\forms.py:792
+#: .\projects2\templates\projects2\manage_projects\_console.html:75
+#: .\projects2\templates\projects2\project_detail\_submit.html:12
+msgid "Fiscal Year"
+msgstr "Exercice fiscal"
+
+#: .\projects2\forms.py:793
+#, fuzzy
+#| msgid "Region"
+msgid "DFO Region"
+msgstr "Région"
+
+#: .\projects2\forms.py:825
 msgid "Enter new publication name here"
 msgstr ""
 
@@ -605,8 +617,8 @@ msgid "Other"
 msgstr "Autre"
 
 #: .\projects2\models.py:661 .\projects2\models.py:1033
-#: .\projects2\utils.py:150 .\projects2\utils.py:471 .\projects2\views.py:166
-#: .\projects2\views.py:167 .\projects2\views.py:823
+#: .\projects2\utils.py:150 .\projects2\utils.py:471 .\projects2\views.py:167
+#: .\projects2\views.py:168 .\projects2\views.py:824
 msgid "name"
 msgstr "nom"
 
@@ -1046,7 +1058,7 @@ msgid ""
 "{phone}"
 msgstr ""
 
-#: .\projects2\reports.py:633
+#: .\projects2\reports.py:689
 msgid "DFO-"
 msgstr ""
 
@@ -1092,12 +1104,12 @@ msgid "French"
 msgstr ""
 
 #: .\projects2\templates\projects2\base\_app_title.html:2
-#: .\projects2\views.py:64 .\projects2\views.py:88
+#: .\projects2\views.py:65 .\projects2\views.py:89
 msgid "Projects"
 msgstr "Projets"
 
 #: .\projects2\templates\projects2\base\_nav_left_auth.html:4
-#: .\projects2\views.py:31
+#: .\projects2\views.py:32
 msgid "Home"
 msgstr "Accueil"
 
@@ -1310,7 +1322,7 @@ msgstr ""
 msgid "Markdown syntax is supported in this field"
 msgstr ""
 
-#: .\projects2\templates\projects2\index.html:20 .\projects2\views.py:30
+#: .\projects2\templates\projects2\index.html:20 .\projects2\views.py:31
 #, fuzzy
 msgid "DFO Science Project Planning"
 msgstr "Planification de projets (Science)"
@@ -1325,7 +1337,7 @@ msgstr "Date de début du projet"
 msgid "Your Projects"
 msgstr "Projets"
 
-#: .\projects2\templates\projects2\index.html:35 .\projects2\views.py:68
+#: .\projects2\templates\projects2\index.html:35 .\projects2\views.py:69
 #, fuzzy
 msgid "Explore Projects"
 msgstr "Cloner le projet"
@@ -1335,15 +1347,10 @@ msgstr "Cloner le projet"
 msgid "Manager Menu"
 msgstr "Gérer les étiquettes"
 
-#: .\projects2\templates\projects2\index.html:45 .\projects2\views.py:92
+#: .\projects2\templates\projects2\index.html:45 .\projects2\views.py:93
 #, fuzzy
 msgid "Manage Projects"
 msgstr "Mes projets"
-
-#: .\projects2\templates\projects2\manage_projects\_console.html:75
-#: .\projects2\templates\projects2\project_detail\_submit.html:12
-msgid "Fiscal Year"
-msgstr "Exercice fiscal"
 
 #: .\projects2\templates\projects2\manage_projects\_console.html:93
 #: .\projects2\templates\projects2\project_detail\_submit.html:13
@@ -2524,109 +2531,109 @@ msgstr ""
 msgid "Bioregional data layers, e.g. remote sensing, RV Survey."
 msgstr ""
 
-#: .\projects2\views.py:118
+#: .\projects2\views.py:119
 #, fuzzy
 msgid "My Projects"
 msgstr "Mes projets"
 
-#: .\projects2\views.py:129
+#: .\projects2\views.py:130
 #, fuzzy
 msgid "fiscal years"
 msgstr "exercice fiscal"
 
-#: .\projects2\views.py:131
+#: .\projects2\views.py:132
 msgid "hidden?"
 msgstr ""
 
-#: .\projects2\views.py:189
+#: .\projects2\views.py:190
 msgid ""
 "<span class='h4'>Your new project was created successfully! To get started, "
 "<b class='highlight'>add a new project year</b>.</span>"
 msgstr ""
 
-#: .\projects2\views.py:288 .\projects2\views.py:484
+#: .\projects2\views.py:289 .\projects2\views.py:485
 #, fuzzy
 msgid "Cloning: "
 msgstr "Financement"
 
-#: .\projects2\views.py:381 .\projects2\views.py:382
+#: .\projects2\views.py:382 .\projects2\views.py:383
 #, fuzzy
 msgid "Project References"
 msgstr "Chef de projet"
 
-#: .\projects2\views.py:442
+#: .\projects2\views.py:443
 #, fuzzy
 msgid "Edit "
 msgstr "Modifier"
 
-#: .\projects2\views.py:586 .\projects2\views.py:596
+#: .\projects2\views.py:587 .\projects2\views.py:597
 #, fuzzy
 msgid "Functional Groups"
 msgstr "Gérer les source de financement"
 
-#: .\projects2\views.py:825
+#: .\projects2\views.py:826
 #, fuzzy
 msgid "File attachment (EN)"
 msgstr "pièce jointe"
 
-#: .\projects2\views.py:826
+#: .\projects2\views.py:827
 #, fuzzy
 msgid "File attachment (FR)"
 msgstr "pièce jointe"
 
-#: .\projects2\views.py:833 .\projects2\views.py:841 .\projects2\views.py:854
-#: .\projects2\views.py:864 .\projects2\views.py:1022
+#: .\projects2\views.py:834 .\projects2\views.py:842 .\projects2\views.py:855
+#: .\projects2\views.py:865 .\projects2\views.py:1023
 #, fuzzy
 msgid "Reference Materials"
 msgstr "Référence"
 
-#: .\projects2\views.py:878
+#: .\projects2\views.py:879
 #, fuzzy
 msgid "Non-DMApps Staff List"
 msgstr "Section"
 
-#: .\projects2\views.py:880
+#: .\projects2\views.py:881
 msgid ""
 "The purpose of this list view is to check if any DFO staff were listed on "
 "projects, but were not connected to their dmapps user accounts"
 msgstr ""
 
-#: .\projects2\views.py:906
+#: .\projects2\views.py:907
 #, fuzzy
 #| msgid "Editing Staff Member:"
 msgid "Edit Non-DMApps Staff Member"
 msgstr "Modification au personnel:"
 
-#: .\projects2\views.py:907
+#: .\projects2\views.py:908
 msgid "Non-registered Staff List"
 msgstr ""
 
-#: .\projects2\views.py:1046
+#: .\projects2\views.py:1047
 msgid "Please provide review comments"
 msgstr ""
 
-#: .\projects2\views.py:1082
+#: .\projects2\views.py:1083
 #, fuzzy
 msgid "Project Planning Reports"
 msgstr "Planification de projets (Science)"
 
-#: .\projects2\views.py:1118 .\projects2\views.py:1159
+#: .\projects2\views.py:1123 .\projects2\views.py:1164
 msgid "Warning: There are no lead staff on this project!!"
 msgstr ""
 
-#: .\projects2\views.py:1121 .\projects2\views.py:1140
+#: .\projects2\views.py:1126 .\projects2\views.py:1145
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (position "
 "title)"
 msgstr ""
 
-#: .\projects2\views.py:1123 .\projects2\views.py:1142
+#: .\projects2\views.py:1128 .\projects2\views.py:1147
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (phone "
 "number)"
 msgstr ""
 
-#: .\projects2\views.py:1194
+#: .\projects2\views.py:1199
 msgid "Last login to DM Apps"
 msgstr ""
 
