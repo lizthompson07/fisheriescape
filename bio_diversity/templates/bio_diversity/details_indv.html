@@ -125,4 +125,27 @@
             </table>
         </div>
     {% endif %}
+    {% if cont_evnt_list %}
+        <div class="card border border-dark my-1" name="container-details">
+            <h5 class="card-header">{% trans "Individual Container History" %}</h5>
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                    {% for field in cont_evnt_field_list %}
+                        <th>{{ field }}</th>
+                    {% endfor %}
+                </thead>
+                <tbody>
+                    {% for obj in cont_evnt_list %}
+                        <tr>
+                        {% for field in obj %}
+                            <td>
+                                {{ field }}
+                            </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 {% endblock  %}

@@ -12,6 +12,8 @@ from . import mixins, filters, utils, models
 from datetime import date
 from django.utils.translation import gettext_lazy as _
 
+from .utils import get_cont_evnt
+
 
 class IndexTemplateView(TemplateView):
     nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
@@ -839,6 +841,17 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
             "det_val",
         ]
 
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
+        context["cont_evnt_field_list"] = [
+            "Evnt",
+            "Date",
+            "Container",
+        ]
+
         return context
 
 
@@ -891,9 +904,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "est_fecu",
         ]
 
-        anix_evnt_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True,
-                                                          loc_id__isnull=True, indvt_id__isnull=True,
-                                                          indv_id__isnull=False, spwn_id__isnull=True)
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
         context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
@@ -920,6 +932,17 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "prio_id",
             "pair_id",
             "choice",
+        ]
+
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
+        context["cont_evnt_field_list"] = [
+            "Evnt",
+            "Date",
+            "Container",
         ]
 
         return context
