@@ -29,7 +29,7 @@
             {% trans "Start a New Project" %}
           </a>
           <a href="{% url 'projects2:my_project_list' %}" class="{{ btn_class }}">
-            {% trans "Your Projects" %} ({{ user.staff_instances2.count }})
+            {% trans "Your Projects" %} ({{ my_project_count }})
           </a>
           <a href="{% url 'projects2:explore_projects' %}" class="{{ btn_class }}">
             {% trans "Explore Projects" %}

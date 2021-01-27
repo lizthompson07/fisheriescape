@@ -218,9 +218,11 @@
 
           <div class="mb-5 center-col">
 
-            {% if build_number %}
+            {% if git_version_number %}
               <div class="mb-3 mt-5">
-                <p style="font-size: small">version: {{ build_number }}</p>
+                <p style="font-size: small" class="text-muted my-1">
+                  <u>version</u>: {{ git_version_number|nz:"-----" }}
+                </p>
               </div>
             {% endif %}
           </div>

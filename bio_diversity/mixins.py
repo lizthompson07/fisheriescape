@@ -89,6 +89,13 @@ class CupdMixin:
     title = "Cup Detail"
 
 
+class DataMixin:
+    key = "data"
+    form_class = forms.DataForm
+    model = models.DataLoader
+    title = "Data"
+
+
 class DrawMixin:
     key = "draw"
     form_class = forms.DrawForm
@@ -220,7 +227,6 @@ class ImgMixin:
     form_class = forms.ImgForm
     model = models.Image
     title = "Image"
-
 
 
 class ImgcMixin:

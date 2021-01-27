@@ -1,0 +1,30 @@
+{% extends "bio_diversity/bio_diversity_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card border border-dark my-1" id="id_data">
+        <div class="card-header h5">
+            <div class="row align-items-center">
+                <div class="mb-2">
+                    Data Input Log
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="card-text">
+                {% if load_success %}
+                    <p>Data Loading Successfully</p>
+                {% else %}
+                    <p>Data Loading Failed</p>
+                {% endif %}
+                <p>{{ log_data|linebreaks  }}</p>
+                <a class="btn btn-secondary" href="{% url 'shared_models:close_me' %}">Okay</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

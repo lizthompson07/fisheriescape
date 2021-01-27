@@ -1,6 +1,9 @@
 from django.db.models import Q
+from django.template.defaultfilters import date
+from django.urls import reverse
+from django.utils.translation import activate
 
-from .import models
+from . import models
 
 
 def fix_categories():
@@ -13,11 +16,11 @@ def fix_categories():
     .80 -> .875
 
     '''
-    for sample in models.Sample.objects.filter(season__range=[2006,2016]):
+    for sample in models.Sample.objects.filter(season__range=[2006, 2016]):
         for line in sample.lines.all():
             for surface in line.surfaces.all():
                 for obs in surface.surface_spp.all():
-                    obs.notes = obs.notes.replace("20%","12.5%").replace("40%","37.5%").replace("60%","62.5%").replace("80%","87.5%")
+                    obs.notes = obs.notes.replace("20%", "12.5%").replace("40%", "37.5%").replace("60%", "62.5%").replace("80%", "87.5%")
                     if obs.percent_coverage == 0.2:
                         obs.percent_coverage = .125
                     elif obs.percent_coverage == 0.4:
@@ -29,10 +32,10 @@ def fix_categories():
                     obs.save()
 
 
-
 def resave_all():
     for obj in models.GCSample.objects.all():
         obj.save()
+
 
 def reverse_cond():
     '''
@@ -115,5 +118,51 @@ def reconcile_spp():
     #         my_crab.save()
     pass
 
+
+def print_list_of_duplicates():
+    years = [item["season"] for item in models.Sample.objects.order_by("season").values("season").distinct()]
+    stations = models.Station.objects.all()
+    for year in years:
+        for station in stations:
+            sample_qs = models.Sample.objects.filter(season=year, station=station)
+
+            if sample_qs.count() > 1:
+                for s in sample_qs:
+                    print(f'{s.id};{s.season};{s.station.station_name};{date(s.date_deployed)};{date(s.date_retrieved)}')
+
+
+def print_notes():
+    activate('en')
+    print("SAMPLE NOTES")
+    print(f'sample_id|note_id|date|author|note|url')
+    for n in models.SampleNote.objects.order_by("sample_id"):
+        note = n.note.replace("\r\n", "; ")
+        print(f'{n.sample_id}|{n.id}|{n.date.strftime("%Y-%m-%d")}|{n.author}|{note}|http://dmapps{reverse("grais:sample_detail", args=[n.sample_id])}')
+
+    print("")
+    print("")
+    print("LINE NOTES")
+    print(f'sample_id|line_id|date|author|notes|url')
+    for l in models.Line.objects.filter(notes__isnull=False).filter(~Q(notes="")).order_by("sample_id"):
+        note = l.notes.replace("\r\n", "; ")
+        print(f'{l.sample.id}|{l.id}|{note}|http://dmapps{reverse("grais:line_detail", args=[l.id])}')
+
+    print("")
+    print("")
+    print("SURFACE NOTES")
+    print(f'sample_id|surface_id|note_id|notes|url')
+    for s in models.Surface.objects.filter(notes__isnull=False).filter(~Q(notes="")).order_by("line__sample_id"):
+        note = s.notes.replace("\r\n", "; ")
+        print(f'{s.line.sample.id}|{s.id}|{note}|http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
+
+
+def print_bad_surfaces():
+    activate('en')
+    surfaces = models.Surface.objects.all()
+    print(f'surface_id|total_coverage|url')
+    for s in surfaces:
+        coverage = s.total_coverage
+        if coverage and coverage > 1:
+            print(f'{s.id}|{coverage}|http://dmapps{reverse("grais:surface_detail", args=[s.id])}')
 
 

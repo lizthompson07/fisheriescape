@@ -48,6 +48,11 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
             "region",
             "tdescription|{}".format("description"),
         ]
+        # project count
+        project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
+        project_count = models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title").count()
+        orphen_count = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user).count()
+        context["my_project_count"] =project_count+ orphen_count
         return context
 
 
@@ -130,6 +135,13 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     def get_queryset(self):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
         return models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        orphens = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user)
+        context["orphens"] = orphens
+
+        return context
 
 
 class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
@@ -359,6 +371,24 @@ class ProjectCloneView(ProjectUpdateView):
                 new_rel_obj.save()
 
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.project.id}))
+
+
+class ProjectReferencesDetailView(LoginRequiredMixin, CommonDetailView):
+    model = models.Project
+    template_name = 'projects2/project_references.html'
+    home_url_name = "projects2:index"
+    container_class = "container-fluid bg-light curvy"
+    h1 = gettext_lazy("Project References")
+    active_page_name_crumb = gettext_lazy("Project References")
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("projects2:project_detail", args=[self.get_object().id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["citation_form"] = forms.CitationForm
+        context["random_citation"] = shared_models.Citation.objects.first()
+        return context
 
 
 # PROJECT YEAR #
@@ -767,6 +797,22 @@ class CSRFPriorityFormsetView(AdminRequiredMixin, CommonFormsetView):
 class CSRFPriorityHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.CSRFPriority
     success_url = reverse_lazy("projects2:manage_csrf_priorities")
+
+
+class CSRFClientInformationFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage CSRF Client Information"
+    queryset = models.CSRFClientInformation.objects.all()
+    formset_class = forms.CSRFClientInformationFormset
+    success_url_name = "projects2:manage_csrf_client_information"
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_csrf_client_information"
+    container_class = "container-fluid bg-light curvy"
+
+
+class CSRFClientInformationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.CSRFClientInformation
+    success_url = reverse_lazy("projects2:manage_csrf_client_information")
 
 
 # Reference Materials

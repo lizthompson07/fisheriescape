@@ -50,10 +50,15 @@
 
   <div class="btn-group-vertical vgroup">
 
-    <a v-if="canModify" class="{{ btn_class_black }} {% if object.submitted %}disabled{% endif %}"
+    <a v-if="canModify" class="{{ btn_class_black }}"
        href="{% url 'projects2:project_edit' object.id %}">
       <span class="icon mdi mdi-pencil"></span>
       {% trans "Edit Overview" %}
+    </a>
+    <a v-if="canModify" class="{{ btn_class_black }}"
+       href="{% url 'projects2:project_references' object.id %}">
+      <span class="icon mdi mdi-format-letter-case"></span>
+      {% trans "Manage References" %}
     </a>
 
     <a v-if="canModify" class="{{ btn_class_black }}  {% if object.submitted %}disabled{% endif %}"

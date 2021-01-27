@@ -1,0 +1,46 @@
+{% extends "shared_models/generic_formset.html" %}
+
+{% block bug_create %}
+    {% url 'tickets:bug_create' 'bio_diveristy' %}
+{% endblock bug_create %}
+
+{% block title %}
+    {{ title }}
+    {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block header %}
+    {{ block.super }}
+<style>
+    {% include "bio_diversity/bio_diversity.css" %}
+
+    .container-fluid, .container {
+        border-radius: 25px;
+        margin-top: 15px;
+        padding: 15px;
+        background-color: white;
+        background-color: rgba(255, 255, 255, 0.7);
+        font-size: small;
+    }
+
+    .label {
+        font-weight: bold;
+    }
+
+    table, td {
+        font-size: small;
+    }
+    .btn-std {
+      width: 300px;
+  }
+
+</style>
+{% endblock %}
+
+{% block body %}
+    {{ block.super }}
+{% endblock body %}
+
+{% block left_auth %}
+    {% include "bio_diversity/bio_diversity_nav.html" %}
+{% endblock left_auth %}
