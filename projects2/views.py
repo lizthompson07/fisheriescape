@@ -1089,11 +1089,12 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         year = nz(form.cleaned_data["year"], "None")
+        region = nz(form.cleaned_data["region"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
         elif report == 2:
-            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year}')
+            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1232,8 +1233,9 @@ def toggle_user(request, pk, type):
 @login_required()
 def export_csrf_submission_list(request):
     year = request.GET.get("year")
+    region = request.GET.get("region")
 
-    file_url = reports.generate_csrf_submission_list(year)
+    file_url = reports.generate_csrf_submission_list(year, region)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:

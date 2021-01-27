@@ -263,7 +263,7 @@ def generate_acrdp_budget(project):
     return target_url
 
 
-def generate_csrf_submission_list(year):
+def generate_csrf_submission_list(year, region):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.xlsx"
@@ -279,6 +279,8 @@ def generate_csrf_submission_list(year):
     ws['A1'].value += year_txt
 
     qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year)
+    if region != "None":
+        qs = qs.filter(project__section__division__branch__region_id=region)
 
     i = 3
     for item in qs:
