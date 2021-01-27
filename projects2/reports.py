@@ -287,6 +287,12 @@ def generate_csrf_submission_list(year):
         if client_information:
             priority = client_information.csrf_priority
 
+        theme = None
+        pin = None
+        if priority:
+            theme = priority.csrf_sub_theme.csrf_theme.tname
+            pin = priority.code
+
         leads = ""
         for l in item.get_project_leads_as_users():
             leads += l.last_name + ", "
@@ -294,9 +300,9 @@ def generate_csrf_submission_list(year):
             leads = leads[:-2]
 
         # theme
-        ws['A' + str(i)].value = nz(priority.csrf_sub_theme.csrf_theme.tname, "n/a")
+        ws['A' + str(i)].value = nz(theme, "n/a")
         # pin
-        ws['B' + str(i)].value = nz(priority.code, "n/a")
+        ws['B' + str(i)].value = nz(pin, "n/a")
         # region
         ws['D' + str(i)].value = nz(item.project.section.division.branch.region.tname, "n/a")
         # leads
