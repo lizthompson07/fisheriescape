@@ -738,7 +738,7 @@ class TripRequest(models.Model):
     def cost_breakdown(self):
         """used for CFTS and travel plan"""
         my_str = ""
-        for tr_cost in self.trip_request_costs.filter(amount_cad__isnull=False):
+        for tr_cost in self.trip_request_costs.filter(amount_cad__isnull=False, amount_cad__gt=0):
             if tr_cost.rate_cad:
                 my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
                     tr_cost.cost,

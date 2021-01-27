@@ -790,12 +790,16 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal Year'))
+    region = forms.ChoiceField(required=False, label=gettext_lazy('DFO Region'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.filter(projectyear__isnull=False).distinct()]
         fy_choices.insert(0, (None, "-------"))
+        region_choices = [(obj.id, str(obj)) for obj in shared_models.Region.objects.all()]
+        region_choices.insert(0, (None, "All"))
         self.fields['year'].choices = fy_choices
+        self.fields['region'].choices = region_choices
 
 
 
