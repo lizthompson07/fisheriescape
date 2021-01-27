@@ -1147,20 +1147,15 @@ class TribDetails(mixins.TribMixin, CommonDetails):
 
 
 class TrofDetails(mixins.TrofMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
-
-
-class TrofdDetails(mixins.TrofdMixin, CommonDetails):
     template_name = "bio_diversity/details_trof.html"
 
-    fields = ["trof_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
-              "created_by", "created_date", ]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         contx_set = models.ContainerXRef.objects.filter(trof_id=self.object)
-        env_sets = [contx.env_condition for contx in contx_set]
+        env_sets = [contx.env_condition.all() for contx in contx_set]
         context["env_list"] = list(dict.fromkeys([env for qs in env_sets for env in qs]))
         context["env_object"] = models.EnvCondition.objects.first()
         context["env_field_list"] = [
@@ -1170,6 +1165,11 @@ class TrofdDetails(mixins.TrofdMixin, CommonDetails):
         ]
 
         return context
+
+
+class TrofdDetails(mixins.TrofdMixin, CommonDetails):
+    fields = ["trof_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
+              "created_by", "created_date", ]
 
 
 class UnitDetails(mixins.UnitMixin, CommonDetails):
