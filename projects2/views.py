@@ -1095,6 +1095,8 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
         elif report == 2:
             return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year};region={region}')
+        elif report == 3:
+            return HttpResponseRedirect(reverse("projects2:export_project_status_summary")+f'?year={year};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1183,6 +1185,32 @@ def csrf_application(request, pk):
     raise Http404
 
 
+@login_required()
+def export_csrf_submission_list(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+
+    file_url = reports.generate_csrf_submission_list(year, region)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="CSRF Regional List of Submissions ({timezone.now().strftime("%Y-%m-%d")}).xls"'
+            return response
+    raise Http404
+
+
+
+
+
+@login_required()
+def project_status_summary(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = reports.generate_project_status_summary(year, region)
+    response['Content-Disposition'] = f'attachment; filename="project status summary ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+    return response
 
 # ADMIN USERS
 
@@ -1229,17 +1257,3 @@ def toggle_user(request, pk, type):
             my_user.groups.add(admin_group)
     return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
 
-
-@login_required()
-def export_csrf_submission_list(request):
-    year = request.GET.get("year")
-    region = request.GET.get("region")
-
-    file_url = reports.generate_csrf_submission_list(year, region)
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="CSRF Regional List of Submissions ({timezone.now().strftime("%Y-%m-%d")}).xls"'
-            return response
-    raise Http404

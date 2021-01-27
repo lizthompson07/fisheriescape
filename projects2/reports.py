@@ -1,10 +1,12 @@
+import csv
 import os
 from io import BytesIO
 
 import xlsxwriter
 from django.conf import settings
 from django.db.models import Q
-from django.template.defaultfilters import pluralize
+from django.http import HttpResponse
+from django.template.defaultfilters import pluralize, slugify
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from docx import Document
@@ -14,7 +16,7 @@ from openpyxl import load_workbook
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
 from publications import models as pi_models
-from shared_models.models import Region, FiscalYear
+from shared_models.models import Region, FiscalYear, Section
 from . import models
 
 
@@ -484,6 +486,46 @@ def generate_culture_committee_report():
 
     workbook.close()
     return target_url
+
+
+def generate_project_status_summary(year, region):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    writer = csv.writer(response)
+    status_choices = models.ProjectYear.status_choices
+
+    headers = [
+        'date',
+        'region',
+        'branch',
+        'division',
+        'section',
+    ]
+    for status in status_choices:
+        headers.append(f'{slugify(status[1]).replace("-", "_")}_status_count')
+    headers.append("total")
+
+    qs = Section.objects.filter(projects2__years__fiscal_year_id=year).distinct()
+    if region != "None":
+        qs = qs.filter(division__branch__region_id=region)
+
+    header_row = [header for header in headers]
+    writer.writerow(header_row)
+
+    for item in qs:
+        data_row = [
+            timezone.now(),
+            item.division.branch.region.tname,
+            item.division.branch.tname,
+            item.division.tname,
+            item.tname,
+        ]
+        for status in status_choices:
+            data_row.append(models.ProjectYear.objects.filter(project__section=item, status=status[0]).count())
+        data_row.append(models.ProjectYear.objects.filter(project__section=item).count())
+        writer.writerow(data_row)
+
+    return response
 
 
 def generate_csrf_application(project, lang):
