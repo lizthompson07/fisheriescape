@@ -273,7 +273,8 @@ class DataForm(CreatePrams, forms.ModelForm):
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0, converters={'to tank': str})
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
+                                     converters={'to tank': str)
                 data_dict = data.to_dict('records')
             except:
                 raise Exception("File format not valid")
@@ -320,7 +321,7 @@ class DataForm(CreatePrams, forms.ModelForm):
                         row_entered = False
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    if not math.isnan(row["to tank"]):
+                    if not row["to tank"] == "nan":
                         contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                         tank_id=models.Tank.objects.filter(name=row["to tank"]).get(),
                                                         created_by=cleaned_data["created_by"],
