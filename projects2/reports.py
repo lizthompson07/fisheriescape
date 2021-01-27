@@ -496,6 +496,7 @@ def generate_project_status_summary(year, region):
 
     headers = [
         'date',
+        'fiscal_year',
         'region',
         'branch',
         'division',
@@ -515,6 +516,7 @@ def generate_project_status_summary(year, region):
     for item in qs:
         data_row = [
             timezone.now(),
+            str(FiscalYear.objects.get(pk=year)),
             item.division.branch.region.tname,
             item.division.branch.tname,
             item.division.tname,
