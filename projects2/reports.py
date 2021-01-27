@@ -300,13 +300,13 @@ def generate_csrf_submission_list(year):
             leads = leads[:-2]
 
         # theme
-        ws['A' + str(i)].value = nz(theme, "n/a")
+        ws['A' + str(i)].value = nz(theme, " -----  ")
         # pin
-        ws['B' + str(i)].value = nz(pin, "n/a")
+        ws['B' + str(i)].value = nz(pin, " -----  ")
         # region
-        ws['D' + str(i)].value = nz(item.project.section.division.branch.region.tname, "n/a")
+        ws['D' + str(i)].value = nz(item.project.section.division.branch.region.abbrev.upper(), " -----  ")
         # leads
-        ws['E' + str(i)].value = nz(leads, "n/a")
+        ws['E' + str(i)].value = nz(leads, " -----  ")
         # title
         ws['F' + str(i)].value = f'{item.project.title} ({item.project.id})'
 
