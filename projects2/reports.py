@@ -14,7 +14,7 @@ from openpyxl import load_workbook
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
 from publications import models as pi_models
-from shared_models.models import Region
+from shared_models.models import Region, FiscalYear
 from . import models
 
 
@@ -23,7 +23,7 @@ def generate_acrdp_application(project):
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.docx"
     target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'projects', 'temp', target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
 
     template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "acrdp_template.docx")
 
@@ -130,7 +130,7 @@ def generate_acrdp_budget(project):
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.xlsx"
     target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'projects', 'temp', target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
 
     template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "acrdp_template.xlsx")
 
@@ -257,6 +257,60 @@ def generate_acrdp_budget(project):
                     ws['K' + ref_cell].value = staff_description
                 else:
                     ws['K' + ref_cell].value += "; " + staff_description
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
+def generate_csrf_submission_list(year):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "csrf_regional_submissions_template.xlsx")
+
+    wb = load_workbook(filename=template_file_path)
+
+    ws = wb["Submissions"]
+    year_txt = str(FiscalYear.objects.get(pk=year))
+    ws['A1'].value += year_txt
+
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year)
+
+    i = 3
+    for item in qs:
+        priority = None
+        client_information = item.project.client_information
+        if client_information:
+            priority = client_information.csrf_priority
+
+        theme = None
+        pin = None
+        if priority:
+            theme = priority.csrf_sub_theme.csrf_theme.tname
+            pin = priority.code
+
+        leads = ""
+        for l in item.get_project_leads_as_users():
+            leads += l.last_name + ", "
+        if len(leads) > 0:
+            leads = leads[:-2]
+
+        # theme
+        ws['A' + str(i)].value = nz(theme, "n/a")
+        # pin
+        ws['B' + str(i)].value = nz(pin, "n/a")
+        # region
+        ws['D' + str(i)].value = nz(item.project.section.division.branch.region.tname, "n/a")
+        # leads
+        ws['E' + str(i)].value = nz(leads, "n/a")
+        # title
+        ws['F' + str(i)].value = f'{item.project.title} ({item.project.id})'
+
+        i += 1
 
     wb.save(target_file_path)
 

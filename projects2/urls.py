@@ -100,9 +100,12 @@ urlpatterns = [
     ###########
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/science-culture-committee-report/', views.culture_committee_report, name="culture_committee_report"),
+    path('reports/csrf-submission-list/', views.export_csrf_submission_list, name="export_csrf_submission_list"),
 
-    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),  # tested
-    path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),  # tested
+
+    #special
+    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
+    path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),
 
     path('projects/<int:pk>/csrf-application/', views.csrf_application, name="csrf_application"),
 
