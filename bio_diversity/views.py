@@ -83,7 +83,8 @@ class CommonCreate(CommonAuthCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
-        context['help_text_dict'] = utils.get_help_text_dict()
+        context['help_text_dict'] = utils.get_help_text_dict(self.model)
+
         return context
 
     # def form_invalid(self, form):

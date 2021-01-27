@@ -581,6 +581,7 @@ class HelpText(models.Model):
     field_name = models.CharField(max_length=255)
     eng_text = models.TextField(verbose_name=_("English text"))
     fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
+    model = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given

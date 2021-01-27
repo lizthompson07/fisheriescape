@@ -1,3 +1,4 @@
+import inspect
 import math
 from datetime import date, datetime
 
@@ -577,13 +578,22 @@ class HeatdForm(CreateTimePrams, forms.ModelForm):
 
 
 class HelpTextForm(forms.ModelForm):
+
+    model = None
+
     class Meta:
-        model = models.HelpText
         fields = "__all__"
         widgets = {
             'eng_text': forms.Textarea(attrs={"rows": 2}),
             'fra_text': forms.Textarea(attrs={"rows": 2}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        clsmembers = [(cls[0], cls[0]) for cls in inspect.getmembers(models, inspect.isclass)]
+
+        self.fields['model'] = forms.ChoiceField(choices=clsmembers)
 
 
 HelpTextFormset = modelformset_factory(
