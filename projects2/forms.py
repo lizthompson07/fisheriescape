@@ -786,9 +786,17 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Science Culture Committee Report (xlsx)"),
+        (2, "CSRF Submission List (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    # year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))
+    year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal Year'))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.filter(projectyear__isnull=False).distinct()]
+        fy_choices.insert(0, (None, "-------"))
+        self.fields['year'].choices = fy_choices
+
 
 
 class CitationForm(forms.ModelForm):

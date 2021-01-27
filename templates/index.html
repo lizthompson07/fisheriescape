@@ -159,11 +159,15 @@
 
                 <h4 class="montserrat" style="font-size: 26px">
                   {% if not user.is_authenticated %}
-                    {% blocktrans %}
-                      Please <a href="{{ sign_in_url }}">sign in</a> or select an application below. <br>If you do not
-                      have an account, you can register for one
-                      <a href="{{ sign_up_url }}">here.</a>
-                    {% endblocktrans %}
+                    {% if not AZURE_AD %}
+                      {% blocktrans %}
+                        Please <a href="{{ sign_in_url }}">sign in</a> or select an application below.
+                      {% endblocktrans %}
+                      <br>
+                      {% blocktrans %}
+                        If you do not have an account, you can register for one <a href="{{ sign_up_url }}">here.</a>
+                      {% endblocktrans %}
+                    {% endif %}
                   {% endif %}
                 </h4>
               </div>

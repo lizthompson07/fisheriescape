@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy, get_language
 
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
     CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView, CommonFormView
@@ -1087,9 +1088,12 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        # year = nz(form.cleaned_data["year"], "None")
+        year = nz(form.cleaned_data["year"], "None")
+
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
+        elif report == 2:
+            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1223,3 +1227,17 @@ def toggle_user(request, pk, type):
         else:
             my_user.groups.add(admin_group)
     return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+
+
+@login_required()
+def export_csrf_submission_list(request):
+    year = request.GET.get("year")
+
+    file_url = reports.generate_csrf_submission_list(year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="CSRF Regional List of Submissions ({timezone.now().strftime("%Y-%m-%d")}).xls"'
+            return response
+    raise Http404
