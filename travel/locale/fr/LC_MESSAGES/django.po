@@ -239,11 +239,11 @@ msgstr ""
 
 #: .\travel\models.py:88 .\travel\models.py:89
 msgid "question_en"
-msgstr ""
+msgstr "question_fr"
 
 #: .\travel\models.py:98 .\travel\models.py:99
 msgid "answer_en"
-msgstr ""
+msgstr "answer_fr"
 
 #: .\travel\models.py:112 .\travel\models.py:113
 msgid "url"

@@ -157,9 +157,9 @@ h1 {
       <td class="w45p">
         <table class="show-bottom-border show-top-border">
           <tr>
-            <td class="w20p">{% trans "Period Covered" %}:</td>
+            <td class="w20p">{% trans "Period Covered" %}</td>
             <td class="data">{{ parent.start_date|date:"F d, Y" }} to {{ parent.end_date|date:"F d, Y" }}</td>
-            <td class="w20p">{% trans "Plan Number (Optional)" %}:</td>
+            <td class="w20p">{% trans "Plan Number (Optional)" %}</td>
             <td class="data">{{ parent.plan_number|nz }}</td>
           </tr>
         </table>
@@ -173,24 +173,24 @@ h1 {
             <td class="w75p top">
               <table class="show-bottom-border">
                 <tr>
-                  <td class="w40p">{% trans "Name of Traveller" %}:</td>
+                  <td class="w40p">{% trans "Name of Traveller" %}</td>
                   <td class="data">{{ parent.first_name }} {{ parent.last_name }}</td>
                 </tr>
                 <tr>
-                  <td class="w40p">{% trans "Region/Sector/Branch/<br>Directorate/Section" %}:</td>
+                  <td class="w40p">{% trans "Region/Sector/Branch/<br>Directorate/Section" %}</td>
                   <td
                     class="data">{{ parent.section.division.branch.region.name }}/{{ parent.section.division.branch.name }}/{{ parent.section.division.name }}/{{ parent.section.name }}</td>
                 </tr>
                 <tr>
-                  <td class="w40p">{% trans "Address" %}:</td>
+                  <td class="w40p">{% trans "Address" %}</td>
                   <td class="data">{{ parent.address|nz }}</td>
                 </tr>
                 <tr>
-                  <td class="w40p">{% trans "Telephone Number" %}:</td>
+                  <td class="w40p">{% trans "Telephone Number" %}</td>
                   <td class="data">{{ parent.phone|nz }}</td>
                 </tr>
                 <tr>
-                  <td class="w40p">{% trans "Email" %}:</td>
+                  <td class="w40p">{% trans "Email" %}</td>
                   <td class="data">{{ parent.email|nz }}</td>
                 </tr>
               </table>
@@ -223,24 +223,47 @@ h1 {
             <th>{% trans "Explanation" %}</th>
           </tr>
           <tr>
-            <td class="top">01 - {% trans "Title" %}</td>
-            <td class="top">&nbsp;</td>
+            <td class="top">01 - {% trans "Operational Activities" %}</td>
+            <td class="top">
+              {% blocktrans %}
+                Travel that is required in support of the direct delivery of the core mandate of the Department of Fisheries and Oceans and/or the Canadian
+                Coast Guard or legislative or legal requirements.
+              {% endblocktrans %}
+            </td>
           </tr>
           <tr>
-            <td class="top">02 - {% trans "Title" %}</td>
-            <td class="top">&nbsp;</td>
+            <td class="top">02 - {% trans "Key stakeholder Engagement" %}</td>
+            <td class="top">
+              {% blocktrans %}
+                Travel that is necessary to engage key stakeholders in relation to policy, program or regulatory development or renewal or other matters that
+                support the Department of Fisheries and Oceans and Canadian Coast Guard's ongoing working relationship or operations with such communities.
+              {% endblocktrans %}
+            </td>
           </tr>
           <tr>
-            <td class="top">03 - {% trans "Title" %}</td>
-            <td class="top">&nbsp;</td>
+            <td class="top">03 - {% trans "Internal Governance" %}</td>
+            <td class="top">
+              {% blocktrans %}
+                Travel that is necessary to support sound internal governance of the Department of Fisheries and Oceans and/or the Canadian Coast Guard
+                including management meetings and Departmental Audit Committee meetings, or that is necessary for the recruitment or hiring of employees.
+              {% endblocktrans %}
+            </td>
           </tr>
           <tr>
-            <td class="top">04 - {% trans "Title" %}</td>
-            <td class="top">&nbsp;</td>
+            <td class="top">04 - {% trans "Training" %}</td>
+            <td class="top">
+              {% blocktrans %}
+                Travel to enable the training of employees to meet the assigned duties of their positions.
+              {% endblocktrans %}
+            </td>
           </tr>
           <tr>
-            <td class="top">05 - {% trans "Title" %}</td>
-            <td class="top">&nbsp;</td>
+            <td class="top">05 - {% trans "Other" %}</td>
+            <td class="top">
+              {% blocktrans %}
+                Other travel - please provide detailed explanation
+              {% endblocktrans %}
+            </td>
           </tr>
 
         </table>
@@ -280,7 +303,7 @@ h1 {
     </tr>
     <tr>
       <td class="data">{% trans "No" %}</td>
-      <td class="data">id {{ parent.id }}</td>
+      <td class="data">1</td>
       <td class="data">{{ parent.start_date|date:"d-F" }}</td>
       <td class="data">{{ parent.end_date|date:"d-F" }}</td>
       <td class="data">
@@ -346,7 +369,7 @@ h1 {
             <td class="text-right wide-cell">{% trans "Expenditure Initiation approved by (Print)" %}</td>
             <td class="data wide-cell" colspan="3">
               {{ parent.rdg.user |nz:"n/a" }}
-              {% if parent.rdg.user %} | Regional Director General | {{ parent.rdg.user.shared_models_regions.first }}
+              {% if parent.rdg.user %} | {% trans "Regional Director General" %} | {{ parent.rdg.user.shared_models_regions.first }}
               {% endif %}
             </td>
           </tr>
@@ -354,14 +377,14 @@ h1 {
             <td class="thin">&nbsp;</td>
           </tr>
           <tr>
+            <td class="text-right very-wide-cell w40p">{% trans "Signature" %}</td>
             {% if parent.rdg.status_id == 2 %}
-              <td class="text-right wide-cell w50p"> &nbsp;</td>
-              <td class="data wide-cell large-font">{% trans "Approved on" %} {{ parent.rdg.status_date }}</td>
-              <td class="text-right wide-cell">&nbsp;</td>
-              <td class="data wide-cell">&nbsp;</td>
+              <td colspan="3" class="data">
+                <span class="large-font">{% trans "Approved on" %} {{ parent.rdg.status_date }}</span>
+                <br> ({% trans "This is not an official copy." %})
+              </td>
             {% else %}
-              <td class="text-right very-wide-cell w40p">{% trans "Signature" %}</td>
-              <td class="data wide-cell"> &nbsp;</td>
+              <td class="data wide-cell w40p"> &nbsp;</td>
               <td class="text-right wide-cell w10p">{% trans "Date" %}</td>
               <td class="data wide-cell"> &nbsp;</td>
             {% endif %}
@@ -387,8 +410,8 @@ h1 {
           {% endfor %}
           {% if parent.adm.status_id == 2 %}
             <tr>
-              <th class="right wide-cell">Approved by:</th>
-              <td rowspan="1" class="left wide-cell">
+              <td class="text-right wide-cell">{% trans "Approved by" %}</td>
+              <td rowspan="1" class="data wide-cell">
                 {{ parent.adm.user }} on {{ parent.adm.status_date }}
               </td>
             </tr>
@@ -408,7 +431,7 @@ h1 {
         <table>
           <tr>
             <td class="top">
-              {{ parent.purpose_long|safe }}
+              {{ parent.purpose_long|safe|nz }}
             </td>
             <td class="top">
               {% trans "DETAILED COST BREAKDOWN" %}:<br> {{ parent.cost_breakdown }}
