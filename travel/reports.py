@@ -19,7 +19,7 @@ import os
 def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, trip=None, user=None, from_date=None, to_date=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_export.xlsx"
+    target_file = "temp.xlsx"
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
 
@@ -261,7 +261,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
 def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file = "temp.xlsx"
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
     # create workbook and worksheets
