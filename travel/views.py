@@ -43,12 +43,12 @@ from .utils import is_manager_or_assistant_or_admin, in_travel_admin_group, in_a
 
 def get_file(request, file):
     if request.GET.get("reference"):
-        my_file = models.ReferenceMaterial.objects.get(pk=file)
+        my_file = models.ReferenceMaterial.objects.get(pk=int(file))
         blob_name = my_file.tfile
-    if request.GET.get("blob_name"):
+    elif request.GET.get("blob_name"):
         blob_name = file
     else:
-        my_file = models.File.objects.get(pk=file)
+        my_file = models.File.objects.get(pk=int(file))
         blob_name = my_file.file
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
