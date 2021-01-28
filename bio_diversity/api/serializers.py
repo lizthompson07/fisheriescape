@@ -25,13 +25,13 @@ class IndividualDisplaySerializer(serializers.ModelSerializer):
         model = models.Individual
         fields = "__all__"
 
-    stok = serializers.SerializerMethodField()
-    coll = serializers.SerializerMethodField()
-    spec = serializers.SerializerMethodField()
-    grp = serializers.SerializerMethodField()
+    stock = serializers.SerializerMethodField()
+    collection = serializers.SerializerMethodField()
+    species = serializers.SerializerMethodField()
+    group = serializers.SerializerMethodField()
     length = serializers.SerializerMethodField()
 
-    def get_stok(self, instance):
+    def get_stock(self, instance):
         return instance.stok_id.__str__()
 
     def get_length(self, instance):
@@ -39,12 +39,12 @@ class IndividualDisplaySerializer(serializers.ModelSerializer):
                                                 ).first().individual_details.filter(anidc_id_id=2).get().det_val
         return length
 
-    def get_coll(self, instance):
+    def get_collection(self, instance):
         return instance.coll_id.__str__()
 
-    def get_spec(self, instance):
+    def get_species(self, instance):
         return instance.spec_id.__str__()
 
-    def get_grp(self, instance):
+    def get_group(self, instance):
         return instance.grp_id.__str__()
 
