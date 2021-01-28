@@ -137,15 +137,15 @@ class ObservationFactory(factory.django.DjangoModelFactory):
 
     section = factory.SubFactory(SectionFactory)
     sex = factory.lazy_attribute(lambda o: models.Observation.sex_choices[faker.random_int(0, len(models.Observation.sex_choices) - 1)][0])
-    certainty_rating = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
+    certainty_rating = factory.lazy_attribute(lambda o: faker.pyint(0, 1))
     carapace_length_mm = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
 
     @staticmethod
     def get_valid_data():
         return {
-            'section': SectionFactory().id,
+            'section_id': SectionFactory().id,
             'sex': models.Observation.sex_choices[faker.random_int(0, len(models.Observation.sex_choices) - 1)][0],
-            'certainty_rating': faker.pyint(1, 100),
+            'certainty_rating': faker.pyint(0, 1),
             'carapace_length_mm': faker.pyfloat(positive=True),
         }
 

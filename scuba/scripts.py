@@ -165,7 +165,7 @@ def digest_data():
                     dive.comment += f'; {dive_comment}'
 
                 dive.save()
-                print(E, section, dive)
+                # print(E, section, dive)
 
             # OBSERVATIONS
             # sex

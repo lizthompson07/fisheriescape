@@ -368,7 +368,7 @@ class Observation(models.Model):
         try:
             return self.get_sex_display().split("-")[1].strip()
         except Exception as e:
-            print(e)
+            pass
 
     @property
     def egg_status_special_display(self):
