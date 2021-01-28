@@ -1,9 +1,13 @@
+from azure.storage.blob import BlockBlobService
+from decouple import config
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.utils import custom_send_mail
 from shared_models import models as shared_models
@@ -633,3 +637,13 @@ def get_trip_with_managerial_access(user):
                                | Q(section__division__admin=user) | Q(section__division__head=user)
                                | Q(section__division__branch__admin=user) | Q(section__division__branch__head=user)
                                | Q(section__division__branch__region__admin=user) | Q(section__division__branch__region__head=user))
+
+
+def upload_to_azure_blob(target_file_path, target_file):
+    AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
+    AZURE_MSI_CLIENT_ID = config("AZURE_MSI_CLIENT_ID", cast=str, default="")
+    token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net', client_id=AZURE_MSI_CLIENT_ID)
+    blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
+    blobService.create_blob_from_path('media', target_file, target_file_path)
+
+
