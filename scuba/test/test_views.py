@@ -1,8 +1,10 @@
+from django.shortcuts import get_object_or_404
 from django.test import tag
 from django.urls import reverse_lazy
 from faker import Factory
 
 from shared_models.test.common_tests import CommonTest
+from shared_models.utils import dm2decdeg
 from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView
 from . import FactoryFloor
 from .FactoryFloor import DiveFactory
@@ -157,6 +159,8 @@ class TestDiveLogReportView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("scuba:dive_log_report", f"/en/scuba/reports/dive-log/")
+
+
 class TestDiveUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -178,6 +182,25 @@ class TestDiveUpdateView(CommonTest):
     def test_submit(self):
         data = FactoryFloor.DiveFactory.get_valid_data(self.instance.sample)
         self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # let's test out the save method
+        data = FactoryFloor.DiveFactory.get_valid_data(self.instance.sample)
+        data['start_latitude_d'] = 48
+        data['start_latitude_mm'] = 12.34
+        data['start_longitude_d'] = -64
+        data['start_longitude_mm'] = 56.78
+        data['end_latitude_d'] = 49
+        data['end_latitude_mm'] = 13.34
+        data['end_longitude_d'] = -65
+        data['end_longitude_mm'] = 57.78
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        obj = get_object_or_404(models.Dive, pk=self.instance.pk)
+        self.assertEqual(dm2decdeg(data['start_latitude_d'], data['start_latitude_mm']), obj.start_latitude)
+        self.assertEqual(dm2decdeg(data['start_longitude_d'], data['start_longitude_mm']), obj.start_longitude)
+        self.assertEqual(dm2decdeg(data['end_latitude_d'], data['end_latitude_mm']), obj.end_latitude)
+        self.assertEqual(dm2decdeg(data['end_longitude_d'], data['end_longitude_mm']), obj.end_longitude)
+
 
     @tag("Dive", "dive_edit", "correct_url")
     def test_correct_url(self):
@@ -613,6 +636,18 @@ class TestSiteUpdateView(CommonTest):
         data = FactoryFloor.SiteFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
+        # let's test out the save method
+        data = FactoryFloor.SiteFactory.get_valid_data()
+        data['latitude_d'] = 48
+        data['latitude_mm'] = 12.34
+        data['longitude_d'] = -64
+        data['longitude_mm'] = 56.78
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        obj = get_object_or_404(models.Site, pk=self.instance.pk)
+        self.assertEqual(dm2decdeg(data['latitude_d'], data['latitude_mm']), obj.latitude)
+        self.assertEqual(dm2decdeg(data['longitude_d'], data['longitude_mm']), obj.longitude)
+
     @tag("Site", "site_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -700,9 +735,25 @@ class TestTransectUpdateView(CommonTest):
         data = FactoryFloor.TransectFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
+        # let's test out the save method
+        data = FactoryFloor.TransectFactory.get_valid_data()
+        data['start_latitude_d'] = 48
+        data['start_latitude_mm'] = 12.34
+        data['start_longitude_d'] = -64
+        data['start_longitude_mm'] = 56.78
+        data['end_latitude_d'] = 49
+        data['end_latitude_mm'] = 13.34
+        data['end_longitude_d'] = -65
+        data['end_longitude_mm'] = 57.78
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        obj = get_object_or_404(models.Transect, pk=self.instance.pk)
+        self.assertEqual(dm2decdeg(data['start_latitude_d'], data['start_latitude_mm']), obj.start_latitude)
+        self.assertEqual(dm2decdeg(data['start_longitude_d'], data['start_longitude_mm']), obj.start_longitude)
+        self.assertEqual(dm2decdeg(data['end_latitude_d'], data['end_latitude_mm']), obj.end_latitude)
+        self.assertEqual(dm2decdeg(data['end_longitude_d'], data['end_longitude_mm']), obj.end_longitude)
+
     @tag("Transect", "transect_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("scuba:transect_edit", f"/en/scuba/transects/{self.instance.pk}/edit/", [self.instance.pk])
-
-

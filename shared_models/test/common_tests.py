@@ -236,7 +236,6 @@ class CommonTest(TestCase):
         # arbitrarily activate the english locale
         activate('en')
         my_path = reverse(test_url_name, args=test_url_args)
-        print(my_path)
         self.assertEqual(my_path, f'{expected_url_path}')
 
     # Tests for API views

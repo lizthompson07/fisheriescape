@@ -147,6 +147,7 @@ class Diver(models.Model):
 
     class Meta:
         ordering = ['last_name', 'first_name']
+        unique_together = [("first_name", 'last_name'), ]
 
     @property
     def dive_count(self):
@@ -353,7 +354,7 @@ class Observation(models.Model):
         ("b3", _("b3 - berried with developed eggs")),
     )
     certainty_rating_choices = (
-        (1, _("1 - certain")),  #
+        (1, _("1 - certain")),
         (0, _("0 - uncertain")),
     )
     section = models.ForeignKey(Section, related_name='observations', on_delete=models.CASCADE, verbose_name=_("section"))
