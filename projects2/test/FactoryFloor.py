@@ -191,53 +191,19 @@ class CapitalCostFactory(factory.django.DjangoModelFactory):
         }
 
 
-class GCCostFactory(factory.django.DjangoModelFactory):
+class CollaborationFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.GCCost
+        model = models.Collaboration
 
     project_year = factory.SubFactory(ProjectYearFactory)
-    recipient_org = factory.lazy_attribute(lambda o: faker.company())
-    amount = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
-
-    @staticmethod
-    def get_valid_data():
-        return {
-            'project_year': ProjectYearFactory().id,
-            'recipient_org': faker.company(),
-            'amount': faker.pyfloat(positive=True),
-        }
-
-
-class CollaboratorFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.Collaborator
-
-    project_year = factory.SubFactory(ProjectYearFactory)
-    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
-    critical = factory.lazy_attribute(lambda o: faker.pybool())
-
-    @staticmethod
-    def get_valid_data():
-        return {
-            'project_year': ProjectYearFactory().id,
-            'name': faker.catch_phrase(),
-            'critical': faker.pybool(),
-        }
-
-
-class CollaborativeAgreementFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.CollaborativeAgreement
-
-    project_year = factory.SubFactory(ProjectYearFactory)
-    partner_organization = factory.lazy_attribute(lambda o: faker.company())
+    type = factory.lazy_attribute(lambda o: faker.pyint(1, 3))
     new_or_existing = factory.lazy_attribute(lambda o: faker.pyint(1, 2))
 
     @staticmethod
     def get_valid_data():
         return {
             'project_year': ProjectYearFactory().id,
-            'partner_organization': faker.company(),
+            'type': faker.pyint(1, 3),
             'new_or_existing': faker.pyint(1, 2),
         }
 
