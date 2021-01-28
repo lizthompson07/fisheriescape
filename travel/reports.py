@@ -255,8 +255,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
     workbook.close()
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
-    print(target_file_path, target_file,target_url)
-
     return target_url
 
 
@@ -409,7 +407,7 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
             elif field == "name":
                 my_val = str(get_field_value(trip, field))
                 my_ws.write_url(i, j,
-                                url=f'{site_url}/{reverse("travel:trip_detail", kwargs={"pk": trip.id})}',
+                                url=f'{site_url}/{reverse("travel:trip_detail", args=[ trip.id, "all"])}',
                                 string=my_val)
             elif "cost" in field:
                 my_val = nz(get_field_value(trip, field), 0)

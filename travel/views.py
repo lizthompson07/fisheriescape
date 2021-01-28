@@ -45,6 +45,8 @@ def get_file(request, file):
     if request.GET.get("reference"):
         my_file = models.ReferenceMaterial.objects.get(pk=file)
         blob_name = my_file.tfile
+    if request.GET.get("blob_name"):
+        blob_name = file
     else:
         my_file = models.File.objects.get(pk=file)
         blob_name = my_file.file
@@ -2280,6 +2282,9 @@ class ReportSearchFormView(TravelAdminRequiredMixin, FormView):
 def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
     file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region, trip=trip, user=user, from_date=from_date, to_date=to_date)
 
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url])+'?blob_name=true')
+
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
@@ -2294,6 +2299,9 @@ def export_trip_list(request, fy, region, adm, from_date, to_date):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date, site_url=site_url)
 
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url])+'?blob_name=true')
+
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
@@ -2304,8 +2312,11 @@ def export_trip_list(request, fy, region, adm, from_date, to_date):
 
 @login_required()
 def export_request_cfts(request, trip=None, trip_request=None):
-    # print(trip)
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url])+'?blob_name=true')
+
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
