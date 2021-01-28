@@ -460,7 +460,7 @@ class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         return context
 
 
-class DiveDataEntryTemplateView(ScubaAdminRequiredMixin, CommonDetailView):
+class DiveDataEntryDetailView(ScubaAdminRequiredMixin, CommonDetailView):
     model = models.Dive
     template_name = 'scuba/dive_data_entry/main.html'
     container_class = "container bg-light-green curvy"
@@ -528,7 +528,7 @@ class ReportSearchFormView(ScubaAdminRequiredMixin, CommonFormView):
 
 @login_required()
 def dive_log_report(request):
-    year = None if request.GET.get("year") == "None" else int(request.GET.get("year"))
+    year = None if not request.GET.get("year") or request.GET.get("year") == "None" else int(request.GET.get("year"))
     file_url = reports.generate_dive_log(year=year)
 
     if os.path.exists(file_url):

@@ -420,14 +420,15 @@ var app = new Vue({
 
       if (projectYear) {
         this.$nextTick(() => {
-          this.getStaff(projectYear.id)
-          this.getOMCosts(projectYear.id)
-          this.getCapitalCosts(projectYear.id)
-          this.getActivities(projectYear.id)
-          this.getStatusReports(projectYear.id)
-          this.getCollaborations(projectYear.id)
-          this.getFiles(projectYear.id)
-          this.getFinancials(projectYear.id)
+          this.getProjectYear(projectYear.id)
+          // this.getStaff(projectYear.id)
+          // this.getOMCosts(projectYear.id)
+          // this.getCapitalCosts(projectYear.id)
+          // this.getActivities(projectYear.id)
+          // this.getStatusReports(projectYear.id)
+          // this.getCollaborations(projectYear.id)
+          // this.getFiles(projectYear.id)
+          // this.getFinancials(projectYear.id)
           this.getProjectFinancials(projectYear.project.id)
           this.getCurrentUser(projectYear.project.id)
 

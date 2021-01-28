@@ -787,6 +787,7 @@ class ReportSearchForm(forms.Form):
         (None, "------"),
         (1, "Science Culture Committee Report (xlsx)"),
         (2, "CSRF Submission List (xlsx)"),
+        (3, "Project Status Summary (csv)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal Year'))

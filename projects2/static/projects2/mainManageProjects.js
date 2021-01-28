@@ -44,10 +44,11 @@ var app = new Vue({
     filter_division: "",
     filter_status: "",
 
-    showColumnAllocation: true,
+    showColumnAllocation: false,
     showColumnLeads: true,
     showColumnHidden: true,
-    showColumnScore: true,
+    showColumnScore: false,
+    showColumnLastModified: true,
 
     fiscalYears: [],
     tags: [],
