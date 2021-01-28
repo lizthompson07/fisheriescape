@@ -1658,15 +1658,18 @@ class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
     delete_protection = False
 
     def get_success_url(self):
-        if self.kwargs.get("type") == "back_to_verify":
-            adm = 1 if self.get_object().is_adm_approval_required else 0
-            region = self.get_object().lead.id if adm == 0 else 0
-            success_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"adm": adm, "region": region})
-        else:
-            my_kwargs = self.kwargs
-            del my_kwargs["pk"]
-            success_url = reverse_lazy('travel:trip_list', kwargs=my_kwargs)
-        return success_url
+        try:
+            if self.kwargs.get("type") == "back_to_verify":
+                adm = 1 if self.get_object().is_adm_approval_required else 0
+                region = self.get_object().lead.id if adm == 0 else 0
+                success_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"adm": adm, "region": region})
+            else:
+                my_kwargs = self.kwargs
+                del my_kwargs["pk"]
+                success_url = reverse_lazy('travel:trip_list', kwargs=my_kwargs)
+            return success_url
+        except:
+            return reverse("travel:index")
 
 
 class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
