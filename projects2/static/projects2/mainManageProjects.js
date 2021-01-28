@@ -48,7 +48,7 @@ var app = new Vue({
     showColumnLeads: true,
     showColumnHidden: true,
     showColumnScore: false,
-    showColumnLastModified: false,
+    showColumnLastModified: true,
 
     fiscalYears: [],
     tags: [],
