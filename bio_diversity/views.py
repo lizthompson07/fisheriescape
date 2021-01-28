@@ -747,6 +747,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "ufid",
             "pit_tag",
             "grp_id",
+
         ]
         anix_set = self.object.animal_details.filter(grp_id__isnull=False, indv_id__isnull=True, contx_id__isnull=True,
                                                      loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)

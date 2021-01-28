@@ -66,6 +66,7 @@
                         {% for field in indv_field_list %}
                             <th>{% get_verbose_label indv_object field %}</th>
                         {% endfor %}
+                        <th>Collection</th>
                     </thead>
                     <tbody>
                         {% for obj in indv_list %}
@@ -75,6 +76,7 @@
                                     {% get_field_value obj field %}
                                 </td>
                             {% endfor %}
+                                <td>{{ obj }}</td>
                             <td>
                                 <a class="btn btn-primary btn-sm" name="clone-indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_indv' object.pk 'clone' obj.pk 'pop' %}','all')" title="{% trans 'Clone' %}">{% trans 'Clone' %}</a>
                                 <a class="btn btn-primary btn-sm" name="indv-details-btn" href="{% url 'bio_diversity:details_indv' 'evnt' object.id obj.id %}" title="{% trans 'Details' %}">{% trans 'Details' %}</a>

@@ -32,12 +32,14 @@ class IndividualAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-
+        indv_instances = models.Individual.objects.all()
         if request.query_params.get("pit_tag"):
             pit_tag = request.query_params.get("pit_tag")
-            indv_instances = models.Individual.objects.filter(pit_tag__icontains=pit_tag).distinct()
-        else:
-            return Response({"error": "must supply a pit tag"}, status.HTTP_400_BAD_REQUEST)
+            indv_instances = indv_instances.filter(pit_tag__icontains=pit_tag).distinct()
+        if request.query_params.get("length"):
+            length = request.query_params.get("length")
+            indv_instances = indv_instances.filter(animal_details__individual_details__anidc_id_id=2,
+                                                   animal_details__individual_details__det_val__gte=length).distinct()
 
         serializer = serializers.IndividualDisplaySerializer(instance=indv_instances, many=True)
         data = serializer.data

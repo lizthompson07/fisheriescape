@@ -29,9 +29,15 @@ class IndividualDisplaySerializer(serializers.ModelSerializer):
     coll = serializers.SerializerMethodField()
     spec = serializers.SerializerMethodField()
     grp = serializers.SerializerMethodField()
+    length = serializers.SerializerMethodField()
 
     def get_stok(self, instance):
         return instance.stok_id.__str__()
+
+    def get_length(self, instance):
+        length = instance.animal_details.filter(individual_details__anidc_id_id=2,
+                                                ).first().individual_details.filter(anidc_id_id=2).get().det_val
+        return length
 
     def get_coll(self, instance):
         return instance.coll_id.__str__()

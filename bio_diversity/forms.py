@@ -274,7 +274,7 @@ class DataForm(CreatePrams, forms.ModelForm):
         elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'to tank': str)
+                                     converters={'to tank': str})
                 data_dict = data.to_dict('records')
             except:
                 raise Exception("File format not valid")
