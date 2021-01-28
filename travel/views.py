@@ -46,7 +46,7 @@ def get_file(request, file):
         my_file = models.ReferenceMaterial.objects.get(pk=int(file))
         blob_name = my_file.tfile
     elif request.GET.get("blob_name"):
-        blob_name = file
+        blob_name = file.replace("||","/")
     else:
         my_file = models.File.objects.get(pk=int(file))
         blob_name = my_file.file
