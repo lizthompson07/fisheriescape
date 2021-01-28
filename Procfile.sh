@@ -4,6 +4,4 @@ python create_env_file_from_json.py --environment-name "$ENVIRONMENT_NAME" --out
 python manage.py compilemessages
 python manage.py collectstatic --no-input
 python manage.py migrate
-mkdir ./logs
-touch error.log
 gunicorn -b 0.0.0.0:8000 dm_apps.wsgi:application
