@@ -11,7 +11,7 @@ from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
 from lib.templatetags.custom_filters import currency
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from . import models
+from . import models, utils
 from shared_models import models as shared_models
 import os
 
@@ -253,6 +253,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        utils.upload_to_azure_blob(target_file_path, target_file)
     return target_url
 
 
@@ -431,4 +433,6 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
             my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        utils.upload_to_azure_blob(target_file_path, target_file)
     return target_url
