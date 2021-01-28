@@ -101,6 +101,7 @@ urlpatterns = [
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/science-culture-committee-report/', views.culture_committee_report, name="culture_committee_report"),
     path('reports/csrf-submission-list/', views.export_csrf_submission_list, name="export_csrf_submission_list"),
+    path('reports/project-status-summary/', views.project_status_summary, name="export_project_status_summary"),
 
 
     #special

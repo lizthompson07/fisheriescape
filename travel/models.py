@@ -222,7 +222,7 @@ class Conference(models.Model):
                              related_name="meeting_leads", blank=False, null=True, editable=False)
     has_event_template = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
-    number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
+    number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"), editable=False)
     start_date = models.DateTimeField(verbose_name=_("start date of event"))
     end_date = models.DateTimeField(verbose_name=_("end date of event"))
     meeting_url = models.URLField(verbose_name=_("meeting URL"), blank=True, null=True)
