@@ -19,8 +19,9 @@ from lib.templatetags.custom_filters import nz, currency
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from publications import models as pi_models
 from shared_models.models import Region, FiscalYear, Section
-from . import models
+from . import models, utils
 from .models import ProjectYear
+from .utils import in_projects_admin_group
 
 
 def generate_acrdp_application(project):
@@ -753,13 +754,12 @@ def generate_csrf_application(project, lang):
     return target_url
 
 
-def generate_project_list(year, region, section):
+def generate_project_list(user, year, region, section):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
     status_choices = models.ProjectYear.status_choices
-
 
     fields = [
         'region',
@@ -777,11 +777,16 @@ def generate_project_list(year, region, section):
         'Last modified description',
     ]
 
-    qs = ProjectYear.objects.filter(fiscal_year_id=year).distinct()
-    if section != "None":
-        qs = qs.filter(project__section_id=section)
-    elif region != "None":
-        qs = qs.filter(project__section__division__branch__region_id=region)
+    if in_projects_admin_group(user):
+
+        qs = ProjectYear.objects.filter(fiscal_year_id=year).distinct()
+        if section != "None":
+            qs = qs.filter(project__section_id=section)
+        elif region != "None":
+            qs = qs.filter(project__section__division__branch__region_id=region)
+    else:
+        sections = utils.get_manageable_sections(user)
+        qs = ProjectYear.objects.filter(project__section__in=sections).distinct()
 
     header_row = [get_verbose_label(ProjectYear.objects.first(), header) for header in fields]
     writer.writerow(header_row)
@@ -801,7 +806,7 @@ def generate_project_list(year, region, section):
                 val = listrify(obj.get_project_leads_as_users())
             elif "updated_at" in field:
                 val = obj.updated_at.strftime("%Y-%m-%d")
-            elif "last modified description" in field:
+            elif "Last modified description" in field:
                 val = naturaltime(obj.updated_at)
             else:
                 val = get_field_value(obj, field)

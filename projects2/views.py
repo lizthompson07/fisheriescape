@@ -1216,16 +1216,13 @@ def project_status_summary(request):
 
 @login_required()
 def export_project_list(request):
-    if in_projects_admin_group(request.user):
-        year = request.GET.get("year")
-        region = request.GET.get("region")
-        section = request.GET.get("section")
-        # Create the HttpResponse object with the appropriate CSV header.
-        response = reports.generate_project_list(year, region, section)
-        response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y_%m_%d")}).csv"'
-        return response
-    else:
-        HttpResponseForbidden("Sorry, only admins have access to this report")
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    section = request.GET.get("section")
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = reports.generate_project_list(request.user, year, region, section)
+    response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+    return response
 
 # ADMIN USERS
 
