@@ -25,7 +25,6 @@ class TestAllFormsets(CommonTest):
             "manage_trip_subcategories",
             "manage_trip_categories",
             "manage_roles",
-            # "manage_reasons",
         ]
 
         self.test_urls = [reverse_lazy("travel:" + name) for name in self.test_url_names]
@@ -38,7 +37,6 @@ class TestAllFormsets(CommonTest):
             views.TripSubcategoryFormsetView,
             views.TripCategoryFormsetView,
             views.RoleFormsetView,
-            # views.ReasonFormsetView,
         ]
         self.expected_template = 'travel/formset.html'
         self.user = self.get_and_login_user(in_group="travel_admin")

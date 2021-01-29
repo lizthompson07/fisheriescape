@@ -158,3 +158,34 @@ class ScriptFactory(factory.django.DjangoModelFactory):
             'description_en': faker.text(),
             'script': faker.text(),
         }
+
+
+class PublicationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Publication
+
+    name = factory.lazy_attribute(lambda o: faker.company())
+
+
+class CitationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Citation
+
+    name = factory.lazy_attribute(lambda o: faker.phrase())
+    authors = factory.lazy_attribute(lambda o: faker.name())
+    publication = factory.SubFactory(PublicationFactory)
+
+
+class ProjectFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Project
+
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    code = factory.lazy_attribute(lambda o: faker.pyint(1,1000))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.word(),
+            'code': faker.word(),
+        }

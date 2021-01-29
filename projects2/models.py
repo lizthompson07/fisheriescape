@@ -436,6 +436,10 @@ class ProjectYear(models.Model):
                                     verbose_name=_("fiscal year"))
     coding = models.TextField(blank=True, null=True, verbose_name=_("financial coding"), editable=False)
 
+    def update_modified_by(self, user):
+        self.modified_by = user
+        self.save()
+
     @property
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
@@ -542,16 +546,20 @@ class ProjectYear(models.Model):
             f"<span class='{slugify(self.get_status_display())} px-1 py-1'>{self.get_status_display()}</span>"
         )
 
-    def submit(self):
+    def submit(self, request=None):
         if self.status == 1:
             self.submitted = timezone.now()
             self.status = 2
+            if request:
+                self.modified_by = request.user
             self.save()
 
-    def unsubmit(self):
+    def unsubmit(self, request=None):
         if self.status in [2, 3, 9]:
             self.submitted = None
             self.status = 1
+            if request:
+                self.modified_by = request.user
             self.save()
 
     @property

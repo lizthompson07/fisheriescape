@@ -100,11 +100,19 @@ urlpatterns = [
     ###########
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/science-culture-committee-report/', views.culture_committee_report, name="culture_committee_report"),
+    path('reports/csrf-submission-list/', views.export_csrf_submission_list, name="export_csrf_submission_list"),
+    path('reports/project-status-summary/', views.project_status_summary, name="export_project_status_summary"),
 
-    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),  # tested
-    path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),  # tested
 
-    path('projects/<int:pk>/csrf-application/<str:lang>/', views.csrf_application, name="csrf_application"),  # tested
+    #special
+    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
+    path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),
+
+    path('projects/<int:pk>/csrf-application/', views.csrf_application, name="csrf_application"),
+
+    # Admin Users
+    path('settings/users/', views.UserListView.as_view(), name='user_list'),
+    path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
 
 
 ]
