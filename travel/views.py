@@ -2283,7 +2283,7 @@ def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
     file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region, trip=trip, user=user, from_date=from_date, to_date=to_date)
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url])+'?blob_name=true')
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+'?blob_name=true')
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -2300,7 +2300,7 @@ def export_trip_list(request, fy, region, adm, from_date, to_date):
     file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date, site_url=site_url)
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url])+'?blob_name=true')
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+'?blob_name=true')
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -2315,7 +2315,7 @@ def export_request_cfts(request, trip=None, trip_request=None):
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url])+'?blob_name=true')
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+'?blob_name=true')
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
