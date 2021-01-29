@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 
 from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
-
 # Choices for YesNo
 from shared_models.models import SimpleLookup
 
@@ -17,7 +16,16 @@ YESNO_CHOICES = (
 
 
 class Sector(SimpleLookup):
-    pass
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=False, null=True)
+
+    class Meta:
+        ordering = ["region", _("name"), ]
+
+    def __str__(self):
+        mystr = self.tname
+        if self.region:
+            mystr += f' ({self.region.tname})'
+        return str(mystr)
 
 
 class Grouping(SimpleLookup):
@@ -136,7 +144,7 @@ class Organization(models.Model):
 
     @property
     def chief(self):
-        member_qry =self.members.filter(role__icontains="chief")
+        member_qry = self.members.filter(role__icontains="chief")
         if member_qry.exists():
             # need to do a better guess at who is chief. Sometimes, a member's role might be previous chief
             winner = None

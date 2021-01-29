@@ -11,17 +11,13 @@
   <style>
 
 
-  .card, .jumbotron {
+  .jumbotron {
       background-color: rgba(255, 255, 255, 1);
   {#border: black solid 1px;#} margin-left: 25px;
       margin-right: 25px;
       border-radius: 25px;
   }
 
-  .card {
-      background-color: rgba(255, 255, 255, 1);
-      margin-top: 20px;
-  }
 
   .btn-primary {
       background-color: #79aec8;
@@ -55,10 +51,6 @@
       font-size: 16px;
   }
 
-  .text {
-      color: grey;
-      font-size: 16px;
-  }
 
   .text-black {
       font-size: 16px;
@@ -84,29 +76,6 @@
       {% endautoescape %}
     </div>
 
-    <div class="mb-3 text" style="font-size: 16px;">
-      <p>
-        {% blocktrans %}
-          This application process supersedes existing mechanisms for requesting travel requiring RDG or EOS ADM approval.
-        {% endblocktrans %}
-      </p>
-      <p>
-        {% blocktrans %}
-          A travel request can have multiple travellers from various sectors (e.g., public, academic, private), however, only a
-          Fisheries and Oceans employee with a valid Government of Canada email address can initiate and submit a travel request.
-          In addition, the request should already have confirmed or anticipated funding available to support the travel.
-        {% endblocktrans %}
-      </p>
-      <p>
-        {% blocktrans %}
-          Please ensure your request is properly completed and submitted on time to allow for efficient and appropriate
-          review. Incomplete requests will not be evaluated. You can check the status of your request by going to the
-          home page and selecting “view your request”.
-        {% endblocktrans %}
-      </p>
-
-    </div>
-
 
     {% url 'travel:request_new' "my" as request_new_url %}
     {% url 'travel:request_list' user|slugify as request_list_url %}
@@ -118,15 +87,16 @@
     {% url 'travel:trip_review_list'  as all_trip_reviews_list_url %}
 
     <div class="row mb-4 justify-content-center">
-
-
       <div class="container mt-3">
-
 
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
           <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#traveller">{% trans "Traveller" %}</a>
+            <a class="nav-link active" data-toggle="tab" href="#overview">{% trans "Overview" %}</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#traveller">{% trans "Traveller" %}</a>
           </li>
 
           {% if reviews_waiting %}
@@ -157,6 +127,9 @@
             {% endfor %}
           {% endif %}
 
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#help">{% trans "Support" %}</a>
+          </li>
 
         </ul>
         {% echo "22em" as width1 %}
@@ -164,9 +137,24 @@
         {% echo "26em" as width3 %}
         <!-- Tab panes -->
         <div class="tab-content">
+        {# Help Pane #}
+          <div id="help" class="container tab-pane fade"><br>
+            <div class="mt-2">
+              {% include "travel/_help.html" %}
+            </div>
+          </div>
+
+
+          {# Overview Pane #}
+          <div id="overview" class="container tab-pane fade active show"><br>
+            <div class="mt-2">
+              {% include "travel/_process_timeline.html" %}
+            </div>
+          </div>
+
 
           {# Traveller Pane #}
-          <div id="traveller" class="container tab-pane fade active show"><br>
+          <div id="traveller" class="container tab-pane fade"><br>
 
             <div class="btns mb-3 center-col">
 
@@ -199,14 +187,6 @@
               </div>
             {% endif %}
 
-            <div class="mb-5 mt-5">
-              <hr>
-            </div>
-
-            <div class="mt-5">
-
-              {% include "travel/_process_timeline.html" %}
-            </div>
 
           </div>
 

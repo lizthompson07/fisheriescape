@@ -149,6 +149,8 @@ class Region(SimpleLookupWithUUID):
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("RDG / ADM"),
                              related_name="shared_models_regions")
+    admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
+                             related_name="shared_models_admin_regions")
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -166,6 +168,8 @@ class Branch(SimpleLookupWithUUID):
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                              verbose_name=_("regional director / NCR director general"),
                              related_name="shared_models_branches")
+    admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
+                              related_name="shared_models_admin_branches")
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -186,6 +190,8 @@ class Division(SimpleLookupWithUUID):
     branch = models.ForeignKey(Branch, on_delete=models.DO_NOTHING, verbose_name=_("branch"), related_name="divisions")
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("division manager / NCR director"),
                              related_name="shared_models_divisions")
+    admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
+                              related_name="shared_models_admin_divisions")
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -206,6 +212,8 @@ class Section(SimpleLookupWithUUID):
     division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="sections")
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("section head  / NCR team lead"),
                              related_name="shared_models_sections")
+    admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
+                              related_name="shared_models_admin_sections")
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
@@ -734,6 +742,7 @@ class Organization(SimpleLookup):
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True)
+    is_dfo = models.BooleanField(default=True, verbose_name=_("Is this a DFO location?"))
 
     def __str__(self):
         return self.full_name_and_address
@@ -772,6 +781,10 @@ class Organization(SimpleLookup):
                 my_str += ", "
             my_str += self.postal_code
         return my_str
+
+    @property
+    def full_name_and_address(self):
+        return self.tname + f", {self.full_address}"
 
 
 class Publication(SimpleLookup):

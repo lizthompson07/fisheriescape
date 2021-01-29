@@ -58,7 +58,7 @@
                     {% if user.is_authenticated %}
                         {% block left_auth %}{% endblock left_auth %}
                         {% if user.is_superuser %}
-                            <li class="nav-item"><a class="nav-link" href="/admin"> Site Admin </a></li>
+                            <li class="nav-item"><a class="nav-link" href="/admin" target="_blank"> Site Admin </a></li>
                             {% block left_admin %}{% endblock left_admin %}
                         {% endif %}
                         {% if user.is_staff %}

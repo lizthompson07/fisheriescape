@@ -108,4 +108,5 @@ def dm2decdeg(d, m):
 
         return dd + mm if is_positive else (dd + mm) * -1
     except Exception as E:
-        print(E)
+        # print(E)
+        pass

@@ -1,10 +1,12 @@
+import csv
 import os
 from io import BytesIO
 
 import xlsxwriter
 from django.conf import settings
 from django.db.models import Q
-from django.template.defaultfilters import pluralize
+from django.http import HttpResponse
+from django.template.defaultfilters import pluralize, slugify
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from docx import Document
@@ -14,7 +16,7 @@ from openpyxl import load_workbook
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
 from publications import models as pi_models
-from shared_models.models import Region
+from shared_models.models import Region, FiscalYear, Section
 from . import models
 
 
@@ -23,7 +25,7 @@ def generate_acrdp_application(project):
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.docx"
     target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'projects', 'temp', target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
 
     template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "acrdp_template.docx")
 
@@ -130,7 +132,7 @@ def generate_acrdp_budget(project):
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.xlsx"
     target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'projects', 'temp', target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
 
     template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "acrdp_template.xlsx")
 
@@ -257,6 +259,62 @@ def generate_acrdp_budget(project):
                     ws['K' + ref_cell].value = staff_description
                 else:
                     ws['K' + ref_cell].value += "; " + staff_description
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
+def generate_csrf_submission_list(year, region):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "csrf_regional_submissions_template.xlsx")
+
+    wb = load_workbook(filename=template_file_path)
+
+    ws = wb["Submissions"]
+    year_txt = str(FiscalYear.objects.get(pk=year))
+    ws['A1'].value += year_txt
+
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year)
+    if region != "None":
+        qs = qs.filter(project__section__division__branch__region_id=region)
+
+    i = 3
+    for item in qs:
+        priority = None
+        client_information = item.project.client_information
+        if client_information:
+            priority = client_information.csrf_priority
+
+        theme = None
+        pin = None
+        if priority:
+            theme = priority.csrf_sub_theme.csrf_theme.tname
+            pin = priority.code
+
+        leads = ""
+        for l in item.get_project_leads_as_users():
+            leads += l.last_name + ", "
+        if len(leads) > 0:
+            leads = leads[:-2]
+
+        # theme
+        ws['A' + str(i)].value = nz(theme, " -----  ")
+        # pin
+        ws['B' + str(i)].value = nz(pin, " -----  ")
+        # region
+        ws['D' + str(i)].value = nz(item.project.section.division.branch.region.abbrev.upper(), " -----  ")
+        # leads
+        ws['E' + str(i)].value = nz(leads, " -----  ")
+        # title
+        ws['F' + str(i)].value = f'{item.project.title} ({item.project.id})'
+
+        i += 1
 
     wb.save(target_file_path)
 
@@ -396,10 +454,10 @@ def generate_culture_committee_report():
 
             elif "Region" in field:
                 if project.division.exists():
-                   regions = Region.objects.filter(id__in=[p.branch.region.id for p in project.division.all()])
-                   my_val = listrify([r.tname for r in regions])
+                    regions = Region.objects.filter(id__in=[p.branch.region.id for p in project.division.all()])
+                    my_val = listrify([r.tname for r in regions])
                 else:
-                   my_val = "n/a"
+                    my_val = "n/a"
                 my_ws.write(i, j, my_val, normal_format)
 
             elif "Program / Funding Source" in field:
@@ -428,6 +486,48 @@ def generate_culture_committee_report():
 
     workbook.close()
     return target_url
+
+
+def generate_project_status_summary(year, region):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    writer = csv.writer(response)
+    status_choices = models.ProjectYear.status_choices
+
+    headers = [
+        'date',
+        'fiscal_year',
+        'region',
+        'branch',
+        'division',
+        'section',
+    ]
+    for status in status_choices:
+        headers.append(f'{slugify(status[1]).replace("-", "_")}_status_count')
+    headers.append("total")
+
+    qs = Section.objects.filter(projects2__years__fiscal_year_id=year).distinct()
+    if region != "None":
+        qs = qs.filter(division__branch__region_id=region)
+
+    header_row = [header for header in headers]
+    writer.writerow(header_row)
+
+    for item in qs:
+        data_row = [
+            timezone.now(),
+            str(FiscalYear.objects.get(pk=year)),
+            item.division.branch.region.tname,
+            item.division.branch.tname,
+            item.division.tname,
+            item.tname,
+        ]
+        for status in status_choices:
+            data_row.append(models.ProjectYear.objects.filter(project__section=item, status=status[0]).count())
+        data_row.append(models.ProjectYear.objects.filter(project__section=item).count())
+        writer.writerow(data_row)
+
+    return response
 
 
 def generate_csrf_application(project, lang):
@@ -522,13 +622,13 @@ def generate_csrf_application(project, lang):
             cost_dict[f'{c[0]}_{t}'] = val
     i = 1
     for year in years:
-
-        #captial costs
+        # captial costs
         for cost in year.capitalcost_set.filter(amount__gt=0):
             cost_dict[f'equipment_y{i}'] += cost.amount
             cost_dict[f'equipment_total'] += cost.amount
-            cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description,"MISSING DESCRIPTION")} = {currency(cost.amount, True)} (Captial)\n'
+            cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description, "MISSING DESCRIPTION")} = {currency(cost.amount, True)} (Captial)\n'
             cost_dict[f'equipment_detail'] += cost_description
+            cost_dict[f'total_y{i}'] += cost.amount
 
         # rest of the costs
         for c in cats:
@@ -541,6 +641,7 @@ def generate_csrf_application(project, lang):
                     for staff in year.staff_set.filter(amount__isnull=False, amount__gt=0):
                         cost_dict[f'salary_y{i}'] += staff.amount
                         cost_dict[f'salary_total'] += staff.amount
+                        cost_dict[f'total_y{i}'] += staff.amount
 
                         staff_description = f'{year.fiscal_year} - {staff.smart_name}'
                         if staff.level: staff_description += f" ({staff.level})"
@@ -563,9 +664,13 @@ def generate_csrf_application(project, lang):
                 for cost in qs:
                     cost_dict[f'{cost_name}_y{i}'] += cost.amount
                     cost_dict[f'{cost_name}_total'] += cost.amount
-                    cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description,"MISSING DESCRIPTION")} = {currency(cost.amount, True)} (O&M)\n'
+                    cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description, "MISSING DESCRIPTION")} = {currency(cost.amount, True)} (O&M)\n'
                     cost_dict[f'{cost_name}_detail'] += cost_description
+                    cost_dict[f'total_y{i}'] += cost.amount
         i += 1
+
+    # calc the total_total
+    cost_dict['total_total'] = cost_dict['total_y1'] + cost_dict['total_y2'] + cost_dict['total_y3']
 
     field_dict = dict(
         TAG_THEME=str(project.client_information.csrf_priority.csrf_sub_theme.csrf_theme) if project.client_information else "MISSING!",

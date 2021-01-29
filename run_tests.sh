@@ -142,3 +142,18 @@ printf "########################################################################
 printf "\n"
 python3.8 manage.py test --exclude-tag=Functional -b bio_diversity.test
 echo "FINISHED RUNNING TESTS FOR: bio_diversity"
+
+
+
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+echo "RUNNING TESTS FOR: scuba"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b scuba.test
+echo "FINISHED RUNNING TESTS FOR: bio_diversity"
