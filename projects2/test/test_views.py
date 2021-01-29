@@ -1,15 +1,40 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
+from django.contrib.auth.models import Group
+from django.shortcuts import get_object_or_404
 from django.test import tag
 from django.urls import reverse_lazy
+from django.utils import timezone
 from faker import Factory
 
-from shared_models.views import CommonCreateView, CommonDetailView, CommonUpdateView, CommonDeleteView, CommonListView, CommonTemplateView, CommonFilterView
+from lib.functions.custom_functions import fiscal_year
+from shared_models.test.SharedModelsFactoryFloor import UserFactory
+from shared_models.views import CommonCreateView, CommonDetailView, CommonUpdateView, CommonDeleteView, CommonListView, CommonTemplateView, CommonFilterView, \
+    CommonFormView
 from . import FactoryFloor
 from .. import views, models
 from ..test.common_tests import CommonProjectTest as CommonTest
 
 faker = Factory.create()
+
+
+class TestACRDPApplicationReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ProjectYearFactory()
+        self.test_url = reverse_lazy('projects2:export_acrdp_application', args=[self.instance.id])
+        self.user = self.get_and_login_user()
+
+    @tag("Reports", "acrdp-application", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, login_search_term="/accounts/login/")
+
+    @tag("Reports", "acrdp-application", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:export_acrdp_application", f"/en/project-planning/projects/{self.instance.id}/acrdp-application/",
+                                test_url_args=[self.instance.id])
 
 
 class TestACRDPApplicationView(CommonTest):
@@ -31,6 +56,25 @@ class TestACRDPApplicationView(CommonTest):
                                 [self.instance.pk])
 
 
+class TestACRDPBudgetReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ProjectYearFactory()
+        self.test_url = reverse_lazy('projects2:export_acrdp_budget', args=[self.instance.id])
+        self.user = self.get_and_login_user()
+
+    @tag("Reports", "acrdp-budget", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, login_search_term="/accounts/login/")
+
+    @tag("Reports", "acrdp-budget", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:export_acrdp_budget", f"/en/project-planning/projects/{self.instance.id}/acrdp-budget/",
+                                test_url_args=[self.instance.id])
+
+
 class TestACRDPBugdetView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -48,6 +92,129 @@ class TestACRDPBugdetView(CommonTest):
         # use the 'en' locale prefix to url
         self.assert_correct_url("projects2:export_acrdp_budget", f"/en/project-planning/projects/{self.instance.pk}/acrdp-budget/",
                                 [self.instance.pk])
+
+
+class TestAdminStaffFilterView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.StaffFactory()
+        self.test_url = reverse_lazy('projects2:admin_staff_list')
+        self.expected_template = 'projects2/admin_staff_list.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("AdminStaff", "admin_staff_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.AdminStaffListView, CommonFilterView)
+        self.assert_inheritance(views.AdminStaffListView, views.AdminRequiredMixin)
+
+    @tag("AdminStaff", "admin_staff_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("AdminStaff", "admin_staff_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:admin_staff_list", f"/en/project-planning/admin/staff-list/")
+
+
+class TestAdminStaffUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.StaffFactory(name="bobby mcgee", user=None)
+        self.test_url = reverse_lazy('projects2:admin_staff_edit', args=[self.instance.pk, ])
+        self.test_url1 = reverse_lazy('projects2:admin_staff_edit', args=[self.instance.pk, "?hello_kitty=true"])
+        self.expected_template = 'projects2/admin_staff_form.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("AdminStaff", "admin_staff_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.AdminStaffUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.AdminStaffUpdateView, views.AdminRequiredMixin)
+
+    @tag("AdminStaff", "admin_staff_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_good_response(self.test_url1)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("AdminStaff", "admin_staff_edit", "context")
+    def test_context(self):
+        context_vars = [
+            "name_count", "match_found"
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("AdminStaff", "admin_staff_edit", "submit")
+    def test_submit(self):
+        data = None
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("AdminStaff", "admin_staff_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:admin_staff_edit", f"/en/project-planning/admin/staff/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestCSRFApplicationReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ProjectYearFactory()
+        self.test_url = reverse_lazy('projects2:csrf_application', args=[self.instance.id])
+        self.user = self.get_and_login_user()
+
+    @tag("Reports", "csrf-application", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, login_search_term="/accounts/login/")
+
+    @tag("Reports", "csrf-application", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:csrf_application", f"/en/project-planning/projects/{self.instance.id}/csrf-application/",
+                                test_url_args=[self.instance.id])
+
+
+class TestCSRFSubmissionListReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        csrf_funding_source = FactoryFloor.FundingSourceFactory(name="CSRF")
+        date = datetime(year=faker.pyint(2000, 2030), month=4, day=1, tzinfo=timezone.get_current_timezone())
+        year = fiscal_year(date, sap_style=True)
+        for i in range(0, 10):
+            p = FactoryFloor.ProjectFactory(default_funding_source=csrf_funding_source)
+            FactoryFloor.ProjectYearFactory(project=p, start_date=date)
+        self.test_url = reverse_lazy('projects2:export_csrf_submission_list') + f'?year={year};region=None'
+        self.user = self.get_and_login_user()
+
+    @tag("Reports", "csrf-submission-list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, login_search_term="/accounts/login/")
+
+    @tag("Reports", "csrf-submission-list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:export_csrf_submission_list", f"/en/project-planning/reports/csrf-submission-list/")
+
+
+class TestCultureCommitteeReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        for i in range(0, 5):
+            FactoryFloor.ProjectYearFactory()
+        self.test_url = reverse_lazy('projects2:culture_committee_report')
+        self.user = self.get_and_login_user()
+
+    @tag("Reports", "culture_committee_report", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user)
+
+    @tag("Reports", "culture_committee_report", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:culture_committee_report", f"/en/project-planning/reports/science-culture-committee-report/")
 
 
 class TestFunctionalGroupCreateView(CommonTest):
@@ -106,6 +273,8 @@ class TestFunctionalGroupDeleteView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("projects2:group_delete", f"/en/project-planning/settings/functional-groups/{self.instance.pk}/delete/", [self.instance.pk])
+
+
 class TestFunctionalGroupListView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -428,6 +597,27 @@ class TestProjectManageTemplateView(CommonTest):
         self.assert_correct_url("projects2:manage_projects", f"/en/project-planning/projects/manage/")
 
 
+class TestProjectStatusSummaryReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        date = datetime(year=faker.pyint(2000, 2030), month=4, day=1, tzinfo=timezone.get_current_timezone())
+        year = fiscal_year(date, sap_style=True)
+        for i in range(0, 10):
+            FactoryFloor.ProjectYearFactory(start_date=date)
+        self.test_url = reverse_lazy('projects2:export_project_status_summary') + f'?year={year};region=None'
+        self.user = self.get_and_login_user()
+
+    @tag("Reports", "project-status-summary", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, login_search_term="/accounts/login/")
+
+    @tag("Reports", "project-status-summary", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:export_project_status_summary", f"/en/project-planning/reports/project-status-summary/")
+
+
 class TestProjectUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -698,6 +888,34 @@ class TestReferenceMaterialUpdateView(CommonTest):
         self.assert_correct_url("projects2:ref_mat_edit", f"/en/project-planning/settings/reference-materials/{self.instance.pk}/edit/", [self.instance.pk])
 
 
+class TestReportSearchFormView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('projects2:reports')
+        self.expected_template = 'projects2/report_search.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("ReportSearch", "reports", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReportSearchFormView, CommonFormView)
+        self.assert_inheritance(views.ReportSearchFormView, views.AdminRequiredMixin)
+
+    @tag("ReportSearch", "reports", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReportSearch", "reports", "submit")
+    def test_submit(self):
+        data = dict(report=1)
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("ReportSearch", "reports", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:reports", f"/en/project-planning/reports/")
+
+
 class TestStatusReportDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -857,5 +1075,61 @@ class TestStatusReportUpdateView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("projects2:report_edit", f"/en/project-planning/status-reports/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestToggleUserView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = UserFactory()
+        self.test_url_good = reverse_lazy('projects2:toggle_user', args=[self.instance.pk, "admin"])
+        self.test_url_bad = reverse_lazy('projects2:toggle_user', args=[self.instance.pk, "bar"])
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("ToggleUser", "toggle_user", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url_good)
+        self.assert_non_public_view(test_url=self.test_url_good, user=self.user, expected_code=302)
+
+    @tag("ToggleUser", "toggle_user", "submit")
+    def test_post(self):
+        admin_group = get_object_or_404(Group, name="projects_admin")
+        self.assertNotIn(admin_group, self.instance.groups.all())
+        response = self.client.post(self.test_url_good)
+        self.assertIn(admin_group, self.instance.groups.all())
+        response = self.client.post(self.test_url_good)
+        self.assertNotIn(admin_group, self.instance.groups.all())
+
+    @tag("ToggleUser", "toggle_user", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:toggle_user", f"/en/project-planning/settings/user/{self.instance.pk}/toggle/admin/", [self.instance.pk, "admin"])
+class TestUserListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('projects2:user_list')
+        self.expected_template = 'projects2/user_list.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("User", "user_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.UserListView, CommonFilterView)
+        self.assert_inheritance(views.UserListView, views.AdminRequiredMixin)
+
+    @tag("User", "user_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("User", "user_list", "context")
+    def test_context(self):
+        context_vars = [
+            "admin_group",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("User", "user_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:user_list", f"/en/project-planning/settings/users/")
 
 

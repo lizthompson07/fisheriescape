@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -872,7 +872,7 @@ class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
 # ADMIN
 
 
-class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
+class AdminStaffListView(AdminRequiredMixin, CommonFilterView):
     template_name = 'projects2/admin_staff_list.html'
 
     filterset_class = filters.StaffFilter
@@ -900,7 +900,7 @@ class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
         return qs
 
 
-class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, CommonUpdateView):
+class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateView):
     '''This is really just for the admin view'''
     model = models.Staff
     template_name = 'projects2/admin_staff_form.html'
@@ -1247,14 +1247,16 @@ class UserListView(AdminRequiredMixin, CommonFilterView):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def toggle_user(request, pk, type):
-    my_user = User.objects.get(pk=pk)
-    admin_group = Group.objects.get(name="projects_admin")
-    if type == "admin":
-        # if the user is in the admin group, remove them
-        if admin_group in my_user.groups.all():
-            my_user.groups.remove(admin_group)
-        # otherwise add them
-        else:
-            my_user.groups.add(admin_group)
-    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-
+    if in_projects_admin_group(request.user):
+        my_user = User.objects.get(pk=pk)
+        admin_group = Group.objects.get(name="projects_admin")
+        if type == "admin":
+            # if the user is in the admin group, remove them
+            if admin_group in my_user.groups.all():
+                my_user.groups.remove(admin_group)
+            # otherwise add them
+            else:
+                my_user.groups.add(admin_group)
+        return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+    else:
+        return HttpResponseForbidden("sorry, not authorized")
