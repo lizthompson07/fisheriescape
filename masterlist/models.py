@@ -8,6 +8,7 @@ from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
 # Choices for YesNo
 from shared_models.models import SimpleLookup
+from shared_models.utils import get_metadata_string
 
 YESNO_CHOICES = (
     (True, "Yes"),
@@ -102,6 +103,13 @@ class Organization(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
     old_id = models.IntegerField(blank=True, null=True)
 
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
+
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
@@ -183,6 +191,13 @@ class Person(models.Model):
 
     # is_consultation_contact = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Consultation contact?"))
 
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
+
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
@@ -262,6 +277,13 @@ class OrganizationMember(models.Model):
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
