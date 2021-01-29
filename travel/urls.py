@@ -164,7 +164,7 @@ urlpatterns = [
          views.export_trip_list, name="export_trip_list"),
 
     # Download a file
-    path('download/file/<int:file>/', views.get_file, name="get_file"),
+    path('download/file/<str:file>/', views.get_file, name="get_file"),
 
 
 

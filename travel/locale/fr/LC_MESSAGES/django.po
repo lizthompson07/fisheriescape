@@ -210,7 +210,7 @@ msgstr "Ont-ils un rôle particulier ?"
 
 #: .\travel\models.py:67
 msgid "Information Section"
-msgstr ""
+msgstr "Section d'information"
 
 #: .\travel\models.py:68
 msgid "Travel Request Process Outline"
@@ -222,21 +222,19 @@ msgstr "Aperçu du processus de révision"
 
 #: .\travel\models.py:80
 msgid "question (en)"
-msgstr ""
+msgstr "question (an)"
 
 #: .\travel\models.py:81
 msgid "question (fr)"
-msgstr ""
+msgstr "question (fr)"
 
 #: .\travel\models.py:82
-#, fuzzy
-#| msgid "name (en)"
 msgid "answer (en)"
-msgstr "nom (anglais)"
+msgstr "réponse (an)"
 
 #: .\travel\models.py:83
 msgid "answer (fr)"
-msgstr ""
+msgstr "réponse (fr)"
 
 #: .\travel\models.py:88 .\travel\models.py:89
 msgid "question_en"
@@ -247,28 +245,20 @@ msgid "answer_en"
 msgstr "answer_fr"
 
 #: .\travel\models.py:112
-#, fuzzy
-#| msgid "trip title (English)"
 msgid "url (English)"
-msgstr "titre du voyage (anglais)"
+msgstr "adresse url (anglais)"
 
 #: .\travel\models.py:113
-#, fuzzy
-#| msgid "trip title (French)"
 msgid "url (French)"
-msgstr "titre du voyage (français)"
+msgstr "adresse url (français)"
 
 #: .\travel\models.py:114
-#, fuzzy
-#| msgid "file attachment"
 msgid "file attachment (English)"
-msgstr "pièce jointe"
+msgstr "pièce jointe (anglais)"
 
 #: .\travel\models.py:115
-#, fuzzy
-#| msgid "file attachment"
 msgid "file attachment (French)"
-msgstr "pièce jointe"
+msgstr "pièce jointe (français)"
 
 #: .\travel\models.py:122 .\travel\models.py:123
 msgid "file_en"
@@ -441,7 +431,7 @@ msgstr "adresse"
 
 #: .\travel\models.py:593
 msgid "phone (xxx-xxx-xxxx)"
-msgstr ""
+msgstr "téléphone (xxx-xxx-xxxx)"
 
 #: .\travel\models.py:594
 msgid "email"
@@ -593,28 +583,20 @@ msgid "missing email address"
 msgstr "adresse courriel manquante"
 
 #: .\travel\models.py:979
-#, fuzzy
-#| msgid "Company: "
 msgid "Company"
-msgstr "Nom de l'entreprise : "
+msgstr "Entreprise"
 
 #: .\travel\models.py:980 .\travel\templates\travel\travel_plan.html:185
-#, fuzzy
-#| msgid "Address: "
 msgid "Address"
-msgstr "Adresse : "
+msgstr "Adresse"
 
 #: .\travel\models.py:981
-#, fuzzy
-#| msgid "Phone: "
 msgid "Phone"
-msgstr "Téléphone : "
+msgstr "Téléphone"
 
 #: .\travel\models.py:982 .\travel\templates\travel\travel_plan.html:193
-#, fuzzy
-#| msgid "Email: "
 msgid "Email"
-msgstr "Courriel : "
+msgstr "Courriel"
 
 #: .\travel\models.py:1042 .\travel\models.py:1052
 msgid "cost"
@@ -851,21 +833,19 @@ msgstr "FINANCEMENT TOTAL NON-MPO:"
 
 #: .\travel\templates\travel\_help.html:4
 msgid "Support Centre"
-msgstr ""
+msgstr "Centre de soutien"
 
 #: .\travel\templates\travel\_help.html:8
-#, fuzzy
-#| msgid "Reports"
 msgid "Resources"
-msgstr "Rapports"
+msgstr "Ressources"
 
 #: .\travel\templates\travel\_help.html:25
 msgid "Useful Links"
-msgstr ""
+msgstr "Liens utiles"
 
 #: .\travel\templates\travel\_help.html:42
 msgid "Contact Us"
-msgstr ""
+msgstr "Contactez-nous"
 
 #: .\travel\templates\travel\_help.html:44
 msgid ""
@@ -879,10 +859,18 @@ msgid ""
 "      as possible.\n"
 "    "
 msgstr ""
+"\n"
+"      Si vous avez d’autres questions ou suggestions concernant le système "
+"de demande de voyage,\n"
+"      n’hésitez pas à\n"
+"      <a href=\"mailto:DFO.ScienceTravel-VoyagesSciences.MPO@dfo-mpo.gc.ca"
+"\">nous contacter</a>\n"
+"      et nous vous répondrons dans les plus brefs délais.\n"
+"    "
 
 #: .\travel\templates\travel\_help.html:55
 msgid "Frequently Asked Questions (FAQ)"
-msgstr ""
+msgstr "Foire aux questions (FAQ)"
 
 #: .\travel\templates\travel\_process_timeline.html:4
 msgid "An Overview of the Travel App"
@@ -895,7 +883,7 @@ msgstr "Queue d'approbation"
 
 #: .\travel\templates\travel\_reviewers.html:13
 msgid "see note about group requests in help bubble"
-msgstr ""
+msgstr "voir la note sur les demandes de groupe dans la bulle d'aide"
 
 #: .\travel\templates\travel\_reviewers.html:20
 #: .\travel\templates\travel\trip_request_form.html:98
@@ -1157,17 +1145,15 @@ msgstr "Application de voyage"
 msgid "Home"
 msgstr "Accueil"
 
-#: .\travel\templates\travel\base\_nav_left_auth.html:10
-#: .\travel\views.py:1408 .\travel\views.py:1479 .\travel\views.py:1481
-#: .\travel\views.py:1504 .\travel\views.py:1541 .\travel\views.py:1613
+#: .\travel\templates\travel\base\_nav_left_auth.html:10 .\travel\views.py:1408
+#: .\travel\views.py:1479 .\travel\views.py:1481 .\travel\views.py:1504
+#: .\travel\views.py:1541 .\travel\views.py:1613
 msgid "Trips"
 msgstr "Voyages"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:16
-#, fuzzy
-#| msgid "All Requests"
 msgid "Requests"
-msgstr "Toutes les demandes"
+msgstr "Demandes"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:25
 msgid "Settings"
@@ -1224,22 +1210,16 @@ msgid "Manage Process Steps"
 msgstr "Gérer les étapes du processus"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:69
-#, fuzzy
-#| msgid "Manage Costs"
 msgid "Manage FAQs"
-msgstr "Gérer les coûts"
+msgstr "Gérer les FAQs"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:72
-#, fuzzy
-#| msgid "Manage Trip Categories"
 msgid "Manage Reference Materials"
-msgstr "Gérer les catégories de voyage"
+msgstr "Gérer les documents de référence"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:75
-#, fuzzy
-#| msgid "Manage DFO Organizations"
 msgid "Manage Organizations"
-msgstr "Gérer les organisations du MPO"
+msgstr "Gérer les organisations"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:82
 msgid "Reports"
@@ -1258,8 +1238,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)"
-"s en tant qu'examinateur par défaut \n"
+"                Êtes-vous sûr de vouloir supprimer l'objet suivant "
+"%(object)s en tant qu'examinateur par défaut \n"
 "            "
 
 #: .\travel\templates\travel\default_reviewer_form.html:22
@@ -1277,79 +1257,68 @@ msgid "Add"
 msgstr "Ajouter"
 
 #: .\travel\templates\travel\group_travel_plan.html:146
-#, fuzzy
-#| msgid "Print Travel Request and Approval Form (TRAF)"
 msgid "Crew and Group Travel Request and Approval Form"
-msgstr "Imprimer la demande de voyage et formulaire d'approbation (DVFA)"
+msgstr ""
+"Demande de voyage et formulaire d'approbation des équipages et des groupes"
 
 #: .\travel\templates\travel\group_travel_plan.html:160
 msgid "Date of Crew Change or Group Travel"
-msgstr ""
+msgstr "Date de changement de l'équipage ou du voyage du groupe"
 
 #: .\travel\templates\travel\group_travel_plan.html:162
 #: .\travel\templates\travel\travel_plan.html:162
-#, fuzzy
-#| msgid "notes (optional)"
 msgid "Plan Number (Optional)"
-msgstr "notes (facultatif)"
+msgstr "Numéro du plan (optionnel)"
 
 #: .\travel\templates\travel\group_travel_plan.html:169
-#, fuzzy
-#| msgid "Traveller Information"
 msgid "Information"
-msgstr "Information du voyageur"
+msgstr "Information"
 
 #: .\travel\templates\travel\group_travel_plan.html:173
 msgid "Vessel Name or Group Name"
-msgstr ""
+msgstr "Nom du vaisseau ou du groupe"
 
 #: .\travel\templates\travel\group_travel_plan.html:174
 msgid "(if applicable)"
-msgstr ""
+msgstr "(si applicable)"
 
 #: .\travel\templates\travel\group_travel_plan.html:177
 #: .\travel\templates\travel\travel_plan.html:180
 msgid "Region/Sector/Branch/<br>Directorate/Section"
-msgstr ""
+msgstr "Région/secteur/direction générale/<br>direction/section"
 
 #: .\travel\templates\travel\group_travel_plan.html:182
 #: .\travel\templates\travel\travel_plan.html:293
-#, fuzzy
-#| msgid "trip purpose"
 msgid "Trip Purpose"
-msgstr "but du voyage"
+msgstr "But du voyage"
 
 #: .\travel\templates\travel\group_travel_plan.html:186
 msgid ""
 "Trip objective and justification for not using telepresence or other "
 "alternative to travel"
 msgstr ""
+"But précis du voyage et raison pour laquelle on ne pouvait pas avoir recours "
+"à la telepresence ou à d'autres solutions de rechange au voyage"
 
 #: .\travel\templates\travel\group_travel_plan.html:190
-#, fuzzy
-#| msgid "justification for late submissions"
 msgid "Justification for the number of travellers"
-msgstr "justification pour les soumissions tardives"
+msgstr "Justification du nombre de voyageurs"
 
 #: .\travel\templates\travel\group_travel_plan.html:200
 #: .\travel\templates\travel\travel_plan.html:222
 #: .\travel\templates\travel\travel_plan.html:286
-#, fuzzy
-#| msgid "role of traveller"
 msgid "Purpose of Travel"
-msgstr "rôle du voyageur"
+msgstr "But du voyage"
 
 #: .\travel\templates\travel\group_travel_plan.html:201
 #: .\travel\templates\travel\travel_plan.html:223
-#, fuzzy
-#| msgid "location"
 msgid "Explanation"
-msgstr "location"
+msgstr "Explication"
 
 #: .\travel\templates\travel\group_travel_plan.html:204
 #: .\travel\templates\travel\travel_plan.html:226
 msgid "Operational Activities"
-msgstr ""
+msgstr "Activités opérationnelles"
 
 #: .\travel\templates\travel\group_travel_plan.html:206
 #: .\travel\templates\travel\travel_plan.html:228
@@ -1361,11 +1330,16 @@ msgid ""
 "                Coast Guard or legislative or legal requirements.\n"
 "              "
 msgstr ""
+"\n"
+"                Voyages qui sont exigés à l'appui de la prestation directe "
+"du mandat de base de Pêches et Océans Canada et/ou de la Garde côtière\n"
+"                canadienne ou d'obligations législatives ou juridiques.\n"
+"              "
 
 #: .\travel\templates\travel\group_travel_plan.html:213
 #: .\travel\templates\travel\travel_plan.html:235
 msgid "Key stakeholder Engagement"
-msgstr ""
+msgstr "Mobilisation des intervenants clés"
 
 #: .\travel\templates\travel\group_travel_plan.html:215
 #: .\travel\templates\travel\travel_plan.html:237
@@ -1379,11 +1353,19 @@ msgid ""
 "communities.\n"
 "              "
 msgstr ""
+"\n"
+"                Voyages qui sont nécessaires pour mobiliser des intervenants "
+"clés à l'égard du renouvellement ou de l'élaboration d'un règlement, d'une "
+"politique,\n"
+"                d'un programme ou d'autres questions qui soutiennent les "
+"relations de travail et les opérations continues de Pêches et Océans "
+"Canada \n"
+"              et/ou de la Garde côtière canadienne avec ces communautés."
 
 #: .\travel\templates\travel\group_travel_plan.html:222
 #: .\travel\templates\travel\travel_plan.html:244
 msgid "Internal Governance"
-msgstr ""
+msgstr "Gouvernance interne"
 
 #: .\travel\templates\travel\group_travel_plan.html:224
 #: .\travel\templates\travel\travel_plan.html:246
@@ -1397,11 +1379,19 @@ msgid ""
 "employees.\n"
 "              "
 msgstr ""
+"\n"
+"                Voyages qui sont nécessaires pour appuyer la saine "
+"gouvernance interne de Pêches et Océans Canada et/ou de la Garde côtière "
+"canadienne, \n"
+"                y compris pour des réunions de la direction et du comité "
+"ministériel de vérification, ou aux fins du recrutement ou de l'embauche "
+"d'employés.\n"
+"              "
 
 #: .\travel\templates\travel\group_travel_plan.html:231
 #: .\travel\templates\travel\travel_plan.html:253
 msgid "Training"
-msgstr ""
+msgstr "Formation"
 
 #: .\travel\templates\travel\group_travel_plan.html:233
 #: .\travel\templates\travel\travel_plan.html:255
@@ -1411,41 +1401,35 @@ msgid ""
 "assigned duties of their positions.\n"
 "              "
 msgstr ""
+"\n"
+"                Voyages d'employés aux fins d'une formation qui leur "
+"permettra de s'acquitter des fonctions propres à leur poste.\n"
+"              "
 
 #: .\travel\templates\travel\group_travel_plan.html:239
 #: .\travel\templates\travel\travel_plan.html:261
-#, fuzzy
-#| msgid "Other Trips"
 msgid "Other"
-msgstr "Autres voyages"
+msgstr "Autre"
 
 #: .\travel\templates\travel\group_travel_plan.html:241
 #: .\travel\templates\travel\travel_plan.html:263
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                    %(o)s\n"
-#| "                "
 msgid ""
 "\n"
 "                Other travel - please provide detailed explanation\n"
 "              "
 msgstr ""
 "\n"
-"                    %(o)s\n"
+"                    Autre voyage – Veuillez fournir une explication "
+"détaillée\n"
 "                "
 
 #: .\travel\templates\travel\group_travel_plan.html:261
 #: .\travel\templates\travel\travel_plan.html:282
-#, fuzzy
-#| msgid "Add"
 msgid "Amended"
-msgstr "Ajouter"
+msgstr "Modifié"
 
 #: .\travel\templates\travel\group_travel_plan.html:262
 #: .\travel\templates\travel\travel_plan.html:283
-#, fuzzy
-#| msgid "Trip"
 msgid "Trip No"
 msgstr "Voyage"
 
@@ -1456,131 +1440,115 @@ msgstr "Nom du voyageur"
 #: .\travel\templates\travel\group_travel_plan.html:264
 #: .\travel\templates\travel\travel_plan.html:285
 msgid "Origin / Destination(s) of Travel"
-msgstr ""
+msgstr "Origine / Destination du voyage"
 
 #: .\travel\templates\travel\group_travel_plan.html:265
 msgid "Public Servant?"
-msgstr ""
+msgstr "Fonctionnaire?"
 
 #: .\travel\templates\travel\group_travel_plan.html:266
 #: .\travel\templates\travel\travel_plan.html:287
 msgid "Cost Information (include taxes)"
-msgstr ""
+msgstr "Renseignements sur les frais (taxes comprises)"
 
 #: .\travel\templates\travel\group_travel_plan.html:267
 #: .\travel\templates\travel\travel_plan.html:288
 msgid "Event"
-msgstr ""
+msgstr "Évènement"
 
 #: .\travel\templates\travel\group_travel_plan.html:273
 #: .\travel\templates\travel\travel_plan.html:296
 msgid "Accommo-<br>dation"
-msgstr ""
+msgstr "Héberge-<br>ment"
 
 #: .\travel\templates\travel\group_travel_plan.html:280
 #: .\travel\templates\travel\travel_plan.html:301
-#, fuzzy
-#| msgid "By Total Amount"
 msgid "Total Trip Amount"
-msgstr "Par montant total"
+msgstr "Coût total du voyage"
 
 #: .\travel\templates\travel\group_travel_plan.html:281
 #: .\travel\templates\travel\travel_plan.html:302
 msgid "Is the trip part of an Event?"
-msgstr ""
+msgstr "Le voyage fait-il partie d'un événement?"
 
 #: .\travel\templates\travel\group_travel_plan.html:282
-#, fuzzy
-#| msgid "notes (optional)"
 msgid "Event number (optional)"
-msgstr "notes (facultatif)"
+msgstr "Numéro d’événement (facultatif)"
 
 #: .\travel\templates\travel\group_travel_plan.html:301
 msgid "no"
-msgstr ""
+msgstr "non"
 
 #: .\travel\templates\travel\group_travel_plan.html:338
 msgid "DETAILED COST BREAKDOWN PER TRAVELLER"
-msgstr ""
+msgstr "VENTILATION DÉTAILLÉE DES COÛTS PAR VOYAGEUR"
 
 #: .\travel\templates\travel\group_travel_plan.html:354
 #: .\travel\templates\travel\travel_plan.html:369
 msgid "Expenditure Initiation approved by (Print)"
-msgstr ""
+msgstr "Engagement des dépenses approuvé par (en caractère d'imprimerie)"
 
 #: .\travel\templates\travel\group_travel_plan.html:357
 #: .\travel\templates\travel\travel_plan.html:372
-#, fuzzy
-#| msgid "Regional recommendation notes"
 msgid "Regional Director General"
-msgstr "Notes de recommandation régionales"
+msgstr "Directeur général régional"
 
 #: .\travel\templates\travel\group_travel_plan.html:365
 #: .\travel\templates\travel\travel_plan.html:380
 msgid "Signature"
-msgstr ""
+msgstr "Signature"
 
 #: .\travel\templates\travel\group_travel_plan.html:368
 #: .\travel\templates\travel\travel_plan.html:383
-#, fuzzy
-#| msgid "Approve"
 msgid "Approved on"
-msgstr "Approuver"
+msgstr "Approuvé le"
 
 #: .\travel\templates\travel\group_travel_plan.html:369
 #: .\travel\templates\travel\travel_plan.html:384
 msgid "This is not an official copy."
-msgstr ""
+msgstr "Ceci n'est pas une copie officielle."
 
 #: .\travel\templates\travel\group_travel_plan.html:379
 #: .\travel\templates\travel\travel_plan.html:284
 #: .\travel\templates\travel\travel_plan.html:388
-#, fuzzy
-#| msgid "dates"
 msgid "Date"
-msgstr "dates"
+msgstr "Date"
 
 #: .\travel\templates\travel\group_travel_plan.html:389
 #: .\travel\templates\travel\travel_plan.html:399
 msgid "Recommended by"
-msgstr ""
+msgstr "Recommandé par"
 
 #: .\travel\templates\travel\group_travel_plan.html:393
 #: .\travel\templates\travel\travel_plan.html:403
 msgid "digitally reviewed"
-msgstr ""
+msgstr "examiné par voie numérique"
 
 #: .\travel\templates\travel\group_travel_plan.html:395
 #: .\travel\templates\travel\travel_plan.html:405
 msgid "NOT RECOMMENDED"
-msgstr ""
+msgstr "NON RECOMMANDÉ"
 
 #: .\travel\templates\travel\group_travel_plan.html:403
 #: .\travel\templates\travel\travel_plan.html:413
-#, fuzzy
-#| msgid "Approve"
 msgid "Approved by"
-msgstr "Approuver"
+msgstr "Approuvé par"
 
 #: .\travel\templates\travel\index.html:65
 msgid "EOS Conference and Travel Management System"
 msgstr "Système de gestion des conferences et des voyages du SEO"
 
 #: .\travel\templates\travel\index.html:68
-#, fuzzy
-#| msgid "\"Get Your Pre-approval to Travel Today!!\""
 msgid "\"Pre-approval for travel\""
-msgstr "\"Obtenez votre pré-autorisation pour voyager aujourd'hui !!\""
+msgstr "\" Authorisation préalable de voyager\""
 
 #: .\travel\templates\travel\index.html:95
-#, fuzzy
-#| msgid "Reviewer"
 msgid "Overview"
-msgstr "Examinateur"
+msgstr "Aperçu"
 
 #: .\travel\templates\travel\index.html:131
 msgid "Support"
-msgstr ""
+msgstr "Soutien"
 
 #: .\travel\templates\travel\index.html:162
 msgid "Create a New Request"
@@ -1658,10 +1626,8 @@ msgstr "Rapport SCVE"
 
 #: .\travel\templates\travel\reviewer_approval_form.html:50
 #: .\travel\templates\travel\trip_reviewer_approval_form.html:25
-#, fuzzy
-#| msgid "Please provide your comments here..."
 msgid "Please provide your approval comments here (required)"
-msgstr "Veuillez fournir vos commentaires ici..."
+msgstr "Veuillez fournir vos commentaires d'approbation ici (obligatoire)"
 
 #: .\travel\templates\travel\reviewer_approval_form.html:67
 #: .\travel\templates\travel\trip_reviewer_approval_form.html:67
@@ -1802,40 +1768,32 @@ msgid "Close"
 msgstr "Fermer"
 
 #: .\travel\templates\travel\travel_plan.html:146
-#, fuzzy
-#| msgid "Travel Request and Approval Form (TRAF)"
 msgid "Travel Request and Approval Form"
-msgstr "Demande de voyage et formulaire d'approbation (DVFA)"
+msgstr "Demande de voyage et formulaire d'approbation"
 
 #: .\travel\templates\travel\travel_plan.html:160
 msgid "Period Covered"
-msgstr ""
+msgstr "Période couverte"
 
 #: .\travel\templates\travel\travel_plan.html:169
-#, fuzzy
-#| msgid "Traveller Information"
 msgid "Traveller's Information"
-msgstr "Information du voyageur"
+msgstr "Renseignements sur le voyageur"
 
 #: .\travel\templates\travel\travel_plan.html:176
-#, fuzzy
-#| msgid "role of traveller"
 msgid "Name of Traveller"
-msgstr "rôle du voyageur"
+msgstr "Nom du voyageur"
 
 #: .\travel\templates\travel\travel_plan.html:189
-#, fuzzy
-#| msgid "event number"
 msgid "Telephone Number"
-msgstr "numéro d'événement"
+msgstr "Numéro de téléphone"
 
 #: .\travel\templates\travel\travel_plan.html:201
 msgid "Public Servant"
-msgstr ""
+msgstr "Fonctionnaire"
 
 #: .\travel\templates\travel\travel_plan.html:207
 msgid "For non public servant, provide company name"
-msgstr ""
+msgstr "Pour un non-fonctionnaire, fournir le nom de la compagnie ci-dessous"
 
 #: .\travel\templates\travel\travel_plan.html:330
 msgid ""
@@ -1847,20 +1805,24 @@ msgid ""
 "not available.\n"
 "        "
 msgstr ""
+"\n"
+"          Si le but est « Autre », fournir une explication détaillée. "
+"Fournir le but précis du voyage et raison pour\n"
+"          laquelle on ne pouvait pas avoir recours à la téléprésence ou à "
+"d'autres solutions de rechange au voyage.\n"
+"        Fournir justification si l'agenda n'est pas disponible."
 
 #: .\travel\templates\travel\travel_plan.html:359
-#, fuzzy
-#| msgid "date submitted"
 msgid "submitted on"
-msgstr "date de soumission"
+msgstr "soumis le"
 
 #: .\travel\templates\travel\travel_plan.html:361
 msgid "NOT SUBMITTED"
-msgstr ""
+msgstr "NON SOUMIS"
 
 #: .\travel\templates\travel\travel_plan.html:437
 msgid "DETAILED COST BREAKDOWN"
-msgstr ""
+msgstr "VENTILATION DÉTAILLÉE DES COÛTS"
 
 #: .\travel\templates\travel\trip_detail.html:15
 #: .\travel\templates\travel\trip_request_detail.html:15
@@ -1892,10 +1854,8 @@ msgid "Edit"
 msgstr "Modifier"
 
 #: .\travel\templates\travel\trip_detail.html:73
-#, fuzzy
-#| msgid "Verify Trip"
 msgid "Verify"
-msgstr "Vérification du voyage"
+msgstr "Vérifier"
 
 #: .\travel\templates\travel\trip_detail.html:90
 msgid "Start a Review for this trip"
@@ -2010,8 +1970,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"            This trip will be eligible for review by the ADM office in %"
-"(time)s.\n"
+"            This trip will be eligible for review by the ADM office in "
+"%(time)s.\n"
 "          "
 msgstr ""
 "\n"
@@ -2097,6 +2057,8 @@ msgstr "Justificaiton du voyage"
 #: .\travel\templates\travel\trip_request_form.html:114
 msgid "Select NEXT to save progress and go to next section"
 msgstr ""
+"Sélectionnez PROCHAIN pour enregistrer les progrès et passer à la section "
+"suivante"
 
 #: .\travel\templates\travel\trip_request_form.html:119
 msgid ""
@@ -2317,14 +2279,12 @@ msgid "New DM Apps User"
 msgstr "Nouveau utilisateur de DM Apps"
 
 #: .\travel\templates\travel\user_list.html:40
-#, fuzzy
-#| msgid "Regional recommendation notes"
 msgid "Regional Coordinators"
-msgstr "Notes de recommandation régionales"
+msgstr "Coordonnateurs régionaux"
 
 #: .\travel\templates\travel\user_list.html:43
 msgid "National Coordinator"
-msgstr ""
+msgstr "Coordonnateur national"
 
 #: .\travel\utils.py:444
 msgid ""
@@ -2360,8 +2320,8 @@ msgstr ""
 
 #: .\travel\views.py:123
 msgid ""
-"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip"
-"{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified "
+"trip{pluralization} requiring attention!!"
 msgstr ""
 "<b>AVERTISSEMENT ADMINISTRATIF :</b> {region} La région a {unverified_trips} "
 "voyage non vérifié{pluralization} nécessitant une intervention!!"
@@ -2373,11 +2333,11 @@ msgstr "Bureau du SMA"
 #. Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
 #: .\travel\views.py:147
 msgid ""
-"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
-"{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
+"trip{pluralization} requiring attention!!"
 msgstr ""
-"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
-"{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
+"trip{pluralization} requiring attention!!"
 
 #: .\travel\views.py:186 .\travel\views.py:212
 msgid "Traveller information"
@@ -2685,16 +2645,12 @@ msgstr ""
 "commence"
 
 #: .\travel\views.py:1570
-#, fuzzy
-#| msgid "Clone a Trip Request"
 msgid "Clone a Trip"
-msgstr "Cloner une demande de voyage"
+msgstr "Cloner un voyage"
 
 #: .\travel\views.py:1571
-#, fuzzy
-#| msgid "Please update the request details"
 msgid "Please update the trip details"
-msgstr "Veuillez mettre à jour les détails de la demande"
+msgstr "Veuillez mettre à jour les détails du voyage"
 
 #: .\travel\views.py:1647
 msgid "The trip has been added to the database!"
@@ -2823,18 +2779,16 @@ msgstr "Annuler le voyage"
 
 #: .\travel\views.py:2538
 msgid "URL"
-msgstr ""
+msgstr "Adresse URL"
 
 #: .\travel\views.py:2539
-#, fuzzy
-#| msgid "file"
 msgid "File"
-msgstr "fichier"
+msgstr "Fichier"
 
 #: .\travel\views.py:2546 .\travel\views.py:2554 .\travel\views.py:2567
 #: .\travel\views.py:2577
 msgid "Reference Materials"
-msgstr ""
+msgstr "Documents de référence"
 
 #: .\travel\views.py:2588
 msgid "Default Reviewers"

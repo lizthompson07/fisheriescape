@@ -36,7 +36,7 @@ RUN apt-get purge -y --auto-remove $buildDeps \
 
 RUN mkdir media \
     && mkdir media/travel \
-    && mkdir media/travel/temp \
+    && mkdir media/temp \
     && mkdir media/inventory \
     && mkdir media/inventory/temp \
     && mkdir media/projects \

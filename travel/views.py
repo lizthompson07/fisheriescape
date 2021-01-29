@@ -42,24 +42,37 @@ from .utils import is_manager_or_assistant_or_admin, in_travel_admin_group, in_a
 
 
 def get_file(request, file):
+
     if request.GET.get("reference"):
-        my_file = models.ReferenceMaterial.objects.get(pk=file)
+        my_file = models.ReferenceMaterial.objects.get(pk=int(file))
         blob_name = my_file.tfile
+        export_file_name = blob_name
+    elif request.GET.get("blob_name"):
+        blob_name = file.replace("||","/")
+        export_file_name = blob_name.split("/")[-1]
+        if request.GET.get("export_file_name"):
+            export_file_name = request.GET.get("export_file_name")
     else:
-        my_file = models.File.objects.get(pk=file)
+        my_file = models.File.objects.get(pk=int(file))
         blob_name = my_file.file
+        export_file_name = blob_name
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
         AZURE_MSI_CLIENT_ID = config("AZURE_MSI_CLIENT_ID", cast=str, default="")
-        token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net', client_id=AZURE_MSI_CLIENT_ID)
-        blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
+        account_key = config("AZURE_STORAGE_SECRET_KEY", default=None)
+        try:
+            token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net', client_id=AZURE_MSI_CLIENT_ID)
+        except Exception as E:
+            print(E)
+            token_credential = None
+        blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential, account_key=account_key)
         blob_file = blobService.get_blob_to_bytes("media", blob_name)
         response = HttpResponse(blob_file.content, content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
+        response['Content-Disposition'] = f'attachment; filename="{export_file_name}"'
     else:
         response = HttpResponse(blob_name.read(), content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
+        response['Content-Disposition'] = f'attachment; filename="{export_file_name}"'
 
     return response
 
@@ -1658,15 +1671,18 @@ class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
     delete_protection = False
 
     def get_success_url(self):
-        if self.kwargs.get("type") == "back_to_verify":
-            adm = 1 if self.get_object().is_adm_approval_required else 0
-            region = self.get_object().lead.id if adm == 0 else 0
-            success_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"adm": adm, "region": region})
-        else:
-            my_kwargs = self.kwargs
-            del my_kwargs["pk"]
-            success_url = reverse_lazy('travel:trip_list', kwargs=my_kwargs)
-        return success_url
+        try:
+            if self.kwargs.get("type") == "back_to_verify":
+                adm = 1 if self.get_object().is_adm_approval_required else 0
+                region = self.get_object().lead.id if adm == 0 else 0
+                success_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"adm": adm, "region": region})
+            else:
+                my_kwargs = self.kwargs
+                del my_kwargs["pk"]
+                success_url = reverse_lazy('travel:trip_list', kwargs=my_kwargs)
+            return success_url
+        except:
+            return reverse("travel:index")
 
 
 class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
@@ -2276,12 +2292,15 @@ class ReportSearchFormView(TravelAdminRequiredMixin, FormView):
 @login_required()
 def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
     file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region, trip=trip, user=user, from_date=from_date, to_date=to_date)
+    export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+f'?blob_name=true;export_file_name={export_file_name}')
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="CFTS export {}.xlsx"'.format(
-                timezone.now().strftime("%Y-%m-%d"))
+            response['Content-Disposition'] = f'inline; filename="{export_file_name}"'
             return response
     raise Http404
 
@@ -2290,19 +2309,27 @@ def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
 def export_trip_list(request, fy, region, adm, from_date, to_date):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date, site_url=site_url)
+    export_file_name = f'CTMS trip list {timezone.now().strftime("%Y-%m-%d")}.xlsx'
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+f'?blob_name=true;export_file_name={export_file_name}')
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="export of trips {timezone.now().strftime("%Y-%m-%d")}.xlsx"'
+            response['Content-Disposition'] = f'inline; filename="{export_file_name}"'
             return response
     raise Http404
 
 
 @login_required()
 def export_request_cfts(request, trip=None, trip_request=None):
-    # print(trip)
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
+    export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+f'?blob_name=true;export_file_name={export_file_name}')
+
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
@@ -2313,7 +2340,6 @@ def export_request_cfts(request, trip=None, trip_request=None):
 
 
 class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
-
     def get_template_names(self):
         my_object = models.TripRequest.objects.get(id=self.kwargs['pk'])
         if my_object.is_group_request:
