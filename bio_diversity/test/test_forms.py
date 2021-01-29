@@ -83,7 +83,7 @@ class TestCntdForm(CommonTest):
         self.assert_form_valid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.CntdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.CntdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -141,7 +141,7 @@ class TestEnvForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.EnvFactory(contx_id=None, env_val=1000)
+        instance = BioFactoryFloor.EnvFactory(contx_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -230,7 +230,7 @@ class TestGrpdForm(CommonTest):
         self.assert_form_valid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.GrpdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.GrpdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -334,7 +334,7 @@ class TestIndvdForm(CommonTest):
         self.assert_form_valid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.IndvdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.IndvdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -481,7 +481,7 @@ class TestSampdForm(CommonTest):
         self.assert_form_valid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.SampdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.SampdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -575,7 +575,7 @@ class TestSpwndForm(CommonTest):
         self.assert_form_valid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.SpwndFactory(spwnsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.SpwndFactory(spwnsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
