@@ -694,7 +694,7 @@ class TestPersonListView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.PersonFactory()
         self.test_url = reverse_lazy('ihub:person_list')
-        self.expected_template = 'ihub/list.html'
+        self.expected_template = 'ihub/person_list.html'
         self.user = self.get_and_login_user()
 
     @tag("Person", "person_list", "view")

@@ -214,6 +214,11 @@ class TestIndexView(CommonTest):
             "is_admin",
             "is_adm_admin",
             "tab_dict",
+
+            "processes",
+            "information_sections",
+            "faqs",
+            "refs",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 
@@ -328,6 +333,7 @@ class TestTripDetailView(CommonTest):
         self.test_url0 = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk, "type": "upcoming"})
         self.test_url1 = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk, "type": "region-1"})
         self.expected_template = 'travel/trip_detail.html'
+        self.user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("travel", 'detail', "view")
     def test_view_class(self):
@@ -337,8 +343,8 @@ class TestTripDetailView(CommonTest):
     def test_view(self):
         self.assert_good_response(self.test_url0)
         self.assert_good_response(self.test_url1)
-        self.assert_non_public_view(test_url=self.test_url0, expected_template=self.expected_template)
-        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url0, expected_template=self.expected_template, user=self.user)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.user)
 
     @tag("travel", 'detail', "context")
     def test_context(self):

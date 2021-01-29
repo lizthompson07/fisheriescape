@@ -1,14 +1,80 @@
+from azure.storage.blob import BlockBlobService
+from decouple import config
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.utils import custom_send_mail
 from shared_models import models as shared_models
 from . import emails
 from . import models
+
+
+def in_travel_admin_group(user):
+    if user.id:
+        return user.groups.filter(name='travel_admin').count() != 0
+
+
+def in_adm_admin_group(user):
+    if user.id:
+        return user.groups.filter(name='travel_adm_admin').count() != 0
+
+
+def is_approver(user, trip_request):
+    if trip_request.current_reviewer and user == trip_request.current_reviewer.user:
+        return True
+
+
+def is_trip_approver(user, trip):
+    if trip.current_reviewer and user == trip.current_reviewer.user:
+        return True
+
+
+def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
+    """
+    returns True if user has permissions to delete or modify a request
+
+    The answer of this question will depend on whether the trip is submitted.
+    owners cannot edit a submitted trip
+
+    :param user:
+    :param trip_request_id:
+    :param trip_request_submit: If true, it means this function is being used to answer the question about whether a user can unsubmit a trip
+    :return:
+    """
+    if user.id:
+        my_trip_request = models.TripRequest.objects.get(pk=trip_request_id)
+
+        # check to see if a travel_admin
+        if in_travel_admin_group(user):
+            return True
+
+        # check to see if they are the active reviewer
+        # determine if this is a child trip or not.
+        if not my_trip_request.parent_request:
+            if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
+                return True
+        # This is a child trip request
+        else:
+            if my_trip_request.parent_request.current_reviewer and my_trip_request.parent_request.current_reviewer.user == user:
+                return True
+        # if the project is unsubmitted, the project lead is also able to edit the project... obviously
+        # check to see if they are either the owner OR a traveller
+        # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
+        if not my_trip_request.submitted and \
+                (not my_trip_request.user or  # anybody can edit
+                 my_trip_request.user == user or  # the user is the traveller and / or requester
+                 user in my_trip_request.travellers or  # the user is a traveller on the trip
+                 (my_trip_request.parent_request and my_trip_request.parent_request.user == user)):  # the user is the requester
+            return True
+
+        if trip_request_unsubmit and user == my_trip_request.user:
+            return True
 
 
 def get_section_choices(all=False, full_name=True):
@@ -342,7 +408,7 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
             if next_reviewer.role_id in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
                 email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
 
-            elif next_reviewer.role_id in [6,] and request:  # if we are going for RDG signature...
+            elif next_reviewer.role_id in [6, ] and request:  # if we are going for RDG signature...
                 email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id, request)
 
             if email and not suppress_email:
@@ -538,3 +604,51 @@ def get_adm_eligible_trips():
             if t.date_eligible_for_adm_review and t.date_eligible_for_adm_review <= timezone.now():
                 t_ids.append(t.id)
     return models.Conference.objects.filter(id__in=t_ids)
+
+
+user_attr_list = [
+    "shared_models_regions",
+    "shared_models_admin_regions",
+    "shared_models_branches",
+    "shared_models_admin_branches",
+    "shared_models_divisions",
+    "shared_models_admin_divisions",
+    "shared_models_sections",
+    "shared_models_admin_sections",
+]
+
+
+def is_manager_or_assistant_or_admin(user):
+    # start high and go low
+    if in_travel_admin_group(user) or in_adm_admin_group(user):
+        return True
+
+    for attr in user_attr_list:
+        if getattr(user, attr).exists():
+            return True
+
+
+def get_trip_with_managerial_access(user):
+    queryset = models.TripRequest.objects.filter(parent_request__isnull=True)
+    if in_travel_admin_group(user) or in_adm_admin_group(user):
+        return queryset
+    else:
+        return queryset.filter(Q(section__admin=user) | Q(section__head=user)
+                               | Q(section__division__admin=user) | Q(section__division__head=user)
+                               | Q(section__division__branch__admin=user) | Q(section__division__branch__head=user)
+                               | Q(section__division__branch__region__admin=user) | Q(section__division__branch__region__head=user))
+
+
+def upload_to_azure_blob(target_file_path, target_file):
+    AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
+    AZURE_MSI_CLIENT_ID = config("AZURE_MSI_CLIENT_ID", cast=str, default="")
+    account_key = config("AZURE_STORAGE_SECRET_KEY", default=None)
+    try:
+        token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net', client_id=AZURE_MSI_CLIENT_ID)
+    except Exception as E:
+        print(E)
+        token_credential = None
+    blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential, account_key=account_key)
+    blobService.create_blob_from_path('media', target_file, target_file_path)
+
+

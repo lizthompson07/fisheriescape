@@ -11,17 +11,17 @@ from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
 from lib.templatetags.custom_filters import currency
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from . import models
+from . import models, utils
 from shared_models import models as shared_models
 import os
 
 
 def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, trip=None, user=None, from_date=None, to_date=None):
     # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
-    target_file = "temp_export.xlsx"
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp.xlsx"
     target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'travel', 'temp', target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
 
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
@@ -253,15 +253,17 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
     return target_url
 
 
 def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
     # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
-    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp.xlsx"
     target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'travel', 'temp', target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
 
@@ -405,7 +407,7 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
             elif field == "name":
                 my_val = str(get_field_value(trip, field))
                 my_ws.write_url(i, j,
-                                url=f'{site_url}/{reverse("travel:trip_detail", kwargs={"pk": trip.id})}',
+                                url=f'{site_url}/{reverse("travel:trip_detail", args=[ trip.id, "all"])}',
                                 string=my_val)
             elif "cost" in field:
                 my_val = nz(get_field_value(trip, field), 0)
@@ -431,4 +433,6 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
             my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
     return target_url

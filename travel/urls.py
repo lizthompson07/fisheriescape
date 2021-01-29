@@ -58,6 +58,7 @@ urlpatterns = [
     path('trip/new/<str:type>/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/view/from/<str:type>/', views.TripDetailView.as_view(), name="trip_detail"),
     path('trip/<int:pk>/edit/from/<str:type>/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/clone/from/<str:type>/', views.TripCloneView.as_view(), name="trip_clone"),
     path('trip/<int:pk>/delete/from/<str:type>/', views.TripDeleteView.as_view(), name="trip_delete"),
     path('trip/<int:pk>/cancel/from/<str:type>/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
 
@@ -115,6 +116,21 @@ urlpatterns = [
     path('settings/process-steps/', views.ProcessStepFormsetView.as_view(), name="manage_process_steps"),
     path('settings/process-step/<int:pk>/delete/', views.ProcessStepHardDeleteView.as_view(), name="delete_process_step"),
 
+    path('settings/faqs/', views.FAQFormsetView.as_view(), name="manage_faqs"),
+    path('settings/faq/<int:pk>/delete/', views.FAQHardDeleteView.as_view(), name="delete_faq"),
+
+    path('settings/organizations/', views.OrganizationFormsetView.as_view(), name="manage_organizations"),
+    path('settings/organization/<int:pk>/delete/', views.OrganizationHardDeleteView.as_view(), name="delete_organization"),
+
+
+    # full
+    path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),
+    path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),
+    path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),
+    path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
+
+
+
     # default reviewer settings
     path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),
     path('default-reviewer/new/', views.DefaultReviewerCreateView.as_view(), name="default_reviewer_new"),
@@ -148,6 +164,9 @@ urlpatterns = [
          views.export_trip_list, name="export_trip_list"),
 
     # Download a file
-    path('download/file/<int:file>/', views.get_file, name="get_file"),
+    path('download/file/<str:file>/', views.get_file, name="get_file"),
+
+
+
 
 ]

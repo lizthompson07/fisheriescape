@@ -39,21 +39,6 @@ class KeywordFactory(factory.django.DjangoModelFactory):
         lambda o: models.KeywordDomain.objects.all()[faker.random_int(0, models.KeywordDomain.objects.count() - 1)])
 
 
-class PublicationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = shared_models.Publication
-
-    name = factory.lazy_attribute(lambda o: faker.company())
-
-
-class CitationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = shared_models.Citation
-
-    name = factory.lazy_attribute(lambda o: faker.phrase())
-    authors = factory.lazy_attribute(lambda o: faker.name())
-    publication = factory.SubFactory(PublicationFactory)
-
 
 class ResourceFactory(factory.django.DjangoModelFactory):
     class Meta:

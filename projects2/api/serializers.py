@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date
+from django.utils.timesince import timesince
 from markdown import markdown
 from rest_framework import serializers
 
@@ -131,6 +133,7 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     display_name = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
     can_modify = serializers.SerializerMethodField()
     submitted = serializers.SerializerMethodField()
 
@@ -171,6 +174,18 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_metadata(self, instance):
         return instance.metadata
+
+    def get_last_modified(self, instance):
+        # format_str = '%Y-%m-%d %Z'
+        my_str = ""
+        if instance.updated_at:
+
+            my_str += f"{naturaltime(instance.updated_at)}"
+            if instance.modified_by:
+                my_str += f" by {instance.modified_by}"
+        return my_str
+
+
 
     def get_deliverables_html(self, instance):
         return instance.deliverables_html
