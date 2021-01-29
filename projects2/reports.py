@@ -4,6 +4,7 @@ from io import BytesIO
 
 import xlsxwriter
 from django.conf import settings
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db.models import Q
 from django.http import HttpResponse
 from django.template.defaultfilters import pluralize, slugify
@@ -15,9 +16,11 @@ from openpyxl import load_workbook
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
+from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from publications import models as pi_models
 from shared_models.models import Region, FiscalYear, Section
 from . import models
+from .models import ProjectYear
 
 
 def generate_acrdp_application(project):
@@ -748,3 +751,59 @@ def generate_csrf_application(project, lang):
     document.save(target_file_path)
 
     return target_url
+
+
+def generate_project_list(year, region, section):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+    writer = csv.writer(response)
+    status_choices = models.ProjectYear.status_choices
+
+
+    fields = [
+        'region',
+        'division',
+        'project.section|section',
+        'project.id|Project Id',
+        'fiscal_year',
+        'project.title|title',
+        'project.default_funding_source|Primary funding source',
+        'project.functional_group|Functional group',
+        'Project leads',
+        'status',
+        'updated_at|Last modified date',
+        'modified_by|Last modified by',
+        'Last modified description',
+    ]
+
+    qs = ProjectYear.objects.filter(fiscal_year_id=year).distinct()
+    if section != "None":
+        qs = qs.filter(project__section_id=section)
+    elif region != "None":
+        qs = qs.filter(project__section__division__branch__region_id=region)
+
+    header_row = [get_verbose_label(ProjectYear.objects.first(), header) for header in fields]
+    writer.writerow(header_row)
+
+    for obj in qs:
+        data_row = list()
+        for field in fields:
+            if "division" in field:
+                val = obj.project.section.division.tname
+            elif "region" in field:
+                val = obj.project.section.division.branch.region.tname
+            elif "leads" in field:
+                val = listrify(obj.get_project_leads_as_users())
+            elif "updated_at" in field:
+                val = obj.updated_at.strftime("%Y-%m-%d")
+            elif "last modified description" in field:
+                val = naturaltime(obj.updated_at)
+            else:
+                val = get_field_value(obj, field)
+
+            data_row.append(val)
+
+        writer.writerow(data_row)
+
+    return response

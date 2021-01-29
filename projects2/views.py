@@ -1091,6 +1091,7 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         report = int(form.cleaned_data["report"])
         year = nz(form.cleaned_data["year"], "None")
         region = nz(form.cleaned_data["region"], "None")
+        section = nz(form.cleaned_data["section"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
@@ -1098,6 +1099,8 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year};region={region}')
         elif report == 3:
             return HttpResponseRedirect(reverse("projects2:export_project_status_summary")+f'?year={year};region={region}')
+        elif report == 4:
+            return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1201,9 +1204,6 @@ def export_csrf_submission_list(request):
     raise Http404
 
 
-
-
-
 @login_required()
 def project_status_summary(request):
     year = request.GET.get("year")
@@ -1212,6 +1212,20 @@ def project_status_summary(request):
     response = reports.generate_project_status_summary(year, region)
     response['Content-Disposition'] = f'attachment; filename="project status summary ({timezone.now().strftime("%Y_%m_%d")}).csv"'
     return response
+
+
+@login_required()
+def export_project_list(request):
+    if in_projects_admin_group(request.user):
+        year = request.GET.get("year")
+        region = request.GET.get("region")
+        section = request.GET.get("section")
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = reports.generate_project_list(year, region, section)
+        response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+        return response
+    else:
+        HttpResponseForbidden("Sorry, only admins have access to this report")
 
 # ADMIN USERS
 

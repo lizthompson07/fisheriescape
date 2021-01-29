@@ -102,6 +102,7 @@ urlpatterns = [
     path('reports/science-culture-committee-report/', views.culture_committee_report, name="culture_committee_report"),# tested
     path('reports/csrf-submission-list/', views.export_csrf_submission_list, name="export_csrf_submission_list"),# tested
     path('reports/project-status-summary/', views.project_status_summary, name="export_project_status_summary"),# tested
+    path('reports/project-list/', views.export_project_list, name="export_project_list"),  # TODO: test
 
 
     #special
