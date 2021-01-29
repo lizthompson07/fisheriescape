@@ -791,11 +791,11 @@ def generate_project_list(year, region, section):
         for field in fields:
             if "division" in field:
                 val = " ---"
-                if obj.section:
+                if obj.project.section:
                     val = obj.project.section.division.tname
             elif "region" in field:
                 val = " ---"
-                if obj.section:
+                if obj.project.section:
                     val = obj.project.section.division.branch.region.tname
             elif "leads" in field:
                 val = listrify(obj.get_project_leads_as_users())
