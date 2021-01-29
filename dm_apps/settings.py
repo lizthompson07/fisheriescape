@@ -128,7 +128,7 @@ LOGIN_URL = '/accounts/login/'
 try:
     from . import my_conf as local_conf
 except:
-    from . import default_conf as local_conf
+    from . import my_conf as local_conf
 
 # Application definition
 INSTALLED_APPS = [

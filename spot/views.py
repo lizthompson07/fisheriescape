@@ -54,7 +54,6 @@ def in_spot_admin_group(user):
 
 class SpotAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
-
     def test_func(self):
         return in_spot_admin_group(self.request.user)
 
@@ -100,24 +99,20 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'org_num',
             'name_eng',
-            'org_type',
             #'abbrev',
-            'sub_org',
+            'orgs',
             'address',
             'city',
             'postal_code',
             'province',
             'phone',
             #'fax',
-            #dfo_contact_instructions',
+            'dfo_contact_instructions',
             #'notes',
-            #'grouping',
-            #'regions',
+            'grouping',
+            'regions',
             #'sectors',
-            'email',
-            'org_site',
             'date_last_modified',
             'last_modified_by',
         ]

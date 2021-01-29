@@ -25,6 +25,7 @@ class OrganizationFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+
 class PersonFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search",
                                             lookup_expr='icontains', widget=forms.TextInput())
@@ -48,3 +49,5 @@ class ProjectFilter(django_filters.FilterSet):
         self.filters["organization"] = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact', choices=org_choices)
 
 
+class ObjectiveFilter(django_filters.FilterSet):
+    pass

@@ -75,7 +75,7 @@ prod.cnf
 
 # Ignore all files dealing with enviornment variables except the sample file
 .env*
-!.env_sample
+!.env
 
 # Google API key #
 ##################

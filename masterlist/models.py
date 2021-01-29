@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 
 from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
-
 # Choices for YesNo
 from shared_models.models import SimpleLookup
 
@@ -17,15 +16,16 @@ YESNO_CHOICES = (
 
 
 class Sector(SimpleLookup):
-    pass
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=False, null=True)
 
+    class Meta:
+        ordering = ["region", _("name"), ]
 
-class Role(SimpleLookup):
-    pass
-
-
-class OrganizationType(SimpleLookup):
-    pass
+    def __str__(self):
+        mystr = self.tname
+        if self.region:
+            mystr += f' ({self.region.tname})'
+        return str(mystr)
 
 
 class Grouping(SimpleLookup):
@@ -97,13 +97,6 @@ class Organization(models.Model):
     reserves = models.ManyToManyField(Reserve, verbose_name=_("Associated reserves"), blank=True)
     audio_file = models.FileField(upload_to=audio_file_directory_path, verbose_name=_("audio file"), blank=True, null=True)
 
-    # spot
-    org_num = models.IntegerField(blank=True, null=True, verbose_name=_("number"))
-    org_site = models.URLField(blank=True, null=True, verbose_name=_("(spot) website"))
-    email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
-    sub_org = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("sub organization"))
-    org_type = models.ForeignKey(OrganizationType, blank=True, null=True, on_delete=models.DO_NOTHING, verbose_name=_("type"))
-
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -151,7 +144,7 @@ class Organization(models.Model):
 
     @property
     def chief(self):
-        member_qry =self.members.filter(role__icontains="chief")
+        member_qry = self.members.filter(role__icontains="chief")
         if member_qry.exists():
             # need to do a better guess at who is chief. Sometimes, a member's role might be previous chief
             winner = None
@@ -189,11 +182,6 @@ class Person(models.Model):
     connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
 
     # is_consultation_contact = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Consultation contact?"))
-
-    #spot
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role"))
-    org_sec = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("section"))
-    oth_memb = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("other membership"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -260,14 +248,16 @@ class Person(models.Model):
         return my_str
 
 
+class Role(SimpleLookup):
+    pass
+
+
 class OrganizationMember(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="memberships")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="members")
     # role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="members", blank=True, null=True, verbose_name=_("G&C role"))
     role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
     notes = models.TextField(blank=True, null=True)
-    #spot
-    spot_role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("spot role"))
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -293,7 +283,7 @@ class OrganizationMember(models.Model):
         else:
             last_name = ""
 
-        return "{} {}, {} ({})".format(first_name, last_name, self.spot_role, self.organization)
+        return "{} {}, {} ({})".format(first_name, last_name, self.role, self.organization)
 
 
 class ConsultationRole(models.Model):

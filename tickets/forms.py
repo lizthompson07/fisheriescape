@@ -7,7 +7,7 @@ from shared_models import models as shared_models
 try:
     from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
-    from dm_apps import default_conf as local_conf
+    from dm_apps import my_conf as local_conf
 
 chosen_select = {"class": "chosen-select"}
 chosen_select_contains = {"class": "chosen-select-contains"}
