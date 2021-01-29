@@ -25,7 +25,6 @@
           <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
         </div>
 
-
       </form>
 
       <div class="loader hidden"></div>
@@ -37,15 +36,24 @@
 
   function hideAll() {
     $(".year_div").addClass("gone");
+    $(".region_div").addClass("gone");
     $("#id_year").prop("required", false);
+    $("#id_region").prop("required", false);
   }
 
   function configureForm() {
     var reportChoice = $("#id_report")[0].value;
     // cfts report
-    if (reportChoice === "1") {
+    if (reportChoice === "2") {
       $(".year_div").removeClass("gone");
-      $("#id_year").prop("required", false);
+      $(".region_div").removeClass("gone");
+      $("#id_year").prop("required", true);
+
+    }
+    else if (reportChoice === "3") {
+      $(".year_div").removeClass("gone");
+      $(".region_div").removeClass("gone");
+      $("#id_year").prop("required", true);
 
     }
   }

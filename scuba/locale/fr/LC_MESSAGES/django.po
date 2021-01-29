@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 15:41-0400\n"
+"POT-Creation-Date: 2021-01-27 14:52-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -411,11 +411,15 @@ msgstr "Enregistrer la section"
 msgid "Add (Enter)"
 msgstr "Ajouter (retour)"
 
-#: .\scuba\templates\scuba\dive_data_entry\main.html:221
+#: .\scuba\templates\scuba\dive_data_entry\main.html:222
+msgid "TOTAL: "
+msgstr ""
+
+#: .\scuba\templates\scuba\dive_data_entry\main.html:225
 msgid "This section has no observations"
 msgstr "Cette section n'a pas d'observations"
 
-#: .\scuba\templates\scuba\dive_data_entry\main.html:229
+#: .\scuba\templates\scuba\dive_data_entry\main.html:233
 msgid "Back"
 msgstr "Retour"
 

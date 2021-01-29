@@ -90,6 +90,7 @@ class Entry(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"),
                                    related_name="user_entries")
+    old_id = models.IntegerField(blank=True, null=True, editable=False, unique=True) # used for importing new data.
 
     class Meta:
         ordering = ['-date_created', ]
