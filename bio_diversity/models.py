@@ -18,6 +18,9 @@ class BioModel(models.Model):
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
 
+    # to handle unresolved attirbute reference in pycharm
+    objects = models.Manager()
+
     def clean(self):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
@@ -86,6 +89,9 @@ class BioLookup(shared_models.Lookup):
 
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
+
+    # to handle unresolved attirbute reference in pycharm
+    objects = models.Manager()
 
     def clean(self):
         # handle null values in uniqueness constraint foreign keys.
@@ -272,9 +278,8 @@ class CountDet(BioDet):
         if self.det_val:
             if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.anidc_id.max_val,
-                                                                                                  self.anidc_id.min_val))
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
 
 
@@ -549,9 +554,8 @@ class GroupDet(BioDet):
         if self.det_val:
             if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.anidc_id.max_val,
-                                                                                                  self.anidc_id.min_val))
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
 
 
@@ -717,9 +721,8 @@ class IndividualDet(BioDet):
         if self.det_val:
             if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.anidc_id.max_val,
-                                                                                                  self.anidc_id.min_val))
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
 
 
@@ -1020,9 +1023,8 @@ class SampleDet(BioDet):
         if self.det_val:
             if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.anidc_id.max_val,
-                                                                                                  self.anidc_id.min_val))
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
 
 
@@ -1077,9 +1079,8 @@ class SpawnDet(BioDet):
         if self.det_val:
             if self.det_val > self.spwndc_id.max_val or self.det_val < self.spwndc_id.min_val:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.spwndc_id.max_val,
-                                                                                                  self.spwndc_id.min_val))
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.spwndc_id.max_val, self.spwndc_id.min_val))
                 })
 
 

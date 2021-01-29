@@ -12,7 +12,7 @@ import pandas as pd
 from bio_diversity import models
 
 
-class CreatePrams:
+class CreatePrams(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,7 +23,7 @@ class CreatePrams:
         #                       "class": "fp-date"})
 
 
-class CreateTimePrams:
+class CreateTimePrams(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,79 +54,79 @@ class CreateTimePrams:
                 self.add_error('det_valid', gettext("Cannot be valid after end date"))
 
 
-class AnidcForm(CreatePrams, forms.ModelForm):
+class AnidcForm(CreatePrams):
     class Meta:
         model = models.AnimalDetCode
         exclude = []
 
 
-class AnixForm(CreatePrams, forms.ModelForm):
+class AnixForm(CreatePrams):
     class Meta:
         model = models.AniDetailXref
         exclude = []
 
 
-class AdscForm(CreatePrams, forms.ModelForm):
+class AdscForm(CreatePrams):
     class Meta:
         model = models.AniDetSubjCode
         exclude = []
 
 
-class CntForm(CreatePrams, forms.ModelForm):
+class CntForm(CreatePrams):
     class Meta:
         model = models.Count
         exclude = []
 
 
-class CntcForm(CreatePrams, forms.ModelForm):
+class CntcForm(CreatePrams):
     class Meta:
         model = models.CountCode
         exclude = []
 
 
-class CntdForm(CreatePrams, forms.ModelForm):
+class CntdForm(CreatePrams):
     class Meta:
         model = models.CountDet
         exclude = []
 
 
-class CollForm(CreatePrams, forms.ModelForm):
+class CollForm(CreatePrams):
     class Meta:
         model = models.Collection
         exclude = []
 
 
-class ContdcForm(CreatePrams, forms.ModelForm):
+class ContdcForm(CreatePrams):
     class Meta:
         model = models.ContainerDetCode
         exclude = []
 
 
-class ContxForm(CreatePrams, forms.ModelForm):
+class ContxForm(CreatePrams):
     class Meta:
         model = models.ContainerXRef
         exclude = []
 
 
-class CdscForm(CreatePrams, forms.ModelForm):
+class CdscForm(CreatePrams):
     class Meta:
         model = models.ContDetSubjCode
         exclude = []
 
 
-class CupForm(CreatePrams, forms.ModelForm):
+class CupForm(CreatePrams):
     class Meta:
         model = models.Cup
         exclude = []
 
 
-class CupdForm(CreateTimePrams, forms.ModelForm):
+class CupdForm(CreateTimePrams):
     class Meta:
         model = models.CupDet
         exclude = []
 
 
-class DataForm(CreatePrams, forms.ModelForm):
+class DataForm(CreatePrams):
 
     class Meta:
         model = models.DataLoader
@@ -152,8 +152,8 @@ class DataForm(CreatePrams, forms.ModelForm):
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl')
                 data_dict = data.to_dict('records')
-            except:
-                raise Exception("File format not valid")
+            except Exception as err:
+                raise Exception("File format not valid: {}".format(err.__str__()))
             parsed = True
 
             self.request.session["load_success"] = True
@@ -276,28 +276,28 @@ class DataForm(CreatePrams, forms.ModelForm):
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
                                      converters={'to tank': str})
                 data_dict = data.to_dict('records')
-            except:
-                raise Exception("File format not valid")
+            except Exception as err:
+                raise Exception("File format not valid: {}".format(err.__str__()))
             parsed = True
             self.request.session["load_success"] = True
             try:
                 grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
                                                      coll_id__name=data_dict[0]["Group"]).get().pk
+
+                grp_anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                grp_id_id=grp_id,
+                                                created_by=cleaned_data["created_by"],
+                                                created_date=cleaned_data["created_date"],
+                                                )
+                try:
+                    grp_anix.clean()
+                    grp_anix.save()
+                except ValidationError:
+                    pass
             except Exception as err:
                 log_data += "Error finding origin group (check first row): \n"
                 log_data += "Error: {}\n\n".format(err.__str__())
                 self.request.session["load_success"] = False
-
-            grp_anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                            grp_id_id=grp_id,
-                                            created_by=cleaned_data["created_by"],
-                                            created_date=cleaned_data["created_date"],
-                                            )
-            try:
-                grp_anix.clean()
-                grp_anix.save()
-            except ValidationError:
-                pass
 
             for row in data_dict:
                 row_parsed = True
@@ -427,13 +427,13 @@ class DataForm(CreatePrams, forms.ModelForm):
         self.request.session["log_data"] = log_data
 
 
-class DrawForm(CreatePrams, forms.ModelForm):
+class DrawForm(CreatePrams):
     class Meta:
         model = models.Drawer
         exclude = []
 
 
-class EnvForm(CreatePrams, forms.ModelForm):
+class EnvForm(CreatePrams):
     class Meta:
         model = models.EnvCondition
         exclude = []
@@ -456,37 +456,37 @@ class EnvForm(CreatePrams, forms.ModelForm):
                 ))
 
 
-class EnvcForm(CreatePrams, forms.ModelForm):
+class EnvcForm(CreatePrams):
     class Meta:
         model = models.EnvCode
         exclude = []
 
 
-class EnvcfForm(CreatePrams, forms.ModelForm):
+class EnvcfForm(CreatePrams):
     class Meta:
         model = models.EnvCondFile
         exclude = []
 
 
-class EnvscForm(CreatePrams, forms.ModelForm):
+class EnvscForm(CreatePrams):
     class Meta:
         model = models.EnvSubjCode
         exclude = []
 
 
-class EnvtForm(CreatePrams, forms.ModelForm):
+class EnvtForm(CreatePrams):
     class Meta:
         model = models.EnvTreatment
         exclude = []
 
 
-class EnvtcForm(CreatePrams, forms.ModelForm):
+class EnvtcForm(CreatePrams):
     class Meta:
         model = models.EnvTreatCode
         exclude = []
 
 
-class EvntForm(CreatePrams, forms.ModelForm):
+class EvntForm(CreatePrams):
     class Meta:
         model = models.Event
         exclude = []
@@ -515,55 +515,55 @@ class EvntForm(CreatePrams, forms.ModelForm):
                 ))
 
 
-class EvntcForm(CreatePrams, forms.ModelForm):
+class EvntcForm(CreatePrams):
     class Meta:
         model = models.EventCode
         exclude = []
 
 
-class FacicForm(CreatePrams, forms.ModelForm):
+class FacicForm(CreatePrams):
     class Meta:
         model = models.FacilityCode
         exclude = []
 
 
-class FecuForm(CreateTimePrams, forms.ModelForm):
+class FecuForm(CreateTimePrams):
     class Meta:
         model = models.Fecundity
         exclude = []
 
 
-class FeedForm(CreatePrams, forms.ModelForm):
+class FeedForm(CreatePrams):
     class Meta:
         model = models.Feeding
         exclude = []
 
 
-class FeedcForm(CreatePrams, forms.ModelForm):
+class FeedcForm(CreatePrams):
     class Meta:
         model = models.FeedCode
         exclude = []
 
 
-class FeedmForm(CreatePrams, forms.ModelForm):
+class FeedmForm(CreatePrams):
     class Meta:
         model = models.FeedMethod
         exclude = []
 
 
-class GrpForm(CreatePrams, forms.ModelForm):
+class GrpForm(CreatePrams):
     class Meta:
         model = models.Group
         exclude = []
 
 
-class GrpdForm(CreatePrams, forms.ModelForm):
+class GrpdForm(CreatePrams):
     class Meta:
         model = models.GroupDet
         exclude = []
 
 
-class HeatForm(CreatePrams, forms.ModelForm):
+class HeatForm(CreatePrams):
     class Meta:
         model = models.HeathUnit
         exclude = []
@@ -572,7 +572,7 @@ class HeatForm(CreatePrams, forms.ModelForm):
         }
 
 
-class HeatdForm(CreateTimePrams, forms.ModelForm):
+class HeatdForm(CreateTimePrams):
     class Meta:
         model = models.HeathUnitDet
         exclude = []
@@ -604,19 +604,19 @@ HelpTextFormset = modelformset_factory(
 )
 
 
-class ImgForm(CreatePrams, forms.ModelForm):
+class ImgForm(CreatePrams):
     class Meta:
         model = models.Image
         exclude = []
 
 
-class ImgcForm(CreatePrams, forms.ModelForm):
+class ImgcForm(CreatePrams):
     class Meta:
         model = models.ImageCode
         exclude = []
 
 
-class IndvForm(CreatePrams, forms.ModelForm):
+class IndvForm(CreatePrams):
     class Meta:
         model = models.Individual
         exclude = []
@@ -633,13 +633,13 @@ class IndvForm(CreatePrams, forms.ModelForm):
     ]
 
 
-class IndvdForm(CreatePrams, forms.ModelForm):
+class IndvdForm(CreatePrams):
     class Meta:
         model = models.IndividualDet
         exclude = []
 
 
-class IndvtForm(CreatePrams, forms.ModelForm):
+class IndvtForm(CreatePrams):
     class Meta:
         model = models.IndTreatment
         exclude = []
@@ -663,37 +663,37 @@ class IndvtForm(CreatePrams, forms.ModelForm):
                 ))
 
 
-class IndvtcForm(CreatePrams, forms.ModelForm):
+class IndvtcForm(CreatePrams):
     class Meta:
         model = models.IndTreatCode
         exclude = []
 
 
-class InstForm(CreatePrams, forms.ModelForm):
+class InstForm(CreatePrams):
     class Meta:
         model = models.Instrument
         exclude = []
 
 
-class InstcForm(CreatePrams, forms.ModelForm):
+class InstcForm(CreatePrams):
     class Meta:
         model = models.InstrumentCode
         exclude = []
 
 
-class InstdForm(CreateTimePrams, forms.ModelForm):
+class InstdForm(CreateTimePrams):
     class Meta:
         model = models.InstrumentDet
         exclude = []
 
 
-class InstdcForm(CreatePrams, forms.ModelForm):
+class InstdcForm(CreatePrams):
     class Meta:
         model = models.InstDetCode
         exclude = []
 
 
-class LocForm(CreatePrams, forms.ModelForm):
+class LocForm(CreatePrams):
     class Meta:
         model = models.Location
         exclude = []
@@ -702,19 +702,19 @@ class LocForm(CreatePrams, forms.ModelForm):
         }
 
 
-class LoccForm(CreatePrams, forms.ModelForm):
+class LoccForm(CreatePrams):
     class Meta:
         model = models.LocCode
         exclude = []
 
 
-class OrgaForm(CreatePrams, forms.ModelForm):
+class OrgaForm(CreatePrams):
     class Meta:
         model = models.Organization
         exclude = []
 
 
-class PairForm(CreateTimePrams, forms.ModelForm):
+class PairForm(CreateTimePrams):
     class Meta:
         model = models.Pairing
         exclude = []
@@ -723,19 +723,19 @@ class PairForm(CreateTimePrams, forms.ModelForm):
         }
 
 
-class PercForm(CreatePrams, forms.ModelForm):
+class PercForm(CreatePrams):
     class Meta:
         model = models.PersonnelCode
         exclude = []
 
 
-class PrioForm(CreatePrams, forms.ModelForm):
+class PrioForm(CreatePrams):
     class Meta:
         model = models.PriorityCode
         exclude = []
 
 
-class ProgForm(CreateTimePrams, forms.ModelForm):
+class ProgForm(CreateTimePrams):
     class Meta:
         model = models.Program
         exclude = []
@@ -746,73 +746,73 @@ class ProgForm(CreateTimePrams, forms.ModelForm):
         self.fields['orga_id'].create_url = 'bio_diversity:create_orga'
 
 
-class ProgaForm(CreatePrams, forms.ModelForm):
+class ProgaForm(CreatePrams):
     class Meta:
         model = models.ProgAuthority
         exclude = []
 
 
-class ProtForm(CreateTimePrams, forms.ModelForm):
+class ProtForm(CreateTimePrams):
     class Meta:
         model = models.Protocol
         exclude = []
 
 
-class ProtcForm(CreatePrams, forms.ModelForm):
+class ProtcForm(CreatePrams):
     class Meta:
         model = models.ProtoCode
         exclude = []
 
 
-class ProtfForm(CreatePrams, forms.ModelForm):
+class ProtfForm(CreatePrams):
     class Meta:
         model = models.Protofile
         exclude = []
 
 
-class QualForm(CreatePrams, forms.ModelForm):
+class QualForm(CreatePrams):
     class Meta:
         model = models.QualCode
         exclude = []
 
 
-class RelcForm(CreatePrams, forms.ModelForm):
+class RelcForm(CreatePrams):
     class Meta:
         model = models.ReleaseSiteCode
         exclude = []
 
 
-class RiveForm(CreatePrams, forms.ModelForm):
+class RiveForm(CreatePrams):
     class Meta:
         model = models.RiverCode
         exclude = []
 
 
-class RoleForm(CreatePrams, forms.ModelForm):
+class RoleForm(CreatePrams):
     class Meta:
         model = models.RoleCode
         exclude = []
 
 
-class SampForm(CreatePrams, forms.ModelForm):
+class SampForm(CreatePrams):
     class Meta:
         model = models.Sample
         exclude = []
 
 
-class SampcForm(CreatePrams, forms.ModelForm):
+class SampcForm(CreatePrams):
     class Meta:
         model = models.SampleCode
         exclude = []
 
 
-class SampdForm(CreatePrams, forms.ModelForm):
+class SampdForm(CreatePrams):
     class Meta:
         model = models.SampleDet
         exclude = []
 
 
-class SireForm(CreatePrams, forms.ModelForm):
+class SireForm(CreatePrams):
     class Meta:
         model = models.Sire
         exclude = []
@@ -821,7 +821,7 @@ class SireForm(CreatePrams, forms.ModelForm):
         }
 
 
-class SpwnForm(CreatePrams, forms.ModelForm):
+class SpwnForm(CreatePrams):
     class Meta:
         model = models.Spawning
         exclude = []
@@ -835,91 +835,91 @@ class SpwnForm(CreatePrams, forms.ModelForm):
         self.fields['pair_id'].create_url = 'bio_diversity:create_pair'
 
 
-class SpwndForm(CreatePrams, forms.ModelForm):
+class SpwndForm(CreatePrams):
     class Meta:
         model = models.SpawnDet
         exclude = []
 
 
-class SpwndcForm(CreatePrams, forms.ModelForm):
+class SpwndcForm(CreatePrams):
     class Meta:
         model = models.SpawnDetCode
         exclude = []
 
 
-class SpwnscForm(CreatePrams, forms.ModelForm):
+class SpwnscForm(CreatePrams):
     class Meta:
         model = models.SpawnDetSubjCode
         exclude = []
 
 
-class SpecForm(CreatePrams, forms.ModelForm):
+class SpecForm(CreatePrams):
     class Meta:
         model = models.SpeciesCode
         exclude = []
 
 
-class StokForm(CreatePrams, forms.ModelForm):
+class StokForm(CreatePrams):
     class Meta:
         model = models.StockCode
         exclude = []
 
 
-class SubrForm(CreatePrams, forms.ModelForm):
+class SubrForm(CreatePrams):
     class Meta:
         model = models.SubRiverCode
         exclude = []
 
 
-class TankForm(CreatePrams, forms.ModelForm):
+class TankForm(CreatePrams):
     class Meta:
         model = models.Tank
         exclude = []
 
 
-class TankdForm(CreateTimePrams, forms.ModelForm):
+class TankdForm(CreateTimePrams):
     class Meta:
         model = models.TankDet
         exclude = []
 
 
-class TeamForm(CreatePrams, forms.ModelForm):
+class TeamForm(CreatePrams):
     class Meta:
         model = models.Team
         exclude = []
 
 
-class TrayForm(CreatePrams, forms.ModelForm):
+class TrayForm(CreatePrams):
     class Meta:
         model = models.Tray
         exclude = []
 
 
-class TraydForm(CreateTimePrams, forms.ModelForm):
+class TraydForm(CreateTimePrams):
     class Meta:
         model = models.TrayDet
         exclude = []
 
 
-class TribForm(CreatePrams, forms.ModelForm):
+class TribForm(CreatePrams):
     class Meta:
         model = models.Tributary
         exclude = []
 
 
-class TrofForm(CreatePrams, forms.ModelForm):
+class TrofForm(CreatePrams):
     class Meta:
         model = models.Trough
         exclude = []
 
 
-class TrofdForm(CreateTimePrams, forms.ModelForm):
+class TrofdForm(CreateTimePrams):
     class Meta:
         model = models.TroughDet
         exclude = []
 
 
-class UnitForm(CreatePrams, forms.ModelForm):
+class UnitForm(CreatePrams):
     class Meta:
         model = models.UnitCode
         exclude = []
