@@ -15,6 +15,7 @@ from . import permissions, pagination
 from . import serializers
 from .. import models
 
+
 # USER
 #######
 class CurrentUserAPIView(APIView):
