@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.test import tag
 from django.urls import reverse_lazy
 from faker import Factory
@@ -488,6 +490,9 @@ class TestProjectYearCloneView(CommonTest):
     @tag("ProjectYear", "year_clone", "submit")
     def test_submit(self):
         data = FactoryFloor.ProjectYearFactory.get_valid_data()
+        # let's manually update the start and end dates so that there is no chance of an invalid form
+        data["start_date"] = self.instance.start_date + timedelta(days=365)
+        data["end_date"] = self.instance.end_date + timedelta(days=365)
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
     @tag("ProjectYear", "year_clone", "correct_url")
