@@ -383,9 +383,7 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
             'initial_date',
             'anticipated_end_date',
             'regions',
-            'date_last_modified',
-            'last_modified_by',
-            'created_by',
+            'metadata',
         ]
         context["field_list_1"] = [
             'fiscal_year',

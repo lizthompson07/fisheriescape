@@ -364,14 +364,14 @@ class CSRFPriorityFactory(factory.django.DjangoModelFactory):
         model = models.CSRFPriority
 
     csrf_sub_theme = factory.SubFactory(CSRFSubThemeFactory)
-    code = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
+    code = factory.lazy_attribute(lambda o: faker.pyint(1, 100000))
     name = factory.lazy_attribute(lambda o: faker.catch_phrase())
 
     @staticmethod
     def get_valid_data():
         return {
             'csrf_sub_theme': CSRFSubThemeFactory().id,
-            'code': faker.pyint(1, 1000),
+            'code': faker.pyint(1, 100000),
             'name': faker.catch_phrase(),
         }
 
