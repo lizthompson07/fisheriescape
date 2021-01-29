@@ -254,7 +254,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
 
     workbook.close()
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        utils.upload_to_azure_blob(target_file_path, f'temp||{target_file}')
+        utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
     return target_url
 
 
@@ -434,5 +434,5 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
 
     workbook.close()
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        utils.upload_to_azure_blob(target_file_path, f'temp||{target_file}')
+        utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
     return target_url
