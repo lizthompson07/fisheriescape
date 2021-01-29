@@ -10,6 +10,7 @@ from django.utils.translation import gettext
 import pandas as pd
 
 from bio_diversity import models
+from bio_diversity.utils import comment_parser
 
 
 class CreatePrams(forms.ModelForm):
@@ -416,6 +417,7 @@ class DataForm(CreatePrams):
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
                                      converters={'PIT': str})
+                data["COMMENTS"] = data["COMMENTS"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
                 raise Exception("File format not valid: {}".format(err.__str__()))
@@ -463,6 +465,7 @@ class DataForm(CreatePrams):
                                                              adsc_id=models.AniDetSubjCode.objects.filter(
                                                                  name=sex_dict[row["SEX"]]).get(),
                                                              qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                             comments=row["COMMENTS"],
                                                              created_by=cleaned_data["created_by"],
                                                              created_date=cleaned_data["created_date"],
                                                              )
@@ -496,6 +499,8 @@ class DataForm(CreatePrams):
                                 anix_contx.save()
                             except ValidationError:
                                 row_entered = False
+                        if row["COMMENTS"]:
+                            comment_parser(row["COMMENTS"], anix_indv)
                     else:
                         break
 

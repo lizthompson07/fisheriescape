@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 from bio_diversity import models
 
 
@@ -31,3 +33,24 @@ def get_cont_evnt(contx):
             output_list.append("{}".format(cont.__str__()))
             break
     return output_list
+
+
+def comment_parser(comment_str, anix_indv):
+    parser_list = ["bad shape"]
+    for term in parser_list:
+        if term in comment_str.lower():
+            adsc = models.AnimalDetCode.objects.filter(name__icontains=term).get()
+            indvd_parsed = models.IndividualDet(anix_id_id=anix_indv.pk,
+                                                anidc_id=adsc.anidc_id,
+                                                adsc_id=adsc,
+                                                qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                comments=comment_str,
+                                                created_by=anix_indv.created_by,
+                                                created_date=anix_indv.created_date,
+                                                )
+            try:
+                indvd_parsed.clean()
+                indvd_parsed.save()
+            except ValidationError:
+                pass
+
