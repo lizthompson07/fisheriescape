@@ -1,0 +1,28 @@
+{
+  "status": "done",
+  "publicPath": "http://127.0.0.1:8080/",
+  "chunks": {
+    "events": [
+      {
+        "name": "events.css",
+        "publicPath": "http://127.0.0.1:8080/bundle.css",
+        "path": "dist/events.css"
+      },
+      {
+        "name": "events.js",
+        "publicPath": "http://127.0.0.1:8080/bundle.js",
+        "path": "dist/events.js"
+      },
+      {
+        "name": "events.css.map",
+        "publicPath": "http://127.0.0.1:8080/bundle.css.map",
+        "path": "dist/events.css.map"
+      },
+      {
+        "name": "events.js.map",
+        "publicPath": "http://127.0.0.1:8080/bundle.js.map",
+        "path": "dist/events.js.map"
+      }
+    ]
+  }
+}

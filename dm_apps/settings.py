@@ -145,6 +145,7 @@ INSTALLED_APPS = [
                      'bootstrap4',
                      'el_pagination',
                      'debug_toolbar',
+                     'webpack_loader',
                      'easy_pdf',
                      'tracking',
                      'accounts',
@@ -363,4 +364,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',  # best used with a web client; that is why we will keep both
         # 'rest_framework.authentication.TokenAuthentication',
     )
+}
+
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'dist/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json')
+    }
 }
