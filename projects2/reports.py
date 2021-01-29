@@ -790,9 +790,13 @@ def generate_project_list(year, region, section):
         data_row = list()
         for field in fields:
             if "division" in field:
-                val = obj.project.section.division.tname
+                val = " ---"
+                if obj.section:
+                    val = obj.project.section.division.tname
             elif "region" in field:
-                val = obj.project.section.division.branch.region.tname
+                val = " ---"
+                if obj.section:
+                    val = obj.project.section.division.branch.region.tname
             elif "leads" in field:
                 val = listrify(obj.get_project_leads_as_users())
             elif "updated_at" in field:
