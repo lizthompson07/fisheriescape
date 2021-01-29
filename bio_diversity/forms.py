@@ -283,17 +283,6 @@ class DataForm(CreatePrams):
             try:
                 grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
                                                      coll_id__name=data_dict[0]["Group"]).get().pk
-
-                grp_anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                grp_id_id=grp_id,
-                                                created_by=cleaned_data["created_by"],
-                                                created_date=cleaned_data["created_date"],
-                                                )
-                try:
-                    grp_anix.clean()
-                    grp_anix.save()
-                except ValidationError:
-                    pass
             except Exception as err:
                 log_data += "Error finding origin group (check first row): \n"
                 log_data += "Error: {}\n\n".format(err.__str__())
@@ -422,6 +411,111 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
+        # ---------------------------MATURITY SORTING DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
+                                     converters={'PIT': str})
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                raise Exception("File format not valid: {}".format(err.__str__()))
+            parsed = True
+            self.request.session["load_success"] = True
+            sex_dict = {"M": "Male",
+                        "F": "Female",
+                        "I": "Immature"}
+            for row in data_dict:
+                row_parsed = True
+                row_entered = True
+                try:
+                    indv_qs = models.Individual.objects.filter(pit_tag=row["PIT"])
+                    if len(indv_qs) == 1:
+                        indv = indv_qs.get()
+                    else:
+                        row_entered = False
+                        row_parsed = False
+                        indv = False
+                        log_data += "Fish with PIT {} not found in db".format(row["PIT"])
+
+                    if indv:
+                        anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                         indv_id_id=indv.pk,
+                                                         created_by=cleaned_data["created_by"],
+                                                         created_date=cleaned_data["created_date"],
+                                                         )
+                        try:
+                            anix_indv.clean()
+                            anix_indv.save()
+                        except ValidationError:
+                            row_entered = False
+                            anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
+                                                                            indv_id=anix_indv.indv_id,
+                                                                            contx_id__isnull=True,
+                                                                            loc_id__isnull=True,
+                                                                            spwn_id__isnull=True,
+                                                                            grp_id__isnull=True,
+                                                                            indvt_id__isnull=True,
+                                                                            ).get()
+                        if row["SEX"]:
+                            indvd_sex = models.IndividualDet(anix_id_id=anix_indv.pk,
+                                                             anidc_id=models.AnimalDetCode.objects.filter(
+                                                                 name="Gender").get(),
+                                                             adsc_id=models.AniDetSubjCode.objects.filter(
+                                                                 name=sex_dict[row["SEX"]]).get(),
+                                                             qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                             created_by=cleaned_data["created_by"],
+                                                             created_date=cleaned_data["created_date"],
+                                                             )
+                            try:
+                                indvd_sex.clean()
+                                indvd_sex.save()
+                            except (ValidationError, IntegrityError) as e:
+                                row_entered = False
+                        if row["ORIGIN POND"]:
+                            contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                            tank_id=models.Tank.objects.filter(name=row["ORIGIN POND"]).get(),
+                                                            created_by=cleaned_data["created_by"],
+                                                            created_date=cleaned_data["created_date"],
+                                                            )
+                            try:
+                                contx_to.clean()
+                                contx_to.save()
+                            except ValidationError:
+                                row_entered = False
+                                contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
+                                                                               tank_id=contx_to.tank_id).get()
+
+                            anix_contx = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                              indv_id_id=indv.pk,
+                                                              contx_id=contx_to,
+                                                              created_by=cleaned_data["created_by"],
+                                                              created_date=cleaned_data["created_date"],
+                                                              )
+                            try:
+                                anix_contx.clean()
+                                anix_contx.save()
+                            except ValidationError:
+                                row_entered = False
+                    else:
+                        break
+
+                except Exception as err:
+                    row_parsed = False
+                    parsed = False
+                    self.request.session["load_success"] = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
+            if not parsed:
+                self.request.session["load_success"] = False
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
         else:
             log_data = "Data loading not set up for this event type.  No data loaded."
         self.request.session["log_data"] = log_data

@@ -785,6 +785,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             context["table_list"] = ["data", "indv", "grp", "tank"]
         elif evnt_code == "Egg Development":
             context["table_list"] = ["data", "grp", "trof"]
+        elif evnt_code == "Maturity Sorting":
+            context["table_list"] = ["data", "indv", "tank"]
 
         return context
 
