@@ -98,10 +98,17 @@ class Organization(models.Model):
     reserves = models.ManyToManyField(Reserve, verbose_name=_("Associated reserves"), blank=True)
     audio_file = models.FileField(upload_to=audio_file_directory_path, verbose_name=_("audio file"), blank=True, null=True)
 
+    # Calculated
+    locked_by_ihub = models.BooleanField(default=False, editable=False)
+
     # metadata
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), editable=False)
     old_id = models.IntegerField(blank=True, null=True)
+
+    @property
+    def is_indigenous(self):
+        return self.grouping.filter(is_indigenous=True).exists()
 
     @property
     def metadata(self):
@@ -109,10 +116,6 @@ class Organization(models.Model):
             updated_at=self.date_last_modified,
             last_modified_by=self.last_modified_by,
         )
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
 
     def __str__(self):
         return "{}".format(self.name_eng)
@@ -181,15 +184,17 @@ class Person(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     email_block = models.TextField(blank=True, null=True, verbose_name=_("email block"))
     organizations = models.ManyToManyField(Organization, through="OrganizationMember", verbose_name=_("membership"), blank=True)
+
+    # Calculated
+    locked_by_ihub = models.BooleanField(default=False, editable=False)
+
     # metadata
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    date_last_modified = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
-                                         related_name="masterlist_person_last_modified_by")
+                                         related_name="masterlist_person_last_modified_by", editable=False)
 
     old_id = models.IntegerField(blank=True, null=True)
     connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
-
-    # is_consultation_contact = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Consultation contact?"))
 
     @property
     def metadata(self):
@@ -197,10 +202,6 @@ class Person(models.Model):
             updated_at=self.date_last_modified,
             last_modified_by=self.last_modified_by,
         )
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
 
     def __str__(self):
         return "{}, {}".format(self.last_name, self.first_name)
@@ -274,9 +275,12 @@ class OrganizationMember(models.Model):
     role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
     notes = models.TextField(blank=True, null=True)
 
+    # Calculated
+    locked_by_ihub = models.BooleanField(default=False, editable=False)
+
     # metadata
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    date_last_modified = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), editable=False)
 
     @property
     def metadata(self):
@@ -284,10 +288,6 @@ class OrganizationMember(models.Model):
             updated_at=self.date_last_modified,
             last_modified_by=self.last_modified_by,
         )
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
 
     class Meta:
         ordering = ["organization", "person"]

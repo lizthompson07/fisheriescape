@@ -17,7 +17,6 @@ from openpyxl import load_workbook
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from publications import models as pi_models
 from shared_models.models import Region, FiscalYear, Section
 from . import models, utils
 from .models import ProjectYear
@@ -326,6 +325,8 @@ def generate_csrf_submission_list(year, region):
 
 
 def generate_culture_committee_report():
+    from publications import models as pi_models
+
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
