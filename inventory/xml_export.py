@@ -912,9 +912,9 @@ def construct(my_resource, pretty=True):
         charstring(CI_OnlineResource, 'gmd:description', web_service.content_type.english_value,
                    web_service.content_type.french_value)
     if pretty:
-        return prettify(root)
+        return prettify(root) if not None else None # DJF: this is being added here because of a periodic failure in unit testing. Not a solution :(
     else:
-        return ElementTree(root)
+        return ElementTree(root) if not None else None
 
 
 def verify(resource):

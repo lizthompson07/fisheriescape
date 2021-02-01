@@ -354,8 +354,8 @@ class StaffForm(forms.ModelForm):
         funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
-        self.fields["role"].widget.attrs = {"v-model": "activity.role", "rows": "4", ":disabled": "!isCSRF"}
-        self.fields["expertise"].widget.attrs = {"v-model": "activity.expertise", "rows": "4", ":disabled": "!isCSRF"}
+        self.fields["role"].widget.attrs = {"v-model": "staff.role", "rows": "4", ":disabled": "!isCSRF"}
+        self.fields["expertise"].widget.attrs = {"v-model": "staff.expertise", "rows": "4", ":disabled": "!isCSRF"}
 
 
 class OMCostForm(forms.ModelForm):
@@ -788,10 +788,12 @@ class ReportSearchForm(forms.Form):
         (1, "Science Culture Committee Report (xlsx)"),
         (2, "CSRF Submission List (xlsx)"),
         (3, "Project Status Summary (csv)"),
+        (4, "Project List (csv)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal Year'))
     region = forms.ChoiceField(required=False, label=gettext_lazy('DFO Region'))
+    section = forms.ChoiceField(required=False, label=gettext_lazy('DFO Section'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -799,8 +801,12 @@ class ReportSearchForm(forms.Form):
         fy_choices.insert(0, (None, "-------"))
         region_choices = [(obj.id, str(obj)) for obj in shared_models.Region.objects.all()]
         region_choices.insert(0, (None, "All"))
+        section_choices = [(obj.id, obj.full_name) for obj in shared_models.Section.objects.filter(projects2__isnull=False).distinct()]
+        section_choices.insert(0, (None, "All"))
         self.fields['year'].choices = fy_choices
         self.fields['region'].choices = region_choices
+        self.fields['section'].choices = section_choices
+        self.fields['section'].widget.attrs = chosen_js
 
 
 

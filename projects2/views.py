@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -872,7 +872,7 @@ class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
 # ADMIN
 
 
-class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
+class AdminStaffListView(AdminRequiredMixin, CommonFilterView):
     template_name = 'projects2/admin_staff_list.html'
 
     filterset_class = filters.StaffFilter
@@ -900,7 +900,7 @@ class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
         return qs
 
 
-class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, CommonUpdateView):
+class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateView):
     '''This is really just for the admin view'''
     model = models.Staff
     template_name = 'projects2/admin_staff_form.html'
@@ -1091,6 +1091,7 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         report = int(form.cleaned_data["report"])
         year = nz(form.cleaned_data["year"], "None")
         region = nz(form.cleaned_data["region"], "None")
+        section = nz(form.cleaned_data["section"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
@@ -1098,6 +1099,8 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year};region={region}')
         elif report == 3:
             return HttpResponseRedirect(reverse("projects2:export_project_status_summary")+f'?year={year};region={region}')
+        elif report == 4:
+            return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1201,9 +1204,6 @@ def export_csrf_submission_list(request):
     raise Http404
 
 
-
-
-
 @login_required()
 def project_status_summary(request):
     year = request.GET.get("year")
@@ -1211,6 +1211,17 @@ def project_status_summary(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = reports.generate_project_status_summary(year, region)
     response['Content-Disposition'] = f'attachment; filename="project status summary ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+    return response
+
+
+@login_required()
+def export_project_list(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    section = request.GET.get("section")
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = reports.generate_project_list(request.user, year, region, section)
+    response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y_%m_%d")}).csv"'
     return response
 
 # ADMIN USERS
@@ -1247,14 +1258,16 @@ class UserListView(AdminRequiredMixin, CommonFilterView):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def toggle_user(request, pk, type):
-    my_user = User.objects.get(pk=pk)
-    admin_group = Group.objects.get(name="projects_admin")
-    if type == "admin":
-        # if the user is in the admin group, remove them
-        if admin_group in my_user.groups.all():
-            my_user.groups.remove(admin_group)
-        # otherwise add them
-        else:
-            my_user.groups.add(admin_group)
-    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-
+    if in_projects_admin_group(request.user):
+        my_user = User.objects.get(pk=pk)
+        admin_group = Group.objects.get(name="projects_admin")
+        if type == "admin":
+            # if the user is in the admin group, remove them
+            if admin_group in my_user.groups.all():
+                my_user.groups.remove(admin_group)
+            # otherwise add them
+            else:
+                my_user.groups.add(admin_group)
+        return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+    else:
+        return HttpResponseForbidden("sorry, not authorized")

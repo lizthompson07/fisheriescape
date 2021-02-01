@@ -44,6 +44,10 @@ if settings.INSTALLED_APPS.count("scuba"):
     urlpatterns.append(
         path('api/', include('scuba.api.urls')),
     )
+if settings.INSTALLED_APPS.count("bio_diversity"):
+    urlpatterns.append(
+        path('api/', include('bio_diversity.api.urls')),
+    )
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
