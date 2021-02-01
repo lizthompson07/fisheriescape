@@ -64,7 +64,7 @@
                     </div>
                 {% endfor %}
             <div class="mt-3 center-col">
-                <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
+                <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="{% trans "Generate" %}"><br><br>
             </div>
 
 
@@ -99,8 +99,8 @@
                 $(".trip_div").removeClass("gone");
                 $(".from_date_div").removeClass("gone");
                 $(".to_date_div").removeClass("gone");
-                $("label[for='id_from_date']").html("From date<br>(filters on trip request start date)");
-                $("label[for='id_to_date']").html("To date<br>(filters on trip request start date)");
+                $("label[for='id_from_date']").html("{% trans 'From date<br>(filters on trip request start date' %})");
+                $("label[for='id_to_date']").html("{% trans 'To date<br>(filters on trip request start date)' %}");
 
             }
             // trip list
@@ -110,8 +110,8 @@
                 $(".adm_div").removeClass("gone");
                 $(".from_date_div").removeClass("gone");
                 $(".to_date_div").removeClass("gone");
-                $("label[for='id_from_date']").html("From date<br>(filters on trip start date)");
-                $("label[for='id_to_date']").html("To date<br>(filters on trip start date)");
+                $("label[for='id_from_date']").html("{% trans 'From date<br>(filters on trip start date)' %}");
+                $("label[for='id_to_date']").html("{% trans 'To date<br>(filters on trip start date)' %}");
 
             }
         }
