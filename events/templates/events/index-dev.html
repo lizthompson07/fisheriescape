@@ -19,7 +19,12 @@
 <div id="app"></div>
 
 {% render_bundle 'app' config="EVENTS" %}
+<script src="{% url 'javascript-catalog' %}"></script>
 
+<script type="application/javascript">
+    alert(gettext("name"))
+</script>
 
 </body>
 </html>
+

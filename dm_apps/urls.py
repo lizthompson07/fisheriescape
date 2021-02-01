@@ -20,6 +20,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.views.i18n import JavaScriptCatalog
 
 from accounts import views as acc_views
 from . import views as views
@@ -47,6 +48,11 @@ if settings.INSTALLED_APPS.count("scuba"):
 if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns.append(
         path('api/', include('bio_diversity.api.urls')),
+    )
+
+if settings.INSTALLED_APPS.count("events"):
+    urlpatterns.append(
+        path('api/', include('events.api.urls')),
     )
 
 urlpatterns += i18n_patterns(
@@ -198,9 +204,10 @@ else:
 
 if settings.INSTALLED_APPS.count("events"):
     urlpatterns += i18n_patterns(path('events/', include('events.urls')), prefix_default_language=True)
+    urlpatterns += i18n_patterns(path('jsi18n/events/', JavaScriptCatalog.as_view(packages=['events']), name='javascript-catalog'),
+                                 prefix_default_language=True)
 else:
     print("not connecting events app")
-
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
