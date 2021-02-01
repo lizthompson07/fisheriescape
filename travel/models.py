@@ -219,7 +219,7 @@ class Conference(models.Model):
                                 verbose_name=_("location (city, province, country)"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
                              verbose_name=_("Which region is the lead on this trip?"),
-                             related_name="meeting_leads", blank=False, null=True, editable=False)
+                             related_name="meeting_leads", blank=False, null=True)
     has_event_template = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"), editable=False)

@@ -329,3 +329,65 @@ class ReferenceMaterialFactory(factory.django.DjangoModelFactory):
             'name': faker.catch_phrase(),
 
         }
+
+
+class CSRFThemeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.CSRFTheme
+    
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    code = factory.lazy_attribute(lambda o: faker.pyint(1, 1000))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.catch_phrase(),
+            'code': faker.pyint(1, 1000),
+        }
+
+class CSRFSubThemeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.CSRFSubTheme
+
+    csrf_theme = factory.SubFactory(CSRFThemeFactory)
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'csrf_theme': CSRFThemeFactory().id,
+            'name': faker.catch_phrase(),
+        }
+
+class CSRFPriorityFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.CSRFPriority
+
+    csrf_sub_theme = factory.SubFactory(CSRFSubThemeFactory)
+    code = factory.lazy_attribute(lambda o: faker.pyint(1, 100000))
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'csrf_sub_theme': CSRFSubThemeFactory().id,
+            'code': faker.pyint(1, 100000),
+            'name': faker.catch_phrase(),
+        }
+
+
+class CSRFClientInformationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.CSRFClientInformation
+
+    csrf_priority = factory.SubFactory(CSRFPriorityFactory)
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'csrf_priority': CSRFPriorityFactory().id,
+            'name': faker.catch_phrase(),
+            'description_en': faker.text(),
+        }
