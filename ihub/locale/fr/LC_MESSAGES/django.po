@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-27 14:52-0400\n"
+"POT-Creation-Date: 2021-02-01 05:54-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -62,133 +62,133 @@ msgstr ""
 msgid "DFO employee"
 msgstr "employé du MPO"
 
-#: .\ihub\models.py:25
+#: .\ihub\models.py:26
 msgid "---------"
 msgstr ""
 
-#: .\ihub\models.py:26
+#: .\ihub\models.py:27
 msgid "Yes"
 msgstr "Oui"
 
-#: .\ihub\models.py:27
+#: .\ihub\models.py:28
 msgid "No"
 msgstr "Non"
 
-#: .\ihub\models.py:44 .\ihub\models.py:45
+#: .\ihub\models.py:45 .\ihub\models.py:46
 msgid "abbreviation (French)"
 msgstr ""
 
-#: .\ihub\models.py:58
+#: .\ihub\models.py:59
 msgid "title"
 msgstr "titre"
 
-#: .\ihub\models.py:59
+#: .\ihub\models.py:60
 msgid "location"
 msgstr "location"
 
-#: .\ihub\models.py:60
+#: .\ihub\models.py:61
 #, fuzzy
 msgid "proponent"
 msgstr "Contacts du MPO"
 
-#: .\ihub\models.py:63
+#: .\ihub\models.py:64
 msgid "initial activity date"
 msgstr "date d'activité initiale"
 
-#: .\ihub\models.py:64
+#: .\ihub\models.py:65
 msgid "anticipated end date"
 msgstr ""
 
-#: .\ihub\models.py:65 .\ihub\models.py:191 .\ihub\reports.py:192
+#: .\ihub\models.py:66 .\ihub\models.py:201 .\ihub\reports.py:192
 #: .\ihub\reports.py:434
 msgid "status"
 msgstr "statut"
 
-#: .\ihub\models.py:67
+#: .\ihub\models.py:68
 msgid "DFO sectors"
 msgstr "Secteurs"
 
-#: .\ihub\models.py:69 .\ihub\reports.py:202 .\ihub\reports.py:444
+#: .\ihub\models.py:70 .\ihub\reports.py:202 .\ihub\reports.py:444
 msgid "Entry Type"
 msgstr "Type d'entrée"
 
-#: .\ihub\models.py:74
+#: .\ihub\models.py:75
 msgid "funding program"
 msgstr "programme de financement"
 
-#: .\ihub\models.py:76
+#: .\ihub\models.py:77
 msgid "fiscal year/multiyear"
 msgstr "année fiscale/multi-annuelle"
 
-#: .\ihub\models.py:77
+#: .\ihub\models.py:78
 msgid "is funding needed?"
 msgstr "un financement est-il nécessaire ?"
 
-#: .\ihub\models.py:79
+#: .\ihub\models.py:80
 msgid "funding purpose"
 msgstr "but du financement"
 
-#: .\ihub\models.py:80
+#: .\ihub\models.py:81
 msgid "funding requested"
 msgstr "financement demandé"
 
-#: .\ihub\models.py:81
+#: .\ihub\models.py:82
 msgid "funding approved"
 msgstr "financement approuvé"
 
-#: .\ihub\models.py:82
+#: .\ihub\models.py:83
 msgid "amount transferred"
 msgstr "montant transféré"
 
-#: .\ihub\models.py:83
+#: .\ihub\models.py:84
 msgid "amount lapsed"
 msgstr ""
 
-#: .\ihub\models.py:85
+#: .\ihub\models.py:86
 msgid "does any funding need to be recovered?"
 msgstr "les fonds doivent-ils être récupérés ?"
 
-#: .\ihub\models.py:88
+#: .\ihub\models.py:89
 msgid "date last modified"
 msgstr "date de dernière modification"
 
-#: .\ihub\models.py:89
+#: .\ihub\models.py:90
 msgid "date created"
 msgstr "date de création"
 
-#: .\ihub\models.py:90
+#: .\ihub\models.py:91
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
-#: .\ihub\models.py:91
+#: .\ihub\models.py:92
 msgid "created by"
 msgstr "créé par"
 
-#: .\ihub\models.py:142
+#: .\ihub\models.py:152
 msgid "User"
 msgstr "Utilisateur"
 
-#: .\ihub\models.py:143
+#: .\ihub\models.py:153
 msgid "name"
 msgstr "nom"
 
-#: .\ihub\models.py:145
+#: .\ihub\models.py:155
 msgid "role"
 msgstr "rôle"
 
-#: .\ihub\models.py:189
+#: .\ihub\models.py:199
 msgid "author"
 msgstr "auteur"
 
-#: .\ihub\models.py:215
+#: .\ihub\models.py:225
 msgid "caption"
 msgstr "légende"
 
-#: .\ihub\models.py:217
+#: .\ihub\models.py:227
 msgid "file"
 msgstr ""
 
-#: .\ihub\models.py:218
+#: .\ihub\models.py:228
 msgid "date uploaded"
 msgstr ""
 
@@ -311,6 +311,10 @@ msgstr ""
 msgid "Email \"Cc\" Recipients (Commercial Only)"
 msgstr ""
 
+#: .\ihub\templates\ihub\_instructions.html:130
+msgid "Metadata"
+msgstr ""
+
 #: .\ihub\templates\ihub\_members.html:8
 msgid "Organization Members:"
 msgstr ""
@@ -400,8 +404,8 @@ msgid "Home"
 msgstr "Accueil"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:8
-#: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:363 .\ihub\views.py:370
-#: .\ihub\views.py:408 .\ihub\views.py:422 .\ihub\views.py:454
+#: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:372 .\ihub\views.py:379
+#: .\ihub\views.py:415 .\ihub\views.py:429 .\ihub\views.py:461
 msgid "Entries"
 msgstr ""
 
@@ -413,8 +417,8 @@ msgid "Contacts"
 msgstr "Contacts du MPO"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:14
-#: .\ihub\templates\ihub\index.html:40 .\ihub\views.py:265 .\ihub\views.py:274
-#: .\ihub\views.py:286 .\ihub\views.py:299
+#: .\ihub\templates\ihub\index.html:40 .\ihub\views.py:266 .\ihub\views.py:275
+#: .\ihub\views.py:293 .\ihub\views.py:308
 msgid "Organizations"
 msgstr "Organisations"
 
@@ -693,25 +697,25 @@ msgstr ""
 msgid "Full address"
 msgstr ""
 
-#: .\ihub\views.py:440
+#: .\ihub\views.py:447
 msgid ""
 "The entry has been submitted and an email has been sent to the Indigenous "
 "Hub Coordinator!"
 msgstr ""
 
-#: .\ihub\views.py:491
+#: .\ihub\views.py:498
 msgid "The note has been successfully deleted from the entry."
 msgstr "La note a été supprimé avec succès."
 
-#: .\ihub\views.py:521
+#: .\ihub\views.py:528
 msgid "The person has been successfully deleted from the entry."
 msgstr ""
 
-#: .\ihub\views.py:551
+#: .\ihub\views.py:558
 msgid "The file has been successfully deleted from the entry."
 msgstr ""
 
-#: .\ihub\views.py:632
+#: .\ihub\views.py:639
 msgid "Engagement Update Log – Government of Canada"
 msgstr ""
 

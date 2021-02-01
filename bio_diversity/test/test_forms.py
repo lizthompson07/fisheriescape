@@ -77,8 +77,13 @@ class TestCntdForm(CommonTest):
         invalid_data['anidc_id'] = test_anidc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.CntdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.CntdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -136,7 +141,7 @@ class TestEnvForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.EnvFactory(contx_id=None, env_val=1000)
+        instance = BioFactoryFloor.EnvFactory(contx_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -219,13 +224,19 @@ class TestGrpdForm(CommonTest):
         invalid_data['anidc_id'] = test_anidc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.GrpdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.GrpdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
         invalid_data["adsc_id"] = 1
         self.assert_form_valid(self.Form, data=invalid_data)
+
 
 @tag("Heatd", 'forms')
 class TestHeatdForm(CommonTest):
@@ -317,8 +328,13 @@ class TestIndvdForm(CommonTest):
         invalid_data['anidc_id'] = test_anidc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.IndvdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.IndvdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -391,6 +407,7 @@ class TestPairForm(CommonTest):
         except Individual.DoesNotExist:
             pass
 
+
 @tag("Prot", 'forms')
 class TestProtForm(CommonTest):
 
@@ -412,6 +429,7 @@ class TestProtForm(CommonTest):
             self.assert_form_invalid(self.Form, data=invalid_data)
         except Program.DoesNotExist:
             pass
+
 
 @tag("Protf", 'forms')
 class TestProtfForm(CommonTest):
@@ -457,8 +475,13 @@ class TestSampdForm(CommonTest):
         invalid_data['anidc_id'] = test_anidc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.SampdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.SampdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -546,8 +569,13 @@ class TestSpwndForm(CommonTest):
         invalid_data['spwndc_id'] = test_spwndc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.SpwndFactory(spwnsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.SpwndFactory(spwnsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)

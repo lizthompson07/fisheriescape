@@ -475,7 +475,6 @@ class CitationListCreateAPIView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
 
         if self.request.data.get("new_publication") and self.request.data.get("new_publication") != "":
             pub, created = shared_models.Publication.objects.get_or_create(name=self.request.data.get("new_publication"))
@@ -485,6 +484,8 @@ class CitationListCreateAPIView(ListCreateAPIView):
         if self.request.query_params.get("project"):
             project = get_object_or_404(models.Project, pk=self.request.query_params.get("project"))
             project.references.add(obj)
+            project.modified_by = self.request.user
+            project.save()
 
 
 class CitationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -499,11 +500,9 @@ class CitationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             pub, created = shared_models.Publication.objects.get_or_create(name=self.request.data.get("new_publication"))
             obj.publication = pub
             obj.save()
-        obj.project_year.update_modified_by(self.request.user)
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
-        instance.project_year.update_modified_by(self.request.user)
 
 
 # Publications
