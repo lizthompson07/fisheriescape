@@ -700,7 +700,7 @@ class CapitalCost(GenericCost):
     class Meta:
         ordering = ['category', ]
 
-
+# TODO: delete me
 class GCCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="gc_costs", verbose_name=_("project year"))
     recipient_org = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Recipient organization"))
@@ -745,7 +745,7 @@ class Collaboration(models.Model):
         mystr = f"{self.get_type_display()} {self.id}"
         return mystr
 
-
+# TODO: delete me
 class Collaborator(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project year"))
     name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)
@@ -758,7 +758,7 @@ class Collaborator(models.Model):
     def __str__(self):
         return "{}".format(self.name)
 
-
+# TODO: delete me
 class CollaborativeAgreement(models.Model):
     new_or_existing_choices = [
         (1, _("New")),
@@ -1001,13 +1001,6 @@ class Review(models.Model):
     def scale_score_html(self):
         return self.score_html_template("scale")
 
-    # strategic_score_html
-
-
-# operational_score_html
-# ecological_score_html
-# scale_score_html
-# total_score
 
 
 class Activity(models.Model):
@@ -1092,28 +1085,6 @@ class ActivityUpdate(models.Model):
         if self.notes:
             return mark_safe(markdown(self.notes))
 
-
-#
-# class Note(models.Model):
-#     # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
-#     section = models.ForeignKey(shared_models.Section, related_name="notes2", on_delete=models.CASCADE, blank=True, null=True)
-#     funding_source = models.ForeignKey(FundingSource, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
-#     functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
-#     summary = models.TextField(blank=True, null=True, verbose_name=_("executive summary"))
-#     pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
-#
-#     class Meta:
-#         unique_together = (("section", "functional_group"), ("funding_source", "functional_group"))
-#
-#     @property
-#     def pressures_html(self):
-#         if self.pressures:
-#             return textile(self.pressures)
-#
-#     @property
-#     def summary_html(self):
-#         if self.summary:
-#             return textile(self.summary)
 
 
 def ref_mat_directory_path(instance, filename):

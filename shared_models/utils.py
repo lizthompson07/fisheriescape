@@ -76,12 +76,15 @@ def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_
         format_str += " %H:%M:%S"
     if with_tz:
         format_str += " %Z"
-
-    my_str = f"<u>Created:</u> {created_at.strftime(format_str)}"
+    my_str = None
     if created_by:
+        my_str = f"<u>Created:</u> {created_at.strftime(format_str)}"
         my_str += f" by {created_by}"
     if updated_at:
-        my_str += f"<br><u>Last updated:</u> {updated_at.strftime(format_str)}"
+        if not my_str:
+            my_str = f"<u>Last updated:</u> {updated_at.strftime(format_str)}"
+        else:
+            my_str += f"<br><u>Last updated:</u> {updated_at.strftime(format_str)}"
         if last_modified_by:
             my_str += f" by {last_modified_by}"
 
