@@ -291,7 +291,7 @@ class DataForm(CreatePrams):
 
             for row in data_dict:
                 row_parsed = True
-                row_entered = True
+                row_entered = False
                 try:
                     indv = models.Individual(grp_id_id=grp_id,
                                              spec_id_id=1,
@@ -308,7 +308,6 @@ class DataForm(CreatePrams):
                         indv.clean()
                         indv.save()
                     except (ValidationError, IntegrityError):
-                        row_entered = False
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
                     if not row["to tank"] == "nan":
@@ -321,7 +320,6 @@ class DataForm(CreatePrams):
                             contx_to.clean()
                             contx_to.save()
                         except ValidationError:
-                            row_entered = False
                             contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
                                                                            tank_id=contx_to.tank_id).get()
 
@@ -335,7 +333,7 @@ class DataForm(CreatePrams):
                             anix_to.clean()
                             anix_to.save()
                         except ValidationError:
-                            row_entered = False
+                            pass
 
                     anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                      indv_id_id=indv.pk,
@@ -346,7 +344,6 @@ class DataForm(CreatePrams):
                         anix_indv.clean()
                         anix_indv.save()
                     except ValidationError:
-                        row_entered = False
                         anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
                                                                         indv_id=anix_indv.indv_id,
                                                                         contx_id__isnull=True,
@@ -365,6 +362,7 @@ class DataForm(CreatePrams):
                     try:
                         anix_grp.clean()
                         anix_grp.save()
+                        row_entered = True
                     except ValidationError:
                         row_entered = False
 
@@ -379,6 +377,7 @@ class DataForm(CreatePrams):
                         try:
                             indvd_length.clean()
                             indvd_length.save()
+                            row_entered = True
                         except ValidationError:
                             row_entered = False
                     if not math.isnan(row["Weight (g)"]):
@@ -392,6 +391,7 @@ class DataForm(CreatePrams):
                         try:
                             indvd_mass.clean()
                             indvd_mass.save()
+                            row_entered = True
                         except ValidationError:
                             row_entered = False
                 except Exception as err:
@@ -428,7 +428,7 @@ class DataForm(CreatePrams):
                         "I": "Immature"}
             for row in data_dict:
                 row_parsed = True
-                row_entered = True
+                row_entered = False
                 try:
                     indv_qs = models.Individual.objects.filter(pit_tag=row["PIT"])
                     if len(indv_qs) == 1:
@@ -449,7 +449,6 @@ class DataForm(CreatePrams):
                             anix_indv.clean()
                             anix_indv.save()
                         except ValidationError:
-                            row_entered = False
                             anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
                                                                             indv_id=anix_indv.indv_id,
                                                                             contx_id__isnull=True,
@@ -473,7 +472,7 @@ class DataForm(CreatePrams):
                                 indvd_sex.clean()
                                 indvd_sex.save()
                             except (ValidationError, IntegrityError) as e:
-                                row_entered = False
+                                pass
                         if row["ORIGIN POND"]:
                             contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                             tank_id=models.Tank.objects.filter(name=row["ORIGIN POND"]).get(),
@@ -497,6 +496,7 @@ class DataForm(CreatePrams):
                             try:
                                 anix_contx.clean()
                                 anix_contx.save()
+                                row_entered = True
                             except ValidationError:
                                 row_entered = False
                         if row["COMMENTS"]:
@@ -505,7 +505,6 @@ class DataForm(CreatePrams):
                         break
 
                 except Exception as err:
-                    row_parsed = False
                     parsed = False
                     self.request.session["load_success"] = False
                     log_data += "Error parsing row: \n"

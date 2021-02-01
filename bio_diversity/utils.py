@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 
 from bio_diversity import models
 
@@ -39,7 +40,7 @@ def comment_parser(comment_str, anix_indv):
     parser_list = ["bad shape"]
     for term in parser_list:
         if term in comment_str.lower():
-            adsc = models.AnimalDetCode.objects.filter(name__icontains=term).get()
+            adsc = models.AniDetSubjCode.objects.filter(name__icontains=term).get()
             indvd_parsed = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                 anidc_id=adsc.anidc_id,
                                                 adsc_id=adsc,
@@ -51,6 +52,6 @@ def comment_parser(comment_str, anix_indv):
             try:
                 indvd_parsed.clean()
                 indvd_parsed.save()
-            except ValidationError:
+            except (ValidationError, IntegrityError):
                 pass
 
