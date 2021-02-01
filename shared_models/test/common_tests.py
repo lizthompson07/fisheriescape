@@ -4,6 +4,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import resolve, reverse
 from django.utils.translation import activate
+from html2text import html2text
 
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 
@@ -287,9 +288,9 @@ class CommonTest(TestCase):
         if response.context and 'form' in response.context:
             # If the data in this test is invaild the response will be invalid
             self.assertTrue(response.context_data['form'].is_valid(),
-                            msg=f"Test data was likely invalid. /nHere's the error log from the form:"
-                                f" {response.context_data['form'].errors}/n"
-                                f"Here's the data from the form:{response.context_data['form'].data}")
+                            msg=f"\n\nTest data was likely invalid. \n\nHere's the error log from the form:\n"
+                                f" {html2text(str(response.context_data['form'].errors))}"
+                                f"Here's the data from the form:\n{response.context_data['form'].data}")
 
         # should always result in a redirect response
         self.assertEquals(302, response.status_code)
@@ -314,8 +315,8 @@ class CommonTest(TestCase):
         else:
             form = form_class(data=data, initial=initial)
         self.assertTrue(form.is_valid(),
-                        msg=f"Test data was likely invalid. /nHere's the error log from the form: {form.errors}/n"
-                            f"Here's the data from the form:{form.data}")
+                        msg=f"\n\nTest data was likely invalid. \n\nHere's the error log from the form: \n{html2text(str(form.errors))}"
+                            f"Here's the data from the form:\n{form.data}")
 
     def assert_form_invalid(self, form_class, data, instance=None, initial=None):
         """

@@ -18,6 +18,23 @@
 
 {% endblock %}
 
+{% block form_fields %}
+  <div class="mt-5">
+    {% for field in form %}
+      {% if field.name == 'comments' %}
+        <h3>{% trans "Please provide your approval comments here (required)" %}</h3>
+        {% bootstrap_field field show_label=False %}
+
+      {% else %}
+        {{ field }}
+      {% endif %}
+
+    {% endfor %}
+
+
+  </div>
+{% endblock %}
+
 {% block form_buttons %}
 
     <div class="float-right">

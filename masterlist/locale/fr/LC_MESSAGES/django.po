@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 15:41-0400\n"
+"POT-Creation-Date: 2021-02-01 05:54-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -45,290 +45,294 @@ msgstr "Secteurs du MPO - Laisser vide pour tous"
 msgid "DFO Regions - Leave blank for all"
 msgstr ""
 
-#: .\masterlist\models.py:24
+#: .\masterlist\models.py:23
+msgid "name"
+msgstr "nom"
+
+#: .\masterlist\models.py:33
 msgid "indigenous?"
 msgstr "autochtone?"
 
-#: .\masterlist\models.py:41
+#: .\masterlist\models.py:50
 msgid "level"
 msgstr "niveau"
 
-#: .\masterlist\models.py:52
+#: .\masterlist\models.py:61
 msgid "None"
 msgstr ""
 
-#: .\masterlist\models.py:52
+#: .\masterlist\models.py:61
 msgid "On-Reserve"
 msgstr ""
 
-#: .\masterlist\models.py:52
+#: .\masterlist\models.py:61
 msgid "Off-Reserve"
 msgstr ""
 
-#: .\masterlist\models.py:52
+#: .\masterlist\models.py:61
 msgid "Both"
 msgstr ""
 
-#: .\masterlist\models.py:54
+#: .\masterlist\models.py:63
 #, fuzzy
 msgid "legal name"
 msgstr "nom de famille"
 
-#: .\masterlist\models.py:55
+#: .\masterlist\models.py:64
 msgid "indigenous Name"
 msgstr "nom autochtone"
 
-#: .\masterlist\models.py:56
+#: .\masterlist\models.py:65
 msgid "abbreviation"
 msgstr ""
 
-#: .\masterlist\models.py:57
+#: .\masterlist\models.py:66
 msgid "street address"
 msgstr ""
 
-#: .\masterlist\models.py:58
+#: .\masterlist\models.py:67
 #, fuzzy
 msgid "mailing address"
 msgstr "Courriel"
 
-#: .\masterlist\models.py:59
+#: .\masterlist\models.py:68
 msgid "city"
 msgstr ""
 
-#: .\masterlist\models.py:60
+#: .\masterlist\models.py:69
 msgid "postal code"
 msgstr ""
 
-#: .\masterlist\models.py:61
+#: .\masterlist\models.py:70
 msgid "province"
 msgstr ""
 
-#: .\masterlist\models.py:62
+#: .\masterlist\models.py:71
 msgid "phone"
 msgstr "téléphone"
 
-#: .\masterlist\models.py:63 .\masterlist\models.py:162
+#: .\masterlist\models.py:72 .\masterlist\models.py:178
 msgid "fax"
 msgstr ""
 
-#: .\masterlist\models.py:64
+#: .\masterlist\models.py:73
 #, fuzzy
 msgid "DFO contacts"
 msgstr "Contacts du MPO"
 
-#: .\masterlist\models.py:65 .\masterlist\models.py:165
+#: .\masterlist\models.py:74 .\masterlist\models.py:181
 msgid "notes"
 msgstr "remarques"
 
-#: .\masterlist\models.py:66
+#: .\masterlist\models.py:75
 msgid "key species"
 msgstr ""
 
-#: .\masterlist\models.py:67
+#: .\masterlist\models.py:76
 msgid "grouping"
 msgstr ""
 
-#: .\masterlist\models.py:68
+#: .\masterlist\models.py:77
 #, fuzzy
 msgid "regions"
 msgstr "Secteurs du MPO"
 
-#: .\masterlist\models.py:69
+#: .\masterlist\models.py:78
 msgid "DFO sector"
 msgstr "Secteurs"
 
-#: .\masterlist\models.py:73
+#: .\masterlist\models.py:82
 msgid "relationship rating"
 msgstr ""
 
-#: .\masterlist\models.py:74
+#: .\masterlist\models.py:83
 #, fuzzy
 msgid "Associated organizations"
 msgstr "Organisation partenaire"
 
-#: .\masterlist\models.py:76
+#: .\masterlist\models.py:85
 #, fuzzy
 msgid "Nation"
 msgstr "Section"
 
-#: .\masterlist\models.py:77
+#: .\masterlist\models.py:86
 #, fuzzy
 msgid "former name"
 msgstr "prénom"
 
-#: .\masterlist\models.py:78
+#: .\masterlist\models.py:87
 msgid "website"
 msgstr ""
 
-#: .\masterlist\models.py:79
+#: .\masterlist\models.py:88
 msgid "council quorum"
 msgstr ""
 
-#: .\masterlist\models.py:80
+#: .\masterlist\models.py:89
 #, fuzzy
 msgid "next election"
 msgstr "Ma section"
 
-#: .\masterlist\models.py:81
+#: .\masterlist\models.py:90
 #, fuzzy
 msgid "election term"
 msgstr "chef de section"
 
-#: .\masterlist\models.py:82
+#: .\masterlist\models.py:91
 msgid "date that the new council holds office"
 msgstr ""
 
-#: .\masterlist\models.py:83
+#: .\masterlist\models.py:92
 msgid "population on reserve"
 msgstr ""
 
-#: .\masterlist\models.py:84
+#: .\masterlist\models.py:93
 msgid "population off reserve"
 msgstr ""
 
-#: .\masterlist\models.py:85
+#: .\masterlist\models.py:94
 msgid "population on other reserve"
 msgstr ""
 
-#: .\masterlist\models.py:86
+#: .\masterlist\models.py:95
 msgid "FIN"
 msgstr ""
 
-#: .\masterlist\models.py:87
+#: .\masterlist\models.py:96
 msgid "processing plant?"
 msgstr ""
 
-#: .\masterlist\models.py:88
+#: .\masterlist\models.py:97
 msgid "wharf?"
 msgstr ""
 
-#: .\masterlist\models.py:89
+#: .\masterlist\models.py:98
 msgid "Associated reserves"
 msgstr ""
 
-#: .\masterlist\models.py:90
+#: .\masterlist\models.py:99
 msgid "audio file"
 msgstr ""
 
-#: .\masterlist\models.py:93 .\masterlist\models.py:169
-#: .\masterlist\models.py:255 .\masterlist\models.py:295
-#: .\masterlist\models.py:342
+#: .\masterlist\models.py:102 .\masterlist\models.py:185
+#: .\masterlist\models.py:278 .\masterlist\models.py:325
+#: .\masterlist\models.py:379
 msgid "date last modified"
 msgstr "date de dernière modification"
 
-#: .\masterlist\models.py:94 .\masterlist\models.py:170
-#: .\masterlist\models.py:256 .\masterlist\models.py:296
-#: .\masterlist\models.py:343
+#: .\masterlist\models.py:103 .\masterlist\models.py:186
+#: .\masterlist\models.py:279 .\masterlist\models.py:326
+#: .\masterlist\models.py:380
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
-#: .\masterlist\models.py:154
+#: .\masterlist\models.py:170
 msgid "title"
 msgstr "titre"
 
-#: .\masterlist\models.py:155
+#: .\masterlist\models.py:171
 msgid "first name"
 msgstr "prénom"
 
-#: .\masterlist\models.py:156
+#: .\masterlist\models.py:172
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\masterlist\models.py:157
+#: .\masterlist\models.py:173
 msgid "work phone"
 msgstr ""
 
-#: .\masterlist\models.py:158
+#: .\masterlist\models.py:174
 msgid "work phone 2"
 msgstr ""
 
-#: .\masterlist\models.py:159
+#: .\masterlist\models.py:175
 #, fuzzy
 msgid "work email"
 msgstr "courriel"
 
-#: .\masterlist\models.py:160
+#: .\masterlist\models.py:176
 #, fuzzy
 msgid "work email 2"
 msgstr "courriel 2"
 
-#: .\masterlist\models.py:161
+#: .\masterlist\models.py:177
 msgid "work phone (mobile)"
 msgstr ""
 
-#: .\masterlist\models.py:164
+#: .\masterlist\models.py:180
 msgid "language preference"
 msgstr "préférence linguistique"
 
-#: .\masterlist\models.py:166
+#: .\masterlist\models.py:182
 #, fuzzy
 msgid "email block"
 msgstr "courriel 1"
 
-#: .\masterlist\models.py:167
+#: .\masterlist\models.py:183
 msgid "membership"
 msgstr ""
 
-#: .\masterlist\models.py:216 .\masterlist\models.py:231
+#: .\masterlist\models.py:239 .\masterlist\models.py:254
 #: .\masterlist\reports.py:63
 msgid "Phone 1"
 msgstr ""
 
-#: .\masterlist\models.py:218 .\masterlist\models.py:233
+#: .\masterlist\models.py:241 .\masterlist\models.py:256
 #: .\masterlist\reports.py:64
 msgid "Phone 2"
 msgstr ""
 
-#: .\masterlist\models.py:220 .\masterlist\models.py:235
+#: .\masterlist\models.py:243 .\masterlist\models.py:258
 #: .\masterlist\reports.py:65
 msgid "Fax"
 msgstr ""
 
-#: .\masterlist\models.py:222 .\masterlist\models.py:237
+#: .\masterlist\models.py:245 .\masterlist\models.py:260
 msgid "E-mail 1"
 msgstr "Courriel 1"
 
-#: .\masterlist\models.py:224 .\masterlist\models.py:239
+#: .\masterlist\models.py:247 .\masterlist\models.py:262
 msgid "E-mail 2"
 msgstr "Courriel 2"
 
-#: .\masterlist\models.py:251
+#: .\masterlist\models.py:274
 msgid "role"
 msgstr "rôle"
 
-#: .\masterlist\models.py:287
+#: .\masterlist\models.py:317
 msgid "TO"
 msgstr ""
 
-#: .\masterlist\models.py:288
+#: .\masterlist\models.py:318
 msgid "CC"
 msgstr ""
 
-#: .\masterlist\models.py:289
+#: .\masterlist\models.py:319
 msgid "CC (Commercial Only)"
 msgstr ""
 
-#: .\masterlist\models.py:293
+#: .\masterlist\models.py:323
 msgid "TO / CC"
 msgstr ""
 
-#: .\masterlist\models.py:325
+#: .\masterlist\models.py:362
 msgid "EMAIL MISSING"
 msgstr ""
 
-#: .\masterlist\models.py:330
+#: .\masterlist\models.py:367
 msgid "MISSING ROLE"
 msgstr ""
 
-#: .\masterlist\models.py:337
+#: .\masterlist\models.py:374
 msgid "address letter to:"
 msgstr ""
 
-#: .\masterlist\models.py:338
+#: .\masterlist\models.py:375
 msgid "include on cc (letter)"
 msgstr ""
 
-#: .\masterlist\models.py:339
+#: .\masterlist\models.py:376
 msgid "paper copy to"
 msgstr ""
 
@@ -707,9 +711,6 @@ msgstr ""
 
 #~ msgid "New"
 #~ msgstr "Nouveau"
-
-#~ msgid "name"
-#~ msgstr "nom"
 
 #~ msgid "component type"
 #~ msgstr "type de composant"

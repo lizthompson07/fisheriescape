@@ -143,21 +143,21 @@ class TestCapitalCostListCreateAPIView(CommonTest):
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 
 
-class TestCollaborativeAgreementListCreateAPIView(CommonTest):
+class TestCollaborationListCreateAPIView(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
         self.staff = FactoryFloor.LeadStaffFactory()
         self.instance = self.staff.project_year
-        self.obj = FactoryFloor.CollaborativeAgreementFactory(project_year=self.instance)
-        self.test_url = reverse("agreement-list", args=[self.instance.pk])
+        self.obj = FactoryFloor.CollaborationFactory(project_year=self.instance)
+        self.test_url = reverse("collaboration-list", args=[self.instance.pk])
 
-    @tag("api", 'agreement-list')
+    @tag("api", 'collaboration-list')
     def test_url(self):
-        self.assert_correct_url("agreement-list", test_url_args=[self.instance.pk],
-                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/agreements/")
+        self.assert_correct_url("collaboration-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/collaborations/")
 
-    @tag("api", 'agreement-list')
+    @tag("api", 'collaboration-list')
     def test_get(self):
         # PERMISSIONS
         # authenticated users
@@ -175,99 +175,34 @@ class TestCollaborativeAgreementListCreateAPIView(CommonTest):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], self.instance.id)
 
-    @tag("api", 'agreement-list')
+    @tag("api", 'collaboration-list')
     def test_post(self):
         # PERMISSIONS
         # authenticated users
-        response = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data())
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaborationFactory.get_valid_data())
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         # unauthenticated users
         self.client.logout()
-        response = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data())
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaborationFactory.get_valid_data())
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         # lead staff user
         self.get_and_login_user(user=self.staff.user)
-        response = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data())
+        data = FactoryFloor.CollaborationFactory.get_valid_data()
+        response = self.client.post(self.test_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # RESPONSE DATA
         valid_user = self.staff.user
         self.get_and_login_user(user=self.staff.user)
-        response = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data())
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaborationFactory.get_valid_data())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        data = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data()).data
+        data = self.client.post(self.test_url, data=FactoryFloor.CollaborationFactory.get_valid_data()).data
         keys = [
             "id",
         ]
         self.assert_dict_has_keys(data, keys)
 
-    @tag("api", 'agreement-list')
-    def test_unallowed_methods_only(self):
-        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
-        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
-        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
-        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
-
-
-class TestCollaboratorListCreateAPIView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.user = self.get_and_login_user()
-        self.staff = FactoryFloor.LeadStaffFactory()
-        self.instance = self.staff.project_year
-        self.obj = FactoryFloor.CollaboratorFactory(project_year=self.instance)
-        self.test_url = reverse("collaborator-list", args=[self.instance.pk])
-
-    @tag("api", 'collaborator-list')
-    def test_url(self):
-        self.assert_correct_url("collaborator-list", test_url_args=[self.instance.pk],
-                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/collaborators/")
-
-    @tag("api", 'collaborator-list')
-    def test_get(self):
-        # PERMISSIONS
-        # authenticated users
-        response = self.client.get(self.test_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # unauthenticated users
-        self.client.logout()
-        response = self.client.get(self.test_url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # RESPONSE DATA
-        valid_user = None
-        self.get_and_login_user(user=None)
-        response = self.client.get(self.test_url)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], self.instance.id)
-
-    @tag("api", 'collaborator-list')
-    def test_post(self):
-        # PERMISSIONS
-        # authenticated users
-        response = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        # unauthenticated users
-        self.client.logout()
-        response = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        # lead staff user
-        self.get_and_login_user(user=self.staff.user)
-        response = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # RESPONSE DATA
-        valid_user = self.staff.user
-        self.get_and_login_user(user=self.staff.user)
-        response = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        data = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data()).data
-        keys = [
-            "id",
-        ]
-        self.assert_dict_has_keys(data, keys)
-
-    @tag("api", 'collaborator-list')
+    @tag("api", 'collaboration-list')
     def test_unallowed_methods_only(self):
         restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
@@ -279,24 +214,24 @@ class TestCurrentUser(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.test_url = reverse("current-user")
+        self.test_url = reverse("current-project-user")
 
-    @tag("api", 'current-user')
+    @tag("api", 'current-project-user')
     def test_url(self):
-        self.assert_correct_url("current-user", expected_url_path=f"/api/project-planning/user/")
+        self.assert_correct_url("current-project-user", expected_url_path=f"/api/project-planning/user/")
 
-    @tag("api", 'current-user')
+    @tag("api", 'current-project-user')
     def test_authenticated(self):
         response = self.client.get(self.test_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @tag("api", 'current-user')
+    @tag("api", 'current-project-user')
     def test_unauthenticated(self):
         self.client.logout()
         response = self.client.get(self.test_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @tag("api", 'current-user')
+    @tag("api", 'current-project-user')
     def test_response_data(self):
         data = self.client.get(self.test_url).data
         keys = ["id", "first_name", "last_name", "username", "is_admin", "is_management", "is_rds"]
@@ -313,7 +248,7 @@ class TestCurrentUser(CommonTest):
         keys.extend(["is_section_head"])
         self.assert_dict_has_keys(data, keys)
 
-    @tag("api", 'current-user')
+    @tag("api", 'current-project-user')
     def test_safe_methods_only(self):
         restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
@@ -386,7 +321,6 @@ class TestFileListCreateAPIView(CommonTest):
         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
-
 
 
 # class TestReviewListCreateAPIView(CommonTest):
@@ -526,72 +460,6 @@ class TestFTEBreakdownAPIView(CommonTest):
         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
-        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
-
-
-class TestGCCostListCreateAPIView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.user = self.get_and_login_user()
-        self.staff = FactoryFloor.LeadStaffFactory()
-        self.instance = self.staff.project_year
-        self.cost = FactoryFloor.GCCostFactory(project_year=self.instance)
-        self.test_url = reverse("gc-list", args=[self.instance.pk])
-
-    @tag("api", 'gc-cost')
-    def test_url(self):
-        self.assert_correct_url("gc-list", test_url_args=[self.instance.pk],
-                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/gc-costs/")
-
-    @tag("api", 'gc-cost')
-    def test_get(self):
-        # PERMISSIONS
-        # authenticated users
-        response = self.client.get(self.test_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # unauthenticated users
-        self.client.logout()
-        response = self.client.get(self.test_url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # RESPONSE DATA
-        valid_user = None
-        self.get_and_login_user(user=None)
-        response = self.client.get(self.test_url)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], self.instance.id)
-
-    @tag("api", 'gc-cost')
-    def test_post(self):
-        # PERMISSIONS
-        # authenticated users
-        response = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        # unauthenticated users
-        self.client.logout()
-        response = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        # lead staff user
-        self.get_and_login_user(user=self.staff.user)
-        response = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # RESPONSE DATA
-        valid_user = self.staff.user
-        self.get_and_login_user(user=self.staff.user)
-        response = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        data = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data()).data
-        keys = [
-            "id",
-        ]
-        self.assert_dict_has_keys(data, keys)
-
-    @tag("api", 'gc-cost')
-    def test_unallowed_methods_only(self):
-        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
-        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
-        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 
 
@@ -1062,6 +930,3 @@ class TestStatusReportListCreateAPIView(CommonTest):
         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
-
-
-

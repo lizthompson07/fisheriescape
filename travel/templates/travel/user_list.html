@@ -13,7 +13,7 @@
     {% if view.kwargs.travel %}
       Click <a href="{% url 'travel:user_list' %}">HERE</a> to show ALL users
     {% else %}
-      Click <a href="{% url 'travel:user_list' 1 %}">HERE</a> to show only Admin & ADM Admin users
+      Click <a href="{% url 'travel:user_list' 1 %}">HERE</a> to show Regional & National coordinators only.
     {% endif %}
   </h3>
 {% endblock %}
@@ -37,10 +37,10 @@
         </th>
       {% endfor %}
       <th class="text-center">
-        {% trans "Travel App Administrator" %}
+        {% trans "Regional Coordinators" %}
       </th>
       <th class="text-center">
-        {% trans "Travel App ADM Administrator" %}
+        {% trans "National Coordinator" %}
       </th>
 
     {% endblock %}

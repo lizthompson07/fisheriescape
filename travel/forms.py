@@ -793,6 +793,19 @@ ProcessStepFormset = modelformset_factory(
 )
 
 
+class FAQForm(forms.ModelForm):
+    class Meta:
+        model = models.FAQ
+        fields = "__all__"
+
+
+FAQFormset = modelformset_factory(
+    model=models.FAQ,
+    form=FAQForm,
+    extra=1,
+)
+
+
 class RoleForm(forms.ModelForm):
     class Meta:
         model = models.Role
@@ -886,3 +899,37 @@ class TripSelectForm(forms.Form):
         trip_choices.insert(0, tuple((None, "---")))
 
         self.fields["trip"].choices = trip_choices
+
+
+class ReferenceMaterialForm(forms.ModelForm):
+    class Meta:
+        model = models.ReferenceMaterial
+        fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }
+
+
+class OrganizationForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.Organization
+        fields = "__all__"
+
+
+OrganizationFormset = modelformset_factory(
+    model=shared_models.Organization,
+    form=OrganizationForm,
+    extra=1,
+)
+
+
+class OrganizationForm1(forms.Form):
+    orgs = forms.ChoiceField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        org_choices = [(org.full_name_and_address, org.full_name_and_address) for org in shared_models.Organization.objects.filter(is_dfo=True)]
+        org_choices.insert(0, (None, "-------"))
+        super().__init__(*args, **kwargs)
+        self.fields['orgs'].choices = org_choices
+        self.fields['orgs'].widget.attrs["id"] = "predefined-addresses"
+

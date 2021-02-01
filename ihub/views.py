@@ -128,7 +128,7 @@ class PersonDetailView(SiteLoginRequiredMixin, CommonDetailView):
         "fax",
         "language",
         "notes",
-        "last_modified_by",
+        "metadata",
     ]
     home_url_name = "ihub:index"
     parent_crumb = {"title": _("Contacts"), "url": reverse_lazy("ihub:person_list")}
@@ -260,6 +260,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
         'processing_plant',
         'wharf',
         'reserves',
+        'metadata',
     ]
     home_url_name = "ihub:index"
     parent_crumb = {"title": _("Organizations"), "url": reverse_lazy("ihub:org_list")}
@@ -277,6 +278,12 @@ class OrganizationUpdateView(iHubEditRequiredMixin, CommonUpdateView):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("ihub:org_detail", args=[self.get_object().id])}
 
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.save()
+        return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
+
 
 class OrganizationCreateView(iHubEditRequiredMixin, CommonCreateView):
     model = ml_models.Organization
@@ -287,7 +294,9 @@ class OrganizationCreateView(iHubEditRequiredMixin, CommonCreateView):
     is_multipart_form_data = True
 
     def form_valid(self, form):
-        object = form.save()
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.save()
         return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 
@@ -383,9 +392,7 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
             'initial_date',
             'anticipated_end_date',
             'regions',
-            'date_last_modified',
-            'last_modified_by',
-            'created_by',
+            'metadata',
         ]
         context["field_list_1"] = [
             'fiscal_year',

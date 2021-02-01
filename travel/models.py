@@ -64,10 +64,78 @@ class NJCRates(SimpleLookup):
 
 class ProcessStep(Lookup):
     stage_choices = (
+        (0, _("Information Section")),
         (1, _("Travel Request Process Outline")),
         (2, _("Review Process Outline")),
     )
     stage = models.IntegerField(blank=True, null=True, choices=stage_choices)
+    order = models.IntegerField(blank=True, null=True)
+    is_visible = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['stage', 'order']
+
+
+class FAQ(models.Model):
+    question_en = models.TextField(blank=True, null=True, verbose_name=_("question (en)"))
+    question_fr = models.TextField(blank=True, null=True, verbose_name=_("question (fr)"))
+    answer_en = models.TextField(blank=True, null=True, verbose_name=_("answer (en)"))
+    answer_fr = models.TextField(blank=True, null=True, verbose_name=_("answer (fr)"))
+
+    @property
+    def tquestion(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("question_en"))):
+            my_str = "{}".format(getattr(self, str(_("question_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.question_en
+        return my_str
+
+    @property
+    def tanswer(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("answer_en"))):
+            my_str = "{}".format(getattr(self, str(_("answer_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.answer_en
+        return my_str
+
+
+def ref_mat_directory_path(instance, filename):
+    return f'travel/{filename}'
+
+
+class ReferenceMaterial(SimpleLookup):
+    order = models.IntegerField(blank=True, null=True)
+    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
+    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
+    file_en = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
+    file_fr = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def tfile(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("file_en")):
+            return getattr(self, gettext("file_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.file_en
+
+    @property
+    def turl(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("url_en")):
+            return getattr(self, gettext("url_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.url_en
+
+    class Meta:
+        ordering = ["order"]
 
 
 class CostCategory(SimpleLookup):
@@ -151,10 +219,10 @@ class Conference(models.Model):
                                 verbose_name=_("location (city, province, country)"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
                              verbose_name=_("Which region is the lead on this trip?"),
-                             related_name="meeting_leads", blank=False, null=True, editable=False)
+                             related_name="meeting_leads", blank=False, null=True)
     has_event_template = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
-    number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
+    number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"), editable=False)
     start_date = models.DateTimeField(verbose_name=_("start date of event"))
     end_date = models.DateTimeField(verbose_name=_("end date of event"))
     meeting_url = models.URLField(verbose_name=_("meeting URL"), blank=True, null=True)
@@ -670,7 +738,7 @@ class TripRequest(models.Model):
     def cost_breakdown(self):
         """used for CFTS and travel plan"""
         my_str = ""
-        for tr_cost in self.trip_request_costs.filter(amount_cad__isnull=False):
+        for tr_cost in self.trip_request_costs.filter(amount_cad__isnull=False, amount_cad__gt=0):
             if tr_cost.rate_cad:
                 my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
                     tr_cost.cost,
@@ -900,13 +968,18 @@ class TripRequest(models.Model):
 
     @property
     def requester_info(self):
+        company = nz(self.company_name, "<span class='red-font'>{}</span>".format(gettext('missing company name')))
+        address = nz(self.address, "<span class='red-font'>{}</span>".format(_('missing address')))
+        phone = nz(self.phone, "<span class='red-font'>{}</span>".format(_('missing phone number')))
+        email = nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
+                   "<span class='red-font'>{}</span>".format(_('missing email address')))
+
         mystr = ""
         if not self.is_public_servant:
-            mystr += _("Company: ") + nz(self.company_name, "<span class='red-font'>{}</span><br>".format(_('missing company name')))
-        mystr += _("Address: ") + nz(self.address, "<span class='red-font'>{}</span><br>".format(_('missing address')))
-        mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>{}</span><br>".format(_('missing phone number')))
-        mystr += _("Email: ") + nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
-                               "<span class='red-font'>{}</span><br>".format(_('missing email address')))
+            mystr += "<u>{}</u>: {}<br>".format(gettext("Company"), company)
+        mystr += "<u>{}</u>: {}<br>".format(gettext("Address"), address)
+        mystr += "<u>{}</u>: {}<br>".format(gettext("Phone"), phone)
+        mystr += "<u>{}</u>: {}<br>".format(gettext("Email"), email)
         return mark_safe(mystr)
 
     @property

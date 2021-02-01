@@ -11,6 +11,8 @@
 *.accdb
 *.xlsx
 !acrdp_template.xlsx
+!csrf_regional_submissions_template.xlsx
+!/bio_diversity/static/data_templates/*.xlsx
 *.docx
 !acrdp_template.docx
 !csrf_template_en.docx
