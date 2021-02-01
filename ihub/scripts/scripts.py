@@ -75,11 +75,11 @@ def digest_qc_data():
             entry.regions.add(qc_region)
 
             # Org...
-            org_txt = nz(row["org"], None)
+            org_txt = nz(row["org"], None) # smythe
             if org_txt:
                 org = None
-                qs = ml_models.Organization.objects.filter(name_eng__icontains=org_txt)
-                if not qs.exists():
+                qs = ml_models.Organization.objects.filter(name_eng__icontains=org_txt) # in term "David Fishman" et "David Smith" --> d == True | avid == True ishm
+                if not qs.exists(): # pas resultat
                     # then we just create a new org
                     org = ml_models.Organization.objects.create(name_eng=org_txt)
                     print(f"Creating new organization: {org.name_eng} ({org.id}) --> http://dmapps{reverse('ihub:org_detail', args=[org.id])}")
@@ -167,7 +167,7 @@ def digest_qc_data():
 
             i_list = [1, 2, 3]
             for i in i_list:
-                comment = nz(row['comment' + str(i)], None)
+                comment = f"{org.tname.upper()}: \n {nz(row['comment' + str(i)], None)}"
                 if comment:
                     models.EntryNote.objects.get_or_create(
                         entry=entry,

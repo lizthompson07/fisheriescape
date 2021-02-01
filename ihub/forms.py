@@ -147,9 +147,8 @@ class ReportSearchForm(forms.Form):
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = ml_models.Organization
-        exclude = ["date_last_modified", "old_id"]
+        exclude = ["date_last_modified", "old_id", 'last_modified_by']
         widgets = {
-            'last_modified_by': forms.HiddenInput(),
             # multiselects
             'grouping': forms.SelectMultiple(attrs=multi_select_js),
             'regions': forms.SelectMultiple(attrs=multi_select_js),
@@ -183,10 +182,8 @@ class PersonForm(forms.ModelForm):
             "fax",
             "language",
             "notes",
-            "last_modified_by",
         ]
         widgets = {
-            'last_modified_by': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
 

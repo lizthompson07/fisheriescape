@@ -94,3 +94,16 @@ temp/
 ############
 azure_oauth_settings.yml
 oauth_settings.yml
+
+
+# NodeJS Related
+#################
+node_modules
+# local env files
+.env.local
+.env.*.local
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
