@@ -5,7 +5,7 @@ def whales_authorized(user):
     return user.is_authenticated and user.groups.filter(name='whalesdb_admin').exists()
 
 
-def get_help_text_dict(model=None):
+def get_help_text_dict(model=None, title=''):
     print("Model: '{}'".format(str(model.__name__)))
     my_dict = {}
     if not model:
