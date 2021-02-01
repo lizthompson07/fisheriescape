@@ -160,7 +160,7 @@ class DataForm(CreatePrams):
             self.request.session["load_success"] = True
             for row in data_dict:
                 row_parsed = True
-                row_entered = True
+                row_entered = False
                 try:
                     loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                                           locc_id_id=1,
@@ -175,8 +175,8 @@ class DataForm(CreatePrams):
                     try:
                         loc.clean()
                         loc.save()
+                        row_entered = True
                     except ValidationError:
-                        row_entered = False
                         loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
                                                              relc_id=loc.relc_id, loc_date=loc.loc_date).get()
@@ -195,8 +195,8 @@ class DataForm(CreatePrams):
                         try:
                             env.clean()
                             env.save()
+                            row_entered = True
                         except ValidationError:
-                            row_entered = False
                             pass
                     if not math.isnan(row["# of salmon observed/collected"]):
                         cnt = models.Count(loc_id_id=loc.pk,
@@ -210,11 +210,24 @@ class DataForm(CreatePrams):
                         try:
                             cnt.clean()
                             cnt.save()
+                            row_entered = True
                         except ValidationError:
-                            row_entered = False
-                            pass
+                            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id, cnt=cnt.cnt).get()
+                        if not math.isnan(row["fishing seconds"]):
+                            cntd = models.CountDet(cnt_id=cnt,
+                                                   anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Electrofishing Seconds").get(),
+                                                   det_val=row["fishing seconds"],
+                                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                   created_by=cleaned_data["created_by"],
+                                                   created_date=cleaned_data["created_date"],
+                                                   )
+                            try:
+                                cntd.clean()
+                                cntd.save()
+                                row_entered = True
+                            except ValidationError:
+                                pass
                 except Exception as err:
-                    row_parsed = False
                     parsed = False
                     self.request.session["load_success"] = False
                     log_data += "Error parsing row: \n"
@@ -307,6 +320,7 @@ class DataForm(CreatePrams):
                     try:
                         indv.clean()
                         indv.save()
+                        row_entered = True
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
@@ -319,6 +333,7 @@ class DataForm(CreatePrams):
                         try:
                             contx_to.clean()
                             contx_to.save()
+                            row_entered = True
                         except ValidationError:
                             contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
                                                                            tank_id=contx_to.tank_id).get()
@@ -332,6 +347,7 @@ class DataForm(CreatePrams):
                         try:
                             anix_to.clean()
                             anix_to.save()
+                            row_entered = True
                         except ValidationError:
                             pass
 
@@ -343,6 +359,7 @@ class DataForm(CreatePrams):
                     try:
                         anix_indv.clean()
                         anix_indv.save()
+                        row_entered = True
                     except ValidationError:
                         anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
                                                                         indv_id=anix_indv.indv_id,
@@ -364,7 +381,7 @@ class DataForm(CreatePrams):
                         anix_grp.save()
                         row_entered = True
                     except ValidationError:
-                        row_entered = False
+                        pass
 
                     if not math.isnan(row["Length (cm)"]):
                         indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
@@ -379,7 +396,7 @@ class DataForm(CreatePrams):
                             indvd_length.save()
                             row_entered = True
                         except ValidationError:
-                            row_entered = False
+                            pass
                     if not math.isnan(row["Weight (g)"]):
                         indvd_mass = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                           anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
@@ -393,9 +410,8 @@ class DataForm(CreatePrams):
                             indvd_mass.save()
                             row_entered = True
                         except ValidationError:
-                            row_entered = False
+                            pass
                 except Exception as err:
-                    row_parsed = False
                     parsed = False
                     self.request.session["load_success"] = False
                     log_data += "Error parsing row: \n"
@@ -437,7 +453,9 @@ class DataForm(CreatePrams):
                         row_entered = False
                         row_parsed = False
                         indv = False
-                        log_data += "Fish with PIT {} not found in db".format(row["PIT"])
+                        log_data += "Error parsing row: \n"
+                        log_data += str(row)
+                        log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
 
                     if indv:
                         anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -448,6 +466,7 @@ class DataForm(CreatePrams):
                         try:
                             anix_indv.clean()
                             anix_indv.save()
+                            row_entered = True
                         except ValidationError:
                             anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
                                                                             indv_id=anix_indv.indv_id,
@@ -471,6 +490,7 @@ class DataForm(CreatePrams):
                             try:
                                 indvd_sex.clean()
                                 indvd_sex.save()
+                                row_entered = True
                             except (ValidationError, IntegrityError) as e:
                                 pass
                         if row["ORIGIN POND"]:
@@ -482,8 +502,8 @@ class DataForm(CreatePrams):
                             try:
                                 contx_to.clean()
                                 contx_to.save()
+                                row_entered = True
                             except ValidationError:
-                                row_entered = False
                                 contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
                                                                                tank_id=contx_to.tank_id).get()
 
@@ -498,7 +518,7 @@ class DataForm(CreatePrams):
                                 anix_contx.save()
                                 row_entered = True
                             except ValidationError:
-                                row_entered = False
+                                pass
                         if row["COMMENTS"]:
                             comment_parser(row["COMMENTS"], anix_indv)
                     else:
