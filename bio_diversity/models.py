@@ -259,7 +259,7 @@ class CountCode(BioLookup):
 
 class CountDet(BioDet):
     # cntd tag
-    cnt_id = models.ForeignKey("Count", on_delete=models.CASCADE, verbose_name=_("Count"))
+    cnt_id = models.ForeignKey("Count", on_delete=models.CASCADE, verbose_name=_("Count"), related_name="count_details")
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Animal Detail Subjective Code"))

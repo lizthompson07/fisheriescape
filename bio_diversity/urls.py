@@ -39,6 +39,7 @@ urlpatterns = [
     
     path('create/cntd/', views.CntdCreate.as_view(), name="create_cntd"),
     path('details/cntd/<int:pk>/', views.CntdDetails.as_view(), name="details_cntd"),
+    path('details/cntd/<str:back>/<int:back_id>/<int:pk>/', views.CntdDetails.as_view(), name="details_cntd"),
     path('list/cntd/', views.CntdList.as_view(), name="list_cntd"),
     path('update/cntd/<int:pk>/', views.CntdUpdate.as_view(), name="update_cntd"),
     

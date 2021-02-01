@@ -623,7 +623,20 @@ class AdscDetails(mixins.AdscMixin, CommonDetails):
 
 
 class CntDetails(mixins.CntMixin, CommonDetails):
+    template_name = 'bio_diversity/details_cnt.html'
     fields = ["loc_id", "contx_id", "cntc_id", "spec_id", "cnt", "est", "comments", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        # use this to pass sire fields/sample object to template
+        context = super().get_context_data(**kwargs)
+
+        context["cntd_object"] = models.CountDet.objects.first()
+        context["cntd_field_list"] = [
+            "anidc_id",
+            "det_val",
+        ]
+
+        return context
 
 
 class CntcDetails(mixins.CntcMixin, CommonDetails):
