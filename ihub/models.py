@@ -13,9 +13,10 @@ from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup
-
-
 # This can be delete after the next time migrations are crushed
+from shared_models.utils import get_metadata_string
+
+
 def audio_file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
     return 'ihub/org_{}/{}'.format(instance.id, filename)
@@ -90,7 +91,7 @@ class Entry(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"),
                                    related_name="user_entries")
-    old_id = models.IntegerField(blank=True, null=True, editable=False, unique=True) # used for importing new data.
+    old_id = models.IntegerField(blank=True, null=True, editable=False, unique=True)  # used for importing new data.
 
     class Meta:
         ordering = ['-date_created', ]
@@ -125,6 +126,15 @@ class Entry(models.Model):
     @property
     def sectors_str(self):
         return listrify([sec for sec in self.sectors.all()])
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            self.date_created,
+            self.created_by,
+            self.date_last_modified,
+            self.last_modified_by,
+        )
 
 
 class EntryPerson(models.Model):

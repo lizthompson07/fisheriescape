@@ -171,7 +171,7 @@ class CitationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = shared_models.Citation
 
-    name = factory.lazy_attribute(lambda o: faker.phrase())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
     authors = factory.lazy_attribute(lambda o: faker.name())
     publication = factory.SubFactory(PublicationFactory)
 
