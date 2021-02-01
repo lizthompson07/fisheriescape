@@ -15,7 +15,6 @@ from openpyxl import load_workbook
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
-from publications import models as pi_models
 from shared_models.models import Region, FiscalYear, Section
 from . import models
 

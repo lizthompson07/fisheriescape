@@ -121,11 +121,6 @@ if settings.INSTALLED_APPS.count("scifi"):
 else:
     print("not connecting scifi app")
 
-if settings.INSTALLED_APPS.count("masterlist"):
-    urlpatterns += i18n_patterns(path('master-list/', include('masterlist.urls')), prefix_default_language=True)
-else:
-    print("not connecting masterlist app")
-
 if settings.INSTALLED_APPS.count("shares"):
     urlpatterns += i18n_patterns(path('gulf-shares/', include('shares.urls')), prefix_default_language=True)
 else:

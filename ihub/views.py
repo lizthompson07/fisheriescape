@@ -144,20 +144,25 @@ class PersonUpdateView(iHubEditRequiredMixin, CommonUpdateView):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("ihub:person_detail", args=[self.get_object().id])}
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        object.save()
+        return super().form_valid(form)
 
+    
 
 class PersonUpdateViewPopout(iHubEditRequiredMixin, CommonPopoutUpdateView):
     model = ml_models.Person
     form_class = forms.PersonForm
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        object.save()
+        return super().form_valid(form)
 
 
 class PersonCreateView(iHubEditRequiredMixin, CommonCreateView):
@@ -167,20 +172,24 @@ class PersonCreateView(iHubEditRequiredMixin, CommonCreateView):
     home_url_name = "ihub:index"
     parent_crumb = {"title": _("Contacts"), "url": reverse_lazy("ihub:person_list")}
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        object.save()
+        return super().form_valid(form)
 
 
 class PersonCreateViewPopout(iHubEditRequiredMixin, CommonPopoutCreateView):
     model = ml_models.Person
     form_class = forms.PersonForm
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        object.save()
+        return super().form_valid(form)
 
 
 class PersonDeleteView(iHubAdminRequiredMixin, CommonDeleteView):
@@ -242,6 +251,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
         'phone',
         'fax',
         'notes',
+        'grouping',
         'regions',
         'sectors',
         'dfo_contact_instructions',
@@ -281,7 +291,8 @@ class OrganizationUpdateView(iHubEditRequiredMixin, CommonUpdateView):
     def form_valid(self, form):
         object = form.save(commit=False)
         object.last_modified_by = self.request.user
-        object.save()
+        object.locked_by_ihub = True
+        super().form_valid(form)
         return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 
@@ -296,7 +307,8 @@ class OrganizationCreateView(iHubEditRequiredMixin, CommonCreateView):
     def form_valid(self, form):
         object = form.save(commit=False)
         object.last_modified_by = self.request.user
-        object.save()
+        object.locked_by_ihub = True
+        super().form_valid(form)
         return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 

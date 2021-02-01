@@ -38,13 +38,11 @@ class OrganizationForm(forms.ModelForm):
             'grouping',
             'regions',
             'sectors',
-            'last_modified_by',
         ]
         widgets = {
             'key_species': forms.Textarea(attrs={"rows": 2}),
             'dfo_contact_instructions': forms.Textarea(attrs={"rows": 2}),
             'notes': forms.Textarea(attrs={"rows": 2}),
-            'last_modified_by': forms.HiddenInput(),
         }
 
 
@@ -55,14 +53,11 @@ class MemberForm(forms.ModelForm):
             'person',
             'organization',
             'role',
-            # 'role_notes',
             'notes',
-            'last_modified_by',
         ]
         widgets = {
             'notes': forms.Textarea(attrs={"rows": 2}),
             'organization': forms.HiddenInput(),
-            'last_modified_by': forms.HiddenInput(),
         }
 
 
@@ -84,9 +79,7 @@ class PersonForm(forms.ModelForm):
         ]
 
         widgets = {
-            'last_modified_by': forms.HiddenInput(),
             'language': forms.Select(attrs=attr_chosen),
-            # 'email_block': forms.Textarea(attrs=class_editable),
         }
 
 
