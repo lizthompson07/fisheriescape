@@ -474,6 +474,197 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
+            # ---------------------------TAGGING MACTAQUAC DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
+                                     converters={'to tank': str})
+                data["Comments"] = data["Comments"].fillna('')
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                raise Exception("File format not valid: {}".format(err.__str__()))
+            parsed = True
+            self.request.session["load_success"] = True
+            try:
+                grp_id = models.Group.objects.filter(stok_id__name__iexact=data_dict[0]["Stock"],
+                                                     coll_id__name__iexact=data_dict[0]["Collection"]).get().pk
+                anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                grp_id_id=grp_id,
+                                                created_by=cleaned_data["created_by"],
+                                                created_date=cleaned_data["created_date"],
+                                                )
+                try:
+                    anix_grp.clean()
+                    anix_grp.save()
+                    row_entered = True
+                except ValidationError:
+                    pass
+            except Exception as err:
+                log_data += "Error finding origin group (check first row): \n"
+                log_data += "Error: {}\n\n".format(err.__str__())
+                self.request.session["load_success"] = False
+
+            for row in data_dict:
+                row_parsed = True
+                row_entered = False
+                try:
+                    indv = models.Individual(grp_id_id=grp_id,
+                                             spec_id_id=1,
+                                             stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
+                                             coll_id=models.Collection.objects.filter(name=row["Collection"]).get(),
+                                             pit_tag=row["PIT"],
+                                             indv_valid=True,
+                                             comments=row["Comments"],
+                                             created_by=cleaned_data["created_by"],
+                                             created_date=cleaned_data["created_date"],
+                                             )
+                    try:
+                        indv.clean()
+                        indv.save()
+                        row_entered = True
+                    except (ValidationError, IntegrityError):
+                        indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
+
+                    if not row["Destination Pond"] == "nan":
+                        contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                        tank_id=models.Tank.objects.filter(name=row["Destination Pond"]).get(),
+                                                        created_by=cleaned_data["created_by"],
+                                                        created_date=cleaned_data["created_date"],
+                                                        )
+                        try:
+                            contx_to.clean()
+                            contx_to.save()
+                            row_entered = True
+                        except ValidationError:
+                            contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
+                                                                           tank_id=contx_to.tank_id).get()
+
+                        anix_to = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                       indv_id_id=indv.pk,
+                                                       contx_id_id=contx_to.pk,
+                                                       created_by=cleaned_data["created_by"],
+                                                       created_date=cleaned_data["created_date"],
+                                                       )
+                        try:
+                            anix_to.clean()
+                            anix_to.save()
+                            row_entered = True
+                        except ValidationError:
+                            pass
+
+                    anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                     indv_id_id=indv.pk,
+                                                     created_by=cleaned_data["created_by"],
+                                                     created_date=cleaned_data["created_date"],
+                                                     )
+                    try:
+                        anix_indv.clean()
+                        anix_indv.save()
+                        row_entered = True
+                    except ValidationError:
+                        anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
+                                                                        indv_id=anix_indv.indv_id,
+                                                                        contx_id__isnull=True,
+                                                                        loc_id__isnull=True,
+                                                                        spwn_id__isnull=True,
+                                                                        grp_id__isnull=True,
+                                                                        indvt_id__isnull=True,
+                                                                        ).get()
+
+                    anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                    indv_id_id=indv.pk,
+                                                    grp_id_id=grp_id,
+                                                    created_by=cleaned_data["created_by"],
+                                                    created_date=cleaned_data["created_date"],
+                                                    )
+                    try:
+                        anix_grp.clean()
+                        anix_grp.save()
+                        row_entered = True
+                    except ValidationError:
+                        pass
+
+                    if not math.isnan(row["Length (cm)"]):
+                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
+                                                            anidc_id=models.AnimalDetCode.objects.filter(
+                                                                name="Length").get(),
+                                                            det_val=row["Length (cm)"],
+                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                            created_by=cleaned_data["created_by"],
+                                                            created_date=cleaned_data["created_date"],
+                                                            )
+                        try:
+                            indvd_length.clean()
+                            indvd_length.save()
+                            row_entered = True
+                        except ValidationError:
+                            pass
+                    if not math.isnan(row["Weight (g)"]):
+                        indvd_mass = models.IndividualDet(anix_id_id=anix_indv.pk,
+                                                          anidc_id=models.AnimalDetCode.objects.filter(
+                                                              name="Weight").get(),
+                                                          det_val=row["Weight (g)"],
+                                                          qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                          created_by=cleaned_data["created_by"],
+                                                          created_date=cleaned_data["created_date"],
+                                                          )
+                        try:
+                            indvd_mass.clean()
+                            indvd_mass.save()
+                            row_entered = True
+                        except ValidationError:
+                            pass
+                    if not math.isnan(row["Vial Number"]):
+                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
+                                                            anidc_id=models.AnimalDetCode.objects.filter(
+                                                                name="Vial").get(),
+                                                            det_val=row["Vial Number"],
+                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                            created_by=cleaned_data["created_by"],
+                                                            created_date=cleaned_data["created_date"],
+                                                            )
+                        try:
+                            indvd_length.clean()
+                            indvd_length.save()
+                            row_entered = True
+                        except ValidationError:
+                            pass
+                    if row["Comments"]:
+                        comment_parser(row["Comments"], anix_indv)
+                except Exception as err:
+                    parsed = False
+                    self.request.session["load_success"] = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
+            if not parsed:
+                self.request.session["load_success"] = False
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         # ---------------------------MATURITY SORTING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:

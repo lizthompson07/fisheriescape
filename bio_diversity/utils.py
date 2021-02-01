@@ -37,7 +37,7 @@ def get_cont_evnt(contx):
 
 
 def comment_parser(comment_str, anix_indv):
-    parser_list = ["bad shape"]
+    parser_list = ["bad shape", "mortality"]
     for term in parser_list:
         if term in comment_str.lower():
             adsc = models.AniDetSubjCode.objects.filter(name__icontains=term).get()
