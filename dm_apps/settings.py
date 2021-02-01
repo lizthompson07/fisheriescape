@@ -35,6 +35,8 @@ LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
 # should debug mode be turned on or off? default = False
 DEBUG = config("DEBUG", cast=bool, default=True)
+# should vuejs be vued in debug mode?
+VUEJS_DEBUG = config("VUEJS_DEBUG", cast=bool, default=False)
 # Where do you want to set the bar for logging? {DEBUG, INFO, WARNING, ERROR, CRITICAL}
 LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
 # What is the path to the log file?
@@ -267,6 +269,7 @@ LANGUAGES = [
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'events', 'frontend', 'dist'),
 ]
 
 AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")
