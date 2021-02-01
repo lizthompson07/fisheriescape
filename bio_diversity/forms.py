@@ -427,6 +427,36 @@ class DataForm(CreatePrams):
                             row_entered = True
                         except ValidationError:
                             pass
+                    if not math.isnan(row["Vial"]):
+                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
+                                                            anidc_id=models.AnimalDetCode.objects.filter(
+                                                                name="Vial").get(),
+                                                            det_val=row["Vial"],
+                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                            created_by=cleaned_data["created_by"],
+                                                            created_date=cleaned_data["created_date"],
+                                                            )
+                        try:
+                            indvd_length.clean()
+                            indvd_length.save()
+                            row_entered = True
+                        except ValidationError:
+                            pass
+                    if not math.isnan(row["Box"]):
+                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
+                                                            anidc_id=models.AnimalDetCode.objects.filter(
+                                                                name="Box").get(),
+                                                            det_val=row["Box"],
+                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                            created_by=cleaned_data["created_by"],
+                                                            created_date=cleaned_data["created_date"],
+                                                            )
+                        try:
+                            indvd_length.clean()
+                            indvd_length.save()
+                            row_entered = True
+                        except ValidationError:
+                            pass
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
