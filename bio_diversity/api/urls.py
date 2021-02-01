@@ -7,5 +7,4 @@ urlpatterns = [
 
     path("bio_diversity/indv/", views.IndividualAPIView.as_view(), name="api-indv"),  # tested
 
-
 ]

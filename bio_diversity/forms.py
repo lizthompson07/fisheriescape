@@ -227,6 +227,22 @@ class DataForm(CreatePrams):
                                 row_entered = True
                             except ValidationError:
                                 pass
+
+                        if not math.isnan(row["Voltage"]):
+                            cntd = models.CountDet(cnt_id=cnt,
+                                                   anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Voltage").get(),
+                                                   det_val=row["Voltage"],
+                                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                   created_by=cleaned_data["created_by"],
+                                                   created_date=cleaned_data["created_date"],
+                                                   )
+                            try:
+                                cntd.clean()
+                                cntd.save()
+                                row_entered = True
+                            except ValidationError:
+                                pass
+
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
