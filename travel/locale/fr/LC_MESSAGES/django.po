@@ -1532,7 +1532,7 @@ msgstr "Approuvé par"
 
 #: .\travel\templates\travel\index.html:65
 msgid "EOS Conference and Travel Management System"
-msgstr "Système de gestion des conferences et des voyages du SEO"
+msgstr "Système de gestion des conférences et des voyages du SEO"
 
 #: .\travel\templates\travel\index.html:68
 msgid "\"Pre-approval for travel\""
