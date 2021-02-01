@@ -217,6 +217,25 @@ class TestCultureCommitteeReportView(CommonTest):
         self.assert_correct_url("projects2:culture_committee_report", f"/en/project-planning/reports/science-culture-committee-report/")
 
 
+class TestProjectListReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        for i in range(0, 5):
+            FactoryFloor.ProjectYearFactory()
+        self.test_url = reverse_lazy('projects2:export_project_list')
+        self.user = self.get_and_login_user()
+
+    @tag("Reports", "export_project_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user)
+
+    @tag("Reports", "export_project_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:export_project_list", f"/en/project-planning/reports/project-listvuew/")
+
+
 class TestFunctionalGroupCreateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -1103,6 +1122,8 @@ class TestToggleUserView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("projects2:toggle_user", f"/en/project-planning/settings/user/{self.instance.pk}/toggle/admin/", [self.instance.pk, "admin"])
+
+
 class TestUserListView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -1131,5 +1152,3 @@ class TestUserListView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("projects2:user_list", f"/en/project-planning/settings/users/")
-
-
