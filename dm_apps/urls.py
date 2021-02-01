@@ -121,11 +121,6 @@ if settings.INSTALLED_APPS.count("scifi"):
 else:
     print("not connecting scifi app")
 
-if settings.INSTALLED_APPS.count("masterlist"):
-    urlpatterns += i18n_patterns(path('master-list/', include('masterlist.urls')), prefix_default_language=True)
-else:
-    print("not connecting masterlist app")
-
 if settings.INSTALLED_APPS.count("shares"):
     urlpatterns += i18n_patterns(path('gulf-shares/', include('shares.urls')), prefix_default_language=True)
 else:
@@ -200,6 +195,12 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns += i18n_patterns(path('bio_diversity/', include('bio_diversity.urls')), prefix_default_language=True)
 else:
     print("not connecting bio_diversity app")
+
+if settings.INSTALLED_APPS.count("events"):
+    urlpatterns += i18n_patterns(path('events/', include('events.urls')), prefix_default_language=True)
+else:
+    print("not connecting events app")
+
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
