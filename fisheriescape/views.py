@@ -371,6 +371,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
             'english_name',
             'french_name',
             'latin_name',
+            'sara_status',
             'cosewic_status',
             'website',
         ]

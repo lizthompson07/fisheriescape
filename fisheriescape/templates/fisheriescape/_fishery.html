@@ -29,7 +29,7 @@
             {% for field in fishery_field_list %}
                 {% if field == "species" %}
                     <td>
-                        <a href="{% url 'fisheriescape:species_detail' obj.species.id %}">{{obj.species.english_name}}</a>
+                        <a href="{% url 'fisheriescape:fishery_detail' obj.id %}">{{obj.species.english_name}}</a>
                      </td>
                 {% else %}
                     <td>

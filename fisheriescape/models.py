@@ -73,7 +73,7 @@ class Species(models.Model):
         return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})
 
 
-COSEWIC_STATUS_CHOICES = (
+RISK_STATUS_CHOICES = (
     ("Not at Risk", "Not at Risk"),
     ("Special Concern", "Special Concern"),
     ("Threatened", "Threatened"),
@@ -85,19 +85,23 @@ COSEWIC_STATUS_CHOICES = (
 
 class MarineMammals(models.Model):
     english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("english name"))
+    english_name_short = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("short english name"))
     french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
+    french_name_short = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("short french name"))
     latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("scientific name"))
-    cosewic_status = models.CharField(max_length=255, null=True, blank=True, choices=COSEWIC_STATUS_CHOICES, verbose_name=_("cosewic status"))
+    sara_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("sara status"))
+    cosewic_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("cosewic status"))
     website = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("website"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("english_name"))):
+        if self.english_name_short:
 
-            return "{}".format(getattr(self, str(_("english_name"))))
-        # if there is no translated term, just pull from the english field
+            my_str = "{}".format(self.english_name_short)
         else:
-            return "{}".format(self.english_name)
+            my_str = "{}".format(self.english_name)
+
+        return my_str
+
     #
     # def get_absolute_url(self):
     #     return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})

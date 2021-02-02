@@ -46,3 +46,10 @@ class FisheryFilter(django_filters.FilterSet):
                                                                             label="Species (any language)",
                                                                             lookup_expr='icontains',
                                                                             widget=forms.TextInput())
+
+
+#TODO Something like what I want a custom filter to do:
+# from datetime import datetime
+# my_date= request.POST.get('my_date','') # for eg. 2019-10-26
+# my_date = datetime.strptime(my_date, "%Y-%m-%d")
+# date_between = Fishery.objects.filter(start_date__lt=my_date, end_date__gt=my_date).order_by('start_date')
