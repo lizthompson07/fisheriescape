@@ -1,11 +1,10 @@
-import {csrftoken} from "./csrf_token.js";
+import { csrftoken } from "./csrf_token.js";
 
 function handleResponse(response) {
   if (response.status === 204) {
-    return '';
-
+    return "";
   } else if (response.status === 404) {
-    return null
+    return null;
   } else {
     return response.json();
   }
@@ -16,13 +15,13 @@ function apiService(endpoint, method, data) {
     method: method || "GET",
     body: data !== undefined ? JSON.stringify(data) : null,
     headers: {
-      'content-type': 'application/json',
-      'X-CSRFTOKEN': csrftoken
+      "content-type": "application/json",
+      "X-CSRFTOKEN": csrftoken
     }
   };
   return fetch(endpoint, config)
-      .then(handleResponse)
-      .catch(error => console.log(error))
+    .then(handleResponse)
+    .catch(error => console.log(error));
 }
 
-export {apiService};
+export { apiService };

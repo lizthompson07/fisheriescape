@@ -37,5 +37,14 @@ module.exports = {
       filename: "bundle.css",
       chunkFilename: "bundle.css"
     }
+  },
+
+  pluginOptions: {
+    i18n: {
+      locale: "en",
+      fallbackLocale: "en",
+      localeDir: "locales",
+      enableInSFC: true
+    }
   }
 };

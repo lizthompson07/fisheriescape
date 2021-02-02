@@ -6,10 +6,8 @@
           <div class="row">
             <div class="col-10">
               <h1>{{ recipe.title }}</h1>
-
             </div>
             <div class="col">
-
               <v-btn
                 color="primary"
                 small
@@ -32,7 +30,6 @@
           >
           </v-combobox>
 
-
           <p class="mb-2">
             <strong>Posted by:</strong>
             <span v-if="isCurrentUsersRecipe">You</span>
@@ -45,19 +42,16 @@
               class="mx-1"
               v-for="tag in recipe.hashtags"
               color="secondary"
-              :to='{name:"tag", params: {slug:tag.slug}}'
+              :to="{ name: 'tag', params: { slug: tag.slug } }"
             >
               <v-avatar
                 class="accent white--text"
                 left
                 v-text="slicer(tag)"
               ></v-avatar>
-              {{tag.name}}
+              {{ tag.name }}
             </v-chip>
-
-
           </p>
-
 
           <p v-html="recipe.content_html"></p>
         </div>
@@ -65,7 +59,6 @@
           <div class="row">
             <div class="col">
               <h4>Comments</h4>
-
             </div>
             <div class="col">
               <v-btn
@@ -79,7 +72,6 @@
               </v-btn>
             </div>
           </div>
-
 
           <div v-if="showForm" class="mt-3">
             <form @submit.prevent="onSubmit">
@@ -102,9 +94,9 @@
               </v-btn>
             </form>
             <p v-if="error" class="error mt-2">{{ error }}</p>
-            <br/>
-            <br/>
-            <br/>
+            <br />
+            <br />
+            <br />
           </div>
 
           <CommentComponent
@@ -114,8 +106,6 @@
             :key="index"
             @delete-comment="deleteComment"
           />
-
-
         </div>
       </div>
     </div>
@@ -123,12 +113,12 @@
     <div class="not-found" v-else>
       <h1>{{ message404 }}</h1>
     </div>
-    <br/>
+    <br />
   </div>
 </template>
 
 <script>
-import {apiService} from "@/common/api_service";
+import { apiService } from "@/common/api_service";
 import CommentComponent from "@/components/CommentComponent.vue";
 
 export default {
@@ -172,18 +162,17 @@ export default {
         await apiService(endpoint, method);
         this.$delete(this.comments, this.comments.indexOf(comment));
         this.userHasCommented = false;
-      } catch (err) {
-      }
+      } catch (err) {}
     },
     addCommentBtn() {
       this.showForm = true;
-      console.log(this.$refs)
-      this.$nextTick(() => this.$refs.newComment.focus())
+      console.log(this.$refs);
+      this.$nextTick(() => this.$refs.newComment.focus());
       // this.$refs.newComment.$el.select();
     },
     slicer(input) {
       let myStr = input.name;
-      return myStr.slice(0, 1).toUpperCase()
+      return myStr.slice(0, 1).toUpperCase();
     },
     updateTags() {
       // did we subtract or add?
@@ -214,7 +203,7 @@ export default {
     async addTag(tagName) {
       let endpoint = `/api/recipes/${this.recipe.id}/add-remove-hashtag/`;
       let method = "POST";
-      await apiService(endpoint, method, {hashtag: tagName});
+      await apiService(endpoint, method, { hashtag: tagName });
       this.selectedHashtags = [];
       this.getRecipeData();
       this.getHashtags();
@@ -222,7 +211,7 @@ export default {
     async removeTag(tagName) {
       let endpoint = `/api/recipes/${this.recipe.id}/add-remove-hashtag/`;
       let method = "DELETE";
-      await apiService(endpoint, method, {hashtag: tagName});
+      await apiService(endpoint, method, { hashtag: tagName });
       this.getRecipeData();
     },
     setRequestUser() {
@@ -281,10 +270,10 @@ export default {
       } else {
         let endpoint = `/api/recipes/${this.recipe.id}/comment/`;
         let method = "POST";
-        apiService(endpoint, method, {content: this.newCommentBody}).then(
-            data => {
-              this.comments.unshift(data);
-            }
+        apiService(endpoint, method, { content: this.newCommentBody }).then(
+          data => {
+            this.comments.unshift(data);
+          }
         );
         this.newCommentBody = null;
         this.showForm = false;

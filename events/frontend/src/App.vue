@@ -2,16 +2,16 @@
   <div id="app">
     <v-app>
       <v-main>
-        <NavbarComponent/>
-        <router-view/>
+        <NavbarComponent />
+        <router-view />
       </v-main>
     </v-app>
   </div>
 </template>
 
 <script>
-import NavbarComponent from "@/components/Navbar.vue"
-import {apiService} from "@/common/api_service";
+import NavbarComponent from "@/components/Navbar.vue";
+import { apiService } from "@/common/api_service";
 
 export default {
   name: "App",
@@ -26,17 +26,16 @@ export default {
     }
   },
   created() {
-    this.setUserInfo()
+    this.setUserInfo();
   }
-}
-
+};
 </script>
 
-
 <style>
-html, body {
+html,
+body {
   height: 100%;
-  font-family: 'Playfair Display', serif;
+  font-family: "Playfair Display", serif;
 }
 
 .btn:focus {
