@@ -97,6 +97,26 @@ class CollForm(CreatePrams):
         exclude = []
 
 
+class CommentKeywordsForm(forms.ModelForm):
+
+    model = None
+
+    class Meta:
+        fields = "__all__"
+        widgets = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["adsc_id"].queryset = models.AniDetSubjCode.objects.filter(anidc_id__name__iexact="Animal Health")
+
+
+CommentKeywordsFormset = modelformset_factory(
+    model=models.CommentKeywords,
+    form=CommentKeywordsForm,
+    extra=1,
+)
+
+
 class ContdcForm(CreatePrams):
     class Meta:
         model = models.ContainerDetCode

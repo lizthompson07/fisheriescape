@@ -6,7 +6,7 @@ from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, Comm
     CommonFormsetView, CommonHardDeleteView
 from django.urls import reverse_lazy
 from django import forms
-from bio_diversity.forms import HelpTextFormset
+from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
@@ -2084,6 +2084,28 @@ class IndvDelete(mixins.IndvMixin, CommonDelete):
     success_url = reverse_lazy("bio_diversity:list_indv")
 
 
+class CommentKeywordsFormsetView(UserPassesTestMixin, CommonFormsetView):
+    template_name = 'bio_diversity/formset.html'
+    title = _("Bio Diversity Comment Keywords")
+    h1 = _("Manage Comment Keywords")
+    queryset = models.CommentKeywords.objects.all()
+    formset_class = CommentKeywordsFormset
+    success_url_name = "bio_diversity:manage_comment_keywords"
+    home_url_name = "bio_diversity:index"
+    delete_url_name = "bio_diversity:delete_comment_keywords"
+
+    def test_func(self):
+        return utils.bio_diverisity_admin(self.request.user)
+
+
+class CommentKeywordsHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
+    model = models.CommentKeywords
+    success_url = reverse_lazy("bio_diversity:manage_comment_keywords")
+
+    def test_func(self):
+        return utils.bio_diverisity_admin(self.request.user)
+
+
 class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
     template_name = 'bio_diversity/formset.html'
     title = _("Bio Diversity Help Text")
@@ -2095,7 +2117,7 @@ class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
     delete_url_name = "bio_diversity:delete_help_text"
 
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        return utils.bio_diverisity_admin(self.request.user)
 
 
 class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
@@ -2103,4 +2125,4 @@ class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
     success_url = reverse_lazy("bio_diversity:manage_help_texts")
 
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        return utils.bio_diverisity_admin(self.request.user)

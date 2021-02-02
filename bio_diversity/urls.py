@@ -48,6 +48,10 @@ urlpatterns = [
     path('list/coll/', views.CollList.as_view(), name="list_coll"),
     path('update/coll/<int:pk>/', views.CollUpdate.as_view(), name="update_coll"),
 
+    path('settings/comment-keywords/', views.CommentKeywordsFormsetView.as_view(), name="manage_comment_keywords"),
+    path('settings/comment-keywords/<int:pk>/delete/', views.CommentKeywordsHardDeleteView.as_view(),
+         name="delete_comment_keywords"),
+
     path('create/contdc/', views.ContdcCreate.as_view(), name="create_contdc"),
     path('details/contdc/<int:pk>/', views.ContdcDetails.as_view(), name="details_contdc"),
     path('list/contdc/', views.ContdcList.as_view(), name="list_contdc"),

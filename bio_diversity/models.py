@@ -186,6 +186,16 @@ class Collection(BioLookup):
     pass
 
 
+# This is a special table used to house comment parsing abilities
+class CommentKeywords(models.Model):
+
+    keyword = models.CharField(max_length=255)
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Subjective Code"))
+
+    class Meta:
+        ordering = ['keyword', ]
+
+
 class ContainerDetCode(BioLookup):
     # contdc tag
     min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))

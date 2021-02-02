@@ -14,6 +14,13 @@ def bio_diverisity_admin(user):
     return user.groups.filter(name='bio_diversity_admin').exists()
 
 
+def get_comment_keywords_dict():
+    my_dict = {}
+    for obj in models.CommentKeywords.objects.all():
+        my_dict[obj.keyword] = obj.adsc_id
+    return my_dict
+
+
 def get_help_text_dict(model=None):
     my_dict = {}
     if not model:
@@ -37,10 +44,11 @@ def get_cont_evnt(contx):
 
 
 def comment_parser(comment_str, anix_indv):
-    parser_list = ["bad shape", "mortality"]
+    coke_dict = get_comment_keywords_dict()
+    parser_list = coke_dict.keys()
     for term in parser_list:
-        if term in comment_str.lower():
-            adsc = models.AniDetSubjCode.objects.filter(name__icontains=term).get()
+        if term.lower() in comment_str.lower():
+            adsc = coke_dict[term]
             indvd_parsed = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                 anidc_id=adsc.anidc_id,
                                                 adsc_id=adsc,
