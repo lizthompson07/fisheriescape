@@ -1,11 +1,11 @@
 from django.contrib.auth.models import User
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 
 from . import models
 
 
-@receiver(pre_save, sender=User)
+@receiver(post_save, sender=User)
 def auto_delete_file_on_change(sender, instance, **kwargs):
     """
     Following the creation of a new user, get/create an instance of Person
