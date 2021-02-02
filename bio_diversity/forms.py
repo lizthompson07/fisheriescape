@@ -218,11 +218,12 @@ class DataForm(CreatePrams):
                             row_entered = True
                         except ValidationError:
                             pass
-                    if not math.isnan(row["# of salmon observed/collected"]):
+                    cnt = False
+                    if not math.isnan(row["# of salmon collected"]):
                         cnt = models.Count(loc_id_id=loc.pk,
                                            spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                            cntc_id=models.CountCode.objects.filter(name__iexact="Fish Caught").get(),
-                                           cnt=row["# of salmon observed/collected"],
+                                           cnt=row["# of salmon collected"],
                                            est=False,
                                            created_by=cleaned_data["created_by"],
                                            created_date=cleaned_data["created_date"],
@@ -233,6 +234,25 @@ class DataForm(CreatePrams):
                             row_entered = True
                         except ValidationError:
                             cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id, cnt=cnt.cnt).get()
+
+                    elif not math.isnan(row["# of salmon observed"]):
+                            cnt = models.Count(loc_id_id=loc.pk,
+                                               spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                               cntc_id=models.CountCode.objects.filter(
+                                                   name__iexact="Fish Observed").get(),
+                                               cnt=row["# of salmon observed"],
+                                               est=False,
+                                               created_by=cleaned_data["created_by"],
+                                               created_date=cleaned_data["created_date"],
+                                               )
+                            try:
+                                cnt.clean()
+                                cnt.save()
+                                row_entered = True
+                            except ValidationError:
+                                cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id,
+                                                                  cnt=cnt.cnt).get()
+                    if cnt:
                         if not math.isnan(row["fishing seconds"]):
                             cntd = models.CountDet(cnt_id=cnt,
                                                    anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Electrofishing Seconds").get(),
@@ -302,7 +322,7 @@ class DataForm(CreatePrams):
                         pass
                     grpd = models.GroupDet(anix_id_id=anix.pk,
                                            anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
-                                           det_val=data["# of salmon observed/collected"].sum(),
+                                           det_val=data["# of salmon collected"].sum(),
                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
                                            # det_val=True,
                                            created_by=cleaned_data["created_by"],
