@@ -1,6 +1,6 @@
 import inspect
 import math
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -791,24 +791,47 @@ class DrawForm(CreatePrams):
 class EnvForm(CreatePrams):
     class Meta:
         model = models.EnvCondition
-        exclude = []
+        exclude = ["env_start", "env_end"]
         widgets = {
-            'env_start': forms.DateTimeInput(attrs={"placeholder": "Click to select a date...",
-                                                    "class": "fp-date-time"}),
-            'env_end': forms.DateTimeInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date-time"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['start_date'] = forms.DateField(widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
+        self.fields['end_date'] = forms.DateField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
+        self.fields['start_time'] = forms.CharField(required=False, max_length=4, min_length=4)
+        self.fields['end_time'] = forms.CharField(required=False, max_length=4, min_length=4)
 
     def clean(self):
         cleaned_data = super().clean()
         # we have to make sure
-        # 1) the end date is after the start date and
-        end_date = cleaned_data.get("env_end")
+        # 1) the end date is after the start date
+        end_date = cleaned_data.get("end_date")
         if end_date:
-            start_date = cleaned_data.get("env_start")
+            start_date = cleaned_data.get("start_date")
             if end_date and start_date and end_date < start_date:
                 self.add_error('env_end', gettext(
                     "The end date must be after the start date!"
                 ))
+
+    def save(self, commit=True):
+        envc = super().save(commit=False) # here the object is not commited in db
+
+        if self.cleaned_data["start_time"]:
+            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H%M').time()
+        else:
+            start_time = time(0, 0)
+        envc.env_start = datetime.combine(self.cleaned_data["start_date"], start_time)
+        if self.cleaned_data["end_date"]:
+            if self.cleaned_data["end_time"]:
+                end_time = datetime.strptime(self.cleaned_data["end_time"], '%H%M').time()
+            else:
+                end_time = time(0, 0)
+            envc.env_end = datetime.combine(self.cleaned_data["end_date"], end_time)
+        envc.save()
+        return envc
+
 
 
 class EnvcForm(CreatePrams):

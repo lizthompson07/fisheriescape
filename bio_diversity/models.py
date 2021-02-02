@@ -1,6 +1,7 @@
 # from django.db import models
 
 # Create your models here.
+import datetime
 import os
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
@@ -338,6 +339,28 @@ class EnvCondition(BioModel):
     env_avg = models.BooleanField(default=False, verbose_name=_("Is value an average?"))
     qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality of observation"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    @property
+    def start_date(self):
+        return self.env_start.date()
+
+    @property
+    def start_time(self):
+        if self.env_start.time() == datetime.time(0, 0):
+            return None
+        return self.env_start.time().strftime("%H%M")
+
+    @property
+    def end_date(self):
+        return self.env_end.date()
+
+    @property
+    def end_time(self):
+        if self.env_end.time() == datetime.time(0, 0):
+            return None
+        return self.env_end.time().strftime("%H%M")
+
+
 
     class Meta:
         constraints = [

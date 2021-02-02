@@ -217,7 +217,7 @@ class DrawCreate(mixins.DrawMixin, CommonCreate):
 class EnvCreate(mixins.EnvMixin, CommonCreate):
     def get_initial(self):
         init = super().get_initial()
-        init["env_start"] = date.today
+        init["start_date"] = date.today()
         if 'loc' in self.kwargs:
             init['loc_id'] = self.kwargs['loc']
         return init
@@ -679,8 +679,8 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
     template_name = 'bio_diversity/details_env.html'
-    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "env_start",
-              "env_end", "env_avg", "qual_id", "comments", "created_by", "created_date"]
+    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "start_date", "start_time",
+              "end_date", "end_time", "env_avg", "qual_id", "comments", "created_by", "created_date"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1773,7 +1773,14 @@ class DrawUpdate(mixins.DrawMixin, CommonUpdate):
 
 
 class EnvUpdate(mixins.EnvMixin, CommonUpdate):
-    pass
+    def get_initial(self):
+        init = super().get_initial()
+        init["start_date"] = self.object.start_date
+        init["start_time"] = self.object.start_time
+        if self.object.env_end:
+            init["end_date"] = self.object.end_date
+            init["end_time"] = self.object.end_time
+        return init
 
 
 class EnvcUpdate(mixins.EnvcMixin, CommonUpdate):
