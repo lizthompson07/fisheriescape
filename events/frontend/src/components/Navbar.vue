@@ -32,24 +32,20 @@
 <!--    </nav>-->
 <!--</template>-->
 
-
 <template>
   <div>
-    <v-app-bar
-      color="deep-purple accent-4"
-      dark
-    >
+    <v-app-bar color="deep-purple accent-4" dark>
       <!--      <v-app-bar-nav-icon></v-app-bar-nav-icon>-->
       <v-btn icon :to="www.google.com">
         <v-icon>mdi-home</v-icon>
       </v-btn>
-<!--      <v-toolbar-title>-->
-<!--        Meal Thyme-->
-<!--      </v-toolbar-title>-->
+      <!--      <v-toolbar-title>-->
+      <!--        Meal Thyme-->
+      <!--      </v-toolbar-title>-->
 
       <v-spacer></v-spacer>
 
-      <v-btn :to="{name: 'recipe-editor'}">
+      <v-btn :to="{ name: 'recipe-editor' }">
         New Recipe
       </v-btn>
       <v-btn icon href="/accounts/logout/">
@@ -86,12 +82,12 @@
 
 <script>
 export default {
-  name: "NavbarComponent",
-}
+  name: "NavbarComponent"
+};
 </script>
 <style>
 .my-navbar {
-  border-bottom: 1px solid #DDD;
+  border-bottom: 1px solid #ddd;
 }
 
 .navbar-brand {
@@ -102,5 +98,4 @@ export default {
 .navbar-brand:hover {
   color: red !important;
 }
-
 </style>

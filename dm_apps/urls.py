@@ -51,9 +51,13 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
     )
 
 if settings.INSTALLED_APPS.count("events"):
-    urlpatterns.append(
+    urlpatterns.extend([
+        path('events/', include('events.urls')),
         path('api/', include('events.api.urls')),
-    )
+    ])
+else:
+    print("not connecting events app")
+
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
@@ -201,13 +205,6 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns += i18n_patterns(path('bio_diversity/', include('bio_diversity.urls')), prefix_default_language=True)
 else:
     print("not connecting bio_diversity app")
-
-if settings.INSTALLED_APPS.count("events"):
-    urlpatterns += i18n_patterns(path('events/', include('events.urls')), prefix_default_language=True)
-    urlpatterns += i18n_patterns(path('jsi18n/events/', JavaScriptCatalog.as_view(packages=['events']), name='javascript-catalog'),
-                                 prefix_default_language=True)
-else:
-    print("not connecting events app")
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,

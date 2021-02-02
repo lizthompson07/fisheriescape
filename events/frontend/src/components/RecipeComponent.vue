@@ -1,12 +1,10 @@
-
 <template>
   <div class="single-recipe">
     <p class="text-muted mb-1 mt-2">
-      <strong >{{ recipe.author }} </strong>
-      &#8901; {{ recipe.created_at }}
-      &#8901; {{ recipe.title }}
+      <strong>{{ recipe.author }} </strong>
+      &#8901; {{ recipe.created_at }} &#8901; {{ recipe.title }}
     </p>
-    <hr>
+    <hr />
   </div>
 </template>
 
@@ -16,20 +14,16 @@ export default {
   props: {
     recipe: {
       type: Object,
-      required: true,
+      required: true
     },
     requestUser: {
       type: String,
-      required: true,
+      required: true
     }
   },
   data() {
-    return {
-
-    }
+    return {};
   },
-  methods: {
-  }
-}
+  methods: {}
+};
 </script>
-

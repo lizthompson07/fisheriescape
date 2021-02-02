@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-01 17:05-0400\n"
+"POT-Creation-Date: 2021-02-02 07:41-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -153,20 +153,16 @@ msgstr ""
 "date de début du voyage."
 
 #: .\travel\forms.py:546
-#, fuzzy
-#| msgid "CFTS Report"
 msgid "CFTS export (xlsx)"
-msgstr "Rapport SCVE"
+msgstr "Rapport SCVE (xlsx)"
 
 #: .\travel\forms.py:548
 msgid "Export trip list (xlsx)"
-msgstr ""
+msgstr "Exporter la liste des voyages (xlsx)"
 
 #: .\travel\forms.py:550
-#, fuzzy
-#| msgid "Reports"
 msgid "Report"
-msgstr "Rapports"
+msgstr "Rapport"
 
 #: .\travel\forms.py:554
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:9
@@ -1320,10 +1316,8 @@ msgstr ""
 
 #: .\travel\templates\travel\group_travel_plan.html:187
 #: .\travel\templates\travel\group_travel_plan.html:191
-#, fuzzy
-#| msgid "Save comments"
 msgid "See comments"
-msgstr "Enregistrer les commentaires"
+msgstr "Voir les commentaires"
 
 #: .\travel\templates\travel\group_travel_plan.html:190
 msgid "Justification for the number of travellers"
@@ -1505,10 +1499,8 @@ msgid "no"
 msgstr "non"
 
 #: .\travel\templates\travel\group_travel_plan.html:335
-#, fuzzy
-#| msgid "Trip Title"
 msgid "Trip Title:"
-msgstr "Titre du voyage"
+msgstr "Titre du voyage:"
 
 #: .\travel\templates\travel\group_travel_plan.html:340
 msgid "DETAILED COST BREAKDOWN PER TRAVELLER"
@@ -1645,33 +1637,31 @@ msgstr "Vérifications de voyage"
 
 #: .\travel\templates\travel\index.html:276
 msgid "The ADMO Net"
-msgstr ""
+msgstr "Réseau du SMA"
 
 #: .\travel\templates\travel\report_search.html:55
 msgid "Please select the report"
 msgstr "Veuillez sélectionner le rapport"
 
 #: .\travel\templates\travel\report_search.html:67
-#, fuzzy
-#| msgid "general notes"
 msgid "Generate"
-msgstr "notes générales"
+msgstr "Générer"
 
 #: .\travel\templates\travel\report_search.html:102
-msgid "From date<br>(filters on trip request start date"
-msgstr ""
+msgid "From date<br>(filters on trip request start date)"
+msgstr "De la date<br>(filtres sur la date de début de la demande de voyage)"
 
 #: .\travel\templates\travel\report_search.html:103
 msgid "To date<br>(filters on trip request start date)"
-msgstr ""
+msgstr "A ce jour<br>(filtres sur la date de début de la demande de voyage)"
 
 #: .\travel\templates\travel\report_search.html:113
 msgid "From date<br>(filters on trip start date)"
-msgstr ""
+msgstr "De la date<br>(filtres sur la date de début du voyage)"
 
 #: .\travel\templates\travel\report_search.html:114
 msgid "To date<br>(filters on trip start date)"
-msgstr ""
+msgstr "A ce jour<br>(filtres sur la date de début du voyage)"
 
 #: .\travel\templates\travel\reviewer_approval_form.html:35
 msgid "Print Travel Request and Approval Form (TRAF)"

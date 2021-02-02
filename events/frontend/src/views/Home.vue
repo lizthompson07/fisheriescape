@@ -3,7 +3,9 @@
     <div class="container mt-2">
       <div class="mt-2 mb-5">
         <div class="text-h2">Welcome to Meal Thyme</div>
-        <div class="text-h5 text-muted mt-2 mb-2">Your One-Stop-Shop for Meal Ideas</div>
+        <div class="text-h5 text-muted mt-2 mb-2">
+          {{ $t("message") }}
+        </div>
       </div>
       <div class="row">
         <div class="col">
@@ -17,20 +19,16 @@
                 hide-details
               ></v-text-field>
               <v-spacer></v-spacer>
-              <v-btn small color="primary" :to="{name: 'recipe-editor'}">New</v-btn>
+              <v-btn small color="primary" :to="{ name: 'recipe-editor' }"
+                >New</v-btn
+              >
             </v-card-title>
-            <v-data-table
-              :headers="headers"
-              :items="recipes"
-              :search="search"
-            >
-              <template v-slot:item.title="{item}">
-                <router-link
-                  :to="{name: 'recipe', params: {id: item.id}}"
-                >{{item.title}}
+            <v-data-table :headers="headers" :items="recipes" :search="search">
+              <template v-slot:item.title="{ item }">
+                <router-link :to="{ name: 'recipe', params: { id: item.id } }"
+                  >{{ item.title }}
                 </router-link>
               </template>
-
             </v-data-table>
           </v-card>
         </div>
@@ -44,33 +42,27 @@
                 single-line
                 hide-details
               ></v-text-field>
-
-
             </v-card-title>
             <v-data-table
               :headers="tag_headers"
               :items="tags"
               :search="search_tag"
             >
-              <template v-slot:item.name="{item}">
-                <router-link
-                  :to="{name: 'tag', params: {slug: item.slug}}"
-                >{{item.name}}
+              <template v-slot:item.name="{ item }">
+                <router-link :to="{ name: 'tag', params: { slug: item.slug } }"
+                  >{{ item.name }}
                 </router-link>
               </template>
-
             </v-data-table>
           </v-card>
         </div>
       </div>
-
-
     </div>
   </div>
 </template>
 
 <script>
-import {apiService} from "@/common/api_service";
+import { apiService } from "@/common/api_service";
 
 export default {
   name: "home",
@@ -81,43 +73,41 @@ export default {
       next: null,
       loadingRecipes: false,
       current_user: null,
-      search: '',
-      search_tag: '',
+      search: "",
+      search_tag: "",
       headers: [
         {
-          text: 'Title',
-          align: 'start',
+          text: "Title",
+          align: "start",
           sortable: false,
-          value: 'title',
+          value: "title"
         },
         // {text: 'Author', value: 'author'},
-        {text: 'Date created', value: 'created_at'},
-        {text: 'Tags', value: 'hashtags_string'},
+        { text: "Date created", value: "created_at" },
+        { text: "Tags", value: "hashtags_string" }
       ],
 
       tag_headers: [
         {
-          text: 'Name',
-          align: 'start',
-          value: 'name',
+          text: "Name",
+          align: "start",
+          value: "name"
         },
-        {text: 'Recipe count', value: 'recipe_count'},
-      ],
-
-    }
-  }
-  ,
+        { text: "Recipe count", value: "recipe_count" }
+      ]
+    };
+  },
   methods: {
     getUserData() {
       let endpoint = `/api/user/`;
       apiService(endpoint).then(data => {
         this.current_user = data.username;
-      })
+      });
     },
     getRecipes() {
-      let endpoint = 'api/recipes/';
+      let endpoint = "api/recipes/";
       if (this.next) {
-        endpoint = this.next
+        endpoint = this.next;
       }
       this.loadingRecipes = true;
       apiService(endpoint).then(data => {
@@ -129,12 +119,11 @@ export default {
         }
       });
       this.loadingRecipes = false;
-
     },
     getTags() {
-      let endpoint = 'api/hashtags/';
+      let endpoint = "api/hashtags/";
       apiService(endpoint).then(data => {
-        this.tags = data.results
+        this.tags = data.results;
       });
     }
   },
@@ -145,7 +134,7 @@ export default {
     this.getTags();
     document.title = "MealThyme";
   }
-}
+};
 </script>
 
 <style>
@@ -160,8 +149,7 @@ export default {
 }
 
 .recipe-link:hover {
-  color: #343A40;
+  color: #343a40;
   text-decoration: none;
 }
-
 </style>

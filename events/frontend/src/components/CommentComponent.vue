@@ -1,7 +1,7 @@
 <template>
   <div class="single-comment my-0">
     <p class="text-muted my-0" style="font-size: small">
-<!--      <strong v-if="isCurrentUsersComment">You </strong>-->
+      <!--      <strong v-if="isCurrentUsersComment">You </strong>-->
       <strong>{{ comment.author }} </strong>
       &#8901; {{ comment.created_at }}
       <span class="pl-3 my-0">
@@ -10,17 +10,22 @@
           :to="{ name: 'comment-editor', params: { id: comment.id } }"
           class="btn btn-sm btn-link px-0 my-0"
         >
-        edit
+          edit
         </router-link>
         |
-        <button @click="triggerDeleteComment" class="btn btn-sm btn-link px-0 my-0"> delete </button>
+        <button
+          @click="triggerDeleteComment"
+          class="btn btn-sm btn-link px-0 my-0"
+        >
+          delete
+        </button>
         )
       </span>
-      <br>
+      <br />
       {{ comment.content }}
       &nbsp;&nbsp;
     </p>
-    <hr>
+    <hr />
   </div>
 </template>
 
@@ -30,27 +35,27 @@ export default {
   props: {
     comment: {
       type: Object,
-      required: true,
+      required: true
     },
     requestUser: {
       type: String,
-      required: true,
+      required: true
     }
   },
   data() {
     return {
       userLikedComment: this.comment.user_has_voted,
-      numberOfLikes: this.comment.likes_count,
-    }
+      numberOfLikes: this.comment.likes_count
+    };
   },
   computed: {
     isCurrentUsersComment() {
-      return this.requestUser === this.comment.author
-    },
+      return this.requestUser === this.comment.author;
+    }
   },
   methods: {
     triggerDeleteComment() {
-      this.$emit("delete-comment", this.comment)
+      this.$emit("delete-comment", this.comment);
     },
     triggerLikeComment() {
       this.$emit("like-comment", this.comment);
@@ -63,11 +68,11 @@ export default {
       this.numberOfLikes -= 1;
     }
   }
-}
+};
 </script>
 
 <style>
->>>.my-btn {
+>>> .my-btn {
   border: none;
   background-color: white;
   font-size: small;
@@ -80,6 +85,5 @@ export default {
 
 .my-btn:hover {
   color: darkgray !important;
-
 }
 </style>
