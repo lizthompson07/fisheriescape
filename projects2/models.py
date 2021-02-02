@@ -88,7 +88,7 @@ class UpcomingDate(models.Model):
                                verbose_name=_("region"))
     description_en = models.TextField(verbose_name=_("description (en)"))
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("description (fr)"))
-    date = models.DateField()
+    date = models.DateTimeField()
     is_deadline = models.BooleanField(default=False)
 
     class Meta:

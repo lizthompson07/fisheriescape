@@ -111,7 +111,7 @@
           {% if is_admin %}
             {% for region in tab_dict %}
               {% with tab_dict|lookup:region as dict %}
-                {% if dict.things_to_deal_with or "ADM" in region %}
+                {% if dict.things_to_deal_with or "ADM" in region or "SMA" in region %}
 
                   <li class="nav-item">
                     <a class="nav-link" data-toggle="tab"
@@ -239,7 +239,7 @@
                   </h2>
                   <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
 
-                  {% if not "ADM" in region %}
+                  {% if not "ADM" in region and not "SMA" in region %}
                     {% if dict.adm_number_waiting %}
                       <a href="{{ dict.adm_approval_list_url }}" class="btn btn-lg btn-outline-primary mx-3">
                         {% trans "Requests Awaiting ADM" %}
@@ -249,7 +249,7 @@
                   {% endif %}
 
                   {# RDG stuff #}
-                  {% if not "ADM" in region %}
+                  {% if not "ADM" in region and not "SMA" in region %}
                     {% if dict.rdg_number_waiting %}
                       <a href="{{ dict.rdg_approval_list_url }}" class="btn btn-lg btn-outline-primary mx-3">
                         {% trans "Requests Awaiting RDG" %}
@@ -267,13 +267,13 @@
                     </a>
                   {% endif %}
 
-                  {% if "ADM" in region %}
+                  {% if "ADM" in region or "SMA" in region %}
                     {# ADM hit list stuff #}
                     {% if dict.adm_trips_ready %}
 
                       <a href="{% url 'travel:trip_list' "adm-hit-list" %}"
                          class="btn btn-lg btn-outline-primary mx-3">
-                        The ADMO Net
+                        {% trans "The ADMO Net" %}
                         (<span class="red-font blink-me">{{ dict.adm_trips_ready }}</span>)
                       </a>
 

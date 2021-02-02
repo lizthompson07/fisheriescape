@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-01 05:54-0400\n"
+"POT-Creation-Date: 2021-02-02 07:41-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -58,7 +58,7 @@ msgstr ""
 msgid "Consultation Instructions - Mail Merge (xlsx)"
 msgstr ""
 
-#: .\ihub\forms.py:200
+#: .\ihub\forms.py:197
 msgid "DFO employee"
 msgstr "employé du MPO"
 
@@ -404,21 +404,21 @@ msgid "Home"
 msgstr "Accueil"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:8
-#: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:372 .\ihub\views.py:379
-#: .\ihub\views.py:415 .\ihub\views.py:429 .\ihub\views.py:461
+#: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:386 .\ihub\views.py:393
+#: .\ihub\views.py:429 .\ihub\views.py:443 .\ihub\views.py:475
 msgid "Entries"
 msgstr ""
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:11
-#: .\ihub\templates\ihub\index.html:35 .\ihub\views.py:112 .\ihub\views.py:134
-#: .\ihub\views.py:142 .\ihub\views.py:168 .\ihub\views.py:191
+#: .\ihub\templates\ihub\index.html:35 .\ihub\views.py:114 .\ihub\views.py:136
+#: .\ihub\views.py:144 .\ihub\views.py:175 .\ihub\views.py:202
 #, fuzzy
 msgid "Contacts"
 msgstr "Contacts du MPO"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:14
-#: .\ihub\templates\ihub\index.html:40 .\ihub\views.py:266 .\ihub\views.py:275
-#: .\ihub\views.py:293 .\ihub\views.py:308
+#: .\ihub\templates\ihub\index.html:40 .\ihub\views.py:278 .\ihub\views.py:287
+#: .\ihub\views.py:306 .\ihub\views.py:322
 msgid "Organizations"
 msgstr "Organisations"
 
@@ -567,11 +567,11 @@ msgstr "Détails de la personne:"
 msgid "Membership:"
 msgstr ""
 
-#: .\ihub\templates\ihub\person_detail.html:53
+#: .\ihub\templates\ihub\person_detail.html:54
 msgid "(Will open in Master List in separate tab)"
 msgstr ""
 
-#: .\ihub\templates\ihub\person_detail.html:58
+#: .\ihub\templates\ihub\person_detail.html:59
 msgid "person is not part of any organizations"
 msgstr ""
 
@@ -693,29 +693,33 @@ msgstr ""
 "Veuillez noter que seules <b>les informations non classifiées</b> peuvent "
 "être entrées dans cette application."
 
-#: .\ihub\views.py:220
+#: .\ihub\views.py:108
+msgid "last updated"
+msgstr ""
+
+#: .\ihub\views.py:231
 msgid "Full address"
 msgstr ""
 
-#: .\ihub\views.py:447
+#: .\ihub\views.py:461
 msgid ""
 "The entry has been submitted and an email has been sent to the Indigenous "
 "Hub Coordinator!"
 msgstr ""
 
-#: .\ihub\views.py:498
+#: .\ihub\views.py:512
 msgid "The note has been successfully deleted from the entry."
 msgstr "La note a été supprimé avec succès."
 
-#: .\ihub\views.py:528
+#: .\ihub\views.py:542
 msgid "The person has been successfully deleted from the entry."
 msgstr ""
 
-#: .\ihub\views.py:558
+#: .\ihub\views.py:572
 msgid "The file has been successfully deleted from the entry."
 msgstr ""
 
-#: .\ihub\views.py:639
+#: .\ihub\views.py:653
 msgid "Engagement Update Log – Government of Canada"
 msgstr ""
 

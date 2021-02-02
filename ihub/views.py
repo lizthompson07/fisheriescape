@@ -103,7 +103,9 @@ class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'full_name_with_title|Full name', "class": "", "width": ""},
         {"name": 'phone_1', "class": "", "width": ""},
-        {"name": 'phone_2', "class": "", "width": ""},
+        # {"name": 'phone_2', "class": "", "width": ""},
+        {"name": 'email_1', "class": "", "width": ""},
+        {"name": 'last_updated|{}'.format(_("last updated")), "class": "", "width": ""},
     ]
     new_object_url_name = "ihub:person_new"
     row_object_url_name = "ihub:person_detail"

@@ -278,7 +278,7 @@ class TripRequestForm(forms.ModelForm):
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
                 raise forms.ValidationError(_('The start date of the trip must occur before the end date.'))
-            if abs((request_start_date - request_end_date).days) > 100:
+            if abs((request_start_date - request_end_date).days) > 180:
                 msg = _('The length of this trip is unrealistic.')
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
@@ -543,18 +543,18 @@ class TripForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
-        (1, "CFTS export (xlsx)"),
+        (1, gettext_lazy("CFTS export (xlsx)")),
         # (2, "Print Travel Plan PDF"),
-        (3, "Export trip list (xlsx)"),
+        (3, gettext_lazy("Export trip list (xlsx)")),
     )
-    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES, label=gettext_lazy("Report"))
     # report #1
-    fiscal_year = forms.ChoiceField(required=False, label=_('Fiscal year'))
+    fiscal_year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal year'))
     # report #2
-    user = forms.ChoiceField(required=False, label=_('Traveller'), widget=forms.Select(attrs=chosen_js))
-    trip = forms.ChoiceField(required=False, label=_('Trip'), widget=forms.Select(attrs=chosen_js))
-    region = forms.ChoiceField(required=False, label=_('Region'))
-    adm = forms.ChoiceField(required=False, label=_('ADM approval required'), choices=INT_YES_NO_CHOICES)
+    user = forms.ChoiceField(required=False, label=gettext_lazy('Traveller'), widget=forms.Select(attrs=chosen_js))
+    trip = forms.ChoiceField(required=False, label=gettext_lazy('Trip'), widget=forms.Select(attrs=chosen_js))
+    region = forms.ChoiceField(required=False, label=gettext_lazy('Region'))
+    adm = forms.ChoiceField(required=False, label=gettext_lazy('ADM approval required'), choices=INT_YES_NO_CHOICES)
     from_date = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
     to_date = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
 

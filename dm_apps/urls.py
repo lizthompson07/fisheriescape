@@ -20,6 +20,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.views.i18n import JavaScriptCatalog
 
 from accounts import views as acc_views
 from . import views as views
@@ -48,6 +49,15 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns.append(
         path('api/', include('bio_diversity.api.urls')),
     )
+
+if settings.INSTALLED_APPS.count("events"):
+    urlpatterns.extend([
+        path('events/', include('events.urls')),
+        path('api/', include('events.api.urls')),
+    ])
+else:
+    print("not connecting events app")
+
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
@@ -195,12 +205,6 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns += i18n_patterns(path('bio_diversity/', include('bio_diversity.urls')), prefix_default_language=True)
 else:
     print("not connecting bio_diversity app")
-
-if settings.INSTALLED_APPS.count("events"):
-    urlpatterns += i18n_patterns(path('events/', include('events.urls')), prefix_default_language=True)
-else:
-    print("not connecting events app")
-
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
