@@ -4,19 +4,23 @@
       <v-main>
         <NavbarComponent />
         <router-view />
+        <localeChanger/>
+
       </v-main>
     </v-app>
   </div>
 </template>
 
 <script>
+import localeChanger from "@/components/HelloI18n.vue";
 import NavbarComponent from "@/components/Navbar.vue";
 import { apiService } from "@/common/api_service";
 
 export default {
   name: "App",
   components: {
-    NavbarComponent
+    NavbarComponent,
+    localeChanger
   },
   methods: {
     async setUserInfo() {
