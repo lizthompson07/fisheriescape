@@ -24,14 +24,13 @@ class CreatePrams(forms.ModelForm):
         #                       "class": "fp-date"})
 
 
-class CreateTimePrams(forms.ModelForm):
+class CreateDatePrams(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields['created_date'].widget = forms.HiddenInput()
         self.fields['created_by'].widget = forms.HiddenInput()
-        # forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
         self.fields['start_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
                                                                   "class": "fp-date"})
         self.fields['end_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
@@ -53,6 +52,57 @@ class CreateTimePrams(forms.ModelForm):
                 ))
             elif end_date and valid and end_date < today:
                 self.add_error('det_valid', gettext("Cannot be valid after end date"))
+
+
+class CreateTimePrams(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        self.fields['start_datetime'].widget = forms.HiddenInput()
+        self.fields['start_datetime'].required = False
+        self.fields['end_datetime'].widget = forms.HiddenInput()
+        self.fields['end_datetime'].required = False
+        self.fields['start_date'] = forms.DateField(widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
+        self.fields['end_date'] = forms.DateField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
+        self.fields['start_time'] = forms.CharField(required=False, max_length=4, min_length=4)
+        self.fields['end_time'] = forms.CharField(required=False, max_length=4, min_length=4)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # we have to make sure
+        # 1) the end datetime is after the start datetime
+        end_date = cleaned_data.get("end_date")
+        end_time = cleaned_data.get("end_time")
+        start_time = cleaned_data.get("start_time")
+        if end_date:
+            start_date = cleaned_data.get("start_date")
+            if end_date and start_date and end_date < start_date:
+                self.add_error('end_date', gettext(
+                    "The end date must be after the start date!"
+                ))
+            elif end_date and start_date and end_date == start_date:
+                if end_time and start_time and end_time < start_time:
+                    self.add_error('end_time', gettext(
+                        "The end date must be after the start date!"
+                    ))
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)  # here the object is not commited in db
+
+        if self.cleaned_data["start_time"]:
+            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H%M').time()
+        else:
+            start_time = time(0, 0)
+        obj.start_datetime = datetime.combine(self.cleaned_data["start_date"], start_time)
+        if self.cleaned_data["end_date"]:
+            if self.cleaned_data["end_time"]:
+                end_time = datetime.strptime(self.cleaned_data["end_time"], '%H%M').time()
+            else:
+                end_time = time(0, 0)
+            obj.end_datetime = datetime.combine(self.cleaned_data["end_date"], end_time)
+        obj.save()
+        return obj
 
 
 class AnidcForm(CreatePrams):
@@ -141,7 +191,7 @@ class CupForm(CreatePrams):
         exclude = []
 
 
-class CupdForm(CreateTimePrams):
+class CupdForm(CreateDatePrams):
     class Meta:
         model = models.CupDet
         exclude = []
@@ -828,50 +878,12 @@ class DrawForm(CreatePrams):
         exclude = []
 
 
-class EnvForm(CreatePrams):
+class EnvForm(CreateTimePrams):
     class Meta:
         model = models.EnvCondition
-        exclude = ["env_start", "env_end"]
+        exclude = []
         widgets = {
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['start_date'] = forms.DateField(widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
-        self.fields['end_date'] = forms.DateField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
-        self.fields['start_time'] = forms.CharField(required=False, max_length=4, min_length=4)
-        self.fields['end_time'] = forms.CharField(required=False, max_length=4, min_length=4)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        # we have to make sure
-        # 1) the end date is after the start date
-        end_date = cleaned_data.get("end_date")
-        if end_date:
-            start_date = cleaned_data.get("start_date")
-            if end_date and start_date and end_date < start_date:
-                self.add_error('env_end', gettext(
-                    "The end date must be after the start date!"
-                ))
-
-    def save(self, commit=True):
-        envc = super().save(commit=False) # here the object is not commited in db
-
-        if self.cleaned_data["start_time"]:
-            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H%M').time()
-        else:
-            start_time = time(0, 0)
-        envc.env_start = datetime.combine(self.cleaned_data["start_date"], start_time)
-        if self.cleaned_data["end_date"]:
-            if self.cleaned_data["end_time"]:
-                end_time = datetime.strptime(self.cleaned_data["end_time"], '%H%M').time()
-            else:
-                end_time = time(0, 0)
-            envc.env_end = datetime.combine(self.cleaned_data["end_date"], end_time)
-        envc.save()
-        return envc
-
 
 
 class EnvcForm(CreatePrams):
@@ -904,33 +916,15 @@ class EnvtcForm(CreatePrams):
         exclude = []
 
 
-class EvntForm(CreatePrams):
+class EvntForm(CreateTimePrams):
     class Meta:
         model = models.Event
         exclude = []
-        widgets = {
-            'evnt_start': forms.DateTimeInput(attrs={"placeholder": "Click to select a date...",
-                                                     "class": "fp-date-time"}),
-            'evnt_end': forms.DateTimeInput(attrs={"placeholder": "Click to select a date...",
-                                                   "class": "fp-date-time"}),
-        }
+        widgets = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.fields['team_id'].create_url = 'bio_diversity:create_team'
-
-    def clean(self):
-        cleaned_data = super().clean()
-        # we have to make sure
-        # 1) the end date is after the start date
-        end_date = cleaned_data.get("evnt_end")
-        if end_date:
-            start_date = cleaned_data.get("evnt_start")
-            if end_date and start_date and end_date < start_date:
-                self.add_error('evnt_end', gettext(
-                    "The end date must be after the start date!"
-                ))
 
 
 class EvntcForm(CreatePrams):
@@ -945,7 +939,7 @@ class FacicForm(CreatePrams):
         exclude = []
 
 
-class FecuForm(CreateTimePrams):
+class FecuForm(CreateDatePrams):
     class Meta:
         model = models.Fecundity
         exclude = []
@@ -990,7 +984,7 @@ class HeatForm(CreatePrams):
         }
 
 
-class HeatdForm(CreateTimePrams):
+class HeatdForm(CreateDatePrams):
     class Meta:
         model = models.HeathUnitDet
         exclude = []
@@ -1057,28 +1051,11 @@ class IndvdForm(CreatePrams):
         exclude = []
 
 
-class IndvtForm(CreatePrams):
+class IndvtForm(CreateTimePrams):
     class Meta:
         model = models.IndTreatment
         exclude = []
-        widgets = {
-            'start_datetime': forms.DateInput(attrs={"placeholder": "Click to select a date...",
-                                                     "class": "fp-date-time"}),
-            'end_datetime': forms.DateInput(attrs={"placeholder": "Click to select a date...",
-                                                   "class": "fp-date-time"}),
-        }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        # we have to make sure
-        # 1) the end date is after the start date and
-        end_date = cleaned_data.get("end_datetime")
-        if end_date:
-            start_date = cleaned_data.get("start_datetime")
-            if end_date and start_date and end_date < start_date:
-                self.add_error('end_datetime', gettext(
-                    "The end date must be after the start date!"
-                ))
+        widgets = {}
 
 
 class IndvtcForm(CreatePrams):
@@ -1099,7 +1076,7 @@ class InstcForm(CreatePrams):
         exclude = []
 
 
-class InstdForm(CreateTimePrams):
+class InstdForm(CreateDatePrams):
     class Meta:
         model = models.InstrumentDet
         exclude = []
@@ -1115,9 +1092,25 @@ class LocForm(CreatePrams):
     class Meta:
         model = models.Location
         exclude = []
-        widgets = {
-            'loc_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
-        }
+        widgets = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['start_datetime'].widget = forms.HiddenInput()
+        self.fields['start_datetime'].required = False
+        self.fields['start_date'] = forms.DateField(widget=forms.DateInput(
+            attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
+        self.fields['start_time'] = forms.CharField(required=False, max_length=4, min_length=4)
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)  # here the object is not commited in db
+        if self.cleaned_data["start_time"]:
+            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H%M').time()
+        else:
+            start_time = time(0, 0)
+        obj.start_datetime = datetime.combine(self.cleaned_data["start_date"], start_time)
+        obj.save()
+        return obj
 
 
 class LoccForm(CreatePrams):
@@ -1132,7 +1125,7 @@ class OrgaForm(CreatePrams):
         exclude = []
 
 
-class PairForm(CreateTimePrams):
+class PairForm(CreateDatePrams):
     class Meta:
         model = models.Pairing
         exclude = []
@@ -1153,7 +1146,7 @@ class PrioForm(CreatePrams):
         exclude = []
 
 
-class ProgForm(CreateTimePrams):
+class ProgForm(CreateDatePrams):
     class Meta:
         model = models.Program
         exclude = []
@@ -1170,7 +1163,7 @@ class ProgaForm(CreatePrams):
         exclude = []
 
 
-class ProtForm(CreateTimePrams):
+class ProtForm(CreateDatePrams):
     class Meta:
         model = models.Protocol
         exclude = []
@@ -1295,7 +1288,7 @@ class TankForm(CreatePrams):
         exclude = []
 
 
-class TankdForm(CreateTimePrams):
+class TankdForm(CreateDatePrams):
     class Meta:
         model = models.TankDet
         exclude = []
@@ -1313,7 +1306,7 @@ class TrayForm(CreatePrams):
         exclude = []
 
 
-class TraydForm(CreateTimePrams):
+class TraydForm(CreateDatePrams):
     class Meta:
         model = models.TrayDet
         exclude = []
@@ -1331,7 +1324,7 @@ class TrofForm(CreatePrams):
         exclude = []
 
 
-class TrofdForm(CreateTimePrams):
+class TrofdForm(CreateDatePrams):
     class Meta:
         model = models.TroughDet
         exclude = []

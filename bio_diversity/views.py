@@ -244,11 +244,7 @@ class EnvtcCreate(mixins.EnvtcMixin, CommonCreate):
 
 
 class EvntCreate(mixins.EvntMixin, CommonCreate):
-    def get_initial(self):
-        init = super().get_initial()
-        init["evnt_start"] = date.today
-        return init
-
+    pass
 
 class EvntcCreate(mixins.EvntcMixin, CommonCreate):
     pass
@@ -336,10 +332,7 @@ class IndvdCreate(mixins.IndvdMixin, CommonCreate):
 
 
 class IndvtCreate(mixins.IndvtMixin, CommonCreate):
-    def get_initial(self):
-        init = super().get_initial()
-        init["start_datetime"] = date.today
-        return init
+    pass
 
 
 class IndvtcCreate(mixins.IndvtcMixin, CommonCreate):
@@ -363,11 +356,7 @@ class InstdcCreate(mixins.InstdcMixin, CommonCreate):
 
 
 class LocCreate(mixins.LocMixin, CommonCreate):
-    def get_initial(self):
-        initial = super().get_initial()
-        if 'evnt' in self.kwargs:
-            initial['evnt_id'] = self.kwargs['evnt']
-        return initial
+    pass
 
 
 class LoccCreate(mixins.LoccMixin, CommonCreate):
@@ -719,8 +708,8 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
     template_name = "bio_diversity/details_evnt.html"
-    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_end",
-              "comments", "created_by", "created_date", ]
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "start_date", "start_time", "end_date",
+              "end_time", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -969,8 +958,8 @@ class IndvdDetails(mixins.IndvdMixin, CommonDetails):
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):
-    fields = ["indvtc_id", "lot_num", "dose", "unit_id", "start_datetime", "end_datetime", "comments", "created_by",
-              "created_date", ]
+    fields = ["indvtc_id", "lot_num", "dose", "unit_id", "start_date", "start_time", "end_date", "end_time",
+              "comments", "created_by", "created_date", ]
 
 
 class IndvtcDetails(mixins.IndvtcMixin, CommonDetails):
@@ -997,8 +986,8 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
 
 class LocDetails(mixins.LocMixin, CommonDetails):
     template_name = 'bio_diversity/details_loc.html'
-    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "loc_date",
-              "comments", "created_by", "created_date", ]
+    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "start_date",
+              "start_time", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -1499,7 +1488,7 @@ class InstdcList(mixins.InstdcMixin, CommonList):
 
 class LocList(mixins.LocMixin, CommonList):
     filterset_class = filters.LocFilter
-    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "loc_date", ]
+    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "start_date", ]
 
 
 class LoccList(mixins.LoccMixin, CommonList):
@@ -1698,7 +1687,12 @@ class CommonUpdate(CommonAuthUpdateView):
         init = super().get_initial()
         # can uncomment this to auto update user on any update
         # init["created_by"] = self.request.user.username
-
+        if self.object.start_datetime:
+            init["start_date"] = self.object.start_date
+            init["start_time"] = self.object.start_time
+        if self.object.end_datetime:
+            init["end_date"] = self.object.end_date
+            init["end_time"] = self.object.end_time
         return init
 
     # this function overrides UserPassesTestMixin.test_func() to determine if
@@ -1773,14 +1767,7 @@ class DrawUpdate(mixins.DrawMixin, CommonUpdate):
 
 
 class EnvUpdate(mixins.EnvMixin, CommonUpdate):
-    def get_initial(self):
-        init = super().get_initial()
-        init["start_date"] = self.object.start_date
-        init["start_time"] = self.object.start_time
-        if self.object.env_end:
-            init["end_date"] = self.object.end_date
-            init["end_time"] = self.object.end_time
-        return init
+    pass
 
 
 class EnvcUpdate(mixins.EnvcMixin, CommonUpdate):
