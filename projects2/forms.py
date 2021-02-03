@@ -789,6 +789,7 @@ class ReportSearchForm(forms.Form):
         (2, "CSRF Submission List (xlsx)"),
         (3, "Project Status Summary (csv)"),
         (4, "Project List (csv)"),
+        (5, "SAR Workplan (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal Year'))
@@ -807,7 +808,6 @@ class ReportSearchForm(forms.Form):
         self.fields['region'].choices = region_choices
         self.fields['section'].choices = section_choices
         self.fields['section'].widget.attrs = chosen_js
-
 
 
 class CitationForm(forms.ModelForm):

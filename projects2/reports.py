@@ -131,6 +131,28 @@ def generate_acrdp_application(project):
     return target_url
 
 
+def generate_sar_workplan(year, region):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "sar_workplan_template.xlsx")
+
+    wb = load_workbook(filename=template_file_path)
+
+    pyears = models.ProjectYear.objects.filter(fiscal_year_id=year)
+    try:
+        ws = wb[str(pyears.fiscal_year)]
+    except KeyError:
+        print(str(pyears.fiscal_year), "is not a valid name of a worksheet")
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
 def generate_acrdp_budget(project):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
