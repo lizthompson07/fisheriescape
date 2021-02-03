@@ -283,7 +283,9 @@ def generate_csrf_submission_list(year, region):
     year_txt = str(FiscalYear.objects.get(pk=year))
     ws['A1'].value += year_txt
 
-    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year)
+    # get all project years that are not in the following status: draft, not approved, cancelled
+    # and that are a part of a project whose default funding source has an english name containing "csrf"
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year).filter(~Q(status__in=[1,5,9]))
     if region != "None":
         qs = qs.filter(project__section__division__branch__region_id=region)
 
