@@ -244,7 +244,15 @@ class EnvtcCreate(mixins.EnvtcMixin, CommonCreate):
 
 
 class EvntCreate(mixins.EvntMixin, CommonCreate):
-    pass
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs = {'pk': self.object.pk})
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
+
 
 class EvntcCreate(mixins.EvntcMixin, CommonCreate):
     pass
@@ -1792,7 +1800,14 @@ class EnvtcUpdate(mixins.EnvtcMixin, CommonUpdate):
 
 
 class EvntUpdate(mixins.EvntMixin, CommonUpdate):
-    pass
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs = {'pk': self.object.pk})
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
 
 
 class EvntcUpdate(mixins.EvntcMixin, CommonUpdate):

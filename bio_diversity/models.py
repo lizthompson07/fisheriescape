@@ -165,7 +165,6 @@ class BioTimeModel(BioModel):
         return self.end_datetime.time().strftime("%H%M")
 
 
-
 class AnimalDetCode(BioLookup):
     # anidc tag
     min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
