@@ -25,9 +25,11 @@ class Event(SimpleLookup):
                                     editable=False)
     # meta
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
-    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("last modified by"), editable=False, related_name="user_events_updated_by")
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("last modified by"), editable=False,
+                                   related_name="user_events_updated_by")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"), editable=False)
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("created by"), related_name="user_events_created_by", editable=False)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("created by"), related_name="user_events_created_by",
+                                   editable=False)
 
     @property
     def metadata(self):
@@ -40,7 +42,6 @@ class Event(SimpleLookup):
 
     class Meta:
         ordering = ['-updated_at', ]
-
 
 
 class Invitee(models.Model):
@@ -63,7 +64,6 @@ class Invitee(models.Model):
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("Resource", editable=False)
 
-
     class Meta:
         ordering = ['status', 'role', 'person__first_name', "person__last_name"]
 
@@ -83,9 +83,11 @@ class Note(models.Model):
 
     # meta
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
-    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("last modified by"), editable=False, related_name="user_event_notes_updated_by")
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("last modified by"), editable=False,
+                                   related_name="user_event_notes_updated_by")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"), editable=False)
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("created by"), editable=False, related_name="user_event_notes_created_by")
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("created by"), editable=False,
+                                   related_name="user_event_notes_created_by")
 
     @property
     def metadata(self):
@@ -112,7 +114,8 @@ class Resource(SimpleLookup):
 
     # meta
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
-    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("last modified by"), editable=False, related_name="user_event_resources_updated_by")
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("last modified by"), editable=False,
+                                   related_name="user_event_resources_updated_by")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"), editable=False)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("created by"), related_name="user_event_resources_created_by",
                                    editable=False)
@@ -146,5 +149,3 @@ class Resource(SimpleLookup):
 
     class Meta:
         ordering = [_("name")]
-
-

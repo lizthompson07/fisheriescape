@@ -2,12 +2,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-02 07:41-0400\n"
+"POT-Creation-Date: 2021-02-02 19:52-0400\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: POEditor.com\n"
-"Language: en\n"
+"X-Generator: Poedit 2.4.1\n"
+"Language: fr_CA\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: .\masterlist\models.py:23
 msgid "name"
@@ -23,19 +27,19 @@ msgstr "niveau"
 
 #: .\masterlist\models.py:61
 msgid "None"
-msgstr ""
+msgstr "n/a"
 
 #: .\masterlist\models.py:61
 msgid "On-Reserve"
-msgstr ""
+msgstr "dans la réserve"
 
 #: .\masterlist\models.py:61
 msgid "Off-Reserve"
-msgstr ""
+msgstr "hors réserve"
 
 #: .\masterlist\models.py:61
 msgid "Both"
-msgstr ""
+msgstr "tous les deux"
 
 #: .\masterlist\models.py:63
 #, fuzzy
@@ -48,28 +52,27 @@ msgstr "nom autochtone"
 
 #: .\masterlist\models.py:65
 msgid "abbreviation"
-msgstr ""
+msgstr "abbréviation"
 
 #: .\masterlist\models.py:66
 msgid "street address"
-msgstr ""
+msgstr "adresse de rue"
 
 #: .\masterlist\models.py:67
-#, fuzzy
 msgid "mailing address"
-msgstr "Courriel"
+msgstr "adresse postale"
 
 #: .\masterlist\models.py:68
 msgid "city"
-msgstr ""
+msgstr "ville"
 
 #: .\masterlist\models.py:69
 msgid "postal code"
-msgstr ""
+msgstr "code postale"
 
 #: .\masterlist\models.py:70
 msgid "province"
-msgstr ""
+msgstr "province"
 
 #: .\masterlist\models.py:71
 msgid "phone"
@@ -77,10 +80,9 @@ msgstr "téléphone"
 
 #: .\masterlist\models.py:72 .\masterlist\models.py:181
 msgid "fax"
-msgstr ""
+msgstr "fax"
 
 #: .\masterlist\models.py:73
-#, fuzzy
 msgid "DFO contacts"
 msgstr "Contacts du MPO"
 
@@ -90,73 +92,67 @@ msgstr "remarques"
 
 #: .\masterlist\models.py:75
 msgid "key species"
-msgstr ""
+msgstr "espèces clés"
 
 #: .\masterlist\models.py:76
 msgid "grouping"
-msgstr ""
+msgstr "regroupement"
 
 #: .\masterlist\models.py:77
-#, fuzzy
 msgid "regions"
-msgstr "Secteurs du MPO"
+msgstr "régions du MPO"
 
 #: .\masterlist\models.py:78
 msgid "DFO sector"
-msgstr "Secteurs"
+msgstr "Secteurs du MPO"
 
 #: .\masterlist\models.py:82
 msgid "relationship rating"
-msgstr ""
+msgstr "évaluation de la relation"
 
 #: .\masterlist\models.py:83
-#, fuzzy
 msgid "Associated organizations"
-msgstr "Organisation partenaire"
+msgstr "Organisations associées"
 
 #: .\masterlist\models.py:85
-#, fuzzy
 msgid "Nation"
-msgstr "Section"
+msgstr "Nation"
 
 #: .\masterlist\models.py:86
-#, fuzzy
 msgid "former name"
-msgstr "prénom"
+msgstr "ancien nom"
 
 #: .\masterlist\models.py:87
 msgid "website"
-msgstr ""
+msgstr "site Web"
 
 #: .\masterlist\models.py:88
 msgid "council quorum"
-msgstr ""
+msgstr "quorum du conseil"
 
 #: .\masterlist\models.py:89
-#, fuzzy
 msgid "next election"
-msgstr "Ma section"
+msgstr "prochaine élection"
 
 #: .\masterlist\models.py:90
-#, fuzzy
 msgid "election term"
-msgstr "chef de section"
+msgstr "terme d'élection"
 
 #: .\masterlist\models.py:91
 msgid "date that the new council holds office"
-msgstr ""
+msgstr "date d'entrée en fonction du nouveau conseil"
 
 #: .\masterlist\models.py:92
 msgid "population on reserve"
-msgstr ""
+msgstr "population dans la réserve"
 
 #: .\masterlist\models.py:93
 msgid "population off reserve"
-msgstr ""
+msgstr "population hors réserve"
 
 #: .\masterlist\models.py:94
 msgid "population on other reserve"
-msgstr ""
+msgstr "population dans une autre réserve"
 
 #: .\masterlist\models.py:95
 msgid "FIN"
@@ -164,19 +160,19 @@ msgstr ""
 
 #: .\masterlist\models.py:96
 msgid "processing plant?"
-msgstr ""
+msgstr "usine de transformation?"
 
 #: .\masterlist\models.py:97
 msgid "wharf?"
-msgstr ""
+msgstr "quai?"
 
 #: .\masterlist\models.py:98
 msgid "Associated reserves"
-msgstr ""
+msgstr "Réserves associées"
 
 #: .\masterlist\models.py:99
 msgid "audio file"
-msgstr ""
+msgstr "fichier audio"
 
 #: .\masterlist\models.py:105 .\masterlist\models.py:192
 #: .\masterlist\models.py:282 .\masterlist\models.py:325
@@ -204,25 +200,23 @@ msgstr "nom de famille"
 
 #: .\masterlist\models.py:176
 msgid "work phone"
-msgstr ""
+msgstr "téléphone de travail"
 
 #: .\masterlist\models.py:177
 msgid "work phone 2"
-msgstr ""
+msgstr "téléphone de travail no. 2"
 
 #: .\masterlist\models.py:178
-#, fuzzy
 msgid "work email"
-msgstr "courriel"
+msgstr "courriel de travail"
 
 #: .\masterlist\models.py:179
-#, fuzzy
 msgid "work email 2"
-msgstr "courriel 2"
+msgstr "courriel de travail no. 2"
 
 #: .\masterlist\models.py:180
 msgid "work phone (mobile)"
-msgstr ""
+msgstr "téléphone de travail (cellulaire)"
 
 #: .\masterlist\models.py:183
 msgid "language preference"
@@ -235,19 +229,19 @@ msgstr "courriel 1"
 
 #: .\masterlist\models.py:186
 msgid "membership"
-msgstr ""
+msgstr "appartenance"
 
 #: .\masterlist\models.py:240 .\masterlist\models.py:255
 msgid "Phone 1"
-msgstr ""
+msgstr "téléphone no. 1"
 
 #: .\masterlist\models.py:242 .\masterlist\models.py:257
 msgid "Phone 2"
-msgstr ""
+msgstr "téléphone no. 2"
 
 #: .\masterlist\models.py:244 .\masterlist\models.py:259
 msgid "Fax"
-msgstr ""
+msgstr "fax"
 
 #: .\masterlist\models.py:246 .\masterlist\models.py:261
 msgid "E-mail 1"
@@ -263,39 +257,39 @@ msgstr "rôle"
 
 #: .\masterlist\models.py:317
 msgid "TO"
-msgstr ""
+msgstr "À"
 
 #: .\masterlist\models.py:318
 msgid "CC"
-msgstr ""
+msgstr "CC"
 
 #: .\masterlist\models.py:319
 msgid "CC (Commercial Only)"
-msgstr ""
+msgstr "CC (commercial uniquement)"
 
 #: .\masterlist\models.py:323
 msgid "TO / CC"
-msgstr ""
+msgstr "À / CC"
 
 #: .\masterlist\models.py:362
 msgid "EMAIL MISSING"
-msgstr ""
+msgstr "COURRIEL MANQUANT"
 
 #: .\masterlist\models.py:367
 msgid "MISSING ROLE"
-msgstr ""
+msgstr "RÔLE MANQUANT"
 
 #: .\masterlist\models.py:374
 msgid "address letter to:"
-msgstr ""
+msgstr "lettre adresser à:"
 
 #: .\masterlist\models.py:375
 msgid "include on cc (letter)"
-msgstr ""
+msgstr "inclure sur cc (lettre)"
 
 #: .\masterlist\models.py:376
 msgid "paper copy to"
-msgstr ""
+msgstr "copie papier à"
 
 #~ msgid "Indigenous?"
 #~ msgstr "Autochtone?"

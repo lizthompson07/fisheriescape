@@ -228,7 +228,7 @@ class OrganizationListView(SiteLoginRequiredMixin, CommonFilterView):
         {"name": 'abbrev', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
         {"name": 'grouping', "class": "", "width": "200px"},
-        {"name": 'full_address|' + _("Full address"), "class": "", "width": "300px"},
+        {"name": 'full_address|' + str(gettext_lazy("Full address")), "class": "", "width": "300px"},
         {"name": 'Audio recording', "class": "", "width": ""},
     ]
     home_url_name = "ihub:index"
@@ -390,7 +390,7 @@ class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
 class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
     model = models.Entry
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Entries"), "url": reverse_lazy("ihub:entry_list")}
+    parent_crumb = {"title": gettext_lazy("Entries"), "url": reverse_lazy("ihub:entry_list")}
     container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):

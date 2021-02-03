@@ -2,7 +2,7 @@
   <div class="home">
     <div class="container mt-2">
       <div class="mt-2 mb-5">
-        <div class="text-h2">Welcome to Meal Thyme</div>
+        <div class="text-h2">{{ $t("welcomeMsg") }}</div>
         <div class="text-h5 text-muted mt-2 mb-2">
           {{ $t("message") }}
         </div>

@@ -23,7 +23,7 @@
              class="btn btn-sm btn-warning py-0 float-right">
             {% trans "Edit Contact Information" %}
           </a>
-          <h5>Contact Information:</h5>
+          <h5>{% trans "Contact Information" %}:</h5>
           {{ object.person.contact_card|safe }}
         </div>
 
@@ -58,7 +58,7 @@
 
     <div class="form-group row">
       <div class="col-md-3">
-        <label class="col-form-label"> Consultation Roles </label>
+        <label class="col-form-label"> {% trans "Consultation Roles" %} </label>
       </div>
       <div class="col-md-9">
         <ul>
@@ -66,7 +66,7 @@
             <li>
               {{ role.get_to_cc_display }} &rarr; {{ role.organization }}
               {% if not role.member.person.email_1 %}
-                <span class="red-font">(contact email address is missing!)</span>
+                <span class="red-font">({% trans "contact email address is missing!" %})</span>
               {% endif %}
 
               <a href="{% url 'ihub:consultee_edit' role.id %}"> <span class="mdi mdi-pencil"></span></a>
@@ -74,7 +74,7 @@
             </li>
 
           {% empty %}
-            <em>This member does not have a consultation role.</em>
+            <em>{% trans "This member does not have a consultation role." %}</em>
           {% endfor %}
         </ul>
 
