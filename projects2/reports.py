@@ -304,7 +304,8 @@ def generate_csrf_submission_list(year, region):
 
         leads = ""
         for l in item.get_project_leads_as_users():
-            leads += l.last_name + ", "
+            if l:
+                leads += l.last_name + ", "
         if len(leads) > 0:
             leads = leads[:-2]
 
