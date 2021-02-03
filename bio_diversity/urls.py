@@ -7,6 +7,9 @@ urlpatterns = [
     # for home/index page
     path('', views.IndexTemplateView.as_view(),    name="index"),
     path('admin/index/', views.AdminIndexTemplateView.as_view(),    name="admin_index"),
+    path('prog/index/', views.ProgIndexTemplateView.as_view(),    name="prog_index"),
+    path('codes/index/', views.CodesIndexTemplateView.as_view(),    name="codes_index"),
+    path('facic/index/', views.FacicIndexTemplateView.as_view(),    name="facic_index"),
 
     path('create/anidc/', views.AnidcCreate.as_view(), name="create_anidc"),
     path('details/anidc/<int:pk>/', views.AnidcDetails.as_view(), name="details_anidc"),

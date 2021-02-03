@@ -44,6 +44,69 @@ class AdminIndexTemplateView(TemplateView):
         return context
 
 
+class CodesIndexTemplateView(TemplateView):
+    nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
+    site_css = 'bio_diversity/bio_diversity_css.css'
+    home_url_name = "bio_diversity:index"
+
+    template_name = 'bio_diversity/codes_index.html'
+
+    def get(self, request, *args, **kwargs):
+        if not utils.bio_diverisity_admin(self.request.user):
+            return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        return context
+
+
+class FacicIndexTemplateView(TemplateView):
+    nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
+    site_css = 'bio_diversity/bio_diversity_css.css'
+    home_url_name = "bio_diversity:index"
+
+    template_name = 'bio_diversity/facic_index.html'
+
+    def get(self, request, *args, **kwargs):
+        if not utils.bio_diverisity_admin(self.request.user):
+            return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        return context
+
+
+class ProgIndexTemplateView(TemplateView):
+    nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
+    site_css = 'bio_diversity/bio_diversity_css.css'
+    home_url_name = "bio_diversity:index"
+
+    template_name = 'bio_diversity/prog_index.html'
+
+    def get(self, request, *args, **kwargs):
+        if not utils.bio_diverisity_admin(self.request.user):
+            return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        return context
+
+
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
 # --------------------CREATE VIEWS----------------------------------------
