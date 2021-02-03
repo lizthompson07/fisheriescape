@@ -99,7 +99,7 @@ class CommonCreate(CommonAuthCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
-        context['help_text_dict'] = utils.get_help_text_dict()
+        context['help_text_dict'] = utils.get_help_text_dict(self.model)
         return context
 
 
@@ -486,6 +486,28 @@ class CruDetails(mixins.CruMixin, CommonDetails):
 class DepDetails(mixins.DepMixin, CommonDetails):
     template_name = 'whalesdb/details_dep.html'
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        context['edit_attachments'] = self.model.objects.get(pk=self.kwargs['pk']).station_events.count()
+        if models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk']):
+            edas = models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk'])
+            for eda in edas:
+                if models.RecDataset.objects.filter(eda_id=eda.pk):
+                    if not hasattr(context, 'rec'):
+                        context['rec'] = []
+
+                    rec = models.RecDataset.objects.get(eda_id=eda.pk)
+                    context['rec'].append({
+                        'text': str(rec),
+                        'id': rec.pk,
+                    })
+
+        return context
+
 
 class EcaDetails(mixins.EcaMixin, CommonDetails):
     template_name = 'whalesdb/details_eca.html'
