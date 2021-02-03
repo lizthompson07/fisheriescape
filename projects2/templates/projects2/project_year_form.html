@@ -7,10 +7,45 @@
 {% load project_filters %}
 
 
-{% block body_js %}
 
+
+{% block form_field %}
+  {{ block.super }}
+
+  {% if field.name == "priorities" and object.project.is_csrf %}
+    <p class="py-0 mt-0 table-bordered highlight">
+      {% trans "The word limit for this field in the CSRF application is 500 words. This limit will have to be shared between all years of the project." %}
+      {% trans "Current field word count:" %} <span class="blue-font" id="id_{{ field.name }}_word_count"></span>
+    </p>
+  {% elif object.project.is_csrf %}
+    {% if field.name == "data_collected" or field.name == "data_products" or field.name == "data_storage_plan" %}
+      <div class="{{ field.name }}_div">
+        <p class="py-0 mt-0 table-bordered highlight">
+          {% trans "This field will be concatenated with other fields to form the Data Management response on the CSRF application. The total word limit for this field in the application is 150 words. This limit will have to be shared between all data-management related fields and between all years of the project." %}
+          {% trans "Current field word count:" %} <span class="blue-font" id="id_{{ field.name }}_word_count"></span>
+        </p>
+      </div>
+    {% endif %}
+  {% endif %}
+
+{% endblock %}
+
+
+
+
+{% block body_js %}
+  {{ block.super }}
 
   <script type="application/javascript">
+
+
+  $(document).ready(function () {
+    updateWordCount($("#id_priorities"))
+    updateWordCount($("#id_data_collected"))
+    updateWordCount($("#id_data_products"))
+    updateWordCount($("#id_data_storage"))
+  });
+
 
   var $has_new_data = $("#id_has_data_component");
   var $has_travel = $("#id_has_field_component");

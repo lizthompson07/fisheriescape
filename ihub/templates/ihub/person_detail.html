@@ -41,13 +41,14 @@
         {% for member in object.memberships.all %}
           <li>
             {# This code is problematic since an org can have many groupings and only 1 might be indigenous #}
-            {% if member.organization.grouping.first.is_indigenous %}
+            {% if member.organization.is_indigenous %}
               <a href="{% url 'ihub:org_detail'  member.organization.id %}">{{ member.organization }} </a>,
               {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
                 {{ "<em>missing role</em>"|safe }}{% endif %}
             {% else %}
-              <a href="{% url 'masterlist:org_detail'  member.organization.id %}"
-                 target="_blank">{{ member.organization }} </a>,
+{#              <a href="{% url 'ihub:org_detail'  member.organization.id %}"#}
+{#                 target="_blank">{{ member.organization }} </a>#}
+              {{ member.organization }},
               {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
                 {{ "<em>missing role</em>"|safe }}{% endif %}
               - {% trans "(Will open in Master List in separate tab)" %}

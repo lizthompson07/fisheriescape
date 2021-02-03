@@ -17,7 +17,6 @@ from openpyxl import load_workbook
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from publications import models as pi_models
 from shared_models.models import Region, FiscalYear, Section
 from . import models, utils
 from .models import ProjectYear
@@ -306,7 +305,9 @@ def generate_csrf_submission_list(year, region):
     year_txt = str(FiscalYear.objects.get(pk=year))
     ws['A1'].value += year_txt
 
-    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year)
+    # get all project years that are not in the following status: draft, not approved, cancelled
+    # and that are a part of a project whose default funding source has an english name containing "csrf"
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year).filter(~Q(status__in=[1,5,9]))
     if region != "None":
         qs = qs.filter(project__section__division__branch__region_id=region)
 
@@ -348,6 +349,8 @@ def generate_csrf_submission_list(year, region):
 
 
 def generate_culture_committee_report():
+    from publications import models as pi_models
+
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))

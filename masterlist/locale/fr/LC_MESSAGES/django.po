@@ -2,48 +2,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-01 05:54-0400\n"
+"POT-Creation-Date: 2021-02-02 19:52-0400\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: POEditor.com\n"
-"Language: en\n"
-
-#: .\masterlist\filters.py:16
-msgid "Indigenous?"
-msgstr "Autochtone?"
-
-#: .\masterlist\forms.py:8
-msgid "Yes"
-msgstr "Oui"
-
-#: .\masterlist\forms.py:9
-msgid "No"
-msgstr "Non"
-
-#: .\masterlist\forms.py:168
-msgid "Indigenous Only"
-msgstr ""
-
-#: .\masterlist\forms.py:169 .\masterlist\reports.py:77
-msgid "Key Species"
-msgstr ""
-
-#: .\masterlist\forms.py:182
-msgid "Provinces - Leave blank for all"
-msgstr ""
-
-#: .\masterlist\forms.py:184
-msgid "Organization Grouping - Leave blank for all"
-msgstr ""
-
-#: .\masterlist\forms.py:186
-msgid "DFO Sectors - Leave blank for all"
-msgstr "Secteurs du MPO - Laisser vide pour tous"
-
-#: .\masterlist\forms.py:188
-msgid "DFO Regions - Leave blank for all"
-msgstr ""
+"X-Generator: Poedit 2.4.1\n"
+"Language: fr_CA\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: .\masterlist\models.py:23
 msgid "name"
@@ -59,19 +27,19 @@ msgstr "niveau"
 
 #: .\masterlist\models.py:61
 msgid "None"
-msgstr ""
+msgstr "n/a"
 
 #: .\masterlist\models.py:61
 msgid "On-Reserve"
-msgstr ""
+msgstr "dans la réserve"
 
 #: .\masterlist\models.py:61
 msgid "Off-Reserve"
-msgstr ""
+msgstr "hors réserve"
 
 #: .\masterlist\models.py:61
 msgid "Both"
-msgstr ""
+msgstr "tous les deux"
 
 #: .\masterlist\models.py:63
 #, fuzzy
@@ -84,115 +52,107 @@ msgstr "nom autochtone"
 
 #: .\masterlist\models.py:65
 msgid "abbreviation"
-msgstr ""
+msgstr "abbréviation"
 
 #: .\masterlist\models.py:66
 msgid "street address"
-msgstr ""
+msgstr "adresse de rue"
 
 #: .\masterlist\models.py:67
-#, fuzzy
 msgid "mailing address"
-msgstr "Courriel"
+msgstr "adresse postale"
 
 #: .\masterlist\models.py:68
 msgid "city"
-msgstr ""
+msgstr "ville"
 
 #: .\masterlist\models.py:69
 msgid "postal code"
-msgstr ""
+msgstr "code postale"
 
 #: .\masterlist\models.py:70
 msgid "province"
-msgstr ""
+msgstr "province"
 
 #: .\masterlist\models.py:71
 msgid "phone"
 msgstr "téléphone"
 
-#: .\masterlist\models.py:72 .\masterlist\models.py:178
+#: .\masterlist\models.py:72 .\masterlist\models.py:181
 msgid "fax"
-msgstr ""
+msgstr "fax"
 
 #: .\masterlist\models.py:73
-#, fuzzy
 msgid "DFO contacts"
 msgstr "Contacts du MPO"
 
-#: .\masterlist\models.py:74 .\masterlist\models.py:181
+#: .\masterlist\models.py:74 .\masterlist\models.py:184
 msgid "notes"
 msgstr "remarques"
 
 #: .\masterlist\models.py:75
 msgid "key species"
-msgstr ""
+msgstr "espèces clés"
 
 #: .\masterlist\models.py:76
 msgid "grouping"
-msgstr ""
+msgstr "regroupement"
 
 #: .\masterlist\models.py:77
-#, fuzzy
 msgid "regions"
-msgstr "Secteurs du MPO"
+msgstr "régions du MPO"
 
 #: .\masterlist\models.py:78
 msgid "DFO sector"
-msgstr "Secteurs"
+msgstr "Secteurs du MPO"
 
 #: .\masterlist\models.py:82
 msgid "relationship rating"
-msgstr ""
+msgstr "évaluation de la relation"
 
 #: .\masterlist\models.py:83
-#, fuzzy
 msgid "Associated organizations"
-msgstr "Organisation partenaire"
+msgstr "Organisations associées"
 
 #: .\masterlist\models.py:85
-#, fuzzy
 msgid "Nation"
-msgstr "Section"
+msgstr "Nation"
 
 #: .\masterlist\models.py:86
-#, fuzzy
 msgid "former name"
-msgstr "prénom"
+msgstr "ancien nom"
 
 #: .\masterlist\models.py:87
 msgid "website"
-msgstr ""
+msgstr "site Web"
 
 #: .\masterlist\models.py:88
 msgid "council quorum"
-msgstr ""
+msgstr "quorum du conseil"
 
 #: .\masterlist\models.py:89
-#, fuzzy
 msgid "next election"
-msgstr "Ma section"
+msgstr "prochaine élection"
 
 #: .\masterlist\models.py:90
-#, fuzzy
 msgid "election term"
-msgstr "chef de section"
+msgstr "terme d'élection"
 
 #: .\masterlist\models.py:91
 msgid "date that the new council holds office"
-msgstr ""
+msgstr "date d'entrée en fonction du nouveau conseil"
 
 #: .\masterlist\models.py:92
 msgid "population on reserve"
-msgstr ""
+msgstr "population dans la réserve"
 
 #: .\masterlist\models.py:93
 msgid "population off reserve"
-msgstr ""
+msgstr "population hors réserve"
 
 #: .\masterlist\models.py:94
 msgid "population on other reserve"
-msgstr ""
+msgstr "population dans une autre réserve"
 
 #: .\masterlist\models.py:95
 msgid "FIN"
@@ -200,422 +160,241 @@ msgstr ""
 
 #: .\masterlist\models.py:96
 msgid "processing plant?"
-msgstr ""
+msgstr "usine de transformation?"
 
 #: .\masterlist\models.py:97
 msgid "wharf?"
-msgstr ""
+msgstr "quai?"
 
 #: .\masterlist\models.py:98
 msgid "Associated reserves"
-msgstr ""
+msgstr "Réserves associées"
 
 #: .\masterlist\models.py:99
 msgid "audio file"
-msgstr ""
+msgstr "fichier audio"
 
-#: .\masterlist\models.py:102 .\masterlist\models.py:185
-#: .\masterlist\models.py:278 .\masterlist\models.py:325
+#: .\masterlist\models.py:105 .\masterlist\models.py:192
+#: .\masterlist\models.py:282 .\masterlist\models.py:325
 #: .\masterlist\models.py:379
 msgid "date last modified"
 msgstr "date de dernière modification"
 
-#: .\masterlist\models.py:103 .\masterlist\models.py:186
-#: .\masterlist\models.py:279 .\masterlist\models.py:326
+#: .\masterlist\models.py:106 .\masterlist\models.py:193
+#: .\masterlist\models.py:283 .\masterlist\models.py:326
 #: .\masterlist\models.py:380
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
-#: .\masterlist\models.py:170
+#: .\masterlist\models.py:173
 msgid "title"
 msgstr "titre"
 
-#: .\masterlist\models.py:171
+#: .\masterlist\models.py:174
 msgid "first name"
 msgstr "prénom"
 
-#: .\masterlist\models.py:172
+#: .\masterlist\models.py:175
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\masterlist\models.py:173
-msgid "work phone"
-msgstr ""
-
-#: .\masterlist\models.py:174
-msgid "work phone 2"
-msgstr ""
-
-#: .\masterlist\models.py:175
-#, fuzzy
-msgid "work email"
-msgstr "courriel"
-
 #: .\masterlist\models.py:176
-#, fuzzy
-msgid "work email 2"
-msgstr "courriel 2"
+msgid "work phone"
+msgstr "téléphone de travail"
 
 #: .\masterlist\models.py:177
-msgid "work phone (mobile)"
-msgstr ""
+msgid "work phone 2"
+msgstr "téléphone de travail no. 2"
+
+#: .\masterlist\models.py:178
+msgid "work email"
+msgstr "courriel de travail"
+
+#: .\masterlist\models.py:179
+msgid "work email 2"
+msgstr "courriel de travail no. 2"
 
 #: .\masterlist\models.py:180
+msgid "work phone (mobile)"
+msgstr "téléphone de travail (cellulaire)"
+
+#: .\masterlist\models.py:183
 msgid "language preference"
 msgstr "préférence linguistique"
 
-#: .\masterlist\models.py:182
+#: .\masterlist\models.py:185
 #, fuzzy
 msgid "email block"
 msgstr "courriel 1"
 
-#: .\masterlist\models.py:183
+#: .\masterlist\models.py:186
 msgid "membership"
-msgstr ""
+msgstr "appartenance"
 
-#: .\masterlist\models.py:239 .\masterlist\models.py:254
-#: .\masterlist\reports.py:63
+#: .\masterlist\models.py:240 .\masterlist\models.py:255
 msgid "Phone 1"
-msgstr ""
+msgstr "téléphone no. 1"
 
-#: .\masterlist\models.py:241 .\masterlist\models.py:256
-#: .\masterlist\reports.py:64
+#: .\masterlist\models.py:242 .\masterlist\models.py:257
 msgid "Phone 2"
-msgstr ""
+msgstr "téléphone no. 2"
 
-#: .\masterlist\models.py:243 .\masterlist\models.py:258
-#: .\masterlist\reports.py:65
+#: .\masterlist\models.py:244 .\masterlist\models.py:259
 msgid "Fax"
-msgstr ""
+msgstr "fax"
 
-#: .\masterlist\models.py:245 .\masterlist\models.py:260
+#: .\masterlist\models.py:246 .\masterlist\models.py:261
 msgid "E-mail 1"
 msgstr "Courriel 1"
 
-#: .\masterlist\models.py:247 .\masterlist\models.py:262
+#: .\masterlist\models.py:248 .\masterlist\models.py:263
 msgid "E-mail 2"
 msgstr "Courriel 2"
 
-#: .\masterlist\models.py:274
+#: .\masterlist\models.py:275
 msgid "role"
 msgstr "rôle"
 
 #: .\masterlist\models.py:317
 msgid "TO"
-msgstr ""
+msgstr "À"
 
 #: .\masterlist\models.py:318
 msgid "CC"
-msgstr ""
+msgstr "CC"
 
 #: .\masterlist\models.py:319
 msgid "CC (Commercial Only)"
-msgstr ""
+msgstr "CC (commercial uniquement)"
 
 #: .\masterlist\models.py:323
 msgid "TO / CC"
-msgstr ""
+msgstr "À / CC"
 
 #: .\masterlist\models.py:362
 msgid "EMAIL MISSING"
-msgstr ""
+msgstr "COURRIEL MANQUANT"
 
 #: .\masterlist\models.py:367
 msgid "MISSING ROLE"
-msgstr ""
+msgstr "RÔLE MANQUANT"
 
 #: .\masterlist\models.py:374
 msgid "address letter to:"
-msgstr ""
+msgstr "lettre adresser à:"
 
 #: .\masterlist\models.py:375
 msgid "include on cc (letter)"
-msgstr ""
+msgstr "inclure sur cc (lettre)"
 
 #: .\masterlist\models.py:376
 msgid "paper copy to"
-msgstr ""
+msgstr "copie papier à"
 
-#: .\masterlist\reports.py:57
-msgid "Group"
-msgstr "Groupe"
+#~ msgid "Indigenous?"
+#~ msgstr "Autochtone?"
 
-#: .\masterlist\reports.py:58
-msgid "Designation"
-msgstr ""
+#~ msgid "Yes"
+#~ msgstr "Oui"
 
-#: .\masterlist\reports.py:59
-msgid "First Name"
-msgstr "Prénom"
+#~ msgid "No"
+#~ msgstr "Non"
 
-#: .\masterlist\reports.py:60
-msgid "Last Name"
-msgstr "Nom de famille"
+#~ msgid "DFO Sectors - Leave blank for all"
+#~ msgstr "Secteurs du MPO - Laisser vide pour tous"
 
-#: .\masterlist\reports.py:61
-msgid "Role in Organization"
-msgstr ""
+#~ msgid "Group"
+#~ msgstr "Groupe"
 
-#: .\masterlist\reports.py:62
-msgid "Organization/Affiliation"
-msgstr ""
+#~ msgid "First Name"
+#~ msgstr "Prénom"
 
-#: .\masterlist\reports.py:66
-msgid "Email 1"
-msgstr "Courriel 1"
+#~ msgid "Last Name"
+#~ msgstr "Nom de famille"
 
-#: .\masterlist\reports.py:67
-msgid "Email 2"
-msgstr "Courriel 2"
+#~ msgid "Email 1"
+#~ msgstr "Courriel 1"
 
-#: .\masterlist\reports.py:68
-msgid "Language Preference"
-msgstr ""
+#~ msgid "Email 2"
+#~ msgstr "Courriel 2"
 
-#: .\masterlist\reports.py:69
-msgid "Address"
-msgstr ""
+#~ msgid "City"
+#~ msgstr "Ville"
 
-#: .\masterlist\reports.py:70
-msgid "City"
-msgstr "Ville"
+#~ msgid "Notes"
+#~ msgstr "Remarques"
 
-#: .\masterlist\reports.py:71
-msgid "Province"
-msgstr ""
+#~ msgid "DFO Sector"
+#~ msgstr "Secteurs"
 
-#: .\masterlist\reports.py:72
-msgid "Postal Code"
-msgstr ""
+#~ msgid "Region"
+#~ msgstr "Région"
 
-#: .\masterlist\reports.py:73
-#: .\masterlist\templates\masterlist\_members.html:27
-msgid "Notes"
-msgstr "Remarques"
+#~ msgid "Name"
+#~ msgstr "Nom"
 
-#: .\masterlist\reports.py:74
-msgid "DFO Contact Instructions / Liaison"
-msgstr ""
+#~ msgid "Role"
+#~ msgstr "Rôle"
 
-#: .\masterlist\reports.py:75
-msgid "DFO Sector"
-msgstr "Secteurs"
+#~ msgid "Last Modified"
+#~ msgstr "Dernière modification"
 
-#: .\masterlist\reports.py:76
-msgid "Region"
-msgstr "Région"
+#~ msgid "Organization"
+#~ msgstr "Organisation"
 
-#: .\masterlist\templates\masterlist\_instructions.html:6
-#: .\masterlist\templates\masterlist\_recipients.html:7
-msgid "<b class='highlight'>MISSING EMAIL</b>"
-msgstr ""
+#~ msgid ""
+#~ "\n"
+#~ "                            You must be <a href=\"%(sign_in_url)s?next=%"
+#~ "(next_url)s\">signed in</a> to use this\n"
+#~ "                            application.\n"
+#~ "                        "
+#~ msgstr ""
+#~ "\n"
+#~ "                            vous devez être <a href=\"%(sign_in_url)s?"
+#~ "next=%(next_url)s\">connecté</a> pour utiliser cette\n"
+#~ "                            application.\n"
+#~ "                        "
 
-#: .\masterlist\templates\masterlist\_instructions.html:7
-#: .\masterlist\templates\masterlist\_recipients.html:8
-msgid "<b class='highlight'>MISSING ROLE</b>"
-msgstr ""
+#~ msgid ""
+#~ "\n"
+#~ "                            If you do not have an account, you can create "
+#~ "one <a href=\"%(sign_up_url)s\">here</a>.\n"
+#~ "                        "
+#~ msgstr ""
+#~ "\n"
+#~ "                            Si vous n'avez pas de compte, vous pouvez en "
+#~ "créer<a href=\"%(sign_up_url)s\">ici</a>.\n"
+#~ "                        "
 
-#: .\masterlist\templates\masterlist\_instructions.html:11
-msgid "Consultation Instructions:"
-msgstr ""
+#~ msgid "Home"
+#~ msgstr "Accueil"
 
-#: .\masterlist\templates\masterlist\_instructions.html:17
-msgid "There are no consultation instructions available for this organization"
-msgstr ""
+#~ msgid "Organizations"
+#~ msgstr "Organisations"
 
-#: .\masterlist\templates\masterlist\_instructions.html:24
-msgid "Address Letter To:"
-msgstr ""
+#~ msgid "Reports"
+#~ msgstr "Rapports"
 
-#: .\masterlist\templates\masterlist\_instructions.html:32
-msgid "Cc (on Bottom of Letter):"
-msgstr ""
+#~ msgid "Editing Member"
+#~ msgstr "Membre éditeur"
 
-#: .\masterlist\templates\masterlist\_instructions.html:40
-msgid "Paper Copy:"
-msgstr ""
+#~ msgid "Submit"
+#~ msgstr "Soumettre"
 
-#: .\masterlist\templates\masterlist\_instructions.html:48
-msgid "To Email Recipients:"
-msgstr ""
+#~ msgid "Close"
+#~ msgstr "Fermer"
 
-#: .\masterlist\templates\masterlist\_instructions.html:68
-msgid "Cc Email Recipients:"
-msgstr ""
+#~ msgid "Edit"
+#~ msgstr "Modifier"
 
-#: .\masterlist\templates\masterlist\_instructions.html:93
-msgid "Edit Instructions"
-msgstr ""
+#~ msgid "Delete"
+#~ msgstr "Supprimer"
 
-#: .\masterlist\templates\masterlist\_instructions.html:98
-msgid "Create Instructions"
-msgstr ""
+#~ msgid "(click on a header to sort table)"
+#~ msgstr "(cliquez sur un en-tête pour trier le tableau)"
 
-#: .\masterlist\templates\masterlist\_members.html:8
-msgid "Organization Members:"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\_members.html:14
-msgid "No members have been added to this organization"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\_members.html:21
-#: .\masterlist\templates\masterlist\_people.html:20
-msgid "Name"
-msgstr "Nom"
-
-#: .\masterlist\templates\masterlist\_members.html:24
-#: .\masterlist\templates\masterlist\_people.html:26
-msgid "Role"
-msgstr "Rôle"
-
-#: .\masterlist\templates\masterlist\_members.html:30
-msgid "Last Modified"
-msgstr "Dernière modification"
-
-#: .\masterlist\templates\masterlist\_members.html:60
-msgid "(Add members)"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\_people.html:7
-msgid "Contacts:"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\_people.html:13
-msgid "No people have been added to this entry"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\_people.html:23
-msgid "Organization"
-msgstr "Organisation"
-
-#: .\masterlist\templates\masterlist\_people.html:29
-msgid "Connected user?"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\_people.html:68
-msgid "(Add person)"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\_recipients.html:61
-msgid "Remove recipient"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\index.html:11
-msgid "Regional Contact List & Consultation Instructions"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\index.html:26
-#, python-format
-msgid ""
-"\n"
-"                            You must be <a href=\"%(sign_in_url)s?next=%"
-"(next_url)s\">signed in</a> to use this\n"
-"                            application.\n"
-"                        "
-msgstr ""
-"\n"
-"                            vous devez être <a href=\"%(sign_in_url)s?next=%"
-"(next_url)s\">connecté</a> pour utiliser cette\n"
-"                            application.\n"
-"                        "
-
-#: .\masterlist\templates\masterlist\index.html:31
-#, python-format
-msgid ""
-"\n"
-"                            If you do not have an account, you can create "
-"one <a href=\"%(sign_up_url)s\">here</a>.\n"
-"                        "
-msgstr ""
-"\n"
-"                            Si vous n'avez pas de compte, vous pouvez en "
-"créer<a href=\"%(sign_up_url)s\">ici</a>.\n"
-"                        "
-
-#: .\masterlist\templates\masterlist\index.html:46
-#, python-format
-msgid ""
-"\n"
-"                        Click <a href=\"%(person_list_url)s\">HERE</a> to "
-"search for a person.\n"
-"                        <br><br>\n"
-"                        Click <a href=\"%(org_list_url)s\">HERE</a> to "
-"search for an organization.\n"
-"                        <br><br>\n"
-"                    "
-msgstr ""
-
-#: .\masterlist\templates\masterlist\masterlist_base.html:9
-msgid "Master List"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\masterlist_base.html:21
-msgid "Home"
-msgstr "Accueil"
-
-#: .\masterlist\templates\masterlist\masterlist_base.html:29
-msgid "People"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\masterlist_base.html:32
-msgid "Organizations"
-msgstr "Organisations"
-
-#: .\masterlist\templates\masterlist\masterlist_base.html:36
-msgid "Reports"
-msgstr "Rapports"
-
-#: .\masterlist\templates\masterlist\member_form_popout.html:33
-msgid "Editing Member"
-msgstr "Membre éditeur"
-
-#: .\masterlist\templates\masterlist\member_form_popout.html:36
-msgid "Adding New Member to "
-msgstr ""
-
-#: .\masterlist\templates\masterlist\member_form_popout.html:87
-#: .\masterlist\templates\masterlist\person_form_popout.html:40
-msgid "Submit"
-msgstr "Soumettre"
-
-#: .\masterlist\templates\masterlist\member_form_popout.html:90
-#: .\masterlist\templates\masterlist\person_form_popout.html:43
-msgid "Close"
-msgstr "Fermer"
-
-#: .\masterlist\templates\masterlist\organization_detail.html:33
-msgid "Edit"
-msgstr "Modifier"
-
-#: .\masterlist\templates\masterlist\organization_detail.html:36
-msgid "Delete"
-msgstr "Supprimer"
-
-#: .\masterlist\templates\masterlist\organization_detail.html:72
-msgid "Are you sure you want to delete this member?"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\organization_list.html:48
-#: .\masterlist\templates\masterlist\person_list.html:48
-msgid "(click on a header to sort table)"
-msgstr "(cliquez sur un en-tête pour trier le tableau)"
-
-#: .\masterlist\templates\masterlist\person_form_popout.html:25
-msgid "Editing Person:"
-msgstr ""
-
-#: .\masterlist\templates\masterlist\person_form_popout.html:28
-msgid "New Person"
-msgstr "Nouveau personne"
-
-#: .\masterlist\views.py:309
-msgid "The member has been successfully deleted from the organization."
-msgstr ""
-
-#: .\masterlist\views.py:364
-msgid "The organization's consultation instructions were deleted successfully!"
-msgstr ""
+#~ msgid "New Person"
+#~ msgstr "Nouveau personne"
 
 #~ msgid ""
 #~ "Required - a verification email will be sent to you once this form is "

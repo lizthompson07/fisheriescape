@@ -233,7 +233,7 @@ class TestProjectListReportView(CommonTest):
     @tag("Reports", "export_project_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("projects2:export_project_list", f"/en/project-planning/reports/project-listvuew/")
+        self.assert_correct_url("projects2:export_project_list", f"/en/project-planning/reports/project-list/")
 
 
 class TestFunctionalGroupCreateView(CommonTest):
