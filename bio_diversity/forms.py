@@ -6,6 +6,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.forms import modelformset_factory
+from django.utils.timezone import make_aware
 from django.utils.translation import gettext
 import pandas as pd
 
@@ -91,15 +92,15 @@ class CreateTimePrams(forms.ModelForm):
         obj = super().save(commit=False)  # here the object is not commited in db
 
         if self.cleaned_data["start_time"]:
-            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H%M').time()
+            start_time = make_aware(datetime.strptime(self.cleaned_data["start_time"], '%H%M').time())
         else:
-            start_time = time(0, 0)
+            start_time = make_aware(time(0, 0))
         obj.start_datetime = datetime.combine(self.cleaned_data["start_date"], start_time)
         if self.cleaned_data["end_date"]:
             if self.cleaned_data["end_time"]:
-                end_time = datetime.strptime(self.cleaned_data["end_time"], '%H%M').time()
+                end_time = make_aware(datetime.strptime(self.cleaned_data["end_time"], '%H%M').time())
             else:
-                end_time = time(0, 0)
+                end_time = make_aware(time(0, 0))
             obj.end_datetime = datetime.combine(self.cleaned_data["end_date"], end_time)
         obj.save()
         return obj
@@ -237,7 +238,7 @@ class DataForm(CreatePrams):
                                           rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
                                           subr_id=models.SubRiverCode.objects.filter(name__iexact=row["Branch"]).get(),
                                           relc_id=models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
-                                          loc_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                          start_datetime=datetime.strptime(row["Date"], "%Y-%b-%d"),
                                           comments=row["Comments"],
                                           created_by=cleaned_data["created_by"],
                                           created_date=cleaned_data["created_date"],
@@ -249,14 +250,14 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
-                                                             relc_id=loc.relc_id, loc_date=loc.loc_date).get()
+                                                             relc_id=loc.relc_id, start_datetime=loc.start_datetime).get()
 
                     if not math.isnan(row["temp"]):
                         env = models.EnvCondition(loc_id_id=loc.pk,
                                                   inst_id=models.Instrument.objects.first(),
                                                   envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
                                                   env_val=row["temp"],
-                                                  env_start=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                                  start_datetime=datetime.strptime(row["Date"], "%Y-%b-%d"),
                                                   env_avg=False,
                                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
                                                   created_by=cleaned_data["created_by"],

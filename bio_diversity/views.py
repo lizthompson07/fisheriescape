@@ -719,7 +719,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "locc_id",
             "rive_id",
             "subr_id",
-            "loc_date",
+            "start_date",
         ]
         context["contx_object"] = models.ContainerXRef.objects.first()
         context["contx_field_list"] = [
@@ -1687,12 +1687,13 @@ class CommonUpdate(CommonAuthUpdateView):
         init = super().get_initial()
         # can uncomment this to auto update user on any update
         # init["created_by"] = self.request.user.username
-        if self.object.start_datetime:
+        if hasattr(self.model, "start_datetime"):
             init["start_date"] = self.object.start_date
             init["start_time"] = self.object.start_time
-        if self.object.end_datetime:
-            init["end_date"] = self.object.end_date
-            init["end_time"] = self.object.end_time
+        if hasattr(self.model, "end_datetime"):
+            if self.object.end_datetime:
+                init["end_date"] = self.object.end_date
+                init["end_time"] = self.object.end_time
         return init
 
     # this function overrides UserPassesTestMixin.test_func() to determine if
