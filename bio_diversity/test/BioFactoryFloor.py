@@ -109,7 +109,7 @@ class AdscFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'unit_id': anidc_id.pk,
+            'anidc_id': anidc_id.pk,
             'name': obj.name,
             'nom': obj.nom,
             'description_en': obj.description_en,
