@@ -1,17 +1,18 @@
 <template>
-  <p>{{ $t("hello") }}</p>
+  <div class="locale-changer">
+    <select v-model="$i18n.locale">
+      <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">
+        {{ lang }}
+      </option>
+    </select>
+  </div>
 </template>
 
 <script>
 export default {
-  name: "HelloI18n"
-};
-</script>
-
-<i18n>
-{
-  "en": {
-    "hello": "Hello i18n in SFC!"
+  name: 'localeChanger',
+  data() {
+    return {langs: ['fr', 'en']}
   }
 }
-</i18n>
+</script>
