@@ -106,9 +106,9 @@ class ReportSearchForm(forms.Form):
         note_type_choices = list(models.EntryNote.TYPE_CHOICES)
         # we need to modify one of the descriptions...
         note_type_choices = list(models.EntryNote.TYPE_CHOICES)
-        note_type_choices.remove((models.EntryNote.INTERNAL, 'Internal'))
-        note_type_choices.append((models.EntryNote.INTERNAL, 'Internal (** for internal reports only)'))
-        note_type_choices.remove((models.EntryNote.FOLLOWUP, 'Follow-up (*)'))
+        note_type_choices.remove((models.EntryNote.INTERNAL, _('Internal')))
+        note_type_choices.append((models.EntryNote.INTERNAL, _('Internal (** for internal reports only)')))
+        note_type_choices.remove((models.EntryNote.FOLLOWUP, _('Follow-up (*)')))
 
         note_status_choices = [(obj.id, obj) for obj in models.Status.objects.all() if obj.entry_notes.count() > 0]
 
