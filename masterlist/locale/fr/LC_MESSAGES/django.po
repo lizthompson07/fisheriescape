@@ -38,7 +38,6 @@ msgid "Both"
 msgstr "Total"
 
 #: .\masterlist\models.py:63
-#, fuzzy
 msgid "legal name"
 msgstr "raison sociale"
 

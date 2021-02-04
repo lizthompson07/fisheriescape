@@ -161,7 +161,7 @@ export default {
       // Debounce the input and wait for a pause of at
       // least 200 milliseconds. This can be changed to
       // suit your needs.
-      debounce(this.makeSearch, 200)(value, this)
+      // debounce(this.makeSearch, 200)(value, this)
     }
   },
   created() {
