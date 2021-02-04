@@ -13,7 +13,7 @@
     9, Carl MacDonald;           Senior Advisor;                      (902) 293-8257; Maritimes; Invertebrates and Pelagics Section;                    Fisheries & Aquaculture Management; 
    10, Christa Waters;           Senior Fisheries Management Officer; (902) 293-6541; Maritimes; Invertebrates and Pelagics Section;                    Fisheries Management;               Resource Management
    11, Greg Stevens;             Senior Fisheries Management Officer; (902) 221-7264; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Fisheries Management;               Resource Management
-   12, Kathryn Cooper-Macdonald; Senior Advisor;                      (902) 219-0463; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Real Property Safety and Security;  Human Resources & Corporate Services
+   12, Kathryn Cooper-MacDonald; Senior Advisor;                      (902) 219-0463; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Real Property Safety and Security;  Human Resources & Corporate Services
    13, Penny Doherty;            Senior Fisheries Management Officer; (902) 402-5508; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Ecosystem Management;               Ecosystems and Fisheries Management
    14, Ryan Curwin;              Senior Fisheries Management Officer; (902) 456-4068; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Fisheries Management;               Fisheries & Aquaculture Management
    15, Sarah Kingsbury;          Aquatic Invasive Species Biologist;  (902) 943-4016; Maritimes;                                                      ; Ecosystems Management;              Aquatic Ecosystems

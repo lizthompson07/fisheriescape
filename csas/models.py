@@ -482,7 +482,7 @@ class PubPublicationDocLocation(models.Model):
     publication = models.ManyToManyField(PubPublication, blank=True, related_name="pub_doc_location",
                                          verbose_name=_('Publication'))
     # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
-    p1 = models.CharField(max_length=1, blank=True, verbose_name=_("p1"))
+    p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
     attach_en_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) File"))
     attach_en_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) Size"))
     attach_fr_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) File"))
@@ -661,8 +661,9 @@ class ReqRequest(models.Model):
     fiscal_year_text = models.TextField(null=True, blank=True, verbose_name=_("Fiscal Year Text"))
     adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"))
     rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"))
-    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"))
     decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"))
+    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"))
+    signature = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Signature"))
 
     def __str__(self):
         return "{}".format(self.title)

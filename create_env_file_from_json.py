@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 
+
 def nz(value, arg):
     """if a value is equal to None, this function will return arg instead"""
     if value is None or value == "":
