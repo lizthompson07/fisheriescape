@@ -2,35 +2,33 @@
   <div id="app">
     <v-app>
       <v-main>
-        <NavbarComponent />
-        <router-view />
-        <localeChanger/>
-
+        <NavbarComponent/>
+        <router-view/>
       </v-main>
     </v-app>
   </div>
 </template>
 
 <script>
-import localeChanger from "@/components/HelloI18n.vue";
 import NavbarComponent from "@/components/Navbar.vue";
-import { apiService } from "@/common/api_service";
+// import {apiService} from "@/common/api_service";
 
 export default {
   name: "App",
   components: {
     NavbarComponent,
-    localeChanger
   },
   methods: {
-    async setUserInfo() {
-      const data = await apiService("/api/user/");
-      const requestUser = data.username;
-      window.localStorage.setItem("username", requestUser);
-    }
+    // async setUserInfo() {
+    //   const data = await apiService("/api/user/");
+    //   const requestUser = data.username;
+    //   window.localStorage.setItem("username", requestUser);
+    // },
+
+
   },
   created() {
-    this.setUserInfo();
+    // this.setUserInfo();
   }
 };
 </script>

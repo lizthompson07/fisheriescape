@@ -1,22 +1,17 @@
-from django.contrib.auth.models import User
-from django.db.models import Q
-from pandas import date_range
-from rest_framework import status
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView, \
-    RetrieveUpdateAPIView
+from rest_framework import viewsets
+from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from dm_apps.utils import custom_send_mail
-from shared_models import models as shared_models
-from . import permissions, pagination
 from . import serializers
-
-
 # USER
 #######
+from .pagination import StandardResultsSetPagination
+from .. import models
+
+
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -24,6 +19,18 @@ class CurrentUserAPIView(APIView):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
         return Response(data)
+
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = models.Event.objects.all().order_by("-created_at")
+    # lookup_field = 'slug'
+    serializer_class = serializers.EventSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
 #
 # class FTEBreakdownAPIView(APIView):

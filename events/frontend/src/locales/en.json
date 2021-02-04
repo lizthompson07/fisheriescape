@@ -1,5 +1,5 @@
 {
-  "message": "hello i18n !!",
-  "newEventButton": "newEventButton",
-  "welcomeMsg": "welcomeMsg"
+  "newEventButton": "New Event",
+  "welcomeMsg": "Welcome to the DM Apps Event Planner",
+  "Event Planner": "Event Planner"
 }
