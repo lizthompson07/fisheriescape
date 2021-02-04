@@ -8,138 +8,146 @@
 
 {% block area_above_h1 %}
 
-    {# if trip is cancelled, display a warning #}
-    {% if object.status.id == 43 %}
-        <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading">
-                {% trans "WARNING" %}
-            </h4>
-            <p>
-                {% trans "This trip and all associated requests have been cancelled." %}
-            </p>
-        </div>
-    {% endif %}
+  {# if trip is cancelled, display a warning #}
+  {% if object.status.id == 43 %}
+    <div class="alert alert-danger" role="alert">
+      <h4 class="alert-heading">
+        {% trans "WARNING" %}
+      </h4>
+      <p>
+        {% trans "This trip and all associated requests have been cancelled." %}
+      </p>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block subcontent %}
 
-    {% crash_if_none "is_adm_admin" is_adm_admin %}
+  {% crash_if_none "is_adm_admin" is_adm_admin %}
 
-    <style>
-        .plainjane {
-            background-color: #f5efe6;
-            border: black solid 1px;
-        }
+  <style>
+  .plainjane {
+      background-color: #f5efe6;
+      border: black solid 1px;
+  }
 
-        .admin_notes {
-            padding: 10px;
-            background-color: #efee7e;
-            font-weight: bold;
-        }
-    </style>
+  .admin_notes {
+      padding: 10px;
+      background-color: #efee7e;
+      font-weight: bold;
+  }
+  </style>
 
-    {% if is_adm_admin and object.is_adm_approval_required and object.status.id == 30 %} {# disabled for everyone #}
-        <div class="mb-3">
-            {# ADM Admin stuff #}
-            <h4 class="red-font">
-                {% trans "This trip must be verified before a review can be started." %}
-                <a class="btn btn-sm btn-primary py-0"
-                   href="{% url 'travel:trip_verify' object.id 0 1 %}">{% trans "Verify the Trip Now" %}</a>
-            </h4>
-        </div>
+  {% if is_adm_admin and object.is_adm_approval_required and object.status.id == 30 %} {# disabled for everyone #}
+    <div class="mb-3">
+      {# ADM Admin stuff #}
+      <h4 class="red-font">
+        {% trans "This trip must be verified before a review can be started." %}
+        <a class="btn btn-sm btn-primary py-0"
+           href="{% url 'travel:trip_verify' object.id 0 1 %}">{% trans "Verify the Trip Now" %}</a>
+      </h4>
+    </div>
+  {% endif %}
+
+
+
+  {# ADM Admin stuff #}
+  <div class="btns mb-3">
+    {% if can_modify %}
+      <a class="btn btn-admin" href="#" pop-href="{% url 'travel:trip_admin_notes_edit' object.id %}">
+        {% trans "Administrative Notes" %}
+      </a>
     {% endif %}
 
+    {# all admins can modify trip detail #}
+    {% if is_admin %}
+      <a class="btn btn-admin" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
+        {% trans "Edit" %}
+      </a>
+      <a class="btn btn-admin" href="{% url 'travel:trip_clone' object.id view.kwargs.type %}">
+        {% trans "Clone" %}
+      </a>
+      {% if not object.is_verified %}
+        <a class="btn btn-admin" href="{% url 'travel:trip_verify' object.id 0 0 %}">
+          {% trans "Verify" %}
+        </a>
+      {% endif %}
+    {% endif %}
 
+    {% if is_adm_admin %}
+      {% if object.status.id != 43 and object.is_adm_approval_required %}
 
-    {# ADM Admin stuff #}
-    <div class="btns mb-3">
-        {% if can_modify %}
-            <a class="btn btn-admin" href="#" pop-href="{% url 'travel:trip_admin_notes_edit' object.id %}">
-                {% trans "Administrative Notes" %}
-            </a>
+        {# Review BUTTON #}
+        {% if object.status.id != 32 %}
+          {% if object.status.id == 30 %} {# disabled for everyone #}
+            {% echo "disabled" as review_disabled_var %}
+            {% trans "This trip must be verified before a review can be started." as review_tip_text %}
+          {% endif %}
+
+          {% if object.status.id == 30 or object.status.id == 41 %}
+            {% echo "success" as review_btn_color %}
+            {% trans "Start a Review for this trip" as review_btn_text %}
+          {% else %}
+            {% echo "danger" as review_btn_color %}
+            {% trans "Terminate the review process" as review_btn_text %}
+          {% endif %}
+        {% else %}
+          {% echo "warning" as review_btn_color %}
+          {% trans "Re-open the review process (late submission)" as review_btn_text %}
         {% endif %}
 
-        {# all admins can modify trip detail #}
-        {% if is_admin %}
-            <a class="btn btn-admin" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
-                {% trans "Edit" %}
-            </a>
-        {% endif %}
-
-        {% if is_adm_admin %}
-            {% if object.status.id != 43 and object.is_adm_approval_required %}
-
-                {# Review BUTTON #}
-                {% if object.status.id != 32 %}
-                    {% if object.status.id == 30 %} {# disabled for everyone #}
-                        {% echo "disabled" as review_disabled_var %}
-                        {% trans "This trip must be verified before a review can be started." as review_tip_text %}
-                    {% endif %}
-
-                    {% if object.status.id == 30 or object.status.id == 41 %}
-                        {% echo "success" as review_btn_color %}
-                        {% trans "Start a Review for this trip" as review_btn_text %}
-                    {% else %}
-                        {% echo "danger" as review_btn_color %}
-                        {% trans "Terminate the review process" as review_btn_text %}
-                    {% endif %}
-                {% else %}
-                        {% echo "warning" as review_btn_color %}
-                        {% trans "Re-open the review process (late submission)" as review_btn_text %}
-                {% endif %}
-
-                <span data-toggle="tooltip" title="{{ review_tip_text }}">
+        <span data-toggle="tooltip" title="{{ review_tip_text }}">
                 <a class="btn btn-{{ review_btn_color }} {{ review_disabled_var }}"
                    href="{% url 'travel:trip_review_toggle' object.id %}">{{ review_btn_text }}</a>
                 </span>
-            {% endif %}
-        {% endif %}
+      {% endif %}
+    {% endif %}
 
-        {# cancel button - only show if has permission and if trip is not already cancelled #}
-        {% if can_modify and object.status.id != 43 %}
-            <a class="btn btn-admin" href="{% url 'travel:trip_cancel' object.id view.kwargs.type %}">
-                {% trans "Cancel this Trip" %}
-            </a>
-        {% endif %}
+    {# cancel button - only show if has permission and if trip is not already cancelled #}
+    {% if can_modify and object.status.id != 43 %}
+      <a class="btn btn-admin" href="{% url 'travel:trip_cancel' object.id view.kwargs.type %}">
+        {% trans "Cancel this Trip" %}
+      </a>
+    {% endif %}
 
 
-        {% if can_modify %}
+    {% if can_modify %}
 
-            {% if object.trip_requests.count %}
-                {% trans "You cannot delete a trip that is currently tagged on a trip request." as trip_delete_text %}
-                {% echo "disabled" as delete_disabled_var %}
-            {% endif %}
+      {% if object.trip_requests.count %}
+        {% trans "You cannot delete a trip that is currently tagged on a trip request." as trip_delete_text %}
+        {% echo "disabled" as delete_disabled_var %}
+      {% endif %}
 
-            <span data-toggle="tooltip" title="{{ trip_delete_text }}">
+      <span data-toggle="tooltip" title="{{ trip_delete_text }}">
             <a class="btn btn-danger {{ delete_disabled_var }}" href="{% url 'travel:trip_delete' object.id view.kwargs.type %}">
                 {% trans "Delete" %}
             </a>
             </span>
-        {% endif %}
+    {% endif %}
+  </div>
+
+
+
+
+  {# Trip detail #}
+
+  {% if object.admin_notes %}
+    <strong>
+      {% trans "ADMINISTRATIVE NOTES" %}
+    </strong>
+    <div class="mb-3 card admin_notes">
+      {{ object.admin_notes_html|safe }}
     </div>
 
+  {% endif %}
 
+  {% include "travel/_trip_detail.html" %}
 
-
-    {# Trip detail #}
-
-    {% if object.admin_notes %}
-        <strong>
-            {% trans "ADMINISTRATIVE NOTES" %}
-        </strong>
-        <div class="mb-3 card admin_notes">
-            {{ object.admin_notes_html|safe }}
-        </div>
-
+  {% if is_adm_admin %}
+    {% if trip.is_adm_approval_required %}
+      {% include "travel/_trip_reviewers.html" %}
     {% endif %}
-
-    {% include "travel/_trip_detail.html" %}
-
-    {% if is_adm_admin %}
-        {% if trip.is_adm_approval_required %}
-            {% include "travel/_trip_reviewers.html" %}
-        {% endif %}
-    {% endif %}
+  {% endif %}
 
 
 {% endblock %}
