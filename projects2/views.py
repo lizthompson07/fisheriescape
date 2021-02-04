@@ -1102,7 +1102,7 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         elif report == 4:
             return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
         elif report == 5:
-            return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year}')
+            return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1232,6 +1232,7 @@ def export_sar_workplan(request):
     year = request.GET.get("year")
     region = request.GET.get("region")
     # Create the HttpResponse object with the appropriate CSV header.
+    print("Region: " + str(region))
     file_url = reports.generate_sar_workplan(year, region)
 
     if os.path.exists(file_url):

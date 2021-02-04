@@ -139,13 +139,54 @@ def generate_sar_workplan(year, region):
 
     template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "sar_workplan_template.xlsx")
 
+    year_txt = str(FiscalYear.objects.get(pk=year))
+
+    # get all project years that are not in the following status: draft, not approved, cancelled
+    # and that are a part of a project whose default funding source has an english name containing "csrf"
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__contains="SAR", fiscal_year=year)
+    if region != "None":
+        qs = qs.filter(project__section__division__branch__region_id=region)
+
     wb = load_workbook(filename=template_file_path)
 
-    pyears = models.ProjectYear.objects.filter(fiscal_year_id=year)
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws = wb['template']
+    ws.title = year_txt
+    wb.copy_worksheet(ws).title = str("template")
     try:
-        ws = wb[str(pyears.fiscal_year)]
+        ws = wb[year_txt]
     except KeyError:
-        print(str(pyears.fiscal_year), "is not a valid name of a worksheet")
+        print(year_txt, "is not a valid name of a worksheet")
+
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in qs:
+
+        ws['A'+str(row_count)].value = listrify([t.name for t in item.project.tags.all()])
+        ws['J'+str(row_count)].value = ws['A'+str(row_count)].value
+
+        ws['B'+str(row_count)].value = sum([c.amount for c in item.costs])
+        ws['C'+str(row_count)].value = listrify(["{} {}".format(u.first_name, u.last_name) for u in item.get_project_leads_as_users()])
+
+        ws['H' + str(row_count)].value = listrify([f.name for f in item.project.files.all()])
+        ws['I' + str(row_count)].value = item.project.id
+
+        if item.priorities:
+            ws['K' + str(row_count)].value = html2text(item.priorities)
+
+        ws['L' + str(row_count)].value = item.project.title
+
+        if item.project.overview_html:
+            ws['M' + str(row_count)].value = html2text(item.project.overview_html)
+
+        activities = [html2text(act.description) for act in item.activities.filter(type=1)]
+        ws['N' + str(row_count)].value = listrify(activities)
+
+        activities = [html2text(act.description) for act in item.activities.filter(type=2)]
+        ws['O' + str(row_count)].value = listrify(activities)
+
+        row_count += 1
 
     wb.save(target_file_path)
 
