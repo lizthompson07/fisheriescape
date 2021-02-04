@@ -67,7 +67,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
 
 class NoteViewSet(viewsets.ModelViewSet):
-    queryset = models.Note.objects.all().order_by("-created_at")
+    queryset = models.Note.objects.all()
     # lookup_field = 'slug'
     serializer_class = serializers.NoteSerializer
     permission_classes = [IsAuthenticated]
@@ -76,6 +76,11 @@ class NoteViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
+    def get_queryset(self):
+        qs = self.queryset
+        if self.request.query_params.get("event"):
+            qs = qs.filter(event_id=self.request.query_params.get("event"))
+        return qs
 #
 # class FTEBreakdownAPIView(APIView):
 #     permission_classes = [IsAuthenticated]

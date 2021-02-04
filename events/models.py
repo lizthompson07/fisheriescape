@@ -101,7 +101,7 @@ class Note(models.Model):
         )
 
     class Meta:
-        ordering = ["-updated_at"]
+        ordering = ["is_complete", "-updated_at",]
 
 
 def resource_directory_path(instance, filename):

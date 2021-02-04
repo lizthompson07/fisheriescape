@@ -45,11 +45,15 @@
         </div>
         <div class="col">
           <div class="float-right">
-            <NoteEditorOverlay :event_id="event.id"></NoteEditorOverlay>
+            <NoteEditorOverlay
+              v-if="event.id"
+              :event_id="event.id"
+              @update-notes="updateNotes"
+            ></NoteEditorOverlay>
           </div>
           <h1>Notes</h1>
-          <div v-for="(note, index) in event.notes" :key="index" class="py-1">
-            <NoteCard :note="note"></NoteCard>
+          <div v-for="(note, index) in notes" :key="index" class="py-1">
+            <NoteCard :note="note" @update-notes="updateNotes"></NoteCard>
           </div>
         </div>
       </div>
@@ -79,6 +83,7 @@ export default {
   data() {
     return {
       event: {},
+      notes: [],
       message404: "404 - Page Not Found",
       eventLabels: {}
     };
@@ -96,74 +101,18 @@ export default {
         this.eventLabels = data.labels;
       });
     },
-    // async deleteComment(comment) {
-    //   let endpoint = `/api/comments/${comment.id}/`;
-    //   let method = "DELETE";
-    //   try {
-    //     await apiService(endpoint, method);
-    //     this.$delete(this.comments, this.comments.indexOf(comment));
-    //     this.userHasCommented = false;
-    //   } catch (err) {
-    //   }
-    // },
-    // addCommentBtn() {
-    //   this.showForm = true;
-    //   console.log(this.$refs);
-    //   this.$nextTick(() => this.$refs.newComment.focus());
-    //   // this.$refs.newComment.$el.select();
-    // },
-    // slicer(input) {
-    //   let myStr = input.name;
-    //   return myStr.slice(0, 1).toUpperCase();
-    // },
-    // updateTags() {
-    //   // did we subtract or add?
-    //   if (this.selectedHashtags.length < this.selectedHashtagCount) {
-    //     // something was subtracted
-    //
-    //     for (var i = 0; i < this.recipe.hashtags.length; i++) {
-    //       if (!this.selectedHashtags.includes(this.recipe.hashtags[i])) {
-    //         var tag2Remove = this.recipe.hashtags[i];
-    //         this.removeTag(tag2Remove.name);
-    //       }
-    //     }
-    //   } else {
-    //     // something was added
-    //     for (var i = 0; i < this.selectedHashtags.length; i++) {
-    //       if (!this.recipe.hashtags.includes(this.selectedHashtags[i])) {
-    //         var tag2Add = this.selectedHashtags[i];
-    //         if (tag2Add.name) {
-    //           this.addTag(tag2Add.name);
-    //         } else {
-    //           this.addTag(tag2Add);
-    //         }
-    //       }
-    //     }
-    //   }
-    // },
-    //
-    // async addTag(tagName) {
-    //   let endpoint = `/api/recipes/${this.recipe.id}/add-remove-hashtag/`;
-    //   let method = "POST";
-    //   await apiService(endpoint, method, {hashtag: tagName});
-    //   this.selectedHashtags = [];
-    //   this.getRecipeData();
-    //   this.getHashtags();
-    // },
-    // async removeTag(tagName) {
-    //   let endpoint = `/api/recipes/${this.recipe.id}/add-remove-hashtag/`;
-    //   let method = "DELETE";
-    //   await apiService(endpoint, method, {hashtag: tagName});
-    //   this.getRecipeData();
-    // },
-    // setRequestUser() {
-    //   this.requestUser = window.localStorage.getItem("username");
-    // },
+    updateNotes() {
+      let endpoint = `/api/events-planner/notes/?event=${this.event.id}`;
+      apiService(endpoint).then(data => {
+        this.notes = data.results;
+      });
+    },
     getEvent() {
       let endpoint = `/api/events-planner/events/${this.id}/`;
       apiService(endpoint).then(data => {
         if (data) {
           this.event = data;
+          this.notes = this.event.notes;
           document.title = data.tname;
         } else {
           this.event = null;
@@ -172,7 +121,7 @@ export default {
       });
     },
     async deleteEvent() {
-      let endpoint = `/api/events/${this.id}/`;
+      let endpoint = `/api/events-planner/events/${this.id}/`;
       await apiService(endpoint, "DELETE");
       this.$router.push({name: "home"});
     }

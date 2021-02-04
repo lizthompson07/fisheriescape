@@ -1,9 +1,11 @@
 <template>
   <div class="text-center">
-    <v-btn
-        @click="overlay = !overlay"
-    >
+
+    <v-btn @click="openOverlay" v-if="!note.id">
       <v-icon>mdi-plus</v-icon>
+    </v-btn>
+    <v-btn small @click="openOverlay" v-else>
+      <v-icon small>mdi-pencil</v-icon>
     </v-btn>
 
     <v-overlay :value="overlay" light opacity=".7">
@@ -24,7 +26,7 @@
         ></v-checkbox>
 
         <v-btn type="submit" color="success">
-          <span v-if="id">{{ $t("Update") }}</span>
+          <span v-if="note.id">{{ $t("Update") }}</span>
           <span v-else>{{ $t("Create") }}</span>
         </v-btn>
 
@@ -39,7 +41,6 @@
         </div>
       </form>
 
-
     </v-overlay>
   </div>
 </template>
@@ -52,23 +53,32 @@ export default {
   name: "NoteEditorOverlay",
   props: {
     event_id: {
-      required: true
-    },
-    id: {
       required: false
-    }
+    },
+    note: {
+      required: false,
+      default: function () {
+        return {}
+      }
+    },
   },
   data() {
     return {
       overlay: false,
-      note: {},
-
       labels: {},
       typeChoices: [],
       error: null
     };
-  },
+  }
+  ,
   methods: {
+    openOverlay() {
+      this.overlay = true;
+      if (!this.note.id) {
+        this.primeNote()
+      }
+    }
+    ,
     primeNote() {
       this.note = {
         type: null,
@@ -76,21 +86,22 @@ export default {
         is_complete: false,
         event: this.event_id
       };
-    },
-
+    }
+    ,
     getNoteMetadata() {
       let endpoint = `/api/events-planner/meta/models/note/`;
       apiService(endpoint).then(data => {
         this.labels = data.labels;
         this.typeChoices = data.type_choices;
       });
-    },
+    }
+    ,
     onSubmit() {
       this.error = null;
       var method;
       var endpoint;
-      if (this.id) {
-        endpoint = `/api/events-planner/notes/${this.id}/`;
+      if (this.note.id) {
+        endpoint = `/api/events-planner/notes/${this.note.id}/`;
         method = "PUT";
       } else {
         endpoint = "/api/events-planner/notes/";
@@ -99,7 +110,7 @@ export default {
       apiService(endpoint, method, this.note).then(response => {
         if (response.id) {
           this.$emit("update-notes");
-          this.primeNote();
+          if(!this.note.id) this.primeNote();
           this.overlay = false;
         } else {
           this.error = JSON.stringify(response)
@@ -109,13 +120,16 @@ export default {
               .replace("]", "");
         }
       });
-    },
+    }
+    ,
 
-  },
+  }
+  ,
   created() {
-    this.primeNote();
     this.getNoteMetadata();
-  },
+  }
+  ,
   computed: {}
-};
+}
+;
 </script>
