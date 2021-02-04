@@ -1,15 +1,12 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: iHub - traduction\n"
+"Project-Id-Version: iHub - traduction 2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-04 12:01-0400\n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2021-02-04 13:05-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: POEditor.com\n"
 "Language: en\n"
 
 #: .\ihub\filters.py:15
@@ -33,18 +30,16 @@ msgid "Entry Contact"
 msgstr "Contact"
 
 #: .\ihub\filters.py:71
-#, fuzzy
-#| msgid "Name contains"
 msgid "title contains"
-msgstr "Nom"
+msgstr "Le titre contiens"
 
 #: .\ihub\filters.py:82
 msgid "Name contains"
-msgstr "Nom"
+msgstr "Le nom contiens"
 
 #: .\ihub\forms.py:13
 msgid "Click to select a date.."
-msgstr ""
+msgstr "Cliquez pour sélectionner une date..."
 
 #: .\ihub\forms.py:85
 msgid "Capacity Report (Excel Spreadsheet)"
@@ -75,10 +70,8 @@ msgid "DFO employee"
 msgstr "Employé du MPO"
 
 #: .\ihub\forms.py:226
-#, fuzzy
-#| msgid "add a new contact"
 msgid "Select a contact"
-msgstr "Ajouter un nouveau contact"
+msgstr "Sélectionner un contact"
 
 #: .\ihub\models.py:26
 msgid "---------"
@@ -109,8 +102,6 @@ msgid "proponent"
 msgstr "Promoteur"
 
 #: .\ihub\models.py:63
-#, fuzzy
-#| msgid "Organizations"
 msgid "organizations"
 msgstr "Organisations"
 
@@ -136,10 +127,8 @@ msgid "Entry Type"
 msgstr "Type de saisie"
 
 #: .\ihub\models.py:71
-#, fuzzy
-#| msgid "Organizations"
 msgid "regions"
-msgstr "Organisations"
+msgstr "régions"
 
 #: .\ihub\models.py:75
 msgid "funding program"
@@ -195,17 +184,15 @@ msgstr "Crée par"
 
 #: .\ihub\models.py:147
 msgid "Lead"
-msgstr ""
+msgstr "Responsable"
 
 #: .\ihub\models.py:148
-#, fuzzy
-#| msgid "Contacts"
 msgid "Contact"
-msgstr "Contacts"
+msgstr "Contact"
 
 #: .\ihub\models.py:149
 msgid "Support"
-msgstr ""
+msgstr "En support"
 
 #: .\ihub\models.py:152
 msgid "User"
@@ -220,26 +207,24 @@ msgid "role"
 msgstr "rôle"
 
 #: .\ihub\models.py:188
-#, fuzzy
-#| msgid "caption"
 msgid "Action"
-msgstr "légende"
+msgstr "Action"
 
 #: .\ihub\models.py:189
 msgid "Next step"
-msgstr ""
+msgstr "Prochaine étape"
 
 #: .\ihub\models.py:190
 msgid "Comment"
-msgstr ""
+msgstr "Commentaire"
 
 #: .\ihub\models.py:191
 msgid "Follow-up (*)"
-msgstr ""
+msgstr "Suivi (*)"
 
 #: .\ihub\models.py:192
 msgid "Internal"
-msgstr ""
+msgstr "Note interne"
 
 #: .\ihub\models.py:199
 msgid "author"
@@ -352,7 +337,7 @@ msgstr "Éditer les instructions"
 
 #: .\ihub\templates\ihub\_instructions.html:33
 msgid "Address Letter To"
-msgstr "Adresser une lettre papier à"
+msgstr "Envoyer une lettre papier à"
 
 #: .\ihub\templates\ihub\_instructions.html:41
 msgid "Cc (on Bottom of Letter)"
@@ -364,7 +349,7 @@ msgstr "Copie papier"
 
 #: .\ihub\templates\ihub\_instructions.html:58
 msgid "Email \"To\" Recipients"
-msgstr "Adresse courriel à"
+msgstr "Envoyer courriel à"
 
 #: .\ihub\templates\ihub\_instructions.html:80
 msgid "Email \"Cc\" Recipients"
@@ -411,7 +396,7 @@ msgstr "Actions, prochaines étapes ou commentaires"
 #: .\ihub\templates\ihub\_notes.html:19
 msgid "No Actions, next steps or comments have been added to this entry..."
 msgstr ""
-"Aucune action, prochaine étape ou commentaires n'ont été ajoutés à cette "
+"Aucune action, prochaine étape ou commentaires n'ont été ajouté à cette "
 "entrée..."
 
 #: .\ihub\templates\ihub\_notes.html:28
@@ -444,7 +429,7 @@ msgstr "Contacts:"
 
 #: .\ihub\templates\ihub\_people.html:13
 msgid "No people have been added to this entry"
-msgstr "Personne été ajouté à cette entrée"
+msgstr "Aucun contact n'a été ajouté à cette entrée"
 
 #: .\ihub\templates\ihub\_people.html:23
 msgid "Organization"
@@ -468,20 +453,20 @@ msgid "Home"
 msgstr "Accueil"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:8
-#: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:388 .\ihub\views.py:395
-#: .\ihub\views.py:431 .\ihub\views.py:445 .\ihub\views.py:478
+#: .\ihub\templates\ihub\index.html:27 .\ihub\views.py:390 .\ihub\views.py:397
+#: .\ihub\views.py:433 .\ihub\views.py:447 .\ihub\views.py:480
 msgid "Entries"
 msgstr "Entrées"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:11
 #: .\ihub\templates\ihub\index.html:35 .\ihub\views.py:114 .\ihub\views.py:136
-#: .\ihub\views.py:144 .\ihub\views.py:175 .\ihub\views.py:202
+#: .\ihub\views.py:144 .\ihub\views.py:175 .\ihub\views.py:204
 msgid "Contacts"
 msgstr "Contacts"
 
 #: .\ihub\templates\ihub\base\_nav_left_auth.html:14
-#: .\ihub\templates\ihub\index.html:40 .\ihub\views.py:278 .\ihub\views.py:287
-#: .\ihub\views.py:306 .\ihub\views.py:323
+#: .\ihub\templates\ihub\index.html:40 .\ihub\views.py:280 .\ihub\views.py:289
+#: .\ihub\views.py:308 .\ihub\views.py:325
 msgid "Organizations"
 msgstr "Organisations"
 
@@ -594,7 +579,7 @@ msgstr "Rôles de consultation"
 
 #: .\ihub\templates\ihub\member_form_popout.html:69
 msgid "contact email address is missing!"
-msgstr "courriel de contact est manquante!"
+msgstr "Le courriel du contact est manquant!"
 
 #: .\ihub\templates\ihub\member_form_popout.html:77
 msgid "This member does not have a consultation role."
@@ -602,7 +587,7 @@ msgstr "Ce membre n'a pas de rôle de consultation."
 
 #: .\ihub\templates\ihub\member_form_popout.html:95
 msgid "Add Consultation Role"
-msgstr "Ajouter un rôle dans la consultation"
+msgstr "Ajouter un rôle de consultation"
 
 #: .\ihub\templates\ihub\member_form_popout.html:109
 msgid "Last modified on"
@@ -723,7 +708,7 @@ msgstr "Rapports du iHub"
 
 #: .\ihub\templates\ihub\report_search.html:32
 msgid "Please enter the Report Details:"
-msgstr ""
+msgstr "Sélectionnez le type de rapport désiré:"
 
 #: .\ihub\templates\ihub\user_form.html:27
 msgid "Change Password"
@@ -766,52 +751,42 @@ msgstr ""
 "saisies dans cette application."
 
 #: .\ihub\views.py:104
-#, fuzzy
-#| msgid "name"
 msgid "full name"
-msgstr "Nom"
+msgstr "Nom complet"
 
 #: .\ihub\views.py:108
 msgid "last updated"
 msgstr "dernière mise à jour"
 
-#: .\ihub\views.py:133 .\ihub\views.py:275 .\ihub\views.py:411
-#, fuzzy
-#| msgid "Metadata"
+#: .\ihub\views.py:133 .\ihub\views.py:277 .\ihub\views.py:413
 msgid "metadata"
 msgstr "Métadonnées"
 
-#: .\ihub\views.py:176
-#, fuzzy
-#| msgid "Contacts"
+#: .\ihub\views.py:176 .\ihub\views.py:189
 msgid "New Contact"
-msgstr "Contacts"
+msgstr "Nouveau contact"
 
-#: .\ihub\views.py:231
+#: .\ihub\views.py:233
 msgid "Full address"
 msgstr "Adresse complète"
 
-#: .\ihub\views.py:232
+#: .\ihub\views.py:234
 msgid "Audio recording"
-msgstr ""
+msgstr "Enregistrement de la prononciation"
 
-#: .\ihub\views.py:308
-#, fuzzy
-#| msgid "Organization"
+#: .\ihub\views.py:310
 msgid "New Organization"
-msgstr "Organisation"
+msgstr "Nouvelle organisation"
 
-#: .\ihub\views.py:338
-#, fuzzy
-#| msgid "Organization Members:"
+#: .\ihub\views.py:340
 msgid "New Organization Member"
-msgstr "Membres de l'organisation :"
+msgstr "Nouveau membre de l'organisation"
 
-#: .\ihub\views.py:447
+#: .\ihub\views.py:449
 msgid "New Entry"
-msgstr ""
+msgstr "Nouvelle entrée"
 
-#: .\ihub\views.py:464
+#: .\ihub\views.py:466
 msgid ""
 "The entry has been submitted and an email has been sent to the Indigenous "
 "Hub Coordinator!"
@@ -819,18 +794,22 @@ msgstr ""
 "L'entrée à été soumise et un courriel a été envoyé au coordonnateur du Hub "
 "RPA!"
 
-#: .\ihub\views.py:515
+#: .\ihub\views.py:517
 msgid "The note has been successfully deleted from the entry."
 msgstr "La note a été supprimée de l'entrée avec succès."
 
-#: .\ihub\views.py:545
+#: .\ihub\views.py:528
+msgid "New Entry Person"
+msgstr "Ajouter une personne"
+
+#: .\ihub\views.py:548
 msgid "The person has been successfully deleted from the entry."
 msgstr "La personne a été supprimée de l'entrée avec succès."
 
-#: .\ihub\views.py:575
+#: .\ihub\views.py:578
 msgid "The file has been successfully deleted from the entry."
 msgstr "Le fichier a été supprimé de l'entrée avec succès."
 
-#: .\ihub\views.py:656
+#: .\ihub\views.py:659
 msgid "Engagement Update Log – Government of Canada"
 msgstr "Mise à jour de la mobilisation - Gouvernement du Canada"

@@ -174,6 +174,7 @@ class PersonCreateView(iHubEditRequiredMixin, CommonCreateView):
     home_url_name = "ihub:index"
     parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("ihub:person_list")}
     h1 = gettext_lazy("New Contact")
+
     def form_valid(self, form):
         object = form.save(commit=False)
         object.last_modified_by = self.request.user
@@ -185,6 +186,7 @@ class PersonCreateView(iHubEditRequiredMixin, CommonCreateView):
 class PersonCreateViewPopout(iHubEditRequiredMixin, CommonPopoutCreateView):
     model = ml_models.Person
     form_class = forms.PersonForm
+    h1 = gettext_lazy("New Contact")
 
     def form_valid(self, form):
         object = form.save(commit=False)
@@ -523,6 +525,7 @@ class EntryPersonCreateView(iHubEditRequiredMixin, CommonPopoutCreateView):
     model = models.EntryPerson
     template_name = 'ihub/entry_person_form_popout.html'
     form_class = forms.EntryPersonForm
+    h1= gettext_lazy("New Entry Person")
 
     def get_initial(self):
         entry = models.Entry.objects.get(pk=self.kwargs['entry'])
