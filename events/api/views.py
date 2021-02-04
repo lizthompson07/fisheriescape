@@ -1,10 +1,9 @@
 from rest_framework import viewsets
-from rest_framework import viewsets
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from shared_models.utils import special_capitalize
 from . import serializers
 # USER
 #######
@@ -21,6 +20,41 @@ class CurrentUserAPIView(APIView):
         return Response(data)
 
 
+class EventModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Event
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = self._get_labels()
+        data['type_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.type_choices]
+        return Response(data)
+
+    def _get_labels(self):
+        labels = {}
+        for field in self.model._meta.get_fields():
+            if hasattr(field, "name") and hasattr(field, "verbose_name"):
+                labels[field.name] = special_capitalize(field.verbose_name)
+        return labels
+
+class NoteModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Note
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = self._get_labels()
+        data['type_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.type_choices]
+        return Response(data)
+
+    def _get_labels(self):
+        labels = {}
+        for field in self.model._meta.get_fields():
+            if hasattr(field, "name") and hasattr(field, "verbose_name"):
+                labels[field.name] = special_capitalize(field.verbose_name)
+        return labels
+
+
 class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Event.objects.all().order_by("-created_at")
     # lookup_field = 'slug'
@@ -28,6 +62,16 @@ class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+class NoteViewSet(viewsets.ModelViewSet):
+    queryset = models.Note.objects.all().order_by("-created_at")
+    # lookup_field = 'slug'
+    serializer_class = serializers.NoteSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

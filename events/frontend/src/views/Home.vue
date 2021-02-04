@@ -84,7 +84,7 @@ export default {
       });
     },
     getEvents() {
-      let endpoint = "/api/events/";
+      let endpoint = "/api/events-planner/events/";
       if (this.next) {
         endpoint = this.next;
       }
@@ -98,6 +98,7 @@ export default {
         }
       });
       this.loadingEvents = false;
+      console.log(this.events)
     },
     // getTags() {
     //   let endpoint = "api/hashtags/";

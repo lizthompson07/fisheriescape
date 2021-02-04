@@ -4,11 +4,11 @@
     <h1 v-else class="mb-3">{{ $t("Create Event") }}</h1>
 
     <form @submit.prevent="onSubmit">
-      <v-text-field v-model="name" label="Name (English)" required color="red"></v-text-field>
-      <v-text-field v-model="nom" label="Name (French)"></v-text-field>
-      <v-select v-model="type" :items="typeChoices" label="Event Type" required></v-select>
-      <v-text-field v-model="location" label="Location"></v-text-field>
-      <v-text-field v-model="proponent" label="Proponent"></v-text-field>
+      <v-text-field v-model="name" :label="labels.name" required color="red"></v-text-field>
+      <v-text-field v-model="nom" :label="labels.nom"></v-text-field>
+      <v-select v-model="type" :items="typeChoices" :label="labels.type" required></v-select>
+      <v-text-field v-model="location" :label="labels.location"></v-text-field>
+      <v-text-field v-model="proponent" :label="labels.proponent"></v-text-field>
       <div class="row">
         <div class="col">
           <v-date-picker
@@ -69,23 +69,28 @@ export default {
       dates: [],
 
       error: null,
-      typeChoices: [
-        {text: "CSAS meeting", value: 1},
-        {text: "Other", value: 9}
-      ],
+      labels: {},
+      typeChoices: [],
 
     };
   },
   methods: {
+    getEventMetadata() {
+      let endpoint = `/api/events-planner/meta/models/event/`;
+      apiService(endpoint).then(data => {
+        this.labels = data.labels;
+        this.typeChoices = data.type_choices;
+      });
+    },
     onSubmit() {
       this.error = null;
       var method;
       var endpoint;
       if (this.id) {
-        endpoint = `/api/events/${this.id}/`;
+        endpoint = `/api/events-planner/events/${this.id}/`;
         method = "PUT";
       } else {
-        endpoint = "/api/events/";
+        endpoint = "/api/events-planner/events/";
         method = "POST";
       }
       apiService(endpoint, method, this.data).then(response => {
@@ -106,7 +111,7 @@ export default {
     },
 
     getEvent() {
-      let endpoint = `/api/events/${this.id}/`;
+      let endpoint = `/api/events-planner/events/${this.id}/`;
       apiService(endpoint).then(data => {
         if (data) {
           this.name = data.name;
@@ -124,6 +129,7 @@ export default {
 
   },
   created() {
+    this.getEventMetadata();
     if (this.id) {
       document.title = "Edit Event";
       this.getEvent();

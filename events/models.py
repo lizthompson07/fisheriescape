@@ -9,7 +9,9 @@ from shared_models.utils import get_metadata_string
 
 class Event(SimpleLookup):
     type_choices = (
-        (1, _("CSAS meeting")),
+        (1, _("CSAS Regional Advisory Process (RAP)")),
+        (2, _("CSAS Science Management Meeting")),
+        (2, _("CSAS Steering Committee Meeting")),
         (9, _("other")),
     )
 
@@ -52,14 +54,14 @@ class Invitee(models.Model):
         (3, 'expert'),
     )
     status_choices = (
-        (1, 'invited'),
-        (2, 'accepted'),
-        (3, 'declined'),
+        (1, 'accepted'),
+        (2, 'declined'),
+        (9, 'not response'),
     )
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="invitees")
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, verbose_name=_("person"), related_name="invitees")
-    role = models.IntegerField(choices=role_choices, verbose_name=_("role"), default=1)
-    organization = models.CharField(max_length=50)
+    role = models.IntegerField(choices=role_choices, verbose_name=_("Function"), default=1)
+    organization = models.CharField(max_length=50, verbose_name=_("Association"))
     status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=1)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("Resource", editable=False)

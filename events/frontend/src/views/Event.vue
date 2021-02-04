@@ -17,63 +17,15 @@
           <v-simple-table dense>
             <template v-slot:default>
               <tbody>
-              <tr>
-                <th class="text-left">
-                  Name
-                </th>
-                <td class="text-left">
-                  {{ event.name }}
-                </td>
-              </tr>
-              <tr>
-                <th class="text-left">
-                  Nom
-                </th>
-                <td class="text-left">
-                  {{ event.nom }}
-                </td>
-              </tr>
-              <tr>
-                <th class="text-left">
-                  Type
-                </th>
-                <td class="text-left">
-                  {{ event.type_display }}
-                </td>
-              </tr>
-              <tr>
-                <th class="text-left">
-                  Location
-                </th>
-                <td class="text-left">
-                  {{ event.location }}
-                </td>
-              </tr>
-              <tr>
-                <th class="text-left">
-                  Proponent
-                </th>
-                <td class="text-left">
-                  {{ event.proponent }}
-                </td>
-              </tr>
-              <tr>
-                <th class="text-left">
-                  Start / End Date
-                </th>
-                <td class="text-left" v-html="event.display_dates"></td>
-              </tr>
-              <tr>
-                <th class="text-left">
-                  Metadata
-                </th>
-                <td class="text-left" v-html="event.metadata">
-                  {{ event.metadata }}
-                </td>
-              </tr>
+              <DetailRow :label="eventLabels.name" :value="event.name"></DetailRow>
+              <DetailRow :label="eventLabels.nom" :value="event.nom"></DetailRow>
+              <DetailRow :label="eventLabels.type" :value="event.type_display"></DetailRow>
+              <DetailRow :label="eventLabels.location" :value="event.location"></DetailRow>
+              <DetailRow :label="eventLabels.proponent" :value="event.proponent"></DetailRow>
+              <DetailRow label="Start / End Date" :value="event.display_dates"></DetailRow>
+              <DetailRow label="Metadata" :value="event.metadata"></DetailRow>
               </tbody>
             </template>
-
 
           </v-simple-table>
 
@@ -86,111 +38,19 @@
           </div>
 
 
-          <!--            </div>-->
-          <!--            <div class="col">-->
-          <!--&lt;!&ndash;              <v-btn&ndash;&gt;-->
-          <!--&lt;!&ndash;                color="primary"&ndash;&gt;-->
-          <!--&lt;!&ndash;                small&ndash;&gt;-->
-          <!--&lt;!&ndash;                :to="{ name: 'recipe-editor1', params: { id: recipe.id } }"&ndash;&gt;-->
-          <!--&lt;!&ndash;                class="mx-1"&ndash;&gt;-->
-          <!--&lt;!&ndash;              >&ndash;&gt;-->
-          <!--&lt;!&ndash;                Edit&ndash;&gt;-->
-          <!--&lt;!&ndash;              </v-btn>&ndash;&gt;-->
-          <!--            </div>-->
-          <!--          </div>-->
+          <div class="mt-3">
+            <h1>Children</h1>
+          </div>
 
-          <!--          <v-combobox-->
-          <!--            v-model="selectedHashtags"-->
-          <!--            :items="allHashtags"-->
-          <!--            item-text="name"-->
-          <!--            label="Tags"-->
-          <!--            multiple-->
-          <!--            outlined-->
-          <!--            @change="updateTags"-->
-          <!--          >-->
-          <!--          </v-combobox>-->
-
-          <!--          <p class="mb-2">-->
-          <!--            <strong>Posted by:</strong>-->
-          <!--            <span v-if="isCurrentUsersRecipe">You</span>-->
-          <!--            <span v-else>{{ recipe.author }}</span>-->
-          <!--          </p>-->
-          <!--          <p>{{ recipe.created_at }}</p>-->
-          <!--          <p class="">-->
-          <!--            <strong>Tags:</strong>-->
-          <!--            <v-chip-->
-          <!--              class="mx-1"-->
-          <!--              v-for="tag in recipe.hashtags"-->
-          <!--              color="secondary"-->
-          <!--              :to="{ name: 'tag', params: { slug: tag.slug } }"-->
-          <!--            >-->
-          <!--              <v-avatar-->
-          <!--                class="accent white&#45;&#45;text"-->
-          <!--                left-->
-          <!--                v-text="slicer(tag)"-->
-          <!--              ></v-avatar>-->
-          <!--              {{ tag.name }}-->
-          <!--            </v-chip>-->
-          <!--          </p>-->
-
-          <!--          <p v-html="recipe.content_html"></p>-->
-          <!--        </div>-->
-          <!--        <div class="col">-->
-          <!--          <div class="row">-->
-          <!--            <div class="col">-->
-          <!--              <h4>Comments</h4>-->
-          <!--            </div>-->
-          <!--            <div class="col">-->
-          <!--              <v-btn-->
-          <!--                small-->
-          <!--                color="success"-->
-          <!--                @click="addCommentBtn"-->
-          <!--                v-if="!showForm"-->
-          <!--                class="mx-1"-->
-          <!--              >-->
-          <!--                Add a Comment-->
-          <!--              </v-btn>-->
-          <!--            </div>-->
-          <!--          </div>-->
-
-          <!--          <div v-if="showForm" class="mt-3">-->
-          <!--            <form @submit.prevent="onSubmit">-->
-          <!--              <v-text-field-->
-          <!--                name="input"-->
-          <!--                label="Comment"-->
-          <!--                v-model="newCommentBody"-->
-          <!--                ref="newComment"-->
-          <!--              ></v-text-field>-->
-          <!--              <v-btn type="submit" color="success" class="mx-1">-->
-          <!--                Submit-->
-          <!--              </v-btn>-->
-          <!--              <v-btn-->
-          <!--                class="mx-1"-->
-          <!--                color="normal"-->
-          <!--                v-if="showForm"-->
-          <!--                @click="showForm = false"-->
-          <!--              >-->
-          <!--                Cancel-->
-          <!--              </v-btn>-->
-          <!--            </form>-->
-          <!--            <p v-if="error" class="error mt-2">{{ error }}</p>-->
-          <!--            <br />-->
-          <!--            <br />-->
-          <!--            <br />-->
-          <!--          </div>-->
-
-          <!--          <CommentComponent-->
-          <!--            v-for="(comment, index) in comments"-->
-          <!--            :comment="comment"-->
-          <!--            :requestUser="requestUser"-->
-          <!--            :key="index"-->
-          <!--            @delete-comment="deleteComment"-->
-          <!--          />-->
-          <!--        </div>-->
-          <!--      </div>-->
         </div>
         <div class="col">
+          <div class="float-right">
+            <NoteEditorOverlay :event_id="event.id"></NoteEditorOverlay>
+          </div>
           <h1>Notes</h1>
+          <div v-for="(note, index) in event.notes" :key="index" class="py-1">
+            <NoteCard :note="note"></NoteCard>
+          </div>
         </div>
       </div>
     </div>
@@ -205,6 +65,9 @@
 import {apiService} from "@/common/api_service";
 // import CommentComponent from "@/components/CommentComponent.vue";
 import DeleteEventDialogBox from "@/components/DeleteEventDialogBox.vue";
+import NoteEditorOverlay from "@/components/NoteEditorOverlay";
+import DetailRow from "@/components/DetailRow";
+import NoteCard from "@/components/NoteCard";
 
 export default {
   name: "Recipe",
@@ -216,29 +79,23 @@ export default {
   data() {
     return {
       event: {},
-      // comments: [],
-      // newCommentBody: null,
-      //
-      // allHashtags: [],
-      // selectedHashtags: [],
-      // selectedHashtagCount: [],
-      // newHashtag: null,
-      //
-      // error: null,
-      // userHasCommented: false,
-      // showForm: false,
-      // showTagInput: false,
-      //
-      // requestUser: null,
-      // next: null,
-      // loadingComments: false,
-      message404: "404 - Page Not Found"
+      message404: "404 - Page Not Found",
+      eventLabels: {}
     };
   },
   components: {
-    DeleteEventDialogBox
+    DeleteEventDialogBox,
+    NoteEditorOverlay,
+    DetailRow,
+    NoteCard
   },
   methods: {
+    getEventMetadata() {
+      let endpoint = `/api/events-planner/meta/models/event/`;
+      apiService(endpoint).then(data => {
+        this.eventLabels = data.labels;
+      });
+    },
     // async deleteComment(comment) {
     //   let endpoint = `/api/comments/${comment.id}/`;
     //   let method = "DELETE";
@@ -303,15 +160,11 @@ export default {
     //   this.requestUser = window.localStorage.getItem("username");
     // },
     getEvent() {
-      let endpoint = `/api/events/${this.id}/`;
+      let endpoint = `/api/events-planner/events/${this.id}/`;
       apiService(endpoint).then(data => {
         if (data) {
           this.event = data;
-          // this.selectedHashtags = data.hashtags;
-          // this.selectedHashtagCount = data.hashtags.length;
-          // this.userHasCommented = data.user_has_commented;
           document.title = data.tname;
-
         } else {
           this.event = null;
           document.title = this.message404;
@@ -381,6 +234,7 @@ export default {
     // }
   },
   created() {
+    this.getEventMetadata();
     this.getEvent();
     // this.getRecipeCommentsData();
     // this.getHashtags();
