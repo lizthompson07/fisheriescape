@@ -13,7 +13,7 @@
             ></DeleteEventDialogBox>
 
           </div>
-          <h1>Detail</h1>
+          <h1>Event Detail</h1>
           <v-simple-table dense>
             <template v-slot:default>
               <tbody>
@@ -30,11 +30,23 @@
           </v-simple-table>
 
           <div class="mt-3">
-            <h1>Resources</h1>
+            <div class="float-right">
+              <InviteeEditorOverlay
+                  v-if="event.id"
+                  :event_id="event.id"
+                  @update-invitees="updateInvitees"
+              ></InviteeEditorOverlay>
+            </div>
+            <h1>Invitees</h1>
+            <!--          <div v-for="(note, index) in notes" :key="index" class="py-1">-->
+            <!--            <NoteCard :note="note" @update-notes="updateNotes"></NoteCard>-->
+            <!--          </div>-->
+
           </div>
 
+
           <div class="mt-3">
-            <h1>Invitees</h1>
+            <h1>Resources</h1>
           </div>
 
 
@@ -46,9 +58,9 @@
         <div class="col">
           <div class="float-right">
             <NoteEditorOverlay
-              v-if="event.id"
-              :event_id="event.id"
-              @update-notes="updateNotes"
+                v-if="event.id"
+                :event_id="event.id"
+                @update-notes="updateNotes"
             ></NoteEditorOverlay>
           </div>
           <h1>Notes</h1>
@@ -67,9 +79,9 @@
 
 <script>
 import {apiService} from "@/common/api_service";
-// import CommentComponent from "@/components/CommentComponent.vue";
 import DeleteEventDialogBox from "@/components/DeleteEventDialogBox.vue";
 import NoteEditorOverlay from "@/components/NoteEditorOverlay";
+import InviteeEditorOverlay from "@/components/InviteeEditorOverlay";
 import DetailRow from "@/components/DetailRow";
 import NoteCard from "@/components/NoteCard";
 
@@ -84,6 +96,7 @@ export default {
     return {
       event: {},
       notes: [],
+      invitees: [],
       message404: "404 - Page Not Found",
       eventLabels: {}
     };
@@ -91,6 +104,7 @@ export default {
   components: {
     DeleteEventDialogBox,
     NoteEditorOverlay,
+    InviteeEditorOverlay,
     DetailRow,
     NoteCard
   },
@@ -107,12 +121,19 @@ export default {
         this.notes = data.results;
       });
     },
+    updateInvitees() {
+      let endpoint = `/api/events-planner/invitees/?event=${this.event.id}`;
+      apiService(endpoint).then(data => {
+        this.notes = data.results;
+      });
+    },
     getEvent() {
       let endpoint = `/api/events-planner/events/${this.id}/`;
       apiService(endpoint).then(data => {
         if (data) {
           this.event = data;
-          this.notes = this.event.notes;
+          this.notes = this.updateNotes();
+          this.invitees = this.updateInvitees();
           document.title = data.tname;
         } else {
           this.event = null;
@@ -125,57 +146,7 @@ export default {
       await apiService(endpoint, "DELETE");
       this.$router.push({name: "home"});
     }
-    // getRecipeCommentsData() {
-    //   let endpoint = `/api/recipes/${this.id}/comments/`;
-    //   if (this.next) {
-    //     endpoint = this.next;
-    //   }
-    //   this.loadingComments = true;
-    //   apiService(endpoint).then(data => {
-    //     this.comments.push(...data.results);
-    //     if (data.next) {
-    //       this.next = data.next;
-    //     } else {
-    //       this.next = null;
-    //     }
-    //   });
-    //   this.loadingComments = false;
-    // },
-    //
-    // getHashtags() {
-    //   let endpoint = `/api/hashtags/`;
-    //   apiService(endpoint).then(data => {
-    //     this.allHashtags = data.results;
-    //   });
-    // },
-    // setPageTitle(title) {
-    //   document.title = title;
-    // },
-    // goNewTag() {
-    //   this.showTagInput = true;
-    //   this.$refs.newtag.focus();
-    // },
-    // onSubmit() {
-    //   if (!this.newCommentBody) {
-    //     this.error = "You cannot submit an empty comment!";
-    //   } else if (this.newCommentBody.length > 240) {
-    //     this.error = "Ensure this field has no more than 240 characters!";
-    //   } else {
-    //     let endpoint = `/api/recipes/${this.recipe.id}/comment/`;
-    //     let method = "POST";
-    //     apiService(endpoint, method, {content: this.newCommentBody}).then(
-    //         data => {
-    //           this.comments.unshift(data);
-    //         }
-    //     );
-    //     this.newCommentBody = null;
-    //     this.showForm = false;
-    //
-    //     if (this.error) {
-    //       this.error = null;
-    //     }
-    //   }
-    // }
+
   },
   computed: {
     // isCurrentUsersRecipe() {
@@ -185,9 +156,6 @@ export default {
   created() {
     this.getEventMetadata();
     this.getEvent();
-    // this.getRecipeCommentsData();
-    // this.getHashtags();
-    // this.setRequestUser();
   },
 };
 </script>

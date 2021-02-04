@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.template.defaultfilters import date
 from rest_framework import serializers
 
+from masterlist.models import Person
 from .. import models
 
 
@@ -24,10 +25,10 @@ class EventSerializer(serializers.ModelSerializer):
     dates = serializers.SerializerMethodField()
     start_date_display = serializers.SerializerMethodField()
 
-    notes = serializers.SerializerMethodField()
+    # notes = serializers.SerializerMethodField()
 
-    def get_notes(self, instance):
-        return NoteSerializer(instance.notes, many=True, read_only=True).data
+    # def get_notes(self, instance):
+    #     return NoteSerializer(instance.notes, many=True, read_only=True).data
 
     def get_start_date_display(self, instance):
         return date(instance.start_date)
@@ -68,3 +69,26 @@ class NoteSerializer(serializers.ModelSerializer):
 
     def get_type_display(self, instance):
         return instance.get_type_display()
+
+
+class InviteeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Invitee
+        fields = "__all__"
+
+    status_display = serializers.SerializerMethodField()
+    role_display = serializers.SerializerMethodField()
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_role_display(self, instance):
+        return instance.get_role_display()
+
+
+
+class PersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        fields = "__all__"
+
