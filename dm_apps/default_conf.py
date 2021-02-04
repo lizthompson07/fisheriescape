@@ -39,7 +39,7 @@ APP_DICT = {
     'publications': "Project Publications Inventory",
     'trapnet': "TrapNet",
     'whalesdb': "Whale Equipment Deployment Inventory",
-    'csas': "Canadian Science Advisory Secretariat",
+	'csas': "Canadian Science Advisory Secretariat",
     'vault': "Marine Megafauna Media Vault",
     'whalebrary': "Whalebrary Marine Mammal Tools",
     'spring_cleanup': "Gulf Region Spring Cleanup",
