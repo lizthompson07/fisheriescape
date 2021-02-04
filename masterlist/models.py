@@ -6,9 +6,9 @@ from django.utils.translation import gettext_lazy as _
 
 from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
-
 # Choices for YesNo
 from shared_models.models import SimpleLookup
+from shared_models.utils import get_metadata_string
 
 YESNO_CHOICES = (
     (True, "Yes"),
@@ -17,7 +17,16 @@ YESNO_CHOICES = (
 
 
 class Sector(SimpleLookup):
-    pass
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=False, null=True)
+
+    class Meta:
+        ordering = ["region", _("name"), ]
+
+    def __str__(self):
+        mystr = self.tname
+        if self.region:
+            mystr += f' ({self.region.tname})'
+        return str(mystr)
 
 
 class Grouping(SimpleLookup):
@@ -94,6 +103,13 @@ class Organization(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
     old_id = models.IntegerField(blank=True, null=True)
 
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
+
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
@@ -136,7 +152,7 @@ class Organization(models.Model):
 
     @property
     def chief(self):
-        member_qry =self.members.filter(role__icontains="chief")
+        member_qry = self.members.filter(role__icontains="chief")
         if member_qry.exists():
             # need to do a better guess at who is chief. Sometimes, a member's role might be previous chief
             winner = None
@@ -174,6 +190,13 @@ class Person(models.Model):
     connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
 
     # is_consultation_contact = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Consultation contact?"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -255,6 +278,13 @@ class OrganizationMember(models.Model):
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
+
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
@@ -294,6 +324,13 @@ class ConsultationRole(models.Model):
     # metadata
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -341,6 +378,13 @@ class ConsultationInstruction(models.Model):
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     def get_absolute_url(self):
         return reverse('ihub:org_detail', kwargs={'pk': self.organization.pk})

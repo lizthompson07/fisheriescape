@@ -18,6 +18,7 @@ class SectionForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'head': forms.Select(attrs=chosen_js),
+            'admin': forms.Select(attrs=chosen_js),
 
         }
 
@@ -44,6 +45,7 @@ class DivisionForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'head': forms.Select(attrs=chosen_js),
+            'admin': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
@@ -64,7 +66,7 @@ class BranchForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'head': forms.Select(attrs=chosen_js),
-
+            'admin': forms.Select(attrs=chosen_js),
         }
 
 
@@ -77,7 +79,7 @@ class RegionForm(forms.ModelForm):
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'head': forms.Select(attrs=chosen_js),
-
+            'admin': forms.Select(attrs=chosen_js),
         }
 
 

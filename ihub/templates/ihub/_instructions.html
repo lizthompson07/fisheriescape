@@ -125,6 +125,14 @@
         {{ object.consultation_instructions.notes|nz:"n/a" }}
       </td>
     </tr>
+    <tr>
+      <th style="width: 30%">
+        {% trans "Metadata" %}
+      </th>
+      <td>
+        {{ object.consultation_instructions.metadata }}
+      </td>
+    </tr>
   </table>
 {% endif %}
 <br>

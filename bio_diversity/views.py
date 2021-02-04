@@ -12,6 +12,8 @@ from . import mixins, filters, utils, models
 from datetime import date
 from django.utils.translation import gettext_lazy as _
 
+from .utils import get_cont_evnt
+
 
 class IndexTemplateView(TemplateView):
     nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
@@ -75,12 +77,16 @@ class CommonCreate(CommonAuthCreateView):
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
-        context['help_text_dict'] = utils.get_help_text_dict()
+        context['help_text_dict'] = utils.get_help_text_dict(self.model)
+
         return context
 
     # def form_invalid(self, form):
@@ -513,7 +519,16 @@ class TeamCreate(mixins.TeamMixin, CommonCreate):
 
 
 class TrayCreate(mixins.TrayMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                              tank_id=self.object, created_by=self.object.created_by,
+                                              created_date=self.object.created_date)
+            contx_link.clean()
+            contx_link.save()
+        return super().form_valid(form)
 
 
 class TraydCreate(mixins.TraydMixin, CommonCreate):
@@ -525,7 +540,16 @@ class TribCreate(mixins.TribMixin, CommonCreate):
 
 
 class TrofCreate(mixins.TrofMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                              trof_id=self.object, created_by=self.object.created_by,
+                                              created_date=self.object.created_date)
+            contx_link.clean()
+            contx_link.save()
+        return super().form_valid(form)
 
 
 class TrofdCreate(mixins.TrofdMixin, CommonCreate):
@@ -554,6 +578,12 @@ class CommonDetails(DetailView):
     # By default detail objects are editable, set to false to remove update buttons
     editable = True
 
+    def get_auth(self):
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -572,7 +602,7 @@ class CommonDetails(DetailView):
         context['update_url'] = self.update_url if self.update_url else "bio_diversity:update_{}".format(self.key)
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
+        context['auth'] = self.get_auth()
         context['editable'] = context['auth'] and self.editable
 
         return context
@@ -702,6 +732,13 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         context["tank_field_list"] = [
             "name",
         ]
+        contx_set = self.object.containers.filter(tank_id__isnull=True, cup_id__isnull=True, heat_id__isnull=True,
+                                                  trof_id__isnull=False, draw_id__isnull=True)
+        context["trof_list"] = list(dict.fromkeys([contx.trof_id for contx in contx_set]))
+        context["trof_object"] = models.Trough.objects.first()
+        context["trof_field_list"] = [
+            "name",
+        ]
         anix_set = self.object.animal_details.filter(indv_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
                                                      loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
         context["indv_list"] = list(dict.fromkeys([anix.indv_id for anix in anix_set]))
@@ -710,6 +747,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "ufid",
             "pit_tag",
             "grp_id",
+
         ]
         anix_set = self.object.animal_details.filter(grp_id__isnull=False, indv_id__isnull=True, contx_id__isnull=True,
                                                      loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
@@ -739,12 +777,14 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "spwn_date",
         ]
 
-        context["table_list"] = ["loc", "indv", "grp", "tank", "spwn"]
+        context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "spwn"]
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
             context["table_list"] = ["data", "loc", "grp", "tank"]
         elif evnt_code == "Tagging":
             context["table_list"] = ["data", "indv", "grp", "tank"]
+        elif evnt_code == "Egg Development":
+            context["table_list"] = ["data", "grp", "trof"]
 
         return context
 
@@ -802,6 +842,17 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
             "det_val",
         ]
 
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
+        context["cont_evnt_field_list"] = [
+            "Evnt",
+            "Date",
+            "Container",
+        ]
+
         return context
 
 
@@ -854,9 +905,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "est_fecu",
         ]
 
-        anix_evnt_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True,
-                                                          loc_id__isnull=True, indvt_id__isnull=True,
-                                                          indv_id__isnull=False, spwn_id__isnull=True)
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
         context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
@@ -883,6 +933,17 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "prio_id",
             "pair_id",
             "choice",
+        ]
+
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
+        context["cont_evnt_field_list"] = [
+            "Evnt",
+            "Date",
+            "Container",
         ]
 
         return context
@@ -1111,7 +1172,24 @@ class TribDetails(mixins.TribMixin, CommonDetails):
 
 
 class TrofDetails(mixins.TrofMixin, CommonDetails):
+    template_name = "bio_diversity/details_trof.html"
+
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        contx_set = models.ContainerXRef.objects.filter(trof_id=self.object)
+        env_sets = [contx.env_condition.all() for contx in contx_set]
+        context["env_list"] = list(dict.fromkeys([env for qs in env_sets for env in qs]))
+        context["env_object"] = models.EnvCondition.objects.first()
+        context["env_field_list"] = [
+            "envc_id",
+            "env_val",
+            "env_start",
+        ]
+
+        return context
 
 
 class TrofdDetails(mixins.TrofdMixin, CommonDetails):
@@ -1170,6 +1248,12 @@ class CommonList(CommonAuthFilterView):
     def get_delete_url(self):
         return self.delete_url if self.delete_url is not None else "bio_diversity:delete_{}".format(self.key)
 
+    def get_auth(self):
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
+
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
@@ -1188,7 +1272,7 @@ class CommonList(CommonAuthFilterView):
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
+        context['auth'] = self.get_auth()
         context['editable'] = context['auth'] and self.editable
 
         if self.creation_form_height:
@@ -1607,7 +1691,10 @@ class CommonUpdate(CommonAuthUpdateView):
     # This function could be overridden in extending classes to preform further testing to see if
     # an object is editable
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
 
     # Get context returns elements used on the page. Make sure when extending to call
     # context = super().get_context_data(**kwargs) so that elements created in the parent
@@ -1972,7 +2059,7 @@ class CommonDelete(UserPassesTestMixin, DeleteView):
 
 
 class IndvDelete(mixins.IndvMixin, CommonDelete):
-    pass
+    success_url = reverse_lazy("bio_diversity:list_indv")
 
 
 class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):

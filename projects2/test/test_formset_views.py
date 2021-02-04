@@ -26,6 +26,10 @@ class TestAllFormsets(CommonTest):
             "manage_levels",
             "manage_themes",
             "manage-upcoming-dates",
+            "manage_csrf_themes",
+            "manage_csrf_sub_themes",
+            "manage_csrf_priorities",
+            "manage_csrf_client_information",
         ]
 
         self.test_urls = [reverse_lazy("projects2:" + name) for name in self.test_url_names]
@@ -39,6 +43,10 @@ class TestAllFormsets(CommonTest):
             views.LevelFormsetView,
             views.ThemeFormsetView,
             views.UpcomingDateFormsetView,
+            views.CSRFThemeFormsetView,
+            views.CSRFSubThemeFormsetView,
+            views.CSRFPriorityFormsetView,
+            views.CSRFClientInformationFormsetView,
         ]
         self.expected_template = 'projects2/formset.html'
         self.user = self.get_and_login_user(in_group="projects_admin")
@@ -75,6 +83,10 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.Level, "url_name": "delete_level", "view": views.LevelHardDeleteView},
             {"model": models.Theme, "url_name": "delete_theme", "view": views.ThemeHardDeleteView},
             {"model": models.UpcomingDate, "url_name": "delete-upcoming-date", "view": views.UpcomingDateHardDeleteView},
+            {"model": models.CSRFTheme, "url_name": "delete_csrf_theme", "view": views.CSRFThemeHardDeleteView},
+            {"model": models.CSRFSubTheme, "url_name": "delete_csrf_sub_theme", "view": views.CSRFSubThemeHardDeleteView},
+            {"model": models.CSRFPriority, "url_name": "delete_csrf_priority", "view": views.CSRFPriorityHardDeleteView},
+            {"model": models.CSRFClientInformation, "url_name": "delete_csrf_client_information", "view": views.CSRFClientInformationHardDeleteView},
         ]
         self.test_dicts = list()
 
@@ -92,6 +104,15 @@ class TestAllHardDeleteViews(CommonTest):
                 obj = m.objects.create(field_name=faker.word(), eng_text=faker.word())
             elif m == models.UpcomingDate:
                 obj = FactoryFloor.UpcomingDateFactory()
+
+            elif m == models.CSRFTheme:
+                obj = FactoryFloor.CSRFThemeFactory()
+            elif m == models.CSRFSubTheme:
+                obj = FactoryFloor.CSRFSubThemeFactory()
+            elif m == models.CSRFPriority:
+                obj = FactoryFloor.CSRFPriorityFactory()
+            elif m == models.CSRFClientInformation:
+                obj = FactoryFloor.CSRFClientInformationFactory()
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
