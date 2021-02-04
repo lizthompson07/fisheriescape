@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-02 19:53-0400\n"
+"POT-Creation-Date: 2021-02-04 12:01-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,14 +24,14 @@ msgid "Name contains"
 msgstr ""
 
 #: .\projects2\forms.py:22 .\projects2\forms.py:27 .\projects2\models.py:22
-#: .\projects2\reports.py:582 .\projects2\reports.py:588
+#: .\projects2\reports.py:585 .\projects2\reports.py:591
 #: .\projects2\templates\projects2\explore_projects\main.html:76
 #: .\projects2\templates\projects2\manage_projects\_project_list.html:86
 msgid "Yes"
 msgstr "Oui"
 
 #: .\projects2\forms.py:23 .\projects2\forms.py:28 .\projects2\models.py:23
-#: .\projects2\reports.py:579 .\projects2\reports.py:585
+#: .\projects2\reports.py:582 .\projects2\reports.py:588
 #: .\projects2\templates\projects2\explore_projects\main.html:77
 #: .\projects2\templates\projects2\manage_projects\_project_list.html:87
 msgid "No"
@@ -1081,7 +1081,7 @@ msgid ""
 "{phone}"
 msgstr ""
 
-#: .\projects2\reports.py:738
+#: .\projects2\reports.py:741
 msgid "DFO-"
 msgstr ""
 
@@ -2198,11 +2198,18 @@ msgstr ""
 msgid "Do you want to add this OT description to the current staff member?"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_form.html:13
+#: .\projects2\templates\projects2\project_form.html:10
+#: .\projects2\templates\projects2\project_form.html:12
+#: .\projects2\templates\projects2\project_form.html:14
+#: .\projects2\templates\projects2\project_form.html:16
+msgid "words remaining (CSRF)"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_form.html:28
 msgid "Cloning a Project vs. Project-year"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_form.html:17
+#: .\projects2\templates\projects2\project_form.html:32
 msgid ""
 "\n"
 "          Clone a project when you want to use a project <b>and all of the "
@@ -2210,7 +2217,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: .\projects2\templates\projects2\project_form.html:22
+#: .\projects2\templates\projects2\project_form.html:37
 msgid ""
 "\n"
 "          When you are building off of an existing project (e.g. adding a "
@@ -2283,6 +2290,26 @@ msgstr ""
 
 #: .\projects2\templates\projects2\project_references.html:130
 msgid "Please use the search bar to find references"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_year_form.html:17
+msgid ""
+"The word limit for this field in the CSRF application is 500 words. This "
+"limit will have to be shared between all years of the project."
+msgstr ""
+
+#: .\projects2\templates\projects2\project_year_form.html:18
+#: .\projects2\templates\projects2\project_year_form.html:25
+msgid "Current field word count:"
+msgstr ""
+
+#: .\projects2\templates\projects2\project_year_form.html:24
+msgid ""
+"This field will be concatenated with other fields to form the Data "
+"Management response on the CSRF application. The total word limit for this "
+"field in the application is 150 words. This limit will have to be shared "
+"between all data-management related fields and between all years of the "
+"project."
 msgstr ""
 
 #: .\projects2\templates\projects2\report_search.html:12

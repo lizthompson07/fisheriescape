@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-02 19:52-0400\n"
+"POT-Creation-Date: 2021-02-04 12:01-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -68,7 +68,7 @@ msgstr "ville"
 
 #: .\masterlist\models.py:69
 msgid "postal code"
-msgstr "code postale"
+msgstr ""
 
 #: .\masterlist\models.py:70
 msgid "province"
@@ -136,7 +136,7 @@ msgstr "prochaine élection"
 
 #: .\masterlist\models.py:90
 msgid "election term"
-msgstr "terme d'élection"
+msgstr ""
 
 #: .\masterlist\models.py:91
 msgid "date that the new council holds office"
@@ -281,11 +281,11 @@ msgstr "RÔLE MANQUANT"
 
 #: .\masterlist\models.py:374
 msgid "address letter to:"
-msgstr "lettre adresser à:"
+msgstr ""
 
 #: .\masterlist\models.py:375
 msgid "include on cc (letter)"
-msgstr "inclure sur cc (lettre)"
+msgstr ""
 
 #: .\masterlist\models.py:376
 msgid "paper copy to"

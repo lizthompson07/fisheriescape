@@ -2,7 +2,7 @@
   <div>
     <v-app-bar color="accent-4" light>
       <v-btn icon href="/">
-        <img src="@/assets/dmapps.png" width="20"/>
+        <img src="@/assets/dmapps.png" width="30"/>
       </v-btn>
       <v-btn icon :to="{name: 'home'}">
         <v-icon>mdi-home</v-icon>
