@@ -149,7 +149,7 @@ class BioTimeModel(BioModel):
     def start_time(self):
         if self.start_datetime.time() == datetime.time(0, 0):
             return None
-        return self.start_datetime.time().strftime("%H%M")
+        return self.start_datetime.time().strftime("%H:%M")
 
     @property
     def end_date(self):
@@ -162,7 +162,7 @@ class BioTimeModel(BioModel):
     def end_time(self):
         if self.end_datetime.time() == datetime.time(0, 0):
             return None
-        return self.end_datetime.time().strftime("%H%M")
+        return self.end_datetime.time().strftime("%H:%M")
 
 
 class AnimalDetCode(BioLookup):
@@ -848,7 +848,7 @@ class Location(BioModel):
     def start_time(self):
         if self.start_datetime.time() == datetime.time(0, 0):
             return None
-        return self.start_datetime.time().strftime("%H%M")
+        return self.start_datetime.time().strftime("%H:%M")
 
     def __str__(self):
         return "{} location".format(self.locc_id.__str__())

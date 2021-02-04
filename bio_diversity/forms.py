@@ -56,6 +56,7 @@ class CreateDatePrams(forms.ModelForm):
 
 
 class CreateTimePrams(forms.ModelForm):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['created_date'].widget = forms.HiddenInput()
@@ -66,22 +67,26 @@ class CreateTimePrams(forms.ModelForm):
         self.fields['end_datetime'].required = False
         self.fields['start_date'] = forms.DateField(widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
         self.fields['end_date'] = forms.DateField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
-        self.fields['start_time'] = forms.CharField(required=False, max_length=4, min_length=4)
-        self.fields['end_time'] = forms.CharField(required=False, max_length=4, min_length=4)
+        self.fields['start_time'] = forms.CharField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a time...", "class": "fp-time"}))
+        self.fields['end_time'] = forms.CharField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a time...", "class": "fp-time"}))
+
 
     def clean(self):
         cleaned_data = super().clean()
+
+        if not self.is_valid():
+            return cleaned_data
         # we have to make sure
         # the end datetime is after the start datetime
         # and set the datetime values
         if cleaned_data["start_time"]:
-            start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H%M').time())
+            start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M').time())
         else:
             start_time = make_aware(time(0, 0))
         cleaned_data["start_datetime"] = datetime.combine(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
-                end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H%M').time())
+                end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M').time())
             else:
                 end_time = make_aware(time(0, 0))
             cleaned_data["end_datetime"] = datetime.combine(cleaned_data["end_date"], end_time)
@@ -1097,12 +1102,12 @@ class LocForm(CreatePrams):
         self.fields['start_datetime'].required = False
         self.fields['start_date'] = forms.DateField(widget=forms.DateInput(
             attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
-        self.fields['start_time'] = forms.CharField(required=False, max_length=4, min_length=4)
+        self.fields['start_time'] = forms.CharField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a time...", "class": "fp-time"}))
 
     def save(self, commit=True):
         obj = super().save(commit=False)  # here the object is not commited in db
         if self.cleaned_data["start_time"]:
-            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H%M').time()
+            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time()
         else:
             start_time = time(0, 0)
         obj.start_datetime = datetime.combine(self.cleaned_data["start_date"], start_time)
