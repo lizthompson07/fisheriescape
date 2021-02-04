@@ -48,6 +48,10 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns.append(
         path('api/', include('bio_diversity.api.urls')),
     )
+if settings.INSTALLED_APPS.count("publications"):
+    urlpatterns.append(
+        path('api/', include('publications.api.urls')),
+    )
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
