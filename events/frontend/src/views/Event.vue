@@ -24,13 +24,14 @@
               <DetailRow :label="eventLabels.proponent" :value="event.proponent"></DetailRow>
               <DetailRow label="Start / End Date" :value="event.display_dates"></DetailRow>
               <DetailRow label="Attendees" :value="event.attendees"></DetailRow>
+              <DetailRow label="Distinct attendance" :value="event.distinct_attendance"></DetailRow>
               <DetailRow label="Metadata" :value="event.metadata"></DetailRow>
               </tbody>
             </template>
 
           </v-simple-table>
 
-          <div class="mt-3">
+          <div class="mt-5">
             <div class="float-right">
               <InviteeEditorOverlay
                   v-if="event.id"
@@ -56,7 +57,7 @@
                     v-for="(invitee, index) in invitees"
                     :key="index"
                     :invitee="invitee"
-                    @update-invitees="getEvent"
+                    @update-invitees="getEvent(false)"
                 ></InviteeTableRow>
 
 
@@ -67,12 +68,12 @@
           </div>
 
 
-          <div class="mt-3">
+          <div class="mt-5">
             <h1>Resources</h1>
           </div>
 
 
-          <div class="mt-3">
+          <div class="mt-5">
             <h1>Children</h1>
           </div>
 
@@ -151,12 +152,12 @@ export default {
         this.invitees = data.results;
       });
     },
-    getEvent() {
+    getEvent(update_notes = true) {
       let endpoint = `/api/events-planner/events/${this.id}/`;
       apiService(endpoint).then(data => {
         if (data) {
           this.event = data;
-          this.notes = this.updateNotes();
+          if (update_notes) this.notes = this.updateNotes();
           this.invitees = this.updateInvitees();
           document.title = data.tname;
         } else {

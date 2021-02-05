@@ -12,7 +12,7 @@
       </v-btn>
     </td>
     <td v-else>
-      Attended
+      Attended ({{invitee.attendance_percentage}})
     </td>
 
     <td>

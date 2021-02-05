@@ -2,7 +2,7 @@
   <div class="text-center">
 
     <v-btn small @click="openOverlay">
-      <v-icon small>mdi-grid</v-icon>
+      <v-icon small>mdi-calendar</v-icon>
     </v-btn>
 
     <v-overlay :value="overlay" light opacity=".7">

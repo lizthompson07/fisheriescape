@@ -49,6 +49,16 @@ class Event(SimpleLookup):
     def attendees(self):
         return Attendance.objects.filter(invitee__event=self).order_by("invitee").values("invitee").distinct()
 
+    @property
+    def distinct_attendance(self):
+        return Attendance.objects.filter(invitee__event=self).order_by("date").values("date").distinct().count()
+
+    @property
+    def length_days(self):
+        if self.end_date:
+            return (self.end_date - self.start_date).days + 1
+        return 1
+
 
 class Invitee(models.Model):
     # Choices for role
@@ -83,6 +93,10 @@ class Invitee(models.Model):
     @property
     def full_name(self):
         return "{} {}".format(self.first_name, self.last_name)
+
+    @property
+    def attendance_fraction(self):
+        return self.attendance.count() / self.event.length_days
 
 
 class Attendance(models.Model):
