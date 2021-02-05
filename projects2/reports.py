@@ -932,7 +932,7 @@ def generate_sara_application(project, lang):
 
     salary_costs = str()
     for staff in models.Staff.objects.filter(project_year__project=project, funding_source__name__icontains="sara", amount__gt=0):
-        mystr = f'{staff} ({staff.level}) --> Duration in weeks: {staff.duration_weeks}  Amount: {currency(staff.amount)}'
+        mystr = f'{nz(staff.smart_name)} ({nz(staff.level)}) --> Duration in weeks: {nz(staff.duration_weeks)}  Amount: {currency(staff.amount)}'
         salary_costs += f'{mystr}\n'
         total_cost += staff.amount
 
