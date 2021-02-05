@@ -1,47 +1,20 @@
 {% extends "shared_models/generic_formset.html" %}
+{% load static %}
 {% load i18n %}
 
 {% block bug_create %}
-    {% url 'tickets:bug_create' 'whalesdb' %}
+    {% include "whalesdb/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-    {{ title }}
+    {% include "whalesdb/base/_app_title.html" %}
     {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
-
-{% block header %}
-    {{ block.super }}
-<style>
-    {% include "whalesdb/whales_css.css" %}
-
-    .container-fluid, .container {
-        border-radius: 25px;
-        margin-top: 15px;
-        padding: 15px;
-        background-color: white;
-        background-color: rgba(255, 255, 255, 0.7);
-        font-size: small;
-    }
-
-    .label {
-        font-weight: bold;
-    }
-
-    table, td {
-        font-size: small;
-    }
-    .btn-std {
-      width: 300px;
-  }
-
-</style>
-{% endblock %}
 
 {% block delete_link %}
   {% if delete_url_name %}
   <td>
-    <a class="delete-btn red-font" href="#" delete_url="{% url delete_url_name 'key' form.instance.id %}"
+    <a class="delete-btn red-font" href="#" delete_url="{% url delete_url_name key form.instance.id %}"
        object-name="{{ form.instance }}">
       ({% trans "delete" %})
     </a>
@@ -49,45 +22,16 @@
   {% endif %}
 {% endblock delete_link %}
 
+{% block header %}
+    {{ block.super }}
+    {% include "whalesdb/base/_style.html" %}
+    {% include "whalesdb/base/_background_img.html" %}
+{% endblock %}
+
 {% block body %}
     {{ block.super }}
 {% endblock body %}
 
 {% block left_auth %}
-    {% include "whalesdb/whales_nav_menu.html" %}
+    {% include "whalesdb/base/whales_nav_menu.html" %}
 {% endblock left_auth %}
-
-{% block jquery_import %}
-    <!-- The slim.min version of jquery doesn't include the ajax function so I've overridden in here -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-{% endblock %}
-
-{% block body_js %}
-    <script type="application/javascript">
-        $("select.form-control").change(function() {
-            var model = $(this).val();
-            var str = $(this).attr('id');
-            var id_field = str.replace(/-model/g, "-field_name");
-
-            $.ajax({
-                type: 'GET',
-                url: "{% url 'whalesdb:ajax_get_fields' %}",
-                data: {
-                    'model': model
-                },
-                dataType: 'json',
-                success: function(data) {
-                    alert("clear field '" + id_field + "'");
-                    $("#" + id_field).val("");
-
-                    alert("set field '" + data["fields"][0] + "'");
-                    $("#" + id_field).val(data["fields"][0]);
-                },
-                error: function(response) {
-                    alert(response["responseJSON"]["error"]);
-                }
-            });
-        });
-    </script>
-    {{ block.super }}
-{% endblock body_js %}

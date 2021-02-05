@@ -12,7 +12,7 @@
 {% block header %}
     {{ block.super }}
 <style>
-    {% include "whalesdb/whales_css.css" %}
+    {% include "whalesdb/base/whales_css.css" %}
 
     .container-fluid, .container {
         border-radius: 25px;
@@ -42,7 +42,7 @@
 {% endblock body %}
 
 {% block left_auth %}
-    {% include "whalesdb/whales_nav_menu.html" %}
+    {% include "whalesdb/base/whales_nav_menu.html" %}
 {% endblock left_auth %}
 
 {% block jquery_import %}

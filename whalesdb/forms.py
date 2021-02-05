@@ -298,17 +298,16 @@ class TeaForm(forms.ModelForm):
         }
 
 
-class EqtForm(forms.ModelForm):
+class LookupForm(forms.ModelForm):
     class Meta:
-        models = models.EqtEquipmentTypeCode
-        exclude = []
+        fields = ['name', 'nom', 'description_en', 'description_fr']
 
 
-EqtFormset = modelformset_factory(
-    model=models.EqtEquipmentTypeCode,
-    form=EqtForm,
-    extra=1,
-)
+EqtFormset = modelformset_factory(model=models.EqtEquipmentTypeCode, form=LookupForm, extra=1, )
+ErtFormset = modelformset_factory(model=models.ErtRecorderType, form=LookupForm, extra=1, )
+PrmFormset = modelformset_factory(model=models.PrmParameterCode, form=LookupForm, extra=1, )
+RttFormset = modelformset_factory(model=models.RttTimezoneCode, form=RttForm, extra=1, )
+SetFormset = modelformset_factory(model=models.SetStationEventCode, form=LookupForm, extra=1, )
 
 
 MODEL_CHOICES = (("1", "One"), ("2", "Two"))

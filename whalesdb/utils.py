@@ -24,7 +24,6 @@ def whales_authorized(user):
 
 
 def get_help_text_dict(model=None, title=''):
-    print("Model: '{}'".format(str(model.__name__)))
     my_dict = {}
     if not model:
         for obj in models.HelpText.objects.all():
