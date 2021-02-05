@@ -71,6 +71,21 @@ class NoteSerializer(serializers.ModelSerializer):
         return instance.get_type_display()
 
 
+class PersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        fields = "__all__"
+
+    full_name = serializers.SerializerMethodField()
+    full_name_and_email = serializers.SerializerMethodField()
+
+    def get_full_name_and_email(self, instance):
+        return instance.full_name_and_email
+
+    def get_full_name(self, instance):
+        return instance.full_name
+
+
 class InviteeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Invitee
@@ -78,17 +93,13 @@ class InviteeSerializer(serializers.ModelSerializer):
 
     status_display = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
+    person_object = serializers.SerializerMethodField()
+
+    def get_person_object(self, instance):
+        return PersonSerializer(instance.person, read_only=True).data
 
     def get_status_display(self, instance):
         return instance.get_status_display()
 
     def get_role_display(self, instance):
         return instance.get_role_display()
-
-
-
-class PersonSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Person
-        fields = "__all__"
-

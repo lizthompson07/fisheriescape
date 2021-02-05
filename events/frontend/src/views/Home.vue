@@ -98,7 +98,6 @@ export default {
         }
       });
       this.loadingEvents = false;
-      console.log(this.events)
     },
     // getTags() {
     //   let endpoint = "api/hashtags/";

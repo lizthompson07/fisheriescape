@@ -12,23 +12,20 @@
       <form @submit.prevent="onSubmit">
 
         <v-autocomplete
-            v-model="invitee.person"
+            v-model="inviteeToEdit.person"
             :items="personOptions"
             :loading="loadingPersons"
             :search-input.sync="search"
             hide-no-data
-            item-text="name"
+            item-text="full_name_and_email"
             item-value="id"
             :label="labels.person"
             placeholder="Start typing to Search"
-            clearable
-            return-object
         ></v-autocomplete>
-
-
-        <v-select v-model="invitee.role" :items="roleChoices" :label="labels.role" required></v-select>
-        <v-select v-model="invitee.status" :items="statusChoices" :label="labels.status" required></v-select>
-        <v-text-field v-model="invitee.organization" :label="labels.organization"></v-text-field>
+        {{invitee.person}}
+        <v-select v-model="inviteeToEdit.role" :items="roleChoices" :label="labels.role" required></v-select>
+        <v-select v-model="inviteeToEdit.status" :items="statusChoices" :label="labels.status" required></v-select>
+        <v-text-field v-model="inviteeToEdit.organization" :label="labels.organization"></v-text-field>
 
         <v-btn type="submit" color="success">
           <span v-if="invitee.id">{{ $t("Update") }}</span>
@@ -53,6 +50,7 @@
 
 <script>
 import {apiService} from "@/common/api_service";
+import debounce from "debounce";
 
 export default {
   name: "NoteEditorOverlay",
@@ -70,26 +68,33 @@ export default {
   data() {
     return {
       overlay: false,
+      inviteeToEdit: {},
       labels: {},
       statusChoices: [],
       roleChoices: [],
       error: null,
       personOptions: [],
-      loadingPersons: true
+      loadingPersons: false,
+      search: ""
     };
   },
   methods: {
     openOverlay() {
+      this.error = null;
       this.overlay = true;
       if (!this.invitee.id) {
         this.primeInvitee();
+      } else {
+        this.inviteeToEdit = this.invitee;
+        this.search = this.invitee.person_object.full_name;
       }
     },
     primeInvitee() {
-      this.invitee = {
-        type: null,
-        note: null,
-        is_complete: false,
+      this.inviteeToEdit = {
+        person: null,
+        status: 0,
+        role: 1,
+        organization: "DFO",
         event: this.event_id
       };
     },
@@ -112,10 +117,10 @@ export default {
         endpoint = "/api/events-planner/invitees/";
         method = "POST";
       }
-      apiService(endpoint, method, this.invitee).then(response => {
+      apiService(endpoint, method, this.inviteeToEdit).then(response => {
         if (response.id) {
           this.$emit("update-invitees");
-          if (!this.note.id) this.primeInvitee();
+          if (!this.inviteeToEdit.id) this.primeInvitee();
           this.overlay = false;
         } else {
           this.error = JSON.stringify(response)
@@ -126,42 +131,36 @@ export default {
         }
       });
     },
-    makePersonSearch: async (value, self) => {
-      // Handle empty value
-      if (!value) {
-        self.personOptions = [];
-        self.person = '';
-      }
-      // Items have already been requested
-      if (self.loadingPerson) {
-        return
+    makePersonSearch: (value, self) => {
+      console.log(value)
+      // Items have not already been requested
+      if (!self.loadingPersons) {
+
+        // Handle empty value
+        if (!value || value === "") {
+          self.personOptions = [];
+          self.invitee.person = "";
+        } else {
+
+          self.loadingPersons = true;
+
+          // YOUR AJAX Methods go here
+          let endpoint = `/api/events-planner/people/?search=${value}`;
+          apiService(endpoint).then(data => {
+            self.personOptions = data.results;
+            self.loadingPersons = false;
+          });
+        }
       }
 
-      self.loadingPerson = true
-
-      // YOUR AJAX Methods go here
-      // if you prefer not to use vue-api-query
-      await Person
-          .where('name', value)
-          .get()
-          .then(response => {
-            self.personOptions = response.data
-          }).catch(error => {
-            self.error = 'Unknown Error. Please check details and try again.'
-            self.failed()
-          })
-          .finally(() => (self.loadingLearner = false))
     }
   },
   watch: {
     search(value) {
-      if (!value) {
-        return
-      }
       // Debounce the input and wait for a pause of at
       // least 200 milliseconds. This can be changed to
       // suit your needs.
-      // debounce(this.makeSearch, 200)(value, this)
+      debounce(this.makePersonSearch, 200)(value, this)
     }
   },
   created() {

@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -96,6 +96,8 @@ class PersonViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.PersonSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['first_name', 'last_name', 'email_1', 'email_2']
 
     def perform_create(self, serializer):
         serializer.save(last_modified_by=self.request.user)
@@ -106,6 +108,7 @@ class PersonViewSet(viewsets.ModelViewSet):
     #         qs = qs.filter(event_id=self.request.query_params.get("event"))
     #     return qs
 
+
 class InviteeViewSet(viewsets.ModelViewSet):
     queryset = models.Invitee.objects.all()
     serializer_class = serializers.InviteeSerializer
@@ -113,7 +116,7 @@ class InviteeViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save()
 
     def get_queryset(self):
         qs = self.queryset

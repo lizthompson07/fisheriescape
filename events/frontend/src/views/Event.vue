@@ -1,8 +1,8 @@
 <template>
   <div class="mt-3">
-    <div class="container" v-if="event">
+    <div class="container-fluid" v-if="event">
       <div class="row">
-        <div class="col-8">
+        <div class="col-9">
           <div class="float-right">
             <v-btn :to="{ name: 'event-edit', params: { id: event.id } }">
               <v-icon>mdi-pencil</v-icon>
@@ -38,9 +38,29 @@
               ></InviteeEditorOverlay>
             </div>
             <h1>Invitees</h1>
-            <!--          <div v-for="(note, index) in notes" :key="index" class="py-1">-->
-            <!--            <NoteCard :note="note" @update-notes="updateNotes"></NoteCard>-->
-            <!--          </div>-->
+            <v-simple-table dense>
+              <template v-slot:default>
+                <thead>
+                <tr>
+                  <th class="text-left"> Name</th>
+                  <th class="text-left"> Association</th>
+                  <th class="text-left"> Function</th>
+                  <th class="text-left"> Email</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <InviteeTableRow
+                    v-for="(invitee, index) in invitees"
+                    :key="index"
+                    :invitee="invitee"
+                    @update-invitees="updateInvitees"
+                ></InviteeTableRow>
+
+
+                </tbody>
+              </template>
+            </v-simple-table>
 
           </div>
 
@@ -83,10 +103,11 @@ import DeleteEventDialogBox from "@/components/DeleteEventDialogBox.vue";
 import NoteEditorOverlay from "@/components/NoteEditorOverlay";
 import InviteeEditorOverlay from "@/components/InviteeEditorOverlay";
 import DetailRow from "@/components/DetailRow";
+import InviteeTableRow from "@/components/InviteeTableRow";
 import NoteCard from "@/components/NoteCard";
 
 export default {
-  name: "Recipe",
+  name: "Event",
   props: {
     id: {
       required: true
@@ -106,6 +127,7 @@ export default {
     NoteEditorOverlay,
     InviteeEditorOverlay,
     DetailRow,
+    InviteeTableRow,
     NoteCard
   },
   methods: {
@@ -124,7 +146,7 @@ export default {
     updateInvitees() {
       let endpoint = `/api/events-planner/invitees/?event=${this.event.id}`;
       apiService(endpoint).then(data => {
-        this.notes = data.results;
+        this.invitees = data.results;
       });
     },
     getEvent() {

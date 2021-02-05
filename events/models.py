@@ -54,6 +54,7 @@ class Invitee(models.Model):
         (3, 'expert'),
     )
     status_choices = (
+        (0, 'invited'),
         (1, 'accepted'),
         (2, 'declined'),
         (9, 'not response'),
@@ -61,13 +62,14 @@ class Invitee(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="invitees")
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, verbose_name=_("person"), related_name="invitees")
     role = models.IntegerField(choices=role_choices, verbose_name=_("Function"), default=1)
-    organization = models.CharField(max_length=50, verbose_name=_("Association"))
-    status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=1)
+    organization = models.CharField(max_length=50, verbose_name=_("Association"), blank=True, null=True)
+    status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=0)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("Resource", editable=False)
 
     class Meta:
-        ordering = ['status', 'role', 'person__first_name', "person__last_name"]
+        ordering = ['person__first_name', "person__last_name"]
+        unique_together = (("person", "event"),)
 
 
 class Note(models.Model):
@@ -101,7 +103,7 @@ class Note(models.Model):
         )
 
     class Meta:
-        ordering = ["is_complete", "-updated_at",]
+        ordering = ["is_complete", "-updated_at", ]
 
 
 def resource_directory_path(instance, filename):
