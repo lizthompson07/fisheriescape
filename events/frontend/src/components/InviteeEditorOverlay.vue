@@ -9,32 +9,61 @@
     </v-btn>
 
     <v-overlay :value="overlay" light opacity=".7">
-      <form @submit.prevent="onSubmit">
+      <form @submit.prevent="onSubmit" style="width: 750px">
 
-        <v-autocomplete
-            v-model="inviteeToEdit.person"
-            :items="personOptions"
-            :loading="loadingPersons"
-            :search-input.sync="search"
-            hide-no-data
-            item-text="full_name_and_email"
-            item-value="id"
-            :label="labels.person"
-            placeholder="Start typing to Search"
-        ></v-autocomplete>
-        {{invitee.person}}
-        <v-select v-model="inviteeToEdit.role" :items="roleChoices" :label="labels.role" required></v-select>
-        <v-select v-model="inviteeToEdit.status" :items="statusChoices" :label="labels.status" required></v-select>
-        <v-text-field v-model="inviteeToEdit.organization" :label="labels.organization"></v-text-field>
 
-        <v-btn type="submit" color="success">
-          <span v-if="invitee.id">{{ $t("Update") }}</span>
-          <span v-else>{{ $t("Add") }}</span>
-        </v-btn>
+        <v-card
+            dark
+            elevation="2"
+        >
+          <v-card-title>
+            <h4 v-if="!invitee.id"> Add Invitee </h4>
+            <h4 v-else> Edit Invitee </h4>
 
-        <v-btn color="normal" class="mx-1" @click="overlay = false">
-          Back
-        </v-btn>
+          </v-card-title>
+
+          <v-card-text>
+
+            <v-autocomplete
+                v-if="!invitee.id"
+                @change="updateInvitee"
+                v-model="user"
+                :items="personOptions"
+                :loading="loadingPersons"
+                :search-input.sync="search"
+                item-text="full_name"
+                label="Quick Search for DM Apps User"
+                placeholder="Start typing to Search"
+                clearable
+                filled
+                return-object
+            ></v-autocomplete>
+
+
+            <v-text-field v-model="inviteeToEdit.first_name" :label="labels.first_name"></v-text-field>
+            <v-text-field v-model="inviteeToEdit.last_name" :label="labels.last_name"></v-text-field>
+            <v-text-field v-model="inviteeToEdit.phone" :label="labels.phone" ref="phone"></v-text-field>
+            <v-text-field v-model="inviteeToEdit.email" :label="labels.email"></v-text-field>
+
+
+            <v-select v-model="inviteeToEdit.role" :items="roleChoices" :label="labels.role" required></v-select>
+            <v-select v-model="inviteeToEdit.status" :items="statusChoices" :label="labels.status" required></v-select>
+            <v-text-field v-model="inviteeToEdit.organization" :label="labels.organization"></v-text-field>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn type="submit" color="success">
+              <span v-if="invitee.id">Update</span>
+              <span v-else>Add</span>
+            </v-btn>
+
+            <v-btn color="normal" class="mx-1" @click="overlay = false">
+              Back
+            </v-btn>
+          </v-card-actions>
+
+        </v-card>
+
 
         <div class="mt-3">
           <v-alert type="error" v-if="error">
@@ -42,7 +71,6 @@
           </v-alert>
         </div>
       </form>
-
     </v-overlay>
   </div>
 </template>
@@ -50,7 +78,6 @@
 
 <script>
 import {apiService} from "@/common/api_service";
-import debounce from "debounce";
 
 export default {
   name: "NoteEditorOverlay",
@@ -75,7 +102,8 @@ export default {
       error: null,
       personOptions: [],
       loadingPersons: false,
-      search: ""
+      search: null,
+      user: null
     };
   },
   methods: {
@@ -91,12 +119,24 @@ export default {
     },
     primeInvitee() {
       this.inviteeToEdit = {
-        person: null,
+        first_name: null,
+        last_name: null,
+        phone: null,
+        email: "@dfo-mpo.gc.ca",
         status: 0,
         role: 1,
         organization: "DFO",
         event: this.event_id
       };
+    },
+    updateInvitee() {
+      if (this.user) {
+        this.inviteeToEdit.first_name = this.user.first_name;
+        this.inviteeToEdit.last_name = this.user.last_name;
+        this.inviteeToEdit.email = this.user.email;
+        this.search = null;
+        console.log(this.$refs.phone.focus())
+      }
     },
     getInviteeMetadata() {
       let endpoint = `/api/events-planner/meta/models/invitee/`;
@@ -130,37 +170,26 @@ export default {
               .replace("]", "");
         }
       });
-    },
-    makePersonSearch: (value, self) => {
-      console.log(value)
-      // Items have not already been requested
-      if (!self.loadingPersons) {
-
-        // Handle empty value
-        if (!value || value === "") {
-          self.personOptions = [];
-          self.invitee.person = "";
-        } else {
-
-          self.loadingPersons = true;
-
-          // YOUR AJAX Methods go here
-          let endpoint = `/api/events-planner/people/?search=${value}`;
-          apiService(endpoint).then(data => {
-            self.personOptions = data.results;
-            self.loadingPersons = false;
-          });
-        }
-      }
-
     }
   },
   watch: {
     search(value) {
-      // Debounce the input and wait for a pause of at
-      // least 200 milliseconds. This can be changed to
-      // suit your needs.
-      debounce(this.makePersonSearch, 200)(value, this)
+      // Items have not already been requested
+      if (!this.loadingPersons) {
+        // Handle empty value
+        if (!value || value === "") {
+          this.personOptions = [];
+          this.user = "";
+        } else {
+          this.loadingPersons = true;
+
+          let endpoint = `/api/users/?search=${value}`;
+          apiService(endpoint).then(data => {
+            this.personOptions = data.results;
+            this.loadingPersons = false;
+          });
+        }
+      }
     }
   },
   created() {

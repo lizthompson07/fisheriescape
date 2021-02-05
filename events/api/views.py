@@ -1,4 +1,6 @@
+from django.contrib.auth.models import User
 from rest_framework import viewsets, filters
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -91,22 +93,14 @@ class NoteViewSet(viewsets.ModelViewSet):
         return qs
 
 
-class PersonViewSet(viewsets.ModelViewSet):
-    queryset = Person.objects.all()
-    serializer_class = serializers.PersonSerializer
+
+class UserListAPIView(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'last_name', 'email_1', 'email_2']
-
-    def perform_create(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
-
-    # def get_queryset(self):
-    #     qs = self.queryset
-    #     if self.request.query_params.get("event"):
-    #         qs = qs.filter(event_id=self.request.query_params.get("event"))
-    #     return qs
+    search_fields = ['first_name', 'last_name', 'email']
 
 
 class InviteeViewSet(viewsets.ModelViewSet):

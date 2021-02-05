@@ -3,7 +3,7 @@
     <div class="container mt-2">
       <div class="mt-2 mb-5">
         <div class="text-h3 text-muted mt-2 mb-2">
-          {{ $t("welcomeMsg") }}
+          Welcome to the DM Apps Event Planner
         </div>
       </div>
       <div class="row">
@@ -13,7 +13,7 @@
               <v-text-field
                   v-model="search"
                   append-icon="mdi-magnify"
-                  :label="$t('Search Events')"
+                  label="Search Events"
                   single-line
                   hide-details
               ></v-text-field>

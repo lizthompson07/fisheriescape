@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
 
 from masterlist.models import Person
-from shared_models.models import SimpleLookup, Lookup, HelpTextLookup, FiscalYear
+from shared_models.models import SimpleLookup, Lookup, HelpTextLookup, FiscalYear, Language
 from shared_models.utils import get_metadata_string
 
 
@@ -60,7 +60,13 @@ class Invitee(models.Model):
         (9, 'not response'),
     )
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="invitees")
-    person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, verbose_name=_("person"), related_name="invitees")
+
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone"))
+    email = models.EmailField(blank=True, null=True, verbose_name=_("work email"))
+    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
+
     role = models.IntegerField(choices=role_choices, verbose_name=_("Function"), default=1)
     organization = models.CharField(max_length=50, verbose_name=_("Association"), blank=True, null=True)
     status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=0)
@@ -68,8 +74,20 @@ class Invitee(models.Model):
     resources_received = models.ManyToManyField("Resource", editable=False)
 
     class Meta:
-        ordering = ['person__first_name', "person__last_name"]
-        unique_together = (("person", "event"),)
+        ordering = ['first_name', "last_name"]
+
+    @property
+    def full_name(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+
+class Attendance(models.Model):
+    invitee = models.ForeignKey(Invitee, on_delete=models.CASCADE, related_name="attendances", verbose_name=_("attendee"))
+    date = models.DateTimeField(verbose_name=_("date"))
+
+    class Meta:
+        ordering = ['date']
+        unique_together = (("invitee", "date"),)
 
 
 class Note(models.Model):
@@ -113,8 +131,8 @@ def resource_directory_path(instance, filename):
 class Resource(SimpleLookup):
     url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
     url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
-    file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
-    file_fr = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
+    # file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
+    # file_fr = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
 
     # meta
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)

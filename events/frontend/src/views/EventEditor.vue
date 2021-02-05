@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-2">
-    <h1 v-if="id" class="mb-3">{{ $t("Edit Event") }}</h1>
-    <h1 v-else class="mb-3">{{ $t("Create Event") }}</h1>
+    <h1 v-if="id" class="mb-3">Edit Event</h1>
+    <h1 v-else class="mb-3">Create Event</h1>
 
     <form @submit.prevent="onSubmit">
       <v-text-field v-model="name" :label="labels.name" required color="red"></v-text-field>
@@ -19,8 +19,8 @@
         </div>
       </div>
       <v-btn type="submit" color="success">
-        <span v-if="id">{{ $t("Update") }}</span>
-        <span v-else>{{ $t("Create") }}</span>
+        <span v-if="id">Update</span>
+        <span v-else>Create</span>
       </v-btn>
 
       <!--      <DeleteRecipeDialogBox-->

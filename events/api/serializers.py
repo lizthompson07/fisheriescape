@@ -2,14 +2,26 @@ from django.contrib.auth.models import User
 from django.template.defaultfilters import date
 from rest_framework import serializers
 
-from masterlist.models import Person
 from .. import models
 
 
-class UserDisplaySerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "username", "is_admin", "is_management", "is_rds"]
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "full_name"
+        ]
+
+    full_name = serializers.SerializerMethodField()
+
+    def get_full_name(self, instance):
+        return instance.get_full_name()
+
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -71,21 +83,6 @@ class NoteSerializer(serializers.ModelSerializer):
         return instance.get_type_display()
 
 
-class PersonSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Person
-        fields = "__all__"
-
-    full_name = serializers.SerializerMethodField()
-    full_name_and_email = serializers.SerializerMethodField()
-
-    def get_full_name_and_email(self, instance):
-        return instance.full_name_and_email
-
-    def get_full_name(self, instance):
-        return instance.full_name
-
-
 class InviteeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Invitee
@@ -93,10 +90,10 @@ class InviteeSerializer(serializers.ModelSerializer):
 
     status_display = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
-    person_object = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
 
-    def get_person_object(self, instance):
-        return PersonSerializer(instance.person, read_only=True).data
+    def get_full_name(self, instance):
+        return instance.full_name
 
     def get_status_display(self, instance):
         return instance.get_status_display()

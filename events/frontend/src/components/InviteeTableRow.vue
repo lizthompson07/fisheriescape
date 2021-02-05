@@ -1,13 +1,9 @@
 <template>
   <tr>
-    <td>
-      {{ invitee.person_object.full_name }}
-    </td>
-    <td>
-      {{ invitee.organization }}
-    </td>
+    <td> {{ invitee.full_name }}</td>
+    <td>{{ invitee.email }}</td>
+    <td> {{ invitee.organization }}</td>
     <td>{{ invitee.role_display }}</td>
-    <td>{{ invitee.person_object.email_1 }}</td>
     <td>
       <v-btn x-small :color="btnColor" @click="toggleStatus">
         {{ invitee.status_display }}
@@ -45,12 +41,6 @@ export default {
     return {};
   },
   methods: {
-    // getNoteMetadata() {
-    //   let endpoint = `/api/events-planner/meta/models/note/`;
-    //   apiService(endpoint).then(data => {
-    //     this.labels = data.labels;
-    //   });
-    // },
     async deleteInvitee() {
       let endpoint = `/api/events-planner/invitees/${this.invitee.id}/`;
       await apiService(endpoint, "DELETE");

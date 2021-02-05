@@ -43,9 +43,9 @@
                 <thead>
                 <tr>
                   <th class="text-left"> Name</th>
+                  <th class="text-left"> Email</th>
                   <th class="text-left"> Association</th>
                   <th class="text-left"> Function</th>
-                  <th class="text-left"> Email</th>
                 </tr>
                 </thead>
                 <tbody>

@@ -26,8 +26,8 @@
         ></v-checkbox>
 
         <v-btn type="submit" color="success">
-          <span v-if="note.id">{{ $t("Update") }}</span>
-          <span v-else>{{ $t("Create") }}</span>
+          <span v-if="note.id">Update</span>
+          <span v-else>Create</span>
         </v-btn>
 
         <v-btn color="normal" class="mx-1" @click="overlay = false">
