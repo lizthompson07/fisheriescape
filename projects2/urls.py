@@ -103,7 +103,7 @@ urlpatterns = [
     path('reports/csrf-submission-list/', views.export_csrf_submission_list, name="export_csrf_submission_list"),# tested
     path('reports/project-status-summary/', views.project_status_summary, name="export_project_status_summary"),# tested
     path('reports/project-list/', views.export_project_list, name="export_project_list"),  # TODO: test
-
+    path('reports/sar-workplan/', views.export_sar_workplan, name="export_sar_workplan"),  # TODO: test
 
     #special
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
