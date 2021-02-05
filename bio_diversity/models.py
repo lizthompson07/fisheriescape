@@ -483,7 +483,7 @@ class EnvTreatment(BioModel):
         ]
 
 
-class Event(BioTimeModel):
+class Event(BioModel):
     # evnt tag
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility Code"))
     evntc_id = models.ForeignKey('EventCode', on_delete=models.CASCADE, verbose_name=_("Event Code"))

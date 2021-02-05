@@ -371,7 +371,7 @@ class TestLocForm(CommonTest):
     def test_null_unique(self):
         instance = BioFactoryFloor.LocFactory(subr_id=None)
         invalid_data = model_to_dict(instance)
-        invalid_data["start_date"] = invalid_data["start_datetime"].date()
+        invalid_data["start_date"] = invalid_data["loc_date"].date()
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
         invalid_data["subr_id"] = 1

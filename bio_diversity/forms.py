@@ -917,7 +917,7 @@ class EnvtcForm(CreatePrams):
         exclude = []
 
 
-class EvntForm(CreateTimePrams):
+class EvntForm(CreatePrams):
     class Meta:
         model = models.Event
         exclude = []
@@ -1155,7 +1155,7 @@ class LocForm(CreatePrams):
             start_time = datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time()
         else:
             start_time = time(0, 0)
-        obj.start_datetime = datetime.combine(self.cleaned_data["start_date"], start_time)
+        obj.loc_date = datetime.combine(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj
 
