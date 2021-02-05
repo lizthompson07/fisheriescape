@@ -3534,7 +3534,6 @@ class TestIndvDetailView(CommonTest):
             "spec_id",
             "stok_id",
             "coll_id",
-            "ufid",
             "pit_tag",
             "indv_valid",
             "comments",

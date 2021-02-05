@@ -400,9 +400,9 @@ class TestPairForm(CommonTest):
         except Individual.DoesNotExist:
             pass
 
-        # cannot use individual code with null ufid
+        # cannot use individual code with null pit_tag
         invalid_data = self.data
-        non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
+        non_valid_indv = BioFactoryFloor.IndvFactory(pit_tag=None)
         invalid_data['indv_id'] = non_valid_indv.pk
         try:
             self.assert_form_invalid(self.Form, data=invalid_data)
@@ -517,9 +517,9 @@ class TestSireForm(CommonTest):
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
-        # cannot use individual code with null ufid
+        # cannot use individual code with null pit tag
         invalid_data = self.data
-        non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
+        non_valid_indv = BioFactoryFloor.IndvFactory(pit_tag=None)
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 

@@ -1152,9 +1152,9 @@ class LocForm(CreatePrams):
     def save(self, commit=True):
         obj = super().save(commit=False)  # here the object is not commited in db
         if self.cleaned_data["start_time"]:
-            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time()
+            start_time = make_aware(datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time())
         else:
-            start_time = time(0, 0)
+            start_time = make_aware(time(0, 0))
         obj.loc_date = datetime.combine(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj

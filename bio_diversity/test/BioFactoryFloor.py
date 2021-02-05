@@ -1173,13 +1173,12 @@ class ImgcFactory(factory.django.DjangoModelFactory):
 class IndvFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Individual
-        django_get_or_create = ('ufid', 'pit_tag',)
+        django_get_or_create = ('pit_tag',)
 
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
     coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
-    ufid = factory.lazy_attribute(lambda o: faker.word())
     pit_tag = factory.lazy_attribute(lambda o: faker.word())
     indv_valid = True
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -1202,7 +1201,6 @@ class IndvFactory(factory.django.DjangoModelFactory):
             'spec_id': spec.pk,
             'stok_id': stok.pk,
             'coll_id': coll.pk,
-            'ufid': obj.ufid,
             'pit_tag': obj.pit_tag,
             'indv_valid': True,
             'comments': obj.comments,
@@ -2254,7 +2252,7 @@ class SpecFactory(factory.django.DjangoModelFactory):
         model = models.SpeciesCode
         django_get_or_create = ('name',)
 
-    name = factory.lazy_attribute(lambda o: faker.word())
+    name = factory.lazy_attribute(lambda o: faker.text(max_nb_chars=10))
     species = factory.lazy_attribute(lambda o: faker.word())
     com_name = factory.lazy_attribute(lambda o: faker.word())
     created_by = factory.lazy_attribute(lambda o: faker.name())
