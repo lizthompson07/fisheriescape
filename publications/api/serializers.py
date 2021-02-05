@@ -17,7 +17,7 @@ class UserDisplaySerializer(serializers.ModelSerializer):
 class PubsDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
-        fields = "__all__"
+        fields = ["title", "year", "abstract", "method"]
 
 
 

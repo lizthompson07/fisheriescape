@@ -31,17 +31,24 @@ class CurrentPublicationUserAPIView(APIView):
 # Pubs
 #######
 class PubsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        lat =lon = False
+        lat =lon = sar = start_year = end_year = False
         if request.query_params.get("lat"):
             lat = float(request.query_params.get("lat"))
         if request.query_params.get("lon"):
             lon = float(request.query_params.get("lon"))
+        if request.query_params.get("sar"):
+            sar = request.query_params.get("sar")
+        if request.query_params.get("start_year"):
+            start_year = request.query_params.get("start_year")
+        if request.query_params.get("end_year"):
+            end_year = request.query_params.get("end_year")
+
 
         geoscope_instaces = models.GeographicScope.objects.all()
-        proj_instances = models.Project.objects.all()
+        proj_instances = models.Project.objects.none()
         poly_qs = [models.Polygon.objects.filter(geoscope=gs.pk) for gs in geoscope_instaces]
         poly_dict = {}
         for poly in poly_qs:
@@ -55,6 +62,15 @@ class PubsAPIView(APIView):
             for geoscope, polygon in poly_dict.items():
                 if polygon.contains(pt):
                     proj_instances = proj_instances | models.Project.objects.filter(geographic_scope=int(geoscope))
+
+        if sar:
+            proj_instances = proj_instances.filter(theme__name__iexact="SPECIES AT RISK")
+
+        if start_year:
+            proj_instances = proj_instances.filter(year__gte=start_year)
+
+        if end_year:
+                proj_instances = proj_instances.filter(year__lte=end_year)
 
         proj_instances = proj_instances.filter().distinct()
 
