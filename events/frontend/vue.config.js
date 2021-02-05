@@ -32,12 +32,12 @@ module.exports = {
   transpileDependencies: ["vuetify"],
 
   // uncomment before executing 'npm run build'
-  // css: {
-  //   extract: {
-  //     filename: "bundle.css",
-  //     chunkFilename: "bundle.css"
-  //   }
-  // },
+  css: {
+    extract: {
+      filename: "bundle.css",
+      chunkFilename: "bundle.css"
+    }
+  },
 
   pluginOptions: {
     i18n: {
