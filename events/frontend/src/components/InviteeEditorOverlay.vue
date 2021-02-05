@@ -49,6 +49,7 @@
             <v-select v-model="inviteeToEdit.role" :items="roleChoices" :label="labels.role" required></v-select>
             <v-select v-model="inviteeToEdit.status" :items="statusChoices" :label="labels.status" required></v-select>
             <v-text-field v-model="inviteeToEdit.organization" :label="labels.organization"></v-text-field>
+
           </v-card-text>
 
           <v-card-actions>
@@ -103,7 +104,8 @@ export default {
       personOptions: [],
       loadingPersons: false,
       search: null,
-      user: null
+      user: null,
+      dates: null
     };
   },
   methods: {

@@ -1,13 +1,13 @@
 <template>
   <div class="home">
-    <div class="container mt-2">
+    <v-container class="mt-2">
       <div class="mt-2 mb-5">
         <div class="text-h3 text-muted mt-2 mb-2">
           Welcome to the DM Apps Event Planner
         </div>
       </div>
-      <div class="row">
-        <div class="col" v-if="!loadingEvents">
+      <v-row>
+        <v-col v-if="!loadingEvents">
           <v-card>
             <v-card-title>
               <v-text-field
@@ -34,15 +34,15 @@
               </template>
             </v-data-table>
           </v-card>
-        </div>
-        <div class="col" v-else>
+        </v-col>
+        <v-col v-else>
           <v-progress-circular
               indeterminate
               color="primary"
           ></v-progress-circular>
-        </div>
-      </div>
-    </div>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 

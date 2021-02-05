@@ -1,8 +1,8 @@
 <template>
   <div class="mt-3">
-    <div class="container-fluid" v-if="event">
-      <div class="row">
-        <div class="col-9">
+    <v-container v-if="event">
+      <v-row>
+        <v-col cols="9">
           <div class="float-right">
             <v-btn :to="{ name: 'event-edit', params: { id: event.id } }">
               <v-icon>mdi-pencil</v-icon>
@@ -74,8 +74,8 @@
             <h1>Children</h1>
           </div>
 
-        </div>
-        <div class="col">
+        </v-col>
+        <v-col>
           <div class="float-right">
             <NoteEditorOverlay
                 v-if="event.id"
@@ -87,9 +87,9 @@
           <div v-for="(note, index) in notes" :key="index" class="py-1">
             <NoteCard :note="note" @update-notes="updateNotes"></NoteCard>
           </div>
-        </div>
-      </div>
-    </div>
+        </v-col>
+      </v-row>
+    </v-container>
 
     <div class="not-found" v-else>
       <h1>{{ message404 }}</h1>

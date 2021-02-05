@@ -9,30 +9,49 @@
     </v-btn>
 
     <v-overlay :value="overlay" light opacity=".7">
+
+
       <form @submit.prevent="onSubmit">
-        <v-select v-model="note.type" :items="typeChoices" :label="labels.type" required></v-select>
+        <v-card
+            dark
+            elevation="2"
+        >
 
-        <v-textarea
-            name="input-7-1"
-            filled
-            :label="labels.note"
-            auto-grow
-            v-model="note.note"
-        ></v-textarea>
+          <v-card-title>
+            <h4 v-if="!note.id"> Add Note </h4>
+            <h4 v-else> Edit Note </h4>
 
-        <v-checkbox
-            v-model="note.is_complete"
-            :label="labels.is_complete"
-        ></v-checkbox>
+          </v-card-title>
 
-        <v-btn type="submit" color="success">
-          <span v-if="note.id">Update</span>
-          <span v-else>Create</span>
-        </v-btn>
+          <v-card-text>
 
-        <v-btn color="normal" class="mx-1" @click="overlay = false">
-          Back
-        </v-btn>
+
+            <v-select v-model="note.type" :items="typeChoices" :label="labels.type" required></v-select>
+
+            <v-textarea
+                name="input-7-1"
+                filled
+                :label="labels.note"
+                auto-grow
+                v-model="note.note"
+            ></v-textarea>
+
+            <v-checkbox
+                v-model="note.is_complete"
+                :label="labels.is_complete"
+            ></v-checkbox>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn type="submit" color="success">
+              <span v-if="note.id">Update</span>
+              <span v-else>Create</span>
+            </v-btn>
+
+            <v-btn color="normal" class="mx-1" @click="overlay = false">
+              Back
+            </v-btn>
+          </v-card-actions>
+        </v-card>
 
         <div class="mt-3">
           <v-alert type="error" v-if="error">
@@ -110,7 +129,7 @@ export default {
       apiService(endpoint, method, this.note).then(response => {
         if (response.id) {
           this.$emit("update-notes");
-          if(!this.note.id) this.primeNote();
+          if (!this.note.id) this.primeNote();
           this.overlay = false;
         } else {
           this.error = JSON.stringify(response)
