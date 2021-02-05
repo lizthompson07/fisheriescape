@@ -11,7 +11,7 @@ class Event(SimpleLookup):
     type_choices = (
         (1, _("CSAS Regional Advisory Process (RAP)")),
         (2, _("CSAS Science Management Meeting")),
-        (2, _("CSAS Steering Committee Meeting")),
+        (3, _("CSAS Steering Committee Meeting")),
         (9, _("other")),
     )
 
