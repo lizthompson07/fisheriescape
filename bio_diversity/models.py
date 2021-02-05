@@ -495,12 +495,38 @@ class Event(BioTimeModel):
 
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
+    evnt_start = models.DateTimeField(verbose_name=_("Start date"))
+    evnt_end = models.DateTimeField(null=True, blank=True, verbose_name=_("End date"))
+
+    @property
+    def start_date(self):
+        return self.evnt_start.date()
+
+    @property
+    def start_time(self):
+        if self.evnt_start.time() == datetime.time(0, 0):
+            return None
+        return self.evnt_start.time().strftime("%H:%M")
+
+    @property
+    def end_date(self):
+        if self.evnt_end:
+            return self.evnt_end.date()
+        else:
+            return None
+
+    @property
+    def end_time(self):
+        if self.evnt_end.time() == datetime.time(0, 0):
+            return None
+        return self.evnt_end.time().strftime("%H:%M")
+
     def __str__(self):
         return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.start_date)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'start_datetime', 'end_datetime'],
+            models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'evnt_start', 'evnt_end'],
                                     name='Event_Uniqueness')
         ]
 
@@ -836,19 +862,19 @@ class Location(BioModel):
                                   verbose_name=_("Lattitude"))
     loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Longitude"))
-    start_datetime = models.DateTimeField(verbose_name=_("Start date"))
+    loc_date = models.DateTimeField(verbose_name=_("Start date"))
 
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     @property
     def start_date(self):
-        return self.start_datetime.date()
+        return self.loc_date.date()
 
     @property
     def start_time(self):
-        if self.start_datetime.time() == datetime.time(0, 0):
+        if self.loc_date.time() == datetime.time(0, 0):
             return None
-        return self.start_datetime.time().strftime("%H:%M")
+        return self.loc_date.time().strftime("%H:%M")
 
     def __str__(self):
         return "{} location".format(self.locc_id.__str__())
@@ -856,7 +882,7 @@ class Location(BioModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
-                                            "loc_lon", "start_datetime"], name='Location_Uniqueness')
+                                            "loc_lon", "loc_date"], name='Location_Uniqueness')
         ]
 
 
