@@ -127,7 +127,7 @@ export default {
         email: "@dfo-mpo.gc.ca",
         status: 0,
         role: 1,
-        organization: "DFO",
+        organization: null,
         event: this.event_id
       };
     },
@@ -136,8 +136,9 @@ export default {
         this.inviteeToEdit.first_name = this.user.first_name;
         this.inviteeToEdit.last_name = this.user.last_name;
         this.inviteeToEdit.email = this.user.email;
+        this.inviteeToEdit.organization = "DFO-MPO";
         this.search = null;
-        console.log(this.$refs.phone.focus())
+        console.log(this.$refs.phone.focus());
       }
     },
     getInviteeMetadata() {

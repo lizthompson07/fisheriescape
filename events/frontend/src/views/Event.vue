@@ -23,6 +23,7 @@
               <DetailRow :label="eventLabels.location" :value="event.location"></DetailRow>
               <DetailRow :label="eventLabels.proponent" :value="event.proponent"></DetailRow>
               <DetailRow label="Start / End Date" :value="event.display_dates"></DetailRow>
+              <DetailRow label="Attendees" :value="event.attendees"></DetailRow>
               <DetailRow label="Metadata" :value="event.metadata"></DetailRow>
               </tbody>
             </template>
@@ -46,6 +47,7 @@
                   <th class="text-left"> Email</th>
                   <th class="text-left"> Association</th>
                   <th class="text-left"> Function</th>
+                  <th class="text-left"> Status</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -54,7 +56,7 @@
                     v-for="(invitee, index) in invitees"
                     :key="index"
                     :invitee="invitee"
-                    @update-invitees="updateInvitees"
+                    @update-invitees="getEvent"
                 ></InviteeTableRow>
 
 

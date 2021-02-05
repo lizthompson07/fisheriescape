@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from django.template.defaultfilters import date
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
+from lib.functions.custom_functions import listrify
 from .. import models
 
 
@@ -23,7 +25,6 @@ class UserSerializer(serializers.ModelSerializer):
         return instance.get_full_name()
 
 
-
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Event
@@ -37,10 +38,15 @@ class EventSerializer(serializers.ModelSerializer):
     dates = serializers.SerializerMethodField()
     start_date_display = serializers.SerializerMethodField()
 
-    # notes = serializers.SerializerMethodField()
+    attendees = serializers.SerializerMethodField()
 
-    # def get_notes(self, instance):
-    #     return NoteSerializer(instance.notes, many=True, read_only=True).data
+    def get_attendees(self, instance):
+        my_list = list()
+        for a in instance.attendees:
+            my_list.append(
+                get_object_or_404(models.Invitee, pk=a["invitee"]).full_name
+            )
+        return listrify(my_list)
 
     def get_start_date_display(self, instance):
         return date(instance.start_date)
@@ -91,6 +97,21 @@ class InviteeSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
+
+    min_date = serializers.SerializerMethodField()
+    max_date = serializers.SerializerMethodField()
+    attendance = serializers.SerializerMethodField()
+
+    def get_attendance(self, instance):
+        return [a.date.strftime("%Y-%m-%d") for a in instance.attendance.all()]
+
+    def get_min_date(self, instance):
+        return instance.event.start_date.strftime("%Y-%m-%d")
+
+    def get_max_date(self, instance):
+        if instance.event.end_date:
+            return instance.event.end_date.strftime("%Y-%m-%d")
+        return instance.event.start_date.strftime("%Y-%m-%d")
 
     def get_full_name(self, instance):
         return instance.full_name

@@ -4,12 +4,23 @@
     <td>{{ invitee.email }}</td>
     <td> {{ invitee.organization }}</td>
     <td>{{ invitee.role_display }}</td>
-    <td>
+
+
+    <td v-if="!invitee.attendance.length">
       <v-btn x-small :color="btnColor" @click="toggleStatus">
         {{ invitee.status_display }}
       </v-btn>
     </td>
+    <td v-else>
+      Attended
+    </td>
 
+    <td>
+      <InviteeAttendanceOverlay
+          :invitee="invitee"
+          @update-invitees="$emit('update-invitees')"
+      ></InviteeAttendanceOverlay>
+    </td>
     <td>
       <InviteeEditorOverlay :invitee="invitee" @update-invitees="$emit('update-invitees')"></InviteeEditorOverlay>
     </td>
@@ -24,6 +35,7 @@
 <script>
 import DeleteInviteeDialogBox from "@/components/DeleteInviteeDialogBox";
 import InviteeEditorOverlay from "@/components/InviteeEditorOverlay";
+import InviteeAttendanceOverlay from "@/components/InviteeAttendanceOverlay";
 import {apiService} from "@/common/api_service";
 
 export default {
@@ -35,6 +47,7 @@ export default {
   },
   components: {
     InviteeEditorOverlay,
+    InviteeAttendanceOverlay,
     DeleteInviteeDialogBox
   },
   data() {

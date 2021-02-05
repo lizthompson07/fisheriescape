@@ -45,19 +45,23 @@ class Event(SimpleLookup):
     class Meta:
         ordering = ['-updated_at', ]
 
+    @property
+    def attendees(self):
+        return Attendance.objects.filter(invitee__event=self).order_by("invitee").values("invitee").distinct()
+
 
 class Invitee(models.Model):
     # Choices for role
     role_choices = (
-        (1, 'attendee'),
-        (2, 'chair'),
-        (3, 'expert'),
+        (1, 'Attendee'),
+        (2, 'Chair'),
+        (3, 'Expert'),
     )
     status_choices = (
-        (0, 'invited'),
-        (1, 'accepted'),
-        (2, 'declined'),
-        (9, 'not response'),
+        (0, 'Invited'),
+        (1, 'Accepted'),
+        (2, 'Declined'),
+        (9, 'Not response'),
     )
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="invitees")
 
@@ -82,7 +86,7 @@ class Invitee(models.Model):
 
 
 class Attendance(models.Model):
-    invitee = models.ForeignKey(Invitee, on_delete=models.CASCADE, related_name="attendances", verbose_name=_("attendee"))
+    invitee = models.ForeignKey(Invitee, on_delete=models.CASCADE, related_name="attendance", verbose_name=_("attendee"))
     date = models.DateTimeField(verbose_name=_("date"))
 
     class Meta:

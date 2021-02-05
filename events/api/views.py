@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_framework import viewsets, filters
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -111,6 +114,25 @@ class InviteeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
+
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+
+        # it is important to use the try/except approach because this way
+        # it can differentiate between  1) no dates value being passed or 2) a null value (i.e. clear all attendance)
+        try:
+            dates = self.request.data["dates"]
+        except KeyError:
+            pass
+        else:
+            # delete any existing attendance
+            obj.attendance.all().delete()
+            for date in dates:
+                dt = datetime.strptime(date, "%Y-%m-%d")
+                dt = timezone.make_aware(dt, timezone.get_current_timezone())
+                models.Attendance.objects.create(invitee=obj, date=dt)
+
 
     def get_queryset(self):
         qs = self.queryset
