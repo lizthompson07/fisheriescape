@@ -20,9 +20,13 @@
       <span class="icon mdi mdi-file-word"></span>
       {% trans "ACRDP Application" %}
     </a>
-    <a v-if="isCSRF" class="{{ btn_class_black }}" onclick="userProfileWarning()" href="{% url 'projects2:csrf_application' object.id %}">
+    <a v-else-if="isCSRF" class="{{ btn_class_black }}" onclick="userProfileWarning()" href="{% url 'projects2:csrf_application' object.id %}">
       <span class="icon mdi mdi-file-word"></span>
       {% trans "CSRF Application (EN)" %}
+    </a>
+    <a v-else-if="isSARA" class="{{ btn_class_black }}" onclick="userProfileWarning()" href="{% url 'projects2:sara_application' object.id %}">
+      <span class="icon mdi mdi-file-word"></span>
+      {% trans "SARA Application (EN)" %}
     </a>
 
 

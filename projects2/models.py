@@ -331,6 +331,11 @@ class Project(models.Model):
             return True
 
     @property
+    def is_sara(self):
+        if self.default_funding_source and "sara" in self.default_funding_source.name.lower():
+            return True
+
+    @property
     def fiscal_years(self):
         if self.years.exists():
 

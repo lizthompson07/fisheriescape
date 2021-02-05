@@ -1,8 +1,8 @@
 <template>
   <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn class="mx-1" color="error" dark v-bind="attrs" v-on="on">
-        Delete
+      <v-btn class="mx-1" v-bind="attrs" v-on="on" small>
+        <v-icon small>mdi-delete</v-icon>
       </v-btn>
     </template>
 
@@ -12,7 +12,7 @@
       </v-card-title>
 
       <v-card-text>
-        Are you certain you want to delete this recipe?
+        Are you certain you want to delete this Note?
       </v-card-text>
 
       <v-card-actions>
@@ -30,7 +30,7 @@
 
 <script>
 export default {
-  name: "DeleteRecipeDialogBox",
+  name: "DeleteNoteDialogBox",
   data() {
     return {
       dialog: false

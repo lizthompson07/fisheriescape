@@ -13,12 +13,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, intial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Events</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+
 </head>
 <body>
 <link rel="stylesheet" href="{% static 'bundle.css' %}">
 <div id="app"></div>
-
+<script type="application/javascript">
+let typeChoices = {{ type_choice_array }};
+</script>
 <script src="{% static 'bundle.js' %}"></script>
 </body>
 </html>
