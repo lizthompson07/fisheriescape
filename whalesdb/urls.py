@@ -125,5 +125,10 @@ urlpatterns = [
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
 
     path('ajax/get_fields/', utils.ajax_get_fields, name='ajax_get_fields'),
+
+    # managed lists
+    path('settings/delete-managed/<str:key>/<int:pk>/', views.delete_managed, name="delete_managed"),
+    path('settings/eqt-sources/', views.EqtEquipmentTypeCodeFormsetView.as_view(), name="manage_eqt"),
+
 ]
 

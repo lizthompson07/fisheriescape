@@ -298,6 +298,19 @@ class TeaForm(forms.ModelForm):
         }
 
 
+class EqtForm(forms.ModelForm):
+    class Meta:
+        models = models.EqtEquipmentTypeCode
+        exclude = []
+
+
+EqtFormset = modelformset_factory(
+    model=models.EqtEquipmentTypeCode,
+    form=EqtForm,
+    extra=1,
+)
+
+
 MODEL_CHOICES = (("1", "One"), ("2", "Two"))
 
 

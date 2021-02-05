@@ -13,8 +13,7 @@ from shared_models.views import CommonTemplateView, CommonAuthCreateView, Common
 
 import json
 import shared_models.models as shared_models
-
-
+from .utils import AdminRequiredMixin
 from . import mixins
 
 
@@ -794,6 +793,24 @@ class CruDelete(mixins.CruMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+def delete_managed(request):
+    pass
+
+
+class ManagedFormsetViewMixin(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'whalesdb/managed_formset.html'
+    home_url_name = "whalesdb:index"
+    delete_url_name = "whalesdb:delete_managed"
+    container_class = "container bg-light curvy"
+
+
+class EqtEquipmentTypeCodeFormsetView(ManagedFormsetViewMixin):
+    h1 = "Manage Equipment Type"
+    queryset = models.EqtEquipmentTypeCode.objects.all()
+    formset_class = forms.EqtFormset
+    success_url = reverse_lazy("whalesdb:manage_eqt")
 
 
 class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):

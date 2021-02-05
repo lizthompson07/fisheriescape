@@ -1,6 +1,23 @@
 from whalesdb import models
+
 from django.http import JsonResponse
-import re
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+
+class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return whales_authorized(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:denied_access', kwargs={
+                "message": _("Sorry, you need to be a whales admin in order to access this page.")}))
+        return super().dispatch(request, *args, **kwargs)
+
 
 def whales_authorized(user):
     return user.is_authenticated and user.groups.filter(name='whalesdb_admin').exists()
