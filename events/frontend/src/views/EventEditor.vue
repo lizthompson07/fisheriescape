@@ -151,16 +151,17 @@ export default {
       if (this.dates.length) {
         let dates = [...this.dates];
 
-        data.start_date = dates.sort()[0] + " 00:00:00"
+        data.start_date = dates.sort()[0] + " 00:00:00";
         if (this.dates.length === 2) {
-          data.end_date = dates.sort()[1] + " 00:00:00"
+          data.end_date = dates.sort()[1] + " 00:00:00";
+        } else {
+          data.end_date = null;
         }
       }
 
-
-      return data
+      return data;
     }
-  },
+  }
 };
 </script>
 

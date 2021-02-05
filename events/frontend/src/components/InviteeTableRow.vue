@@ -1,7 +1,7 @@
 <template>
   <tr>
     <td> {{ invitee.full_name }}</td>
-    <td>{{ invitee.email }}</td>
+<!--    <td>{{ invitee.email }}</td>-->
     <td> {{ invitee.organization }}</td>
     <td>{{ invitee.role_display }}</td>
 

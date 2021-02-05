@@ -58,7 +58,7 @@
               <span v-else>Add</span>
             </v-btn>
 
-            <v-btn color="normal" class="mx-1" @click="overlay = false">
+            <v-btn color="normal" class="mx-1" @click="closeOverlay">
               Back
             </v-btn>
           </v-card-actions>
@@ -115,9 +115,17 @@ export default {
       if (!this.invitee.id) {
         this.primeInvitee();
       } else {
-        this.inviteeToEdit = this.invitee;
-        this.search = this.invitee.person_object.full_name;
+        this.inviteeToEdit = JSON.parse(JSON.stringify(this.invitee)); // deep copy
+;
       }
+    },
+    closeOverlay() {
+      this.error = null;
+      if (this.invitee.id) {
+        this.primeInvitee();
+        this.inviteeToEdit = this.invitee;
+      }
+      this.overlay = false;
     },
     primeInvitee() {
       this.inviteeToEdit = {

@@ -50,10 +50,6 @@ class Event(SimpleLookup):
         return Attendance.objects.filter(invitee__event=self).order_by("invitee").values("invitee").distinct()
 
     @property
-    def distinct_attendance(self):
-        return Attendance.objects.filter(invitee__event=self).order_by("date").values("date").distinct().count()
-
-    @property
     def length_days(self):
         if self.end_date:
             return (self.end_date - self.start_date).days + 1
@@ -77,8 +73,8 @@ class Invitee(models.Model):
 
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("work phone"))
-    email = models.EmailField(blank=True, null=True, verbose_name=_("work email"))
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    email = models.EmailField(verbose_name=_("email"))
     language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
 
     role = models.IntegerField(choices=role_choices, verbose_name=_("Function"), default=1)

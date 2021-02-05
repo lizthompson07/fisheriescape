@@ -40,14 +40,10 @@ class EventSerializer(serializers.ModelSerializer):
     dates = serializers.SerializerMethodField()
     start_date_display = serializers.SerializerMethodField()
     attendees = serializers.SerializerMethodField()
-    distinct_attendance = serializers.SerializerMethodField()
     length_days = serializers.SerializerMethodField()
 
     def get_length_days(self, instance):
         return instance.length_days
-
-    def get_distinct_attendance(self, instance):
-        return instance.distinct_attendance
 
     def get_attendees(self, instance):
         my_list = list()
@@ -64,9 +60,12 @@ class EventSerializer(serializers.ModelSerializer):
 
     def get_display_dates(self, instance):
         start = date(instance.start_date) if instance.start_date else "??"
-        end = date(instance.end_date) if instance.end_date else "??"
+        dates = f'{start}'
+        if instance.end_date and instance.end_date != instance.start_date:
+            end = date(instance.end_date)
+            dates += f' &rarr; {end}'
         days_display = "{} {}{}".format(instance.length_days, gettext("day"), pluralize(instance.length_days))
-        dates = f'{start} &rarr; {end} ({days_display})'
+        dates += f' ({days_display})'
         return dates
 
     def get_dates(self, instance):

@@ -4,7 +4,7 @@
       <v-row>
         <v-col cols="9">
           <div class="float-right">
-            <v-btn :to="{ name: 'event-edit', params: { id: event.id } }">
+            <v-btn v-if="id" :to="{ name: 'event-edit', params: { id: id } }">
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
             <DeleteEventDialogBox
@@ -22,9 +22,9 @@
               <DetailRow :label="eventLabels.type" :value="event.type_display"></DetailRow>
               <DetailRow :label="eventLabels.location" :value="event.location"></DetailRow>
               <DetailRow :label="eventLabels.proponent" :value="event.proponent"></DetailRow>
-              <DetailRow label="Start / End Date" :value="event.display_dates"></DetailRow>
+              <DetailRow label="Dates" :value="event.display_dates"></DetailRow>
               <DetailRow label="Attendees" :value="event.attendees"></DetailRow>
-              <DetailRow label="Distinct attendance" :value="event.distinct_attendance"></DetailRow>
+              <DetailRow label="Distinct attendees" :value="attendeeCount"></DetailRow>
               <DetailRow label="Metadata" :value="event.metadata"></DetailRow>
               </tbody>
             </template>
@@ -45,7 +45,7 @@
                 <thead>
                 <tr>
                   <th class="text-left"> Name</th>
-                  <th class="text-left"> Email</th>
+                  <!--                  <th class="text-left"> Email</th>-->
                   <th class="text-left"> Association</th>
                   <th class="text-left"> Function</th>
                   <th class="text-left"> Status</th>
@@ -174,6 +174,12 @@ export default {
 
   },
   computed: {
+    attendeeCount() {
+      if (this.event && this.event.attendees && this.event.attendees.length) {
+        return this.event.attendees.split(",").length;
+      }
+      return 0;
+    }
     // isCurrentUsersRecipe() {
     //   return this.current_user === this.recipe.author;
     // }
