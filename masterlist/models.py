@@ -222,6 +222,10 @@ class Person(models.Model):
         return "{} {}".format(self.first_name, self.last_name)
 
     @property
+    def full_name_and_email(self):
+        return f"{self.full_name} ({self.email_1})"
+
+    @property
     def full_name_with_title(self):
         my_str = ""
         if self.designation:

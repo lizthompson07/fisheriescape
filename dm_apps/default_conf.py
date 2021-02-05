@@ -47,7 +47,7 @@ APP_DICT = {
     'spring_cleanup': "Gulf Region Spring Cleanup",
     'shiny': "DM Apps Shiny App Collection",
     'bio_diversity': "Biodiversity",
-    # 'events': "Events Planner",
+    'events': "Events Planner",
 }
 
 # Deal with fake apps...

@@ -130,6 +130,69 @@ def generate_acrdp_application(project):
     return target_url
 
 
+def generate_sar_workplan(year, region):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "sar_workplan_template.xlsx")
+
+    year_txt = str(FiscalYear.objects.get(pk=year))
+
+    # get all project years that are not in the following status: draft, not approved, cancelled
+    # and that are a part of a project whose default funding source has an english name containing "csrf"
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__contains="SAR", fiscal_year=year)
+    if region != "None":
+        qs = qs.filter(project__section__division__branch__region_id=region)
+
+    wb = load_workbook(filename=template_file_path)
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws = wb['template']
+    ws.title = year_txt
+    wb.copy_worksheet(ws).title = str("template")
+    try:
+        ws = wb[year_txt]
+    except KeyError:
+        print(year_txt, "is not a valid name of a worksheet")
+
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in qs:
+
+        ws['A'+str(row_count)].value = listrify([t.name for t in item.project.tags.all()])
+        ws['J'+str(row_count)].value = ws['A'+str(row_count)].value
+
+        ws['B'+str(row_count)].value = sum([c.amount for c in item.costs])
+        ws['C'+str(row_count)].value = listrify(["{} {}".format(u.first_name, u.last_name) for u in item.get_project_leads_as_users()])
+
+        ws['H' + str(row_count)].value = listrify([f.name for f in item.project.files.all()])
+        ws['I' + str(row_count)].value = item.project.id
+
+        if item.priorities:
+            ws['K' + str(row_count)].value = html2text(item.priorities)
+
+        ws['L' + str(row_count)].value = item.project.title
+
+        if item.project.overview_html:
+            ws['M' + str(row_count)].value = html2text(item.project.overview_html)
+
+        activities = [html2text(act.description) for act in item.activities.filter(type=1)]
+        ws['N' + str(row_count)].value = listrify(activities)
+
+        activities = [html2text(act.description) for act in item.activities.filter(type=2)]
+        ws['O' + str(row_count)].value = listrify(activities)
+
+        row_count += 1
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
 def generate_acrdp_budget(project):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
@@ -283,7 +346,9 @@ def generate_csrf_submission_list(year, region):
     year_txt = str(FiscalYear.objects.get(pk=year))
     ws['A1'].value += year_txt
 
-    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year)
+    # get all project years that are not in the following status: draft, not approved, cancelled
+    # and that are a part of a project whose default funding source has an english name containing "csrf"
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year).filter(~Q(status__in=[1,5,9]))
     if region != "None":
         qs = qs.filter(project__section__division__branch__region_id=region)
 
@@ -302,7 +367,8 @@ def generate_csrf_submission_list(year, region):
 
         leads = ""
         for l in item.get_project_leads_as_users():
-            leads += l.last_name + ", "
+            if l:
+                leads += l.last_name + ", "
         if len(leads) > 0:
             leads = leads[:-2]
 
@@ -817,3 +883,223 @@ def generate_project_list(user, year, region, section):
         writer.writerow(data_row)
 
     return response
+
+
+def generate_sara_application(project, lang):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.docx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    if lang == "fr":
+        template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "sara_template.docx")
+    else:
+        template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "sara_template.docx")
+
+    with open(template_file_path, 'rb') as f:
+        source_stream = BytesIO(f.read())
+    document = Document(source_stream)
+    source_stream.close()
+
+    priorities = str()
+    for year in project.years.all():
+        priorities += f'{year.fiscal_year}:\n{year.priorities}\n\n'
+
+    references = str()
+    for ref in project.references.all():
+        references += f'{ref.short_citation}\n\n'
+
+    project_length_1 = str()
+    project_length_2 = str()
+    year_count = project.years.count()
+    project_length_str = f"{year_count} year{pluralize(year_count)}"
+    if year_count <= 3:
+        project_length_1 = project_length_str
+    else:
+        project_length_2 = project_length_str
+
+    lead_name = str()
+    lead_email = str()
+    if project.lead_staff.exists():
+        lead = project.lead_staff.first().user
+        lead_name = lead.get_full_name()
+        lead_email = lead.email
+
+    field_work = _("No")
+    for year in project.years.all():
+        if year.has_field_component:
+            field_work = _("Yes")
+            break
+
+    ship_time = _("No")
+    for year in project.years.all():
+        if year.coip_reference_id:
+            ship_time = _("Yes") + f" (COIP ID: {year.coip_reference_id})"
+            break
+
+    risks = str()
+    for activity in models.Activity.objects.filter(project_year__project=project):
+        if activity.risk_description:
+            risks += f'{activity.name.upper()}:\ni) {activity.risk_description}\nii) {activity.mitigation_measures}\n\n'
+
+    data_management = str()
+    for year in project.years.all():
+        if year.has_data_component:
+            data_management += f'{year.fiscal_year}:\n' \
+                               f'i) {year.data_collected}\n' \
+                               f'ii) {year.data_storage_plan}\n' \
+                               f'iii) {year.data_products}\n\n'
+    if len(data_management):
+        data_management += "PLEASE REVIEW THIS SECTION!!!!"
+
+    # COSTS
+    years = project.years.order_by("fiscal_year")
+    if year_count <= 3:
+        years = project.years.all()[:3]
+
+    cats = [
+        ('salary', None),
+        ('contracts', 5),
+        ('equipment', 2),
+        ('supplies', 3),
+        ('travel', 1),
+        ('vessel', None),  # 18
+        ('other', 6),
+        ('overhead', None),  # 24
+        ('total', None),
+    ]
+    types = ["y1", 'y2', 'y3', 'total', 'detail']
+    cost_dict = dict()
+    for c in cats:
+        for t in types:
+            val = str() if t == "detail" else 0
+            cost_dict[f'{c[0]}_{t}'] = val
+    i = 1
+    for year in years:
+        # captial costs
+        for cost in year.capitalcost_set.filter(amount__gt=0):
+            cost_dict[f'equipment_y{i}'] += cost.amount
+            cost_dict[f'equipment_total'] += cost.amount
+            cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description, "MISSING DESCRIPTION")} = {currency(cost.amount, True)} (Captial)\n'
+            cost_dict[f'equipment_detail'] += cost_description
+            cost_dict[f'total_y{i}'] += cost.amount
+
+        # rest of the costs
+        for c in cats:
+            cost_name = c[0]
+            group = c[1]
+            qs = None
+            if not group:
+                if cost_name == "salary":
+                    # start with salary
+                    for staff in year.staff_set.filter(amount__isnull=False, amount__gt=0):
+                        cost_dict[f'salary_y{i}'] += staff.amount
+                        cost_dict[f'salary_total'] += staff.amount
+                        cost_dict[f'total_y{i}'] += staff.amount
+
+                        staff_description = f'{year.fiscal_year} - {staff.smart_name}'
+                        if staff.level: staff_description += f" ({staff.level})"
+                        if staff.duration_weeks: staff_description += f" @ {staff.duration_weeks} weeks"
+                        staff_description += f' = {currency(staff.amount, True)}\n'
+                        cost_dict[f'salary_detail'] += staff_description
+
+                elif cost_name == "overhead":
+                    qs = year.omcost_set.filter(om_category__name__icontains="overhead", amount__gt=0)
+                elif cost_name == "vessel":
+                    qs = year.omcost_set.filter(om_category__name__icontains="vessels", amount__gt=0)
+
+            else:
+                qs = year.omcost_set.filter(om_category__group=group, amount__gt=0)
+                if cost_name == "contracts":
+                    qs = qs.filter(~Q(om_category__name__icontains="vessels"))
+                elif cost_name == "other":
+                    qs = qs.filter(~Q(om_category__name__icontains="overhead"))
+            if qs:
+                for cost in qs:
+                    cost_dict[f'{cost_name}_y{i}'] += cost.amount
+                    cost_dict[f'{cost_name}_total'] += cost.amount
+                    cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description, "MISSING DESCRIPTION")} = {currency(cost.amount, True)} (O&M)\n'
+                    cost_dict[f'{cost_name}_detail'] += cost_description
+                    cost_dict[f'total_y{i}'] += cost.amount
+        i += 1
+
+    # calc the total_total
+    cost_dict['total_total'] = cost_dict['total_y1'] + cost_dict['total_y2'] + cost_dict['total_y3']
+
+    field_dict = dict(
+        TAG_THEME=str(project.client_information.csrf_priority.csrf_sub_theme.csrf_theme) if project.client_information else "MISSING!",
+        TAG_PRIORITY_CODE=str(project.client_information.csrf_priority.code) if project.client_information else "MISSING!",
+        TAG_PRIORITY=str(project.client_information.csrf_priority) if project.client_information else "MISSING!",
+        TAG_CLIENT_INFORMATION=str(project.client_information.description_en) if project.client_information else "MISSING!",
+        TAG_SECOND_PRIORITY=str(project.second_priority),
+        TAG_TITLE=project.title,
+        TAG_PROJECT_LENGTH_1=project_length_1,
+        TAG_PROJECT_LENGTH_2=project_length_2,
+        TAG_LEAD_NAME=lead_name,
+        TAG_LEAD_EMAIL=lead_email,
+        TAG_REGION=str(project.section.division.branch.region.tname) if project.section else "MISSING!",
+        TAG_OVERVIEW=project.overview,
+        TAG_OBJECTIVES=project.objectives,
+        TAG_PRIORITIES=priorities,
+        TAG_INNOVATION=project.innovation,
+        TAG_OTHER_FUNDING=project.other_funding,
+        TAG_REFERENCES=references,
+        TAG_FIELD_WORK=field_work,
+        TAG_SHIP_TIME=ship_time,
+        TAG_RISKS=risks,
+        TAG_DATA_MANAGEMENT=data_management,
+
+    )
+    for c in cats:
+        for t in types:
+            val = str() if t == "detail" else 0
+            field_dict[f'TAG_{c[0].upper()}_{t.upper()}'] = cost_dict[f'{c[0]}_{t}']
+
+    for item in field_dict:
+        # replace the tagged placeholders in tables
+        for table in document.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        if item in paragraph.text:
+                            try:
+                                paragraph.text = paragraph.text.replace(item, str(field_dict[item]))
+                            except Exception as E:
+                                print(E, field_dict[item])
+                                paragraph.text = "MISSING!"
+
+        # replace the tagged placeholders in paragraphs
+        for paragraph in document.paragraphs:
+            if item in paragraph.text:
+                try:
+                    paragraph.text = paragraph.text.replace(item, field_dict[item])
+                except:
+                    paragraph.text = "MISSING!"
+
+    # deal with staff
+    for table in document.tables:
+        if "theme" in table.rows[0].cells[0].paragraphs[0].text.lower():
+            for staff in models.Staff.objects.filter(project_year__project=project).order_by("project_year"):
+                row = table.add_row()
+                row.cells[0].paragraphs[0].text = f'{staff.smart_name} ({staff.project_year.fiscal_year})'
+                row.cells[1].paragraphs[
+                    0].text = f'Role in the project: {staff.role} \nFTE Time: {int(nz(staff.duration_weeks, 0))} weeks ({round(int(nz(staff.duration_weeks, 0)) / 42 * 100)}%)\nKey Expertise: {staff.expertise}'
+                row.cells[2].paragraphs[0].text = _("DFO-") + "[ADD REGION]"
+
+            for c in models.Collaboration.objects.filter(project_year__project=project).order_by("project_year"):
+                row = table.add_row()
+                row.cells[0].paragraphs[0].text = f'{c.people} ({c.get_type_display()})'
+                row.cells[1].paragraphs[0].text = c.notes
+                row.cells[3].paragraphs[0].text = c.organization
+
+        if "overview of the project" in table.rows[0].cells[0].paragraphs[0].text.lower():
+            for activity in models.Activity.objects.filter(project_year__project=project).order_by("project_year"):
+                row = table.add_row()
+                row.cells[0].paragraphs[0].text = f'{activity.project_year.fiscal_year}'
+                row.cells[1].paragraphs[
+                    0].text = f'TYPE: {activity.get_type_display()} \nNAME: {activity.name}\nDESCRIPTION: {activity.description}\nRESPONSIBLE PARTIES: {activity.responsible_party}'
+
+    document.save(target_file_path)
+
+    return target_url

@@ -1152,3 +1152,25 @@ class TestUserListView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("projects2:user_list", f"/en/project-planning/settings/users/")
+
+
+@tag("Reports", "sar_workplan")
+class TestSARWorkplanReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        for i in range(0, 5):
+            FactoryFloor.ProjectYearFactory()
+        self.test_url = reverse_lazy('projects2:export_sar_workplan')
+        self.user = self.get_and_login_user()
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user)
+
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:export_sar_workplan", f"/en/project-planning/reports/sar-workplan/")
+
+

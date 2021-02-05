@@ -4,6 +4,17 @@ from django.utils.translation import gettext as _
 from . import models
 
 
+def special_capitalize(raw_string):
+    """ Little dance to make sure the first letter is capitalized.
+    Do not want to use the capitalize() method since it makes the remaining portion of str lowercase. This is problematic in
+     cases like: `DFO employee` since that would become `Dfo employee`"""
+    first_letter = raw_string[0].upper()
+    str_list = list(raw_string)
+    str_list[0] = first_letter
+    raw_string = "".join(str_list)
+    return raw_string
+
+
 def get_section_choices(full_name=True, region_filter=None, branch_filter=None, division_filter=None):
     if full_name:
         my_attr = "full_name"

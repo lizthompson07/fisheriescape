@@ -8,6 +8,7 @@ var app = new Vue({
     showSubmit: false,
     isACRDP: false,
     isCSRF: false,
+    isSARA: false,
     project_loading: false,
     project: {},
 
@@ -110,8 +111,11 @@ var app = new Vue({
             if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("acrdp") > -1) {
               this.isACRDP = true;
             }
-            if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("csrf") > -1) {
+            else if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("csrf") > -1) {
               this.isCSRF = true;
+            }
+            else if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("sara") > -1) {
+              this.isSARA = true;
             }
           })
     },

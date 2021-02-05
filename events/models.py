@@ -3,13 +3,15 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext
 
 from masterlist.models import Person
-from shared_models.models import SimpleLookup, Lookup, HelpTextLookup, FiscalYear
+from shared_models.models import SimpleLookup, Lookup, HelpTextLookup, FiscalYear, Language
 from shared_models.utils import get_metadata_string
 
 
 class Event(SimpleLookup):
     type_choices = (
-        (1, _("CSAS meeting")),
+        (1, _("CSAS Regional Advisory Process (RAP)")),
+        (2, _("CSAS Science Management Meeting")),
+        (2, _("CSAS Steering Committee Meeting")),
         (9, _("other")),
     )
 
@@ -43,29 +45,63 @@ class Event(SimpleLookup):
     class Meta:
         ordering = ['-updated_at', ]
 
+    @property
+    def attendees(self):
+        return Attendance.objects.filter(invitee__event=self).order_by("invitee").values("invitee").distinct()
+
+    @property
+    def length_days(self):
+        if self.end_date:
+            return (self.end_date - self.start_date).days + 1
+        return 1
+
 
 class Invitee(models.Model):
     # Choices for role
     role_choices = (
-        (1, 'attendee'),
-        (2, 'chair'),
-        (3, 'expert'),
+        (1, 'Attendee'),
+        (2, 'Chair'),
+        (3, 'Expert'),
     )
     status_choices = (
-        (1, 'invited'),
-        (2, 'accepted'),
-        (3, 'declined'),
+        (0, 'Invited'),
+        (1, 'Accepted'),
+        (2, 'Declined'),
+        (9, 'No response'),
     )
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="invitees")
-    person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, verbose_name=_("person"), related_name="invitees")
-    role = models.IntegerField(choices=role_choices, verbose_name=_("role"), default=1)
-    organization = models.CharField(max_length=50)
-    status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=1)
+
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    email = models.EmailField(verbose_name=_("email"))
+    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
+
+    role = models.IntegerField(choices=role_choices, verbose_name=_("Function"), default=1)
+    organization = models.CharField(max_length=50, verbose_name=_("Association"), blank=True, null=True)
+    status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=0)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("Resource", editable=False)
 
     class Meta:
-        ordering = ['status', 'role', 'person__first_name', "person__last_name"]
+        ordering = ['first_name', "last_name"]
+
+    @property
+    def full_name(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+    @property
+    def attendance_fraction(self):
+        return self.attendance.count() / self.event.length_days
+
+
+class Attendance(models.Model):
+    invitee = models.ForeignKey(Invitee, on_delete=models.CASCADE, related_name="attendance", verbose_name=_("attendee"))
+    date = models.DateTimeField(verbose_name=_("date"))
+
+    class Meta:
+        ordering = ['date']
+        unique_together = (("invitee", "date"),)
 
 
 class Note(models.Model):
@@ -99,7 +135,7 @@ class Note(models.Model):
         )
 
     class Meta:
-        ordering = ["-updated_at"]
+        ordering = ["is_complete", "-updated_at", ]
 
 
 def resource_directory_path(instance, filename):
@@ -109,8 +145,8 @@ def resource_directory_path(instance, filename):
 class Resource(SimpleLookup):
     url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
     url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
-    file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
-    file_fr = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
+    # file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
+    # file_fr = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
 
     # meta
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)

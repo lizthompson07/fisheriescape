@@ -1101,6 +1101,8 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("projects2:export_project_status_summary")+f'?year={year};region={region}')
         elif report == 4:
             return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
+        elif report == 5:
+            return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1189,6 +1191,32 @@ def csrf_application(request, pk):
     raise Http404
 
 
+
+
+@login_required()
+def sara_application(request, pk):
+    project = get_object_or_404(models.Project, pk=pk)
+
+    # check if the project lead's profile is up-to-date
+    if not project.lead_staff.exists():
+        messages.error(request, _("Warning: There are no lead staff on this project!!"))
+    lang = get_language()
+    file_url = reports.generate_sara_application(project, lang)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
+            if lang == "fr":
+                filename = f'demande de SARA (no. projet {project.id}).docx'
+            else:
+                filename = f'SARA application (Project ID {project.id}).docx'
+
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
+    raise Http404
+
+
+
 @login_required()
 def export_csrf_submission_list(request):
     year = request.GET.get("year")
@@ -1223,6 +1251,22 @@ def export_project_list(request):
     response = reports.generate_project_list(request.user, year, region, section)
     response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y_%m_%d")}).csv"'
     return response
+
+
+@login_required()
+def export_sar_workplan(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    # Create the HttpResponse object with the appropriate CSV header.
+    print("Region: " + str(region))
+    file_url = reports.generate_sar_workplan(year, region)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="({year}) {region} - SAR Science workingplan.xls"'
+            return response
+    raise Http404
 
 # ADMIN USERS
 
