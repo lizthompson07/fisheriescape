@@ -61,7 +61,7 @@ class Invitee(models.Model):
         (0, 'Invited'),
         (1, 'Accepted'),
         (2, 'Declined'),
-        (9, 'Not response'),
+        (9, 'No response'),
     )
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="invitees")
 
