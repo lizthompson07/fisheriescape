@@ -46,9 +46,12 @@ def get_cont_evnt(contx):
 def comment_parser(comment_str, anix_indv):
     coke_dict = get_comment_keywords_dict()
     parser_list = coke_dict.keys()
+    mortality = False
     for term in parser_list:
         if term.lower() in comment_str.lower():
             adsc = coke_dict[term]
+            if adsc.name == "Mortality":
+                mortality=True
             indvd_parsed = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                 anidc_id=adsc.anidc_id,
                                                 adsc_id=adsc,
@@ -62,4 +65,6 @@ def comment_parser(comment_str, anix_indv):
                 indvd_parsed.save()
             except (ValidationError, IntegrityError):
                 pass
-
+    if mortality:
+        anix_indv.indv_id.indv_valid = False
+        anix_indv.indv_id.save()

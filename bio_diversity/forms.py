@@ -742,23 +742,6 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         # ---------------------------MATURITY SORTING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:

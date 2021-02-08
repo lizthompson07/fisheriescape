@@ -527,6 +527,15 @@ class Event(BioModel):
             return None
         return self.evnt_end.time().strftime("%H:%M")
 
+    @property
+    def is_current(self):
+        if self.evnt_end and self.evnt_end < datetime.now(tz=datetime.timezone.utc):
+            return True
+        elif not self.evnt_end:
+            return True
+        else:
+            return False
+
     def __str__(self):
         return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.start_date)
 
