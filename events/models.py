@@ -143,6 +143,8 @@ def resource_directory_path(instance, filename):
 
 
 class Resource(SimpleLookup):
+    event = models.ForeignKey(Event, related_name='resources', on_delete=models.CASCADE)
+
     url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
     url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
     # file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)

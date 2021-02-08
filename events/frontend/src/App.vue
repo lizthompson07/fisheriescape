@@ -2,7 +2,7 @@
   <div id="app">
     <v-app>
       <v-main>
-        <NavbarComponent/>
+<!--        <NavbarComponent/>-->
         <router-view/>
       </v-main>
     </v-app>
@@ -10,13 +10,13 @@
 </template>
 
 <script>
-import NavbarComponent from "@/components/Navbar.vue";
+// import NavbarComponent from "@/components/Navbar.vue";
 // import {apiService} from "@/common/api_service";
 
 export default {
   name: "App",
   components: {
-    NavbarComponent,
+    // NavbarComponent,
   },
   methods: {
     // async setUserInfo() {

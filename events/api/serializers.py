@@ -137,3 +137,18 @@ class InviteeSerializer(serializers.ModelSerializer):
     def get_role_display(self, instance):
         return instance.get_role_display()
 
+
+class ResourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Resource
+        fields = "__all__"
+
+    date_added = serializers.SerializerMethodField()
+    tname = serializers.SerializerMethodField()
+
+    def get_tname(self, instance):
+        return instance.tname
+
+    def get_date_added(self, instance):
+        return date(instance.created_at)
+

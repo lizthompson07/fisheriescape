@@ -68,6 +68,16 @@ class InviteeModelMetaAPIView(APIView):
         return Response(data)
 
 
+class ResourceModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Resource
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
 class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Event.objects.all().order_by("-created_at")
     # lookup_field = 'slug'
@@ -139,4 +149,23 @@ class InviteeViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get("event"):
             qs = qs.filter(event_id=self.request.query_params.get("event"))
         return qs
-#
+
+
+
+class ResourceViewSet(viewsets.ModelViewSet):
+    queryset = models.Resource.objects.all()
+    serializer_class = serializers.ResourceSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    def get_queryset(self):
+        qs = self.queryset
+        if self.request.query_params.get("event"):
+            qs = qs.filter(event_id=self.request.query_params.get("event"))
+        return qs

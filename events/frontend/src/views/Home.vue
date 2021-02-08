@@ -1,6 +1,10 @@
 <template>
   <div class="home">
     <v-container class="mt-2">
+      <v-breadcrumbs
+          :items="crumbs"
+          divider=">"
+      ></v-breadcrumbs>
       <div class="mt-2 mb-5">
         <div class="text-h3 text-muted mt-2 mb-2">
           Welcome to the DM Apps Event Planner
@@ -53,6 +57,12 @@ export default {
   name: "home",
   data() {
     return {
+      crumbs: [
+        {
+          text: "Home",
+          disabled: true,
+        },
+      ],
       loadingEvents: true,
       events: [],
       tags: [],
@@ -68,9 +78,9 @@ export default {
           value: "tname"
         },
         // {text: 'Author', value: 'author'},
-        { text: "Type", value: "type_display" },
-        { text: "Start date", value: "start_date_display" },
-        { text: "Date created", value: "created_at_display" }
+        {text: "Type", value: "type_display"},
+        {text: "Start date", value: "start_date_display"},
+        {text: "Date created", value: "created_at_display"}
         // {text: "Tags", value: "hashtags_string"}
       ]
 
