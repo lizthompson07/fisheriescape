@@ -152,11 +152,6 @@ class CommonCreate(CommonAuthCreateView):
 
         return context
 
-    # def form_invalid(self, form):
-    #     if form.errors:
-    #         form.add_error(, form.errors['__all__'][0])
-    #     return super().form_invalid(form)
-
 
 class AnidcCreate(mixins.AnidcMixin, CommonCreate):
     pass

@@ -26,28 +26,33 @@ class BioModel(models.Model):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
-        uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                  if isinstance(constraint, models.UniqueConstraint)]
-        for constraint in uniqueness_constraints:
-            # from stackoverflow
-            unique_filter = {}
-            unique_fields = []
-            null_found = False
-            for field_name in constraint.fields:
-                field_value = getattr(self, field_name)
-                if getattr(self, field_name) is None:
-                    unique_filter['%s__isnull' % field_name] = True
-                    null_found = True
-                else:
-                    unique_filter['%s' % field_name] = field_value
-                    unique_fields.append(field_name)
-            if null_found:
-                unique_queryset = self.__class__.objects.filter(**unique_filter)
-                if self.pk:
-                    unique_queryset = unique_queryset.exclude(pk=self.pk)
-                if unique_queryset.exists():
-                    msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                    raise ValidationError(msg)
+
+        try:
+            self.clean_fields()
+            uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                      if isinstance(constraint, models.UniqueConstraint)]
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint.fields:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg, code="unique_together")
+        except ValidationError:
+            pass
 
 
 class BioContainerDet(BioModel):

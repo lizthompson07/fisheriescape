@@ -54,6 +54,8 @@ class CreateDatePrams(forms.ModelForm):
             elif end_date and valid and end_date < today:
                 self.add_error('det_valid', gettext("Cannot be valid after end date"))
 
+        return self.cleaned_data
+
 
 class CreateTimePrams(forms.ModelForm):
 
@@ -104,6 +106,7 @@ class CreateTimePrams(forms.ModelForm):
                     self.add_error('end_time', gettext(
                         "The end date must be after the start date!"
                     ))
+        return self.cleaned_data
 
 
 class AnidcForm(CreatePrams):
@@ -939,10 +942,10 @@ class EvntForm(CreatePrams):
 
     def clean(self):
         cleaned_data = super().clean()
-
+        #
         if not self.is_valid():
-            return cleaned_data
-        # we have to make sure
+            raise ValidationError("Please fill out missing fields.")
+    # we have to make sure
         # the end datetime is after the start datetime
         # and set the datetime values
         if cleaned_data["start_time"]:
@@ -971,6 +974,7 @@ class EvntForm(CreatePrams):
                     self.add_error('end_time', gettext(
                         "The end date must be after the start date!"
                     ))
+        return self.cleaned_data
 
 
 
