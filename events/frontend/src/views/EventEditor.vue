@@ -9,6 +9,8 @@
       <v-select v-model="type" :items="typeChoices" :label="labels.type" required></v-select>
       <v-text-field v-model="location" :label="labels.location"></v-text-field>
       <v-text-field v-model="proponent" :label="labels.proponent"></v-text-field>
+            <v-select v-model="parent_event" :items="parentChoices" :label="labels.parent_event"></v-select>
+
       <div class="row">
         <div class="col">
           <v-date-picker
@@ -66,11 +68,13 @@ export default {
       location: null,
       proponent: null,
       type: null,
+      parent_event: null,
       dates: [],
 
       error: null,
       labels: {},
       typeChoices: [],
+      parentChoices: []
 
     };
   },
@@ -80,6 +84,7 @@ export default {
       apiService(endpoint).then(data => {
         this.labels = data.labels;
         this.typeChoices = data.type_choices;
+        this.parentChoices = data.event_choices;
       });
     },
     onSubmit() {
@@ -119,6 +124,7 @@ export default {
           this.location = data.location;
           this.proponent = data.proponent;
           this.type = data.type;
+          this.parent_event = data.parent_event;
           this.dates = data.dates;
 
         } else {
@@ -146,7 +152,8 @@ export default {
         nom: this.nom,
         location: this.location,
         proponent: this.proponent,
-        type: this.type
+        type: this.type,
+        parent_event: this.parent_event
       };
       if (this.dates.length) {
         let dates = [...this.dates];

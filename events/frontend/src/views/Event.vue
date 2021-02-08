@@ -24,6 +24,12 @@
               <DetailRow :label="eventLabels.name" :value="event.name"></DetailRow>
               <DetailRow :label="eventLabels.nom" :value="event.nom"></DetailRow>
               <DetailRow :label="eventLabels.type" :value="event.type_display"></DetailRow>
+              <tr v-if="event.parent_event">
+                <th class="text-left" v-html="eventLabels.parent_event"></th>
+                <td class="text-left">
+                  <router-link :to="{ name: 'event-detail', params: { id: event.parent_event.id } }">{{ event.parent_event.tname }}</router-link>
+                </td>
+              </tr>
               <DetailRow :label="eventLabels.location" :value="event.location"></DetailRow>
               <DetailRow :label="eventLabels.proponent" :value="event.proponent"></DetailRow>
               <DetailRow label="Dates" :value="event.display_dates"></DetailRow>

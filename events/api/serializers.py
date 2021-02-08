@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.template.defaultfilters import date, pluralize
 from django.utils.translation import gettext
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
 from lib.functions.custom_functions import listrify
@@ -28,6 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.Event
         exclude = ["updated_at", "created_at"]  # "slug", 'author'
@@ -41,6 +43,11 @@ class EventSerializer(serializers.ModelSerializer):
     start_date_display = serializers.SerializerMethodField()
     attendees = serializers.SerializerMethodField()
     length_days = serializers.SerializerMethodField()
+    parent_event = serializers.SerializerMethodField()
+
+    def get_parent_event(self, instance):
+        if instance.parent_event:
+            return EventSerializer(instance.parent_event, read_only=True).data
 
     def get_length_days(self, instance):
         return instance.length_days
@@ -151,4 +158,3 @@ class ResourceSerializer(serializers.ModelSerializer):
 
     def get_date_added(self, instance):
         return date(instance.created_at)
-
