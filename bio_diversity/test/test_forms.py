@@ -31,7 +31,6 @@ class TestAnixForm(CommonTest):
         self.assert_form_valid(self.Form, data=invalid_data)
 
 
-
 @tag("Contx", 'forms')
 class TestContxForm(CommonTest):
 
