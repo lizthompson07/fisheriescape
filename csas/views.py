@@ -10,6 +10,7 @@ from csas import models, forms, filters, utils
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import views as shared_view
+from . import mixins
 
 
 # ======================================================================================================
@@ -1518,6 +1519,88 @@ class CommonCsasAuthLookup(UserPassesTestMixin):
         return super().get_success_url()
 
 
+def delete_managed(request, key, pk):
+    if utils.csas_super(request.user):
+        model = None
+        if key == 'apt':
+            model = models.AptAdvisoryProcessType
+        elif key == 'coh':
+            model = models.CohHonorific
+        elif key == 'loc':
+            model = models.LocLocationProv
+        elif key == 'meq':
+            model = models.MeqQuarter
+        elif key == 'scp':
+            model = models.ScpScope
+        elif key == 'stt':
+            model = models.SttStatus
+
+        if model is not None:
+            model.objects.get(pk=pk).delete()
+            messages.success(request, _("Code has been successfully deleted."))
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+class ManagedFormsetViewMixin(utils.AdminRequiredMixin, shared_view.CommonFormsetView):
+    template_name = 'csas/csas_managed_lists.html'
+    home_url_name = "csas:index"
+    delete_url_name = "csas:delete_managed"
+    container_class = "container bg-light curvy"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['key'] = self.key
+
+        context['auth'] = self.test_func()
+        context['editable'] = context['auth']
+        context.update(super().get_common_context())
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
+class AptManaged(mixins.AptMixin, ManagedFormsetViewMixin):
+    formset_class = forms.AptFormset
+    queryset = models.AptAdvisoryProcessType.objects.all()
+    success_url = reverse_lazy("csas:managed_apt")
+
+
+class CohManaged(mixins.CohMixin, ManagedFormsetViewMixin):
+    formset_class = forms.CohFormset
+    queryset = models.CohHonorific.objects.all()
+    success_url = reverse_lazy("csas:managed_coh")
+
+
+class LocManaged(mixins.LocMixin, ManagedFormsetViewMixin):
+    formset_class = forms.LocFormset
+    queryset = models.LocLocationProv.objects.all()
+    success_url = reverse_lazy("csas:managed_loc")
+
+
+class MeqManaged(mixins.MeqMixin, ManagedFormsetViewMixin):
+    formset_class = forms.MeqFormset
+    queryset = models.MeqQuarter.objects.all()
+    success_url = reverse_lazy("csas:managed_meq")
+
+
+class SttManaged(mixins.SttMixin, ManagedFormsetViewMixin):
+    formset_class = forms.SttFormset
+    queryset = models.SttStatus.objects.all()
+    success_url = reverse_lazy("csas:managed_stt")
+
+
+class ScpManaged(mixins.ScpMixin, ManagedFormsetViewMixin):
+    formset_class = forms.ScpFormset
+    queryset = models.ScpScope.objects.all()
+    success_url = reverse_lazy("csas:managed_scp")
+
+
 class CsasLookupList(CommonCsasAuthLookup, CsasListCommon):
 
     fields = ['id', 'name', 'nom']
@@ -1537,123 +1620,75 @@ class CsasLookupList(CommonCsasAuthLookup, CsasListCommon):
         return context
 
 
-class CohMixin:
-    key = 'coh'
-    model = models.CohHonorific
-    title = _("Honorific")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_coh")
-
-
-class CohList(CohMixin, CsasLookupList):
+class CohList(mixins.CohMixin, CsasLookupList):
     pass
 
 
-class UpdateCohView(CommonCsasAuthLookup, CohMixin, CsasUpdateCommon):
+class UpdateCohView(CommonCsasAuthLookup, mixins.CohMixin, CsasUpdateCommon):
     pass
 
 
-class CreateCohView(CommonCsasAuthLookup, CohMixin, CsasCreateCommon):
+class CreateCohView(CommonCsasAuthLookup, mixins.CohMixin, CsasCreateCommon):
     pass
 
 
-class SttMixin:
-    key = 'stt'
-    model = models.SttStatus
-    title = _("Meeting Status")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_stt")
-
-
-class SttList(SttMixin, CsasLookupList):
+class SttList(mixins.SttMixin, CsasLookupList):
     pass
 
 
-class UpdateSttView(CommonCsasAuthLookup, SttMixin, CsasUpdateCommon):
+class UpdateSttView(CommonCsasAuthLookup, mixins.SttMixin, CsasUpdateCommon):
     pass
 
 
-class CreateSttView(CommonCsasAuthLookup, SttMixin, CsasCreateCommon):
+class CreateSttView(CommonCsasAuthLookup, mixins.SttMixin, CsasCreateCommon):
     pass
 
 
-class MeqMixin:
-    key = 'meq'
-    model = models.MeqQuarter
-    title = _("Meeting Quarter")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_meq")
-
-
-class MeqList(MeqMixin, CsasLookupList):
+class MeqList(mixins.MeqMixin, CsasLookupList):
     pass
 
 
-class UpdateMeqView(CommonCsasAuthLookup, MeqMixin, CsasUpdateCommon):
+class UpdateMeqView(CommonCsasAuthLookup, mixins.MeqMixin, CsasUpdateCommon):
     pass
 
 
-class CreateMeqView(CommonCsasAuthLookup, MeqMixin, CsasCreateCommon):
+class CreateMeqView(CommonCsasAuthLookup, mixins.MeqMixin, CsasCreateCommon):
     pass
 
 
-class LocMixin:
-    key = 'loc'
-    model = models.LocLocationProv
-    title = _("Meeting Location Province")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_loc")
-
-
-class LocList(LocMixin, CsasLookupList):
+class LocList(mixins.LocMixin, CsasLookupList):
     pass
 
 
-class UpdateLocView(CommonCsasAuthLookup, LocMixin, CsasUpdateCommon):
+class UpdateLocView(CommonCsasAuthLookup, mixins.LocMixin, CsasUpdateCommon):
     pass
 
 
-class CreateLocView(CommonCsasAuthLookup, LocMixin, CsasCreateCommon):
+class CreateLocView(CommonCsasAuthLookup, mixins.LocMixin, CsasCreateCommon):
     pass
 
 
-class AptMixin:
-    key = 'apt'
-    model = models.AptAdvisoryProcessType
-    title = _("Advisory Process Type")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_apt")
-
-
-class AptList(AptMixin, CsasLookupList):
+class AptList(mixins.AptMixin, CsasLookupList):
     pass
 
 
-class UpdateAptView(CommonCsasAuthLookup, AptMixin, CsasUpdateCommon):
+class UpdateAptView(CommonCsasAuthLookup, mixins.AptMixin, CsasUpdateCommon):
     pass
 
 
-class CreateAptView(CommonCsasAuthLookup, AptMixin, CsasCreateCommon):
+class CreateAptView(CommonCsasAuthLookup, mixins.AptMixin, CsasCreateCommon):
     pass
 
 
-class ScpMixin:
-    key = 'scp'
-    model = models.ScpScope
-    title = _("Scope")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_scp")
-
-
-class ScpList(ScpMixin, CsasLookupList):
+class ScpList(mixins.ScpMixin, CsasLookupList):
     pass
 
 
-class UpdateScpView(CommonCsasAuthLookup, ScpMixin, CsasUpdateCommon):
+class UpdateScpView(CommonCsasAuthLookup, mixins.ScpMixin, CsasUpdateCommon):
     pass
 
 
-class CreateScpView(CommonCsasAuthLookup, ScpMixin, CsasCreateCommon):
+class CreateScpView(CommonCsasAuthLookup, mixins.ScpMixin, CsasCreateCommon):
     pass
 # ----------------------------------------------------------------------------------------------------
 

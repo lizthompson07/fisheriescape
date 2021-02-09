@@ -1,11 +1,10 @@
 from django import forms
-from django.contrib.auth.context_processors import auth
 
 from . import models
 from . import custom_widgets
 
 from django.forms import Textarea
-from django.contrib.auth.models import User
+from django.forms import modelformset_factory
 
 
 class RequestForm(forms.ModelForm):
@@ -237,3 +236,16 @@ class PublicationFormComResults(forms.ModelForm):
 # End of forms.py
 # ----------------------------------------------------------------------------------------------------
 # 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+
+class LookupForm(forms.ModelForm):
+    class Meta:
+        fields = ['name', 'nom', 'description_en', 'description_fr']
+
+
+AptFormset = modelformset_factory(model=models.AptAdvisoryProcessType, form=LookupForm, extra=1, )
+CohFormset = modelformset_factory(model=models.CohHonorific, form=LookupForm, extra=1, )
+LocFormset = modelformset_factory(model=models.LocLocationProv, form=LookupForm, extra=1, )
+MeqFormset = modelformset_factory(model=models.MeqQuarter, form=LookupForm, extra=1, )
+ScpFormset = modelformset_factory(model=models.ScpScope, form=LookupForm, extra=1, )
+SttFormset = modelformset_factory(model=models.SttStatus, form=LookupForm, extra=1, )

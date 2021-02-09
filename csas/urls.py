@@ -219,4 +219,13 @@ urlpatterns = [
 
     # path('search/', views.SearchFormView.as_view(), name="sample_search"),
     # path('dataflow/', views.DataFlowTemplateView.as_view(), name ="dataflow" ),
+
+    # Managed Lists - This should replace lookup URLs eventually
+    path('settings/delete-managed/<str:key>/<int:pk>/', views.delete_managed, name="delete_managed"),
+    path('managed/apt/', views.AptManaged.as_view(), name="managed_apt"),
+    path('managed/coh/', views.CohManaged.as_view(), name="managed_coh"),
+    path('managed/loc/', views.LocManaged.as_view(), name="managed_loc"),
+    path('managed/meq/', views.MeqManaged.as_view(), name="managed_meq"),
+    path('managed/scp/', views.ScpManaged.as_view(), name="managed_scp"),
+    path('managed/stt/', views.SttManaged.as_view(), name="managed_stt"),
 ]
