@@ -1,3 +1,5 @@
+import math
+
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
@@ -68,6 +70,35 @@ def comment_parser(comment_str, anix_indv):
     if mortality:
         anix_indv.indv_id.indv_valid = False
         anix_indv.indv_id.save()
+
+
+def enter_indvd(anix_pk, cleaned_data, det_value, anidc_str, adsc_str):
+    row_entered = False
+    if not math.isnan(det_value):
+        if adsc_str:
+            indvd = models.IndividualDet(anix_id_id=anix_pk,
+                                         anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                         adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
+                                         det_val=det_value,
+                                         qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                         created_by=cleaned_data["created_by"],
+                                         created_date=cleaned_data["created_date"],
+                                         )
+        else:
+            indvd = models.IndividualDet(anix_id_id=anix_pk,
+                                         anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                         det_val=det_value,
+                                         qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                         created_by=cleaned_data["created_by"],
+                                         created_date=cleaned_data["created_date"],
+                                         )
+        try:
+            indvd.clean()
+            indvd.save()
+            row_entered = True
+        except ValidationError:
+            pass
+    return row_entered
 
 
 def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None):

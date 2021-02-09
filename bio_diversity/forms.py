@@ -12,7 +12,7 @@ from django.utils.translation import gettext
 import pandas as pd
 
 from bio_diversity import models
-from bio_diversity.utils import comment_parser, enter_tank_contx
+from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd
 
 
 class CreatePrams(forms.ModelForm):
@@ -475,64 +475,18 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    if not math.isnan(row["Length (cm)"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
-                                                            det_val=row["Length (cm)"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Weight (g)"]):
-                        indvd_mass = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                          anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
-                                                          det_val=row["Weight (g)"],
-                                                          qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                          created_by=cleaned_data["created_by"],
-                                                          created_date=cleaned_data["created_date"],
-                                                          )
-                        try:
-                            indvd_mass.clean()
-                            indvd_mass.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Vial"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(
-                                                                name="Vial").get(),
-                                                            det_val=row["Vial"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Box"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(
-                                                                name="Box").get(),
-                                                            det_val=row["Box"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Length (cm)"], "Length", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Weight (g)"], "Weight", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Vial"], "Vial", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Box"], "Box", None):
+                        row_entered = True
+
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
@@ -639,51 +593,15 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    if not math.isnan(row["Length (cm)"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(
-                                                                name="Length").get(),
-                                                            det_val=row["Length (cm)"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Weight (g)"]):
-                        indvd_mass = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                          anidc_id=models.AnimalDetCode.objects.filter(
-                                                              name="Weight").get(),
-                                                          det_val=row["Weight (g)"],
-                                                          qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                          created_by=cleaned_data["created_by"],
-                                                          created_date=cleaned_data["created_date"],
-                                                          )
-                        try:
-                            indvd_mass.clean()
-                            indvd_mass.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Vial Number"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(
-                                                                name="Vial").get(),
-                                                            det_val=row["Vial Number"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Length (cm)"], "Length", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Weight (g)"], "Weight", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Vial Number"], "Vial", None):
+                        row_entered = True
+
                     if row["Comments"]:
                         comment_parser(row["Comments"], anix_indv)
                 except Exception as err:
@@ -751,6 +669,10 @@ class DataForm(CreatePrams):
                                                                             grp_id__isnull=True,
                                                                             indvt_id__isnull=True,
                                                                             ).get()
+
+                        if enter_indvd(anix_indv.pk, cleaned_data, "", "Gender", row["SEX"]):
+                            row_entered = True
+
                         if row["SEX"]:
                             indvd_sex = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                              anidc_id=models.AnimalDetCode.objects.filter(

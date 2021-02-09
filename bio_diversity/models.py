@@ -637,15 +637,13 @@ class GroupDet(BioModel):
 
     def clean(self):
         super(GroupDet, self).clean()
-        if self.is_numeric():
+        if self.is_numeric() and self.det_val is not None:
             try:
                 float(self.det_val)
             except ValueError:
                 raise ValidationError({
                     "det_val": ValidationError(_("Enter a numeric value"), code="detail_must_be_numeric")
                 })
-
-        if self.det_val and self.is_numeric():
             if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
@@ -657,16 +655,6 @@ class GroupDet(BioModel):
             return True
         else:
             return False
-
-
-
-
-
-
-
-
-
-
 
 
 class HeathUnit(BioLookup):
@@ -832,7 +820,7 @@ class IndividualDet(BioModel):
 
     def clean(self):
         super(IndividualDet, self).clean()
-        if self.is_numeric():
+        if self.is_numeric() and self.det_val is not None:
             try:
                 float(self.det_val)
             except ValueError:
@@ -840,7 +828,6 @@ class IndividualDet(BioModel):
                     "det_val": ValidationError(_("Enter a numeric value"), code="detail_must_be_numeric")
                 })
 
-        if self.det_val and self.is_numeric():
             if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"

@@ -52,6 +52,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
     evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
     contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    final_contx_flag = factory.lazy_attribute(lambda o: faker.boolean())
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
     indvt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtFactory")
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
@@ -77,6 +78,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
             'evnt_id': evnt.pk,
             'contx_id': contx.pk,
+            'final_contx_flag': obj.final_contx_flag,
             'loc_id': loc.pk,
             'indvt_id': indvt.pk,
             'indv_id': indv.pk,
