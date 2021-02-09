@@ -167,7 +167,6 @@ def get_tr_reviewers(trip_request):
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.head, role_id=2, )
         except (IntegrityError, AttributeError):
             pass
-            # print("not adding section head")
 
         # division level recommender  - only applies if this is not the division manager
         try:
@@ -176,7 +175,6 @@ def get_tr_reviewers(trip_request):
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role_id=2, )
         except (IntegrityError, AttributeError):
             pass
-            # print("not adding division manager")
 
         # Branch level reviewer - only applies if this is not the RDS
         try:
@@ -186,9 +184,6 @@ def get_tr_reviewers(trip_request):
                 for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.all():
                     models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role_id=1)
 
-                if trip_request.section.division.branch.region_id == 2:
-                    my_user = User.objects.get(pk=1102)
-                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=my_user, role_id=1, )  # MAR RDSO ADMIN user
         except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
 
@@ -199,9 +194,8 @@ def get_tr_reviewers(trip_request):
                                                       role_id=2, )
         except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
-            # print("not adding RDS")
 
-    # should the ADMs office be invovled?
+    # should the ADMs office be involved?
     if trip_request.trip:
         if trip_request.trip.is_adm_approval_required:
             # add the ADMs office staff
@@ -209,14 +203,12 @@ def get_tr_reviewers(trip_request):
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=626, role_id=5, )  # Arran McPherson
             except IntegrityError:
                 pass
-                # print("not adding NCR ADM")
 
     # finally, we always need to add the RDG
     try:
         models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.region.head, role_id=6, )
     except (IntegrityError, AttributeError):
         pass
-        # print("not adding RDG")
 
     trip_request.save()
 

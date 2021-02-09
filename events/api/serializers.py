@@ -27,6 +27,49 @@ class UserSerializer(serializers.ModelSerializer):
         return instance.get_full_name()
 
 
+class EventSerializerLITE(serializers.ModelSerializer):
+    class Meta:
+        model = models.Event
+        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+
+    tname = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+    display_dates = serializers.SerializerMethodField()
+    dates = serializers.SerializerMethodField()
+    start_date_display = serializers.SerializerMethodField()
+    type_display = serializers.SerializerMethodField()
+
+    def get_start_date_display(self, instance):
+        return date(instance.start_date)
+
+    def get_dates(self, instance):
+        dates = list()
+        if instance.start_date:
+            dates.append(instance.start_date.strftime("%Y-%m-%d"))
+        if instance.end_date:
+            dates.append(instance.end_date.strftime("%Y-%m-%d"))
+        return dates
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_tname(self, instance):
+        return instance.tname
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
+    def get_display_dates(self, instance):
+        start = date(instance.start_date) if instance.start_date else "??"
+        dates = f'{start}'
+        if instance.end_date and instance.end_date != instance.start_date:
+            end = date(instance.end_date)
+            dates += f' &rarr; {end}'
+        days_display = "{} {}{}".format(instance.length_days, gettext("day"), pluralize(instance.length_days))
+        dates += f' ({days_display})'
+        return dates
+
+
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Event
@@ -41,6 +84,15 @@ class EventSerializer(serializers.ModelSerializer):
     start_date_display = serializers.SerializerMethodField()
     attendees = serializers.SerializerMethodField()
     length_days = serializers.SerializerMethodField()
+    parent_event_display = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+
+    def get_children(self, instance):
+        return EventSerializerLITE(instance.children.all(), many=True, read_only=True).data
+
+    def get_parent_event_display(self, instance):
+        if instance.parent_event:
+            return EventSerializer(instance.parent_event, read_only=True).data
 
     def get_length_days(self, instance):
         return instance.length_days
@@ -137,3 +189,17 @@ class InviteeSerializer(serializers.ModelSerializer):
     def get_role_display(self, instance):
         return instance.get_role_display()
 
+
+class ResourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Resource
+        fields = "__all__"
+
+    date_added = serializers.SerializerMethodField()
+    tname = serializers.SerializerMethodField()
+
+    def get_tname(self, instance):
+        return instance.tname
+
+    def get_date_added(self, instance):
+        return date(instance.created_at)

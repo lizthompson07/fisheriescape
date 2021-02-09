@@ -81,7 +81,7 @@
 import {apiService} from "@/common/api_service";
 
 export default {
-  name: "NoteEditorOverlay",
+  name: "InviteeEditorOverlay",
   props: {
     event_id: {
       required: false

@@ -184,14 +184,17 @@ class Project(models.Model):
 
     # CSRF fields
     client_information = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                            verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
+                                           verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
     second_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                            verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
+                                        verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
 
     objectives = models.TextField(blank=True, null=True, verbose_name=_("project objectives (CSRF)"))
-    # objectives_methods = models.TextField(blank=True, null=True, verbose_name=_("methods applied to achieve objectives (CSRF)"))
     innovation = models.TextField(blank=True, null=True, verbose_name=_("innovation (CSRF)"))
-    other_funding = models.TextField(blank=True, null=True, verbose_name=_("other sources of funding (CSRF)"))
+    other_funding = models.TextField(blank=True, null=True, verbose_name=_("other sources of funding (CSRF)"))  # SARA
+
+    # SARA Fields
+    reporting_mechanism = models.TextField(blank=True, null=True, verbose_name=_("quarterly reporting mechanisms (SARA)"))  # SARA
+    future_funding_needs = models.TextField(blank=True, null=True, verbose_name=_("description of future funding needs, if any (SARA)"))  # SARA
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
@@ -628,12 +631,8 @@ class Staff(GenericCost):
     role = models.TextField(blank=True, null=True, verbose_name=_("role in the project"))  # CSRF
     expertise = models.TextField(blank=True, null=True, verbose_name=_("key expertise"))  # CSRF
 
-
     def __str__(self):
-        if self.user:
-            return "{} {}".format(self.user.first_name, self.user.last_name)
-        else:
-            return "{}".format(self.name)
+        return self.smart_name
 
     class Meta:
         ordering = ['employee_type', 'level']
@@ -705,6 +704,7 @@ class CapitalCost(GenericCost):
     class Meta:
         ordering = ['category', ]
 
+
 # TODO: delete me
 class GCCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="gc_costs", verbose_name=_("project year"))
@@ -750,6 +750,7 @@ class Collaboration(models.Model):
         mystr = f"{self.get_type_display()} {self.id}"
         return mystr
 
+
 # TODO: delete me
 class Collaborator(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project year"))
@@ -762,6 +763,7 @@ class Collaborator(models.Model):
 
     def __str__(self):
         return "{}".format(self.name)
+
 
 # TODO: delete me
 class CollaborativeAgreement(models.Model):
@@ -1007,7 +1009,6 @@ class Review(models.Model):
         return self.score_html_template("scale")
 
 
-
 class Activity(models.Model):
     type_choices = (
         (1, _("Milestone")),
@@ -1089,7 +1090,6 @@ class ActivityUpdate(models.Model):
     def notes_html(self):
         if self.notes:
             return mark_safe(markdown(self.notes))
-
 
 
 def ref_mat_directory_path(instance, filename):

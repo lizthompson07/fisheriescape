@@ -2,21 +2,21 @@
   <div id="app">
     <v-app>
       <v-main>
-        <NavbarComponent/>
-        <router-view/>
+<!--        <NavbarComponent/>-->
+        <router-view :key="$route.fullPath"/>
       </v-main>
     </v-app>
   </div>
 </template>
 
 <script>
-import NavbarComponent from "@/components/Navbar.vue";
+// import NavbarComponent from "@/components/Navbar.vue";
 // import {apiService} from "@/common/api_service";
 
 export default {
   name: "App",
   components: {
-    NavbarComponent,
+    // NavbarComponent,
   },
   methods: {
     // async setUserInfo() {

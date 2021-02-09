@@ -1,7 +1,7 @@
 <template>
   <tr>
     <td> {{ invitee.full_name }}</td>
-<!--    <td>{{ invitee.email }}</td>-->
+    <!--    <td>{{ invitee.email }}</td>-->
     <td> {{ invitee.organization }}</td>
     <td>{{ invitee.role_display }}</td>
 
@@ -12,7 +12,13 @@
       </v-btn>
     </td>
     <td v-else>
-      Attended ({{invitee.attendance_percentage}})
+      Attended ({{ invitee.attendance_percentage }})
+    </td>
+
+    <td>
+      <v-btn small onclick="window.alert('i am a placeholder :) ')">
+        <v-icon small>mdi-email</v-icon>
+      </v-btn>
     </td>
 
     <td>

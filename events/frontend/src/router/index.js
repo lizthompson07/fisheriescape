@@ -33,7 +33,12 @@ const routes = [
     component: EventEditor,
     props: true
   },
-
+  {
+    path: "/events/:parent_id/new-child",
+    name: "event-new-child",
+    component: EventEditor,
+    props: true
+  },
   // {
   //   path: "tag/:slug",
   //   name: "tag",

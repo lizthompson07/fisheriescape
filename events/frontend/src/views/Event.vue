@@ -1,6 +1,10 @@
 <template>
   <div class="mt-3">
     <v-container v-if="event">
+      <v-breadcrumbs
+          :items="crumbs"
+          divider=">"
+      ></v-breadcrumbs>
       <v-row>
         <v-col cols="9">
           <div class="float-right">
@@ -20,6 +24,12 @@
               <DetailRow :label="eventLabels.name" :value="event.name"></DetailRow>
               <DetailRow :label="eventLabels.nom" :value="event.nom"></DetailRow>
               <DetailRow :label="eventLabels.type" :value="event.type_display"></DetailRow>
+              <tr v-if="event.parent_event">
+                <th class="text-left" v-html="eventLabels.parent_event"></th>
+                <td class="text-left">
+                  <router-link :to="{ name: 'event-detail', params: { id: event.parent_event_display.id } }">{{ event.parent_event_display.tname }}</router-link>
+                </td>
+              </tr>
               <DetailRow :label="eventLabels.location" :value="event.location"></DetailRow>
               <DetailRow :label="eventLabels.proponent" :value="event.proponent"></DetailRow>
               <DetailRow label="Dates" :value="event.display_dates"></DetailRow>
@@ -32,20 +42,25 @@
           </v-simple-table>
 
           <div class="mt-5">
-            <div class="float-right">
-              <InviteeEditorOverlay
-                  v-if="event.id"
-                  :event_id="event.id"
-                  @update-invitees="updateInvitees"
-              ></InviteeEditorOverlay>
-            </div>
-            <h1>Invitees</h1>
+            <table>
+              <tr>
+                <td class="pr-5 mr-3">
+                  <h1>Invitees</h1>
+                </td>
+                <td>
+                  <InviteeEditorOverlay
+                      v-if="event.id"
+                      :event_id="event.id"
+                      @update-invitees="updateInvitees"
+                  ></InviteeEditorOverlay>
+                </td>
+              </tr>
+            </table>
             <v-simple-table dense>
               <template v-slot:default>
                 <thead>
                 <tr>
                   <th class="text-left"> Name</th>
-                  <!--                  <th class="text-left"> Email</th>-->
                   <th class="text-left"> Association</th>
                   <th class="text-left"> Function</th>
                   <th class="text-left"> Status</th>
@@ -69,24 +84,103 @@
 
 
           <div class="mt-5">
-            <h1>Resources</h1>
+            <table>
+
+              <tr>
+                <td class="pr-5 mr-3">
+                  <h1>Resources</h1>
+                </td>
+                <td>
+                  <ResourceEditorOverlay
+                      v-if="event.id"
+                      :event_id="event.id"
+                      @update-resources="updateResources"
+                  ></ResourceEditorOverlay>
+                </td>
+              </tr>
+            </table>
+            <v-simple-table dense>
+              <template v-slot:default>
+                <thead>
+                <tr>
+                  <th class="text-left"> Name</th>
+                  <th class="text-left"> URLs</th>
+                  <th class="text-left"> Date added</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <ResourceTableRow
+                    v-for="(resource, index) in resources"
+                    :key="index"
+                    :resource="resource"
+                    @update-resources="getEvent(false)"
+                ></ResourceTableRow>
+
+
+                </tbody>
+              </template>
+            </v-simple-table>
+
           </div>
 
 
           <div class="mt-5">
-            <h1>Children</h1>
+            <table>
+
+              <tr>
+                <td class="pr-5 mr-3">
+                  <h1>Children</h1>
+                </td>
+                <td>
+                  <v-btn v-if="event.id" :to="{ name: 'event-new-child', params: {parent_id: event.id} }">
+                    <v-icon>mdi-plus</v-icon>
+                  </v-btn>
+                </td>
+              </tr>
+            </table>
+            <v-simple-table dense>
+              <template v-slot:default>
+                <thead>
+                <tr>
+                  <th class="text-left"> Name</th>
+                  <th class="text-left"> Type</th>
+                  <th class="text-left"> Dates</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr v-for="(child, index) in event.children" :key="index">
+                  <td>
+                    <router-link :to="{name: 'event-detail', params:{id: child.id}}">{{ child.tname }}</router-link>
+                  </td>
+                  <td> {{ child.type_display }}</td>
+                  <td>{{ child.display_dates }}</td>
+                </tr>
+
+
+                </tbody>
+              </template>
+            </v-simple-table>
+
           </div>
 
         </v-col>
         <v-col>
-          <div class="float-right">
-            <NoteEditorOverlay
-                v-if="event.id"
-                :event_id="event.id"
-                @update-notes="updateNotes"
-            ></NoteEditorOverlay>
-          </div>
-          <h1>Notes</h1>
+          <table>
+            <tr>
+              <td class="pr-5">
+                <h1>Notes</h1>
+              </td>
+              <td>
+                <NoteEditorOverlay
+                    v-if="event.id"
+                    :event_id="event.id"
+                    @update-notes="updateNotes"
+                ></NoteEditorOverlay>
+              </td>
+            </tr>
+          </table>
           <div v-for="(note, index) in notes" :key="index" class="py-1">
             <NoteCard :note="note" @update-notes="updateNotes"></NoteCard>
           </div>
@@ -105,9 +199,11 @@ import {apiService} from "@/common/api_service";
 import DeleteEventDialogBox from "@/components/DeleteEventDialogBox.vue";
 import NoteEditorOverlay from "@/components/NoteEditorOverlay";
 import InviteeEditorOverlay from "@/components/InviteeEditorOverlay";
-import DetailRow from "@/components/DetailRow";
 import InviteeTableRow from "@/components/InviteeTableRow";
+import DetailRow from "@/components/DetailRow";
 import NoteCard from "@/components/NoteCard";
+import ResourceEditorOverlay from "@/components/ResourceEditorOverlay";
+import ResourceTableRow from "@/components/ResourceTableRow";
 
 export default {
   name: "Event",
@@ -118,9 +214,21 @@ export default {
   },
   data() {
     return {
+      crumbs: [
+        {
+          text: "Home",
+          disabled: false,
+          href: this.$router.resolve({name: "home"}).href
+        },
+        {
+          text: "Event Detail",
+          disabled: true
+        },
+      ],
       event: {},
       notes: [],
       invitees: [],
+      resources: [],
       message404: "404 - Page Not Found",
       eventLabels: {}
     };
@@ -131,7 +239,10 @@ export default {
     InviteeEditorOverlay,
     DetailRow,
     InviteeTableRow,
-    NoteCard
+    NoteCard,
+    ResourceTableRow,
+    ResourceEditorOverlay
+
   },
   methods: {
     getEventMetadata() {
@@ -152,6 +263,12 @@ export default {
         this.invitees = data.results;
       });
     },
+    updateResources() {
+      let endpoint = `/api/events-planner/resources/?event=${this.event.id}`;
+      apiService(endpoint).then(data => {
+        this.resources = data.results;
+      });
+    },
     getEvent(update_notes = true) {
       let endpoint = `/api/events-planner/events/${this.id}/`;
       apiService(endpoint).then(data => {
@@ -159,6 +276,7 @@ export default {
           this.event = data;
           if (update_notes) this.notes = this.updateNotes();
           this.invitees = this.updateInvitees();
+          this.resources = this.updateResources();
           document.title = data.tname;
         } else {
           this.event = null;
@@ -179,7 +297,9 @@ export default {
         return this.event.attendees.split(",").length;
       }
       return 0;
-    }
+    },
+
+
     // isCurrentUsersRecipe() {
     //   return this.current_user === this.recipe.author;
     // }
@@ -187,7 +307,7 @@ export default {
   created() {
     this.getEventMetadata();
     this.getEvent();
-  },
+  }
 };
 </script>
 
