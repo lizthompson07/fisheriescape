@@ -642,6 +642,8 @@ class Staff(GenericCost):
     def smart_name(self):
         if self.user or self.name:
             return self.user.get_full_name() if self.user else self.name
+        else:
+            return "---"
 
     def save(self, *args, **kwargs):
         if self.user:

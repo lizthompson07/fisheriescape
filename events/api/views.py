@@ -118,15 +118,6 @@ class NoteViewSet(viewsets.ModelViewSet):
 
 
 
-class UserListAPIView(ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'last_name', 'email']
-
-
 class InviteeViewSet(viewsets.ModelViewSet):
     queryset = models.Invitee.objects.all()
     serializer_class = serializers.InviteeSerializer

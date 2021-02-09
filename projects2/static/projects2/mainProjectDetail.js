@@ -1,3 +1,4 @@
+Vue.component('v-select', VueSelect.VueSelect);
 var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
@@ -108,13 +109,11 @@ var app = new Vue({
           .then(response => {
             this.project_loading = false;
             this.project = response;
-            if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("acrdp") > -1) {
+            if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("acrdp") > -1) {
               this.isACRDP = true;
-            }
-            else if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("csrf") > -1) {
+            } else if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("csrf") > -1) {
               this.isCSRF = true;
-            }
-            else if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("sara") > -1) {
+            } else if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("sara") > -1) {
               this.isSARA = true;
             }
           })
@@ -469,7 +468,6 @@ var app = new Vue({
         return name.toLowerCase().search("c-base") > -1
       }
     },
-
   },
 
   filters: {
@@ -553,7 +551,6 @@ var app = new Vue({
     this.getCurrentUser(projectId)
     this.getProject(projectId)
   },
-  mounted() {
-  },
+  mounted() {},
 });
 

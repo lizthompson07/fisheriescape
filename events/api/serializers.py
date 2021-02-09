@@ -9,24 +9,6 @@ from lib.templatetags.custom_filters import percentage
 from .. import models
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "first_name",
-            "last_name",
-            "email",
-            "username",
-            "full_name"
-        ]
-
-    full_name = serializers.SerializerMethodField()
-
-    def get_full_name(self, instance):
-        return instance.get_full_name()
-
-
 class EventSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.Event

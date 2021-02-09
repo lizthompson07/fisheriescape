@@ -30,6 +30,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('tracking/', include('tracking.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
+    path('api/shared/', include('shared_models.api.urls')),
 ]
 
 # Add application APIs

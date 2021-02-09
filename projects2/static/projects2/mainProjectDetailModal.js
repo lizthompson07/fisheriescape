@@ -42,6 +42,8 @@ Vue.component("modal", {
   data() {
     return {
       currentUser: null,
+      DmAppsUsers: [],
+      loadingDMAppsUsers: false,
       isACRDP: false,
       isCSRF: false,
       staff: {
@@ -128,6 +130,24 @@ Vue.component("modal", {
     }
   },
   methods: {
+    fetchDMAppsUsers(value) {
+      // Items have not already been requested
+      if (!this.loadingDMAppsUsers) {
+        // Handle empty value
+        if (!value || value === "") {
+          // this.DmAppsUsers = [];
+          // this.user = "";
+        } else {
+          this.loadingDMAppsUsers = true;
+
+          let endpoint = `/api/shared/users/?search=${value}`;
+          apiService(endpoint).then(data => {
+            this.DmAppsUsers = data.results;
+            this.loadingDMAppsUsers = false;
+          });
+        }
+      }
+    },
     onFileChange() {
       this.fileToUpload = this.$refs.file.files[0];
     },
@@ -412,8 +432,7 @@ Vue.component("modal", {
         if (this.currentUser && this.currentUser.id == this.my_staff.user && !this.projectLeadWarningIssued && this.staff.is_lead === "False") {
           alert(warningMsg);
           this.projectLeadWarningIssued = true
-        }
-        else if (this.currentUser && this.currentUser.id == this.original_user && !this.projectLeadWarningIssued && this.my_staff.user !== this.original_user) {
+        } else if (this.currentUser && this.currentUser.id == this.original_user && !this.projectLeadWarningIssued && this.my_staff.user !== this.original_user) {
           alert(warningMsg);
           this.projectLeadWarningIssued = true
         }
@@ -506,7 +525,7 @@ Vue.component("modal", {
     if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("csrf") > -1) {
       this.isCSRF = true;
     }
-
+  // staff
     this.$nextTick(() => {
       if (this.mtype === "staff") {
         if (this.my_staff && this.my_staff.id) {
@@ -517,6 +536,9 @@ Vue.component("modal", {
         }
         this.original_user = this.staff.user
         this.adjustStaffFields()
+        if(this.staff.user) {
+          this.fetchDMAppsUsers(this.staff.user)
+        }
       }
       // om costs
       else if (this.mtype === "om_cost") {

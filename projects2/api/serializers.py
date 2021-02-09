@@ -6,6 +6,7 @@ from markdown import markdown
 from rest_framework import serializers
 
 from lib.functions.custom_functions import listrify
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from .. import models
 from ..utils import can_modify_project, in_projects_admin_group, is_management, is_rds
@@ -120,7 +121,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return instance.has_unsubmitted_years
 
     def get_lead_staff(self, instance):
-        return listrify([str(s) for s in instance.lead_staff.all()])
+        return listrify([str(nz(s)) for s in instance.lead_staff.all()])
 
 
 class ProjectYearSerializer(serializers.ModelSerializer):

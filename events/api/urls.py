@@ -10,10 +10,6 @@ router.register(r'invitees', views.InviteeViewSet)
 router.register(r'resources', views.ResourceViewSet)
 
 urlpatterns = [
-    # this should probably be moved to the shared models API, when created
-    path("users/", views.UserListAPIView.as_view(), name="user-list"),
-
-
     path("events-planner/meta/models/event/", views.EventModelMetaAPIView.as_view(), name="event-model-meta"),
     path("events-planner/meta/models/note/", views.NoteModelMetaAPIView.as_view(), name="note-model-meta"),
     path("events-planner/meta/models/invitee/", views.InviteeModelMetaAPIView.as_view(), name="invitee-model-meta"),
