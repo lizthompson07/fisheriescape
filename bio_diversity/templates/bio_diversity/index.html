@@ -13,13 +13,45 @@
                 <div class="col">
                     <hr>
                     <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prog'%}">{% trans "Program " %}</a>
+                        <h2>Data Entry</h2>
                     </div>
+                    <hr>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_evnt'%}">{% trans "Event" %}</a>
                     </div>
                     <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_indv'%}">{% trans "Individual" %}</a>
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:index'%}">{% trans "Quick Entry" %}</a>
+                    </div>
+                    <hr>
+                </div>
+                <div class="col">
+                    <hr>
+                        <div class="container pt-3">
+                            <h2>Reports</h2>
+                        </div>
+                    <hr>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg"  href="{% url 'bio_diversity:index'%}">{% trans "Generate reports" %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg"  href="{% url 'bio_diversity:list_indv'%}">{% trans "Individuals" %}</a>
+                    </div>
+                    <hr>
+                </div>
+                <div class="col">
+                    <hr>
+                        <div class="container pt-3">
+                            <h2>Admin</h2>
+                        </div>
+                    <hr>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:codes_index'%}">{% trans "Codes" %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:facic_index'%}">{% trans "Facility Info" %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:prog_index'%}">{% trans "Programs" %}</a>
                     </div>
                     <hr>
                 </div>

@@ -1,0 +1,57 @@
+{% extends "bio_diversity/bio_diversity_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block body %}
+    <div class="container pt-5 text-center">
+        <div class="jumbotron border border-dark">
+            <h1>{% trans "Biodiversity Tool" %}</h1>
+
+            <div class="row">
+                <div class="col">
+                    <hr>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_prot'%}">{% trans "Protocol " %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_protf'%}">{% trans "Protocol File" %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_inst'%}">{% trans "Instrument" %}</a>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <hr>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_cup'%}">{% trans "Cup" %}</a>
+                    </div>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_draw'%}">{% trans "Drawer" %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_heat'%}">{% trans "Heath Unit" %}</a>
+                    </div>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_tank'%}">{% trans "Tank" %}</a>
+                    </div>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_tray'%}">{% trans "Tray" %}</a>
+                    </div>
+
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_trof'%}">{% trans "Trough" %}</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

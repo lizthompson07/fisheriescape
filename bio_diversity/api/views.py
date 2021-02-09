@@ -18,7 +18,7 @@ from .. import models
 
 # USER
 #######
-class CurrentUserAPIView(APIView):
+class BioCurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
