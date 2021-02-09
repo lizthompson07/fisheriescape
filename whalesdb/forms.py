@@ -3,6 +3,8 @@ from whalesdb import models
 from django.forms import modelformset_factory
 
 import shared_models.models as shared_models
+import sys
+import inspect
 
 
 class CruForm(forms.ModelForm):
@@ -297,14 +299,27 @@ class TeaForm(forms.ModelForm):
         }
 
 
+MODEL_CHOICES = (("1", "One"), ("2", "Two"))
+
+
 class HelpTextForm(forms.ModelForm):
+
+    model = None
+
     class Meta:
-        model = models.HelpText
         fields = "__all__"
         widgets = {
             'eng_text': forms.Textarea(attrs={"rows": 2}),
             'fra_text': forms.Textarea(attrs={"rows": 2}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        clsmembers = [(cls[0], cls[0]) for cls in inspect.getmembers(models, inspect.isclass)]
+        clsmembers.insert(0, ('', ''))
+
+        self.fields['model'] = forms.ChoiceField(choices=clsmembers)
 
 
 HelpTextFormset = modelformset_factory(

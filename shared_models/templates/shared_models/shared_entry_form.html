@@ -17,30 +17,29 @@
                 {{ form.non_field_errors }}
 
                 {% for field in form %}
-                   {% if field.field.create_url %}
-                    <div>
+                    {# If the field has a creation URL associated with it then place an add button after the field #}
+                    {% if field.field.create_url %}
+                     <div>
                         {% bootstrap_label field.label %}
-                         {% if field.name in help_text_dict %}
+                        {% if field.name in help_text_dict %}
                             <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" title="{{ field.label }}"
                              data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover">
                         {% endif %}
-                   </div>
-                    <div class="row col pl-0">
+                     </div>
+                     <div class="row col pl-0">
                         <span class="col">
                         {% bootstrap_field field placeholder="" size="small" show_label=false %}
                         </span><span class="col-1">
                         <button class="btn btn-primary" onclick="return pop('{% url ''|add:field.field.create_url 'pop' %}', 'id_{{field.name}}' )" >+</button>
                         </span>
-                    </div>
+                     </div>
                     {% else %}
-
-                        {% if field.name in help_text_dict %}
+                    {% if field.name in help_text_dict %}
                             <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" title="{{ field.label }}"
                              data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover">
                         {% endif %}
                         {% bootstrap_field field placeholder="" size="small" %}
-
-                   {% endif %}
+                    {% endif %}
                 {% endfor %}
 
                 {% buttons %}
