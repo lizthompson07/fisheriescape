@@ -24,7 +24,7 @@
       <span class="icon mdi mdi-file-word"></span>
       {% trans "CSRF Application (EN)" %}
     </a>
-    <a v-else-if="isSARA" class="{{ btn_class_black }}" onclick="userProfileWarning()" href="{% url 'projects2:sara_application' object.id %}">
+    <a v-else-if="isSARA" class="{{ btn_class_black }}" onclick="saraWarning()" href="{% url 'projects2:sara_application' object.id %}">
       <span class="icon mdi mdi-file-word"></span>
       {% trans "SARA Application (EN)" %}
     </a>
@@ -34,6 +34,9 @@
     function userProfileWarning() {
       alert("This report will pull some information from the project lead's DM Apps profile. Please ensure the profile information is complete and up-to-date. " +
           "You can access your profile by clicking on the circle with your initials at the top right.")
+    }
+    function saraWarning() {
+      alert("The SARA application is currently a single year proposal. When there is more than one project year, this report will be drawn from the last project year.")
     }
     </script>
 

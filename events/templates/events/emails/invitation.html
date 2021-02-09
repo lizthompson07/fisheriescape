@@ -1,15 +1,14 @@
 {% load verbose_names %}
 {% load i18n %}
 <style media="screen">
-table, td, th, tr {
+.email-table {
     border: solid 1px black;
     text-align: left;
     margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
 }
 
-.comments {
-{#color: #ff9700;#} font-style: italic;
-}
 </style>
 
 <em>
@@ -24,15 +23,27 @@ table, td, th, tr {
   You have been invited to the following event:
 </p>
 
-<p>
 {% language 'en' %}
-    <table>
-      {% for field in field_list %}
-        {% verbose_td_display invitee.event field %}
+  <p>
+  <table class="email-table">
+    {% for field in field_list %}
+      {% verbose_td_display invitee.event field %}
+    {% endfor %}
+  </table>
+  </p>
+
+  {% if invitee.event.resources.exists %}
+    <p>
+      There {{ invitee.event.resources.count|pluralize:"is,are" }} currently {{ invitee.event.resources.count }}
+      resource{{ invitee.event.resources.count|pluralize }} available for this event:
+    </p>
+    <ol>
+      {% for r in invitee.event.resources.all %}
+        <li><a href="{{ r.turl }}">{{ r.tname }}</a></li>
       {% endfor %}
-    </table>
-  {% endlanguage %}
-</p>
+    </ol>
+  {% endif %}
+{% endlanguage %}
 
 <p>
   Please send your RSVP to the following email: <a href="mailto:{{ invitee.event.rsvp_email }}">{{ invitee.event.rsvp_email }}</a>.
@@ -55,18 +66,29 @@ table, td, th, tr {
   Vous avez été invité à l'événement suivant :
 </p>
 
-<p>
-  {% language 'fr' %}
-    <table>
-      {% for field in field_list %}
-        {% verbose_td_display invitee.event field %}
+{% language 'fr' %}
+  <p>
+  <table class="email-table">
+    {% for field in field_list %}
+      {% verbose_td_display invitee.event field %}
+    {% endfor %}
+  </table>
+  </p>
+   {% if invitee.event.resources.exists %}
+    <p>
+      Il y a actuellement {{ invitee.event.resources.count }} ressource{{ invitee.event.resources.count|pluralize }} disponible{{ invitee.event.resources.count|pluralize }}
+      pour cet événement:
+    </p>
+    <ol>
+      {% for r in invitee.event.resources.all %}
+        <li><a href="{{ r.turl }}">{{ r.tname }}</a></li>
       {% endfor %}
-    </table>
-  {% endlanguage %}
-</p>
+    </ol>
+  {% endif %}
+{% endlanguage %}
 
 <p>
-  Veuillez envoyer votre RSVP à l'adresse e-mail suivante: <a href="mailto:{{ invitee.event.rsvp_email }}"> {{invitee.event.rsvp_email}} </a>.
+  Veuillez envoyer votre RSVP à l'adresse e-mail suivante: <a href="mailto:{{ invitee.event.rsvp_email }}"> {{ invitee.event.rsvp_email }} </a>.
 </p>
 
 <p>

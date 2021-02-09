@@ -38,3 +38,38 @@ class InvitationEmail:
         context.update(my_envr(self.request))
         rendered = t.render(context)
         return rendered
+
+
+class NewResourceEmail:
+    def __init__(self, invitee, resource, request):
+        self.request = request
+        self.subject = "A new resource is available  / " \
+                       "Une nouvelle ressource est disponible"
+        self.message = self.load_html_template(invitee, resource)
+        self.from_email = invitee.event.from_email
+        self.to_list = [invitee.email]
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
+    def to_dict(self):
+        return {
+            "from": self.from_email,
+            "to": listrify(self.to_list),
+            "subject": self.subject,
+            "message": self.message
+        }
+
+    def load_html_template(self, invitee, resource):
+        t = loader.get_template('events/emails/new_resource.html')
+        field_list = [
+            'tname|{}'.format("name"),
+            'display_dates|{}'.format(_("dates")),
+            'location',
+            'proponent',
+            'type',
+        ]
+        context = {'invitee': invitee, "field_list": field_list, "resource": resource}
+        context.update(my_envr(self.request))
+        rendered = t.render(context)
+        return rendered

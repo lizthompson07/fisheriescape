@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from dm_apps.utils import custom_send_mail
 from shared_models.utils import special_capitalize
 from . import serializers
 # USER
@@ -153,7 +154,19 @@ class ResourceViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        resource = serializer.save(created_by=self.request.user)
+
+        # decide on who should receive an update
+        for invitee in resource.event.invitees.all():
+            # only send the email to those who already received an invitation (and where this happened in the past... redundant? )
+            if invitee.invitation_sent_date and invitee.invitation_sent_date < resource.created_at:
+                email = emails.NewResourceEmail(invitee, resource, self.request)
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list
+                )
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
@@ -173,8 +186,16 @@ class InviteeSendInvitationAPIView(APIView):
         invitee = get_object_or_404(models.Invitee, pk=pk)
         if not invitee.invitation_sent_date:
             # send email
+            email = emails.InvitationEmail(invitee, request)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
             invitee.invitation_sent_date = timezone.now()
             invitee.save()
+
 
             return Response("email sent.", status=status.HTTP_200_OK)
         return Response("An email has already been sent to this invitee.", status=status.HTTP_400_BAD_REQUEST)

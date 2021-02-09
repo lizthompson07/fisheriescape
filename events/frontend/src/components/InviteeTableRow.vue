@@ -15,7 +15,7 @@
       Attended ({{ invitee.attendance_percentage }})
     </td>
     <td>
-      <EventEmailOverlay v-if="!invitee.invitation_sent_date" :invitee="invitee">
+      <EventEmailOverlay v-if="!invitee.invitation_sent_date" :invitee="invitee" @update-invitees="$emit('update-invitees')">
       </EventEmailOverlay>
     </td>
 
