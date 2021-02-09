@@ -27,7 +27,7 @@
               <tr v-if="event.parent_event">
                 <th class="text-left" v-html="eventLabels.parent_event"></th>
                 <td class="text-left">
-                  <router-link :to="{ name: 'event-detail', params: { id: event.parent_event.id } }">{{ event.parent_event.tname }}</router-link>
+                  <router-link :to="{ name: 'event-detail', params: { id: event.parent_event_display.id } }">{{ event.parent_event_display.tname }}</router-link>
                 </td>
               </tr>
               <DetailRow :label="eventLabels.location" :value="event.location"></DetailRow>
@@ -126,7 +126,43 @@
 
 
           <div class="mt-5">
-            <h1>Children</h1>
+            <table>
+
+              <tr>
+                <td class="pr-5 mr-3">
+                  <h1>Children</h1>
+                </td>
+                <td>
+                  <v-btn v-if="event.id" :to="{ name: 'event-new-child', params: {parent_id: event.id} }">
+                    <v-icon>mdi-plus</v-icon>
+                  </v-btn>
+                </td>
+              </tr>
+            </table>
+            <v-simple-table dense>
+              <template v-slot:default>
+                <thead>
+                <tr>
+                  <th class="text-left"> Name</th>
+                  <th class="text-left"> Type</th>
+                  <th class="text-left"> Dates</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr v-for="(child, index) in event.children" :key="index">
+                  <td>
+                    <router-link :to="{name: 'event-detail', params:{id: child.id}}">{{ child.tname }}</router-link>
+                  </td>
+                  <td> {{ child.type_display }}</td>
+                  <td>{{ child.display_dates }}</td>
+                </tr>
+
+
+                </tbody>
+              </template>
+            </v-simple-table>
+
           </div>
 
         </v-col>
@@ -271,7 +307,7 @@ export default {
   created() {
     this.getEventMetadata();
     this.getEvent();
-  },
+  }
 };
 </script>
 

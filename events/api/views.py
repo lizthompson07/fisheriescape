@@ -88,9 +88,11 @@ class EventViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
+        print(self.request.data)
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
+        print(self.request.data)
         parent_event = serializer.validated_data.get("parent_event")
         if parent_event == serializer.instance:
             raise ValidationError("An event cannot be it's own parent, silly. ")

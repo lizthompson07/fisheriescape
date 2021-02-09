@@ -3,7 +3,7 @@
     <v-app>
       <v-main>
 <!--        <NavbarComponent/>-->
-        <router-view/>
+        <router-view :key="$route.fullPath"/>
       </v-main>
     </v-app>
   </div>
