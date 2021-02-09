@@ -4,16 +4,18 @@
     <h1 v-else class="mb-3">Create Event</h1>
 
     <form @submit.prevent="onSubmit">
-      <v-text-field v-model="name" :label="labels.name" required color="red"></v-text-field>
-      <v-text-field v-model="nom" :label="labels.nom"></v-text-field>
-      <v-select v-model="type" :items="typeChoices" :label="labels.type" required></v-select>
-      <v-text-field v-model="location" :label="labels.location"></v-text-field>
-      <v-text-field v-model="proponent" :label="labels.proponent"></v-text-field>
+      <v-text-field v-model="eventToEdit.name" :label="labels.name" required color="red"></v-text-field>
+      <v-text-field v-model="eventToEdit.nom" :label="labels.nom"></v-text-field>
+      <v-select v-model="eventToEdit.type" :items="typeChoices" :label="labels.type" required></v-select>
+      <v-text-field v-model="eventToEdit.location" :label="labels.location"></v-text-field>
+      <v-text-field v-model="eventToEdit.proponent" :label="labels.proponent"></v-text-field>
+      <v-select  v-model="eventToEdit.parent_event" :items="parentChoices" :label="labels.parent_event"></v-select>
+
       <div class="row">
         <div class="col">
           <v-date-picker
               label="dates"
-              v-model="dates"
+              v-model="eventToEdit.dates"
               range
           ></v-date-picker>
         </div>
@@ -54,32 +56,41 @@ import {apiService} from "@/common/api_service";
 export default {
   name: "EventEditor",
   props: {
+    parent_id: {
+      required: false
+    },
     id: {
-      // type: String,
-      // required: true
-    }
+      required: false
+    },
   },
   data() {
     return {
-      name: null,
-      nom: null,
-      location: null,
-      proponent: null,
-      type: null,
-      dates: [],
-
+      event: {},
+      eventToEdit: {},
       error: null,
       labels: {},
       typeChoices: [],
-
+      parentChoices: []
     };
   },
   methods: {
+    primeEvent() {
+      this.eventToEdit = {
+        name: null,
+        nom: null,
+        location: null,
+        proponent: null,
+        type: null,
+        dates: [],
+        parent_event: this.parent_id // will either be null or it will already contain the correct value!
+      };
+    },
     getEventMetadata() {
       let endpoint = `/api/events-planner/meta/models/event/`;
       apiService(endpoint).then(data => {
         this.labels = data.labels;
         this.typeChoices = data.type_choices;
+        this.parentChoices = data.event_choices;
       });
     },
     onSubmit() {
@@ -93,11 +104,23 @@ export default {
         endpoint = "/api/events-planner/events/";
         method = "POST";
       }
-      apiService(endpoint, method, this.data).then(response => {
+      var data = this.eventToEdit;
+      if (this.eventToEdit.dates.length) {
+        let dates = [...this.eventToEdit.dates];
+        data.start_date = dates.sort()[0] + " 00:00:00";
+        if (dates.length === 2) {
+          data.end_date = dates.sort()[1] + " 00:00:00";
+        } else {
+          data.end_date = null;
+        }
+      }
+      console.log(data.parent_event)
+      console.log(data)
+      apiService(endpoint, method, data).then(response => {
         if (response.id) {
           this.$router.push({
             name: "event-detail",
-            params: {id: response.id}
+            params: { id: response.id }
           });
         } else {
           this.error = JSON.stringify(response)
@@ -106,62 +129,41 @@ export default {
               .replace("[", "")
               .replace("]", "");
         }
-
       });
     },
-
     getEvent() {
-      let endpoint = `/api/events-planner/events/${this.id}/`;
+      var id;
+      if (this.parent_id) id = this.parent_id;
+      else id = this.id;
+      let endpoint = `/api/events-planner/events/${id}/`;
       apiService(endpoint).then(data => {
         if (data) {
-          this.name = data.name;
-          this.nom = data.nom;
-          this.location = data.location;
-          this.proponent = data.proponent;
-          this.type = data.type;
-          this.dates = data.dates;
-
+          this.event = data;
+          if (this.id) {
+            this.eventToEdit = JSON.parse(JSON.stringify(this.event)); // deep copy;
+          } else if (this.parent_id) {
+            this.primeEvent();
+          }
         } else {
           document.title = this.message404;
         }
       });
     }
-
   },
   created() {
     this.getEventMetadata();
     if (this.id) {
       document.title = "Edit Event";
       this.getEvent();
+    } else if (this.parent_id) {
+      this.getEvent();
+      document.title = "New Child Event";
     } else {
       document.title = "New Event";
-
+      this.primeEvent();
     }
-
   },
-  computed: {
-    data() {
-      var data = {
-        name: this.name,
-        nom: this.nom,
-        location: this.location,
-        proponent: this.proponent,
-        type: this.type
-      };
-      if (this.dates.length) {
-        let dates = [...this.dates];
-
-        data.start_date = dates.sort()[0] + " 00:00:00";
-        if (this.dates.length === 2) {
-          data.end_date = dates.sort()[1] + " 00:00:00";
-        } else {
-          data.end_date = null;
-        }
-      }
-
-      return data;
-    }
-  }
+  computed: {}
 };
 </script>
 

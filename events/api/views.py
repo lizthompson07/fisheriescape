@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework import viewsets, filters
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -42,6 +43,7 @@ class EventModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = _get_labels(self.model)
         data['type_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.type_choices]
+        data['event_choices'] = [dict(text=obj.tname, value=obj.id) for obj in self.model.objects.all()]
         return Response(data)
 
 
@@ -68,6 +70,16 @@ class InviteeModelMetaAPIView(APIView):
         return Response(data)
 
 
+class ResourceModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Resource
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
 class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Event.objects.all().order_by("-created_at")
     # lookup_field = 'slug'
@@ -76,7 +88,16 @@ class EventViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
+        print(self.request.data)
         serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        print(self.request.data)
+        parent_event = serializer.validated_data.get("parent_event")
+        if parent_event == serializer.instance:
+            raise ValidationError("An event cannot be it's own parent, silly. ")
+
+        serializer.save()
 
 
 class NoteViewSet(viewsets.ModelViewSet):
@@ -139,4 +160,23 @@ class InviteeViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get("event"):
             qs = qs.filter(event_id=self.request.query_params.get("event"))
         return qs
-#
+
+
+
+class ResourceViewSet(viewsets.ModelViewSet):
+    queryset = models.Resource.objects.all()
+    serializer_class = serializers.ResourceSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    def get_queryset(self):
+        qs = self.queryset
+        if self.request.query_params.get("event"):
+            qs = qs.filter(event_id=self.request.query_params.get("event"))
+        return qs

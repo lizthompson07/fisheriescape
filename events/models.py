@@ -11,7 +11,7 @@ class Event(SimpleLookup):
     type_choices = (
         (1, _("CSAS Regional Advisory Process (RAP)")),
         (2, _("CSAS Science Management Meeting")),
-        (2, _("CSAS Steering Committee Meeting")),
+        (3, _("CSAS Steering Committee Meeting")),
         (9, _("other")),
     )
 
@@ -32,6 +32,7 @@ class Event(SimpleLookup):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"), editable=False)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("created by"), related_name="user_events_created_by",
                                    editable=False)
+    parent_event = models.ForeignKey("Event", related_name='children', on_delete=models.CASCADE, blank=True, null=True, verbose_name=_("parent event"))
 
     @property
     def metadata(self):
@@ -82,6 +83,8 @@ class Invitee(models.Model):
     status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=0)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("Resource", editable=False)
+
+
 
     class Meta:
         ordering = ['first_name', "last_name"]
@@ -143,6 +146,8 @@ def resource_directory_path(instance, filename):
 
 
 class Resource(SimpleLookup):
+    event = models.ForeignKey(Event, related_name='resources', on_delete=models.CASCADE)
+
     url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
     url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
     # file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)

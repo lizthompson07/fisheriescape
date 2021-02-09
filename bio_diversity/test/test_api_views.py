@@ -16,10 +16,10 @@ class TestCurrentUser(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.test_url = reverse("current-user")
+        self.test_url = reverse("bio-current-user")
 
     def test_url(self):
-        self.assert_correct_url("current-user", expected_url_path=f"/api/bio_diversity/user/")
+        self.assert_correct_url("bio-current-user", expected_url_path=f"/api/bio_diversity/user/")
 
     def test_authenticated(self):
         response = self.client.get(self.test_url)
