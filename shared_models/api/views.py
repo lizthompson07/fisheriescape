@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework import filters
+from rest_framework import filters, status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -29,11 +29,10 @@ class UserListAPIView(ListAPIView):
     search_fields = ['first_name', 'last_name', 'email', 'id']
 
 
-# TODO: This will be a good endpoint for shared models!!
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = serializers.UserDisplaySerializer(instance=request.user)
+        serializer = serializers.CurrentUserSerializer(instance=request.user)
         data = serializer.data
-        return Response(data)
+        return Response(data, status=status.HTTP_200_OK)

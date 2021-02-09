@@ -16,4 +16,5 @@ urlpatterns = [
     path("events-planner/meta/models/resource/", views.ResourceModelMetaAPIView.as_view(), name="resource-model-meta"),
     path("events-planner/", include(router.urls)),
 
+    path("events-planner/invitees/<int:pk>/invitation/", views.InviteeSendInvitationAPIView.as_view(), name="invitee-send-invitation"),
 ]

@@ -1,21 +1,19 @@
 from datetime import datetime
 
-from django.contrib.auth.models import User
 from django.utils import timezone
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from masterlist.models import Person
 from shared_models.utils import special_capitalize
 from . import serializers
 # USER
 #######
 from .pagination import StandardResultsSetPagination
-from .. import models
+from .. import models, emails
 
 
 def _get_labels(model):
@@ -88,11 +86,9 @@ class EventViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        print(self.request.data)
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        print(self.request.data)
         parent_event = serializer.validated_data.get("parent_event")
         if parent_event == serializer.instance:
             raise ValidationError("An event cannot be it's own parent, silly. ")
@@ -117,7 +113,6 @@ class NoteViewSet(viewsets.ModelViewSet):
         return qs
 
 
-
 class InviteeViewSet(viewsets.ModelViewSet):
     queryset = models.Invitee.objects.all()
     serializer_class = serializers.InviteeSerializer
@@ -126,7 +121,6 @@ class InviteeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
-
 
     def perform_update(self, serializer):
         obj = serializer.save()
@@ -145,13 +139,11 @@ class InviteeViewSet(viewsets.ModelViewSet):
                 dt = timezone.make_aware(dt, timezone.get_current_timezone())
                 models.Attendance.objects.create(invitee=obj, date=dt)
 
-
     def get_queryset(self):
         qs = self.queryset
         if self.request.query_params.get("event"):
             qs = qs.filter(event_id=self.request.query_params.get("event"))
         return qs
-
 
 
 class ResourceViewSet(viewsets.ModelViewSet):
@@ -171,3 +163,25 @@ class ResourceViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get("event"):
             qs = qs.filter(event_id=self.request.query_params.get("event"))
         return qs
+
+
+class InviteeSendInvitationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        """ send the email"""
+        invitee = get_object_or_404(models.Invitee, pk=pk)
+        if not invitee.invitation_sent_date:
+            # send email
+            invitee.invitation_sent_date = timezone.now()
+            invitee.save()
+
+            return Response("email sent.", status=status.HTTP_200_OK)
+        return Response("An email has already been sent to this invitee.", status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, pk):
+        """ get a preview of the email to be sent"""
+        invitee = get_object_or_404(models.Invitee, pk=pk)
+        # send email
+        email = emails.InvitationEmail(invitee, request)
+        return Response(email.to_dict(), status=status.HTTP_200_OK)

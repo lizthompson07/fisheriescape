@@ -1,0 +1,85 @@
+{% load verbose_names %}
+{% load i18n %}
+<style media="screen">
+table, td, th, tr {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+}
+
+.comments {
+{#color: #ff9700;#} font-style: italic;
+}
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+<p>
+  Hello {{ invitee.full_name }},
+</p>
+<p>
+  You have been invited to the following event:
+</p>
+
+<p>
+{% language 'en' %}
+    <table>
+      {% for field in field_list %}
+        {% verbose_td_display invitee.event field %}
+      {% endfor %}
+    </table>
+  {% endlanguage %}
+</p>
+
+<p>
+  Please send your RSVP to the following email: <a href="mailto:{{ invitee.event.rsvp_email }}">{{ invitee.event.rsvp_email }}</a>.
+</p>
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps Events Planner
+</p>
+
+<p>
+  ********************************************************************
+</p>
+
+<p>
+  Bonjour {{ invitee.full_name }},
+</p>
+<p>
+  Vous avez été invité à l'événement suivant :
+</p>
+
+<p>
+  {% language 'fr' %}
+    <table>
+      {% for field in field_list %}
+        {% verbose_td_display invitee.event field %}
+      {% endfor %}
+    </table>
+  {% endlanguage %}
+</p>
+
+<p>
+  Veuillez envoyer votre RSVP à l'adresse e-mail suivante: <a href="mailto:{{ invitee.event.rsvp_email }}"> {{invitee.event.rsvp_email}} </a>.
+</p>
+
+<p>
+  Cordialement,
+  <br><br>
+  Planificateur d'événements - Applis GD
+</p>
+
+
+</p>
+
+
+
+
+
+
