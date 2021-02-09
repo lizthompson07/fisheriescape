@@ -5,6 +5,7 @@ import datetime
 import os
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
+from django.utils import timezone
 
 from shared_models import models as shared_models
 from django.db import models
@@ -173,8 +174,8 @@ class BioTimeModel(BioModel):
 
 class AnimalDetCode(BioLookup):
     # anidc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Minimum Value"))
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Maximum Value"))
     unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"))
     ani_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
 
@@ -226,7 +227,7 @@ class Collection(BioLookup):
 
 # This is a special table used to house comment parsing abilities
 class CommentKeywords(models.Model):
-
+    # coke tag
     keyword = models.CharField(max_length=255)
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Subjective Code"))
 
@@ -529,7 +530,7 @@ class Event(BioModel):
 
     @property
     def is_current(self):
-        if self.evnt_end and self.evnt_end < datetime.now(tz=datetime.timezone.utc):
+        if self.evnt_end and self.evnt_end < datetime.now(tz=timezone.get_current_timezone()):
             return True
         elif not self.evnt_end:
             return True
@@ -779,8 +780,11 @@ class Individual(BioModel):
         return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
-class IndividualDet(BioDet):
+class IndividualDet(BioModel):
     # indvd tag
+    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
+    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
@@ -798,8 +802,8 @@ class IndividualDet(BioDet):
 
     def clean(self):
         super(IndividualDet, self).clean()
-        if self.det_val:
-            if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
+        if self.det_val and self.anidc_id.min_val and self.anidc_id.max_val:
+            if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
                                                .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
