@@ -1,3 +1,6 @@
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+
 from bio_diversity import models
 
 
@@ -9,6 +12,13 @@ def bio_diverisity_authorized(user):
 def bio_diverisity_admin(user):
     # return user.is_authenticated and user.groups.filter(name='bio_diversity_admin').exists()
     return user.groups.filter(name='bio_diversity_admin').exists()
+
+
+def get_comment_keywords_dict():
+    my_dict = {}
+    for obj in models.CommentKeywords.objects.all():
+        my_dict[obj.keyword] = obj.adsc_id
+    return my_dict
 
 
 def get_help_text_dict(model=None):
@@ -31,3 +41,25 @@ def get_cont_evnt(contx):
             output_list.append("{}".format(cont.__str__()))
             break
     return output_list
+
+
+def comment_parser(comment_str, anix_indv):
+    coke_dict = get_comment_keywords_dict()
+    parser_list = coke_dict.keys()
+    for term in parser_list:
+        if term.lower() in comment_str.lower():
+            adsc = coke_dict[term]
+            indvd_parsed = models.IndividualDet(anix_id_id=anix_indv.pk,
+                                                anidc_id=adsc.anidc_id,
+                                                adsc_id=adsc,
+                                                qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                comments=comment_str,
+                                                created_by=anix_indv.created_by,
+                                                created_date=anix_indv.created_date,
+                                                )
+            try:
+                indvd_parsed.clean()
+                indvd_parsed.save()
+            except (ValidationError, IntegrityError):
+                pass
+
