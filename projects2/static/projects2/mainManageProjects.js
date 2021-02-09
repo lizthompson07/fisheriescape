@@ -56,6 +56,7 @@ var app = new Vue({
     functionalGroups: [],
     fundingSources: [],
     sections: [],
+    regions: [],
 
     // modal
     projectYear2Review: {},
