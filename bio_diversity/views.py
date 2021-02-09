@@ -910,6 +910,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["grpd_field_list"] = [
             "anidc_id",
             "det_val",
+            "grpd_valid",
         ]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
@@ -992,6 +993,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "anidc_id",
             "adsc_id",
             "det_val",
+            "indvd_valid",
         ]
 
         context["pair_object"] = models.Pairing.objects.first()
@@ -1020,7 +1022,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
 
 class IndvdDetails(mixins.IndvdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "comments", "created_by", "created_date", ]
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):

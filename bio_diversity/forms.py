@@ -12,7 +12,7 @@ from django.utils.translation import gettext
 import pandas as pd
 
 from bio_diversity import models
-from bio_diversity.utils import comment_parser
+from bio_diversity.utils import comment_parser, enter_tank_contx
 
 
 class CreatePrams(forms.ModelForm):
@@ -437,32 +437,11 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    if not row["to tank"] == "nan":
-                        contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                        tank_id=models.Tank.objects.filter(name=row["to tank"]).get(),
-                                                        created_by=cleaned_data["created_by"],
-                                                        created_date=cleaned_data["created_date"],
-                                                        )
-                        try:
-                            contx_to.clean()
-                            contx_to.save()
-                            row_entered = True
-                        except ValidationError:
-                            contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
-                                                                           tank_id=contx_to.tank_id).get()
+                    if enter_tank_contx(row["from Tank"], cleaned_data, final_flag=False, indv_pk=indv.pk):
+                        row_entered = True
 
-                        anix_to = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                       indv_id_id=indv.pk,
-                                                       contx_id_id=contx_to.pk,
-                                                       created_by=cleaned_data["created_by"],
-                                                       created_date=cleaned_data["created_date"],
-                                                       )
-                        try:
-                            anix_to.clean()
-                            anix_to.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_tank_contx(row["to tank"], cleaned_data, final_flag=True, indv_pk=indv.pk):
+                        row_entered = True
 
                     anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                      indv_id_id=indv.pk,
@@ -622,32 +601,11 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    if not row["Destination Pond"] == "nan":
-                        contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                        tank_id=models.Tank.objects.filter(name=row["Destination Pond"]).get(),
-                                                        created_by=cleaned_data["created_by"],
-                                                        created_date=cleaned_data["created_date"],
-                                                        )
-                        try:
-                            contx_to.clean()
-                            contx_to.save()
-                            row_entered = True
-                        except ValidationError:
-                            contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
-                                                                           tank_id=contx_to.tank_id).get()
+                    if enter_tank_contx(row["Origin Pond"], cleaned_data, final_flag=False, indv_pk=indv.pk):
+                        row_entered = True
 
-                        anix_to = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                       indv_id_id=indv.pk,
-                                                       contx_id_id=contx_to.pk,
-                                                       created_by=cleaned_data["created_by"],
-                                                       created_date=cleaned_data["created_date"],
-                                                       )
-                        try:
-                            anix_to.clean()
-                            anix_to.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_tank_contx(row["Destination Pond"], cleaned_data, final_flag=True, indv_pk=indv.pk):
+                        row_entered = True
 
                     anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                      indv_id_id=indv.pk,
@@ -810,32 +768,14 @@ class DataForm(CreatePrams):
                                 row_entered = True
                             except (ValidationError, IntegrityError) as e:
                                 pass
-                        if row["ORIGIN POND"]:
-                            contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                            tank_id=models.Tank.objects.filter(name=row["ORIGIN POND"]).get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                            try:
-                                contx_to.clean()
-                                contx_to.save()
-                                row_entered = True
-                            except ValidationError:
-                                contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
-                                                                               tank_id=contx_to.tank_id).get()
 
-                            anix_contx = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                              indv_id_id=indv.pk,
-                                                              contx_id=contx_to,
-                                                              created_by=cleaned_data["created_by"],
-                                                              created_date=cleaned_data["created_date"],
-                                                              )
-                            try:
-                                anix_contx.clean()
-                                anix_contx.save()
-                                row_entered = True
-                            except ValidationError:
-                                pass
+                        if enter_tank_contx(row["ORIGIN POND"], cleaned_data, final_flag=False, indv_pk=indv.pk):
+                            row_entered = True
+
+                        if enter_tank_contx(row["DESTINATION POND"], cleaned_data, final_flag=True, indv_pk=indv.pk):
+                            row_entered = True
+
+
                         if row["COMMENTS"]:
                             comment_parser(row["COMMENTS"], anix_indv)
                     else:

@@ -194,6 +194,7 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details")
     contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"))
+    final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), null=True)
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True,
                                verbose_name=_("Location"))
     indvt_id = models.ForeignKey("IndTreatment", on_delete=models.CASCADE, null=True, blank=True,
@@ -614,8 +615,12 @@ class Group(BioModel):
         return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
-class GroupDet(BioDet):
+class GroupDet(BioModel):
     # grpd tag
+    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
+    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"))
+    grpd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="group_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
@@ -632,12 +637,36 @@ class GroupDet(BioDet):
 
     def clean(self):
         super(GroupDet, self).clean()
-        if self.det_val:
-            if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
+        if self.is_numeric():
+            try:
+                float(self.det_val)
+            except ValueError:
+                raise ValidationError({
+                    "det_val": ValidationError(_("Enter a numeric value"), code="detail_must_be_numeric")
+                })
+
+        if self.det_val and self.is_numeric():
+            if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
                                                .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
+
+    def is_numeric(self):
+        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
+            return True
+        else:
+            return False
+
+
+
+
+
+
+
+
+
+
 
 
 class HeathUnit(BioLookup):
@@ -784,6 +813,7 @@ class IndividualDet(BioModel):
     # indvd tag
     det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
     qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"))
+    indvd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
@@ -802,12 +832,26 @@ class IndividualDet(BioModel):
 
     def clean(self):
         super(IndividualDet, self).clean()
-        if self.det_val and self.anidc_id.min_val and self.anidc_id.max_val:
+        if self.is_numeric():
+            try:
+                float(self.det_val)
+            except ValueError:
+                raise ValidationError({
+                    "det_val": ValidationError(_("Enter a numeric value"), code="detail_must_be_numeric")
+                })
+
+        if self.det_val and self.is_numeric():
             if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
                                                .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
+
+    def is_numeric(self):
+        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 class IndTreatCode(BioLookup):

@@ -68,3 +68,37 @@ def comment_parser(comment_str, anix_indv):
     if mortality:
         anix_indv.indv_id.indv_valid = False
         anix_indv.indv_id.save()
+
+
+def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None):
+    row_entered = False
+    if not tank == "nan":
+        contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                     tank_id=models.Tank.objects.filter(name=tank).get(),
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+        try:
+            contx.clean()
+            contx.save()
+            row_entered = True
+        except ValidationError:
+            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
+                                                        tank_id=contx.tank_id).get()
+
+        anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                    indv_id_id=indv_pk,
+                                    grp_id_id=grp_pk,
+                                    contx_id_id=contx.pk,
+                                    final_contx_flag=final_flag,
+                                    created_by=cleaned_data["created_by"],
+                                    created_date=cleaned_data["created_date"],
+                                    )
+        try:
+            anix.clean()
+            anix.save()
+            row_entered = True
+        except ValidationError:
+            pass
+
+    return row_entered
