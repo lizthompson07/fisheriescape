@@ -39,7 +39,9 @@ class RequestFormCSAS(forms.ModelForm):
         model = models.ReqRequestCSAS
 
         exclude = []
-        widgets = {}
+        widgets = {
+            "rationale_for_decision": Textarea(attrs={"rows": 1, "cols": 20})
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

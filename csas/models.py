@@ -594,20 +594,20 @@ class RdeDecisionExplanation(shared_models.Lookup):
 
 
 class ReqRequest(models.Model):
-    assigned_req_id = models.CharField(max_length=100, null=True, blank=True,
+    assigned_req_id = models.CharField(max_length=255, null=True, blank=True,
                                        verbose_name=_("Assigned Request Number"))
     in_year_request = models.BooleanField(null=True, blank=True, verbose_name=_("In-Year Request"))
 
-    title = models.CharField(max_length=255, verbose_name=_("Title"))
+    title = models.CharField(max_length=512, verbose_name=_("Title"))
     file = models.CharField(max_length=512, blank=True, null=True, verbose_name=_("File"))
 
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("Region"))
-    directorate_branch = models.ForeignKey(BraBranch, null=True, blank=True, on_delete=models.DO_NOTHING,
-                                           verbose_name=_("Directorate Branch"))
+    # directorate_branch = models.ForeignKey(BraBranch, null=True, blank=True, on_delete=models.DO_NOTHING,
+    directorate_branch = models.ManyToManyField(BraBranch, blank=True, verbose_name=_("Directorate Branch"))
 
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
-    client_title = models.CharField(max_length=100, verbose_name=_("Client Title"))
+    client_title = models.CharField(max_length=255, verbose_name=_("Client Title"))
 
     client_name = models.ManyToManyField(ConContact, blank=True, related_name="client_name",
                                          verbose_name=_("Client Name"))
@@ -641,7 +641,7 @@ class ReqRequest(models.Model):
                                             help_text=_("Explain rationale for proposed timing."))
 
     funding = models.BooleanField(help_text=_("Do you have funds to cover extra costs associated with this request?"))
-    funding_notes = models.TextField(max_length=100, verbose_name=_("Funding Notes"))
+    funding_notes = models.TextField(max_length=512, verbose_name=_("Funding Notes"))
 
     science_discussion = models.BooleanField(verbose_name=_("Science Discussion"),
                                              help_text=_("Have you talked to Science about this request?"))
@@ -649,20 +649,22 @@ class ReqRequest(models.Model):
                                                 help_text=_("If you have talked to Science about this request, "
                                                             "to whom have you talked?"))
 
-    # decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True)
-    # decision = models.ForeignKey(CotType, on_delete=models.DO_NOTHING)    # CotType is borrowed from Contacts
-    # decision_explanation = models.TextField(max_length=100, verbose_name=_("Decision Explanation"))
-
     coordinator_name = models.ManyToManyField(ConContact, blank=True, related_name="coordinator_name",
-                                              verbose_name=_("Name of Coordinator"))
+                                              verbose_name=_("Coordinator Name"))
     director_name = models.ManyToManyField(ConContact, blank=True, related_name="director_name",
-                                           verbose_name=_("Name of Director"))
+                                           verbose_name=_("Director Name"))
 
     fiscal_year_text = models.TextField(null=True, blank=True, verbose_name=_("Fiscal Year Text"))
-    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"))
-    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"))
-    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"))
-    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"))
+    submission_date = models.DateField(null=True, blank=True, verbose_name=_("Submission Date"),
+                                       help_text=_("Format: YYYY-MM-DD."))
+
+    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"),
+                                          help_text=_("Format: YYYY-MM-DD."))
+    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
+
+    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
     signature = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Signature"))
 
     def __str__(self):
@@ -682,7 +684,9 @@ class ReqRequestCSAS(models.Model):
                                  verbose_name=_("Decision"))
     decision_exp = models.ForeignKey(RdeDecisionExplanation, on_delete=models.DO_NOTHING, blank=True, null=True,
                                      verbose_name=_("Decision Explanation"))
-    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"))
+    rationale_for_decision = models.TextField(null=True, blank=True, verbose_name=_("Rationale for Decision"))
+    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
 
     # def __str__(self):
     #     return "{}".format(self.request)
