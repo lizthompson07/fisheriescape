@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import modelformset_factory
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 
 from lib.functions.custom_functions import listrify
 from masterlist import models as ml_models
@@ -10,7 +10,7 @@ from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
-attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
+attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
 
 
 class EntryCreateForm(forms.ModelForm):
@@ -106,9 +106,9 @@ class ReportSearchForm(forms.Form):
         note_type_choices = list(models.EntryNote.TYPE_CHOICES)
         # we need to modify one of the descriptions...
         note_type_choices = list(models.EntryNote.TYPE_CHOICES)
-        note_type_choices.remove((models.EntryNote.INTERNAL, 'Internal'))
-        note_type_choices.append((models.EntryNote.INTERNAL, 'Internal (** for internal reports only)'))
-        note_type_choices.remove((models.EntryNote.FOLLOWUP, 'Follow-up (*)'))
+        note_type_choices.remove((models.EntryNote.INTERNAL, _('Internal')))
+        note_type_choices.append((models.EntryNote.INTERNAL, _('Internal (** for internal reports only)')))
+        note_type_choices.remove((models.EntryNote.FOLLOWUP, _('Follow-up (*)')))
 
         note_status_choices = [(obj.id, obj) for obj in models.Status.objects.all() if obj.entry_notes.count() > 0]
 
@@ -223,7 +223,7 @@ class MemberForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
         labels = {
-            'person': "Select a contact",
+            'person': gettext_lazy("Select a contact"),
         }
 
     def __init__(self, *args, **kwargs):

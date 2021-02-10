@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-02 19:52-0400\n"
+"POT-Creation-Date: 2021-02-04 13:05-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1136,7 +1136,7 @@ msgstr ""
 #: .\shared_models\templates\shared_models\generic_form.html:28
 #: .\shared_models\templates\shared_models\generic_popout_form.html:33
 #: .\shared_models\templates\shared_models\org_form.html:25
-#: .\shared_models\templates\shared_models\shared_entry_form.html:48
+#: .\shared_models\templates\shared_models\shared_entry_form.html:47
 #: .\staff\templates\staff\staffingplanfunding_form.html:23
 msgid "Submit"
 msgstr "Soumettre"
@@ -1477,7 +1477,7 @@ msgstr "Nouveau"
 #: .\shared_models\models.py:573 .\shared_models\models.py:574
 #: .\shared_models\models.py:580 .\shared_models\models.py:682
 #: .\shared_models\models.py:683 .\shared_models\models.py:811
-#: .\shared_models\models.py:812 .\shared_models\utils.py:11
+#: .\shared_models\models.py:812 .\shared_models\utils.py:22
 #: .\shared_models\views.py:876 .\shared_models\views.py:927
 #: .\shared_models\views.py:1027 .\shares\models.py:61 .\staff\views.py:34
 #: .\staff\views.py:221 .\staff\views.py:222 .\tickets\models.py:59
@@ -3626,15 +3626,15 @@ msgid ""
 "font'>{}</span>"
 msgstr "Êtes-vous sûr de vouloir soumettre le projet"
 
-#: .\shared_models\utils.py:80
+#: .\shared_models\utils.py:91
 msgid "by"
 msgstr "par"
 
-#: .\shared_models\utils.py:81
+#: .\shared_models\utils.py:92
 msgid "Created:"
 msgstr "Date de création :"
 
-#: .\shared_models\utils.py:82
+#: .\shared_models\utils.py:93
 msgid "Last updated:"
 msgstr "Mis à jour :"
 
@@ -3889,7 +3889,7 @@ msgstr "Le coût a été supprimé avec succès."
 
 #: .\templates\_base_js.html:50 .\templates\_base_js.html:51
 msgid "Select multiple"
-msgstr ""
+msgstr "Sélectionnez plusieurs"
 
 #: .\templates\_base_js.html:54
 msgid "Oops, nothing found!"

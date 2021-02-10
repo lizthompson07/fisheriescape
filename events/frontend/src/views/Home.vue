@@ -1,74 +1,70 @@
 <template>
   <div class="home">
-    <div class="container mt-2">
+    <v-container class="mt-2">
+      <v-breadcrumbs
+          :items="crumbs"
+          divider=">"
+      ></v-breadcrumbs>
       <div class="mt-2 mb-5">
-        <div class="text-h2">{{ $t("welcomeMsg") }}</div>
-        <div class="text-h5 text-muted mt-2 mb-2">
-          {{ $t("message") }}
+        <div class="text-h3 text-muted mt-2 mb-2">
+          Welcome to the DM Apps Event Planner
         </div>
       </div>
-      <div class="row">
-        <div class="col">
+      <v-row>
+        <v-col v-if="!loadingEvents">
           <v-card>
             <v-card-title>
               <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                label="Search Meal Ideas"
-                single-line
-                hide-details
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Search Events"
+                  single-line
+                  hide-details
               ></v-text-field>
               <v-spacer></v-spacer>
-              <v-btn small color="primary" :to="{ name: 'recipe-editor' }"
-                >New</v-btn
+              <v-btn
+                  small
+                  color="primary"
+                  :to="{ name: 'event-new' }"
+                  v-html="$t('New Event')"
+              ></v-btn
               >
             </v-card-title>
-            <v-data-table :headers="headers" :items="recipes" :search="search">
-              <template v-slot:item.title="{ item }">
-                <router-link :to="{ name: 'recipe', params: { id: item.id } }"
-                  >{{ item.title }}
+            <v-data-table :headers="headers" :items="events" :search="search">
+              <template v-slot:item.tname="{ item }">
+                <router-link :to="{ name: 'event-detail', params: { id: item.id } }"
+                >{{ item.tname }}
                 </router-link>
               </template>
             </v-data-table>
           </v-card>
-        </div>
-        <div class="col-4">
-          <v-card>
-            <v-card-title>
-              <v-text-field
-                v-model="search_tag"
-                append-icon="mdi-magnify"
-                label="Search Tags"
-                single-line
-                hide-details
-              ></v-text-field>
-            </v-card-title>
-            <v-data-table
-              :headers="tag_headers"
-              :items="tags"
-              :search="search_tag"
-            >
-              <template v-slot:item.name="{ item }">
-                <router-link :to="{ name: 'tag', params: { slug: item.slug } }"
-                  >{{ item.name }}
-                </router-link>
-              </template>
-            </v-data-table>
-          </v-card>
-        </div>
-      </div>
-    </div>
+        </v-col>
+        <v-col v-else>
+          <v-progress-circular
+              indeterminate
+              color="primary"
+          ></v-progress-circular>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
-import { apiService } from "@/common/api_service";
+import {apiService} from "@/common/api_service";
 
 export default {
   name: "home",
   data() {
     return {
-      recipes: [],
+      crumbs: [
+        {
+          text: "Home",
+          disabled: true,
+        },
+      ],
+      loadingEvents: true,
+      events: [],
       tags: [],
       next: null,
       loadingRecipes: false,
@@ -77,24 +73,17 @@ export default {
       search_tag: "",
       headers: [
         {
-          text: "Title",
-          align: "start",
-          sortable: false,
-          value: "title"
-        },
-        // {text: 'Author', value: 'author'},
-        { text: "Date created", value: "created_at" },
-        { text: "Tags", value: "hashtags_string" }
-      ],
-
-      tag_headers: [
-        {
           text: "Name",
           align: "start",
-          value: "name"
+          value: "tname"
         },
-        { text: "Recipe count", value: "recipe_count" }
+        // {text: 'Author', value: 'author'},
+        {text: "Type", value: "type_display"},
+        {text: "Start date", value: "start_date_display"},
+        {text: "Date created", value: "created_at_display"}
+        // {text: "Tags", value: "hashtags_string"}
       ]
+
     };
   },
   methods: {
@@ -104,35 +93,35 @@ export default {
         this.current_user = data.username;
       });
     },
-    getRecipes() {
-      let endpoint = "api/recipes/";
+    getEvents() {
+      let endpoint = "/api/events-planner/events/";
       if (this.next) {
         endpoint = this.next;
       }
-      this.loadingRecipes = true;
-      apiService(endpoint).then(data => {
-        this.recipes.push(...data.results);
-        if (data.next) {
-          this.next = data.next;
+      this.loadingEvents = true;
+      apiService(endpoint).then(response => {
+        this.events.push(...response.results);
+        if (response.next) {
+          this.next = response.next;
         } else {
           this.next = null;
         }
       });
-      this.loadingRecipes = false;
+      this.loadingEvents = false;
     },
-    getTags() {
-      let endpoint = "api/hashtags/";
-      apiService(endpoint).then(data => {
-        this.tags = data.results;
-      });
-    }
+    // getTags() {
+    //   let endpoint = "api/hashtags/";
+    //   apiService(endpoint).then(data => {
+    //     this.tags = data.results;
+    //   });
+    // }
   },
 
   created() {
-    this.getRecipes();
-    this.getUserData();
-    this.getTags();
-    document.title = "MealThyme";
+    this.getEvents();
+    // this.getUserData();
+    // this.getTags();
+    document.title = this.$t("Event Planner");
   }
 };
 </script>

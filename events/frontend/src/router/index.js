@@ -1,9 +1,9 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
-// import Recipe from "../views/Recipe.vue";
+import Event from "../views/Event.vue";
 // import Tag from "../views/Tag.vue";
-// import RecipeEditor from "../views/RecipeEditor.vue";
+import EventEditor from "../views/EventEditor.vue";
 // import CommentEditor from "../views/CommentEditor.vue";
 // import NotFound from "../views/NotFound.vue";
 
@@ -11,17 +11,34 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/events/",
+    path: "/events",
     name: "home",
     component: Home
   },
-  //
-  // {
-  //   path: "recipe/:id",
-  //   name: "recipe",
-  //   component: Recipe,
-  //   props: true
-  // },
+  {
+    path: "/events/new-event",
+    name: "event-new",
+    component: EventEditor,
+    props: false
+  },
+  {
+    path: "/events/:id",
+    name: "event-detail",
+    component: Event,
+    props: true
+  },
+  {
+    path: "/events/:id/edit",
+    name: "event-edit",
+    component: EventEditor,
+    props: true
+  },
+  {
+    path: "/events/:parent_id/new-child",
+    name: "event-new-child",
+    component: EventEditor,
+    props: true
+  },
   // {
   //   path: "tag/:slug",
   //   name: "tag",
@@ -34,12 +51,7 @@ const routes = [
   //   component: CommentEditor,
   //   props: true
   // },
-  // {
-  //   path: "new-recipe",
-  //   name: "recipe-editor",
-  //   component: RecipeEditor,
-  //   props: false
-  // },
+
   // {
   //   path: "recipe/:id/edit",
   //   name: "recipe-editor1",

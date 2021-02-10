@@ -1191,6 +1191,32 @@ def csrf_application(request, pk):
     raise Http404
 
 
+
+
+@login_required()
+def sara_application(request, pk):
+    project = get_object_or_404(models.Project, pk=pk)
+
+    # check if the project lead's profile is up-to-date
+    if not project.lead_staff.exists():
+        messages.error(request, _("Warning: There are no lead staff on this project!!"))
+    lang = get_language()
+    file_url = reports.generate_sara_application(project, lang)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
+            if lang == "fr":
+                filename = f'demande de SARA (no. projet {project.id}).docx'
+            else:
+                filename = f'SARA application (Project ID {project.id}).docx'
+
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
+    raise Http404
+
+
+
 @login_required()
 def export_csrf_submission_list(request):
     year = request.GET.get("year")

@@ -109,6 +109,7 @@ urlpatterns = [
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
     path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),
     path('projects/<int:pk>/csrf-application/', views.csrf_application, name="csrf_application"),
+    path('projects/<int:pk>/sara-application/', views.sara_application, name="sara_application"),
 
     # Admin Users
     path('settings/users/', views.UserListView.as_view(), name='user_list'),
