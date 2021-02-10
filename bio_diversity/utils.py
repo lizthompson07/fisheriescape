@@ -74,7 +74,7 @@ def comment_parser(comment_str, anix_indv):
         anix_indv.indv_id.save()
 
 
-def enter_indvd(anix_pk, cleaned_data, det_value, anidc_str, adsc_str):
+def enter_indvd(anix_pk, cleaned_data, det_value, anidc_str, adsc_str, comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
@@ -85,6 +85,7 @@ def enter_indvd(anix_pk, cleaned_data, det_value, anidc_str, adsc_str):
                                      adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
                                      det_val=det_value,
                                      qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                     comments=comments,
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
                                      )
@@ -109,7 +110,7 @@ def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None):
     row_entered = False
     if not tank == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                     tank_id=models.Tank.objects.filter(name=tank).get(),
+                                     tank_id=models.Tank.objects.filter(name=tank, facic_id=cleaned_data["facic_id"]).get(),
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
                                      )

@@ -129,6 +129,15 @@ class BioLookup(shared_models.Lookup):
                     raise ValidationError(msg)
 
 
+class BioCont(BioLookup):
+    class Meta:
+        abstract = True
+
+    # Make name not unique, is unique together with facility code.
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
+
+
 class BioDateModel(BioModel):
     # model with start date/end date, still valid, created by and created date fields
     class Meta:
@@ -333,9 +342,12 @@ class CountDet(BioDet):
                 })
 
 
-class Cup(BioLookup):
+class Cup(BioCont):
     # cup tag
-    pass
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'facic_id'], name='cup_uniqueness')
+        ]
 
 
 class CupDet(BioContainerDet):
@@ -360,9 +372,12 @@ class DataLoader(BioModel):
     data_csv = models.FileField(upload_to="", null=True, blank=True, verbose_name=_("Datafile"))
 
 
-class Drawer(BioLookup):
+class Drawer(BioCont):
     # draw tag
-    pass
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'facic_id'], name='draw_uniqueness')
+        ]
 
 
 class EnvCode(BioLookup):
@@ -657,15 +672,20 @@ class GroupDet(BioModel):
             return False
 
 
-class HeathUnit(BioLookup):
-    # Heat tag
+class HeathUnit(BioCont):
+    # heat tag
     manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))
     inservice_date = models.DateField(verbose_name=_("Date unit was put into service"))
     serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'facic_id'], name='heat_uniqueness')
+        ]
+
 
 class HeathUnitDet(BioContainerDet):
-    # Heatd tag
+    # heatd tag
     heat_id = models.ForeignKey('HeathUnit', on_delete=models.CASCADE, verbose_name=_("Heath Unit"))
 
     class Meta:
@@ -1243,9 +1263,12 @@ class SubRiverCode(BioLookup):
                                 verbose_name=_("Tributary"))
 
 
-class Tank(BioLookup):
+class Tank(BioCont):
     # tank tag
-    pass
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'facic_id'], name='tank_uniqueness')
+        ]
 
 
 class TankDet(BioContainerDet):
@@ -1273,9 +1296,12 @@ class Team(BioModel):
         ]
 
 
-class Tray(BioLookup):
+class Tray(BioCont):
     # tray tag
-    pass
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'facic_id'], name='tray_uniqueness')
+        ]
 
 
 class TrayDet(BioContainerDet):
@@ -1296,9 +1322,12 @@ class Tributary(BioLookup):
     rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"))
 
 
-class Trough(BioLookup):
+class Trough(BioCont):
     # trof tag
-    pass
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'facic_id'], name='trof_uniqueness')
+        ]
 
 
 class TroughDet(BioContainerDet):

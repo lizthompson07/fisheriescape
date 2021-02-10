@@ -677,33 +677,14 @@ class DataForm(CreatePrams):
                                                                             indvt_id__isnull=True,
                                                                             ).get()
 
-                        if enter_indvd(anix_indv.pk, cleaned_data, None, "Gender", sex_dict[row["SEX"]]):
+                        if enter_indvd(anix_indv.pk, cleaned_data, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
                             row_entered = True
-
-                        if row["SEX"]:
-                            indvd_sex = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                             anidc_id=models.AnimalDetCode.objects.filter(
-                                                                 name="Gender").get(),
-                                                             adsc_id=models.AniDetSubjCode.objects.filter(
-                                                                 name=sex_dict[row["SEX"]]).get(),
-                                                             qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                             comments=row["COMMENTS"],
-                                                             created_by=cleaned_data["created_by"],
-                                                             created_date=cleaned_data["created_date"],
-                                                             )
-                            try:
-                                indvd_sex.clean()
-                                indvd_sex.save()
-                                row_entered = True
-                            except (ValidationError, IntegrityError) as e:
-                                pass
 
                         if enter_tank_contx(row["ORIGIN POND"], cleaned_data, final_flag=False, indv_pk=indv.pk):
                             row_entered = True
 
                         if enter_tank_contx(row["DESTINATION POND"], cleaned_data, final_flag=True, indv_pk=indv.pk):
                             row_entered = True
-
 
                         if row["COMMENTS"]:
                             comment_parser(row["COMMENTS"], anix_indv)

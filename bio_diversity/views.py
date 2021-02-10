@@ -720,7 +720,7 @@ class CdscDetails(mixins.CdscMixin, CommonDetails):
 
 
 class CupDetails(mixins.CupMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class CupdDetails(mixins.CupdMixin, CommonDetails):
@@ -729,7 +729,7 @@ class CupdDetails(mixins.CupdMixin, CommonDetails):
 
 
 class DrawDetails(mixins.DrawMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
@@ -938,7 +938,7 @@ class GrpdDetails(mixins.GrpdMixin, CommonDetails):
 
 
 class HeatDetails(mixins.HeatMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
               "created_by", "created_date", ]
 
 
@@ -1225,7 +1225,7 @@ class SubrDetails(mixins.SubrMixin, CommonDetails):
 
 
 class TankDetails(mixins.TankMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TankdDetails(mixins.TankdMixin, CommonDetails):
@@ -1238,7 +1238,7 @@ class TeamDetails(mixins.TeamMixin, CommonDetails):
 
 
 class TrayDetails(mixins.TrayMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TraydDetails(mixins.TraydMixin, CommonDetails):
@@ -1253,7 +1253,7 @@ class TribDetails(mixins.TribMixin, CommonDetails):
 class TrofDetails(mixins.TrofMixin, CommonDetails):
     template_name = "bio_diversity/details_trof.html"
 
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1412,7 +1412,7 @@ class CdscList(mixins.CdscMixin, CommonList):
 
 class CupList(mixins.CupMixin, CommonList):
     filterset_class = filters.CupFilter
-    fields = ["name", "nom", ]
+    fields = ["name", "nom", "facic_id", ]
 
 
 class CupdList(mixins.CupdMixin, CommonList):
@@ -1422,7 +1422,7 @@ class CupdList(mixins.CupdMixin, CommonList):
 
 class DrawList(mixins.DrawMixin, CommonList):
     filterset_class = filters.DrawFilter
-    fields = ["name", "nom", ]
+    fields = ["name", "nom", "facic_id",]
 
 
 class EnvList(mixins.EnvMixin, CommonList):
@@ -1693,7 +1693,7 @@ class SubrList(mixins.SubrMixin, CommonList):
 
 class TankList(mixins.TankMixin, CommonList):
     filterset_class = filters.TankFilter
-    fields = ["name", "nom", ]
+    fields = ["name", "nom", "facic_id", ]
 
 
 class TankdList(mixins.TankdMixin, CommonList):
@@ -1708,7 +1708,7 @@ class TeamList(mixins.TeamMixin, CommonList):
 
 class TrayList(mixins.TrayMixin, CommonList):
     filterset_class = filters.TrayFilter
-    fields = ["name", "nom", ]
+    fields = ["name", "nom", "facic_id",]
 
 
 class TraydList(mixins.TraydMixin, CommonList):
@@ -1723,7 +1723,7 @@ class TribList(mixins.TribMixin, CommonList):
 
 class TrofList(mixins.TrofMixin, CommonList):
     filterset_class = filters.TrofFilter
-    fields = ["name", "nom", ]
+    fields = ["name", "nom", "facic_id",]
 
 
 class TrofdList(mixins.TrofdMixin, CommonList):

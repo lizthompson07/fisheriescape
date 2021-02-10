@@ -374,6 +374,7 @@ class CupFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
+    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -381,12 +382,14 @@ class CupFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
+        facic = FacicFactory()
         obj = CupFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
+            'facic_id': facic.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
             'created_by': obj.created_by,
@@ -472,6 +475,7 @@ class DrawFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
+    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -479,12 +483,14 @@ class DrawFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
+        facic = FacicFactory()
         obj = DrawFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
+            'facic_id': facic.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
             'created_by': obj.created_by,
@@ -1045,6 +1051,7 @@ class HeatFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
+    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
     manufacturer = factory.lazy_attribute(lambda o: faker.word())
@@ -1055,12 +1062,14 @@ class HeatFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
+        facic = FacicFactory()
         obj = HeatFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
+            'facic_id': facic.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
             'manufacturer': obj.manufacturer,
@@ -2348,6 +2357,7 @@ class TankFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
+    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -2355,12 +2365,14 @@ class TankFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
+        facic = FacicFactory()
         obj = TankFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
+            'facic_id': facic.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
             'created_by': obj.created_by,
@@ -2444,6 +2456,7 @@ class TrayFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
+    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -2451,12 +2464,14 @@ class TrayFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
+        facic = FacicFactory()
         obj = TrayFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
+            'facic_id': facic.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
             'created_by': obj.created_by,
@@ -2546,6 +2561,7 @@ class TrofFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
+    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -2553,12 +2569,14 @@ class TrofFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
+        facic = FacicFactory()
         obj = TrofFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
+            'facic_id': facic.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
             'created_by': obj.created_by,
