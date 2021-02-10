@@ -24,10 +24,10 @@
 
             {% if not report_mode %}
                 <div class="group">
-                    {% if status_id == 31 %}
+                    {% if status == 31 %}
                         {% trans "You cannot reset the reviewers while a trip is under review." as help_text_1 %}
                         {% echo "disabled" as my_disbaled_var %}
-                    {% elif status_id == 32 %}
+                    {% elif status == 32 %}
                         {% trans "You cannot reset the reviewers on a trip that has already been reviewed." as help_text_1 %}
                         {% echo "disabled" as my_disbaled_var %}
                     {% endif %}
@@ -66,7 +66,7 @@
                         <tr>
                             {% for field in reviewer_field_list %}
                                 {% if field == "status" %}
-                                    <td style="background-color: {{ obj.status.color }}">
+                                    <td class="{{ obj.get_status_display|slugify }}">
                                         {% get_field_value obj field %}
                                     </td>
                                 {% else %}

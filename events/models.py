@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.template.defaultfilters import date, pluralize
 from django.utils.translation import gettext_lazy as _, gettext
 
 from masterlist.models import Person
@@ -21,6 +23,8 @@ class Event(SimpleLookup):
     type = models.IntegerField(choices=type_choices, verbose_name=_("type of event"))
     start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
+    from_email = models.EmailField(default=settings.SITE_FROM_EMAIL, verbose_name=_("FROM email address (on invitation)"))
+    rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))
 
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="events",
@@ -56,6 +60,17 @@ class Event(SimpleLookup):
             return (self.end_date - self.start_date).days + 1
         return 1
 
+    @property
+    def display_dates(self):
+        start = date(self.start_date) if self.start_date else "??"
+        dates = f'{start}'
+        if self.end_date and self.end_date != self.start_date:
+            end = date(self.end_date)
+            dates += f' &rarr; {end}'
+        days_display = "{} {}{}".format(self.length_days, gettext("day"), pluralize(self.length_days))
+        dates += f' ({days_display})'
+        return dates
+
 
 class Invitee(models.Model):
     # Choices for role
@@ -84,10 +99,9 @@ class Invitee(models.Model):
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("Resource", editable=False)
 
-
-
     class Meta:
         ordering = ['first_name', "last_name"]
+        unique_together = (("event", "email"),)
 
     @property
     def full_name(self):

@@ -9,7 +9,9 @@
       <v-select v-model="eventToEdit.type" :items="typeChoices" :label="labels.type" required></v-select>
       <v-text-field v-model="eventToEdit.location" :label="labels.location"></v-text-field>
       <v-text-field v-model="eventToEdit.proponent" :label="labels.proponent"></v-text-field>
-      <v-select  v-model="eventToEdit.parent_event" :items="parentChoices" :label="labels.parent_event"></v-select>
+      <v-select v-model="eventToEdit.parent_event" :items="parentChoices" :label="labels.parent_event"></v-select>
+      <v-text-field v-model="eventToEdit.from_email" :label="labels.from_email" required></v-text-field>
+      <v-text-field v-model="eventToEdit.rsvp_email" :label="labels.rsvp_email" required></v-text-field>
 
       <div class="row">
         <div class="col">
@@ -65,6 +67,7 @@ export default {
   },
   data() {
     return {
+      currentUser: {},
       event: {},
       eventToEdit: {},
       error: null,
@@ -74,6 +77,13 @@ export default {
     };
   },
   methods: {
+    getCurrentUser(delayedFunc) {
+      let endpoint = `/api/shared/current-user/`;
+      apiService(endpoint).then(response => {
+        this.currentUser = response;
+        if (delayedFunc) delayedFunc();
+      });
+    },
     primeEvent() {
       this.eventToEdit = {
         name: null,
@@ -82,7 +92,9 @@ export default {
         proponent: null,
         type: null,
         dates: [],
-        parent_event: this.parent_id // will either be null or it will already contain the correct value!
+        parent_event: this.parent_id, // will either be null or it will already contain the correct value!
+        from_email: "DoNotReply@DMApps-Events-Planner.dfo-mpo.gc.ca",
+        rsvp_email: this.currentUser.email
       };
     },
     getEventMetadata() {
@@ -114,13 +126,11 @@ export default {
           data.end_date = null;
         }
       }
-      console.log(data.parent_event)
-      console.log(data)
       apiService(endpoint, method, data).then(response => {
         if (response.id) {
           this.$router.push({
             name: "event-detail",
-            params: { id: response.id }
+            params: {id: response.id}
           });
         } else {
           this.error = JSON.stringify(response)
@@ -151,6 +161,7 @@ export default {
     }
   },
   created() {
+    this.getCurrentUser();
     this.getEventMetadata();
     if (this.id) {
       document.title = "Edit Event";
@@ -160,7 +171,9 @@ export default {
       document.title = "New Child Event";
     } else {
       document.title = "New Event";
-      this.primeEvent();
+      this.getCurrentUser(this.primeEvent);
+
+
     }
   },
   computed: {}

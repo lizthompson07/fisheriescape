@@ -9,7 +9,7 @@
 
 {% block area_above_h1 %}
   {# if trip is cancelled, display a warning #}
-  {% if trip.status.id == 43 %}
+  {% if trip.status == 43 %}
     <div class="alert alert-danger" role="alert">
       <h4 class="alert-heading">
         {% trans "WARNING" %}
@@ -24,9 +24,9 @@
         {% trans "WARNING" %}
       </h4>
       <p class="h5">
-        {% if trip.status.id == 31 %}
+        {% if trip.status == 31 %}
           {% trans "This trip is currently under review from NCR." %}
-        {% elif trip.status.id == 32 %}
+        {% elif trip.status == 32 %}
           {% trans "This trip has already been reviewed by NCR." %}
         {% endif %}
         {% trans "In order to submit this request, you will need to provide a justification for the late submission." %}
@@ -66,34 +66,18 @@
 
 {% block subcontent %}
   <div id="app">
-    <style>
-    .label {
-        font-weight: bold;
-    }
-
-    table, td {
-        font-size: small;
-    }
-
-    .container {
-        max-width: 1300px;
-    }
-
-
-    </style>
-    {# This is an indicator for how long before the trip can close off for registration   #}
-
-
-
-
     {% if is_current_reviewer and object.submitted %}
-      <h3 class="red-font">{% trans "You are able to edit this record because you are " %}
-        {% if is_admin %}
-          {% trans "an application administrator." %}
-        {% else %}
-          {% trans "the current reviewer." %}
-        {% endif %}
-      </h3>
+      <div class="alert alert-info" role="alert">
+        <h4 class="">
+          <span class="mdi mdi-information-outline h4"></span>
+          {% trans "You are able to edit this record because you are " %}
+          {% if is_admin %}
+            {% trans "an application administrator." %}
+          {% else %}
+            {% trans "the current reviewer." %}
+          {% endif %}
+        </h4>
+      </div>
     {% endif %}
 
     <div class="float-right">
@@ -118,7 +102,7 @@
 
 
         {# ADMIN CANCEL BUTTON - only show this option for approved requests #}
-        {% if object.status.id  != 22 and object.status.id  != 10 %}
+        {% if object.status  != 22 and object.status  != 10 %}
           {% echo "danger" as cancel_btn_color %}
           {% trans "Cancel Request" as cancel_btn_text %}
 
@@ -141,7 +125,7 @@
     <div class="btns mb-3">
 
       {# SUBMIT BUTTON #}
-      {% if object.status.id == 11 or object.status.id == 22 %} {# disabled for everyone #}
+      {% if object.status == 11 or object.status == 22 %} {# disabled for everyone #}
         {% echo "disabled" as submit_disabled_var %}
         {% trans "Approved or cancelled requests cannot by unsubmitted." as submit_tip_text %}
         {#                {% elif object.submitted and not is_admin and not is_owner %}#}
@@ -163,7 +147,7 @@
       {% if object.submitted %}
         {% trans "Un-submit" as submit_btn_text %}
       {% else %}
-        {% if object.status.id == 16 %}
+        {% if object.status == 16 %}
           {% trans "Re-submit" as submit_btn_text %}
         {% else %}
           {% trans "Submit" as submit_btn_text %}
@@ -188,7 +172,7 @@
                 </span>
 
       {# DELETE BUTTON #}
-      {% if object.submitted or object.status.id == 16 %}
+      {% if object.submitted or object.status == 16 %}
         {% echo "disabled" as delete_disabled_var %}
         {% trans "Submitted trip requests cannot be deleted." as delete_tip_text %}
       {% endif %}

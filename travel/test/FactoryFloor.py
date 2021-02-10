@@ -116,9 +116,8 @@ class ReviewerFactory(factory.django.DjangoModelFactory):
 
     trip_request = factory.SubFactory(IndividualTripRequestFactory)
     user = factory.SubFactory(UserFactory)
-    role = factory.lazy_attribute(lambda o: models.ReviewerRole.objects.all()[faker.random_int(0, models.ReviewerRole.objects.count() - 1)])
-    status = factory.lazy_attribute(
-        lambda o: models.Status.objects.filter(used_for=1)[faker.random_int(0, models.Status.objects.filter(used_for=1).count() - 1)])
+    role = factory.lazy_attribute(lambda o: models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0])
+    status = factory.lazy_attribute(lambda o: models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0])
     status_date = factory.lazy_attribute(lambda o: o.trip_request.start_date + datetime.timedelta(days=faker.random_int(1, 365)))
 
 
@@ -127,15 +126,12 @@ class TripReviewerFactory(factory.django.DjangoModelFactory):
         model = models.TripReviewer
 
     trip = factory.SubFactory(TripFactory)
-    role = factory.lazy_attribute(lambda o: models.ReviewerRole.objects.all()[faker.random_int(0, models.ReviewerRole.objects.count() - 1)])
+    role = factory.lazy_attribute(lambda o: models.TripReviewer.role_choices[faker.random_int(0, len(models.TripReviewer.role_choices) - 1)][0])
     user = factory.SubFactory(UserFactory)
 
     @staticmethod
     def get_valid_data():
         return {
-            # 'trip': TripFactory().id,
-            # 'role': models.ReviewerRole.objects.all()[faker.random_int(0, models.ReviewerRole.objects.count() - 1)],
-            # 'user': UserFactory().id,
             'comments': faker.catch_phrase(),
         }
 

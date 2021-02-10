@@ -48,6 +48,25 @@
         <a class="dropdown-item" href="{% url 'csas:list_scp' %}">
             {% trans "Scope" %}
         </a>
+        <hr />
+        <a class="dropdown-item" href="{% url 'csas:managed_apt' %}">
+            {% trans "Managed Advisory Process Type" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'csas:managed_coh' %}">
+            {% trans "Managed Honorific" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'csas:managed_loc' %}">
+            {% trans "Managed Location Province" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'csas:managed_meq' %}">
+            {% trans "Managed Meeting Quarter" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'csas:managed_scp' %}">
+            {% trans "Managed Scope" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'csas:managed_stt' %}">
+            {% trans "Managed Status" %}
+        </a>
     </div>
 </li>
 {% endif %}

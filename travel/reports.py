@@ -182,9 +182,9 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
 
             # Request status
             if tr.parent_request:
-                my_status = str(tr.parent_request.status)
+                my_status = str(tr.parent_request.get_status_display())
             else:
-                my_status = str(tr.status)
+                my_status = str(tr.get_status_display())
 
             # DESTINATION
             if tr.parent_request:

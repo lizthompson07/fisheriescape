@@ -92,8 +92,6 @@ urlpatterns = [
 
     # SETTINGS #
     ############
-    path('settings/statuses/', views.StatusFormsetView.as_view(), name="manage_statuses"),
-    # path('settings/status/<int:pk>/delete/', views.StatusHardDeleteView.as_view(), name="delete_status"),
     path('settings/help-text/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
     path('settings/cost-categories/', views.CostCategoryFormsetView.as_view(), name="manage_cost_categories"),

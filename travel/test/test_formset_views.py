@@ -17,7 +17,6 @@ class TestAllFormsets(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url_names = [
-            "manage_statuses",
             "manage_help_text",
             "manage_cost_categories",
             "manage_costs",
@@ -29,7 +28,6 @@ class TestAllFormsets(CommonTest):
 
         self.test_urls = [reverse_lazy("travel:" + name) for name in self.test_url_names]
         self.test_views = [
-            views.StatusFormsetView,
             views.HelpTextFormsetView,
             views.CostCategoryFormsetView,
             views.CostFormsetView,
@@ -69,7 +67,6 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.CostCategory, "url_name": "delete_cost_category", "view": views.CostCategoryHardDeleteView},
             {"model": models.TripSubcategory, "url_name": "delete_trip_subcategory", "view": views.TripSubcategoryHardDeleteView},
             {"model": models.Role, "url_name": "delete_role", "view": views.RoleHardDeleteView},
-            # {"model": models.Reason, "url_name": "delete_reason", "view": views.ReasonHardDeleteView},
         ]
         self.test_dicts = list()
 

@@ -27,10 +27,10 @@ class TestTravelModels(CommonTest):
         self.assertNotIn(child_trip_request, trip.get_connected_active_requests())
         self.assertNotIn(parent_trip_request, trip.get_connected_active_requests())
 
-        trip_request.status_id = 11
+        trip_request.status = 11
         trip_request.save()
 
-        parent_trip_request.status_id = 11
+        parent_trip_request.status = 11
         parent_trip_request.save()
 
         self.assertIn(trip_request, trip.get_connected_active_requests())
@@ -138,16 +138,16 @@ class TestTravelModels(CommonTest):
         reviewer = FactoryFloor.ReviewerFactory()
         tr = reviewer.trip_request
 
-        reviewer.status_id = 4  # draft
+        reviewer.status = 4  # draft
         reviewer.save()
 
-        tr.status_id = 2  # pending review
+        tr.status = 2  # pending review
         tr.save()
 
         reviewer.save()
-        self.assertEqual(reviewer.status_id, 20)
+        self.assertEqual(reviewer.status, 20)
 
         # reviewers with a status of pending should be accessible throught the trip_request prop `current_reviewer`
-        reviewer.status_id = 1  # draft
+        reviewer.status = 1  # draft
         reviewer.save()
         self.assertEqual(tr.current_reviewer, reviewer)

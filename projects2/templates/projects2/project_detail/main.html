@@ -41,9 +41,6 @@
 
 
         <div class="col">
-          <div v-if="showSubmit">
-            {% include "projects2/project_detail/_submit.html" %}
-          </div>
 
 
           <div v-if="showOverview">
@@ -58,8 +55,8 @@
             </div>
 
 
-            <h2>
-              {% trans "Project Overview" %}
+            <h2 id="overview">
+              {% trans "Overview" %}
             </h2>
 
             {% trans "<span class='red-font'>missing</span>" as nulltext %}
@@ -134,17 +131,36 @@
 
             {% include "projects2/project_detail/_project_financials.html" %}
 
+            {% include "projects2/project_detail/_submit.html" %}
 
-          </div>
 
-          <div v-if="!showOverview && !showSubmit">
-            <div v-if="py_loading" class="loading mb-3 mt-3 text-center mt-5">
-              <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-                <span class="sr-only"></span>
+            <div class="mb-5" id="project-year">
+              <div class="mb-2 neighbours">
+                <h2>{% trans "Project Years" %}</h2>
               </div>
+              <ul class="nav nav-tabs">
+                <li class="nav-item" v-for="(year, index) in project.years" :key="index">
+                  <a @click="displayProjectYear(year.id)" :class="{ 'nav-link': true, 'active': year.id == projectYear.id }" href="#project-year">
+                    <span v-if="year.submitted" class="text-primary lead"> ${ year.display_name }</span>
+                    <span v-else class="text-danger lead"> ${ year.display_name } ({% trans "draft" %})</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a v-if="canModify && project.years && project.years.length " href="#" class="nav-link" data-toggle="modal"
+                     data-target="#new-year-modal"
+                     title="{% trans "Add a new year to this project" %}">
+                    <span class="lead">{% trans "Add Project Year" %}</span>
+                  </a>
+                  <a v-else-if="canModify" href="{% url 'projects2:year_new' object.id %}" class="nav-link">
+                    <span class="lead">{% trans "Add Project Year" %}</span>
+                  </a>
+                </li>
+
+              </ul>
+
             </div>
 
-            <div v-if="projectYear">
+            <div v-if="projectYear.id">
               {% include "projects2/project_detail/_project_year_detail.html" %}
               {% include "projects2/project_detail/_project_year_modal_form.html" %}
 
@@ -176,6 +192,16 @@
               <modal v-if="showOldFileModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'file'"
                      :my_file="fileToEdit"></modal>
 
+            </div>
+
+
+          </div>
+
+          <div v-if="!showOverview">
+            <div v-if="py_loading" class="loading mb-3 mt-3 text-center mt-5">
+              <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+                <span class="sr-only"></span>
+              </div>
             </div>
 
 
@@ -256,15 +282,14 @@
 
   </script>
 
-
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=1.1" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.8" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=1.5" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=1.0" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">
-    app.displayProjectYear({{request.GET.project_year}})
+    {#app.displayProjectYear({{request.GET.project_year}})#}
+    {#document.location.href = "#project-year"#}
     </script>
-
   {% endif %}
 
   {#  // reload other scripts that we care about#}

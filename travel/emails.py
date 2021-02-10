@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.template import loader
+from django.utils.translation import activate
 
 from dm_apps.context_processor import my_envr
 
@@ -47,7 +48,7 @@ class NewTripEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
     def load_html_template(self):
-        t = loader.get_template('travel/email_new_event.html')
+        t = loader.get_template('travel/emails/email_new_event.html')
         field_list = trip_field_list
         context = {'event': self.event, 'field_list': field_list}
         context.update(my_envr(self.request))
@@ -56,22 +57,22 @@ class NewTripEmail:
 
 
 class AdminApprovalAwaitingEmail:
-    def __init__(self, trip_request, reviewer_role_id, request):
+    def __init__(self, trip_request, reviewer_role, request):
         self.request = request
-        self.subject = 'A trip request is awaiting {} approval'.format(trip_request.current_reviewer.role)
-        self.message = self.load_html_template(trip_request, reviewer_role_id)
+        self.subject = 'A trip request is awaiting {} approval'.format(trip_request.current_reviewer.get_role_display())
+        self.message = self.load_html_template(trip_request, reviewer_role)
         self.from_email = from_email
         self.to_list = [user.email for user in User.objects.filter(groups__name="travel_admin")]
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
-    def load_html_template(self, trip_request, reviewer_role_id):
-        t = loader.get_template('travel/email_admin_awaiting_approval.html')
+    def load_html_template(self, trip_request, reviewer_role):
+        t = loader.get_template('travel/emails/email_admin_awaiting_approval.html')
 
         field_list = request_field_list
 
-        context = {'triprequest': trip_request, 'reviewer_role_id': reviewer_role_id, 'field_list': field_list}
+        context = {'triprequest': trip_request, 'reviewer_role': reviewer_role, 'field_list': field_list}
         context.update(my_envr(self.request))
         rendered = t.render(context)
         return rendered
@@ -93,7 +94,7 @@ class ReviewAwaitingEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
     def load_html_template(self, trip_request_object, reviewer_object):
-        t = loader.get_template('travel/email_awaiting_review.html')
+        t = loader.get_template('travel/emails/email_awaiting_review.html')
 
         field_list = request_field_list
 
@@ -115,7 +116,7 @@ class TripReviewAwaitingEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
     def load_html_template(self, trip_object, reviewer_object):
-        t = loader.get_template('travel/email_awaiting_trip_review.html')
+        t = loader.get_template('travel/emails/email_awaiting_trip_review.html')
         field_list = trip_field_list
         context = {'reviewer': reviewer_object, 'trip': trip_object, 'field_list': field_list}
         context.update(my_envr(self.request))
@@ -135,7 +136,7 @@ class ChangesRequestedEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
     def load_html_template(self, trip_request_object):
-        t = loader.get_template('travel/email_changes_requested.html')
+        t = loader.get_template('travel/emails/email_changes_requested.html')
 
         field_list = request_field_list
 
@@ -148,8 +149,10 @@ class ChangesRequestedEmail:
 class StatusUpdateEmail:
     def __init__(self, trip_request_object, request):
         self.request = request
-        self.subject = 'Your trip request has been ' + str(trip_request_object.status.name) + " - Votre demande de voyage a été " + str(
-            trip_request_object.status.nom)
+        activate('en')
+        self.subject = 'Your trip request has been ' + str(trip_request_object.get_status_display())
+        activate('fr')
+        self.subject += " - Votre demande de voyage a été " + str(trip_request_object.get_status_display())
         self.message = self.load_html_template(trip_request_object)
         self.from_email = from_email
         self.to_list = [trip_request_object.user.email, ]
@@ -158,7 +161,7 @@ class StatusUpdateEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
     def load_html_template(self, trip_request_object):
-        t = loader.get_template('travel/email_status_update.html')
+        t = loader.get_template('travel/emails/email_status_update.html')
         field_list = request_field_list
         context = {'triprequest': trip_request_object, 'field_list': field_list}
         context.update(my_envr(self.request))
@@ -182,7 +185,7 @@ class TripCostWarningEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
     def load_html_template(self, trip_request_object):
-        t = loader.get_template('travel/email_trip_cost_warning.html')
+        t = loader.get_template('travel/emails/email_trip_cost_warning.html')
 
         field_list = trip_field_list
 
