@@ -1,0 +1,28 @@
+{
+  "missingKeys": [
+    {
+
+      "line": 11,
+      "file": "C:/Users/fishmand/Projects/dm_apps/events/frontend/src/components/Navbar.vue",
+      "language": "en"
+    },
+    {
+      "line": 5,
+      "file": "C:/Users/fishmand/Projects/dm_apps/events/frontend/src/views/Home.vue",
+      "language": "en"
+    },
+    {
+      "path": "newEventButton",
+      "line": 11,
+      "file": "C:/Users/fishmand/Projects/dm_apps/events/frontend/src/components/Navbar.vue",
+      "language": "fr"
+    },
+    {
+      "path": "welcomeMsg",
+      "line": 5,
+      "file": "C:/Users/fishmand/Projects/dm_apps/events/frontend/src/views/Home.vue",
+      "language": "fr"
+    }
+  ],
+  "unusedKeys": []
+}

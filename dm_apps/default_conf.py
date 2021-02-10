@@ -6,7 +6,9 @@
 # As this file in a part of the repository, please do not make any customizations here
 
 import os
+
 from decouple import config
+
 from .utils import db_connection_values_exist, get_db_connection_dict
 
 ########
@@ -39,12 +41,13 @@ APP_DICT = {
     'publications': "Project Publications Inventory",
     'trapnet': "TrapNet",
     'whalesdb': "Whale Equipment Deployment Inventory",
-	'csas': "Canadian Science Advisory Secretariat",
+    'csas': "Canadian Science Advisory Secretariat",
     'vault': "Marine Megafauna Media Vault",
     'whalebrary': "Whalebrary Marine Mammal Tools",
     'spring_cleanup': "Gulf Region Spring Cleanup",
     'shiny': "DM Apps Shiny App Collection",
-    'bio_diversity' : "Biodiversity",
+    'bio_diversity': "Biodiversity",
+    'events': "Events Planner",
 }
 
 # Deal with fake apps...
@@ -111,7 +114,7 @@ else:
         'USER': db_connections["DB_USER"],
         'PASSWORD': db_connections["DB_PASSWORD"],
         'INIT_COMMAND': 'SET default_storage_engine=INNODB',
-        }
+    }
 
     # if we have a connection, get the names of db and host to pass in as context processors
     DB_NAME = db_connections["DB_NAME"]

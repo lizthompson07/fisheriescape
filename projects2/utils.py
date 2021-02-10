@@ -347,7 +347,8 @@ def multiple_financial_project_year_summary_data(project_years):
 def get_project_field_list(project):
     is_acrdp = project.is_acrdp
     is_csrf = project.is_csrf
-    general_project = not project.is_csrf and not project.is_acrdp
+    is_sara = project.is_sara
+    general_project = not is_csrf and not is_acrdp and not is_sara
 
     my_list = [
         'id',
@@ -381,9 +382,13 @@ def get_project_field_list(project):
         'client_information_html|{}'.format(_("Additional info supplied by client")) if is_csrf else None,
         'second_priority' if is_csrf else None,
         'objectives_html|{}'.format(_("project objectives (CSRF)")) if is_csrf else None,
-        # 'objectives_methods_html|{}'.format(_("methods applied to achieve objectives (CSRF)")) if is_csrf else None,
         'innovation_html|{}'.format(_("innovation (CSRF)")) if is_csrf else None,
         'other_funding_html|{}'.format(_("other sources of funding (CSRF)")) if is_csrf else None,
+
+        # sara fields
+        'overview|{}'.format(_("Objectives and methods")) if is_sara else None,
+        'reporting_mechanism' if is_sara else None,
+        'future_funding_needs' if is_sara else None,
 
         'tags',
         'references',

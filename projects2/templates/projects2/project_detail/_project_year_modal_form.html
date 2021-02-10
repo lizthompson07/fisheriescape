@@ -74,6 +74,25 @@
                     <div v-if="isCSRF">
                       {% bootstrap_field field size='small' placeholder="" %}
                     </div>
+                  {% elif field.name == "user" %}
+                    <div class="form-group">
+                      <label for="id_user">{% trans "DFO (DM Apps) User" %}</label>
+                      <v-select
+                        style="width: 100%"
+                        @search="fetchDMAppsUsers"
+                        v-model="staff.user"
+                        @input="adjustStaffFields"
+                        @click="adjustStaffFields"
+                        class="w90 filter vs"
+                        id="id_user"
+                        :options="DmAppsUsers"
+                        label='full_name'
+                        :reduce="full_name => full_name.id"
+                        :clearable="false"
+                        placeholder="{% trans "Start typing to search for a user" %}"
+                      >
+                      </v-select>
+                    </div>
 
                   {% else %}
                     {% bootstrap_field field size='small' placeholder="" %}

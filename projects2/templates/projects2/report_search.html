@@ -65,6 +65,11 @@
       $("#id_year").prop("required", true);
 
     }
+    else if (reportChoice === "5") {
+      $(".year_div").removeClass("gone");
+      $(".region_div").removeClass("gone");
+      $("#id_year").prop("required", true);
+    }
   }
 
   $(document).ready(function () {
