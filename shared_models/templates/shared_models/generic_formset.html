@@ -92,14 +92,16 @@
 
 
           {% if form.instance.id %}
-            {% if delete_url_name %}
+            {% block delete_link %}
+              {% if delete_url_name %}
               <td>
                 <a class="delete-btn red-font" href="#" delete_url="{% url delete_url_name form.instance.id %}"
                    object-name="{{ form.instance }}">
                   ({% trans "delete" %})
                 </a>
               </td>
-            {% endif %}
+              {% endif %}
+            {% endblock delete_link %}
           {% else %}
             <td>({% trans "new record" %})</td>
           {% endif %}

@@ -51,6 +51,14 @@ class SecSector(shared_models.Lookup):
     pass
 
 
+class BraBranch(shared_models.Lookup):
+    pass
+
+
+class RetType(shared_models.Lookup):
+    pass
+
+
 class CotStatus(shared_models.Lookup):
     pass
 
@@ -62,9 +70,11 @@ class CotExpertise(shared_models.Lookup):
 class ConContact(models.Model):
     honorific = models.ForeignKey(CohHonorific, null=True, blank=True, on_delete=models.DO_NOTHING,
                                   verbose_name=_("Honorific"))
-    first_name = models.CharField(max_length=100, verbose_name=_("First Name"))
+    first_name = models.CharField(max_length=100, blank=True, verbose_name=_("First Name"))
+    # first_name = models.CharField(max_length=100, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=100, verbose_name=_("Last Name"))
-    affiliation = models.CharField(max_length=100, verbose_name=_("Affiliation"))
+    affiliation = models.CharField(max_length=100, blank=True, verbose_name=_("Affiliation"))
+    # affiliation = models.CharField(max_length=100, verbose_name=_("Affiliation"))
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, null=True, blank=True,
                                related_name="region_name", verbose_name=_("Region"))
     sector = models.ForeignKey(SecSector, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Sector"))
@@ -73,11 +83,16 @@ class ConContact(models.Model):
                                          "regional admin, director, etc."),
                              verbose_name=_("Role"))
     job_title = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
-    language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING, verbose_name=_("Language"))
-    contact_type = models.ForeignKey(CotType, on_delete=models.DO_NOTHING, verbose_name=_("Contact Type"))
+    language = models.ForeignKey(LanLanguage, null=True, blank=True, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Language"))
+    # language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING, verbose_name=_("Language"))
+    contact_type = models.ForeignKey(CotType, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Contact Type"))
+    # contact_type = models.ForeignKey(CotType, on_delete=models.DO_NOTHING, verbose_name=_("Contact Type"))
     status = models.ForeignKey(CotStatus, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
-    notification_preference = models.ForeignKey(NotNotificationPreference, models.DO_NOTHING,
+    notification_preference = models.ForeignKey(NotNotificationPreference, blank=True, on_delete=models.DO_NOTHING,
                                                 verbose_name=_("Communication Preference"))
+    # notification_preference = models.ForeignKey(NotNotificationPreference, on_delete=models.DO_NOTHING,
+    #                                             verbose_name=_("Communication Preference"))
     phone = models.CharField(max_length=12, null=True, blank=True, verbose_name=_("Phone"))
     email = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("E-mail"))
 
@@ -370,7 +385,7 @@ class PccPublicationComResultsCategory(shared_models.Lookup):
 
 
 class PubPublication(models.Model):
-    series = models.ForeignKey(PsePublicationSeries, blank=True, on_delete=models.DO_NOTHING,
+    series = models.ForeignKey(PsePublicationSeries, null=True, blank=True, on_delete=models.DO_NOTHING,
                                verbose_name=_("Series"))
     lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
                                     verbose_name=_("Lead Region"))
@@ -467,7 +482,7 @@ class PubPublicationDocLocation(models.Model):
     publication = models.ManyToManyField(PubPublication, blank=True, related_name="pub_doc_location",
                                          verbose_name=_('Publication'))
     # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
-    p1 = models.CharField(max_length=1, blank=True, verbose_name=_("p1"))
+    p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
     attach_en_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) File"))
     attach_en_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) Size"))
     attach_fr_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) File"))
@@ -579,41 +594,78 @@ class RdeDecisionExplanation(shared_models.Lookup):
 
 
 class ReqRequest(models.Model):
-    assigned_req_id = models.CharField(max_length=45, verbose_name=_("Assigned Request Number"))
-    title = models.CharField(max_length=255, verbose_name=_("Title"))
-    in_year_request = models.BooleanField(verbose_name=_("In-Year Request"))
-    # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
+    assigned_req_id = models.CharField(max_length=255, null=True, blank=True,
+                                       verbose_name=_("Assigned Request Number"))
+    in_year_request = models.BooleanField(null=True, blank=True, verbose_name=_("In-Year Request"))
+
+    title = models.CharField(max_length=512, verbose_name=_("Title"))
+    file = models.CharField(max_length=512, blank=True, null=True, verbose_name=_("File"))
+
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("Region"))
+    # directorate_branch = models.ForeignKey(BraBranch, null=True, blank=True, on_delete=models.DO_NOTHING,
+    directorate_branch = models.ManyToManyField(BraBranch, blank=True, verbose_name=_("Directorate Branch"))
+
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
-    client_name = models.CharField(max_length=100, verbose_name=_("Client Name"))
-    client_title = models.CharField(max_length=100, verbose_name=_("Client Title"))
+    client_title = models.CharField(max_length=255, verbose_name=_("Client Title"))
+
+    client_name = models.ManyToManyField(ConContact, blank=True, related_name="client_name",
+                                         verbose_name=_("Client Name"))
+    manager_name = models.ManyToManyField(ConContact, blank=True, related_name="manager_name",
+                                          verbose_name=_("Manager Name"))
+
     client_email = models.CharField(max_length=255, verbose_name=_("Client E-mail"))
+    request_type = models.ForeignKey(RetType, null=True, blank=True, on_delete=models.DO_NOTHING,
+                                     verbose_name=_("Request Type"))
+
+    zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Zonal"))
+    zonal_text = models.TextField(null=True, blank=True, verbose_name=_("Zonal Text"))
+
     issue = models.TextField(verbose_name=_("Issue"),
                              help_text=_("Issue requiring science information and/or advice. Posted as a question "
                                          "to be answered by Science."))
+    consequence_text = models.TextField(null=True, blank=True, verbose_name=_("Consequence Text"))
+
+    assistance = models.BooleanField(null=True, blank=True, verbose_name=_("Assistance"))
+    assistance_text = models.TextField(null=True, blank=True, verbose_name=_("Assistance Text"))
+
     priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING, verbose_name=_("Priority"))
     rationale = models.TextField(verbose_name=_("Rationale for Request"),
                                  help_text=_("Rationale or context for the request: What will the information/advice "
                                              "be used for? Who will be the end user(s)? Will it impact other DFO "
                                              "programs or regions?"))
+
     proposed_timing = models.ForeignKey(RetTiming, on_delete=models.DO_NOTHING, verbose_name=_("Proposed Timing"),
                                         help_text=_("Latest possible date to receive Science Advice."))
     rationale_for_timing = models.TextField(verbose_name=_("Rationale for Timing"),
                                             help_text=_("Explain rationale for proposed timing."))
+
     funding = models.BooleanField(help_text=_("Do you have funds to cover extra costs associated with this request?"))
-    funding_notes = models.TextField(max_length=100, verbose_name=_("Funding Notes"))
+    funding_notes = models.TextField(max_length=512, verbose_name=_("Funding Notes"))
+
     science_discussion = models.BooleanField(verbose_name=_("Science Discussion"),
                                              help_text=_("Have you talked to Science about this request?"))
     science_discussion_notes = models.CharField(max_length=100, verbose_name=_("Science Discussion Notes"),
                                                 help_text=_("If you have talked to Science about this request, "
                                                             "to whom have you talked?"))
-    # decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True)
-    # decision = models.ForeignKey(CotType, on_delete=models.DO_NOTHING)    # CotType is borrowed from Contacts
-    # decision_explanation = models.TextField(max_length=100, verbose_name=_("Decision Explanation"))
-    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"))
-    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"))
-    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"))
+
+    coordinator_name = models.ManyToManyField(ConContact, blank=True, related_name="coordinator_name",
+                                              verbose_name=_("Coordinator Name"))
+    director_name = models.ManyToManyField(ConContact, blank=True, related_name="director_name",
+                                           verbose_name=_("Director Name"))
+
+    fiscal_year_text = models.TextField(null=True, blank=True, verbose_name=_("Fiscal Year Text"))
+    submission_date = models.DateField(null=True, blank=True, verbose_name=_("Submission Date"),
+                                       help_text=_("Format: YYYY-MM-DD."))
+
+    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"),
+                                          help_text=_("Format: YYYY-MM-DD."))
+    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
+
+    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
+    signature = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Signature"))
 
     def __str__(self):
         return "{}".format(self.title)
@@ -623,7 +675,7 @@ class ReqRequest(models.Model):
 
 
 class ReqRequestCSAS(models.Model):
-    request = models.OneToOneField(ReqRequest, on_delete=models.DO_NOTHING, primary_key=True, related_name="req_status")
+    request = models.OneToOneField(ReqRequest, on_delete=models.CASCADE, primary_key=True, related_name="req_status")
     # status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, blank=True, null=True,
     #                            verbose_name=_("Status"))
     status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
@@ -632,7 +684,9 @@ class ReqRequestCSAS(models.Model):
                                  verbose_name=_("Decision"))
     decision_exp = models.ForeignKey(RdeDecisionExplanation, on_delete=models.DO_NOTHING, blank=True, null=True,
                                      verbose_name=_("Decision Explanation"))
-    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"))
+    rationale_for_decision = models.TextField(null=True, blank=True, verbose_name=_("Rationale for Decision"))
+    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
 
     # def __str__(self):
     #     return "{}".format(self.request)

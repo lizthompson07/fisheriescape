@@ -69,6 +69,9 @@
                             <a class="btn btn-secondary" href="#"
                                onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')"
                                title="{% trans 'Add' %}">{% trans 'Update' %}</a>
+                            <a class="btn btn-secondary" href="#"
+                               onclick="return popitup('{% url ''|add:'csas:confirm_delete_req_fr_details' object.pk %}','popoutWindow')"
+                               title="{% trans 'Add' %}">{% trans 'Delete' %}</a>
                         {% endif %}
                     {% elif key == 'req_CSAS' %}
                         <a class="btn btn-secondary"
@@ -77,6 +80,9 @@
                             <a class="btn btn-secondary" href="#"
                                onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')"
                                title="{% trans 'Add' %}">{% trans 'Update' %}</a>
+                            <a class="btn btn-secondary" href="#"
+                               onclick="return popitup('{% url ''|add:'csas:confirm_delete_req_CSAS_fr_details' object.pk %}','popoutWindow')"
+                               title="{% trans 'Add' %}">{% trans 'Delete' %}</a>
                         {% endif %}
                     {% elif key == 'con' %}
                         <a class="btn btn-secondary"
@@ -85,6 +91,9 @@
                             <a class="btn btn-secondary" href="#"
                                onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')"
                                title="{% trans 'Add' %}">{% trans 'Update' %}</a>
+                            <a class="btn btn-secondary" href="#"
+                               onclick="return popitup('{% url ''|add:'csas:confirm_delete_con_fr_details' object.pk %}','popoutWindow')"
+                               title="{% trans 'Add' %}">{% trans 'Delete' %}</a>
                         {% endif %}
                     {% endif %}
                 </div>

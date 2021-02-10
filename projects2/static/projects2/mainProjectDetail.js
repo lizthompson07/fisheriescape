@@ -71,6 +71,7 @@ var app = new Vue({
 
   },
   methods: {
+    //these can probably be deleted
     displayOverview() {
       this.showOverview = true
       this.showSubmit = false
@@ -80,10 +81,11 @@ var app = new Vue({
       this.showOverview = false
     },
     displayProjectYear(yearId) {
-      this.showSubmit = false
-      this.showOverview = false
+      this.showOverview = true;
       this.getProjectYear(yearId)
     },
+
+
     getProjectYear(yearId) {
       this.py_loading = true;
       let endpoint = `/api/project-planning/project-years/${yearId}/`;
@@ -115,6 +117,17 @@ var app = new Vue({
               this.isCSRF = true;
             } else if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("sara") > -1) {
               this.isSARA = true;
+            }
+
+            // check to see if we are being asked to open the page to a specific year
+            // from https://stackoverflow.com/questions/35914069/how-can-i-get-query-parameters-from-a-url-in-vue-js
+            let uri = window.location.search.substring(1);
+            let params = new URLSearchParams(uri);
+            let projectYearParam = params.get("project_year");
+            if (projectYearParam) {
+              this.getProjectYear(projectYearParam)
+            } else if (!this.projectYear.id && this.project.years.length) {
+              this.getProjectYear(this.project.years[0].id)
             }
           })
     },
@@ -551,6 +564,7 @@ var app = new Vue({
     this.getCurrentUser(projectId)
     this.getProject(projectId)
   },
-  mounted() {},
+  mounted() {
+  },
 });
 
