@@ -24,7 +24,7 @@
       <span class="icon mdi mdi-file-word"></span>
       {% trans "CSRF Application (EN)" %}
     </a>
-    <a v-else-if="isSARA" class="{{ btn_class_black }}" onclick="userProfileWarning()" href="{% url 'projects2:sara_application' object.id %}">
+    <a v-else-if="isSARA" class="{{ btn_class_black }}" onclick="saraWarning()" href="{% url 'projects2:sara_application' object.id %}">
       <span class="icon mdi mdi-file-word"></span>
       {% trans "SARA Application (EN)" %}
     </a>
@@ -34,6 +34,10 @@
     function userProfileWarning() {
       alert("This report will pull some information from the project lead's DM Apps profile. Please ensure the profile information is complete and up-to-date. " +
           "You can access your profile by clicking on the circle with your initials at the top right.")
+    }
+
+    function saraWarning() {
+      alert("The SARA application is currently a single year proposal. When there is more than one project year, this report will be drawn from the last project year.")
     }
     </script>
 
@@ -68,8 +72,7 @@
     </a>
 
 
-    <a v-if="canModify && project && project.years && project.years.length" @click="displaySubmit" class="{{ btn_class_black }} under-dev"
-       href="#">
+    <a v-if="canModify && project && project.years && project.years.length" class="{{ btn_class_black }}" href="#submit">
       <span v-if="project.has_unsubmitted_years"><span class="icon mdi mdi-email"></span> {% trans "Submit Project" %}</span>
       <span v-else><span class="icon mdi mdi-cancel"></span> {% trans "Unsubmit Project" %}</span>
     </a>
@@ -87,18 +90,20 @@
   </div>
 
   <h6>
-    {% trans "Project Years" %}
+    {% trans "Navigation" %}
   </h6>
 
 
   <div class="btn-group-vertical vgroup">
-    <a href="#" class="{{ btn_class_black }}" @click="displayOverview">
+    <a href="#overview" class="{{ btn_class_black }}">
       <span class="icon mdi mdi-menu-right-outline"></span>
       {% trans "Overview" %}
     </a>
 
     {# add a button for each project year #}
-    <a v-for="(year, index) in project.years" @click="displayProjectYear(year.id)" class="{{ btn_class_black }}">
+    <a v-for="(year, index) in project.years" @click="displayProjectYear(year.id)"
+      :class="{ '{{ btn_class_black }}': true, active: year.id == projectYear.id }"
+       href="#project-year">
       <span v-if="year.submitted" class="text-primary"><span class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name }</span>
       <span v-else class="text-danger"><span
         class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name } ({% trans "draft" %})</span>

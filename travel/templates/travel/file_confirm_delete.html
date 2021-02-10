@@ -26,6 +26,8 @@
 
 
 {% block body_js %}
+    {{ block.super }}
+
     <script>
 
         window.onunload = refreshParent;

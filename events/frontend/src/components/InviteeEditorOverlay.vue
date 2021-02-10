@@ -194,7 +194,7 @@ export default {
         } else {
           this.loadingPersons = true;
 
-          let endpoint = `/api/users/?search=${value}`;
+          let endpoint = `/api/shared/users/?search=${value}`;
           apiService(endpoint).then(data => {
             this.personOptions = data.results;
             this.loadingPersons = false;

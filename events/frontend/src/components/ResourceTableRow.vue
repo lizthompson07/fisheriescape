@@ -2,9 +2,9 @@
   <tr>
     <td> {{ resource.tname }}</td>
     <td>
-      <a :href="resource.url_en">English URL</a>
+      <a v-if="resource.url_en" :href="resource.url_en">English URL</a>
       <br>
-      <a :href="resource.url_fr">French URL</a>
+      <a v-if="resource.url_fr" :href="resource.url_fr">French URL</a>
     </td>
     <td>{{ resource.date_added }}</td>
 

@@ -189,7 +189,7 @@ class TestIndexView(CommonTest):
         super().setUp()
 
         self.test_url = reverse_lazy('travel:index')
-        self.expected_template = 'travel/index.html'
+        self.expected_template = 'travel/index/index.html'
 
     # Users should be able to view the travel index page corresponding to the travel/index.html template, in French
     @tag("index")
@@ -400,9 +400,9 @@ class TestTripRequestReviewerUpdateView(CommonTest):
 
         # actors
         self.tr = FactoryFloor.IndividualTripRequestFactory(submitted=timezone.now())
-        self.reviewer1 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role_id=1, order=1)
-        self.reviewer2 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role_id=5, order=2)
-        self.reviewer3 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role_id=6, order=3)
+        self.reviewer1 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role=1, order=1)
+        self.reviewer2 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role=5, order=2)
+        self.reviewer3 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role=6, order=3)
         # start the review process and get set the first reviewer to "pending"
         utils.start_review_process(self.tr)
         utils.approval_seeker(self.tr, True)
@@ -445,7 +445,7 @@ class TestTripRequestReviewerUpdateView(CommonTest):
         self.assert_success_url(self.test_url1, user=self.reviewer1.user, data=data_approve)
         # the reviewer's status should now be set to approved
         rev1 = models.Reviewer.objects.get(pk=self.reviewer1.pk)
-        self.assertEqual(rev1.status_id, 2)
+        self.assertEqual(rev1.status, 2)
 
     @tag("tr_reviewer_update", "submit")
     def test_submit_deny(self):
@@ -453,7 +453,7 @@ class TestTripRequestReviewerUpdateView(CommonTest):
         self.assert_success_url(self.test_url1, user=self.reviewer1.user, data=data_deny)
         # the reviewer's status should now be set to denied
         rev1 = models.Reviewer.objects.get(pk=self.reviewer1.pk)
-        self.assertEqual(rev1.status_id, 3)
+        self.assertEqual(rev1.status, 3)
 
     @tag("tr_reviewer_update", "submit")
     def test_submit_changes(self):
@@ -461,8 +461,8 @@ class TestTripRequestReviewerUpdateView(CommonTest):
         self.assert_success_url(self.test_url1, user=self.reviewer1.user, data=data_request_changes)
         # the reviewer's status should now be set to changes_requested
         rev1 = models.Reviewer.objects.get(pk=self.reviewer1.pk)
-        self.assertEqual(rev1.status_id, 1)
-        self.assertEqual(rev1.trip_request.status_id, 16)
+        self.assertEqual(rev1.status, 1)
+        self.assertEqual(rev1.trip_request.status, 16)
 
     @tag("tr_reviewer_update", "submit")
     def test_submit_save_draft(self):
@@ -470,7 +470,7 @@ class TestTripRequestReviewerUpdateView(CommonTest):
         self.assert_success_url(self.test_url1, user=self.reviewer1.user, data=data_stay)
         # the reviewer's status should now be set to changes_requested
         rev1 = models.Reviewer.objects.get(pk=self.reviewer1.pk)
-        self.assertEqual(rev1.status_id, 1)
+        self.assertEqual(rev1.status, 1)
 
 
 class TestTripRequestSubmitUpdateView(CommonTest):
@@ -639,7 +639,7 @@ class TestTripReviewerUpdateView(CommonTest):
         self.assert_success_url(self.test_url, user=self.reviewer.user, data=data)
         # the reviewer's status should now be set to changes_requested
         rev1 = models.TripReviewer.objects.get(pk=self.reviewer.pk)
-        self.assertEqual(rev1.status_id, 26)
+        self.assertEqual(rev1.status, 26)
 
     @tag("trip_reviewer_update", 'type', "submit")
     def test_submit_save_only(self):
@@ -648,7 +648,7 @@ class TestTripReviewerUpdateView(CommonTest):
         self.assert_success_url(self.test_url, user=self.reviewer.user, data=data)
         # the reviewer's status should now be set to changes_requested
         rev1 = models.TripReviewer.objects.get(pk=self.reviewer.pk)
-        self.assertEqual(rev1.status_id, 25)
+        self.assertEqual(rev1.status, 25)
 
         # approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
         #     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
@@ -684,7 +684,7 @@ class TestTripReviewProcessUpdateView(CommonTest):
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
         # if there is an inappropriate trip, we should get 302 response
-        cancelled_trip = FactoryFloor.TripFactory(status_id=43)
+        cancelled_trip = FactoryFloor.TripFactory(status=43)
         self.test_url = reverse_lazy('travel:trip_review_toggle', kwargs={"pk": cancelled_trip.pk})
         self.assert_non_public_view(test_url=self.test_url, expected_code=302, user=self.user)
 
@@ -711,46 +711,46 @@ class TestTripReviewProcessUpdateView(CommonTest):
         self.instance = models.Conference.objects.get(pk=self.instance.pk)
 
         self.assertIsNotNone(self.instance.review_start_date)
-        self.assertEqual(self.instance.status_id, 31)
+        self.assertEqual(self.instance.status, 31)
         # run it a second time and now it should be unsubmitted, but the original submission date should still be there
         # the trick here is to ensure there is a reviewer on the request.
         self.assert_success_url(self.test_url, user=self.user)
         self.instance = models.Conference.objects.get(pk=self.instance.pk)
         self.assertIsNotNone(self.instance.review_start_date)
-        self.assertEqual(self.instance.status_id, 41)
+        self.assertEqual(self.instance.status, 41)
 
         # now let's say the trip is reviewed..
-        self.instance.status_id = 32
+        self.instance.status = 32
         self.instance.save()
-        self.assertEqual(self.instance.status_id, 32)
+        self.assertEqual(self.instance.status, 32)
         # let's add a reviewer comment and set the status to `complete`
         r1.comments = "good!"
         r2.comments = "trip!"
         r3.comments = "yayy!"
-        r1.status_id = 26
-        r2.status_id = 26
-        r3.status_id = 26
+        r1.status = 26
+        r2.status = 26
+        r3.status = 26
         r1.save()
         r2.save()
         r3.save()
-        self.assertEqual(r1.status_id, 26)
-        self.assertEqual(r2.status_id, 26)
-        self.assertEqual(r3.status_id, 26)
+        self.assertEqual(r1.status, 26)
+        self.assertEqual(r2.status, 26)
+        self.assertEqual(r3.status, 26)
 
 
         # run it a second time and now the trip review process should be reset. The trip should still be under review and only the reviewer
         # statuses should be affected
         self.assert_success_url(self.test_url, user=self.user)
         self.instance = models.Conference.objects.get(pk=self.instance.pk)
-        self.assertEqual(self.instance.status_id, 31)
+        self.assertEqual(self.instance.status, 31)
 
         reviewer_ids = [r1.id, r2.id, r3.id]
         for id in reviewer_ids:
             r = models.TripReviewer.objects.get(pk=id)
             if r.order == 1:
-                self.assertEqual(r.status_id, 25)
+                self.assertEqual(r.status, 25)
             else:
-                self.assertEqual(r.status_id, 24)
+                self.assertEqual(r.status, 24)
             self.assertIsNotNone(r.comments)
 
 class TestTripUpdateView(CommonTest):
@@ -857,7 +857,7 @@ class TestTripVerifyUpdateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
         # check the trip status!! should be equal to 41 after form.save()
         self.instance = models.Conference.objects.get(id=self.instance.id)
-        self.assertIs(self.instance.status_id, 41)
+        self.assertIs(self.instance.status, 41)
 
 
 class TestUserListView(CommonTest):
@@ -1005,7 +1005,7 @@ class TripRequestDetails(CommonTest):
         self.assertEqual(response.context["is_current_reviewer"], True)
 
         # if a regular user is the current reviewer
-        my_reviewer = FactoryFloor.ReviewerFactory(trip_request=self.trip_request, status_id=1)
+        my_reviewer = FactoryFloor.ReviewerFactory(trip_request=self.trip_request, status=1)
         self.get_and_login_user(user=my_reviewer.user)
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["is_admin"], False)

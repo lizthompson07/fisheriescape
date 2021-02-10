@@ -5,7 +5,7 @@ from io import BytesIO
 import xlsxwriter
 from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import HttpResponse
 from django.template.defaultfilters import pluralize, slugify, date
 from django.utils import timezone
@@ -835,6 +835,8 @@ def generate_project_list(user, year, region, section):
         'project.id|Project Id',
         'fiscal_year',
         'project.title|title',
+        'Overview',
+        'Overview word count',
         'project.default_funding_source|Primary funding source',
         'project.functional_group|Functional group',
         'Project leads',
@@ -842,6 +844,10 @@ def generate_project_list(user, year, region, section):
         'updated_at|Last modified date',
         'modified_by|Last modified by',
         'Last modified description',
+        'Activity count',
+        'Staff count',
+        'Sum of staff FTE (weeks)',
+        'Sum of costs',
     ]
 
     if in_projects_admin_group(user):
@@ -875,6 +881,20 @@ def generate_project_list(user, year, region, section):
                 val = obj.updated_at.strftime("%Y-%m-%d")
             elif "Last modified description" in field:
                 val = naturaltime(obj.updated_at)
+            elif field == "Overview":
+                val = html2text(nz(obj.project.overview_html, ""))
+            elif field == "Overview word count":
+                val = len(html2text(nz(obj.project.overview_html, "")).split(" "))
+            elif field == "Activity count":
+                val = obj.activities.count()
+            elif field == "Staff count":
+                val = obj.staff_set.count()
+            elif field == "Sum of staff FTE (weeks)":
+                val = obj.staff_set.order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))["dsum"]
+            elif field == "Sum of costs":
+                val = nz(obj.omcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
+                      nz(obj.capitalcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
+                      nz(obj.staff_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0)
             else:
                 val = get_field_value(obj, field)
 
@@ -902,36 +922,35 @@ def generate_sara_application(project, lang):
     document = Document(source_stream)
     source_stream.close()
 
+    year = project.years.last()
     priorities = str()
-    for year in project.years.all():
-        priorities += f'{year.priorities}\n\n'
+    priorities += f'{year.priorities}\n\n'
 
     milestones = str()
-    for milestone in models.Activity.objects.filter(project_year__project=project, type=1):
+    for milestone in models.Activity.objects.filter(project_year=year, type=1):
         mystr = f'{date(milestone.target_date)} -> {milestone.name}: {milestone.description}. Responsible Parties: {milestone.responsible_party}'
         milestones += f'{mystr}\n'
 
     deliverables = str()
-    for deliverable in models.Activity.objects.filter(project_year__project=project, type=2):
+    for deliverable in models.Activity.objects.filter(project_year=year, type=2):
         mystr = f'{date(deliverable.target_date)} -> {deliverable.name}: {deliverable.description}. Responsible Parties: {deliverable.responsible_party}'
         deliverables += f'{mystr}\n'
 
     total_cost = 0
     om_costs = str()
-    for cost in models.OMCost.objects.filter(project_year__project=project, funding_source__name__icontains="sara", amount__gt=0):
+    for cost in models.OMCost.objects.filter(project_year=year, funding_source__name__icontains="sara", amount__gt=0):
         mystr = f'{cost.om_category} --> {cost.description}  Amount: {currency(cost.amount)}'
         om_costs += f'{mystr}\n'
         total_cost += cost.amount
 
     capital_costs = str()
-    for cost in models.CapitalCost.objects.filter(project_year__project=project, funding_source__name__icontains="sara", amount__gt=0):
+    for cost in models.CapitalCost.objects.filter(project_year=year, funding_source__name__icontains="sara", amount__gt=0):
         mystr = f'{cost.get_category_display()} --> {cost.description}  Amount: {currency(cost.amount)}'
         capital_costs += f'{mystr}\n'
         total_cost += cost.amount
 
-
     salary_costs = str()
-    for staff in models.Staff.objects.filter(project_year__project=project, funding_source__name__icontains="sara", amount__gt=0):
+    for staff in models.Staff.objects.filter(project_year=year, funding_source__name__icontains="sara", amount__gt=0):
         mystr = f'{nz(staff.smart_name)} ({nz(staff.level)}) --> Duration in weeks: {nz(staff.duration_weeks)}  Amount: {currency(staff.amount)}'
         salary_costs += f'{mystr}\n'
         total_cost += staff.amount
@@ -945,7 +964,7 @@ def generate_sara_application(project, lang):
         TAG_LEADS=listrify(project.lead_staff.all()),
         TAG_TAGS=listrify(project.tags.all()),
         TAG_OVERVIEW=project.overview,
-        TAG_ADDITIONAL_NOTES=project.years.first().additional_notes,
+        TAG_ADDITIONAL_NOTES=year.additional_notes,
 
         TAG_DELIVERABLES=deliverables,
         TAG_MILESTONES=milestones,
@@ -973,29 +992,6 @@ def generate_sara_application(project, lang):
                     paragraph.text = paragraph.text.replace(item, field_dict[item])
                 except:
                     paragraph.text = "MISSING!"
-
-    # # deal with staff
-    # for table in document.tables:
-    #     if "theme" in table.rows[0].cells[0].paragraphs[0].text.lower():
-    #         for staff in models.Staff.objects.filter(project_year__project=project).order_by("project_year"):
-    #             row = table.add_row()
-    #             row.cells[0].paragraphs[0].text = f'{staff.smart_name} ({staff.project_year.fiscal_year})'
-    #             row.cells[1].paragraphs[
-    #                 0].text = f'Role in the project: {staff.role} \nFTE Time: {int(nz(staff.duration_weeks, 0))} weeks ({round(int(nz(staff.duration_weeks, 0)) / 42 * 100)}%)\nKey Expertise: {staff.expertise}'
-    #             row.cells[2].paragraphs[0].text = _("DFO-") + "[ADD REGION]"
-    #
-    #         for c in models.Collaboration.objects.filter(project_year__project=project).order_by("project_year"):
-    #             row = table.add_row()
-    #             row.cells[0].paragraphs[0].text = f'{c.people} ({c.get_type_display()})'
-    #             row.cells[1].paragraphs[0].text = c.notes
-    #             row.cells[3].paragraphs[0].text = c.organization
-    #
-    #     if "overview of the project" in table.rows[0].cells[0].paragraphs[0].text.lower():
-    #         for activity in models.Activity.objects.filter(project_year__project=project).order_by("project_year"):
-    #             row = table.add_row()
-    #             row.cells[0].paragraphs[0].text = f'{activity.project_year.fiscal_year}'
-    #             row.cells[1].paragraphs[
-    #                 0].text = f'TYPE: {activity.get_type_display()} \nNAME: {activity.name}\nDESCRIPTION: {activity.description}\nRESPONSIBLE PARTIES: {activity.responsible_party}'
 
     document.save(target_file_path)
 

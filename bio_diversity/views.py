@@ -910,6 +910,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["grpd_field_list"] = [
             "anidc_id",
             "det_val",
+            "grpd_valid",
         ]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
@@ -927,7 +928,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
 
 class GrpdDetails(mixins.GrpdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "grpd_valid", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -992,6 +993,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "anidc_id",
             "adsc_id",
             "det_val",
+            "indvd_valid",
         ]
 
         context["pair_object"] = models.Pairing.objects.first()
@@ -1020,7 +1022,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
 
 class IndvdDetails(mixins.IndvdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "comments", "created_by", "created_date", ]
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):
@@ -1867,6 +1869,16 @@ class EvntUpdate(mixins.EvntMixin, CommonUpdate):
 
         return success_url
 
+    def get_initial(self):
+        init = super().get_initial()
+        # can uncomment this to auto update user on any update
+        # init["created_by"] = self.request.user.username
+        init["start_date"] = self.object.start_date
+        init["start_time"] = self.object.start_time
+        init["end_date"] = self.object.end_date
+        init["end_time"] = self.object.end_time
+        return init
+
 
 class EvntcUpdate(mixins.EvntcMixin, CommonUpdate):
     pass
@@ -1949,7 +1961,13 @@ class InstdcUpdate(mixins.InstdcMixin, CommonUpdate):
 
 
 class LocUpdate(mixins.LocMixin, CommonUpdate):
-    pass
+    def get_initial(self):
+        init = super().get_initial()
+        # can uncomment this to auto update user on any update
+        # init["created_by"] = self.request.user.username
+        init["start_date"] = self.object.start_date
+        init["start_time"] = self.object.start_time
+        return init
 
 
 class LoccUpdate(mixins.LoccMixin, CommonUpdate):

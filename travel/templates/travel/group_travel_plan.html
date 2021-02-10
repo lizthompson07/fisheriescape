@@ -365,7 +365,7 @@ h1 {
           </tr>
           <tr>
             <td class="text-right very-wide-cell w40p">{% trans "Signature" %}</td>
-            {% if parent.rdg.status_id == 2 %}
+            {% if parent.rdg.status == 2 %}
               <td colspan="1" class="data">
                 <span class="large-font">{% trans "Approved on" %} {{ parent.rdg.status_date }}</span>
                 <br> ({% trans "This is not an official copy." %})
@@ -386,12 +386,12 @@ h1 {
       <td class="top">
         <table>
           {% for r in parent.recommenders %}
-            {% if not r.status_id == 21 %}
+            {% if not r.status == 21 %}
               <tr>
                 <td class="text-right wide-cell top">{% trans "Recommended by" %}</td>
                 <td rowspan="1" class="data wide-cell">
                   {{ r.user }}
-                  {% if r.status_id == 2 %}
+                  {% if r.status == 2 %}
                     ({% trans "digitally reviewed" %} on {{ r.status_date }})
                   {% else %}
                     ({% trans "NOT RECOMMENDED" %})
@@ -400,7 +400,7 @@ h1 {
               </tr>
             {% endif %}
           {% endfor %}
-          {% if parent.adm.status_id == 2 %}
+          {% if parent.adm.status == 2 %}
             <tr>
               <td class="text-right wide-cell">{% trans "Approved by" %}</td>
               <td rowspan="1" class="data wide-cell">

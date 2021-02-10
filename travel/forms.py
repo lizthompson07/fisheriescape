@@ -168,7 +168,7 @@ class TripRequestForm(forms.ModelForm):
                                                                         "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
-        trip_choices = [(t.id, f'{t} ({t.status})') for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
+        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
         trip_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -579,25 +579,6 @@ class ReportSearchForm(forms.Form):
         self.fields['trip'].choices = trip_choices
 
 
-class StatusForm(forms.ModelForm):
-    class Meta:
-        model = models.Status
-        fields = [
-            "name",
-            "nom",
-            "used_for",
-            "order",
-            "color",
-        ]
-
-
-StatusFormset = modelformset_factory(
-    model=models.Status,
-    form=StatusForm,
-    extra=1,
-)
-
-
 class ReviewerForm(forms.ModelForm):
     class Meta:
         model = models.Reviewer
@@ -624,18 +605,18 @@ class ReviewerForm(forms.ModelForm):
         role = cleaned_data.get("role")
 
         # Check the role
-        if my_object.status and my_object.status.id not in [4, 20]:
+        if my_object.status and my_object.status not in [4, 20]:
             # need to determine if there have been any changes
             if my_object.role != role:
-                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.status} cannot be changed'))
+                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.get_status_display()} cannot be changed'))
 
             if my_object.user != user:
                 raise forms.ValidationError(
-                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.status}'))
+                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.get_status_display}'))
 
             if my_object.order != order:
                 raise forms.ValidationError(
-                    _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
+                    _(f'Sorry, the order of a reviewer whose status is set to {my_object.get_status_display()} cannot be changed'))
 
 
 ReviewerFormset = modelformset_factory(
@@ -681,18 +662,18 @@ class TripReviewerForm(forms.ModelForm):
         role = cleaned_data.get("role")
 
         # Check the role
-        if my_object.status and my_object.status.id not in [23, 24]:
+        if my_object.status and my_object.status not in [23, 24]:
             # need to determine if there have been any changes
             if my_object.role != role:
-                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.status} cannot be changed'))
+                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.get_status_display()} cannot be changed'))
 
             if my_object.user != user:
                 raise forms.ValidationError(
-                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.status}'))
+                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.get_status_display()}'))
 
             if my_object.order != order:
                 raise forms.ValidationError(
-                    _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
+                    _(f'Sorry, the order of a reviewer whose status is set to {my_object.get_status_display()} cannot be changed'))
 
 
 TripReviewerFormset = modelformset_factory(
@@ -895,7 +876,7 @@ class TripSelectForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        trip_choices = [(t.id, f'{t} ({t.status})') for t in models.Conference.objects.all()]
+        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Conference.objects.all()]
         trip_choices.insert(0, tuple((None, "---")))
 
         self.fields["trip"].choices = trip_choices

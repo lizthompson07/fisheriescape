@@ -4,7 +4,7 @@ import textile
 from django.contrib.auth.models import User as AuthUser
 from django.db import models
 from django.db.models import Q, Sum
-from django.template.defaultfilters import pluralize, date
+from django.template.defaultfilters import pluralize, date, slugify
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -177,12 +177,7 @@ class TripSubcategory(Lookup):
 class Reason(SimpleLookup):
     pass
 
-
-# THE HOPE IS TO DELETE THIS MODEL
-class Purpose(Lookup):
-    pass
-
-
+# DELETE ME!!
 class Status(SimpleLookup):
     # choices for used_for
     TR_REVIEWERS = 1
@@ -209,6 +204,14 @@ class Status(SimpleLookup):
 
 
 class Conference(models.Model):
+    status_choices = (
+        (30, _("Unverified")),
+        (31, _("Under review")),
+        (32, _("Reviewed")),
+        (41, _("Verified")),
+        (43, _("Cancelled")),
+    )
+
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
     trip_subcategory = models.ForeignKey(TripSubcategory, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
@@ -237,8 +240,7 @@ class Conference(models.Model):
                                     related_name="trips_verified_by",
                                     verbose_name=_("verified by"))
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
-                               limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
+    status = models.IntegerField(verbose_name=_("trip status"), default=30, choices=status_choices, editable=False)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
     last_modified = models.DateTimeField(verbose_name=_("last modified"), auto_now=True, editable=False)
@@ -356,7 +358,7 @@ class Conference(models.Model):
         legit_traveller_list = self.traveller_list
         bta_travellers = []
         # exclude reqeusts that are denied (id=10), cancelled (id=22), draft (id=8)
-        for trip_request in self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])):
+        for trip_request in self.trip_requests.filter(~Q(status__in=[10, 22, 8])):
             # lets look at the list of BTA travels and add them all
             for bta_user in trip_request.bta_attendees.all():
                 # if this user for some reason turns up to be a real traveller on this trip
@@ -408,11 +410,11 @@ class Conference(models.Model):
         # start simple... non-group
         # exclude reqeusts that are denied (id=10), cancelled (id=22), draft (id=8)
         my_list = [trip_request.total_dfo_funding for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False)]
+                   self.trip_requests.filter(~Q(status__in=[10, 22, 8])).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_dfo_funding for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22, 8]))])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status__in=[10, 22, 8]))])
 
         return sum(my_list)
 
@@ -423,12 +425,12 @@ class Conference(models.Model):
 
         # start simple... non-group
         my_list = [trip_request.total_dfo_funding for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False,
+                   self.trip_requests.filter(~Q(status__in=[10, 22, 8])).filter(is_group_request=False,
                                                                                    is_research_scientist=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_dfo_funding for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22, 8])).filter(
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status__in=[10, 22, 8])).filter(
                  is_research_scientist=False)])
 
         return sum(my_list)
@@ -451,7 +453,7 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         my_id_list = [trip_request.id for trip_request in self.trip_requests.all().filter(is_group_request=False)]
-        # self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
+        # self.trip_requests.filter(~Q(status__in=[10, 22])).filter(is_group_request=False)]
         # group requests
         my_id_list.extend(
             [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).all()])
@@ -466,13 +468,13 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         my_id_list = [trip_request.id for trip_request in
-                      self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False)]
+                      self.trip_requests.filter(~Q(status__in=[10, 22, 8])).filter(is_group_request=False)]
         # group requests
         my_id_list.extend(
             [trip_request.id for trip_request in
              TripRequest.objects.filter(parent_request__trip=self).filter(
-                 ~Q(parent_request__status_id__in=[10, 22, 8])).filter(
-                 ~Q(status_id=10))])
+                 ~Q(parent_request__status__in=[10, 22, 8])).filter(
+                 ~Q(status=10))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
     @property
@@ -549,14 +551,14 @@ class Conference(models.Model):
     @property
     def current_reviewer(self):
         """Send back the first reviewer whose status is 'pending' """
-        return self.reviewers.filter(status_id=25).first()
+        return self.reviewers.filter(status=25).first()
 
     @property
     def status_string(self):
         my_status = self.status
         #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
-        status_str = "{}".format(my_status)
-        if my_status.id == 31 and self.current_reviewer:
+        status_str = self.get_status_display()
+        if self.status == 31 and self.current_reviewer:
             status_str += " {} {}".format(_("by"), self.current_reviewer.user)
         return status_str
 
@@ -567,6 +569,18 @@ class Conference(models.Model):
 
 
 class TripRequest(models.Model):
+    status_choices = (
+        (8, _("Draft")),
+        (10, _("Denied")),
+        (11, _("Approved")),
+        (12, _("Pending Recommendation")),
+        (14, _("Pending ADM Approval")),
+        (15, _("Pending RDG Approval")),
+        (16, _("Changes Requested")),
+        (17, _("Pending Review")),
+        (22, _("Cancelled")),
+    )
+
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING,
                                     verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True,
@@ -633,8 +647,7 @@ class TripRequest(models.Model):
 
     submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
     original_submission_date = models.DateTimeField(verbose_name=_("original submission date"), blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trip_requests",
-                               limit_choices_to={"used_for": 2}, verbose_name=_("trip request status"), default=8)
+    status = models.IntegerField(verbose_name=_("trip request status"), default=8, choices=status_choices)
     parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests",
                                        blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
@@ -713,7 +726,7 @@ class TripRequest(models.Model):
 
         # If this is a child request, it should not have any assigned reviewers -> unless it is an ADM reviewer
         if self.parent_request:
-            self.reviewers.filter(~Q(role_id=5)).delete()
+            self.reviewers.filter(~Q(role=5)).delete()
 
         # ensure the process order makes sense
         count = 1
@@ -729,9 +742,17 @@ class TripRequest(models.Model):
         last_reviewer = None
         for reviewer in self.reviewers.all():
             # basically, each subsequent reviewer should have a role that is further down in order than the previous
+            warning_msg = _("WARNING: The roles of the reviewers are out of order!")
             if last_reviewer:
-                if last_reviewer.role.order > reviewer.role.order:
-                    return "WARNING: The roles of the reviewers are out of order!"
+                if last_reviewer.role == 4:
+                    if reviewer.role <= 4:
+                        return warning_msg
+                if last_reviewer.role == 5:
+                    if reviewer.role <= 5:
+                        return warning_msg
+                if last_reviewer.role == 6:
+                    if reviewer.role <= 6:
+                        return warning_msg
             last_reviewer = reviewer
 
     @property
@@ -915,43 +936,43 @@ class TripRequest(models.Model):
     @property
     def current_reviewer(self):
         """Send back the first reviewer whose status is 'pending' """
-        return self.reviewers.filter(status_id=1).first()
+        return self.reviewers.filter(status=1).first()
 
     @property
     def status_string(self):
         if self.parent_request:
             my_status = self.parent_request.status
             #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
-            status_str = "{}".format(my_status)
-            if my_status.id not in [11, 8, ] and self.parent_request.current_reviewer:
+            status_str = "{}".format(self.parent_request.get_status_display())
+            if my_status not in [11, 8, ] and self.parent_request.current_reviewer:
                 status_str += " {} {}".format(_("by"), self.parent_request.current_reviewer.user)
         else:
             my_status = self.status
             #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
-            status_str = "{}".format(my_status)
-            if my_status.id not in [11, 8, ] and self.current_reviewer:
+            status_str = self.get_status_display()
+            if my_status not in [11, 8, ] and self.current_reviewer:
                 status_str += " {} {}".format(_("by"), self.current_reviewer.user)
         return status_str
 
     @property
     def adm(self):
-        return self.reviewers.filter(role_id=5).first()
+        return self.reviewers.filter(role=5).first()
 
     @property
     def rdg(self):
-        return self.reviewers.filter(role_id=6).first()
+        return self.reviewers.filter(role=6).first()
 
     @property
     def recommenders(self):
-        return self.reviewers.filter(role_id=2)
+        return self.reviewers.filter(role=2)
 
     @property
     def processing_time(self):
         # if draft
-        if self.status.id == 8 or not self.original_submission_date:
+        if self.status == 8 or not self.original_submission_date:
             my_var = "---"
         # if approved, denied
-        elif self.status.id in [10, 11]:
+        elif self.status in [10, 11]:
             my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.original_submission_date
             my_var = "{} {}{}".format(my_var.days, _('day'), pluralize(my_var.days))
         else:
@@ -984,7 +1005,7 @@ class TripRequest(models.Model):
 
     @property
     def smart_status(self):
-        return self.parent_request.status if self.parent_request else self.status
+        return self.parent_request.get_status_display() if self.parent_request else self.get_status_display()
 
     @property
     def smart_trip(self):
@@ -1018,8 +1039,8 @@ class TripRequest(models.Model):
     def smart_recommendation_notes(self):
         my_str = ""
         reviewers = self.smart_reviewers
-        for r in reviewers.filter(role_id=2):
-            if r.status_id == 2 and r.comments:
+        for r in reviewers.filter(role=2):
+            if r.status == 2 and r.comments:
                 my_str += f'<u>{r.user}</u>: {r.comments}<br>'
         return mark_safe(my_str)
 
@@ -1068,13 +1089,29 @@ class ReviewerRole(SimpleLookup):
 
 
 class Reviewer(models.Model):
+    status_choices = (
+        (1, _("Pending")),
+        (2, _("Approved")),
+        (3, _("Denied")),
+        (4, _("Draft")),
+        (5, _("Cancelled")),
+        (20, _("Queued")),
+        (21, _("Skipped")),
+    )
+    role_choices = (
+        (1, _("Reviewer")),
+        (2, _("Recommender")),
+        (3, _("NCR Travel Coordinators")),
+        (4, _("ADM Recommender")),
+        (5, _("ADM")),
+        (6, _("RDG")),
+    )
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers",
                              verbose_name=_("DM Apps user"))
-    role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 1},
-                               verbose_name=_("review status"), default=4)
+    role = models.IntegerField(verbose_name=_("role"), choices=role_choices)
+    status = models.IntegerField(verbose_name=_("review status"), default=4, choices=status_choices)
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
     comments = models.TextField(null=True, verbose_name=_("Comments"))
 
@@ -1096,40 +1133,50 @@ class Reviewer(models.Model):
     def save(self, *args, **kwargs):
         # If the trip request is currently under review but changes have been requested, add this reviewer directly in the queue
 
-        if self.trip_request.status_id != 8 and self.status_id == 4:
-            self.status_id = 20
+        if self.trip_request.status != 8 and self.status == 4:
+            self.status = 20
         return super().save(*args, **kwargs)
 
     @property
     def status_string(self):
 
-        if self.status.id in [1, 4, 5]:
-            status = "{}".format(
-                self.status
-            )
+        if self.status in [1, 4, 5]:
+            status = self.get_status_display()
         else:
             status = "{} {} {}".format(
-                self.status,
+                self.get_status_display(),
                 _("on"),
                 self.status_date.strftime("%Y-%m-%d"),
             )
-
-        my_str = "<span style='background-color:{}'>{} ({})</span>".format(
-            self.status.color,
-            self.user,
-            status,
-        )
+        my_str = f"<span class='{slugify(self.get_status_display())}'>{self.user} ({status})</span>"
         return mark_safe(my_str)
 
 
 class TripReviewer(models.Model):
+    status_choices = (
+        (8, _("Draft")),
+        (10, _("Denied")),
+        (11, _("Approved")),
+        (12, _("Pending Recommendation")),
+        (14, _("Pending ADM Approval")),
+        (15, _("Pending RDG Approval")),
+        (16, _("Changes Requested")),
+        (17, _("Pending Review")),
+        (22, _("Cancelled")),
+    )
+    role_choices = (
+        (1, _("Reviewer")),
+        (2, _("Recommender")),
+        (3, _("NCR Travel Coordinators")),
+        (4, _("ADM Recommender")),
+        (5, _("ADM")),
+        (6, _("RDG")),
+    )
     trip = models.ForeignKey(Conference, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers",
-                             verbose_name=_("DM Apps user"))
-    role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3},
-                               verbose_name=_("review status"), default=23)
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers", verbose_name=_("DM Apps user"))
+    role = models.IntegerField(verbose_name=_("role"), choices=role_choices)
+    status = models.IntegerField(verbose_name=_("review status"), default=23, choices=status_choices)
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
     comments = models.TextField(null=True, verbose_name=_("Comments"))
 
@@ -1148,30 +1195,16 @@ class TripReviewer(models.Model):
     @property
     def status_string(self):
 
-        if self.status.id in [1, 4, 5]:
-            status = "{}".format(
-                self.status
-            )
+        if self.status in [1, 4, 5]:
+            status = self.get_status_display()
         else:
             status = "{} {} {}".format(
-                self.status,
+                self.get_status_display(),
                 _("on"),
                 self.status_date.strftime("%Y-%m-%d"),
             )
-
-        my_str = "<span style='background-color:{}'>{} ({})</span>".format(
-            self.status.color,
-            self.user,
-            status,
-        )
+        my_str = f"<span class='{self.get_status_display()}'>{self.user} ({status})</span>"
         return mark_safe(my_str)
-
-    # def save(self, *args, **kwargs):
-    #     # If the trip is currently under review add this reviewer directly in the queue
-    #
-    #     if self.trip.status_id == 31:
-    #         self.status_id = 24
-    #     return super().save(*args, **kwargs)
 
 
 def file_directory_path(instance, filename):

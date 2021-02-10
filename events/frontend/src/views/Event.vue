@@ -17,30 +17,35 @@
             ></DeleteEventDialogBox>
 
           </div>
-          <h1>Event Detail</h1>
-          <v-simple-table dense>
-            <template v-slot:default>
-              <tbody>
-              <DetailRow :label="eventLabels.name" :value="event.name"></DetailRow>
-              <DetailRow :label="eventLabels.nom" :value="event.nom"></DetailRow>
-              <DetailRow :label="eventLabels.type" :value="event.type_display"></DetailRow>
-              <tr v-if="event.parent_event">
-                <th class="text-left" v-html="eventLabels.parent_event"></th>
-                <td class="text-left">
-                  <router-link :to="{ name: 'event-detail', params: { id: event.parent_event_display.id } }">{{ event.parent_event_display.tname }}</router-link>
-                </td>
-              </tr>
-              <DetailRow :label="eventLabels.location" :value="event.location"></DetailRow>
-              <DetailRow :label="eventLabels.proponent" :value="event.proponent"></DetailRow>
-              <DetailRow label="Dates" :value="event.display_dates"></DetailRow>
-              <DetailRow label="Attendees" :value="event.attendees"></DetailRow>
-              <DetailRow label="Distinct attendees" :value="attendeeCount"></DetailRow>
-              <DetailRow label="Metadata" :value="event.metadata"></DetailRow>
-              </tbody>
-            </template>
+          <div class="">
+            <h1>Event Detail</h1>
+            <v-simple-table dense>
+              <template v-slot:default>
+                <tbody>
+                <DetailRow :label="eventLabels.name" :value="event.name"></DetailRow>
+                <DetailRow :label="eventLabels.nom" :value="event.nom"></DetailRow>
+                <DetailRow :label="eventLabels.type" :value="event.type_display"></DetailRow>
+                <tr v-if="event.parent_event">
+                  <th class="text-left" v-html="eventLabels.parent_event"></th>
+                  <td class="text-left">
+                    <router-link :to="{ name: 'event-detail', params: { id: event.parent_event_display.id } }">{{
+                        event.parent_event_display.tname
+                      }}
+                    </router-link>
+                  </td>
+                </tr>
+                <DetailRow :label="eventLabels.location" :value="event.location"></DetailRow>
+                <DetailRow :label="eventLabels.proponent" :value="event.proponent"></DetailRow>
+                <DetailRow label="Dates" :value="event.display_dates"></DetailRow>
+                <DetailRow label="Attendees" :value="event.attendees"></DetailRow>
+                <DetailRow label="Distinct attendees" :value="attendeeCount"></DetailRow>
+                <DetailRow label="Metadata" :value="event.metadata"></DetailRow>
+                </tbody>
+              </template>
 
-          </v-simple-table>
-
+            </v-simple-table>
+          </div>
+          <br>
           <div class="mt-5">
             <table>
               <tr>
@@ -56,7 +61,8 @@
                 </td>
               </tr>
             </table>
-            <v-simple-table dense>
+            <p v-if="invitees && !invitees.length"><em>Nobody has been invited yet.</em></p>
+            <v-simple-table v-else dense>
               <template v-slot:default>
                 <thead>
                 <tr>
@@ -82,7 +88,7 @@
 
           </div>
 
-
+          <br>
           <div class="mt-5">
             <table>
 
@@ -99,7 +105,8 @@
                 </td>
               </tr>
             </table>
-            <v-simple-table dense>
+            <p v-if="resources && !resources.length"><em>No resources have been added yet.</em></p>
+            <v-simple-table v-else dense>
               <template v-slot:default>
                 <thead>
                 <tr>
@@ -124,7 +131,7 @@
 
           </div>
 
-
+          <br>
           <div class="mt-5">
             <table>
 
@@ -139,7 +146,8 @@
                 </td>
               </tr>
             </table>
-            <v-simple-table dense>
+            <p v-if="event.children && !event.children.length"><em>This event has no children.</em></p>
+            <v-simple-table v-else dense>
               <template v-slot:default>
                 <thead>
                 <tr>
@@ -155,14 +163,16 @@
                     <router-link :to="{name: 'event-detail', params:{id: child.id}}">{{ child.tname }}</router-link>
                   </td>
                   <td> {{ child.type_display }}</td>
-                  <td>{{ child.display_dates }}</td>
+                  <td v-html="child.display_dates"></td>
                 </tr>
 
 
                 </tbody>
               </template>
             </v-simple-table>
-
+            <br>
+            <br>
+            <br>
           </div>
 
         </v-col>
@@ -242,7 +252,6 @@ export default {
     NoteCard,
     ResourceTableRow,
     ResourceEditorOverlay
-
   },
   methods: {
     getEventMetadata() {

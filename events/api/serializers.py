@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.template.defaultfilters import date, pluralize
 from django.utils.translation import gettext
 from rest_framework import serializers
@@ -7,24 +6,6 @@ from rest_framework.generics import get_object_or_404
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import percentage
 from .. import models
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "first_name",
-            "last_name",
-            "email",
-            "username",
-            "full_name"
-        ]
-
-    full_name = serializers.SerializerMethodField()
-
-    def get_full_name(self, instance):
-        return instance.get_full_name()
 
 
 class EventSerializerLITE(serializers.ModelSerializer):
@@ -111,14 +92,7 @@ class EventSerializer(serializers.ModelSerializer):
         return date(instance.start_date)
 
     def get_display_dates(self, instance):
-        start = date(instance.start_date) if instance.start_date else "??"
-        dates = f'{start}'
-        if instance.end_date and instance.end_date != instance.start_date:
-            end = date(instance.end_date)
-            dates += f' &rarr; {end}'
-        days_display = "{} {}{}".format(instance.length_days, gettext("day"), pluralize(instance.length_days))
-        dates += f' ({days_display})'
-        return dates
+        return instance.display_dates
 
     def get_dates(self, instance):
         dates = list()
@@ -165,6 +139,11 @@ class InviteeSerializer(serializers.ModelSerializer):
     max_date = serializers.SerializerMethodField()
     attendance = serializers.SerializerMethodField()
     attendance_percentage = serializers.SerializerMethodField()
+    event_object = serializers.SerializerMethodField()
+
+    def get_event_object(self, instance):
+        if instance.event:
+            return EventSerializerLITE(instance.event, read_only=True).data
 
     def get_attendance_percentage(self, instance):
         return percentage(instance.attendance_fraction, 0)
@@ -173,12 +152,14 @@ class InviteeSerializer(serializers.ModelSerializer):
         return [a.date.strftime("%Y-%m-%d") for a in instance.attendance.all()]
 
     def get_min_date(self, instance):
-        return instance.event.start_date.strftime("%Y-%m-%d")
+        if instance.event.start_date:
+            return instance.event.start_date.strftime("%Y-%m-%d")
 
     def get_max_date(self, instance):
         if instance.event.end_date:
             return instance.event.end_date.strftime("%Y-%m-%d")
-        return instance.event.start_date.strftime("%Y-%m-%d")
+        elif instance.event.start_date:
+            return instance.event.start_date.strftime("%Y-%m-%d")
 
     def get_full_name(self, instance):
         return instance.full_name

@@ -14,17 +14,13 @@
     <td v-else>
       Attended ({{ invitee.attendance_percentage }})
     </td>
-
     <td>
-      <v-btn small onclick="window.alert('i am a placeholder :) ')">
-        <v-icon small>mdi-email</v-icon>
-      </v-btn>
+      <EventEmailOverlay v-if="!invitee.invitation_sent_date" :invitee="invitee" @update-invitees="$emit('update-invitees')">
+      </EventEmailOverlay>
     </td>
 
-    <td>
-      <InviteeAttendanceOverlay
-          :invitee="invitee"
-          @update-invitees="$emit('update-invitees')"
+    <td v-if="invitee.event_object.start_date">
+      <InviteeAttendanceOverlay :invitee="invitee" @update-invitees="$emit('update-invitees')"
       ></InviteeAttendanceOverlay>
     </td>
     <td>
@@ -42,6 +38,7 @@
 import DeleteInviteeDialogBox from "@/components/DeleteInviteeDialogBox";
 import InviteeEditorOverlay from "@/components/InviteeEditorOverlay";
 import InviteeAttendanceOverlay from "@/components/InviteeAttendanceOverlay";
+import EventEmailOverlay from "@/components/EventEmailOverlay";
 import {apiService} from "@/common/api_service";
 
 export default {
@@ -54,7 +51,9 @@ export default {
   components: {
     InviteeEditorOverlay,
     InviteeAttendanceOverlay,
-    DeleteInviteeDialogBox
+    DeleteInviteeDialogBox,
+    EventEmailOverlay
+
   },
   data() {
     return {};
@@ -81,6 +80,12 @@ export default {
         status: nextStatus
       });
       this.$emit("update-invitees");
+    },
+    sendInvitation() {
+      let endpoint = `/api/events-planner/invitees/${this.invitee.id}/send-invitation/`;
+      apiService(endpoint, "POST").then(data => {
+        if (data === "email sent.") this.invitee.invitation_sent_date = true;
+      });
     }
   },
   computed: {

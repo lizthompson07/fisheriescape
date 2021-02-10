@@ -95,7 +95,7 @@
 
 
 {% block body_js %}
-  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  {{ block.super }}
 
   <script type="application/javascript">
   var trip_request_id = {{ triprequest.id }};

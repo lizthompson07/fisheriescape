@@ -29,7 +29,7 @@
                 {% elif "connected_request" in field.name %}
                     {{ object.trip_requests.count|zero2val:"---" }}
                 {% elif "status" in field.name %}
-                    <span style="background-color: {{ object.status.color }}">{% get_field_value object field.name %}</span>
+                    <span class="py-1 px-1 {{ object.get_status_display|slugify }}">{% get_field_value object field.name %}</span>
                 {% else %}
                     {% get_field_value object field.name safe=True %}
                 {% endif %}
