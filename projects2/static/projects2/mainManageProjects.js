@@ -1,3 +1,4 @@
+Vue.component('v-select', VueSelect.VueSelect);
 var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
@@ -56,6 +57,8 @@ var app = new Vue({
     functionalGroups: [],
     fundingSources: [],
     sections: [],
+    regions: [],
+    divisions: [],
 
     // modal
     projectYear2Review: {},

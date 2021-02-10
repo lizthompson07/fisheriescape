@@ -123,6 +123,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
         "Est. DFO Cost",
         "Est. Non-DFO Cost",
         "Purpose",
+        "Part of Learning Plan",
         "Notes",
     ]
     if include_trip_request_status:
@@ -227,6 +228,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 tr.total_dfo_funding,
                 tr.total_non_dfo_funding,
                 my_purpose,
+                yesno(tr.learning_plan),
                 notes,
             ]
 

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+{% load static %}
+{% block header %}
+  {{ block.super }}
+  <noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to
+      continue.</strong>
+  </noscript>
+{% endblock %}
+
+{% block body %}
+  <link rel="stylesheet" href="{% static 'bundle.css' %}">
+  <div id="app"></div>
+{% endblock %}
+
+{% block body_js %}
+  {% render_bundle 'app' config="EVENTS" %}
+  <script src="{% static 'bundle.js' %}"></script>
+{% endblock %}
+
+
+
+
