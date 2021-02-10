@@ -29,7 +29,7 @@
             {% if "is_group" in field.name %}
                 <td>{{ object.is_group_request|yesno:"Group,Individual" }}</td>
             {% elif "status" in field.name %}
-                <td style="background-color: {{ object.status.color }}">{% get_field_value object field.name format="currency" %}</td>
+                <td class="{{ object.get_status_display|slugify }}">{% get_field_value object field.name format="currency" %}</td>
             {% else %}
                 <td>{% get_field_value object field.name format="currency" %}</td>
             {% endif %}

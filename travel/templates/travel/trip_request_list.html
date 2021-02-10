@@ -11,7 +11,7 @@
                 {% if "is_group" in field.name %}
                     {{ object.is_group_request|yesno:"Group,Individual" }}
                 {% elif "status" in field.name %}
-                    <span style="background-color: {{ object.status.color }}">{% get_field_value object field.name format="currency" %}</span>
+                    <span class="px-1 py-1 {{ object.get_status_display|slugify }}">{% get_field_value object field.name format="currency" %}</span>
                 {% else %}
                     {% get_field_value object field.name %}
                 {% endif %}

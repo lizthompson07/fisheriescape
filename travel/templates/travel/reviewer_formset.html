@@ -116,7 +116,7 @@
                         {% endfor %}
                         {% for field in form %}
                             {% if not field.is_hidden %}
-                                {% if form.instance.id and not form.instance.status.id == 4 and not form.instance.status.id == 20 and triprequest %}
+                                {% if form.instance.id and not form.instance.status == 4 and not form.instance.status == 20 and triprequest %}
                                     <td>
                                         {{ form.instance|getattribute:field.name }}
                                         <span class="gone">{{ field }}</span>
@@ -130,10 +130,10 @@
                             {% endif %}
                         {% endfor %}
                         <td>
-                            {{ form.instance.status|nz:"---" }}
+                            {{ form.instance.get_status_display|nz:"---" }}
                         </td>
                         {% if form.instance.id %}
-                            {% if not form.instance.status.id == 4 and not form.instance.status.id == 20 and triprequest %}
+                            {% if not form.instance.status == 4 and not form.instance.status == 20 and triprequest %}
                                 {# NO delete button #}
                             {% else %}
                                 <td>
@@ -143,7 +143,7 @@
                                         {% url 'travel:delete_trip_reviewer' form.instance.id as my_delete_url %}
                                     {% endif %}
                                     <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
-                                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                                        <span class="h5 mdi mdi-delete"></span>
                                     </a>
                                 </td>
                             {% endif %}
@@ -172,7 +172,6 @@
     </div>
 {% endblock content %}
 {% block body_js %}
-      <script type="application/javascript">
 
     <script type="application/javascript">
         let newFormNumber = Number($("#id_form-INITIAL_FORMS").val());

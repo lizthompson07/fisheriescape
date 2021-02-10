@@ -71,9 +71,9 @@ def update_conf_status():
     conf_list = models.Conference.objects.all()
     for obj in conf_list:
         if obj.is_verified:
-            obj.status_id = 41
+            obj.status = 41
         else:
-            obj.status_id = 30
+            obj.status = 30
 
         obj.save()
 
@@ -83,7 +83,7 @@ def set_old_trips_to_reviewed():
     conf_list = models.Conference.objects.filter(is_adm_approval_required=True)
     for obj in conf_list:
         if obj.start_date <= timezone.now():
-            obj.status_id = 32
+            obj.status = 32
             obj.save()
 
 def update_participant_role():

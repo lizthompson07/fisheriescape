@@ -9,7 +9,7 @@
 {% block area_above_h1 %}
 
   {# if trip is cancelled, display a warning #}
-  {% if object.status.id == 43 %}
+  {% if object.status == 43 %}
     <div class="alert alert-danger" role="alert">
       <h4 class="alert-heading">
         {% trans "WARNING" %}
@@ -38,7 +38,7 @@
   }
   </style>
 
-  {% if is_adm_admin and object.is_adm_approval_required and object.status.id == 30 %} {# disabled for everyone #}
+  {% if is_adm_admin and object.is_adm_approval_required and object.status == 30 %} {# disabled for everyone #}
     <div class="mb-3">
       {# ADM Admin stuff #}
       <h4 class="red-font">
@@ -75,16 +75,16 @@
     {% endif %}
 
     {% if is_adm_admin %}
-      {% if object.status.id != 43 and object.is_adm_approval_required %}
+      {% if object.status != 43 and object.is_adm_approval_required %}
 
         {# Review BUTTON #}
-        {% if object.status.id != 32 %}
-          {% if object.status.id == 30 %} {# disabled for everyone #}
+        {% if object.status != 32 %}
+          {% if object.status == 30 %} {# disabled for everyone #}
             {% echo "disabled" as review_disabled_var %}
             {% trans "This trip must be verified before a review can be started." as review_tip_text %}
           {% endif %}
 
-          {% if object.status.id == 30 or object.status.id == 41 %}
+          {% if object.status == 30 or object.status == 41 %}
             {% echo "success" as review_btn_color %}
             {% trans "Start a Review for this trip" as review_btn_text %}
           {% else %}
@@ -104,7 +104,7 @@
     {% endif %}
 
     {# cancel button - only show if has permission and if trip is not already cancelled #}
-    {% if can_modify and object.status.id != 43 %}
+    {% if can_modify and object.status != 43 %}
       <a class="btn btn-admin" href="{% url 'travel:trip_cancel' object.id view.kwargs.type %}">
         {% trans "Cancel this Trip" %}
       </a>

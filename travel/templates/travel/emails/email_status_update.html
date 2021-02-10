@@ -16,10 +16,10 @@ table, th, td {
   {{ triprequest.user.first_name }},
   <br><br>
   Your trip request has been
-  {% if triprequest.status.id != 11 %}
-    {{ triprequest.status.name }}.
+  {% if triprequest.status != 11 %}
+    {{ triprequest.get_status_display }}.
   {% else %}
-    {{ triprequest.status.name }} by the RDG.
+    {{ triprequest.get_status_display }} by the RDG.
     <u style="color: red">
       You may now create your travel request in HRG in order to have travel authority.
     </u>
@@ -41,25 +41,25 @@ table, th, td {
   ********************************************************************
 </p>
 
-<p>
-  {{ triprequest.user.first_name }},
-  <br><br>
-  Votre demande de voyage a été
-  {% if triprequest.status.id != 11 %}
-    {{ triprequest.status.nom }}.
-  {% else %}
-    {{ triprequest.status.name }} par le DGR.
-    <u style="color: red">
-      Tu peux maintenant faire ta demande de voyage dans HRG pour te donner l’autorité de voyager.
-    </u>
-  {% endif %}
-  <br><br>
-  Vous pouvez cliquer <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">ICI</a> pour
-  accéder la voyage.
-  Voici les détails du voyage:
-</p>
-
 {% language 'fr' %}
+  <p>
+    {{ triprequest.user.first_name }},
+    <br><br>
+    Votre demande de voyage a été
+    {% if triprequest.status != 11 %}
+      {{ triprequest.get_status_display }}.
+    {% else %}
+      {{ triprequest.get_status_display }} par le DGR.
+      <u style="color: red">
+        Tu peux maintenant faire ta demande de voyage dans HRG pour te donner l’autorité de voyager.
+      </u>
+    {% endif %}
+    <br><br>
+    Vous pouvez cliquer <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">ICI</a> pour
+    accéder la voyage.
+    Voici les détails du voyage:
+  </p>
+
   <table>
     {% for field in field_list %}
       {% verbose_td_display triprequest field %}

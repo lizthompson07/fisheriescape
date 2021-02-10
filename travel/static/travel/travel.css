@@ -29,4 +29,81 @@ table, td {
     max-width: 1300px;
 }
 
-s
+
+.unverified {
+    background-color: #fff396;
+}
+
+.verified {
+    background-color: #a8ffb8;
+}
+
+.under-review {
+    background-color: #e197f7;
+}
+
+.reviewed {
+    background-color: #99ccff;
+}
+
+.cancelled {
+    background-color: #a6aba2;
+}
+
+
+.approved {
+    background-color: #a8ffb8;
+}
+
+.changes-requested {
+    background-color: #fcc1a2;
+}
+
+.complete {
+    background-color: #a8ffb8;
+}
+
+.denied {
+    background-color: #f79eb3;
+}
+
+.draft {
+    background-color: #fff396;
+}
+
+.pending {
+    background-color: #fcc1a2;
+}
+
+.pending-recommendation {
+    background-color: #e197f7;
+}
+
+.pending-adm-approval {
+    background-color: #99ccff;
+}
+
+.pending-rdg-approval {
+    background-color: #d0dcf5;
+}
+
+.pending-review {
+    background-color: #ffcce1;
+}
+
+.queued {
+    background-color: #d0dcf5;
+}
+
+.skipped {
+    background-color: #f58c84;
+}
+
+
+
+
+
+
+
+
+

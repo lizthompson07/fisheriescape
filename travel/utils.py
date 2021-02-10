@@ -124,7 +124,7 @@ def get_trip_reviewers(trip):
         try:
             # add each default NCR coordinator to the queue
             for default_reviewer in models.ReviewerRole.objects.get(pk=3).travel_default_reviewers.order_by("id"):
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=3)
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=3)
         except (IntegrityError, KeyError):
             pass
 
@@ -132,7 +132,7 @@ def get_trip_reviewers(trip):
         try:
             # add each default ADM approver to the queue
             for default_reviewer in models.ReviewerRole.objects.get(pk=4).travel_default_reviewers.order_by("id"):
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=4)
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=4)
         except (IntegrityError, KeyError):
             pass
 
@@ -140,7 +140,7 @@ def get_trip_reviewers(trip):
         try:
             # add ADM to the queue
             for default_reviewer in models.ReviewerRole.objects.get(pk=5).travel_default_reviewers.all():
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=5)
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=5)
         except (IntegrityError, KeyError):
             pass
     else:
@@ -155,7 +155,7 @@ def get_tr_reviewers(trip_request):
         try:
             # add each default reviewer to the queue
             for default_reviewer in trip_request.section.travel_default_reviewers.all():
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role_id=1)
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role=1)
         except (IntegrityError, KeyError):
             pass
 
@@ -164,7 +164,7 @@ def get_tr_reviewers(trip_request):
             # if the division head is the one creating the request, the section head should be skipped as a recommender AND
             # if the section head is the one creating the request, they should be skipped as a recommender
             if trip_request.user != trip_request.section.head and trip_request.user != trip_request.section.division.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.head, role_id=2, )
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.head, role=2, )
         except (IntegrityError, AttributeError):
             pass
 
@@ -172,7 +172,7 @@ def get_tr_reviewers(trip_request):
         try:
             # if the division head is the one creating the request, they should be skipped as a recommender
             if trip_request.user != trip_request.section.division.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role_id=2, )
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role=2, )
         except (IntegrityError, AttributeError):
             pass
 
@@ -182,7 +182,7 @@ def get_tr_reviewers(trip_request):
                 # TODO: DOES THE BRANCH HAVE A DEFAULT REVIEWER?
                 # add each default reviewer to the queue
                 for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.all():
-                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role_id=1)
+                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role=1)
 
         except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
@@ -191,7 +191,7 @@ def get_tr_reviewers(trip_request):
         try:
             if trip_request.user != trip_request.section.division.branch.head:
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head,
-                                                      role_id=2, )
+                                                      role=2, )
         except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
 
@@ -200,13 +200,13 @@ def get_tr_reviewers(trip_request):
         if trip_request.trip.is_adm_approval_required:
             # add the ADMs office staff
             try:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=626, role_id=5, )  # Arran McPherson
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=626, role=5, )  # Arran McPherson
             except IntegrityError:
                 pass
 
     # finally, we always need to add the RDG
     try:
-        models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.region.head, role_id=6, )
+        models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.region.head, role=6, )
     except (IntegrityError, AttributeError):
         pass
 
@@ -218,7 +218,7 @@ def start_review_process(trip_request):
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip_request.reviewers.all():
         # set everyone to being queued
-        reviewer.status_id = 20
+        reviewer.status = 20
         reviewer.status_date = None
         reviewer.save()
 
@@ -227,7 +227,7 @@ def end_review_process(trip_request):
     """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip_request.reviewers.all():
-        reviewer.status_id = 4
+        reviewer.status = 4
         reviewer.status_date = None
         reviewer.comments = None
         reviewer.save()
@@ -240,12 +240,12 @@ def start_trip_review_process(trip, reset=False):
     # focus only on reviewers that are status = Not Submitted
     if not reset:
         trip.review_start_date = timezone.now()
-        trip.status_id = 31
+        trip.status = 31
         trip.save()
 
     for reviewer in trip.reviewers.all():
         # set everyone to being queued
-        reviewer.status_id = 24
+        reviewer.status = 24
         if not reset:
             reviewer.status_date = None
         reviewer.save()
@@ -258,18 +258,18 @@ def end_trip_review_process(trip, reset=False):
     # focus only on reviewers that are status = Not Submitted
     if not reset:
         # trip.review_start_date = None NEVER reset the review start date!
-        trip.status_id = 41
+        trip.status = 41
     else:
-        trip.status_id = 31
+        trip.status = 31
     trip.save()
 
     for reviewer in trip.reviewers.all():
         if not reset:
-            reviewer.status_id = 23
+            reviewer.status = 23
             reviewer.status_date = None
             reviewer.comments = None
         else:
-            reviewer.status_id = 24
+            reviewer.status = 24
         reviewer.save()
 
 
@@ -287,12 +287,12 @@ def __set_request_status__(trip_request, request):
     """
 
     # first order of business, if the trip_request is status "changes requested' do not continue
-    if trip_request.status_id == 16:
+    if trip_request.status == 16:
         return False
 
     # Next: if the trip_request is unsubmitted, it is in 'draft' status
     elif not trip_request.submitted:
-        trip_request.status_id = 8
+        trip_request.status = 8
         # don't stick around any longer. save the trip_request and leave exit the function
         trip_request.save()
         return False
@@ -303,15 +303,15 @@ def __set_request_status__(trip_request, request):
         for reviewer in trip_request.reviewers.all():
             # if is_denied, all subsequent reviewer statuses should be set to "cancelled"
             if is_denied:
-                reviewer.status_id = 5
+                reviewer.status = 5
                 reviewer.save()
 
             # if reviewer status is denied, set the is_denied var to true
-            if reviewer.status_id == 3:
+            if reviewer.status == 3:
                 is_denied = True
 
         if is_denied:
-            trip_request.status_id = 10
+            trip_request.status = 10
             trip_request.save()
             # send an email to the trip_request owner
             email = emails.StatusUpdateEmail(trip_request, request)
@@ -328,8 +328,8 @@ def __set_request_status__(trip_request, request):
 
         # The trip_request should be approved if everyone has approved it. HOWEVER, some reviewers might have been skipped
         # The total number of reviewers should equal the number of reviewer who approved [id=2] and / or were skipped [id=21].
-        elif trip_request.reviewers.all().count() == trip_request.reviewers.filter(status_id__in=[2, 21]).count():
-            trip_request.status_id = 11
+        elif trip_request.reviewers.all().count() == trip_request.reviewers.filter(status__in=[2, 21]).count():
+            trip_request.status = 11
             trip_request.save()
             # send an email to the trip_request owner
             email = emails.StatusUpdateEmail(trip_request, request)
@@ -345,25 +345,25 @@ def __set_request_status__(trip_request, request):
         else:
             for reviewer in trip_request.reviewers.all():
                 # if a reviewer's status is 'pending', we are waiting on them and the project status should be set accordingly.
-                if reviewer.status_id == 1:
+                if reviewer.status == 1:
                     # if role is 'reviewer'
-                    if reviewer.role_id == 1:
-                        trip_request.status_id = 17
+                    if reviewer.role == 1:
+                        trip_request.status = 17
                     # if role is 'recommender'
-                    elif reviewer.role_id == 2:
-                        trip_request.status_id = 12
+                    elif reviewer.role == 2:
+                        trip_request.status = 12
                     # if role is 'ncr reviewer'
-                    elif reviewer.role_id == 3:
-                        trip_request.status_id = 17
+                    elif reviewer.role == 3:
+                        trip_request.status = 17
                     # if role is 'ncr recommender'
-                    elif reviewer.role_id == 4:
-                        trip_request.status_id = 12
+                    elif reviewer.role == 4:
+                        trip_request.status = 12
                     # if role is 'adm'
-                    elif reviewer.role_id == 5:
-                        trip_request.status_id = 14
+                    elif reviewer.role == 5:
+                        trip_request.status = 14
                     # if role is 'rdg'
-                    elif reviewer.role_id == 6:
-                        trip_request.status_id = 15
+                    elif reviewer.role == 6:
+                        trip_request.status = 15
 
     trip_request.save()
     return True
@@ -385,23 +385,23 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
             # we should then exit the loop and set the next_reviewer var
 
             # if this is a resubmission, there might still be a reviewer whose status is 'pending'. This should be the reviewer
-            if reviewer.status_id == 20 or reviewer.status_id == 1:
+            if reviewer.status == 20 or reviewer.status == 1:
                 next_reviewer = reviewer
                 break
 
         # if there is a next reviewer, set their status to pending
         if next_reviewer:
-            next_reviewer.status_id = 1
+            next_reviewer.status = 1
             next_reviewer.status_date = timezone.now()
             next_reviewer.save()
 
             # now, depending on the role of this reviewer, perhaps we want to send an email.
             # if they are a recommender, rev...
-            if next_reviewer.role_id in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
+            if next_reviewer.role in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
                 email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
 
-            elif next_reviewer.role_id in [6, ] and request:  # if we are going for RDG signature...
-                email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id, request)
+            elif next_reviewer.role in [6, ] and request:  # if we are going for RDG signature...
+                email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role, request)
 
             if email and not suppress_email:
                 # send the email object
@@ -527,7 +527,7 @@ def trip_approval_seeker(trip, request):
     # Next: if the trip_request is un submitted, it is in 'draft' status
 
     # only look for a next reviewer if we are still in a review [id=31]
-    if trip.status_id == 31:
+    if trip.status == 31:
 
         next_reviewer = None
         email = None
@@ -537,13 +537,13 @@ def trip_approval_seeker(trip, request):
             # if the reviewer's status is set to 'queued', they will be our next selection
             # we should then exit the loop and set the next_reviewer var
             # CAVEAT: if this is a resubmission, there might still be a reviewer whose status is 'pending'. This should be the reviewer
-            if reviewer.status_id == 24 or reviewer.status_id == 25:
+            if reviewer.status == 24 or reviewer.status == 25:
                 next_reviewer = reviewer
                 break
 
         # if there is a next reviewer, set their status to pending and send them an email
         if next_reviewer:
-            next_reviewer.status_id = 25
+            next_reviewer.status = 25
             next_reviewer.status_date = timezone.now()
             next_reviewer.save()
 
@@ -565,8 +565,8 @@ def trip_approval_seeker(trip, request):
             # The trip review is complete if all the reviewers' status are set to complete [id=26]
             # HOWEVER, some reviewers might have been skipped
             # The total number of reviewers should equal the number of reviewer who completed [id=26] and / or were skipped [id=42].
-            if trip.reviewers.all().count() == trip.reviewers.filter(status_id__in=[26, 42]).count():
-                trip.status_id = 32
+            if trip.reviewers.all().count() == trip.reviewers.filter(status__in=[26, 42]).count():
+                trip.status = 32
                 trip.save()
 
 
@@ -586,7 +586,7 @@ def get_related_trips(user):
 def get_adm_eligible_trips():
     """returns a qs of trips that are ready for adm review"""
     # start with trips that need adm approval that have not already been reviewed or those that have been cancelled
-    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id__in=[32, 43, 31]))
+    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status__in=[32, 43, 31]))
 
     t_ids = list()
     for t in trips:

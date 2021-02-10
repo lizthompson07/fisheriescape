@@ -29,12 +29,12 @@ class UtilsTest(CommonTest):
 
         # RULE 2: a current reviewer; they must be able to edit a child trip and the parent trip
         # a)
-        my_reviewer = FactoryFloor.ReviewerFactory(trip_request=trip_request, status_id=1)
+        my_reviewer = FactoryFloor.ReviewerFactory(trip_request=trip_request, status=1)
         self.assertEqual(can_modify_request(my_reviewer.user, trip_request.id), True)
         # b)
         child_trip_request = FactoryFloor.ChildTripRequestFactory()
         parent_trip_request = child_trip_request.parent_request
-        my_reviewer = FactoryFloor.ReviewerFactory(trip_request=parent_trip_request, status_id=1)
+        my_reviewer = FactoryFloor.ReviewerFactory(trip_request=parent_trip_request, status=1)
         self.assertEqual(can_modify_request(my_reviewer.user, child_trip_request.id), True)
         self.assertEqual(can_modify_request(my_reviewer.user, parent_trip_request.id), True)
 
@@ -112,26 +112,26 @@ class UtilsTest(CommonTest):
         activate('en')
 
         # actors
-        trip = FactoryFloor.TripFactory(status_id=41)  # unreviewed, verified
+        trip = FactoryFloor.TripFactory(status=41)  # unreviewed, verified
         reviewer1 = FactoryFloor.TripReviewerFactory(trip=trip, order=1)
         reviewer2 = FactoryFloor.TripReviewerFactory(trip=trip, order=2)
         reviewer3 = FactoryFloor.TripReviewerFactory(trip=trip, order=3)
 
         self.assertIsNone(trip.review_start_date)
         utils.start_trip_review_process(trip)
-        self.assertEqual(trip.status_id, 31)
+        self.assertEqual(trip.status, 31)
         self.assertIsNotNone(trip.review_start_date)
         for reviewer in trip.reviewers.all():
-            self.assertEqual(reviewer.status_id, 24)
+            self.assertEqual(reviewer.status, 24)
             self.assertIsNone(reviewer.status_date)
 
         # now let's end the review process
         utils.end_trip_review_process(trip)
-        self.assertEqual(trip.status_id, 41)
+        self.assertEqual(trip.status, 41)
         # the timestamp should not be undone
         self.assertIsNotNone(trip.review_start_date)
         for reviewer in trip.reviewers.all():
-            self.assertEqual(reviewer.status_id, 23)
+            self.assertEqual(reviewer.status, 23)
             self.assertIsNone(reviewer.status_date)
 
     @tag("utils", 'tr_review_process')
@@ -139,20 +139,20 @@ class UtilsTest(CommonTest):
         activate('en')
 
         # actors
-        tr = FactoryFloor.IndividualTripRequestFactory(status_id=8)  # draft
+        tr = FactoryFloor.IndividualTripRequestFactory(status=8)  # draft
         reviewer1 = FactoryFloor.ReviewerFactory(trip_request=tr, order=1)
         reviewer2 = FactoryFloor.ReviewerFactory(trip_request=tr, order=2)
         reviewer3 = FactoryFloor.ReviewerFactory(trip_request=tr, order=3)
 
         utils.start_review_process(tr)
         for reviewer in tr.reviewers.all():
-            self.assertEqual(reviewer.status_id, 20)
+            self.assertEqual(reviewer.status, 20)
             self.assertIsNone(reviewer.status_date)
 
         # now let's end the review process
         utils.end_review_process(tr)
         for reviewer in tr.reviewers.all():
-            self.assertEqual(reviewer.status_id, 4)
+            self.assertEqual(reviewer.status, 4)
             self.assertIsNone(reviewer.status_date)
 
 # TODO: trip approval seeker

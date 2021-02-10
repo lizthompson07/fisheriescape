@@ -40,7 +40,7 @@
                                         <ul>
                                             {% for tr in trip.trip_requests.all %}
                                                 <li>{{ tr }} (STATUS: <span
-                                                        style="background-color: {{ tr.status.color }}">{{ tr.status }}</span>)
+                                                        class="{{ tr.get_status_display|slugify }}">{{ tr.get_status_display }}</span>)
                                                 </li>
                                             {% endfor %}
                                         </ul>

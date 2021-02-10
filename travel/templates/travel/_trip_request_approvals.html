@@ -50,7 +50,7 @@
                         </td>
 
                         <td>
-                        <span style="background-color: {{ item.trip_request.adm.status.color }}">{{ item.trip_request.adm.status }}</span>
+                        <span class="{{ item.trip_request.adm.get_status_display|slugify }}">{{ item.trip_request.adm.get_status_display }}</span>
                         {% if item.trip_request.adm.comments %}
                             &mdash;
                             {{ item.trip_request.adm.comments }}
@@ -62,7 +62,7 @@
                         </td>
                         <td>
                             {% if item.reviewer %}
-                                {% if item.trip_request.status_id != 14 %}
+                                {% if item.trip_request.status != 14 %}
                                     <em>{% trans "Decision made" %}</em>
                                 {% else %}
                                     <div class="btns">

@@ -58,7 +58,7 @@
           {% for child in triprequest.children_requests.all %}
 
             <tr {% if not report_mode %}pop href="{% url 'travel:request_edit' child.id "pop" %}" {% endif %}
-                class="{% if child.total_cost == 0 %}bad{% endif %}{% if child.status_id == 10 %}bad red-font{% endif %}"
+                class="{% if child.total_cost == 0 %}bad{% endif %}{% if child.status == 10 %}bad red-font{% endif %}"
                 data-toggle="tooltip" title="{% trans "Click on a row to edit traveller informations." %}"
             >
 
@@ -74,7 +74,7 @@
                 {% elif "name" in field %}
                   <td>
                     {% get_field_value child field format="currency" safe=True %}
-                    {% if child.status_id == 10 %}({% trans "DENIED" %}){% endif %}
+                    {% if child.status == 10 %}({% trans "DENIED" %}){% endif %}
                   </td>
                 {% else %}
                   <td>{% get_field_value child field format="currency" safe=True %}</td>

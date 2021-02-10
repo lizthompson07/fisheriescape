@@ -51,7 +51,7 @@
                 {% get_verbose_label trip field %}
               </th>
               <td>
-                <span style="background-color: {{ object.status.color }}">{% get_field_value trip field %}</span>
+                <span class="{{ object.get_status_display|slugify }}">{% get_field_value trip field %}</span>
               </td>
             </tr>
           {% else %}
@@ -75,7 +75,7 @@
                     {{ obj }}
                   </a>
                   by {{ obj.user }}
-                  (STATUS: <span style="background-color: {{ obj.status.color }}">{{ obj.status }}</span>)
+                  (STATUS: <span class="{{ obj.get_status_display|slugify }}">{{ obj.get_status_display }}</span>)
                   {% if obj.id == triprequest.id %}
                     <span class="purple-font text-uppercase font-weight-bold">({% trans "CURRENT TRIP REQUEST" %})</span>
                   {% endif %}

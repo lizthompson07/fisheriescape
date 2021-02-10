@@ -11,11 +11,11 @@
 </style>
 
 <h1>
-    A request is awaiting the approval of {{ triprequest.current_reviewer.user }} as {{ triprequest.current_reviewer.role }}.
+    A request is awaiting the approval of {{ triprequest.current_reviewer.user }} as {{ triprequest.current_reviewer.get_role_display }}.
 </h1>
-{% if reviewer_role_id == 5 %}
+{% if reviewer_role == 5 %}
     {% echo "adm" as my_type %}
-{% elif reviewer_role_id == 6 %}
+{% elif reviewer_role == 6 %}
     {% echo "rdg" as my_type %}
 {% endif %}
 
