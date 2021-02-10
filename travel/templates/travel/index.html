@@ -318,6 +318,8 @@
 
 
 {% block body_js %}
+    {{ block.super }}
+
   <script type="application/javascript">
   {#        {% if reviews_waiting %}#}
   {#            $('#reviewer').tab('show');#}
