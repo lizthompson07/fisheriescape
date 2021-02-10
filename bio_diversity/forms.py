@@ -605,6 +605,10 @@ class DataForm(CreatePrams):
                     if enter_indvd(anix_indv.pk, cleaned_data, row["Vial Number"], "Vial", None):
                         row_entered = True
 
+                    if row["Precocity (Y/N)"].upper() == "Y":
+                        if enter_indvd(anix_indv.pk, cleaned_data, None, "Animal Health", "Precocity"):
+                            row_entered = True
+
                     if row["Comments"]:
                         comment_parser(row["Comments"], anix_indv)
                 except Exception as err:

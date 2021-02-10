@@ -194,7 +194,7 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details")
     contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"))
-    final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), null=True)
+    final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), default=None, blank=True, null=True)
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True,
                                verbose_name=_("Location"))
     indvt_id = models.ForeignKey("IndTreatment", on_delete=models.CASCADE, null=True, blank=True,

@@ -100,7 +100,7 @@ def enter_indvd(anix_pk, cleaned_data, det_value, anidc_str, adsc_str):
         indvd.clean()
         indvd.save()
         row_entered = True
-    except ValidationError:
+    except (ValidationError, IntegrityError):
         pass
     return row_entered
 
@@ -133,7 +133,7 @@ def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None):
             anix.clean()
             anix.save()
             row_entered = True
-        except ValidationError:
+        except (ValidationError, IntegrityError):
             pass
 
     return row_entered
