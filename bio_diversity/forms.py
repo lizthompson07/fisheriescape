@@ -670,7 +670,7 @@ class DataForm(CreatePrams):
                                                                             indvt_id__isnull=True,
                                                                             ).get()
 
-                        if enter_indvd(anix_indv.pk, cleaned_data, "", "Gender", row["SEX"]):
+                        if enter_indvd(anix_indv.pk, cleaned_data, None, "Gender", sex_dict[row["SEX"]]):
                             row_entered = True
 
                         if row["SEX"]:

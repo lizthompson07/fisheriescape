@@ -928,7 +928,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
 
 class GrpdDetails(mixins.GrpdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "grpd_valid", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
