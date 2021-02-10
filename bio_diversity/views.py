@@ -988,7 +988,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         ]
         indvd_set = list(dict.fromkeys([anix.individual_details.all() for anix in anix_evnt_set]))
         context["indvd_list"] = list(dict.fromkeys([indvd for qs in indvd_set for indvd in qs]))
-        context["indvd_object"] = models.Event.objects.first()
+        context["indvd_object"] = models.IndividualDet.objects.first()
         context["indvd_field_list"] = [
             "anidc_id",
             "adsc_id",
@@ -1010,11 +1010,18 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
                                                           indvt_id__isnull=True, spwn_id__isnull=True)
 
-        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
+        contx_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag)for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
         context["cont_evnt_field_list"] = [
             "Evnt",
             "Date",
+            "Direction"
+            "Container",
+        ]
+        context["cont_evnt_field_verbose_list"] = [
+            "Event",
+            "Date",
+            "Direction",
             "Container",
         ]
 

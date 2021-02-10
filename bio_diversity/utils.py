@@ -36,8 +36,10 @@ def get_help_text_dict(model=None):
     return my_dict
 
 
-def get_cont_evnt(contx):
-    output_list = [contx.evnt_id.evntc_id.__str__(), contx.evnt_id.start_date]
+def get_cont_evnt(contx_tuple):
+    contx = contx_tuple[0]
+    in_out_dict = {None: "", False: "Origin", True: "Destination"}
+    output_list = [contx.evnt_id.evntc_id.__str__(), contx.evnt_id.start_date, in_out_dict[contx_tuple[1]]]
     for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
         if cont:
             output_list.append("{}".format(cont.__str__()))
