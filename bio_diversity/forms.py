@@ -6,12 +6,13 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.forms import modelformset_factory
+from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext
 import pandas as pd
 
 from bio_diversity import models
-from bio_diversity.utils import comment_parser
+from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd
 
 
 class CreatePrams(forms.ModelForm):
@@ -81,15 +82,17 @@ class CreateTimePrams(forms.ModelForm):
         # the end datetime is after the start datetime
         # and set the datetime values
         if cleaned_data["start_time"]:
-            start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M').time())
+            start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M').time(),
+                                    timezone=timezone.get_current_timezone())
         else:
-            start_time = make_aware(time(0, 0))
+            start_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
         cleaned_data["start_datetime"] = datetime.combine(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
-                end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M').time())
+                end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M').time(),
+                                      timezone=timezone.get_current_timezone())
             else:
-                end_time = make_aware(time(0, 0))
+                end_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
             cleaned_data["end_datetime"] = datetime.combine(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -434,32 +437,11 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    if not row["to tank"] == "nan":
-                        contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                        tank_id=models.Tank.objects.filter(name=row["to tank"]).get(),
-                                                        created_by=cleaned_data["created_by"],
-                                                        created_date=cleaned_data["created_date"],
-                                                        )
-                        try:
-                            contx_to.clean()
-                            contx_to.save()
-                            row_entered = True
-                        except ValidationError:
-                            contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
-                                                                           tank_id=contx_to.tank_id).get()
+                    if enter_tank_contx(row["from Tank"], cleaned_data, final_flag=False, indv_pk=indv.pk):
+                        row_entered = True
 
-                        anix_to = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                       indv_id_id=indv.pk,
-                                                       contx_id_id=contx_to.pk,
-                                                       created_by=cleaned_data["created_by"],
-                                                       created_date=cleaned_data["created_date"],
-                                                       )
-                        try:
-                            anix_to.clean()
-                            anix_to.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_tank_contx(row["to tank"], cleaned_data, final_flag=True, indv_pk=indv.pk):
+                        row_entered = True
 
                     anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                      indv_id_id=indv.pk,
@@ -493,64 +475,21 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    if not math.isnan(row["Length (cm)"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
-                                                            det_val=row["Length (cm)"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Weight (g)"]):
-                        indvd_mass = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                          anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
-                                                          det_val=row["Weight (g)"],
-                                                          qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                          created_by=cleaned_data["created_by"],
-                                                          created_date=cleaned_data["created_date"],
-                                                          )
-                        try:
-                            indvd_mass.clean()
-                            indvd_mass.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Vial"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(
-                                                                name="Vial").get(),
-                                                            det_val=row["Vial"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Box"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(
-                                                                name="Box").get(),
-                                                            det_val=row["Box"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Length (cm)"], "Length", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Weight (g)"], "Weight", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Vial"], "Vial", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Box"], "Box", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["location"], "Box Location", None):
+                        row_entered = True
+
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
@@ -619,32 +558,11 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    if not row["Destination Pond"] == "nan":
-                        contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                        tank_id=models.Tank.objects.filter(name=row["Destination Pond"]).get(),
-                                                        created_by=cleaned_data["created_by"],
-                                                        created_date=cleaned_data["created_date"],
-                                                        )
-                        try:
-                            contx_to.clean()
-                            contx_to.save()
-                            row_entered = True
-                        except ValidationError:
-                            contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
-                                                                           tank_id=contx_to.tank_id).get()
+                    if enter_tank_contx(row["Origin Pond"], cleaned_data, final_flag=False, indv_pk=indv.pk):
+                        row_entered = True
 
-                        anix_to = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                       indv_id_id=indv.pk,
-                                                       contx_id_id=contx_to.pk,
-                                                       created_by=cleaned_data["created_by"],
-                                                       created_date=cleaned_data["created_date"],
-                                                       )
-                        try:
-                            anix_to.clean()
-                            anix_to.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_tank_contx(row["Destination Pond"], cleaned_data, final_flag=True, indv_pk=indv.pk):
+                        row_entered = True
 
                     anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                      indv_id_id=indv.pk,
@@ -678,51 +596,15 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    if not math.isnan(row["Length (cm)"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(
-                                                                name="Length").get(),
-                                                            det_val=row["Length (cm)"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Weight (g)"]):
-                        indvd_mass = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                          anidc_id=models.AnimalDetCode.objects.filter(
-                                                              name="Weight").get(),
-                                                          det_val=row["Weight (g)"],
-                                                          qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                          created_by=cleaned_data["created_by"],
-                                                          created_date=cleaned_data["created_date"],
-                                                          )
-                        try:
-                            indvd_mass.clean()
-                            indvd_mass.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
-                    if not math.isnan(row["Vial Number"]):
-                        indvd_length = models.IndividualDet(anix_id_id=anix_indv.pk,
-                                                            anidc_id=models.AnimalDetCode.objects.filter(
-                                                                name="Vial").get(),
-                                                            det_val=row["Vial Number"],
-                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                        try:
-                            indvd_length.clean()
-                            indvd_length.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Length (cm)"], "Length", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Weight (g)"], "Weight", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["Vial Number"], "Vial", None):
+                        row_entered = True
+
                     if row["Comments"]:
                         comment_parser(row["Comments"], anix_indv)
                 except Exception as err:
@@ -741,23 +623,6 @@ class DataForm(CreatePrams):
                 self.request.session["load_success"] = False
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         # ---------------------------MATURITY SORTING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting" and cleaned_data["facic_id"].__str__() == "Mactaquac":
@@ -807,6 +672,10 @@ class DataForm(CreatePrams):
                                                                             grp_id__isnull=True,
                                                                             indvt_id__isnull=True,
                                                                             ).get()
+
+                        if enter_indvd(anix_indv.pk, cleaned_data, None, "Gender", sex_dict[row["SEX"]]):
+                            row_entered = True
+
                         if row["SEX"]:
                             indvd_sex = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                              anidc_id=models.AnimalDetCode.objects.filter(
@@ -824,32 +693,14 @@ class DataForm(CreatePrams):
                                 row_entered = True
                             except (ValidationError, IntegrityError) as e:
                                 pass
-                        if row["ORIGIN POND"]:
-                            contx_to = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                            tank_id=models.Tank.objects.filter(name=row["ORIGIN POND"]).get(),
-                                                            created_by=cleaned_data["created_by"],
-                                                            created_date=cleaned_data["created_date"],
-                                                            )
-                            try:
-                                contx_to.clean()
-                                contx_to.save()
-                                row_entered = True
-                            except ValidationError:
-                                contx_to = models.ContainerXRef.objects.filter(evnt_id=contx_to.evnt_id,
-                                                                               tank_id=contx_to.tank_id).get()
 
-                            anix_contx = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                              indv_id_id=indv.pk,
-                                                              contx_id=contx_to,
-                                                              created_by=cleaned_data["created_by"],
-                                                              created_date=cleaned_data["created_date"],
-                                                              )
-                            try:
-                                anix_contx.clean()
-                                anix_contx.save()
-                                row_entered = True
-                            except ValidationError:
-                                pass
+                        if enter_tank_contx(row["ORIGIN POND"], cleaned_data, final_flag=False, indv_pk=indv.pk):
+                            row_entered = True
+
+                        if enter_tank_contx(row["DESTINATION POND"], cleaned_data, final_flag=True, indv_pk=indv.pk):
+                            row_entered = True
+
+
                         if row["COMMENTS"]:
                             comment_parser(row["COMMENTS"], anix_indv)
                     else:
@@ -949,15 +800,17 @@ class EvntForm(CreatePrams):
         # the end datetime is after the start datetime
         # and set the datetime values
         if cleaned_data["start_time"]:
-            start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M').time())
+            start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M').time(),
+                                    timezone=timezone.get_current_timezone())
         else:
-            start_time = make_aware(time(0, 0))
+            start_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
         cleaned_data["evnt_start"] = datetime.combine(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
-                end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M').time())
+                end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M').time(),
+                                      timezone=timezone.get_current_timezone())
             else:
-                end_time = make_aware(time(0, 0))
+                end_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
             cleaned_data["evnt_end"] = datetime.combine(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -1156,9 +1009,10 @@ class LocForm(CreatePrams):
     def save(self, commit=True):
         obj = super().save(commit=False)  # here the object is not commited in db
         if self.cleaned_data["start_time"]:
-            start_time = make_aware(datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time())
+            start_time = make_aware(datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time(),
+                                    timezone=timezone.get_current_timezone())
         else:
-            start_time = make_aware(time(0, 0))
+            start_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
         obj.loc_date = datetime.combine(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj

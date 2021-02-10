@@ -52,6 +52,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
     evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
     contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    final_contx_flag = factory.lazy_attribute(lambda o: faker.boolean())
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
     indvt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtFactory")
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
@@ -74,9 +75,9 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-
             'evnt_id': evnt.pk,
             'contx_id': contx.pk,
+            'final_contx_flag': obj.final_contx_flag,
             'loc_id': loc.pk,
             'indvt_id': indvt.pk,
             'indv_id': indv.pk,
@@ -504,9 +505,9 @@ class EnvFactory(factory.django.DjangoModelFactory):
     env_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     envsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvscFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                         tzinfo=timezone.get_current_timezone()))
+                                                                              tzinfo=timezone.get_current_timezone()))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                       tzinfo=timezone.get_current_timezone()))
+                                                                            tzinfo=timezone.get_current_timezone()))
     env_avg = factory.lazy_attribute(lambda o: faker.boolean())
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
