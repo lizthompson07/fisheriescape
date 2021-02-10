@@ -1869,6 +1869,16 @@ class EvntUpdate(mixins.EvntMixin, CommonUpdate):
 
         return success_url
 
+    def get_initial(self):
+        init = super().get_initial()
+        # can uncomment this to auto update user on any update
+        # init["created_by"] = self.request.user.username
+        init["start_date"] = self.object.start_date
+        init["start_time"] = self.object.start_time
+        init["end_date"] = self.object.end_date
+        init["end_time"] = self.object.end_time
+        return init
+
 
 class EvntcUpdate(mixins.EvntcMixin, CommonUpdate):
     pass
@@ -1951,7 +1961,13 @@ class InstdcUpdate(mixins.InstdcMixin, CommonUpdate):
 
 
 class LocUpdate(mixins.LocMixin, CommonUpdate):
-    pass
+    def get_initial(self):
+        init = super().get_initial()
+        # can uncomment this to auto update user on any update
+        # init["created_by"] = self.request.user.username
+        init["start_date"] = self.object.start_date
+        init["start_time"] = self.object.start_time
+        return init
 
 
 class LoccUpdate(mixins.LoccMixin, CommonUpdate):

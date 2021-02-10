@@ -487,6 +487,9 @@ class DataForm(CreatePrams):
                     if enter_indvd(anix_indv.pk, cleaned_data, row["Box"], "Box", None):
                         row_entered = True
 
+                    if enter_indvd(anix_indv.pk, cleaned_data, row["location"], "Box Location", None):
+                        row_entered = True
+
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
