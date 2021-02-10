@@ -1,0 +1,21 @@
+   ID, Name,                     Title,                               Phone,          Region,    Division,                                              Branch,                             Sector
+
+    1, Jacinta Berthier;         Regional Director;                   (902) 426-9962; Maritimes; Resource and Aboriginal Fisheries,                     Resource and Aboriginal Fisheries;  Fisheries Resource Management
+	
+    2, Craig Hominick;           Section Head, Integrated Planning;   (902) 802-6134; Maritimes; Ecosystems Management, Integrated Planning;            Aquatic Ecosystems;                 Aquatic Ecosystems
+    3, Jennifer Ford;            A/Director, Resource Management;     (902) 221-5731; Maritimes; Resource Management Division;                          Fisheries Management;               Resource Management
+    4, Kristian Curran;          A/Manager, Resource Management;      (902) 426-1842; Maritimes; Cross Fisheries Section;                               Science;                            Canadian Science Advisory Secretariat
+    5, Sara Quigley;             Manager, Resource Management;        (902) 292-1735; Maritimes; Invertebrates and Pelagics Section;                    Fisheries Management;               Resource Management
+    6, Tammy Rose-Quinn;         A/Manager, Resource Management;      (902) 448-5311; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Fisheries & Aquaculture Management; Fisheries & Aquaculture Management
+    7, Tim Hayman;               Senior Advisor;                      (902) 441-4753; Maritimes; Invertebrates and Pelagics Section;                    Ressources Management;              Ecosystems and Fisheries Management
+
+    8, Alan Reeves;              Senior Advisor;                      (902) 237-6806; Maritimes; Invertebrates and Pelagics Section;                    Science;                            Ecosystems and Oceans Science
+    9, Carl MacDonald;           Senior Advisor;                      (902) 293-8257; Maritimes; Invertebrates and Pelagics Section;                    Fisheries & Aquaculture Management; 
+   10, Christa Waters;           Senior Fisheries Management Officer; (902) 293-6541; Maritimes; Invertebrates and Pelagics Section;                    Fisheries Management;               Resource Management
+   11, Greg Stevens;             Senior Fisheries Management Officer; (902) 221-7264; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Fisheries Management;               Resource Management
+   12, Kathryn Cooper-MacDonald; Senior Advisor;                      (902) 219-0463; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Real Property Safety and Security;  Human Resources & Corporate Services
+   13, Penny Doherty;            Senior Fisheries Management Officer; (902) 402-5508; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Ecosystem Management;               Ecosystems and Fisheries Management
+   14, Ryan Curwin;              Senior Fisheries Management Officer; (902) 456-4068; Maritimes; Anadromous, Groundfish, and Secondary Species Section; Fisheries Management;               Fisheries & Aquaculture Management
+   15, Sarah Kingsbury;          Aquatic Invasive Species Biologist;  (902) 943-4016; Maritimes;                                                      ; Ecosystems Management;              Aquatic Ecosystems
+   16, Suzuette Soomai;          Senior Fisheries Management Officer; (902) 717-5173; Maritimes; Cross Fisheries Section;                               Fisheries Resource Management;      Fisheries and Harbour Management
+   17, Verna Docherty;           Senior Fisheries Management Officer; (902) 476-6640; Maritimes; Invertebrates and Pelagics Section;                    Commercial Data Div;                Policy & Economics
