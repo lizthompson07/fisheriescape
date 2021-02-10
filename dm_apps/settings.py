@@ -109,8 +109,7 @@ ALLOWED_HOSTS = [
     'dmapps.ent.dfo-mpo.ca',
     'dmapps-dev-docker.azurewebsites.net',
     'dmapps-test-docker.azurewebsites.net',
-    'dmapps-prod-web.azurewebsites.net',
-    'dmapps-prod-web-staging.azurewebsites.net',
+    'https://dmapps-web.dfo-prod-ase01.appserviceenvironment.net',
     'sci-zone.azure.cloud.dfo-mpo.gc.ca',
     'sci-zone.dfo-mpo.gc.ca',
 ]
