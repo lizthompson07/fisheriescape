@@ -16,3 +16,17 @@
     padding-bottom: 5px;
 
 }
+
+.label {
+    font-weight: bold;
+}
+
+table, td {
+    font-size: small;
+}
+
+.container {
+    max-width: 1300px;
+}
+
+s

@@ -89,7 +89,7 @@ def get_conf_details(request):
 
 
 class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
-    template_name = 'travel/index.html'
+    template_name = 'travel/index/index.html'
     active_page_name_crumb = gettext_lazy("Home")
     h1 = " "
 

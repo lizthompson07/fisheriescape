@@ -66,34 +66,18 @@
 
 {% block subcontent %}
   <div id="app">
-    <style>
-    .label {
-        font-weight: bold;
-    }
-
-    table, td {
-        font-size: small;
-    }
-
-    .container {
-        max-width: 1300px;
-    }
-
-
-    </style>
-    {# This is an indicator for how long before the trip can close off for registration   #}
-
-
-
-
     {% if is_current_reviewer and object.submitted %}
-      <h3 class="red-font">{% trans "You are able to edit this record because you are " %}
-        {% if is_admin %}
-          {% trans "an application administrator." %}
-        {% else %}
-          {% trans "the current reviewer." %}
-        {% endif %}
-      </h3>
+      <div class="alert alert-info" role="alert">
+        <h4 class="">
+          <span class="mdi mdi-information-outline h4"></span>
+          {% trans "You are able to edit this record because you are " %}
+          {% if is_admin %}
+            {% trans "an application administrator." %}
+          {% else %}
+            {% trans "the current reviewer." %}
+          {% endif %}
+        </h4>
+      </div>
     {% endif %}
 
     <div class="float-right">

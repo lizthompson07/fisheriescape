@@ -209,6 +209,14 @@ class Status(SimpleLookup):
 
 
 class Conference(models.Model):
+    status_choices = (
+        (30, _("Unreviewed, unverified")),
+        (31, _("Under review")),
+        (32, _("Reviewed")),
+        (41, _("Unreviewed, verified")),
+        (43, _("Cancelled")),
+    )
+
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
     trip_subcategory = models.ForeignKey(TripSubcategory, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
@@ -237,8 +245,7 @@ class Conference(models.Model):
                                     related_name="trips_verified_by",
                                     verbose_name=_("verified by"))
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
-                               limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
+    status = models.IntegerField(verbose_name=_("trip status"), default=30, choices=status_choices, editable=False)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
     last_modified = models.DateTimeField(verbose_name=_("last modified"), auto_now=True, editable=False)
