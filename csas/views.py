@@ -1,11 +1,104 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import CreateView, DetailView, TemplateView
 
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.http import HttpResponse
+
 from django.urls import reverse_lazy
 from csas import models, forms, filters, utils
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import views as shared_view
+from . import mixins
+
+
+# ======================================================================================================
+def con_delete_fr_lists(request, pk):
+    con = models.ConContact.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        con.delete()
+        return HttpResponse('<script> window.close(); window.opener.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def con_delete_fr_details(request, pk):
+    con = models.ConContact.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        con.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/contacts/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def req_delete_fr_lists(request, pk):
+    req = models.ReqRequest.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        req.delete()
+        return HttpResponse('<script> window.close(); window.opener.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def req_delete_fr_details(request, pk):
+    req = models.ReqRequest.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        req.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/request/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def req_csas_delete_fr_details(request, pk):
+    req_CSAS = models.ReqRequestCSAS.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        req_CSAS.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/request/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def met_delete_fr_lists(request, pk):
+    met = models.MetMeeting.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        met.delete()
+        return HttpResponse('<script> window.close(); window.opener.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def met_delete_fr_details(request, pk):
+    met = models.MetMeeting.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        met.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/contacts/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def pub_delete_fr_lists(request, pk):
+    pub = models.PubPublication.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        pub.delete()
+        return HttpResponse('<script> window.close(); window.opener.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def pub_delete_fr_details(request, pk):
+    met = models.PubPublication.objects.get(pk=pk)
+    if utils.csas_authorized(request.user):
+        pub.delete()
+        return HttpResponse('<script> window.close(); window.opener.parent.location.href="/csas/contacts/"; </script>')
+        # return HttpResponse('<script> window.close(); window.opener.parentWindow.location.reload(); </script>')
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+# ======================================================================================================
 
 
 class FilterCommon(shared_view.CommonFilterView):
@@ -270,6 +363,22 @@ class IndexTemplateView(TemplateView):
         return context
 
 
+# Create index view for National
+#
+class IndexNAView(TemplateView):
+    template_name = 'csas/index_national.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
 # Create index view for Newfoundland & Labrador
 #
 class IndexNLView(TemplateView):
@@ -471,7 +580,19 @@ class RequestList(CsasListCommon):
     title = _('Request List')
     model = models.ReqRequest
     filterset_class = filters.RequestFilter
-    fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'client_email', 'funding']
+    # fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'client_email', 'funding']
+    # fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'funding']
+    fields = ['id', 'title', 'client_name']
+
+
+class RequestListNA(CsasListCommon):
+    key = 'req'
+    title = _('National Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_national.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
 
 
 class RequestListMA(CsasListCommon):
@@ -550,9 +671,11 @@ class RequestDetails(DetailsCommon):
     model = models.ReqRequest
     template_name = "csas/csas_details_req.html"
 
-    fields = ['assigned_req_id', 'title', 'in_year_request', 'region', 'client_sector', 'client_name',
-              'client_title', 'client_email', 'issue', 'priority', 'rationale', 'proposed_timing',
-              'rationale_for_timing', 'funding', 'funding_notes', 'science_discussion', 'science_discussion_notes',
+    fields = ['assigned_req_id', 'in_year_request', 'title', 'file', 'region', 'directorate_branch',
+              'client_sector', 'client_title', 'client_name', 'client_email', 'manager_name', 'request_type',
+              'zonal', 'zonal_text', 'issue', 'consequence_text', 'assistance', 'assistance_text', 'priority',
+              'rationale', 'proposed_timing', 'rationale_for_timing', 'funding', 'funding_notes',
+              'science_discussion', 'science_discussion_notes', 'coordinator_name', 'director_name',
               'adviser_submission', 'rd_submission', 'decision_date', ]
 
 
@@ -563,6 +686,33 @@ class RequestDetailsCSAS(DetailsCommon):
     template_name = "csas/csas_details_req_status.html"
 
     fields = ['request', 'status', 'trans_title', 'decision', 'decision_exp', 'decision_date', ]
+
+
+class RequestConfirmDeleteFrLists(DetailsCommon):
+    key = 'req_fr_lists'
+    title = _('Delete Request')
+    model = models.ReqRequest
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class RequestConfirmDeleteFrDetails(DetailsCommon):
+    key = 'req_fr_details'
+    title = _('Delete Request')
+    model = models.ReqRequest
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class RequestCSASConfirmDeleteFrDetails(DetailsCommon):
+    key = 'req_CSAS_fr_details'
+    title = _('Delete Request CSAS')
+    model = models.ReqRequestCSAS
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -603,6 +753,18 @@ class ContactList(CsasListCommon):
     title = _('Contact List')
     model = models.ConContact
     filterset_class = filters.ContactFilter
+    # fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+    fields = ['id', 'last_name', 'first_name', 'job_title', 'affiliation', 'contact_type', 'region', 'phone', 'email']
+    # fields = ['id', 'last_name', 'first_name', 'contact_type']
+
+
+class ContactListNA(CsasListCommon):
+    key = 'con'
+    title = _('National Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_national.html'
+
     fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
 
 
@@ -685,6 +847,24 @@ class ContactDetails(DetailsCommon):
     fields = ['id', 'honorific', 'first_name', 'last_name', 'affiliation', 'job_title', 'language', 'contact_type',
               'notification_preference', 'phone', 'email', 'region', 'sector', 'role', 'expertise', 'cc_grad',
               'notes']
+
+
+class ContactConfirmDeleteFrLists(DetailsCommon):
+    key = 'con_fr_lists'
+    title = _('Delete Contact')
+    model = models.ConContact
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class ContactConfirmDeleteFrDetails(DetailsCommon):
+    key = 'con_fr_details'
+    title = _('Delete Contact')
+    model = models.ConContact
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -856,6 +1036,17 @@ class MeetingList(CsasListCommon):
     title = _('Meeting List')
     model = models.MetMeeting
     filterset_class = filters.MeetingFilter
+    # fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+    fields = ['id', 'start_date', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListNA(CsasListCommon):
+    key = 'met'
+    title = _('National Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_national.html"
+
     fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
 
 
@@ -992,6 +1183,24 @@ class MeetingDetailsMedia(DetailsCommon):
     title = _('Meeting Media')
     model = models.MetMeeting
     template_name = "csas/csas_details_met_media.html"
+    fields = []
+
+
+class MeetingConfirmDeleteFrLists(DetailsCommon):
+    key = 'met_fr_lists'
+    title = _('Delete Meeting')
+    model = models.MetMeeting
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class MeetingConfirmDeleteFrDetails(DetailsCommon):
+    key = 'met_fr_details'
+    title = _('Delete Meeting')
+    model = models.MetMeeting
+    template_name = "csas/csas_confirm_delete_con.html"
+
     fields = []
 
 
@@ -1140,6 +1349,16 @@ class PublicationList(CsasListCommon):
     fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
 
 
+class PublicationListNA(CsasListCommon):
+    key = 'pub'
+    title = _('National Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_national.html"
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
 class PublicationListMA(CsasListCommon):
     key = 'pub'
     title = _('Maritimes Region Publication List')
@@ -1266,6 +1485,24 @@ class PublicationDetailsComResults(DetailsCommon):
     fields = []
 
 
+class PublicationConfirmDeleteFrLists(DetailsCommon):
+    key = 'pub_fr_lists'
+    title = _('Delete Publication')
+    model = models.PubPublication
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
+class PublicationConfirmDeleteFrDetails(DetailsCommon):
+    key = 'pub_fr_details'
+    title = _('Delete Publication')
+    model = models.PubPublication
+    template_name = "csas/csas_confirm_delete_con.html"
+
+    fields = []
+
+
 # ----------------------------------------------------------------------------------------------------
 # Controlled Lookup model views
 # ----------------------------------------------------------------------------------------------------
@@ -1280,6 +1517,88 @@ class CommonCsasAuthLookup(UserPassesTestMixin):
         if "pop" in self.kwargs:
             return reverse_lazy('shared_models:close_me')
         return super().get_success_url()
+
+
+def delete_managed(request, key, pk):
+    if utils.csas_super(request.user):
+        model = None
+        if key == 'apt':
+            model = models.AptAdvisoryProcessType
+        elif key == 'coh':
+            model = models.CohHonorific
+        elif key == 'loc':
+            model = models.LocLocationProv
+        elif key == 'meq':
+            model = models.MeqQuarter
+        elif key == 'scp':
+            model = models.ScpScope
+        elif key == 'stt':
+            model = models.SttStatus
+
+        if model is not None:
+            model.objects.get(pk=pk).delete()
+            messages.success(request, _("Code has been successfully deleted."))
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+class ManagedFormsetViewMixin(utils.AdminRequiredMixin, shared_view.CommonFormsetView):
+    template_name = 'csas/csas_managed_lists.html'
+    home_url_name = "csas:index"
+    delete_url_name = "csas:delete_managed"
+    container_class = "container bg-light curvy"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['key'] = self.key
+
+        context['auth'] = self.test_func()
+        context['editable'] = context['auth']
+        context.update(super().get_common_context())
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
+class AptManaged(mixins.AptMixin, ManagedFormsetViewMixin):
+    formset_class = forms.AptFormset
+    queryset = models.AptAdvisoryProcessType.objects.all()
+    success_url = reverse_lazy("csas:managed_apt")
+
+
+class CohManaged(mixins.CohMixin, ManagedFormsetViewMixin):
+    formset_class = forms.CohFormset
+    queryset = models.CohHonorific.objects.all()
+    success_url = reverse_lazy("csas:managed_coh")
+
+
+class LocManaged(mixins.LocMixin, ManagedFormsetViewMixin):
+    formset_class = forms.LocFormset
+    queryset = models.LocLocationProv.objects.all()
+    success_url = reverse_lazy("csas:managed_loc")
+
+
+class MeqManaged(mixins.MeqMixin, ManagedFormsetViewMixin):
+    formset_class = forms.MeqFormset
+    queryset = models.MeqQuarter.objects.all()
+    success_url = reverse_lazy("csas:managed_meq")
+
+
+class SttManaged(mixins.SttMixin, ManagedFormsetViewMixin):
+    formset_class = forms.SttFormset
+    queryset = models.SttStatus.objects.all()
+    success_url = reverse_lazy("csas:managed_stt")
+
+
+class ScpManaged(mixins.ScpMixin, ManagedFormsetViewMixin):
+    formset_class = forms.ScpFormset
+    queryset = models.ScpScope.objects.all()
+    success_url = reverse_lazy("csas:managed_scp")
 
 
 class CsasLookupList(CommonCsasAuthLookup, CsasListCommon):
@@ -1301,123 +1620,75 @@ class CsasLookupList(CommonCsasAuthLookup, CsasListCommon):
         return context
 
 
-class CohMixin:
-    key = 'coh'
-    model = models.CohHonorific
-    title = _("Honorific")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_coh")
-
-
-class CohList(CohMixin, CsasLookupList):
+class CohList(mixins.CohMixin, CsasLookupList):
     pass
 
 
-class UpdateCohView(CommonCsasAuthLookup, CohMixin, CsasUpdateCommon):
+class UpdateCohView(CommonCsasAuthLookup, mixins.CohMixin, CsasUpdateCommon):
     pass
 
 
-class CreateCohView(CommonCsasAuthLookup, CohMixin, CsasCreateCommon):
+class CreateCohView(CommonCsasAuthLookup, mixins.CohMixin, CsasCreateCommon):
     pass
 
 
-class SttMixin:
-    key = 'stt'
-    model = models.SttStatus
-    title = _("Meeting Status")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_stt")
-
-
-class SttList(SttMixin, CsasLookupList):
+class SttList(mixins.SttMixin, CsasLookupList):
     pass
 
 
-class UpdateSttView(CommonCsasAuthLookup, SttMixin, CsasUpdateCommon):
+class UpdateSttView(CommonCsasAuthLookup, mixins.SttMixin, CsasUpdateCommon):
     pass
 
 
-class CreateSttView(CommonCsasAuthLookup, SttMixin, CsasCreateCommon):
+class CreateSttView(CommonCsasAuthLookup, mixins.SttMixin, CsasCreateCommon):
     pass
 
 
-class MeqMixin:
-    key = 'meq'
-    model = models.MeqQuarter
-    title = _("Meeting Quarter")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_meq")
-
-
-class MeqList(MeqMixin, CsasLookupList):
+class MeqList(mixins.MeqMixin, CsasLookupList):
     pass
 
 
-class UpdateMeqView(CommonCsasAuthLookup, MeqMixin, CsasUpdateCommon):
+class UpdateMeqView(CommonCsasAuthLookup, mixins.MeqMixin, CsasUpdateCommon):
     pass
 
 
-class CreateMeqView(CommonCsasAuthLookup, MeqMixin, CsasCreateCommon):
+class CreateMeqView(CommonCsasAuthLookup, mixins.MeqMixin, CsasCreateCommon):
     pass
 
 
-class LocMixin:
-    key = 'loc'
-    model = models.LocLocationProv
-    title = _("Meeting Location Province")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_loc")
-
-
-class LocList(LocMixin, CsasLookupList):
+class LocList(mixins.LocMixin, CsasLookupList):
     pass
 
 
-class UpdateLocView(CommonCsasAuthLookup, LocMixin, CsasUpdateCommon):
+class UpdateLocView(CommonCsasAuthLookup, mixins.LocMixin, CsasUpdateCommon):
     pass
 
 
-class CreateLocView(CommonCsasAuthLookup, LocMixin, CsasCreateCommon):
+class CreateLocView(CommonCsasAuthLookup, mixins.LocMixin, CsasCreateCommon):
     pass
 
 
-class AptMixin:
-    key = 'apt'
-    model = models.AptAdvisoryProcessType
-    title = _("Advisory Process Type")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_apt")
-
-
-class AptList(AptMixin, CsasLookupList):
+class AptList(mixins.AptMixin, CsasLookupList):
     pass
 
 
-class UpdateAptView(CommonCsasAuthLookup, AptMixin, CsasUpdateCommon):
+class UpdateAptView(CommonCsasAuthLookup, mixins.AptMixin, CsasUpdateCommon):
     pass
 
 
-class CreateAptView(CommonCsasAuthLookup, AptMixin, CsasCreateCommon):
+class CreateAptView(CommonCsasAuthLookup, mixins.AptMixin, CsasCreateCommon):
     pass
 
 
-class ScpMixin:
-    key = 'scp'
-    model = models.ScpScope
-    title = _("Scope")
-    fields = ['name', 'nom', 'description_en', 'description_fr']
-    success_url = reverse_lazy("csas:list_scp")
-
-
-class ScpList(ScpMixin, CsasLookupList):
+class ScpList(mixins.ScpMixin, CsasLookupList):
     pass
 
 
-class UpdateScpView(CommonCsasAuthLookup, ScpMixin, CsasUpdateCommon):
+class UpdateScpView(CommonCsasAuthLookup, mixins.ScpMixin, CsasUpdateCommon):
     pass
 
 
-class CreateScpView(CommonCsasAuthLookup, ScpMixin, CsasCreateCommon):
+class CreateScpView(CommonCsasAuthLookup, mixins.ScpMixin, CsasCreateCommon):
     pass
 # ----------------------------------------------------------------------------------------------------
 

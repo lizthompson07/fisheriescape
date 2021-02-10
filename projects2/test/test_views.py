@@ -233,7 +233,7 @@ class TestProjectListReportView(CommonTest):
     @tag("Reports", "export_project_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("projects2:export_project_list", f"/en/project-planning/reports/project-listvuew/")
+        self.assert_correct_url("projects2:export_project_list", f"/en/project-planning/reports/project-list/")
 
 
 class TestFunctionalGroupCreateView(CommonTest):
@@ -1152,3 +1152,34 @@ class TestUserListView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("projects2:user_list", f"/en/project-planning/settings/users/")
+
+
+@tag("Reports", "sar_workplan")
+class TestSARWorkplanReportView(CommonTest):
+    def setUp(self):
+        super().setUp()
+
+        date = datetime(year=faker.pyint(2000, 2030), month=4, day=1, tzinfo=timezone.get_current_timezone())
+        year = fiscal_year(date, sap_style=True)
+        for i in range(0, 10):
+            FactoryFloor.ProjectYearFactory(start_date=date)
+
+        # At a minimum a year is required
+        self.test_url = reverse_lazy('projects2:export_sar_workplan') + f'?year={year}'
+
+        # tests for year and region (region=2 => maritimes)
+        self.test_url_yr = reverse_lazy('projects2:export_sar_workplan') + f'?year={year};region=2'
+
+        self.user = self.get_and_login_user()
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_good_response(self.test_url_yr)
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, login_search_term="/accounts/login/")
+
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:export_sar_workplan",
+                                f"/en/project-planning/reports/sar-workplan/")

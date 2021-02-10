@@ -12,11 +12,13 @@
 *.xlsx
 !acrdp_template.xlsx
 !csrf_regional_submissions_template.xlsx
+!sar_workplan_template.xlsx
 !/bio_diversity/static/data_templates/*.xlsx
 *.docx
 !acrdp_template.docx
 !csrf_template_en.docx
 !csrf_template_fr.docx
+!sara_template.docx
 *.mo
 
 # Packages #
@@ -94,3 +96,16 @@ temp/
 ############
 azure_oauth_settings.yml
 oauth_settings.yml
+
+
+# NodeJS Related
+#################
+node_modules
+# local env files
+.env.local
+.env.*.local
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
