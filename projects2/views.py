@@ -1232,13 +1232,19 @@ def export_sar_workplan(request):
     year = request.GET.get("year")
     region = request.GET.get("region")
     # Create the HttpResponse object with the appropriate CSV header.
-    print("Region: " + str(region))
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
     file_url = reports.generate_sar_workplan(year, region)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="({year}) {region} - SAR Science workingplan.xls"'
+            if region_name:
+                response['Content-Disposition'] = f'inline; filename="({year}) {region_name} - SAR Science workingplan.xls"'
+            else:
+                response['Content-Disposition'] = f'inline; filename="({year}) - SAR Science workingplan.xls"'
+
             return response
     raise Http404
 
