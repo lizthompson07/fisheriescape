@@ -47,7 +47,7 @@ def get_cont_evnt(contx_tuple):
     return output_list
 
 
-def comment_parser(comment_str, anix_indv):
+def comment_parser(comment_str, anix_indv, det_date):
     coke_dict = get_comment_keywords_dict()
     parser_list = coke_dict.keys()
     mortality = False
@@ -60,6 +60,7 @@ def comment_parser(comment_str, anix_indv):
                                                 anidc_id=adsc.anidc_id,
                                                 adsc_id=adsc,
                                                 qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                detail_date=det_date,
                                                 comments=comment_str,
                                                 created_by=anix_indv.created_by,
                                                 created_date=anix_indv.created_date,
@@ -74,7 +75,7 @@ def comment_parser(comment_str, anix_indv):
         anix_indv.indv_id.save()
 
 
-def enter_indvd(anix_pk, cleaned_data, det_value, anidc_str, adsc_str, comments=None):
+def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str, comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
@@ -84,6 +85,7 @@ def enter_indvd(anix_pk, cleaned_data, det_value, anidc_str, adsc_str, comments=
                                      anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
                                      adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
                                      det_val=det_value,
+                                     detail_date=det_date,
                                      qual_id=models.QualCode.objects.filter(name="Good").get(),
                                      comments=comments,
                                      created_by=cleaned_data["created_by"],
@@ -93,6 +95,7 @@ def enter_indvd(anix_pk, cleaned_data, det_value, anidc_str, adsc_str, comments=
         indvd = models.IndividualDet(anix_id_id=anix_pk,
                                      anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
                                      det_val=det_value,
+                                     detail_date=det_date,
                                      qual_id=models.QualCode.objects.filter(name="Good").get(),
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],

@@ -381,7 +381,8 @@ class DataForm(CreatePrams):
                                            anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
                                            det_val=data["# of salmon collected"].sum(),
                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                           # det_val=True,
+                                           grpd_valid=True,
+                                           detail_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
                                            created_by=cleaned_data["created_by"],
                                            created_date=cleaned_data["created_date"],
                                            )
@@ -474,20 +475,20 @@ class DataForm(CreatePrams):
                         row_entered = True
                     except ValidationError:
                         pass
-
-                    if enter_indvd(anix_indv.pk, cleaned_data, row["Length (cm)"], "Length", None):
+                    row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date()
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                         row_entered = True
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row["Weight (g)"], "Weight", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
                         row_entered = True
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row["Vial"], "Vial", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Vial"], "Vial", None):
                         row_entered = True
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row["Box"], "Box", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Box"], "Box", None):
                         row_entered = True
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row["location"], "Box Location", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["location"], "Box Location", None):
                         row_entered = True
 
                 except Exception as err:
@@ -596,17 +597,19 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row["Length (cm)"], "Length", None):
+                    row_date = row["Date"].date()
+
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                         row_entered = True
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row["Weight (g)"], "Weight", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
                         row_entered = True
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row["Vial Number"], "Vial", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Vial Number"], "Vial", None):
                         row_entered = True
 
                     if row["Precocity (Y/N)"].upper() == "Y":
-                        if enter_indvd(anix_indv.pk, cleaned_data, None, "Animal Health", "Precocity"):
+                        if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Animal Health", "Precocity"):
                             row_entered = True
 
                     if row["Comments"]:
@@ -677,7 +680,8 @@ class DataForm(CreatePrams):
                                                                             indvt_id__isnull=True,
                                                                             ).get()
 
-                        if enter_indvd(anix_indv.pk, cleaned_data, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
+                        row_date = row["DATE SORTED (ddmmmyr)"].date()
+                        if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
                             row_entered = True
 
                         if enter_tank_contx(row["ORIGIN POND"], cleaned_data, final_flag=False, indv_pk=indv.pk):

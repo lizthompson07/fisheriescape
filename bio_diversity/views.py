@@ -887,7 +887,7 @@ class FeedmDetails(mixins.FeedmMixin, CommonDetails):
 
 class GrpDetails(mixins.GrpMixin, CommonDetails):
     template_name = "bio_diversity/details_grp.html"
-    fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_valid", "comments", "created_by", "created_date", ]
+    fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_valid", "detail_date", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -911,6 +911,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
             "anidc_id",
             "det_val",
             "grpd_valid",
+            "detail_date",
         ]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
@@ -994,6 +995,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "adsc_id",
             "det_val",
             "indvd_valid",
+            "detail_date",
         ]
 
         context["pair_object"] = models.Pairing.objects.first()
@@ -1029,7 +1031,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
 
 class IndvdDetails(mixins.IndvdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "comments", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "detail_date", "comments", "created_by", "created_date", ]
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):

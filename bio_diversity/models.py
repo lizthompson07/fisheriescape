@@ -630,12 +630,11 @@ class Group(BioModel):
         return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
-class GroupDet(BioModel):
+class GroupDet(BioDet):
     # grpd tag
     det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
-    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"))
     grpd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    detail_date = models.DateField(verbose_name=_("Date detail was recorded"))
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="group_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
@@ -817,12 +816,11 @@ class Individual(BioModel):
         return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
-class IndividualDet(BioModel):
+class IndividualDet(BioDet):
     # indvd tag
     det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
-    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"))
     indvd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    detail_date = models.DateField(verbose_name=_("Date detail was recorded"))
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
