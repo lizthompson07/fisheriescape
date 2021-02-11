@@ -1257,8 +1257,9 @@ def export_project_list(request):
 def export_sar_workplan(request):
     year = request.GET.get("year")
     region = request.GET.get("region")
+    region_name = None
     # Create the HttpResponse object with the appropriate CSV header.
-    if region:
+    if region != "None":
         region_name = shared_models.Region.objects.get(pk=region)
 
     file_url = reports.generate_sar_workplan(year, region)
