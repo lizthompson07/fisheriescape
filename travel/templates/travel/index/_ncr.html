@@ -9,13 +9,13 @@
     {# Verification #}
     <a href="{% url 'travel:trip-verify-list' %}?adm=true" class="btn btn-lg btn-outline-primary mx-3">
       {% trans "Trip Verifications" %}
-      (<span :class="{'red-font blink-me':admVerificationList.length>0}">${  admVerificationList.length }</span>)
+      (<span :class="{'red-font blink-me':admVerificationCount>0}">${  admVerificationCount }</span>)
     </a>
 
     <a href="{% url 'travel:trip_list' %}?adm_hit_list=true"
        class="btn btn-lg btn-outline-primary mx-3">
       {% trans "The ADMO Net" %}
-      (<span :class="{'red-font blink-me':admHitList.length>0}">${  admHitList.length }</span>)
+      (<span :class="{'red-font blink-me':admHitCount>0}">${  admHitCount }</span>)
     </a>
 
 

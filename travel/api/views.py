@@ -8,6 +8,7 @@ from shared_models.api.serializers import RegionSerializer, DivisionSerializer, 
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section
 from . import serializers
+from .pagination import StandardResultsSetPagination
 from .. import models, utils
 
 
@@ -21,43 +22,13 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
         request_reviews = utils.get_trip_request_reviews(request.user)
         trip_reviews = utils.get_trip_reviews(request.user)
         # created by or traveller on a request
-        data["related_requests"] = serializers.TripRequestSerializer(requests, many=True, read_only=True).data
+        data["related_requests_count"] = requests.count()
+        # number of requests where review is pending (excluding those that are drafts (from children), changes_requested and pending ADM approval)
+        data["request_reviews_count"] = request_reviews.count()
+        data["trip_reviews_count"] = trip_reviews.count()
         # requests awaiting changes!
         data["requests_awaiting_changes"] = requests.filter(status=16).exists()
-        # number of requests where review is pending (excluding those that are drafts (from children), changes_requested and pending ADM approval)
-        data["request_reviews"] = serializers.TripRequestReviewerSerializer(request_reviews, many=True, read_only=True).data
-        data["trip_reviews"] = serializers.TripReviewerSerializer(trip_reviews, many=True, read_only=True).data
         return Response(data, status=status.HTTP_200_OK)
-
-
-#
-#
-# class ProjectYearRetrieveAPIView(RetrieveAPIView):
-#     queryset = models.ProjectYear.objects.all().order_by("-created_at")
-#     serializer_class = serializers.ProjectYearSerializer
-#     permission_classes = [IsAuthenticated]
-#
-#
-# class StaffListCreateAPIView(ListCreateAPIView):
-#     queryset = models.Staff.objects.all()
-#     serializer_class = serializers.StaffSerializer
-#     permission_classes = [IsAuthenticated]
-#
-#     def get_queryset(self):
-#         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-#         return year.staff_set.all()
-#
-#     def perform_create(self, serializer):
-#         serializer.save(project_year_id=self.kwargs.get("project_year"))
-#
-#     # def post(self, request, *args, **kwargs):
-#     #     super().post(request, *args, **kwargs)
-#
-# class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-#     queryset = models.Staff.objects.all()
-#     serializer_class = serializers.StaffSerializer
-#     permission_classes = [permissions.CanModifyOrReadOnly]
-#
 
 
 class TripRequestCostsListAPIView(ListAPIView):
@@ -71,11 +42,29 @@ class TripRequestCostsListAPIView(ListAPIView):
 
 
 class TripListAPIView(ListAPIView):
+    pagination_class = StandardResultsSetPagination
     serializer_class = serializers.TripSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = models.Conference.objects.all()
+        qp = self.request.query_params
+        if qp.get("adm_verification"):
+            return qs.filter(is_adm_approval_required=True, is_verified=False)
+        if qp.get("adm_hit_list"):
+            return utils.get_adm_eligible_trips()
+        elif qp.get("regional_verification"):
+            return qs.filter(is_adm_approval_required=False, is_verified=False)
+        return qs
+
+
+class RequestListAPIView(ListAPIView):
+    pagination_class = StandardResultsSetPagination
+    serializer_class = serializers.TripRequestSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = models.TripRequest1.objects.all()
         qp = self.request.query_params
         if qp.get("adm_verification"):
             return qs.filter(is_adm_approval_required=True, is_verified=False)
@@ -100,8 +89,6 @@ class RequestReviewListAPIView(ListAPIView):
 
 # LOOKUPS
 ##########
-
-
 
 
 class FiscalYearTravelListAPIView(FiscalYearListAPIView):

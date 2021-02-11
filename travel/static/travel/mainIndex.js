@@ -21,10 +21,10 @@ var app = new Vue({
     userRequests: [],
     userTripReviews: [],
     userTripRequestReviews: [],
-    admVerificationList: [],
-    admHitList: [],
-    regionalVerificationList: [],
-    regionalRDGApprovalList: [],
+    admVerificationCount: 0,
+    admHitCount: 0,
+    regionalVerificationCount: 0,
+    regionalRDGApprovalCount: 0,
 
     // vuetify
     alignTop: false,
@@ -58,12 +58,12 @@ var app = new Vue({
       apiService(`/api/travel/trips/?adm_verification=true`)
           .then(response => {
             this.loading_adm_verification_list = false;
-            this.admVerificationList = response;
+            this.admVerificationCount = response.count;
           })
       apiService(`/api/travel/trips/?adm_hit_list=true`)
           .then(response => {
             this.loading_adm_hit_list = false;
-            this.admHitList = response;
+            this.admHitCount = response.count;
           })
     },
     getRegionalAdminStuff() {
@@ -71,13 +71,15 @@ var app = new Vue({
       this.loading_rdg_approval_list = true;
       apiService(`/api/travel/trips/?regional_verification=true`)
           .then(response => {
+            console.log(response)
             this.loading_regional_verification_list = false;
-            this.regionalVerificationList = response;
+            this.regionalVerificationCount = response.count;
           })
       apiService(`/api/travel/request-reviews/?rdg=true`)
           .then(response => {
+            console.log(response)
             this.loading_rdg_approval_list = false;
-            this.regionalRDGApprovalList = response;
+            if (response.count) this.regionalRDGApprovalCount = response.count;
           })
     },
     changeTabs(tabFlag) {
@@ -137,9 +139,6 @@ var app = new Vue({
     isNCRAdmin() {
       return this.currentUser.is_ncr_admin;
     },
-    relatedRequests() {
-      return this.currentUser.related_requests;
-    }
   },
   created() {
     this.getCurrentUser()

@@ -18,7 +18,7 @@ var app = new Vue({
     filter_fiscal_year: "",
     filter_trip_title: "",
     filter_status: "",
-    filter_user: "",
+    filter_traveller: "",
     filter_region: "",
     filter_division: "",
     filter_section: "",
@@ -43,102 +43,77 @@ var app = new Vue({
       var win = window.open(url, '_blank');
     },
     getFilterData() {
-      apiService(`/api/project-planning/fiscal-years/`).then(response => this.fiscalYears = response)
-
-      apiService(`/api/project-planning/tags/`).then(response => this.tags = response)
-
-      apiService(`/api/project-planning/themes/`).then(response => this.themes = response)
-
-
-      apiService(`/api/project-planning/funding-sources/`).then(response => this.fundingSources = response)
-
-      apiService(`/api/project-planning/regions/`).then(response => this.regions = response)
+      apiService(`/api/travel/fiscal-years/`).then(response => this.fiscalYears = response)
+      apiService(`/api/travel/regions/`).then(response => this.regions = response)
 
       var query = "";
       if (this.filter_region && this.filter_region !== "") query = `?region=${this.filter_region}`
-      apiService(`/api/project-planning/divisions/${query}`).then(response => this.divisions = response)
+      apiService(`/api/travel/divisions/${query}`).then(response => this.divisions = response)
 
       if (this.filter_division && this.filter_division !== "") query = `?division=${this.filter_division}`
-      apiService(`/api/project-planning/sections/${query}`).then(response => this.sections = response)
-
-      if (this.filter_section && this.filter_section !== "") query = `?section=${this.filter_section}`
-      apiService(`/api/project-planning/functional-groups/${query}`).then(response => this.functionalGroups = response)
+      apiService(`/api/travel/sections/${query}`).then(response => this.sections = response)
 
     },
-    // getProjectYears(endpoint) {
-    //   this.projects_loading = true;
-    //   if (!endpoint) {
-    //     endpoint = `/api/project-planning/project-years/`;
-    //     // apply filters
-    //     endpoint += `?is_hidden=${this.filter_is_hidden};` +
-    //         `id=${this.filter_id};` +
-    //         `title=${this.filter_title};` +
-    //         `staff=${this.filter_staff};` +
-    //         `fiscal_year=${this.filter_fiscal_year};` +
-    //         `tag=${this.filter_tag};` +
-    //         `theme=${this.filter_theme};` +
-    //         `functional_group=${this.filter_functional_group};` +
-    //         `funding_source=${this.filter_funding_source};` +
-    //         `region=${this.filter_region};` +
-    //         `division=${this.filter_division};` +
-    //         `section=${this.filter_section};` +
-    //         `status=${this.filter_status};`
-    //
-    //   }
-    //
-    //   apiService(endpoint)
-    //       .then(response => {
-    //         if (response.results) {
-    //           this.projects_loading = false;
-    //           this.projectYears.push(...response.results);
-    //           this.next = response.next;
-    //           this.previous = response.previous;
-    //           this.count = response.count;
-    //         }
-    //       })
-    // },
-    // clearProjectYears() {
-    //   this.projectYears = []
-    //   this.next = null
-    //   this.count = 0
-    // },
-    // loadMoreResults() {
-    //   if (this.next) {
-    //     this.getProjectYears(this.next)
-    //   }
-    // },
-    // clearFilters() {
-    //   this.filter_id = null;
-    //   this.filter_title = null;
-    //   this.filter_staff = null;
-    //   this.filter_fiscal_year = "";
-    //   this.filter_tag = "";
-    //   this.filter_theme = "";
-    //   this.filter_functional_group = "";
-    //   this.filter_funding_source = "";
-    //   this.filter_region = "";
-    //   this.filter_division = "";
-    //   this.filter_section = "";
-    //   this.filter_status = "";
-    //   this.filter_is_hidden = false;
-    //
-    //   this.updateResults()
-    // },
-    // updateResults() {
-    //   this.clearProjectYears();
-    //   this.getProjectYears();
-    //   this.getFilterData();
-    // },
-    // sort(s) {
-    //   // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
-    //   //if s == current sort, reverse
-    //   if (s === this.currentSort) {
-    //     this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
-    //   }
-    //   this.currentSort = s;
-    // },
-  },
+    getRequests(endpoint) {
+      this.requests_loading = true;
+      if (!endpoint) {
+        endpoint = `/api/travel/requests/`;
+        // apply filters
+        endpoint += `?trip_title=${this.filter_trip_title};` +
+            `traveller=${this.filter_traveller};` +
+            `status=${this.filter_status};` +
+            `fiscal_year=${this.filter_fiscal_year};` +
+            `region=${this.filter_region};` +
+            `division=${this.filter_division};` +
+            `section=${this.filter_section};` +
+            `status=${this.filter_status};`
+      }
 
+      apiService(endpoint)
+          .then(response => {
+            if (response.results) {
+              this.requests_loading = false;
+              this.requests.push(...response.results);
+              this.next = response.next;
+              this.previous = response.previous;
+              this.count = response.count;
+            }
+          })
+    },
+    clearRequests() {
+      this.requests = []
+      this.next = null
+      this.count = 0
+    },
+    loadMoreResults() {
+      if (this.next) {
+        this.getRequests(this.next)
+      }
+    },
+    clearFilters() {
+      this.filter_trip_title = null;
+      this.filter_traveller = null;
+      this.filter_fiscal_year = "";
+      this.filter_status = "";
+      this.filter_region = "";
+      this.filter_division = "";
+      this.filter_section = "";
+      this.updateResults()
+    },
+    updateResults() {
+      this.clearRequests();
+      this.getRequests();
+      this.getFilterData();
+    },
+    sort(s) {
+      // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+      //if s == current sort, reverse
+      if (s === this.currentSort) {
+        this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+      }
+      this.currentSort = s;
+    },
+  },
   filters: {
     floatformat: function (value, precision = 2) {
       if (value == null) return '';

@@ -56,8 +56,8 @@
                   <div v-if="loading_user" class="spinner-border spinner-border-sm" role="status">
                     <span class="sr-only">Loading...</span>
                   </div>
-                  <span v-else-if="currentUser.id && ( currentUser.request_reviews.length + currentUser.trip_reviews.length > 0)">
-                  (<span class="red-font blink-me">${ currentUser.request_reviews.length + currentUser.trip_reviews.length }</span>)
+                  <span v-else-if="currentUser.id && ( currentUser.request_reviews_count + currentUser.trip_reviews_count > 0)">
+                  (<span class="red-font blink-me">${ currentUser.request_reviews_count + currentUser.trip_reviews_count }</span>)
                   </span>
 
 
@@ -73,8 +73,8 @@
                   <div v-if="loading_user || loading_regional_verification_list || loading_rdg_approval_list" class="spinner-border spinner-border-sm" role="status">
                     <span class="sr-only">Loading...</span>
                   </div>
-                  <span v-else-if="( regionalVerificationList.length + regionalRDGApprovalList.length > 0)">
-                  (<span class="red-font blink-me">${ regionalVerificationList.length + regionalRDGApprovalList.length }</span>)
+                  <span v-else-if="( regionalVerificationCount + regionalRDGApprovalCount > 0)">
+                  (<span class="red-font blink-me">${ regionalVerificationCount + regionalRDGApprovalCount }</span>)
                   </span>
                 </a>
               </li>
@@ -87,8 +87,8 @@
                   <div v-if="loading_user || loading_adm_hit_list || loading_adm_verification_list" class="spinner-border spinner-border-sm" role="status">
                     <span class="sr-only">Loading...</span>
                   </div>
-                  <span v-else-if="( admVerificationList.length + admHitList.length > 0)">
-                  (<span class="red-font blink-me">${ admVerificationList.length + admHitList.length }</span>)
+                  <span v-else-if="( admVerificationCount + admHitCount > 0)">
+                  (<span class="red-font blink-me">${ admVerificationCount + admHitCount }</span>)
                   </span>
 
                 </a>
@@ -145,7 +145,7 @@
 
 {% block body_js %}
   {{ block.super }}
-  <script src="{% static '/travel/mainIndex.js' %}?version=0.4" type="application/javascript"></script>
+  <script src="{% static '/travel/mainIndex.js' %}?version=0.5" type="application/javascript"></script>
 
 
 {% endblock %}

@@ -254,12 +254,14 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
         'processing_time|{}'.format(gettext_lazy("Processing time")),
         'created_by',
     ]
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["random_object"] = models.TripRequest.objects.first()
+        return context
 
     def get_new_object_url(self):
         return reverse("travel:request_new")
 
-    def get_random_object(self):
-        return models.TripRequest.objects.first()
 
 
 class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):

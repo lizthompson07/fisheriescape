@@ -14,16 +14,16 @@
     <p class="card-text">{% trans "View and manage trips and/or trip requests for which you are a reviewer" %}</p>
 
 
-    <a v-if="currentUser && currentUser.trip_reviews.length" href="{{ active_trip_reviews_list_url }}"
+    <a v-if="currentUser && currentUser.trip_reviews_count" href="{{ active_trip_reviews_list_url }}"
        class="btn btn-lg btn-outline-primary mx-3 {{ disabled_text }}">
       {% trans "Trips Awaiting Review" %}
-      (<span class="red-font blink-me">${ currentUser.trip_reviews.length }</span>)
+      (<span class="red-font blink-me">${ currentUser.trip_reviews_count }</span>)
     </a>
 
-    <a v-if="currentUser && currentUser.request_reviews.length" href="{{ active_tr_reviews_list_url }}"
+    <a v-if="currentUser && currentUser.request_reviews_count" href="{{ active_tr_reviews_list_url }}"
        class="btn btn-lg btn-outline-primary mx-3 {{ disabled_text }}">
       {% trans "Requests Awaiting Review" %}
-      (<span class="red-font blink-me">${ currentUser.request_reviews.length }</span>)
+      (<span class="red-font blink-me">${ currentUser.request_reviews_count }</span>)
     </a>
 
   </div>

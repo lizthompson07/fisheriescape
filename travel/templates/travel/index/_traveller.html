@@ -10,10 +10,10 @@
     <a href="{{ request_new_url }}" class="btn btn-lg btn-outline-primary mx-3">
       {% trans "Create a New Request" %}
     </a>
-    <a v-if="relatedRequests.length" href="{{ request_list_url }}"
+    <a v-if="currentUser.related_requests_count" href="{{ request_list_url }}"
        class="btn btn-lg btn-outline-primary  mx-3">
       {% trans "View Your Requests" %}
-      (${ relatedRequests.length })
+      (${ currentUser.related_requests_count })
     </a>
     <a href="{% url 'travel:trip_list' "upcoming" %}"
        class="btn btn-lg btn-outline-primary mx-3">

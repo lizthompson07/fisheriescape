@@ -52,6 +52,38 @@ class FiscalYearListAPIView(ListAPIView):
 class RegionListAPIView(ListAPIView):
     serializer_class = serializers.RegionSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Region.objects.filter(branches__divisions__sections__requests__isnull=False)
+        return qs.distinct()
+
+
+class DivisionListAPIView(ListAPIView):
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Division.objects.filter(sections__requests__isnull=False).distinct()
+        if self.request.query_params.get("region"):
+            qs = qs.filter(branch__region_id=self.request.query_params.get("region"))
+        return qs.distinct()
+
+
+class SectionListAPIView(ListAPIView):
+    serializer_class = serializers.SectionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Section.objects.filter(requests__isnull=False).distinct()
+        if self.request.query_params.get("division"):
+            qs = qs.filter(division_id=self.request.query_params.get("division"))
+        elif self.request.query_params.get("region"):
+            qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
+        return qs
+
+class RegionListAPIView(ListAPIView):
+    serializer_class = serializers.RegionSerializer
+    permission_classes = [IsAuthenticated]
     queryset = models.Region.objects.all()
 
 
