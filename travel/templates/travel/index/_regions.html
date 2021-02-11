@@ -1,0 +1,23 @@
+{% load i18n %}
+<div>
+  <div class="btns mb-3 center-col">
+    <h2 class="card-title">
+      {% trans "Regional Travel Administrators" %}
+    </h2>
+    <p class="card-text">{% trans "Perform tasks reserved for regional travel app administrators" %}</p>
+
+    {# RDG list #}
+    <a href="{% url 'travel:rdg_approvals' %}" class="btn btn-lg btn-outline-primary mx-3">
+      {% trans "Requests Awaiting RDG Approval" %}
+      (<span :class="{'red-font blink-me':regionalVerificationList.length>0}">${  regionalVerificationList.length }</span>)
+    </a>
+
+    {# Verification #}
+    <a href="{% url 'travel:trip-verify-list' %}?adm=true" class="btn btn-lg btn-outline-primary mx-3">
+      {% trans "Trip Verifications" %}
+      (<span :class="{'red-font blink-me':regionalVerificationList.length>0}">${  regionalVerificationList.length }</span>)
+    </a>
+
+
+  </div>
+</div>

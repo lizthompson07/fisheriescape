@@ -1,5 +1,6 @@
 import os
 
+from django.contrib.auth.models import User
 from django.core import serializers
 from django.core.files import File
 from django.utils import timezone
@@ -242,11 +243,23 @@ def update_participant_role():
 
 def copy_old_tables_to_new():
     # loop through all requests, except for child requests
+
     for old_request in models.TripRequest.objects.filter(parent_request__isnull=True):
+        print(old_request.id)
+        if old_request.user:
+            lead = old_request.user
+        elif old_request.created_by:
+            lead = old_request.created_by
+        elif User.objects.filter(first_name=old_request.first_name, last_name=old_request.last_name).exists():
+            lead = User.objects.get(first_name=old_request.first_name, last_name=old_request.last_name)
+        else:
+            print("assigning to Amelie")
+            lead = User.objects.get(id=385)
+
         new_request, created = models.Request.objects.get_or_create(
             id=old_request.id,
             trip=old_request.trip,
-            lead=old_request.user if old_request.user else old_request.created_by,
+            lead=lead,
             section=old_request.section,
             status=old_request.status,
         )
@@ -266,13 +279,15 @@ def copy_old_tables_to_new():
 
         # reviewers
         for obj in old_request.reviewers.all():
-            obj.request = new_request
-            obj.save()
+            if not obj.request or obj.request != new_request:
+                obj.request = new_request
+                obj.save()
 
         # files
         for obj in old_request.files.all():
-            obj.request = new_request
-            obj.save()
+            if not obj.request or obj.request != new_request:
+                obj.request = new_request
+                obj.save()
 
         if not old_request.is_group_request:
             # might as well use the same id as the request
@@ -302,16 +317,17 @@ def copy_old_tables_to_new():
 
             # costs
             for obj in old_request.trip_request_costs.all():
-                obj.traveller = traveller
-                obj.save()
+                if not obj.traveller or obj.traveller != traveller:
+                    obj.traveller = traveller
+                    obj.save()
 
         else:
             for old_child in old_request.children_requests.all():
                 traveller, created = models.Traveller.objects.get_or_create(
                     id=old_child.id,
                     request=new_request,
-                    start_date=old_child.start_date,
-                    end_date=old_child.end_date,
+                    start_date=old_child.start_date if old_child.start_date else old_request.start_date,
+                    end_date=old_child.end_date if old_child.end_date else old_request.end_date,
                 )
                 traveller.user = old_child.user
                 traveller.is_public_servant = old_child.is_public_servant
@@ -333,5 +349,6 @@ def copy_old_tables_to_new():
 
                 # costs
                 for obj in old_child.trip_request_costs.all():
-                    obj.traveller = traveller
-                    obj.save()
+                    if not obj.traveller or obj.traveller != traveller:
+                        obj.traveller = traveller
+                        obj.save()

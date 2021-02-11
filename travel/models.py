@@ -426,16 +426,16 @@ class Conference(models.Model):
             ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
         total_non_dfo_costs = Traveller.objects.filter(request__trip=self).filter(
             ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
-        return total_cost - total_non_dfo_costs
+        return nz(total_cost, 0) - nz(total_non_dfo_costs, 0)
 
     @property
     def non_res_total_cost(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
         total_cost = TripRequestCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
             ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
-        total_non_dfo_costs = Traveller.objects.filter(request__trip=self, traveller__is_research_scientist=False).filter(
+        total_non_dfo_costs = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(
             ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
-        return total_cost - total_non_dfo_costs
+        return nz(total_cost, 0) - nz(total_non_dfo_costs, 0)
 
     @property
     def tname(self):
@@ -486,15 +486,9 @@ class Conference(models.Model):
                 my_dict[traveller]["total_list"] = "---"
 
             # also, let's get the trip request for the traveller. if group request, we will want the child record
-            for tr in self.get_connected_requests():
-                if type(traveller) is AuthUser:
-                    if traveller in tr.travellers:
-                        my_dict[traveller]["trip_request"] = tr
-                else:
-                    for name in tr.traveller_names:
-                        if name in traveller:
-                            my_dict[traveller]["trip_request"] = tr
-                            break
+            for tr in self.requests.all():
+                if traveller in tr.travellers:
+                    my_dict[traveller.smart_name]["trip_request"] = tr
         return my_dict
 
     @property
@@ -1026,7 +1020,7 @@ class TripRequest(models.Model):
                 return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
 
 
-class Request(models.Model):
+class TripRequest1(models.Model):
     status_choices = (
         (8, _("Draft")),
         (10, _("Denied")),
@@ -1039,7 +1033,6 @@ class Request(models.Model):
         (22, _("Cancelled")),
     )
 
-    lead = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_leads", verbose_name=_("Who is the lead on this request?"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
                                 verbose_name=_("under which section is this request being made?"), related_name="requests")
     trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, verbose_name=_("trip"), related_name="requests")
@@ -1057,6 +1050,7 @@ class Request(models.Model):
     status = models.IntegerField(verbose_name=_("trip request status"), default=8, choices=status_choices, editable=False)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"), default=fiscal_year(sap_style=True),
                                     blank=True, null=True, related_name="requests", editable=False)
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False)
 
     @property
     def admin_notes_html(self):
@@ -1070,7 +1064,7 @@ class Request(models.Model):
             my_str = f"{self.travellers.first().smart_name}"
         else:
             my_str = gettext("Group Request")
-        my_str += f" - {self.trip.tname} - {self.destination}"
+        my_str += f" - {self.trip.tname} - {self.trip.location}"
         return my_str
 
     def __str__(self):
@@ -1285,7 +1279,7 @@ class Request(models.Model):
 
 
 class Traveller(models.Model):
-    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name="travellers", editable=False)
+    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="travellers", editable=False)
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"))
     is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a research scientist (RES)?"))
@@ -1316,7 +1310,7 @@ class Traveller(models.Model):
 
     @property
     def to_from(self):
-        my_str = f"{self.departure_location} &rarr; {self.request.destination}"
+        my_str = f"{self.departure_location} &rarr; {self.request.trip.location}"
         return mark_safe(my_str)
 
     @property
@@ -1535,7 +1529,7 @@ class Reviewer(models.Model):
         (5, _("ADM")),
         (6, _("RDG")),
     )
-    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)
+    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers",
@@ -1584,15 +1578,12 @@ class Reviewer(models.Model):
 
 class TripReviewer(models.Model):
     status_choices = (
-        (8, _("Draft")),
-        (10, _("Denied")),
-        (11, _("Approved")),
-        (12, _("Pending Recommendation")),
-        (14, _("Pending ADM Approval")),
-        (15, _("Pending RDG Approval")),
-        (16, _("Changes Requested")),
-        (17, _("Pending Review")),
-        (22, _("Cancelled")),
+        (23, _("Draft")),
+        (24, _("Queued")),
+        (25, _("Pending")),
+        (26, _("Complete")),
+        (42, _("Skipped")),
+        (44, _("Cancelled")),
     )
     role_choices = (
         (1, _("Reviewer")),
@@ -1643,7 +1634,7 @@ def file_directory_path(instance, filename):
 
 
 class File(models.Model):
-    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name="files", blank=True, null=True)
+    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="files", blank=True, null=True)
     trip_request = models.ForeignKey(TripRequest, related_name="files", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("file attachment"))

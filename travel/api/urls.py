@@ -8,11 +8,14 @@ router = DefaultRouter()
 
 urlpatterns = [
     # path("", include(router.urls)),
-    # path("travel/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
-    # path("travel/project-years/<int:project_year>/staff/", views.StaffListCreateAPIView.as_view(), name="staff-list"),
+    path("travel/user/", views.CurrentTravelUserAPIView.as_view(), name="travel-current-user"),
+    path("travel/trips/", views.TripListAPIView.as_view(), name="trip-list"),
+    path("travel/request-reviews/", views.RequestReviewListAPIView.as_view(), name="request-review-list"),
 
-    # Costs
+
     path("travel/trip-request/<int:trip_request>/costs/", views.TripRequestCostsListAPIView.as_view(), name="cost-list"),
+
+
 
 
     # CRUISE SUMMARY

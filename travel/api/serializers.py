@@ -23,6 +23,35 @@ class TripRequestCostSerializer(serializers.ModelSerializer):
     def get_cost_display(self, instance):
         return str(instance.cost)
 
+
+class TripRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TripRequest1
+        fields = "__all__"
+
+
+class TripRequestReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Reviewer
+        fields = "__all__"
+
+
+class TripReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TripReviewer
+        fields = "__all__"
+
+
+
+class TripSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Conference
+        fields = "__all__"
+
+
+
+
+
 #
 # class ProjectYearSerializer(serializers.ModelSerializer):
 #     class Meta:

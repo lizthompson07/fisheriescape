@@ -14,10 +14,8 @@ from django.db.models import Sum, Q, Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse, HttpResponseForbidden
 from django.shortcuts import render
-from django.template.defaultfilters import pluralize
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 ###
@@ -38,17 +36,16 @@ from . import models
 from . import reports
 from . import utils
 from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin
-from .utils import is_manager_or_assistant_or_admin, in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver
+from .utils import in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver
 
 
 def get_file(request, file):
-
     if request.GET.get("reference"):
         my_file = models.ReferenceMaterial.objects.get(pk=int(file))
         blob_name = my_file.tfile
         export_file_name = blob_name
     elif request.GET.get("blob_name"):
-        blob_name = file.replace("||","/")
+        blob_name = file.replace("||", "/")
         export_file_name = blob_name.split("/")[-1]
         if request.GET.get("export_file_name"):
             export_file_name = request.GET.get("export_file_name")
@@ -89,98 +86,12 @@ def get_conf_details(request):
 
 
 class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
-    template_name = 'travel/index/index.html'
+    template_name = 'travel/index/main.html'
     active_page_name_crumb = gettext_lazy("Home")
     h1 = " "
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        related_trips = utils.get_related_trips(self.request.user)
-
-        tr_reviews = self.request.user.reviewers
-        trip_reviews = self.request.user.trip_reviewers
-
-        context["requests_awaiting_changes"] = related_trips.filter(status=16).count()
-        context["user_trip_requests"] = related_trips.count()
-        # show the number of reviews awaiting for the logged in user
-        tr_reviews_waiting = tr_reviews.filter(status=1).filter(
-            ~Q(trip_request__status__in=[16, 14, 8])
-        ).count()  # number of requests where review is pending (excluding those that are drafts (from children), changes_requested and pending ADM approval)
-        trip_reviews_waiting = trip_reviews.filter(status=25).count()  # number of trips where review is pending
-        context["tr_reviews_waiting"] = tr_reviews_waiting
-        context["trip_reviews_waiting"] = trip_reviews_waiting
-        context["reviews_waiting"] = trip_reviews_waiting + tr_reviews_waiting
-        # this will be the dict to populate the tabs on the index page
-        tab_dict = dict()
-        for region in shared_models.Region.objects.all():
-            tab_dict[region] = dict()
-            # this will be the counter for any of the things that need dealing with
-
-            # RDG
-            rdg_number_waiting = models.Reviewer.objects.filter(
-                status=1,
-                role=6,
-                trip_request__section__division__branch__region=region,
-            ).filter(~Q(trip_request__status=16)).count()  # number of requests where admin review is pending
-            rdg_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'rdg', "region": region.id})
-
-            # unverified trips
-            unverified_trips = models.Conference.objects.filter(status=30, is_adm_approval_required=False, lead=region).count()
-            trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 0, "region": region.id})
-
-            if unverified_trips > 0 and in_travel_admin_group(self.request.user):
-                messages.error(self.request, mark_safe(
-                    # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-                    _(
-                        "<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
-                        region=region, unverified_trips=unverified_trips, pluralization=pluralize(unverified_trips)
-                    )))
-
-            tab_dict[region]["rdg_number_waiting"] = rdg_number_waiting
-            tab_dict[region]["rdg_approval_list_url"] = rdg_approval_list_url
-            # tab_dict[region]["adm_number_waiting"] = adm_number_waiting
-            # tab_dict[region]["adm_approval_list_url"] = adm_approval_list_url
-            tab_dict[region]["unverified_trips"] = unverified_trips
-            tab_dict[region]["trip_verification_list_url"] = trip_verification_list_url
-            # tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + adm_number_waiting + unverified_trips
-            tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + unverified_trips
-
-        # Now for NCR
-        admo_name = _("ADM Office")
-        tab_dict[admo_name] = dict()
-
-        # unverified trips
-        unverified_trips = models.Conference.objects.filter(status=30, is_adm_approval_required=True).count()
-        trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 1, "region": 0})
-
-        if unverified_trips > 0 and in_adm_admin_group(self.request.user):
-            messages.error(self.request, mark_safe(
-                # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-                _("<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralization} requiring attention!!".format(
-                    unverified_trips=unverified_trips, pluralization=pluralize(unverified_trips)
-                ))))
-
-        adm_ready_trips = utils.get_adm_eligible_trips().count()
-
-        tab_dict[admo_name]["unverified_trips"] = unverified_trips
-        tab_dict[admo_name]["trip_verification_list_url"] = trip_verification_list_url
-        tab_dict[admo_name]["adm_trips_ready"] = adm_ready_trips
-        tab_dict[admo_name]["things_to_deal_with"] = unverified_trips + adm_ready_trips  # placeholder :)
-
-        number_of_tr_reviews = tr_reviews.count()
-        number_of_trip_reviews = trip_reviews.count()
-        number_of_reviews = number_of_tr_reviews + number_of_trip_reviews
-
-        context["is_reviewer"] = True if number_of_reviews > 0 else False
-        context["is_tr_reviewer"] = True if number_of_tr_reviews > 0 else False
-        context["is_trip_reviewer"] = True if number_of_trip_reviews > 0 else False
-        context["is_admin"] = in_travel_admin_group(self.request.user)
-        context["is_adm_admin"] = in_adm_admin_group(self.request.user)
-
-        context["can_see_all_requests"] = is_manager_or_assistant_or_admin(self.request.user)
-
-        context["tab_dict"] = tab_dict
         context["processes"] = [
             models.ProcessStep.objects.filter(stage=1),
             models.ProcessStep.objects.filter(stage=2)
@@ -188,7 +99,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         context["information_sections"] = models.ProcessStep.objects.filter(stage=0, is_visible=True)
         context["faqs"] = models.FAQ.objects.all()
         context["refs"] = models.ReferenceMaterial.objects.all()
-
+        context["region_tabs"] = [region.tname for region in shared_models.Region.objects.all()]
         return context
 
 
@@ -324,51 +235,35 @@ def get_help_text_dict():
 
 # TRIP REQUEST #
 ################
-class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
+class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
     filterset_class = filters.TripRequestFilter
-    template_name = 'travel/trip_request_list.html'
+    template_name = 'travel/request_list/main.html'
     subtitle = gettext_lazy("Trip Requests")
     home_url_name = "travel:index"
     paginate_by = 25
     container_class = "container-fluid"
     row_object_url_name = "travel:request_detail"
+    h1 = " "
+
+    field_list = [
+        'fiscal_year',
+        'trip.tname|{}'.format(gettext_lazy("trip")),
+        'status',
+        'section',
+        'trip.location|{}'.format(gettext_lazy("Destination")),
+        'processing_time|{}'.format(gettext_lazy("Processing time")),
+        'created_by',
+    ]
 
     def get_new_object_url(self):
-        return reverse("travel:request_new", kwargs=self.kwargs)
+        return reverse("travel:request_new")
 
     def get_random_object(self):
         return models.TripRequest.objects.first()
 
-    field_list = [
-        {"name": 'fiscal_year', "width": "75px"},
-        {"name": 'is_group_request|Type', },
-        {"name": 'status', "width": "150px"},
-        {"name": 'section|{}'.format(gettext_lazy("section")), },
-        {"name": 'requester_name|{}'.format(gettext_lazy("Requester name")), },
-        {"name": 'trip.tname', "width": "400px"},
-        {"name": 'destination|{}'.format(gettext_lazy("Destination")), },
-        {"name": 'start_date', "width": "120px"},
-        {"name": 'processing_time|{}'.format(gettext_lazy("Processing time")), "width": "120px"},
-        {"name": 'created_by', },
-    ]
-
-    def get_queryset(self):
-        if self.kwargs.get("type") == "all" and is_manager_or_assistant_or_admin(self.request.user):
-            queryset = utils.get_trip_with_managerial_access(self.request.user)
-        else:
-            queryset = utils.get_related_trips(self.request.user)
-        return queryset
-
-    def get_h1(self):
-        subtitle = self.subtitle
-        if self.kwargs.get("type") == "all" and is_manager_or_assistant_or_admin(self.request.user):
-            return f"{subtitle}"
-        else:
-            return f"{subtitle} - {self.request.user}"
-
 
 class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
-    model = models.TripRequest
+    model = models.TripRequest1
     template_name = 'travel/trip_request_detail.html'
     home_url_name = "travel:index"
 
@@ -381,7 +276,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
         my_object = self.get_object()
         context = super().get_context_data(**kwargs)
 
-        context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
+        context["field_list"] = request_field_list
         my_request_child_field_list = deepcopy(request_child_field_list)
         context["child_field_list"] = my_request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
@@ -491,95 +386,32 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
 
 
 class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
-    model = models.TripRequest
+    model = models.TripRequest1
     home_url_name = "travel:index"
     h1 = gettext_lazy("New Trip Request")
-
-    def get_template_names(self):
-        if self.kwargs.get("parent_request"):
-            return 'travel/trip_request_form_popout.html'
-        else:
-            return 'travel/trip_request_form.html'
-
-    def get_form_class(self):
-        if self.kwargs.get("parent_request"):
-            return forms.ChildTripRequestForm
-        else:
-            return forms.TripRequestForm
-
-    def get_initial(self):
-        if self.kwargs.get("parent_request"):
-            my_object = models.TripRequest.objects.get(pk=self.kwargs.get("parent_request"))
-            my_dict = {
-                "parent_request": my_object,
-                "stay_on_page": True,
-                "start_date": my_object.trip.start_date,
-                "end_date": my_object.trip.end_date,
-            }
-        else:
-            # if this is a new parent trip
-            my_dict = {"user": self.request.user}
-        return my_dict
+    form_class = forms.TripRequestForm
+    template_name = 'travel/request_form.html'
 
     def form_valid(self, form):
         my_object = form.save(commit=False)
         my_object.created_by = self.request.user
         my_object.save()
 
-        # if it is a group request, add the main user as a traveller
-        if my_object.is_group_request:
-            my_child_object = models.TripRequest.objects.create(
+        # add user as traveller if asked to
+        if form.cleaned_data.get("is_traveller", None):
+            models.Traveller.objects.create(
+                request=my_object,
                 user=self.request.user,
-                first_name=self.request.user.first_name,
-                last_name=self.request.user.last_name,
-                email=self.request.user.email,
-                parent_request=my_object,
                 start_date=my_object.trip.start_date,
                 end_date=my_object.trip.end_date,
             )
-            # pre-populate the costs on the 'child' record
-            utils.populate_trip_request_costs(self.request, my_child_object)
-        else:
-            # if the request is not a group request, we pre-populate the costs on the 'parent' record
-            utils.populate_trip_request_costs(self.request, my_object)
 
         # add reviewers
         utils.get_tr_reviewers(my_object)
-
-        # if this is not a child record
-        if not my_object.parent_request:
-            if form.cleaned_data.get("stay_on_page"):
-                return HttpResponseRedirect(
-                    reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}))
-            else:
-                where2 = "#group-travellers" if my_object.is_group_request else "#costs"
-                return HttpResponseRedirect(
-                    reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}) + where2)
-        # if this is a child record
-        else:
-            if form.cleaned_data.get("stay_on_page"):
-                messages.success(self.request, _(
-                    "{} has been added as a traveller to this request. Please add any costs associated with this traveller.".format(
-                        my_object.requester_name)))
-                return HttpResponseRedirect(reverse("travel:request_edit", kwargs={"pk": my_object.id, "type": "pop"}) + "#costs")
-            else:
-                return HttpResponseRedirect(reverse("shared_models:close_me"))
+        return HttpResponseRedirect(reverse_lazy("travel:request_detail", args=[my_object.id]))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        user_dict = {}
-        for user in User.objects.all():
-            user_dict[user.id] = {}
-            user_dict[user.id]['first_name'] = user.first_name
-            user_dict[user.id]['last_name'] = user.last_name
-            user_dict[user.id]['email'] = user.email
-
-        user_json = json.dumps(user_dict)
-        # send JSON file to template so that it can be used by js script
-        context['user_json'] = user_json
-        context['org_form'] = forms.OrganizationForm1
-
         conf_dict = {}
         for conf in models.Conference.objects.all():
             conf_dict[conf.id] = {}
@@ -590,7 +422,6 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
                 conf_dict[conf.id]['eligible'] = False
             else:
                 conf_dict[conf.id]['eligible'] = True
-
         conf_json = json.dumps(conf_dict)
         # send JSON file to template so that it can be used by js script
         context['conf_json'] = conf_json
@@ -2293,7 +2124,7 @@ def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+f'?blob_name=true;export_file_name={export_file_name}')
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -2310,7 +2141,7 @@ def export_trip_list(request, fy, region, adm, from_date, to_date):
     export_file_name = f'CTMS trip list {timezone.now().strftime("%Y-%m-%d")}.xlsx'
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+f'?blob_name=true;export_file_name={export_file_name}')
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -2326,7 +2157,7 @@ def export_request_cfts(request, trip=None, trip_request=None):
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/","||")])+f'?blob_name=true;export_file_name={export_file_name}')
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -2385,7 +2216,6 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 
 # SETTINGS #
 ############
-
 
 
 class HelpTextHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):

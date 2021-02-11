@@ -150,64 +150,62 @@ def get_trip_reviewers(trip):
 
 def get_tr_reviewers(trip_request):
     if trip_request.section:
-
         # section level reviewer
         try:
             # add each default reviewer to the queue
             for default_reviewer in trip_request.section.travel_default_reviewers.all():
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role=1)
+                models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
         except (IntegrityError, KeyError):
             pass
 
-        # section level recommender  - only applies if this is not the section head
+        travellers = trip_request.travellers.filter(user__isnull=False)
+
+        # section level recommender  - only applies if the section head is not a traveller
         try:
             # if the division head is the one creating the request, the section head should be skipped as a recommender AND
             # if the section head is the one creating the request, they should be skipped as a recommender
-            if trip_request.user != trip_request.section.head and trip_request.user != trip_request.section.division.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.head, role=2, )
+            if trip_request.section.head not in [t.user for t in travellers] and trip_request.section.division.head not in [t.user for t in travellers]:
+                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.head, role=2, )
         except (IntegrityError, AttributeError):
             pass
 
-        # division level recommender  - only applies if this is not the division manager
+        # division level recommender  - only applies if the division head is not a traveller
         try:
             # if the division head is the one creating the request, they should be skipped as a recommender
-            if trip_request.user != trip_request.section.division.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role=2, )
+            if trip_request.section.division.head not in [t.user for t in travellers]:
+                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.head, role=2, )
         except (IntegrityError, AttributeError):
             pass
 
-        # Branch level reviewer - only applies if this is not the RDS
+        # branch level reviewer  - only applies if the branch head is not a traveller
         try:
-            if trip_request.user != trip_request.section.division.branch.head:
-                # TODO: DOES THE BRANCH HAVE A DEFAULT REVIEWER?
+            if trip_request.section.division.branch.head not in [t.user for t in travellers]:
                 # add each default reviewer to the queue
                 for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.all():
-                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role=1)
+                    models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
 
         except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
 
         # Branch level recommender  - only applies if this is not the RDS
         try:
-            if trip_request.user != trip_request.section.division.branch.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head,
-                                                      role=2, )
+            if trip_request.section.division.branch.head not in [t.user for t in travellers]:
+                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.head, role=2, )
         except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
 
     # should the ADMs office be involved?
-    if trip_request.trip:
-        if trip_request.trip.is_adm_approval_required:
-            # add the ADMs office staff
-            try:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=626, role=5, )  # Arran McPherson
-            except IntegrityError:
-                pass
+    if trip_request.trip.is_adm_approval_required:
+        try:
+            adm = User.objects.get(email__icontains="arran.mcpherson@dfo-mpo.gc.ca")
+            models.Reviewer.objects.get_or_create(request=trip_request, user=adm, role=5, )  # Arran McPherson
+        except (IntegrityError, AttributeError, User.DoesNotExist):
+            pass
 
     # finally, we always need to add the RDG
     try:
-        models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.region.head, role=6, )
-    except (IntegrityError, AttributeError):
+        models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=6, )
+    except (IntegrityError, AttributeError, User.DoesNotExist):
         pass
 
     trip_request.save()
@@ -570,6 +568,7 @@ def trip_approval_seeker(trip, request):
                 trip.save()
 
 
+# DELETE!!
 def get_related_trips(user):
     """give me a user and I'll send back a queryset with all related trips, i.e.
      they are the request.user | they are the request.created_by | they are a traveller on a child trip"""
@@ -581,6 +580,25 @@ def get_related_trips(user):
     # all trips where the user is a traveller on a group trip
     tr_ids.extend([tr.parent_request.id for tr in models.TripRequest.objects.filter(parent_request__isnull=False, user=user)])
     return models.TripRequest.objects.filter(id__in=tr_ids)
+
+
+def get_related_requests(user):
+    """give me a user and I'll send back a queryset with all related trip requests, i.e.
+     they are a traveller || they are the request.created_by"""
+    qs = models.TripRequest1.objects.filter(Q(created_by=user) | Q(travellers__user=user)).distinct()
+    return qs
+
+
+def get_trip_request_reviews(user):
+    """give me a user and I'll send back a queryset with all related trips request reviews that are actionable (pending)
+     (excluding drafts (8), ADM approval (14) and when changes have already been requested (16)"""
+    qs = models.Reviewer.objects.filter(status=1).filter(~Q(request__status__in=[16, 14, 8])).distinct()
+    return qs
+
+def get_trip_reviews(user):
+    """give me a user and I'll send back a queryset with all related trips reviews that are actionable (pending = 25)"""
+    qs = models.TripReviewer.objects.filter(status=25)
+    return qs
 
 
 def get_adm_eligible_trips():
@@ -642,5 +660,3 @@ def upload_to_azure_blob(target_file_path, target_file):
         token_credential = None
     blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential, account_key=account_key)
     blobService.create_blob_from_path('media', target_file, target_file_path)
-
-

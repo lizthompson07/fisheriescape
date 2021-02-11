@@ -1,0 +1,30 @@
+{% load i18n %}
+
+{% url 'travel:request_review_list' "awaiting" as active_tr_reviews_list_url %}
+{% url 'travel:request_review_list' as all_tr_reviews_list_url %}
+
+{% url 'travel:trip_review_list' "awaiting" as active_trip_reviews_list_url %}
+{% url 'travel:trip_review_list'  as all_trip_reviews_list_url %}
+
+
+<div>
+  <div class="btns mb-3 center-col">
+
+    <h2 class="">{% trans "Your Reviews" %}</h2>
+    <p class="card-text">{% trans "View and manage trips and/or trip requests for which you are a reviewer" %}</p>
+
+
+    <a v-if="currentUser && currentUser.trip_reviews.length" href="{{ active_trip_reviews_list_url }}"
+       class="btn btn-lg btn-outline-primary mx-3 {{ disabled_text }}">
+      {% trans "Trips Awaiting Review" %}
+      (<span class="red-font blink-me">${ currentUser.trip_reviews.length }</span>)
+    </a>
+
+    <a v-if="currentUser && currentUser.request_reviews.length" href="{{ active_tr_reviews_list_url }}"
+       class="btn btn-lg btn-outline-primary mx-3 {{ disabled_text }}">
+      {% trans "Requests Awaiting Review" %}
+      (<span class="red-font blink-me">${ currentUser.request_reviews.length }</span>)
+    </a>
+
+  </div>
+</div>

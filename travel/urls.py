@@ -1,20 +1,38 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'travel'
 
 urlpatterns = [
+    path('util/conf_details', views.get_conf_details, name='conf_details'),  # this should be moved to the API section
+
     path('', views.IndexTemplateView.as_view(), name="index"),
-    path('util/conf_details', views.get_conf_details, name='conf_details'),
+
+
+    # Requests
+    ##########
+    path('requests/', views.TripRequestListView.as_view(), name="request_list"),
+    path('requests/new/', views.TripRequestCreateView.as_view(), name="request_new"),
+    path('requests/<int:pk>/view/', views.TripRequestDetailView.as_view(), name="request_detail"),
+
+    # Trips
+    #######
+    path('verify-trips/', views.TripVerificationListView.as_view(), name="trip-verify-list"),
+    path('trips/', views.TripListView.as_view(), name="trip_list"),
+
+    # Request reviews
+    ##################
+    path('rdg-approvals/', views.TripRequestAdminApprovalListView.as_view(), name="rdg_approvals"),
+
+
+
+    ############################################################################################################
 
     # TRIP REQUEST #
     ################
-    # path('requests/', views.TripRequestListView.as_view(), name="request_list"), # remove
     path('requests/<str:type>/', views.TripRequestListView.as_view(), name="request_list"),
 
-    # path('your-requests/', views.TripRequestListView.as_view(), name="request_list"),
-
-    path('request/new/<str:type>/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('request/<int:parent_request>/new-child-request/', views.TripRequestCreateView.as_view(), name="request_new"),
 
     path('request/<int:pk>/view/from/<str:type>/', views.TripRequestDetailView.as_view(), name="request_detail"),
@@ -110,7 +128,6 @@ urlpatterns = [
     path('settings/roles/', views.RoleFormsetView.as_view(), name="manage_roles"),
     path('settings/role/<int:pk>/delete/', views.RoleHardDeleteView.as_view(), name="delete_role"),
 
-
     path('settings/process-steps/', views.ProcessStepFormsetView.as_view(), name="manage_process_steps"),
     path('settings/process-step/<int:pk>/delete/', views.ProcessStepHardDeleteView.as_view(), name="delete_process_step"),
 
@@ -120,14 +137,11 @@ urlpatterns = [
     path('settings/organizations/', views.OrganizationFormsetView.as_view(), name="manage_organizations"),
     path('settings/organization/<int:pk>/delete/', views.OrganizationHardDeleteView.as_view(), name="delete_organization"),
 
-
     # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),
     path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),
     path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),
     path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
-
-
 
     # default reviewer settings
     path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),
@@ -163,8 +177,5 @@ urlpatterns = [
 
     # Download a file
     path('download/file/<str:file>/', views.get_file, name="get_file"),
-
-
-
 
 ]
