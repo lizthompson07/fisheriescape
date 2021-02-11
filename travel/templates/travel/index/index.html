@@ -319,4 +319,25 @@
 {% block body_js %}
   {{ block.super }}
 
+  <script type="application/javascript">
+  new Vue({
+    el: '#app',
+    vuetify: new Vuetify(),
+    data: () => ({
+      alignTop: false,
+      avatar: false,
+      dense: false,
+      fillDot: false,
+      hideDot: false,
+      icon: false,
+      iconColor: false,
+      left: false,
+      reverse: false,
+      right: false,
+      small: false,
+    }),
+  })
+
+  </script>
+
 {% endblock %}
