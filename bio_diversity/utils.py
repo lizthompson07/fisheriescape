@@ -36,6 +36,12 @@ def get_help_text_dict(model=None):
     return my_dict
 
 
+def year_coll_splitter(full_str):
+    coll = full_str.lstrip(' 0123456789')
+    year = int(full_str[:len(full_str) - len(coll)])
+    return year, coll.strip()
+
+
 def get_cont_evnt(contx_tuple):
     contx = contx_tuple[0]
     in_out_dict = {None: "", False: "Origin", True: "Destination"}

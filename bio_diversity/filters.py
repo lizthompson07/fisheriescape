@@ -189,7 +189,7 @@ class GrpFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Group
-        fields = ["spec_id", "stok_id", ]
+        fields = ["spec_id", "stok_id", "grp_year", ]
 
 
 class GrpdFilter(django_filters.FilterSet):
@@ -234,7 +234,7 @@ class IndvFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Individual
-        fields = ["ufid", "spec_id", "stok_id", ]
+        fields = ["ufid", "spec_id", "stok_id", "indv_year", ]
 
 
 class IndvdFilter(django_filters.FilterSet):

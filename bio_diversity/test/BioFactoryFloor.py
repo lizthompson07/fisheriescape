@@ -976,6 +976,7 @@ class GrpFactory(factory.django.DjangoModelFactory):
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
     coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
+    grp_year = factory.lazy_attribute(lambda o: faker.random_int(2000, 2020))
     grp_valid = True
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -997,6 +998,7 @@ class GrpFactory(factory.django.DjangoModelFactory):
             # 'frm_grp_id':frm_grp.pk,
             'spec_id': spec.pk,
             'stok_id': stok.pk,
+            'grp_year': obj.grp_year,
             'coll_id': coll.pk,
             'grp_valid': True,
             'comments': obj.comments,
@@ -1014,6 +1016,7 @@ class GrpdFactory(factory.django.DjangoModelFactory):
     anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
     det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
+    detail_date = factory.lazy_attribute(lambda o: faker.date())
     adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -1034,6 +1037,7 @@ class GrpdFactory(factory.django.DjangoModelFactory):
             'anix_id': anix.pk,
             'anidc_id': anidc.pk,
             'det_val': obj.det_val,
+            'detail_date': obj.detail_date,
             'adsc_id': adsc.pk,
             'qual_id': qual.pk,
             'comments': obj.comments,
@@ -1188,6 +1192,7 @@ class IndvFactory(factory.django.DjangoModelFactory):
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
+    indv_year = factory.lazy_attribute(lambda o: faker.random_int(2000, 2020))
     coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
     pit_tag = factory.lazy_attribute(lambda o: faker.word())
     indv_valid = True
@@ -1211,6 +1216,7 @@ class IndvFactory(factory.django.DjangoModelFactory):
             'spec_id': spec.pk,
             'stok_id': stok.pk,
             'coll_id': coll.pk,
+            'indv_year': obj.indv_year,
             'pit_tag': obj.pit_tag,
             'indv_valid': True,
             'comments': obj.comments,
@@ -1228,6 +1234,7 @@ class IndvdFactory(factory.django.DjangoModelFactory):
     anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
     det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
+    detail_date = factory.lazy_attribute(lambda o: faker.date())
     adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -1248,6 +1255,7 @@ class IndvdFactory(factory.django.DjangoModelFactory):
             'anix_id': anix.pk,
             'anidc_id': anidc.pk,
             'det_val': obj.det_val,
+            "detail_date": obj.detail_date,
             'adsc_id': adsc.pk,
             'qual_id': qual.pk,
             'comments': obj.comments,

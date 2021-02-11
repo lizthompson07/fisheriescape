@@ -12,7 +12,7 @@ from django.utils.translation import gettext
 import pandas as pd
 
 from bio_diversity import models
-from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd
+from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter
 
 
 class CreatePrams(forms.ModelForm):
@@ -244,7 +244,7 @@ class DataForm(CreatePrams):
                                           rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
                                           subr_id=models.SubRiverCode.objects.filter(name__iexact=row["Branch"]).get(),
                                           relc_id=models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
-                                          start_datetime=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                          loc_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
                                           comments=row["Comments"],
                                           created_by=cleaned_data["created_by"],
                                           created_date=cleaned_data["created_date"],
@@ -256,7 +256,7 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
-                                                             relc_id=loc.relc_id, start_datetime=loc.start_datetime).get()
+                                                             relc_id=loc.relc_id, loc_date=loc.start_datetime).get()
 
                     if not math.isnan(row["temp"]):
                         env = models.EnvCondition(loc_id_id=loc.pk,
@@ -357,6 +357,7 @@ class DataForm(CreatePrams):
                     grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                        stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
                                        coll_id=models.Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
+                                       grp_year=datetime.strptime(data["Date"][0], "%Y-%b-%d").year,
                                        grp_valid=True,
                                        created_by=cleaned_data["created_by"],
                                        created_date=cleaned_data["created_date"],
@@ -409,8 +410,10 @@ class DataForm(CreatePrams):
             parsed = True
             self.request.session["load_success"] = True
             try:
+                year, coll = year_coll_splitter(data["Group"][0])
                 grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
-                                                     coll_id__name=data_dict[0]["Group"]).get().pk
+                                                     coll_id__name__iexact=coll,
+                                                     grp_year=year).get().pk
             except Exception as err:
                 log_data += "Error finding origin group (check first row): \n"
                 log_data += "Error: {}\n\n".format(err.__str__())
@@ -420,10 +423,12 @@ class DataForm(CreatePrams):
                 row_parsed = True
                 row_entered = False
                 try:
+                    year, coll = year_coll_splitter(row["Group"])
                     indv = models.Individual(grp_id_id=grp_id,
                                              spec_id_id=1,
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
-                                             coll_id=models.Collection.objects.filter(name__iexact=row["Group"].strip()).get(),
+                                             coll_id=models.Collection.objects.filter(name__iexact=coll).get(),
+                                             indv_year=year,
                                              ufid=row["Universal Fish ID"],
                                              pit_tag=row["PIT tag"],
                                              indv_valid=True,
@@ -520,8 +525,11 @@ class DataForm(CreatePrams):
             parsed = True
             self.request.session["load_success"] = True
             try:
-                grp_id = models.Group.objects.filter(stok_id__name__iexact=data_dict[0]["Stock"],
-                                                     coll_id__name__iexact=data_dict[0]["Collection"]).get().pk
+
+                year, coll = year_coll_splitter(data["Collection"][0])
+                grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
+                                                     coll_id__name__iexact=coll,
+                                                     grp_year=year).get().pk
                 anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                 grp_id_id=grp_id,
                                                 created_by=cleaned_data["created_by"],
@@ -542,10 +550,12 @@ class DataForm(CreatePrams):
                 row_parsed = True
                 row_entered = False
                 try:
+                    year, coll = year_coll_splitter(row["Collection"])
                     indv = models.Individual(grp_id_id=grp_id,
                                              spec_id_id=1,
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
-                                             coll_id=models.Collection.objects.filter(name=row["Collection"]).get(),
+                                             coll_id=models.Collection.objects.filter(name__iexact=coll).get(),
+                                             indv_year=year,
                                              pit_tag=row["PIT"],
                                              indv_valid=True,
                                              comments=row["Comments"],

@@ -887,7 +887,7 @@ class FeedmDetails(mixins.FeedmMixin, CommonDetails):
 
 class GrpDetails(mixins.GrpMixin, CommonDetails):
     template_name = "bio_diversity/details_grp.html"
-    fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_valid", "detail_date", "comments", "created_by", "created_date", ]
+    fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_year", "grp_valid", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -929,7 +929,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
 
 class GrpdDetails(mixins.GrpdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "grpd_valid", "comments", "created_by", "created_date", ]
+    fields = ["anidc_id",  "det_val", "adsc_id", "qual_id", "grpd_valid",  "detail_date", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -960,7 +960,7 @@ class ImgcDetails(mixins.ImgcMixin, CommonDetails):
 
 class IndvDetails(mixins.IndvMixin, CommonDetails):
     template_name = 'bio_diversity/details_indv.html'
-    fields = ["grp_id", "spec_id", "stok_id", "coll_id", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
+    fields = ["grp_id", "spec_id", "stok_id", "coll_id", "indv_year", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
               "created_date", ]
 
     def get_context_data(self, **kwargs):
@@ -1031,7 +1031,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
 
 class IndvdDetails(mixins.IndvdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "detail_date", "comments", "created_by", "created_date", ]
+    fields = ["anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "detail_date", "comments", "created_by", "created_date", ]
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):
@@ -1494,7 +1494,7 @@ class FeedmList(mixins.FeedmMixin, CommonList):
 
 class GrpList(mixins.GrpMixin, CommonList):
     filterset_class = filters.GrpFilter
-    fields = ["spec_id", "stok_id", ]
+    fields = ["spec_id", "stok_id", "grp_year" ]
 
 
 class GrpdList(mixins.GrpdMixin, CommonList):
@@ -1524,7 +1524,7 @@ class ImgcList(mixins.ImgcMixin, CommonList):
 
 class IndvList(mixins.IndvMixin, CommonList):
     filterset_class = filters.IndvFilter
-    fields = ["ufid", "spec_id", "stok_id", ]
+    fields = ["ufid", "spec_id", "stok_id", "indv_year" ]
     delete_url = "bio_diversity:delete_indv"
 
 

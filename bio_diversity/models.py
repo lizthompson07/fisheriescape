@@ -4,6 +4,7 @@
 import datetime
 import os
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -622,12 +623,14 @@ class Group(BioModel):
                                    verbose_name=_("From Parent Group"))
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"))
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
+    grp_year = models.IntegerField(verbose_name=_("Collection year"), default=2000,
+                                   validators=[MinValueValidator(2000), MaxValueValidator(2100)])
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"))
     grp_valid = models.BooleanField(default="True", verbose_name=_("Group still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
+        return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
 
 class GroupDet(BioDet):
@@ -804,6 +807,8 @@ class Individual(BioModel):
                                verbose_name=_("From Parent Group"), limit_choices_to={'grp_valid': True})
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"))
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
+    indv_year = models.IntegerField(verbose_name=_("Collection year"), default=2000,
+                                    validators=[MinValueValidator(2000), MaxValueValidator(2100)])
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Collection"))
     # ufid = unique FISH id
@@ -813,7 +818,7 @@ class Individual(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
+        return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
 
 class IndividualDet(BioDet):
