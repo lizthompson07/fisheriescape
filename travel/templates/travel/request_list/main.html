@@ -35,8 +35,8 @@
               <thead>
               <tr>
                 {% for field in field_list %}
-                  {% if "title" in field %}
-                    <th style="width: 400px" @click="sort('{{ field }}')" class="clickable">
+                  {% if "trip" in field %}
+                    <th style="width: 250px" @click="sort('{{ field }}')" class="clickable">
                       {% get_verbose_label random_object field %}
                     </th>
                   {% elif "funding" in field %}
@@ -102,7 +102,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainRequestList.js' %}?version=0.3" type="application/javascript"></script>
+  <script src="{% static '/travel/mainRequestList.js' %}?version=0.5" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>

@@ -1,4 +1,4 @@
-{% extends "travel/base.html" %}
+{% extends "travel/form.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
@@ -8,22 +8,83 @@
 {% load humanize %}
 
 
-{% block subcontent %}
+{% block pre_form_div %}
   <hr>
   <div id="app">
     {% include "travel/common/_request_summary.html" %}
   </div>
 {% endblock %}
 
+
+
+{% block form_fields %}
+  <div class="mt-5">
+    {% for field in form %}
+      {% if field.name == 'comments' %}
+        <h3>{% trans "Please provide your approval comments here (required)" %}</h3>
+        {% bootstrap_field field show_label=False %}
+
+      {% else %}
+        {{ field }}
+      {% endif %}
+
+    {% endfor %}
+
+
+  </div>
+{% endblock %}
+
+{% block form_buttons %}
+
+  <div class="mb-5">
+    <a class="btn btn-secondary" id="save" href="#id_comments">
+      {% trans "Save comments" %}
+    </a>
+    <a class="btn btn-success" id="yes" href="#id_comments">
+      {% trans "I approve" %}
+    </a>
+    <a class="btn btn-danger" id="no" href="#id_comments">
+      {% trans "I do not approve" %}
+    </a>
+    <a class="btn" id="request_changes" href="#id_comments" style="background-color: orange">
+      {% trans "Request changes" %}
+    </a>
+    <a class="btn btn-primary" href="{% url 'travel:request_detail' object.request.id %}" target="_blank">
+      {% trans "Make changes yourself" %} <span class="mdi mdi-arrow-top-right text-light"></span>
+    </a>
+
+    <input type="submit" class="hidden">
+  </div>
+{% endblock %}
+
+
 {% block body_js %}
   {{ block.super }}
 
   <script type="application/javascript">
   var tripRequestId = {{ object.request.id }};
-  let travellerDeleteMsg = "{% trans 'Are you certain you want to delete this traveller? This action is irreversible!!' %}";
+  let travellerDeleteMsg = "{% trans 'Are you certain you want to delete this traveller? This action is irreversible!! \n\nIf you select yes, an administrative note recording this transaction will be added to this record.' %}";
   </script>
 
   <script src="{% static 'travel/mainRequestReviewer.js' %}?version=0.2"></script>
 
 
+  <script type="application/javascript">
+  $("#yes").click(function () {
+    $("#id_approved").val(true);
+    $("form").submit();
+  });
+  $("#no").click(function () {
+    $("#id_approved").val(false);
+    $("form").submit();
+  });
+  $("#save").click(function () {
+    $("#id_stay_on_page").val(1);
+    $("form").submit();
+  });
+  $("#request_changes").click(function () {
+    $("#id_changes_requested").val(true);
+    $("form").submit();
+  });
+  </script>
 {% endblock %}

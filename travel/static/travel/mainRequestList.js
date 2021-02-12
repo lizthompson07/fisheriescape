@@ -168,6 +168,9 @@ var app = new Vue({
         if (this.currentSort && this.currentSort.search("fiscal") > -1) {
           if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
           if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+        } else if (this.currentSort && this.currentSort.search("trip") > -1) {
+          if (a["trip"]["name"] < b["trip"]["name"]) return -1 * modifier;
+          if (a["trip"]["name"] > b["trip"]["name"]) return 1 * modifier;
         } else {
           if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
           if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
