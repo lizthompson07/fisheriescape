@@ -664,6 +664,7 @@ def get_request_field_list(tr=None, user=None):
         'fiscal_year',
         'created_by',
         'trip',
+        'traveller_count|{}'.format(_("number of travellers (this request)")),
         'status_string|{}'.format(_("Request status")),
         'section',
         'objective_of_event',

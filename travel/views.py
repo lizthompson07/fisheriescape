@@ -755,7 +755,7 @@ class TripRequestReviewerListView(TravelAccessRequiredMixin, CommonListView):
 class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
     model = models.Reviewer
     form_class = forms.ReviewerApprovalForm
-    template_name = 'travel/request_reviewer_detail.html'
+    template_name = 'travel/request_reviewer_update.html'
     home_url_name = "travel:index"
 
     def get_query_string(self):

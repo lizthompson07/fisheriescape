@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.template.defaultfilters import date
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView, get_object_or_404
@@ -10,6 +11,7 @@ from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section
 from . import serializers
 from .pagination import StandardResultsSetPagination
+from .permissions import CanModifyOrReadOnly
 from .. import models, utils
 
 
@@ -35,7 +37,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
 class TripRequestCostsListAPIView(ListAPIView):
     queryset = models.TripRequestCost.objects.all()
     serializer_class = serializers.TripRequestCostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [CanModifyOrReadOnly]
 
     def get_queryset(self):
         trip_request = models.TripRequest.objects.get(pk=self.kwargs.get("trip_request"))
@@ -45,7 +47,7 @@ class TripRequestCostsListAPIView(ListAPIView):
 class TripViewSet(viewsets.ModelViewSet):
     queryset = models.Conference.objects.all()
     serializer_class = serializers.TripSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [CanModifyOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -107,7 +109,7 @@ class TripViewSet(viewsets.ModelViewSet):
 class RequestViewSet(viewsets.ModelViewSet):
     queryset = models.TripRequest1.objects.all()
     serializer_class = serializers.TripRequestSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [CanModifyOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -165,9 +167,28 @@ class RequestViewSet(viewsets.ModelViewSet):
         serializer.save(last_modified_by=self.request.user)
 
 
+
+class TravellerViewSet(viewsets.ModelViewSet):
+    queryset = models.Traveller.objects.all()
+    serializer_class = serializers.TravellerSerializer
+    permission_classes = [CanModifyOrReadOnly]
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+    def perform_destroy(self, instance):
+        my_request = instance.request
+        super().perform_destroy(instance)
+        my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
+
+
 class RequestReviewListAPIView(ListAPIView):
     serializer_class = serializers.TripRequestReviewerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [CanModifyOrReadOnly]
 
     def get_queryset(self):
         qs = models.Reviewer.objects.all()

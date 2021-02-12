@@ -52,12 +52,13 @@
             {% endif %}
           </tr>
         {% endfor %}
+
         <tbody>
       </table>
 
       <div class="mb-3 card text-white bg-primary" v-if="request.admin_notes_html">
+        <div class="card-header">{% trans "Administrative Notes" %}</div>
         <div class="card-body">
-          <h5 class="card-title">{% trans "Administrative Notes" %}</h5>
           <p class="card-text" v-html="request.admin_notes_html"></p>
         </div>
       </div>

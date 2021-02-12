@@ -1061,7 +1061,15 @@ class TripRequest1(models.Model):
 
     @property
     def admin_notes_html(self):
-        return textile.textile(self.admin_notes)
+        if self.admin_notes:
+            return textile.textile(self.admin_notes)
+
+    def add_admin_note(self, msg):
+        if not self.admin_notes:
+            self.admin_notes = msg
+        else:
+            self.admin_notes += f'\n\n{msg}'
+        self.save()
 
     @property
     def request_title(self):
@@ -1171,6 +1179,10 @@ class TripRequest1(models.Model):
     def traveller_names(self):
         if self.travellers.exists():
             return listrify(set([item.smart_name for item in self.travellers.all()]))
+
+    @property
+    def traveller_count(self):
+        return self.travellers.count()
 
     @property
     def current_reviewer(self):

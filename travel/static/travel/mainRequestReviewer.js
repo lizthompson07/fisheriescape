@@ -19,7 +19,7 @@ var app = new Vue({
     deleteTraveller(traveller) {
       let userInput = confirm(travellerDeleteMsg);
       if (userInput) {
-        let endpoint = `/api/travel/traveller/${traveller.id}/`;
+        let endpoint = `/api/travel/travellers/${traveller.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
               console.log(response);
