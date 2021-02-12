@@ -813,11 +813,11 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
         # in this case, the reviewer status does not change but the request status will
         if not stay_on_page:
             if changes_requested:
-                my_reviewer.trip_request.status = 16
-                my_reviewer.trip_request.submitted = None
-                my_reviewer.trip_request.save()
+                my_reviewer.request.status = 16
+                my_reviewer.request.submitted = None
+                my_reviewer.request.save()
                 # send an email to the request owner
-                email = emails.ChangesRequestedEmail(my_reviewer.trip_request, self.request)
+                email = emails.ChangesRequestedEmail(my_reviewer.request, self.request)
                 # send the email object
                 custom_send_mail(
                     subject=email.subject,
@@ -832,17 +832,17 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
                 my_reviewer.status = 2
                 my_reviewer.status_date = timezone.now()
                 my_reviewer.save()
-            # if it was approved, then we change the reviewer status to 'approved'
+            # if it was not approved, then we change the reviewer status to 'denied'
             else:
                 my_reviewer.status = 3
                 my_reviewer.status_date = timezone.now()
                 my_reviewer.save()
 
-        # update any statuses if necessary
-        utils.approval_seeker(my_reviewer.trip_request, False, self.request)
+            # update any statuses if necessary
+            utils.approval_seeker(my_reviewer.request, False, self.request)
 
         if stay_on_page:
-            return HttpResponseRedirect(reverse("travel:request_reviewer_update", args=self.args) + self.get_query_string())
+            return HttpResponseRedirect(reverse("travel:request_reviewer_update", args=[my_reviewer.id]) + self.get_query_string())
         else:
             # the answer lies in the parent crumb...
             parent_crumb_url = self.get_parent_crumb().get("url")

@@ -25,42 +25,42 @@
           <span class="sr-only"></span>
         </div>
       </div>
-
-      <table v-else class="table table-sm" style="width: auto">
-        {% get_request_field_list tr=trip_request as request_field_list %}
-        {% for field in request_field_list %}
-          <tr>
-            <th style="width: 25%">
-              {% get_verbose_label trip_request field %}
-            </th>
-            {% if  field == 'trip' %}
-              <td v-html="request.trip.display"></td>
-            {% elif "|" in field %}
-              {% if "status" in field %}
-                <td>
-                  <span :class="request.status_class + ' px-1 py-1'">${request.status_display}</span>
-                </td>
-              {% else %}
-                {% if "cost" in field or "CAD" in field %}
-                  <td>${request.{{ field|get_attr }} | floatformat}</td>
-                {% else %}
-                  <td v-html="request.{{ field|get_attr }}"></td>
-                {% endif %}
-              {% endif %}
-            {% else %}
-              <td v-html="request.{{ field }}"></td>
-            {% endif %}
-          </tr>
-        {% endfor %}
-
-        <tbody>
-      </table>
-
-      <div class="mb-3 card text-white bg-primary" v-if="request.admin_notes_html">
-        <div class="card-header">{% trans "Administrative Notes" %}</div>
-        <div class="card-body">
-          <p class="card-text" v-html="request.admin_notes_html"></p>
+      <div v-else>
+        <div class="mb-3 card admin-notes" v-if="request.admin_notes_html">
+          <div class="card-header">{% trans "Administrative Notes" %}</div>
+          <div class="card-body">
+            <p class="card-text" v-html="request.admin_notes_html"></p>
+          </div>
         </div>
+        <table class="table table-sm" style="width: auto">
+          {% get_request_field_list tr=trip_request as request_field_list %}
+          {% for field in request_field_list %}
+            <tr>
+              <th style="width: 25%">
+                {% get_verbose_label trip_request field %}
+              </th>
+              {% if  field == 'trip' %}
+                <td v-html="request.trip.display"></td>
+              {% elif "|" in field %}
+                {% if "status" in field %}
+                  <td>
+                    <span :class="request.status_class + ' px-1 py-1'">${request.status_display}</span>
+                  </td>
+                {% else %}
+                  {% if "cost" in field or "CAD" in field %}
+                    <td>${request.{{ field|get_attr }} | floatformat}</td>
+                  {% else %}
+                    <td v-html="request.{{ field|get_attr }}"></td>
+                  {% endif %}
+                {% endif %}
+              {% else %}
+                <td v-html="request.{{ field }}"></td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+
+          <tbody>
+        </table>
       </div>
 
 
@@ -116,6 +116,7 @@
                     </div>
                     <h4 class="card-title">${t.smart_name} ${t.hide}</h4>
                     <div v-if="!t.hide_me" class="card-text">
+                      <hr>
                       <div class="mb-3">
                         <span v-html="t.traveller_info"></span>
                       </div>

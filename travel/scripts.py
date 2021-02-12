@@ -256,7 +256,7 @@ def copy_old_tables_to_new():
             print("assigning to Amelie")
             lead = User.objects.get(id=385)
 
-        new_request, created = models.Request.objects.get_or_create(
+        new_request, created = models.TripRequest1.objects.get_or_create(
             id=old_request.id,
             trip=old_request.trip,
             lead=lead,
