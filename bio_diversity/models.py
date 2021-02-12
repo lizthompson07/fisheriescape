@@ -395,7 +395,8 @@ class EnvCondition(BioTimeModel):
                                  related_name="env_condition", verbose_name=_("Container Cross Reference"))
     loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, null=True, blank=True,
                                verbose_name=_("Location"), related_name="env_condition")
-    inst_id = models.ForeignKey('Instrument', on_delete=models.CASCADE, verbose_name=_("Instrument"))
+    inst_id = models.ForeignKey('Instrument', on_delete=models.CASCADE, null=True, blank=True,
+                                verbose_name=_("Instrument"))
     envc_id = models.ForeignKey('EnvCode', on_delete=models.CASCADE, verbose_name=_("Environment variable"))
     env_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
     envsc_id = models.ForeignKey('EnvSubjCode', on_delete=models.CASCADE, null=True, blank=True,
@@ -987,6 +988,7 @@ class PersonnelCode(BioModel):
     # perc tag
     perc_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"))
     perc_first_name = models.CharField(max_length=32, verbose_name=_("First Name"))
+    initials = models.CharField(max_length=4, verbose_name=_("Initials"), blank=True, null=True)
     perc_valid = models.BooleanField(default="False", verbose_name=_("Record still valid?"))
 
     def __str__(self):
@@ -1103,7 +1105,7 @@ class QualCode(BioLookup):
 
 
 class ReleaseSiteCode(BioLookup):
-    # Relc tag
+    # relc tag
     rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"))
     trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Tributary"))

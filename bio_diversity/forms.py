@@ -260,7 +260,6 @@ class DataForm(CreatePrams):
 
                     if not math.isnan(row["temp"]):
                         env = models.EnvCondition(loc_id_id=loc.pk,
-                                                  inst_id=models.Instrument.objects.first(),
                                                   envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
                                                   env_val=row["temp"],
                                                   start_datetime=datetime.strptime(row["Date"], "%Y-%b-%d"),

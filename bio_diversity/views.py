@@ -1112,7 +1112,7 @@ class PairDetails(mixins.PairMixin, CommonDetails):
 
 
 class PercDetails(mixins.PercMixin, CommonDetails):
-    fields = ["perc_first_name", "perc_last_name", "perc_valid", "created_by", "created_date", ]
+    fields = ["perc_first_name", "perc_last_name", "initials", "perc_valid", "created_by", "created_date", ]
 
 
 class PrioDetails(mixins.PrioMixin, CommonDetails):

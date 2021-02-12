@@ -431,7 +431,7 @@ class RelcMixin:
     key = 'relc'
     model = models.ReleaseSiteCode
     form_class = forms.RelcForm
-    title = _("Release Site Code")
+    title = _("Site Code")
     admin_only = True
 
 

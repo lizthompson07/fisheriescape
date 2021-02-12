@@ -3002,7 +3002,6 @@ class TestGrpdDetailView(CommonTest):
 
     def test_context(self):
         context_vars = [
-            "anix_id",
             "anidc_id",
             "det_val",
             "adsc_id",
@@ -3637,7 +3636,6 @@ class TestIndvdDetailView(CommonTest):
 
     def test_context(self):
         context_vars = [
-            "anix_id",
             "anidc_id",
             "det_val",
             "adsc_id",
