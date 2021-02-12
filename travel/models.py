@@ -1047,7 +1047,7 @@ class TripRequest1(models.Model):
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("what are the benefits to DFO?"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("justification for late submissions"))
-    funding_source = models.TextField(blank=True, null=True, verbose_name=_("what is the funding source?"))
+    funding_source = models.TextField(blank=True, null=True, verbose_name=_("what is the DFO funding source?"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes (optional)"))
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
 
@@ -1136,76 +1136,19 @@ class TripRequest1(models.Model):
         return my_str
 
     @property
-    def cost_breakdown_html(self):
-        """used for display on group traveller detail page"""
-        my_str = ""
-        for tr_cost in self.trip_request_costs.all():
-            if tr_cost.amount_cad:
-                if tr_cost.rate_cad:
-                    my_str += "<b>{}</b>: ${:,.2f}  ({} x {:,.2f})<br>".format(
-                        tr_cost.cost,
-                        nz(tr_cost.amount_cad, 0),
-                        nz(tr_cost.number_of_days, 0),
-                        nz(tr_cost.rate_cad, 0),
-                    )
-                else:
-                    my_str += "<b>{}</b>: ${:,.2f}<br> ".format(tr_cost.cost, tr_cost.amount_cad)
-        return my_str
-
-    @property
-    def cost_table(self):
-        cost_list = [
-            "air",
-            "rail",
-            "rental_motor_vehicle",
-            "personal_motor_vehicle",
-            "taxi",
-            "other_transport",
-            "accommodations",
-            "breakfasts",
-            "lunches",
-            "suppers",
-            "incidentals",
-            "registration",
-            "other",
-        ]
-        my_str = "<table class='plainjane' style='width: 40%'>"
-        my_str += "<tr class='plainjane'><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
-            _("Cost category"), _("Amount (CAD)"))
-        for cost in cost_list:
-            if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
-                my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{} ({} &times; {})</td></tr>".format(
-                    get_verbose_label(self, cost),
-                    nz(currency(getattr(self, cost)), "---"),
-                    nz(getattr(self, "no_" + cost), "---"),
-                    nz(currency(getattr(self, cost + "_rate")), "---"),
-                )
-            else:
-                my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{}</td></tr>".format(
-                    get_verbose_label(self, cost), nz(currency(getattr(self, cost)), "---"))
-
-        my_str += "<tr><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
-            _("TOTAL"), nz(currency(self.total_request_cost), "---"))
-        my_str += "</table>"
-        return mark_safe(my_str)
-
-    @property
-    def total_cost(self):
+    def total_request_cost(self):
         """ this is the total cost for the request. Does not include any children"""
-        object_list = self.costs.all()
+        object_list = TripRequestCost.objects.filter(traveller__request=self)
         return nz(object_list.values("amount_cad").order_by("amount_cad").aggregate(dsum=Sum("amount_cad"))['dsum'], 0)
 
     @property
     def total_non_dfo_funding(self):
         """
-        this is the total non dfo funding. for individual requests, it is simply the non_dfo_costs field.
+        this is the total non dfo funding. for all travellers, it is simply the non_dfo_costs field, summed.
         for group request, it is this summed over all children requests
         """
-        if self.is_group_request:
-            object_list = self.children_requests.all()
-            return sum([nz(item.non_dfo_costs, 0) for item in object_list])
-        else:
-            return nz(self.non_dfo_costs, 0)
+        object_list = self.travellers.all()
+        return nz(object_list.values("non_dfo_costs").order_by("non_dfo_costs").aggregate(dsum=Sum("non_dfo_costs"))['dsum'], 0)
 
     @property
     def total_dfo_funding(self):
@@ -1220,11 +1163,14 @@ class TripRequest1(models.Model):
         """
         this is a comprehensive list of the non-dfo funding sources
         """
-        return listrify(set([item.non_dfo_org for item in self.travellers.all()]))
+        qs = self.travellers.filter(non_dfo_org__isnull=False)
+        if qs.exists():
+            return listrify(set([item.non_dfo_org for item in qs]))
 
     @property
     def traveller_names(self):
-        return listrify(set([item.smart_name for item in self.travellers.all()]))
+        if self.travellers.exists():
+            return listrify(set([item.smart_name for item in self.travellers.all()]))
 
     @property
     def current_reviewer(self):
@@ -1322,16 +1268,17 @@ class Traveller(models.Model):
 
     @property
     def long_role(self):
-        mystr = str(self.role)
-        if self.role_of_participant:
-            mystr += f" &mdash; {self.role_of_participant}"
-        return mark_safe(mystr)
+        if self.role or self.role_of_participant:
+            mystr = str(self.role)
+            if self.role_of_participant:
+                mystr += f" &mdash; {self.role_of_participant}"
+            return mark_safe(mystr)
 
     def __str__(self):
         return self.smart_name
 
     class Meta:
-        ordering = ["-start_date", "last_name"]
+        ordering = ["first_name", "last_name"]
         unique_together = [("user", "request"), ]
         verbose_name = _("trip request")
 
@@ -1365,56 +1312,24 @@ class Traveller(models.Model):
     @property
     def cost_breakdown_html(self):
         """used for display on group traveller detail page"""
-        my_str = ""
-        for tr_cost in self.trip_request_costs.all():
+        my_str = "<table class='mt-3 simple-table'><tbody>"
+        my_str += "<tr><th>{}</th><th>{}</td></tr>".format(_("Cost"), _("Amount"))
+        for tr_cost in self.costs.all():
             if tr_cost.amount_cad:
                 if tr_cost.rate_cad:
-                    my_str += "<b>{}</b>: ${:,.2f}  ({} x {:,.2f})<br>".format(
+                    my_str += "<tr><td>{}</td> <td> ${:,.2f}  ({} x {:,.2f})<td></tr>".format(
                         tr_cost.cost,
                         nz(tr_cost.amount_cad, 0),
                         nz(tr_cost.number_of_days, 0),
                         nz(tr_cost.rate_cad, 0),
                     )
                 else:
-                    my_str += "<b>{}</b>: ${:,.2f}<br> ".format(tr_cost.cost, tr_cost.amount_cad)
-        return my_str
+                    my_str += "<tr><td>{}</td> <td> ${:,.2f}</td><tr> ".format(tr_cost.cost, tr_cost.amount_cad)
 
-    @property
-    def cost_table(self):
-        cost_list = [
-            "air",
-            "rail",
-            "rental_motor_vehicle",
-            "personal_motor_vehicle",
-            "taxi",
-            "other_transport",
-            "accommodations",
-            "breakfasts",
-            "lunches",
-            "suppers",
-            "incidentals",
-            "registration",
-            "other",
-        ]
-        my_str = "<table class='plainjane' style='width: 40%'>"
-        my_str += "<tr class='plainjane'><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
-            _("Cost category"), _("Amount (CAD)"))
-        for cost in cost_list:
-            if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
-                my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{} ({} &times; {})</td></tr>".format(
-                    get_verbose_label(self, cost),
-                    nz(currency(getattr(self, cost)), "---"),
-                    nz(getattr(self, "no_" + cost), "---"),
-                    nz(currency(getattr(self, cost + "_rate")), "---"),
-                )
-            else:
-                my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{}</td></tr>".format(
-                    get_verbose_label(self, cost), nz(currency(getattr(self, cost)), "---"))
-
-        my_str += "<tr><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
-            _("TOTAL"), nz(currency(self.total_request_cost), "---"))
+        my_str += "<tr><th>{}</th><th> ${:,.2f}</td></tr>".format(_("TOTAL"), self.total_cost)
+        my_str += "</tbody></table>"
         my_str += "</table>"
-        return mark_safe(my_str)
+        return my_str
 
     @property
     def total_cost(self):
@@ -1468,7 +1383,7 @@ class Traveller(models.Model):
             return f'{self.first_name} {self.last_name}'
 
     @property
-    def requester_info(self):
+    def traveller_info(self):
         company = nz(self.company_name, "<span class='red-font'>{}</span>".format(gettext('missing company name')))
         address = nz(self.address, "<span class='red-font'>{}</span>".format(_('missing address')))
         phone = nz(self.phone, "<span class='red-font'>{}</span>".format(_('missing phone number')))
@@ -1476,10 +1391,10 @@ class Traveller(models.Model):
                    "<span class='red-font'>{}</span>".format(_('missing email address')))
         mystr = ""
         if not self.is_public_servant:
-            mystr += "<u>{}</u>: {}<br>".format(gettext("Company"), company)
-        mystr += "<u>{}</u>: {}<br>".format(gettext("Address"), address)
-        mystr += "<u>{}</u>: {}<br>".format(gettext("Phone"), phone)
-        mystr += "<u>{}</u>: {}<br>".format(gettext("Email"), email)
+            mystr += "<p><b>{}</b>: {}<br></p>".format(gettext("Company"), company)
+        mystr += "<p><b>{}</b>: {}<br></p>".format(gettext("Address"), address)
+        mystr += "<p><b>{}</b>: {}<br></p>".format(gettext("Phone"), phone)
+        mystr += "<p><b>{}</b>: {}<br></p>".format(gettext("Email"), email)
         return mark_safe(mystr)
 
 

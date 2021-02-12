@@ -108,54 +108,6 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         return context
 
 
-request_field_list = [
-    'fiscal_year',
-    'trip',
-    'requester_name|{}'.format(gettext_lazy("Traveller name")),
-    'requester_info|{}'.format(gettext_lazy("Traveller information")),
-    'is_public_servant',
-    'status_string|{}'.format(gettext_lazy("Request status")),
-    'section',
-    'region',
-    'to_from|{}'.format(gettext_lazy("Departure location / Destination")),
-    'dates|{}'.format(gettext_lazy("Travel dates")),
-    'objective_of_event',
-    'benefit_to_dfo',
-    # 'reason',
-    'long_role|{}'.format(gettext_lazy("Role of participant")),
-    'learning_plan',
-    'late_justification',
-    'bta_attendees',
-    'total_dfo_funding|{}'.format(gettext_lazy("Total amount of DFO funding (CAD)")),
-    'funding_source',
-    'total_non_dfo_funding|{}'.format(gettext_lazy("Total amount of non-DFO funding (CAD)")),
-    'total_non_dfo_funding_sources|{}'.format(gettext_lazy("Non-DFO funding sources")),
-    'total_request_cost|{}'.format(gettext_lazy("Total costs")),
-    'original_submission_date',
-    'processing_time|{}'.format(gettext_lazy("Processing time")),
-    'created_by',
-    'notes',
-]
-
-traveller_field_list = [
-    'requester_info|{}'.format(gettext_lazy("Traveller information")),
-    'is_public_servant',
-    'region',
-    'is_research_scientist|{}'.format(gettext_lazy("RES?")),
-    'objective_of_event',
-    'benefit_to_dfo',
-    'start_date',
-    'end_date',
-    'departure_location',
-    # 'reason',
-    'long_role|{}'.format(gettext_lazy("Role of participant")),
-    'learning_plan',
-    'funding_source',
-    'total_dfo_funding|{}'.format(gettext_lazy("Total amount of DFO funding (CAD)")),
-    'total_non_dfo_funding|{}'.format(gettext_lazy("Total amount of non-DFO funding (CAD)")),
-    'total_non_dfo_funding_sources|{}'.format(gettext_lazy("Non-DFO funding sources")),
-    'total_request_cost|{}'.format(gettext_lazy("Total costs")),
-]
 
 request_group_field_list = [
     'fiscal_year',
@@ -830,6 +782,9 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["trip_request"] = self.get_object().request
+        context['help_text_dict'] = get_help_text_dict()
+
         # my_object = self.get_object()
         # context["field_list"] = request_field_list if not my_object.trip_request.is_group_request else request_group_field_list
         # context["child_field_list"] = request_child_field_list
@@ -838,7 +793,6 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
         #
         # context["conf_field_list"] = conf_field_list
         # context["cost_field_list"] = cost_field_list
-        # context['help_text_dict'] = get_help_text_dict()
         # context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().trip_request.reviewers.all()]
         # context["trip"] = my_object.trip_request.trip
         # context["triprequest"] = my_object.trip_request

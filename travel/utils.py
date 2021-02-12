@@ -657,3 +657,42 @@ def upload_to_azure_blob(target_file_path, target_file):
         token_credential = None
     blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential, account_key=account_key)
     blobService.create_blob_from_path('media', target_file, target_file_path)
+
+
+def get_request_field_list(tr=None, user=None):
+    my_list = [
+        'fiscal_year',
+        'created_by',
+        'trip',
+        'status_string|{}'.format(_("Request status")),
+        'section',
+        'objective_of_event',
+        'benefit_to_dfo',
+        'bta_attendees',
+        'total_request_cost|{}'.format(_("Total costs")),
+        'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding (CAD)")),
+        'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
+        'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
+        'funding_source',
+        'original_submission_date',
+        'processing_time|{}'.format(_("Processing time")),
+        'notes',
+        'late_justification' if not tr or (tr and tr.is_late_request) else None,
+    ]
+
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+def get_traveller_field_list():
+    my_list = [
+        'is_public_servant',
+        'is_research_scientist|{}'.format(_("Is research scientist?")),
+        'dates|{}'.format(_("dates of travel")),
+        'departure_location',
+        'role',
+        'role_of_participant',
+        'learning_plan',
+        'cost_breakdown_html|{}'.format(_("cost breakdown:")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list

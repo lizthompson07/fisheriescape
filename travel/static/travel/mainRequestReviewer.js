@@ -2,10 +2,8 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
-    loading_trip: true,
     loading_request: true,
 
-    trip: {},
     request: {},
   },
   methods: {
@@ -16,22 +14,32 @@ var app = new Vue({
           .then(response => {
             this.loading_request = false;
             this.request = response;
-            this.getTrip(this.request.trip.id)
           })
     },
-    getTrip(tripId) {
-      this.loading_costs = true;
-      let endpoint = `/api/travel/trips/${tripId}/`;
-      apiService(endpoint)
-          .then(response => {
-            this.loading_trip = false;
-            this.trip = response;
-          })
+    deleteTraveller(traveller) {
+      let userInput = confirm(travellerDeleteMsg);
+      if (userInput) {
+        let endpoint = `/api/travel/traveller/${traveller.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              console.log(response);
+              this.getRequest();
+            })
+      }
     },
+    expandTravellers() {
+      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = false;
+      this.$forceUpdate()
+    },
+    collapseTravellers() {
+      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = true;
+      this.$forceUpdate()
+    }
+
   },
   filters: {
     floatformat: function (value, precision = 2) {
-      if (!value) return '';
+      if (!value) return '---';
       value = value.toFixed(precision);
       return value
     },
@@ -63,9 +71,7 @@ var app = new Vue({
       return value;
     }
   },
-  computed: {
-
-  },
+  computed: {},
   created() {
     this.getRequest()
   },
