@@ -16,8 +16,8 @@
 {% endblock %}
 
 {% block table_tr %}
-  {% url row_object_url_name object.id as my_url %}
-  <tr href="{{ my_url }}">
+
+  <tr href="{% url row_object_url_name object.id%}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">
     {% for field in field_list %}
       <td>{% get_field_value object.request field.name format="currency" %}</td>
     {% endfor %}

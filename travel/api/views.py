@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django.utils import timezone
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -42,10 +42,11 @@ class TripRequestCostsListAPIView(ListAPIView):
         return trip_request.trip_request_costs.all()
 
 
-class TripListAPIView(ListAPIView):
-    pagination_class = StandardResultsSetPagination
+class TripViewSet(viewsets.ModelViewSet):
+    queryset = models.Conference.objects.all()
     serializer_class = serializers.TripSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         qs = models.Conference.objects.all()
@@ -56,7 +57,7 @@ class TripListAPIView(ListAPIView):
             qs = utils.get_adm_eligible_trips()
         elif qp.get("regional-verification") and utils.is_admin(self.request.user):
             qs = qs.filter(is_adm_approval_required=False, status=30)
-        elif qp.get("all") and utils.is_admin(self.request.user):
+        elif qp.get("all"):  # and utils.is_admin(self.request.user):  # we cannot really restrict this otherwise certain views will not work!!
             qs = qs
         else:
             qs = qs.filter(start_date__gte=timezone.now())
@@ -93,11 +94,18 @@ class TripListAPIView(ListAPIView):
                     qs = qs.filter(trip_subcategory=input)
         return qs
 
+    def perform_create(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
 
-class RequestListAPIView(ListAPIView):
-    pagination_class = StandardResultsSetPagination
+    def perform_update(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+
+class RequestViewSet(viewsets.ModelViewSet):
+    queryset = models.TripRequest1.objects.all()
     serializer_class = serializers.TripRequestSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         qp = self.request.query_params
@@ -140,6 +148,12 @@ class RequestListAPIView(ListAPIView):
                 elif filter == "section":
                     qs = qs.filter(section_id=input)
         return qs
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
 
 
 class RequestReviewListAPIView(ListAPIView):

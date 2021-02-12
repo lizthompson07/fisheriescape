@@ -4,13 +4,16 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-# router.register(r'project-years', views.ProjectYearViewSet)
+router.register(r'trips', views.TripViewSet)
+router.register(r'requests', views.RequestViewSet)
 
 urlpatterns = [
-    # path("", include(router.urls)),
+    path("travel/", include(router.urls)),
     path("travel/user/", views.CurrentTravelUserAPIView.as_view(), name="travel-current-user"),
-    path("travel/trips/", views.TripListAPIView.as_view(), name="trip-list"),
-    path("travel/requests/", views.RequestListAPIView.as_view(), name="request-list"),
+
+
+    # path("travel/trips/", views.TripListAPIView.as_view(), name="trip-list"),
+    # path("travel/requests/", views.RequestListAPIView.as_view(), name="request-list"),
     path("travel/request-reviews/", views.RequestReviewListAPIView.as_view(), name="request-review-list"),
 
 

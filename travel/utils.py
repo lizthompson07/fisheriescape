@@ -635,7 +635,7 @@ user_attr_list = [
 
 def is_manager_or_assistant_or_admin(user):
     # start high and go low
-    if in_travel_admin_group(user) or in_adm_admin_group(user):
+    if is_admin(user):
         return True
 
     for attr in user_attr_list:

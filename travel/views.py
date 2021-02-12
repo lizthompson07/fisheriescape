@@ -783,7 +783,7 @@ class TripRequestReviewerListView(TravelAccessRequiredMixin, CommonListView):
     model = models.Reviewer
     template_name = 'travel/request_reviewer_list.html'
     home_url_name = "travel:index"
-    h1= gettext_lazy("Requests Awaiting Your Review")
+    h1 = gettext_lazy("Requests Awaiting Your Review")
     field_list = [
         {"name": 'created_by|{}'.format(_("created by")), "class": "", "width": ""},
         {"name": 'status_string|{}'.format(_("Request status")), "class": "", "width": ""},
@@ -791,7 +791,6 @@ class TripRequestReviewerListView(TravelAccessRequiredMixin, CommonListView):
         {"name": 'processing_time|{}'.format(_("current processing time")), "class": "", "width": ""},
     ]
     row_object_url_name = "travel:request_reviewer_update"
-
 
     def get_queryset(self):
         return utils.get_trip_request_reviews(self.request.user)
@@ -804,31 +803,24 @@ class TripRequestReviewerListView(TravelAccessRequiredMixin, CommonListView):
 class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
     model = models.Reviewer
     form_class = forms.ReviewerApprovalForm
-    template_name = 'travel/reviewer_approval_form.html'
+    template_name = 'travel/request_reviewer_detail.html'
     home_url_name = "travel:index"
 
+    def get_query_string(self):
+        if nz(self.request.META['QUERY_STRING'], None):
+            return "?" + self.request.META['QUERY_STRING']
+        return ""
+
     def get_h1(self):
-        if self.get_object().role in [5, 6, ]:
+        if self.request.GET.get("rdg"):
             return _("Do you wish to approve on behalf of {user} ({role})".format(
                 user=self.get_object().trip_request.current_reviewer.user,
                 role=self.get_object().trip_request.current_reviewer.get_role_display(),
             ))
-        else:
-            if self.get_object().trip_request.is_group_request:
-                return _("Do you wish to approve the following group request?")
-            else:
-                return _("Do you wish to approve the following request?")
+        return _("Do you wish to approve the following request?")
 
     def get_parent_crumb(self):
-        role = self.get_object().role
-        if role in [5, 6, ]:
-            txt = _("Admin Request Approval List") + f' ({self.get_object().get_role_display()})'
-            kwargs = {"type": self.get_object().get_role_display().lower(),
-                      "region": self.get_object().trip_request.section.division.branch.region.id}
-            return {"title": txt, "url": reverse("travel:admin_approval_list", kwargs=kwargs)}
-        else:
-            return {"title": _("Requests Awaiting Your Review"),
-                    "url": reverse("travel:request_review_list", kwargs={"which_ones": "awaiting"})}
+        return {"title": _("Requests Awaiting Review"), "url": reverse("travel:request_reviewer_list") + self.get_query_string()}
 
     def test_func(self):
         my_trip_request = self.get_object().trip_request
@@ -838,22 +830,22 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_object = self.get_object()
-        context["field_list"] = request_field_list if not my_object.trip_request.is_group_request else request_group_field_list
-        context["child_field_list"] = request_child_field_list
-        context["reviewer_field_list"] = reviewer_field_list
-        context["traveller_field_list"] = traveller_field_list
-
-        context["conf_field_list"] = conf_field_list
-        context["cost_field_list"] = cost_field_list
-        context['help_text_dict'] = get_help_text_dict()
-        context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().trip_request.reviewers.all()]
-        context["trip"] = my_object.trip_request.trip
-        context["triprequest"] = my_object.trip_request
-        context["report_mode"] = True
-        if my_object.role in [5, 6, ]:
-            context["admin"] = True
-            context["type_bilingual"] = _(self.kwargs.get("type")).upper()
+        # my_object = self.get_object()
+        # context["field_list"] = request_field_list if not my_object.trip_request.is_group_request else request_group_field_list
+        # context["child_field_list"] = request_child_field_list
+        # context["reviewer_field_list"] = reviewer_field_list
+        # context["traveller_field_list"] = traveller_field_list
+        #
+        # context["conf_field_list"] = conf_field_list
+        # context["cost_field_list"] = cost_field_list
+        # context['help_text_dict'] = get_help_text_dict()
+        # context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().trip_request.reviewers.all()]
+        # context["trip"] = my_object.trip_request.trip
+        # context["triprequest"] = my_object.trip_request
+        # context["report_mode"] = True
+        # if my_object.role in [5, 6, ]:
+        #     context["admin"] = True
+        #     context["type_bilingual"] = _(self.kwargs.get("type")).upper()
         return context
 
     def form_valid(self, form):
@@ -896,13 +888,11 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
         utils.approval_seeker(my_reviewer.trip_request, False, self.request)
 
         if stay_on_page:
-            return HttpResponseRedirect(reverse("travel:tr_review_update", kwargs=self.kwargs))
+            return HttpResponseRedirect(reverse("travel:request_reviewer_update", args=self.args) + self.get_query_string())
         else:
             # the answer lies in the parent crumb...
             parent_crumb_url = self.get_parent_crumb().get("url")
             return HttpResponseRedirect(parent_crumb_url)
-
-
 
 
 class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, CommonListView):
@@ -1055,7 +1045,6 @@ class TripRequestReviewerADMUpdateView(AdminOrApproverRequiredMixin, CommonPopou
             pass
 
         return HttpResponseRedirect(self.get_success_url())
-
 
 
 class SkipReviewerUpdateView(TravelAdminRequiredMixin, CommonPopoutUpdateView):
