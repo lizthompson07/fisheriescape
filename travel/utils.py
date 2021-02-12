@@ -25,6 +25,10 @@ def in_adm_admin_group(user):
         return user.groups.filter(name='travel_adm_admin').count() != 0
 
 
+def is_admin(user):
+    return in_adm_admin_group(user) or in_travel_admin_group(user)
+
+
 def is_approver(user, trip_request):
     if trip_request.current_reviewer and user == trip_request.current_reviewer.user:
         return True
@@ -592,12 +596,13 @@ def get_related_requests(user):
 def get_trip_request_reviews(user):
     """give me a user and I'll send back a queryset with all related trips request reviews that are actionable (pending)
      (excluding drafts (8), ADM approval (14) and when changes have already been requested (16)"""
-    qs = models.Reviewer.objects.filter(status=1).filter(~Q(request__status__in=[16, 14, 8])).distinct()
+    qs = models.Reviewer.objects.filter(status=1).filter(~Q(request__status__in=[16, 14, 8]), user=user).distinct()
     return qs
+
 
 def get_trip_reviews(user):
     """give me a user and I'll send back a queryset with all related trips reviews that are actionable (pending = 25)"""
-    qs = models.TripReviewer.objects.filter(status=25)
+    qs = models.TripReviewer.objects.filter(status=25, user=user)
     return qs
 
 

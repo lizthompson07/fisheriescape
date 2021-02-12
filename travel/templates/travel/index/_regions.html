@@ -13,7 +13,7 @@
     </a>
 
     {# Verification #}
-    <a href="{% url 'travel:trip-verify-list' %}?adm=true" class="btn btn-lg btn-outline-primary mx-3">
+    <a href="{% url 'travel:trip_list' %}?regional-verification=true" class="btn btn-lg btn-outline-primary mx-3">
       {% trans "Trip Verifications" %}
       (<span :class="{'red-font blink-me':regionalVerificationCount>0}">${  regionalVerificationCount }</span>)
     </a>

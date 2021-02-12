@@ -1,0 +1,27 @@
+{% extends "travel/list.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+  {% if not object_list.count %}
+    <div class="center-col">
+      <img src="{% static 'travel/you_are_done.png' %}" alt="">
+      <h3>{% trans "Way to go! You're all done here" %} :)</h3>
+    </div>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block table_tr %}
+  {% url row_object_url_name object.id as my_url %}
+  <tr href="{{ my_url }}">
+    {% for field in field_list %}
+      <td>{% get_field_value object.request field.name format="currency" %}</td>
+    {% endfor %}
+  </tr>
+{% endblock %}
+
+

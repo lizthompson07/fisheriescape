@@ -55,12 +55,12 @@ var app = new Vue({
     getADMTrips() {
       this.loading_adm_verification_list = true;
       this.loading_adm_hit_list = true;
-      apiService(`/api/travel/trips/?adm_verification=true`)
+      apiService(`/api/travel/trips/?adm-verification=true`)
           .then(response => {
             this.loading_adm_verification_list = false;
             this.admVerificationCount = response.count;
           })
-      apiService(`/api/travel/trips/?adm_hit_list=true`)
+      apiService(`/api/travel/trips/?adm-hit-list=true`)
           .then(response => {
             this.loading_adm_hit_list = false;
             this.admHitCount = response.count;
@@ -69,15 +69,14 @@ var app = new Vue({
     getRegionalAdminStuff() {
       this.loading_regional_verification_list = true;
       this.loading_rdg_approval_list = true;
-      apiService(`/api/travel/trips/?regional_verification=true`)
+      apiService(`/api/travel/trips/?regional-verification=true`)
           .then(response => {
-            console.log(response)
             this.loading_regional_verification_list = false;
+            console.log(response)
             this.regionalVerificationCount = response.count;
           })
       apiService(`/api/travel/request-reviews/?rdg=true`)
           .then(response => {
-            console.log(response)
             this.loading_rdg_approval_list = false;
             if (response.count) this.regionalRDGApprovalCount = response.count;
           })

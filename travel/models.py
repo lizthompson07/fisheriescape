@@ -270,6 +270,13 @@ class Conference(models.Model):
                                                         blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        # if the trip is verified but the status isn't for some reason, make it so
+        if self.is_verified and self.status == 30:
+            self.status = 41
+        # and vice versa
+        if self.status == 31 and not self.is_verified:
+            self.is_verified = True
+
         self.fiscal_year = shared_models.FiscalYear.objects.get(
             pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
 
@@ -1230,7 +1237,7 @@ class TripRequest1(models.Model):
         #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
         if self.status not in [11, 8, ] and self.current_reviewer:
             my_str += " {} {}".format(_("by"), self.current_reviewer.user)
-        return my_str
+        return mark_safe(f"<span class='px-1 py-1 {slugify(self.get_status_display())}'>{my_str}</span>")
 
     @property
     def adm(self):

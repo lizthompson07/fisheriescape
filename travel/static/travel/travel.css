@@ -99,7 +99,14 @@ table, td {
     background-color: #f58c84;
 }
 
-
+.clickable {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+}
+.pointy {
+    cursor: pointer;
+}
 
 
 
