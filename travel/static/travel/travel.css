@@ -99,11 +99,52 @@ table, td {
     background-color: #f58c84;
 }
 
+.clickable {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+}
+
+.pointy {
+    cursor: pointer;
+}
+
+.lightgrey {
+    background-color: #e5e2e2;
+}
+
+.simple-table tbody tr td {
+    border: 1px solid black;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 5px;
+}
+
+.simple-table tbody tr th {
+    border: 1px solid black;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 5px
+}
+
+.simple-table tbody tr {
+    border: 1px solid black;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 5px
+}
 
 
-
-
-
-
-
-
+.traveller-card {
+    cursor: pointer;
+    background-color: #eeeeee;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    width: 500px;
+    margin: 10px;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+}

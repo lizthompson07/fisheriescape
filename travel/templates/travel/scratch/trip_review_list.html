@@ -15,13 +15,8 @@
 {% endblock %}
 
 {% block table_tr %}
-    {% if view.kwargs.which_ones == "awaiting" %}
-        {% url row_object_url_name object.current_reviewer.id as my_url %}
-    {% else %}
-        {% url row_object_url_name object.id "tagged" as my_url %}
-    {% endif %}
-
-
+  {{ object }}
+    {% url row_object_url_name object.id %}
     <tr href="{{ my_url }}">
         {% for field in field_list %}
             <td class="{{ field.class }}">

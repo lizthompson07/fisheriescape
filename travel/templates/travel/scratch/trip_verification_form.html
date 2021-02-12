@@ -295,7 +295,7 @@
                     </a>
                     </span>
                 <a class="btn btn-secondary"
-                   href="{{ request.META.HTTP_REFERER }}">
+                   href="{% url 'travel:admin_trip_verification_list' view.kwargs.region view.kwargs.adm %}">
                     {% trans "Back" %}
                 </a>
             {% endbuttons %}

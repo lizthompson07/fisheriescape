@@ -25,6 +25,10 @@ def in_adm_admin_group(user):
         return user.groups.filter(name='travel_adm_admin').count() != 0
 
 
+def is_admin(user):
+    return in_adm_admin_group(user) or in_travel_admin_group(user)
+
+
 def is_approver(user, trip_request):
     if trip_request.current_reviewer and user == trip_request.current_reviewer.user:
         return True
@@ -48,32 +52,24 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
     :return:
     """
     if user.id:
-        my_trip_request = models.TripRequest.objects.get(pk=trip_request_id)
+        my_request = models.TripRequest1.objects.get(pk=trip_request_id)
 
-        # check to see if a travel_admin
-        if in_travel_admin_group(user):
+        # check to see if a travel_admin or ADM admin
+        if is_admin(user):
             return True
 
         # check to see if they are the active reviewer
         # determine if this is a child trip or not.
-        if not my_trip_request.parent_request:
-            if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
-                return True
-        # This is a child trip request
-        else:
-            if my_trip_request.parent_request.current_reviewer and my_trip_request.parent_request.current_reviewer.user == user:
-                return True
+        if get_related_request_reviewers(user).filter(request_id=trip_request_id).exists():
+            return True
+
         # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are either the owner OR a traveller
         # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
-        if not my_trip_request.submitted and \
-                (not my_trip_request.user or  # anybody can edit
-                 my_trip_request.user == user or  # the user is the traveller and / or requester
-                 user in my_trip_request.travellers or  # the user is a traveller on the trip
-                 (my_trip_request.parent_request and my_trip_request.parent_request.user == user)):  # the user is the requester
+        if not my_request.submitted and my_request in get_related_requests(user):
             return True
 
-        if trip_request_unsubmit and user == my_trip_request.user:
+        if trip_request_unsubmit and user == my_request.user:
             return True
 
 
@@ -150,64 +146,62 @@ def get_trip_reviewers(trip):
 
 def get_tr_reviewers(trip_request):
     if trip_request.section:
-
         # section level reviewer
         try:
             # add each default reviewer to the queue
             for default_reviewer in trip_request.section.travel_default_reviewers.all():
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role=1)
+                models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
         except (IntegrityError, KeyError):
             pass
 
-        # section level recommender  - only applies if this is not the section head
+        travellers = trip_request.travellers.filter(user__isnull=False)
+
+        # section level recommender  - only applies if the section head is not a traveller
         try:
             # if the division head is the one creating the request, the section head should be skipped as a recommender AND
             # if the section head is the one creating the request, they should be skipped as a recommender
-            if trip_request.user != trip_request.section.head and trip_request.user != trip_request.section.division.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.head, role=2, )
+            if trip_request.section.head not in [t.user for t in travellers] and trip_request.section.division.head not in [t.user for t in travellers]:
+                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.head, role=2, )
         except (IntegrityError, AttributeError):
             pass
 
-        # division level recommender  - only applies if this is not the division manager
+        # division level recommender  - only applies if the division head is not a traveller
         try:
             # if the division head is the one creating the request, they should be skipped as a recommender
-            if trip_request.user != trip_request.section.division.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role=2, )
+            if trip_request.section.division.head not in [t.user for t in travellers]:
+                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.head, role=2, )
         except (IntegrityError, AttributeError):
             pass
 
-        # Branch level reviewer - only applies if this is not the RDS
+        # branch level reviewer  - only applies if the branch head is not a traveller
         try:
-            if trip_request.user != trip_request.section.division.branch.head:
-                # TODO: DOES THE BRANCH HAVE A DEFAULT REVIEWER?
+            if trip_request.section.division.branch.head not in [t.user for t in travellers]:
                 # add each default reviewer to the queue
                 for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.all():
-                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role=1)
+                    models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
 
         except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
 
         # Branch level recommender  - only applies if this is not the RDS
         try:
-            if trip_request.user != trip_request.section.division.branch.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head,
-                                                      role=2, )
+            if trip_request.section.division.branch.head not in [t.user for t in travellers]:
+                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.head, role=2, )
         except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
 
     # should the ADMs office be involved?
-    if trip_request.trip:
-        if trip_request.trip.is_adm_approval_required:
-            # add the ADMs office staff
-            try:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=626, role=5, )  # Arran McPherson
-            except IntegrityError:
-                pass
+    if trip_request.trip.is_adm_approval_required:
+        try:
+            adm = User.objects.get(email__icontains="arran.mcpherson@dfo-mpo.gc.ca")
+            models.Reviewer.objects.get_or_create(request=trip_request, user=adm, role=5, )  # Arran McPherson
+        except (IntegrityError, AttributeError, User.DoesNotExist):
+            pass
 
     # finally, we always need to add the RDG
     try:
-        models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.region.head, role=6, )
-    except (IntegrityError, AttributeError):
+        models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=6, )
+    except (IntegrityError, AttributeError, User.DoesNotExist):
         pass
 
     trip_request.save()
@@ -570,6 +564,7 @@ def trip_approval_seeker(trip, request):
                 trip.save()
 
 
+# DELETE!!
 def get_related_trips(user):
     """give me a user and I'll send back a queryset with all related trips, i.e.
      they are the request.user | they are the request.created_by | they are a traveller on a child trip"""
@@ -581,6 +576,26 @@ def get_related_trips(user):
     # all trips where the user is a traveller on a group trip
     tr_ids.extend([tr.parent_request.id for tr in models.TripRequest.objects.filter(parent_request__isnull=False, user=user)])
     return models.TripRequest.objects.filter(id__in=tr_ids)
+
+
+def get_related_requests(user):
+    """give me a user and I'll send back a queryset with all related trip requests, i.e.
+     they are a traveller || they are the request.created_by"""
+    qs = models.TripRequest1.objects.filter(Q(created_by=user) | Q(travellers__user=user)).distinct()
+    return qs
+
+
+def get_related_request_reviewers(user):
+    """give me a user and I'll send back a queryset with all related trips request reviews that are actionable (pending)
+     (excluding drafts (8), ADM approval (14) and when changes have already been requested (16)"""
+    qs = models.Reviewer.objects.filter(status=1).filter(~Q(request__status__in=[16, 14, 8]), user=user).distinct()
+    return qs
+
+
+def get_trip_reviews(user):
+    """give me a user and I'll send back a queryset with all related trips reviews that are actionable (pending = 25)"""
+    qs = models.TripReviewer.objects.filter(status=25, user=user)
+    return qs
 
 
 def get_adm_eligible_trips():
@@ -612,7 +627,7 @@ user_attr_list = [
 
 def is_manager_or_assistant_or_admin(user):
     # start high and go low
-    if in_travel_admin_group(user) or in_adm_admin_group(user):
+    if is_admin(user):
         return True
 
     for attr in user_attr_list:
@@ -620,8 +635,8 @@ def is_manager_or_assistant_or_admin(user):
             return True
 
 
-def get_trip_with_managerial_access(user):
-    queryset = models.TripRequest.objects.filter(parent_request__isnull=True)
+def get_requests_with_managerial_access(user):
+    queryset = models.TripRequest1.objects.all()
     if in_travel_admin_group(user) or in_adm_admin_group(user):
         return queryset
     else:
@@ -644,3 +659,41 @@ def upload_to_azure_blob(target_file_path, target_file):
     blobService.create_blob_from_path('media', target_file, target_file_path)
 
 
+def get_request_field_list(tr=None, user=None):
+    my_list = [
+        'fiscal_year',
+        'created_by',
+        'trip',
+        'traveller_count|{}'.format(_("number of travellers (this request)")),
+        'status_string|{}'.format(_("Request status")),
+        'section',
+        'objective_of_event',
+        'benefit_to_dfo',
+        'bta_attendees',
+        'total_request_cost|{}'.format(_("Total costs")),
+        'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding (CAD)")),
+        'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
+        'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
+        'funding_source',
+        'original_submission_date',
+        'processing_time|{}'.format(_("Processing time")),
+        'notes',
+        'late_justification' if not tr or (tr and tr.is_late_request) else None,
+    ]
+
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+def get_traveller_field_list():
+    my_list = [
+        'is_public_servant',
+        'is_research_scientist|{}'.format(_("Is research scientist?")),
+        'dates|{}'.format(_("dates of travel")),
+        'departure_location',
+        'role',
+        'role_of_participant',
+        'learning_plan',
+        'cost_breakdown_html|{}'.format(_("cost breakdown:")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list

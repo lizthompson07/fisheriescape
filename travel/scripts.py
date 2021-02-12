@@ -1,14 +1,13 @@
 import os
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
+from django.core import serializers
+from django.core.files import File
 from django.utils import timezone
 
 from lib.functions.custom_functions import listrify
 from . import models
 from . import utils
-from django.core import serializers
-from django.core.files import File
-from shared_models import models as shared_models
 
 
 # def remove_empty_trips():
@@ -29,8 +28,6 @@ def check_trip_purposes():
     for trip in models.Conference.objects.all():
         if trip.trip_requests.count():
             print(f"{trip.id}; {trip.name}; {listrify([tr.purpose.name for tr in trip.trip_requests.all() if tr.purpose])}")
-
-
 
 
 def export_fixtures():
@@ -66,7 +63,6 @@ def export_fixtures():
         myfile.close()
 
 
-
 def update_conf_status():
     conf_list = models.Conference.objects.all()
     for obj in conf_list:
@@ -78,13 +74,13 @@ def update_conf_status():
         obj.save()
 
 
-
 def set_old_trips_to_reviewed():
     conf_list = models.Conference.objects.filter(is_adm_approval_required=True)
     for obj in conf_list:
         if obj.start_date <= timezone.now():
             obj.status = 32
             obj.save()
+
 
 def update_participant_role():
     for r in models.TripRequest.objects.filter(role_id=2):
@@ -243,3 +239,116 @@ def update_participant_role():
 #
 #
 #
+
+
+def copy_old_tables_to_new():
+    # loop through all requests, except for child requests
+
+    for old_request in models.TripRequest.objects.filter(parent_request__isnull=True):
+        print(old_request.id)
+        if old_request.user:
+            lead = old_request.user
+        elif old_request.created_by:
+            lead = old_request.created_by
+        elif User.objects.filter(first_name=old_request.first_name, last_name=old_request.last_name).exists():
+            lead = User.objects.get(first_name=old_request.first_name, last_name=old_request.last_name)
+        else:
+            print("assigning to Amelie")
+            lead = User.objects.get(id=385)
+
+        new_request, created = models.Request.objects.get_or_create(
+            id=old_request.id,
+            trip=old_request.trip,
+            lead=lead,
+            section=old_request.section,
+            status=old_request.status,
+        )
+        new_request.objective_of_event = old_request.objective_of_event
+        new_request.benefit_to_dfo = old_request.benefit_to_dfo
+        new_request.late_justification = old_request.late_justification
+        new_request.funding_source = old_request.funding_source
+        new_request.notes = old_request.notes
+        new_request.admin_notes = old_request.admin_notes
+        new_request.submitted = old_request.submitted
+        new_request.original_submission_date = old_request.original_submission_date
+        new_request.fiscal_year = old_request.fiscal_year
+        new_request.save()
+
+        for obj in old_request.bta_attendees.all():
+            new_request.bta_attendees.add(obj)
+
+        # reviewers
+        for obj in old_request.reviewers.all():
+            if not obj.request or obj.request != new_request:
+                obj.request = new_request
+                obj.save()
+
+        # files
+        for obj in old_request.files.all():
+            if not obj.request or obj.request != new_request:
+                obj.request = new_request
+                obj.save()
+
+        if not old_request.is_group_request:
+            # might as well use the same id as the request
+            traveller, created = models.Traveller.objects.get_or_create(
+                id=old_request.id,
+                request=new_request,
+                start_date=old_request.start_date,
+                end_date=old_request.end_date,
+            )
+            traveller.user = old_request.user
+            traveller.is_public_servant = old_request.is_public_servant
+            traveller.is_research_scientist = old_request.is_research_scientist
+            traveller.first_name = old_request.first_name
+            traveller.last_name = old_request.last_name
+            traveller.address = old_request.address
+            traveller.phone = old_request.phone
+            traveller.email = old_request.email
+            traveller.company_name = old_request.company_name
+            traveller.departure_location = old_request.departure_location
+            traveller.role = old_request.role
+            traveller.role_of_participant = old_request.role_of_participant
+            traveller.learning_plan = old_request.learning_plan
+            traveller.notes = old_request.notes
+            traveller.non_dfo_costs = old_request.non_dfo_costs
+            traveller.non_dfo_org = old_request.non_dfo_org
+            traveller.save()
+
+            # costs
+            for obj in old_request.trip_request_costs.all():
+                if not obj.traveller or obj.traveller != traveller:
+                    obj.traveller = traveller
+                    obj.save()
+
+        else:
+            for old_child in old_request.children_requests.all():
+                traveller, created = models.Traveller.objects.get_or_create(
+                    id=old_child.id,
+                    request=new_request,
+                    start_date=old_child.start_date if old_child.start_date else old_request.start_date,
+                    end_date=old_child.end_date if old_child.end_date else old_request.end_date,
+                )
+                traveller.user = old_child.user
+                traveller.is_public_servant = old_child.is_public_servant
+                traveller.is_research_scientist = old_child.is_research_scientist
+                traveller.first_name = old_child.first_name
+                traveller.last_name = old_child.last_name
+                traveller.address = old_child.address
+                traveller.phone = old_child.phone
+                traveller.email = old_child.email
+                traveller.company_name = old_child.company_name
+                traveller.departure_location = old_child.departure_location
+                traveller.role = old_child.role
+                traveller.role_of_participant = old_child.role_of_participant
+                traveller.learning_plan = old_child.learning_plan
+                traveller.notes = old_child.notes
+                traveller.non_dfo_costs = old_child.non_dfo_costs
+                traveller.non_dfo_org = old_child.non_dfo_org
+                traveller.save()
+
+                # costs
+                for obj in old_child.trip_request_costs.all():
+                    if not obj.traveller or obj.traveller != traveller:
+                        obj.traveller = traveller
+                        obj.save()

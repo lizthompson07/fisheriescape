@@ -4,16 +4,27 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-# router.register(r'project-years', views.ProjectYearViewSet)
+router.register(r'trips', views.TripViewSet)
+router.register(r'requests', views.RequestViewSet)
+router.register(r'travellers', views.TravellerViewSet)
 
 urlpatterns = [
-    # path("", include(router.urls)),
-    # path("travel/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
-    # path("travel/project-years/<int:project_year>/staff/", views.StaffListCreateAPIView.as_view(), name="staff-list"),
+    path("travel/", include(router.urls)),
+    path("travel/user/", views.CurrentTravelUserAPIView.as_view(), name="travel-current-user"),
 
-    # Costs
+
+    # path("travel/trips/", views.TripListAPIView.as_view(), name="trip-list"),
+    # path("travel/requests/", views.RequestListAPIView.as_view(), name="request-list"),
+    path("travel/request-reviews/", views.RequestReviewListAPIView.as_view(), name="request-review-list"),
+
+
     path("travel/trip-request/<int:trip_request>/costs/", views.TripRequestCostsListAPIView.as_view(), name="cost-list"),
 
+    # lookups
+    path("travel/fiscal-years/", views.FiscalYearTravelListAPIView.as_view(), name="travel-fiscal-year-list"),
+    path("travel/regions/", views.RegionListAPIView.as_view(), name="travel-region-list"),
+    path("travel/divisions/", views.DivisionListAPIView.as_view(), name="travel-division-list"),
+    path("travel/sections/", views.SectionListAPIView.as_view(), name="travel-section-list"),
 
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),

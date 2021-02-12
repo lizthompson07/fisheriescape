@@ -1,3 +1,23 @@
+new Vue({
+  el: '#app',
+  vuetify: new Vuetify(),
+  data: () => ({
+    alignTop: false,
+    avatar: false,
+    dense: false,
+    fillDot: false,
+    hideDot: false,
+    icon: false,
+    iconColor: false,
+    left: false,
+    reverse: false,
+    right: false,
+    small: false,
+  }),
+})
+
+
+
   var app = new Vue({
     el: '#app',
     delimiters: ["${", "}"],

@@ -1,20 +1,47 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'travel'
 
 urlpatterns = [
+    path('util/conf_details', views.get_conf_details, name='conf_details'),  # this should be moved to the API section
+
     path('', views.IndexTemplateView.as_view(), name="index"),
-    path('util/conf_details', views.get_conf_details, name='conf_details'),
+
+
+    # Requests
+    ##########
+    path('requests/', views.TripRequestListView.as_view(), name="request_list"),
+    path('requests/new/', views.TripRequestCreateView.as_view(), name="request_new"),
+    path('requests/<int:pk>/view/', views.TripRequestDetailView.as_view(), name="request_detail"),
+
+    # Trips
+    #######
+    path('trips/', views.TripListView.as_view(), name="trip_list"),
+    path('trips/new/', views.TripCreateView.as_view(), name="trip_new"),
+    path('trips/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
+    path('trips/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
+
+    # verification
+    path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
+    path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
+         name="trip_reassign_confirm"),
+
+    path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
+
+    # Request reviews
+    ##################
+    path('rdg-approvals/', views.TripRequestAdminApprovalListView.as_view(), name="rdg_approvals"),
+
+
+
+    ############################################################################################################
 
     # TRIP REQUEST #
     ################
-    # path('requests/', views.TripRequestListView.as_view(), name="request_list"), # remove
     path('requests/<str:type>/', views.TripRequestListView.as_view(), name="request_list"),
 
-    # path('your-requests/', views.TripRequestListView.as_view(), name="request_list"),
-
-    path('request/new/<str:type>/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('request/<int:parent_request>/new-child-request/', views.TripRequestCreateView.as_view(), name="request_new"),
 
     path('request/<int:pk>/view/from/<str:type>/', views.TripRequestDetailView.as_view(), name="request_detail"),
@@ -30,9 +57,13 @@ urlpatterns = [
 
     path('request/<int:pk>/admin-notes/', views.TripRequestAdminNotesUpdateView.as_view(), name="admin_notes_edit"),
 
-    # REVIEWER APPROVAL
-    path('requests/review/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
-    path('requests/review/<str:which_ones>/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
+    # TRIP REVIEWERS
+    path('request-reviewers/', views.TripRequestReviewerListView.as_view(), name="request_reviewer_list"),
+    path('request-reviewers/<int:pk>/review/', views.TripRequestReviewerUpdateView.as_view(), name="request_reviewer_update"),
+
+
+
+
     # ADMIN APPROVAL LIST (FOR ADM and RDG)
     path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
     path('admin/approval/for/<str:type>/region/<int:region>/', views.TripRequestAdminApprovalListView.as_view(),
@@ -40,7 +71,6 @@ urlpatterns = [
     # path('admin/<int:pk>/approve/', views.TripRequestAdminApproveUpdateView.as_view(), name="admin_approve"),
 
     # this would be for a reviewer, recommender, approver
-    path('review/<int:pk>/approve/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
     # This would be for an admin
     path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
     path('adm-review/<int:pk>/<int:approve>/', views.TripRequestReviewerADMUpdateView.as_view(), name="tr_review_adm_update"),
@@ -63,14 +93,14 @@ urlpatterns = [
     path('trip/<int:pk>/cancel/from/<str:type>/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
 
     # verification / other admin views
-    path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
-    path('trip/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
-    path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.TripVerificationListView.as_view(),
-         name="admin_trip_verification_list"),
-    path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
-    path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
-    path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
-         name="trip_reassign_confirm"),
+    # path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
+    # path('trip/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
+    # path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.TripVerificationListView.as_view(),
+    #      name="admin_trip_verification_list"),
+    # path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
+    # path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
+    # path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
+    #      name="trip_reassign_confirm"),
 
     # TRIP REVIEWERS
     path('trip/<int:trip>/reset-reviewers/from/<str:type>/', views.reset_reviewers, name="reset_trip_reviewers"),
@@ -110,7 +140,6 @@ urlpatterns = [
     path('settings/roles/', views.RoleFormsetView.as_view(), name="manage_roles"),
     path('settings/role/<int:pk>/delete/', views.RoleHardDeleteView.as_view(), name="delete_role"),
 
-
     path('settings/process-steps/', views.ProcessStepFormsetView.as_view(), name="manage_process_steps"),
     path('settings/process-step/<int:pk>/delete/', views.ProcessStepHardDeleteView.as_view(), name="delete_process_step"),
 
@@ -120,14 +149,11 @@ urlpatterns = [
     path('settings/organizations/', views.OrganizationFormsetView.as_view(), name="manage_organizations"),
     path('settings/organization/<int:pk>/delete/', views.OrganizationHardDeleteView.as_view(), name="delete_organization"),
 
-
     # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),
     path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),
     path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),
     path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
-
-
 
     # default reviewer settings
     path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),
@@ -163,8 +189,5 @@ urlpatterns = [
 
     # Download a file
     path('download/file/<str:file>/', views.get_file, name="get_file"),
-
-
-
 
 ]

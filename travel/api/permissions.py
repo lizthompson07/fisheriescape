@@ -12,14 +12,16 @@ from rest_framework import permissions
 #     def has_object_permission(self, request, view, obj):
 #         return request.user.profile.oceanography
 #
-#
-# class CanModifyOrReadOnly(permissions.BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         if request.method in permissions.SAFE_METHODS:
-#             return True
-#         if hasattr(obj, "project_id"):
-#             return can_modify_project(request.user, obj.project_id)
-#         elif hasattr(obj, "project_year"):
-#             return can_modify_project(request.user, obj.project_year.project_id)
-#         else:
-#             return can_modify_project(request.user, obj.id)
+from travel.utils import can_modify_request
+
+
+class CanModifyOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if hasattr(obj, "request_id"):
+            return can_modify_request(request.user, obj.request_id)
+        elif hasattr(obj, "traveller"):
+            return can_modify_request(request.user, obj.traveller.request_id)
+        else:
+            return can_modify_request(request.user, obj.id)

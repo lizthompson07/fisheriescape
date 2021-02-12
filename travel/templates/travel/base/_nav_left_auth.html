@@ -6,13 +6,13 @@
 
 
 {% if is_admin or is_adm_admin %}
-  <li class="nav-item"><a class="nav-link" href="{% url 'travel:trip_list' "all" %}">
+  <li class="nav-item"><a class="nav-link" href="{% url 'travel:trip_list' %}?all=true">
     {% trans "Trips" %}
   </a></li>
 {% endif %}
 
 {% if is_admin or is_adm_admin or can_see_all_requests %}
-  <li class="nav-item"><a class="nav-link" href="{% url 'travel:request_list' "all" %}">
+  <li class="nav-item"><a class="nav-link" href="{% url 'travel:request_list' %}?all=true">
     {% trans "Requests" %}
   </a></li>
 {% endif %}
