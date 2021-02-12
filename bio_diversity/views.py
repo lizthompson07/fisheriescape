@@ -429,6 +429,10 @@ class LoccCreate(mixins.LoccMixin, CommonCreate):
     pass
 
 
+class MatpCreate(mixins.MatpMixin, CommonCreate):
+    pass
+
+
 class OrgaCreate(mixins.OrgaMixin, CommonCreate):
     pass
 
@@ -1090,6 +1094,11 @@ class LoccDetails(mixins.LoccMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class MatpDetails(mixins.MatpMixin, CommonDetails):
+    template_name = 'bio_diversity/details_matp.html'
+    fields = ["evnt_id", "matp_xls", "stok_id", "comments", "created_by", "created_date", ]
+
+
 class OrgaDetails(mixins.OrgaMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
@@ -1573,6 +1582,11 @@ class LoccList(mixins.LoccMixin, CommonList):
     fields = ["name", "nom", ]
 
 
+class MatpList(mixins.MatpMixin, CommonList):
+    filterset_class = filters.MatpFilter
+    fields = ["evnt_id", ]
+
+
 class OrgaList(mixins.OrgaMixin, CommonList):
     filterset_class = filters.OrgaFilter
     fields = ["name", "nom", ]
@@ -1980,6 +1994,10 @@ class LocUpdate(mixins.LocMixin, CommonUpdate):
 
 
 class LoccUpdate(mixins.LoccMixin, CommonUpdate):
+    pass
+
+
+class MatpUpdate(mixins.MatpMixin, CommonUpdate):
     pass
 
 

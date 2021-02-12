@@ -254,6 +254,12 @@ urlpatterns = [
     path('list/locc/', views.LoccList.as_view(), name="list_locc"),
     path('update/locc/<int:pk>/', views.LoccUpdate.as_view(), name="update_locc"),
 
+    path('create/matp/', views.MatpCreate.as_view(), name="create_matp"),
+    path('details/matp/<int:pk>/', views.MatpDetails.as_view(), name="details_matp"),
+    path('list/matp/', views.MatpList.as_view(), name="list_matp"),
+    path('update/matp/<int:pk>/', views.MatpUpdate.as_view(), name="update_matp"),
+
+
     path('create/orga/', views.OrgaCreate.as_view(), name="create_orga"),
     path('create/orga/<str:pop>/', views.OrgaCreate.as_view(), name="create_orga"),
     path('details/orga/<int:pk>/', views.OrgaDetails.as_view(), name="details_orga"),

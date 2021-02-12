@@ -300,6 +300,13 @@ class LoccFilter(django_filters.FilterSet):
         fields = ["name", "nom", ]
 
 
+class MatpFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.MatingPlan
+        fields = ["evnt_id", ]
+
+
 class OrgaFilter(django_filters.FilterSet):
 
     class Meta:

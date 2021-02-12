@@ -349,6 +349,14 @@ class LoccMixin:
     admin_only = True
 
 
+class MatpMixin:
+    key = "matp"
+    form_class = forms.MatpForm
+    model = models.MatingPlan
+    title = _("Mating Plan")
+    admin_only = False
+
+
 class OrgaMixin:
     key = 'orga'
     model = models.Organization

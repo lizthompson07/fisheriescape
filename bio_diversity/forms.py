@@ -1219,6 +1219,12 @@ class LoccForm(CreatePrams):
         exclude = []
 
 
+class MatpForm(CreatePrams):
+    class Meta:
+        model = models.MatingPlan
+        exclude = []
+
+
 class OrgaForm(CreatePrams):
     class Meta:
         model = models.Organization
