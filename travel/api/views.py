@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import status, viewsets
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -20,7 +20,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
         data["is_ncr_admin"] = utils.in_adm_admin_group(request.user)
         data["is_admin"] = utils.is_admin(request.user)
         requests = utils.get_related_requests(request.user)
-        request_reviews = utils.get_trip_request_reviews(request.user)
+        request_reviews = utils.get_related_request_reviewers(request.user)
         trip_reviews = utils.get_trip_reviews(request.user)
         # created by or traveller on a request
         data["related_requests_count"] = requests.count()
@@ -49,50 +49,53 @@ class TripViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        qs = models.Conference.objects.all()
-        qp = self.request.query_params
-        if qp.get("adm-verification") and utils.in_adm_admin_group(self.request.user):
-            qs = qs.filter(is_adm_approval_required=True, status=30)
-        elif qp.get("adm-hit-list") and utils.in_adm_admin_group(self.request.user):
-            qs = utils.get_adm_eligible_trips()
-        elif qp.get("regional-verification") and utils.is_admin(self.request.user):
-            qs = qs.filter(is_adm_approval_required=False, status=30)
-        elif qp.get("all"):  # and utils.is_admin(self.request.user):  # we cannot really restrict this otherwise certain views will not work!!
-            qs = qs
+        if self.kwargs.get("pk"):
+            return models.Conference.objects.filter(pk=self.kwargs.get("pk"))  # anybody can ask to see a trip.
         else:
-            qs = qs.filter(start_date__gte=timezone.now())
+            qs = models.Conference.objects.all()
+            qp = self.request.query_params
+            if qp.get("adm-verification") and utils.in_adm_admin_group(self.request.user):
+                qs = qs.filter(is_adm_approval_required=True, status=30)
+            elif qp.get("adm-hit-list") and utils.in_adm_admin_group(self.request.user):
+                qs = utils.get_adm_eligible_trips()
+            elif qp.get("regional-verification") and utils.is_admin(self.request.user):
+                qs = qs.filter(is_adm_approval_required=False, status=30)
+            elif qp.get("all") and utils.is_admin(self.request.user):  # we cannot really restrict this otherwise certain views will not work!!
+                qs = qs
+            else:
+                qs = qs.filter(start_date__gte=timezone.now())
 
-        filter_list = [
-            'fiscal_year',
-            "trip_title",
-            'regional_lead',
-            'adm_approval',
-            'status',
-            'subcategory',
-        ]
-        for filter in filter_list:
-            input = qp.get(filter)
-            if input == "true":
-                input = True
-            elif input == "false":
-                input = False
-            elif input == "null" or input == "":
-                input = None
+            filter_list = [
+                'fiscal_year',
+                "trip_title",
+                'regional_lead',
+                'adm_approval',
+                'status',
+                'subcategory',
+            ]
+            for filter in filter_list:
+                input = qp.get(filter)
+                if input == "true":
+                    input = True
+                elif input == "false":
+                    input = False
+                elif input == "null" or input == "":
+                    input = None
 
-            if input is not None:
-                if filter == "status":
-                    qs = qs.filter(status=input)
-                elif filter == "trip_title":
-                    qs = qs.filter(Q(name__icontains=input) | Q(nom__icontains=input) | Q(location__icontains=input))
-                elif filter == "fiscal_year":
-                    qs = qs.filter(fiscal_year_id=input)
-                elif filter == "regional_lead":
-                    qs = qs.filter(lead_id=input)
-                elif filter == "adm_approval":
-                    qs = qs.filter(is_adm_approval_required=input)
-                elif filter == "subcategory":
-                    qs = qs.filter(trip_subcategory=input)
-        return qs
+                if input is not None:
+                    if filter == "status":
+                        qs = qs.filter(status=input)
+                    elif filter == "trip_title":
+                        qs = qs.filter(Q(name__icontains=input) | Q(nom__icontains=input) | Q(location__icontains=input))
+                    elif filter == "fiscal_year":
+                        qs = qs.filter(fiscal_year_id=input)
+                    elif filter == "regional_lead":
+                        qs = qs.filter(lead_id=input)
+                    elif filter == "adm_approval":
+                        qs = qs.filter(is_adm_approval_required=input)
+                    elif filter == "subcategory":
+                        qs = qs.filter(trip_subcategory=input)
+            return qs
 
     def perform_create(self, serializer):
         serializer.save(last_modified_by=self.request.user)
@@ -108,46 +111,52 @@ class RequestViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        qp = self.request.query_params
-        if qp.get("all") and utils.is_admin(self.request.user):
-            qs = models.TripRequest1.objects.all()
+        # if someone is looking for a specific object...
+        if self.kwargs.get("pk"):
+            can_proceed = utils.can_modify_request(self.request.user, self.kwargs.get("pk"))
+            if can_proceed:
+                return models.TripRequest1.objects.filter(pk=self.kwargs.get("pk"))
         else:
-            qs = utils.get_related_requests(self.request.user)
+            qp = self.request.query_params
+            if qp.get("all") and utils.is_admin(self.request.user):
+                qs = models.TripRequest1.objects.all()
+            else:
+                qs = utils.get_related_requests(self.request.user)
 
-        filter_list = [
-            "trip_title",
-            'traveller',  # needs work
-            'fiscal_year',
-            'region',
-            'division',
-            'section',
-            'status',
-        ]
-        for filter in filter_list:
-            input = qp.get(filter)
-            if input == "true":
-                input = True
-            elif input == "false":
-                input = False
-            elif input == "null" or input == "":
-                input = None
+            filter_list = [
+                "trip_title",
+                'traveller',  # needs work
+                'fiscal_year',
+                'region',
+                'division',
+                'section',
+                'status',
+            ]
+            for filter in filter_list:
+                input = qp.get(filter)
+                if input == "true":
+                    input = True
+                elif input == "false":
+                    input = False
+                elif input == "null" or input == "":
+                    input = None
 
-            if input:
-                if filter == "status":
-                    qs = qs.filter(status=input)
-                elif filter == "trip_title":
-                    qs = qs.filter(Q(trip__name__icontains=input) | Q(trip__nom__icontains=input))
-                # elif filter == "traveller":
-                #     qs = qs.filter(project__travellers__icontains=input)
-                elif filter == "fiscal_year":
-                    qs = qs.filter(fiscal_year_id=input)
-                elif filter == "region":
-                    qs = qs.filter(section__division__branch__region_id=input)
-                elif filter == "division":
-                    qs = qs.filter(section__division_id=input)
-                elif filter == "section":
-                    qs = qs.filter(section_id=input)
-        return qs
+                if input:
+                    if filter == "status":
+                        qs = qs.filter(status=input)
+                    elif filter == "trip_title":
+                        qs = qs.filter(Q(trip__name__icontains=input) | Q(trip__nom__icontains=input))
+                    # elif filter == "traveller":
+                    #     qs = qs.filter(project__travellers__icontains=input)
+                    elif filter == "fiscal_year":
+                        qs = qs.filter(fiscal_year_id=input)
+                    elif filter == "region":
+                        qs = qs.filter(section__division__branch__region_id=input)
+                    elif filter == "division":
+                        qs = qs.filter(section__division_id=input)
+                    elif filter == "section":
+                        qs = qs.filter(section_id=input)
+            return qs
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

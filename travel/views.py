@@ -793,7 +793,7 @@ class TripRequestReviewerListView(TravelAccessRequiredMixin, CommonListView):
     row_object_url_name = "travel:request_reviewer_update"
 
     def get_queryset(self):
-        return utils.get_trip_request_reviews(self.request.user)
+        return utils.get_related_request_reviewers(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

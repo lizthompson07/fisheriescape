@@ -52,32 +52,24 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
     :return:
     """
     if user.id:
-        my_trip_request = models.TripRequest.objects.get(pk=trip_request_id)
+        my_request = models.TripRequest1.objects.get(pk=trip_request_id)
 
-        # check to see if a travel_admin
-        if in_travel_admin_group(user):
+        # check to see if a travel_admin or ADM admin
+        if is_admin(user):
             return True
 
         # check to see if they are the active reviewer
         # determine if this is a child trip or not.
-        if not my_trip_request.parent_request:
-            if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
-                return True
-        # This is a child trip request
-        else:
-            if my_trip_request.parent_request.current_reviewer and my_trip_request.parent_request.current_reviewer.user == user:
-                return True
+        if get_related_request_reviewers(user).filter(request_id=trip_request_id).exists():
+            return True
+
         # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are either the owner OR a traveller
         # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
-        if not my_trip_request.submitted and \
-                (not my_trip_request.user or  # anybody can edit
-                 my_trip_request.user == user or  # the user is the traveller and / or requester
-                 user in my_trip_request.travellers or  # the user is a traveller on the trip
-                 (my_trip_request.parent_request and my_trip_request.parent_request.user == user)):  # the user is the requester
+        if not my_request.submitted and my_request in get_related_requests(user):
             return True
 
-        if trip_request_unsubmit and user == my_trip_request.user:
+        if trip_request_unsubmit and user == my_request.user:
             return True
 
 
@@ -593,7 +585,7 @@ def get_related_requests(user):
     return qs
 
 
-def get_trip_request_reviews(user):
+def get_related_request_reviewers(user):
     """give me a user and I'll send back a queryset with all related trips request reviews that are actionable (pending)
      (excluding drafts (8), ADM approval (14) and when changes have already been requested (16)"""
     qs = models.Reviewer.objects.filter(status=1).filter(~Q(request__status__in=[16, 14, 8]), user=user).distinct()
@@ -643,8 +635,8 @@ def is_manager_or_assistant_or_admin(user):
             return True
 
 
-def get_trip_with_managerial_access(user):
-    queryset = models.TripRequest.objects.filter(parent_request__isnull=True)
+def get_requests_with_managerial_access(user):
+    queryset = models.TripRequest1.objects.all()
     if in_travel_admin_group(user) or in_adm_admin_group(user):
         return queryset
     else:
