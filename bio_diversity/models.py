@@ -1035,6 +1035,7 @@ class Protocol(BioDateModel):
     prog_id = models.ForeignKey('Program', on_delete=models.CASCADE, verbose_name=_("Program"),
                                 limit_choices_to={'valid': True}, related_name="protocols")
     protc_id = models.ForeignKey('ProtoCode', on_delete=models.CASCADE, verbose_name=_("Protocol Code"))
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
     evntc_id = models.ForeignKey('EventCode', blank=True, null=True, on_delete=models.CASCADE,
                                  verbose_name=_("Event Code"))
     prot_desc = models.CharField(max_length=4000, verbose_name=_("Protocol Description"))

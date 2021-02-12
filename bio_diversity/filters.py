@@ -348,7 +348,7 @@ class ProtFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Protocol
-        fields = ["prog_id", "protc_id", ]
+        fields = ["prog_id", "protc_id", "facic_id",]
 
 
 class ProtcFilter(django_filters.FilterSet):
