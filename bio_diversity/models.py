@@ -668,6 +668,29 @@ class GroupDet(BioDet):
                                                .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
 
+    def save(self, *args, **kwargs):
+        """ Need to set all earlier details with the same code to invalid"""
+        if self.grpd_valid:
+            grp = self.anix_id.grp_id
+            anix_set = grp.animal_details.filter(group_details__isnull=False,
+                                                 group_details__grpd_valid=True,
+                                                 group_details__anidc_id=self.anidc_id,
+                                                 group_details__adsc_id=self.adsc_id,
+                                                 )
+            old_grpd_set = [anix.group_details.filter(detail_date__lte=self.detail_date) for anix in anix_set]
+            for old_grpd in old_grpd_set:
+                if old_grpd:
+                    old_grpd = old_grpd.get()
+                    old_grpd.grpd_valid = False
+                    old_grpd.save()
+
+            current_grpd_set = [anix.groupd_details.filter(detail_date__gt=self.detail_date) for anix in anix_set]
+            for current_grpd in current_grpd_set:
+                if current_grpd:
+                    self.grpd_valid = False
+
+        super(GroupDet, self).save(*args, **kwargs)
+
     def is_numeric(self):
         if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
             return True
@@ -857,6 +880,29 @@ class IndividualDet(BioDet):
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
                                                .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
+
+    def save(self,  *args, **kwargs):
+        """ Need to set all earlier details with the same code to invalid"""
+        if self.indvd_valid:
+            indv = self.anix_id.indv_id
+            anix_set = indv.animal_details.filter(individual_details__isnull=False,
+                                                  individual_details__indvd_valid=True,
+                                                  individual_details__anidc_id=self.anidc_id,
+                                                  individual_details__adsc_id=self.adsc_id,
+                                                  )
+            old_indvd_set = [anix.individual_details.filter(detail_date__lte=self.detail_date) for anix in anix_set]
+            for old_indvd in old_indvd_set:
+                if old_indvd:
+                    old_indvd = old_indvd.get()
+                    old_indvd.indvd_valid = False
+                    old_indvd.save()
+
+            current_indvd_set = [anix.individual_details.filter(detail_date__gt=self.detail_date) for anix in anix_set]
+            for current_indvd in current_indvd_set:
+                if current_indvd:
+                    self.indvd_valid = False
+
+        super(IndividualDet, self).save(*args, **kwargs)
 
     def is_numeric(self):
         if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
