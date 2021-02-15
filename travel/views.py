@@ -224,7 +224,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
 
 class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
     model = models.TripRequest1
-    template_name = 'travel/trip_request_detail.html'
+    template_name = 'travel/request_detail.html'
     home_url_name = "travel:index"
 
     def get_parent_crumb(self):
@@ -235,37 +235,41 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         my_object = self.get_object()
         context = super().get_context_data(**kwargs)
-
-        context["field_list"] = request_field_list
-        my_request_child_field_list = deepcopy(request_child_field_list)
-        context["child_field_list"] = my_request_child_field_list
-        context["reviewer_field_list"] = reviewer_field_list
-        context["traveller_field_list"] = traveller_field_list
-
-        context["conf_field_list"] = conf_field_list
-        context["cost_field_list"] = cost_field_list
+        context["trip_request"] = self.get_object()
         context['help_text_dict'] = get_help_text_dict()
-        context["fy"] = fiscal_year()
-        context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
-        context["is_owner"] = my_object.user == self.request.user
-        context["now"] = timezone.now()
-        context["trip"] = my_object.trip
-        context["triprequest"] = my_object
-
-        # Admins should be given the same permissions as a current reviewer; the two are synonymous
-        if context["is_admin"]:
-            is_current_reviewer = True
-        else:
-            is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
-
-        context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().reviewers.all()]
-        context["is_current_reviewer"] = is_current_reviewer
-        if my_object.submitted and not is_current_reviewer:
-            context["report_mode"] = True
-
-        # This might be a better thing to use for button disabling
-        context["can_modify"] = can_modify_request(self.request.user, my_object.id)
         return context
+
+
+        # context["field_list"] = request_field_list
+        # my_request_child_field_list = deepcopy(request_child_field_list)
+        # context["child_field_list"] = my_request_child_field_list
+        # context["reviewer_field_list"] = reviewer_field_list
+        # context["traveller_field_list"] = traveller_field_list
+        #
+        # context["conf_field_list"] = conf_field_list
+        # context["cost_field_list"] = cost_field_list
+        # context['help_text_dict'] = get_help_text_dict()
+        # context["fy"] = fiscal_year()
+        # context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
+        # context["is_owner"] = my_object.user == self.request.user
+        # context["now"] = timezone.now()
+        # context["trip"] = my_object.trip
+        # context["triprequest"] = my_object
+        #
+        # # Admins should be given the same permissions as a current reviewer; the two are synonymous
+        # if context["is_admin"]:
+        #     is_current_reviewer = True
+        # else:
+        #     is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
+        #
+        # context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().reviewers.all()]
+        # context["is_current_reviewer"] = is_current_reviewer
+        # if my_object.submitted and not is_current_reviewer:
+        #     context["report_mode"] = True
+        #
+        # # This might be a better thing to use for button disabling
+        # context["can_modify"] = can_modify_request(self.request.user, my_object.id)
+        # return context
 
 
 class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):

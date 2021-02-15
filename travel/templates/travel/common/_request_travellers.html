@@ -1,0 +1,81 @@
+{% load static %}
+{% load i18n %}
+{% load custom_filters %}
+{% load travel_filters %}
+{% load travel_tags %}
+{% load verbose_names %}
+<div class="card mb-2">
+  <h3 class="card-header bg-outline-dark">
+    <div class="float-right" v-if="isReview">
+      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down"></span></button>
+      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>
+    </div>
+    {% trans "Travellers Associated with this Request" %}
+    <div class="neighbours">
+      {% with help_text_dict|lookup:"travellers_header" as help_text %}
+        <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
+             data-trigger="hover"
+             title="{% trans "Travellers" %}"
+             data-content="{{ help_text }}">
+      {% endwith %}
+    </div>
+  </h3>
+  <div class="card-body">
+    <div class="card-text">
+      <div v-if="loading_request" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <div v-if="!request.travellers.length">
+          <em>{% trans "There are no travellers associated with this request." %}</em>
+        </div>
+        <div v-else>
+          {% get_traveller_field_list as traveller_field_list %}
+          {% if trip_request.travellers.exists %}
+            <div class="row">
+              <div v-for="t in request.travellers" class="col" :key="t.id">
+                <div class="card traveller-card">
+                  <div class="card-body">
+                    <div class="float-right" v-if="isReview">
+                      <input
+                        v-model="t.hide_me"
+                        class="form-check-input" type="checkbox"
+                        :id="'viewed-traveller-'+t.id"
+                        @change="$forceUpdate()"
+                      >
+                      <label class="" class="form-check-label" :for="'viewed-traveller-'+t.id">
+                        {% trans "Reviewed" %}
+                      </label>
+                    </div>
+                    <h4 class="card-title">${t.smart_name} ${t.hide}</h4>
+                    <div v-if="!t.hide_me" class="card-text">
+                      <hr>
+                      <div class="mb-3">
+                        <span v-html="t.traveller_info"></span>
+                      </div>
+                      {% for field in traveller_field_list %}
+                        <p>
+                          <b>{% get_verbose_label trip_request.travellers.first field %}</b>
+                          <span class="ml-1" v-if="t.{{ field|get_attr }} === true">{% trans "Yes" %}</span>
+                          <span class="ml-1" v-else-if="t.{{ field|get_attr }} === false">{% trans "No" %}</span>
+                          <span class="ml-1" v-else-if="t.{{ field|get_attr }} === '' || t.{{ field|get_attr }} === null">---</span>
+                          <span class="ml-1" v-else v-html="t.{{ field|get_attr }}"></span>
+                        </p>
+                      {% endfor %}
+                      <div class="float-right">
+                        <button v-if="!isReview && canModify" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit Traveller" %}</button>
+                        <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove Traveller" %}</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

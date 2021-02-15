@@ -31,7 +31,14 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
         data["trip_reviews_count"] = trip_reviews.count()
         # requests awaiting changes!
         data["requests_awaiting_changes"] = requests.filter(status=16).exists()
+
+        if request.query_params.get("request"):
+            data.update(utils.can_modify_request(request.user, trip_request_id=request.query_params.get("request"), as_dict=True))
+
         return Response(data, status=status.HTTP_200_OK)
+
+
+
 
 
 class TripRequestCostsListAPIView(ListAPIView):

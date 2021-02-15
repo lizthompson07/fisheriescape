@@ -8,6 +8,7 @@ from .. import models
 
 
 # from ..utils import can_modify_project
+from ..utils import can_modify_request
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):

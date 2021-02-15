@@ -39,7 +39,7 @@ def is_trip_approver(user, trip):
         return True
 
 
-def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
+def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict=False):
     """
     returns True if user has permissions to delete or modify a request
 
@@ -48,29 +48,47 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
 
     :param user:
     :param trip_request_id:
-    :param trip_request_submit: If true, it means this function is being used to answer the question about whether a user can unsubmit a trip
-    :return:
+    :param request_to_unsubmit: Is this a request to unsubmit? If so, the permissions are a little different.
+    :param as_dict: return as dict (with result and reason) as opposed to boolean
+    :return: dict or bool
     """
     if user.id:
         my_request = models.TripRequest1.objects.get(pk=trip_request_id)
 
+        reason = None
+        result = False
+
         # check to see if a travel_admin or ADM admin
-        if is_admin(user):
-            return True
+        if in_adm_admin_group(user):
+            result = True
+            reason = _("You can edit this record because you are in the NCR National Coordinator Group.")
+
+        elif in_travel_admin_group(user):
+            result = True
+            reason = _("You can edit this record because you are in the Regional Administrator Group.")
 
         # check to see if they are the active reviewer
-        # determine if this is a child trip or not.
-        if get_related_request_reviewers(user).filter(request_id=trip_request_id).exists():
-            return True
+        elif get_related_request_reviewers(user).filter(request_id=trip_request_id).exists():
+            result = True
+            reason = _("You can edit this record because you are the active reviewer for this request.")
 
-        # if the project is unsubmitted, the project lead is also able to edit the project... obviously
-        # check to see if they are either the owner OR a traveller
-        # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
-        if not my_request.submitted and my_request in get_related_requests(user):
-            return True
+        # if the request is unsubmitted, the owner can edit
+        elif not my_request.submitted:
+            if my_request in user.travel_requests_created_by.all():
+                result = True
+                reason = _("You can edit this record because you are the request owner.")
+            elif my_request in models.TripRequest1.objects.filter(travellers__user=user):
+                result = True
+                reason = _("You can edit this record because you are a traveller on this request.")
 
-        if trip_request_unsubmit and user == my_request.user:
-            return True
+        elif request_to_unsubmit and my_request in user.travel_requests_created_by.all():
+            result = True
+            reason = _("You can un-submit this request because you are the request owner.")
+
+        if as_dict:
+            return dict(can_modify=result, reason=reason)
+        else:
+            return result
 
 
 def get_section_choices(all=False, full_name=True):
@@ -683,6 +701,7 @@ def get_request_field_list(tr=None, user=None):
 
     while None in my_list: my_list.remove(None)
     return my_list
+
 
 def get_traveller_field_list():
     my_list = [

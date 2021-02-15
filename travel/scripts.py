@@ -245,7 +245,7 @@ def copy_old_tables_to_new():
     # loop through all requests, except for child requests
 
     for old_request in models.TripRequest.objects.filter(parent_request__isnull=True):
-        print(old_request.id)
+        # print(old_request.id)
         if old_request.user:
             lead = old_request.user
         elif old_request.created_by:
@@ -256,10 +256,14 @@ def copy_old_tables_to_new():
             print("assigning to Amelie")
             lead = User.objects.get(id=385)
 
-        new_request, created = models.TripRequest1.objects.get_or_create(
-            id=old_request.id,
-            trip=old_request.trip,
-        )
+        qs = models.TripRequest1.objects.filter(id=old_request.id)
+        if qs.exists():
+            new_request = qs.first()
+        else:
+            new_request = models.TripRequest1.objects.create(
+                id=old_request.id,
+                trip=old_request.trip,
+            )
         new_request.created_by = lead
         new_request.section = old_request.section
         new_request.status = old_request.status
@@ -291,12 +295,17 @@ def copy_old_tables_to_new():
 
         if not old_request.is_group_request:
             # might as well use the same id as the request
-            traveller, created = models.Traveller.objects.get_or_create(
-                id=old_request.id,
-                request=new_request,
-                start_date=old_request.start_date,
-                end_date=old_request.end_date,
-            )
+
+            qs = models.Traveller.objects.filter(id=old_request.id)
+            if qs.exists():
+                traveller = qs.first()
+            else:
+                traveller = models.Traveller.objects.create(
+                    id=old_request.id,
+                    request=new_request,
+                    start_date=old_request.start_date,
+                    end_date=old_request.end_date,
+                )
             traveller.user = old_request.user
             traveller.is_public_servant = old_request.is_public_servant
             traveller.is_research_scientist = old_request.is_research_scientist

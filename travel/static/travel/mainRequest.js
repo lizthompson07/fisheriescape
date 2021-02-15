@@ -3,10 +3,23 @@ var app = new Vue({
   delimiters: ["${", "}"],
   data: {
     loading_request: true,
+    loading_user: false,
 
+    isReview: isReview,  // declared in template SCRIPT tag
+
+    currentUser: {},
     request: {},
   },
   methods: {
+    getCurrentUser(request) {
+      this.loading_user = true;
+      let endpoint = `/api/travel/user/?request=${request.id}`;
+      apiService(endpoint)
+          .then(response => {
+            this.loading_user = false;
+            this.currentUser = response;
+          })
+    },
     getRequest() {
       this.loading_costs = true;
       let endpoint = `/api/travel/requests/${tripRequestId}/`;
@@ -14,6 +27,7 @@ var app = new Vue({
           .then(response => {
             this.loading_request = false;
             this.request = response;
+            this.getCurrentUser(response);
           })
     },
     deleteTraveller(traveller) {
@@ -35,7 +49,6 @@ var app = new Vue({
       for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = true;
       this.$forceUpdate()
     }
-
   },
   filters: {
     floatformat: function (value, precision = 2) {
@@ -71,9 +84,16 @@ var app = new Vue({
       return value;
     }
   },
-  computed: {},
+  computed: {
+    canModify(){
+      if(this.currentUser && this.currentUser.can_modify) {
+        return this.currentUser.can_modify;
+      }
+      return false;
+    },
+  },
   created() {
-    this.getRequest()
+    this.getRequest();
   },
   mounted() {
   },
