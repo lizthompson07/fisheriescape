@@ -256,24 +256,11 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
-                                                             relc_id=loc.relc_id, loc_date=loc.start_datetime).get()
+                                                             relc_id=loc.relc_id, loc_date=loc.loc_date).get()
 
-                    if not math.isnan(row["temp"]):
-                        env = models.EnvCondition(loc_id_id=loc.pk,
-                                                  envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
-                                                  env_val=row["temp"],
-                                                  start_datetime=datetime.strptime(row["Date"], "%Y-%b-%d"),
-                                                  env_avg=False,
-                                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                  created_by=cleaned_data["created_by"],
-                                                  created_date=cleaned_data["created_date"],
-                                                  )
-                        try:
-                            env.clean()
-                            env.save()
-                            row_entered = True
-                        except ValidationError:
-                            pass
+                    if enter_env(row["temp"], datetime.strptime(row["Date"], "%Y-%b-%d"), cleaned_data, "Temperature", loc_id=loc,):
+                        row_entered = True
+
                     cnt = False
                     if not math.isnan(row["# of salmon collected"]):
                         cnt = models.Count(loc_id_id=loc.pk,
@@ -399,7 +386,7 @@ class DataForm(CreatePrams):
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
         # --------------------------ELECTROFISHING MACTAQUAC DATA ENTRY-----------------------------------
-        if cleaned_data["evntc_id"].__str__() == "Electrofishing" and \
+        elif cleaned_data["evntc_id"].__str__() == "Electrofishing" and \
                 cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], header=1, engine='openpyxl')
@@ -433,7 +420,7 @@ class DataForm(CreatePrams):
                                                              relc_id=loc.relc_id, loc_date=loc.loc_date).get()
 
                     if enter_env(row["Temperature"], row_date, cleaned_data, "Temperature", loc_id=loc,):
-                        row_entered=True
+                        row_entered = True
 
                     cnt = False
                     if not math.isnan(row["# Parr Collected"]):
@@ -930,7 +917,6 @@ class DataForm(CreatePrams):
                 self.request.session["load_success"] = False
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-
         else:
             log_data = "Data loading not set up for this event type.  No data loaded."
         self.request.session["log_data"] = log_data
@@ -1037,7 +1023,6 @@ class EvntForm(CreatePrams):
                         "The end date must be after the start date!"
                     ))
         return self.cleaned_data
-
 
 
 class EvntcForm(CreatePrams):
