@@ -921,7 +921,7 @@ class DataForm(CreatePrams):
                 try:
                     contx = enter_tank_contx(row["Pond"], cleaned_data, None, return_contx=True)
                     row_date = row["Date"].date()
-                    row_time = row["Time (24HR)"]
+                    row_time = make_aware(row["Time (24HR)"])
                     if enter_env(row["Temp °C"], row_date, cleaned_data, "Temperature", contx=contx, env_start=row_time):
                         row_entered = True
                     if enter_env(row["DO%"], row_date, cleaned_data, "Oxygen Level", contx=contx, env_start=row_time):

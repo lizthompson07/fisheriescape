@@ -407,7 +407,8 @@ class EnvCondition(BioTimeModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id'], name='Environment_Condition_Uniqueness')
+            models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id', 'envc_id', 'envsc_id', 'start_datetime'],
+                                    name='Environment_Condition_Uniqueness')
         ]
 
     def __str__(self):
