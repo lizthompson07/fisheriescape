@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block subcontent %}
-  <div id="app">
+  <div id="app" v-cloak>
 
     <h1 v-if="pageType=== 'all'">{% trans "All Trips" %}</h1>
     <h1 v-else-if="pageType=== 'regional-verification'">{% trans "Regional Trips Awaiting Verification" %}</h1>

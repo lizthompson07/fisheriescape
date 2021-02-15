@@ -192,7 +192,7 @@ msgid ""
 "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
 "status is set to {my_object.status}"
 msgstr ""
-"Désolé, vous ne pouvez pas changer l'utilisateur DM Apps associé à un "
+"Désolé, vous ne pouvez pas changer l'utilisateur Applis GD associé à un "
 "examinateur dont le statut est défini sur {mon_objet.status}"
 
 #: .\travel\forms.py:638 .\travel\forms.py:695
@@ -206,7 +206,7 @@ msgstr ""
 #: .\travel\models.py:33 .\travel\models.py:577 .\travel\models.py:1074
 #: .\travel\models.py:1129
 msgid "DM Apps user"
-msgstr "Utilisateur de DM Apps"
+msgstr "Utilisateur de Applis GD"
 
 #: .\travel\models.py:34
 msgid "reviewer belongs to which DFO section(s)"
@@ -411,7 +411,7 @@ msgstr "voyages"
 
 #: .\travel\models.py:374
 msgid "not a DM Apps user"
-msgstr "pas un utilisateur de DM Apps"
+msgstr "pas un utilisateur de Applis GD"
 
 #: .\travel\models.py:560 .\travel\models.py:927 .\travel\models.py:933
 msgid "by"
@@ -2321,7 +2321,7 @@ msgstr "Nouveau"
 
 #: .\travel\templates\travel\user_list.html:25
 msgid "New DM Apps User"
-msgstr "Nouveau utilisateur de DM Apps"
+msgstr "Nouveau utilisateur de Applis GD"
 
 #: .\travel\templates\travel\user_list.html:40
 msgid "Regional Coordinators"
@@ -2846,7 +2846,7 @@ msgstr ""
 
 #: .\travel\views.py:2661
 msgid "Last login to DM Apps"
-msgstr "Dernière connexion à DM Apps"
+msgstr "Dernière connexion à Applis GD"
 
 #: .\travel\views.py:2817
 msgid "The cost has been successfully deleted."
