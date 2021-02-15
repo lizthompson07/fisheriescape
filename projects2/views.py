@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
+from django.db import IntegrityError
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
@@ -518,13 +519,17 @@ class ProjectYearCloneView(ProjectYearUpdateView):
             new_rel_obj.save()
 
         # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
-        my_staff, created = models.Staff.objects.get_or_create(
-            user=self.request.user,
-            project_year=new_obj,
-            employee_type_id=1,
-        )
-        my_staff.lead = True
-        my_staff.save()
+        # but, there is a chance (and likely probability) that they will already be on there.
+        try:
+            my_staff, created = models.Staff.objects.get_or_create(
+                user=self.request.user,
+                project_year=new_obj,
+                employee_type_id=1,
+            )
+            my_staff.lead = True
+            my_staff.save()
+        except IntegrityError:
+            pass
 
         # 2) O&M
         for old_rel_obj in old_obj.omcost_set.all():
