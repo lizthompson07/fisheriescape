@@ -259,10 +259,10 @@ def copy_old_tables_to_new():
         new_request, created = models.TripRequest1.objects.get_or_create(
             id=old_request.id,
             trip=old_request.trip,
-            lead=lead,
-            section=old_request.section,
-            status=old_request.status,
         )
+        new_request.created_by = lead
+        new_request.section = old_request.section
+        new_request.status = old_request.status
         new_request.objective_of_event = old_request.objective_of_event
         new_request.benefit_to_dfo = old_request.benefit_to_dfo
         new_request.late_justification = old_request.late_justification
