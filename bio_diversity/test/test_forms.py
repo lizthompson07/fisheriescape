@@ -1,8 +1,10 @@
 from datetime import timedelta
 
+from django.utils.timezone import make_aware
+
 from django.forms import model_to_dict
 from django.test import tag
-
+from datetime import datetime
 from bio_diversity import forms
 from bio_diversity.test import BioFactoryFloor
 # from ..test.common_tests import CommonProjectTest as CommonTest
@@ -130,19 +132,27 @@ class TestEnvForm(CommonTest):
     def test_invalid_val(self):
         # cannot use values outside of envc min-max range
         invalid_data = self.data
-        test_envc = BioFactoryFloor.EnvcFactory(max_val=(invalid_data['env_val'] - 1))
+        test_envc = BioFactoryFloor.EnvcFactory()
+        test_envc.max_val = invalid_data['env_val'] - 1
+        test_envc.save()
         invalid_data['envc_id'] = test_envc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
         invalid_data = self.data
-        test_envc = BioFactoryFloor.EnvcFactory(min_val=(invalid_data['env_val'] + 1))
+        test_envc = BioFactoryFloor.EnvcFactory()
+        test_envc.min_val = invalid_data['env_val'] + 1
+        test_envc.save()
         invalid_data['envc_id'] = test_envc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.EnvFactory(contx_id=None)
+        instance = BioFactoryFloor.EnvFactory()
+        instance.contx_id = None
+        instance.start_datetime = make_aware(datetime.strptime(instance.start_datetime.strftime("%Y%m%d%H%M"), "%Y%m%d%H%M"))
+        instance.save()
         invalid_data = model_to_dict(instance)
         invalid_data["start_date"] = invalid_data["start_datetime"].date()
+        invalid_data["start_time"] = invalid_data["start_datetime"].time().strftime("%H:%M")
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
         invalid_data["contx_id"] = 1

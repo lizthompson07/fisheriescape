@@ -543,7 +543,7 @@ class Event(BioModel):
 
     @property
     def end_time(self):
-        if self.evnt_end.time() ==  datetime.datetime.min.time():
+        if self.evnt_end.time() == datetime.datetime.min.time():
             return None
         return self.evnt_end.time().strftime("%H:%M")
 
