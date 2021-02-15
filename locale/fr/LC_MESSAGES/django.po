@@ -1624,7 +1624,7 @@ msgstr "Outil pour organiser et gérer les ressources de données régionales."
 #: .\dm_apps\views.py:43 .\tickets\views.py:51
 #, fuzzy
 msgid "DM Apps Tickets"
-msgstr "Utilisateur de DM Apps"
+msgstr "Utilisateur de Applis GD"
 
 #: .\dm_apps\views.py:44
 msgid "Submit and track data management service requests."
@@ -3585,7 +3585,7 @@ msgstr "Contacts du MPO"
 #: .\shared_models\templates\shared_models\org_index.html:24
 #, fuzzy
 msgid "Add a new DM Apps User"
-msgstr "Utilisateur de DM Apps"
+msgstr "Utilisateur de Applis GD"
 
 #: .\shared_models\templates\shared_models\org_index.html:30
 #, fuzzy
@@ -3694,7 +3694,7 @@ msgstr ""
 
 #: .\shared_models\views.py:977
 msgid "Create a New DM Apps User"
-msgstr "Créer un nouveau utilisateur de DM Apps"
+msgstr "Créer un nouveau utilisateur de Applis GD"
 
 #: .\shared_models\views.py:979
 msgid "Please use extreme vigilance with this form."
@@ -3930,7 +3930,7 @@ msgstr "Déconnecter"
 #: .\templates\index.html:114 .\templates\index_OLD.html:32
 #: .\templates\index_OLD.html:41
 msgid "DM Apps"
-msgstr "Applications GD"
+msgstr "Applis GD"
 
 #: .\templates\index.html:146
 #, fuzzy
