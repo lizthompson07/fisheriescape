@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
+from django.db import IntegrityError
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
@@ -53,7 +54,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
         project_count = models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title").count()
         orphen_count = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user).count()
-        context["my_project_count"] =project_count+ orphen_count
+        context["my_project_count"] = project_count + orphen_count
         return context
 
 
@@ -518,13 +519,17 @@ class ProjectYearCloneView(ProjectYearUpdateView):
             new_rel_obj.save()
 
         # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
-        my_staff, created = models.Staff.objects.get_or_create(
-            user=self.request.user,
-            project_year=new_obj,
-            employee_type_id=1,
-        )
-        my_staff.lead = True
-        my_staff.save()
+        # but, there is a chance (and likely probability) that they will already be on there.
+        try:
+            my_staff, created = models.Staff.objects.get_or_create(
+                user=self.request.user,
+                project_year=new_obj,
+                employee_type_id=1,
+            )
+            my_staff.lead = True
+            my_staff.save()
+        except IntegrityError:
+            pass
 
         # 2) O&M
         for old_rel_obj in old_obj.omcost_set.all():
@@ -1096,11 +1101,11 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
         elif report == 2:
-            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list") + f'?year={year};region={region}')
         elif report == 3:
-            return HttpResponseRedirect(reverse("projects2:export_project_status_summary")+f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_project_status_summary") + f'?year={year};region={region}')
         elif report == 4:
-            return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_project_list") + f'?year={year};section={section};region={region}')
         elif report == 5:
             return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
         else:
@@ -1191,8 +1196,6 @@ def csrf_application(request, pk):
     raise Http404
 
 
-
-
 @login_required()
 def sara_application(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
@@ -1214,7 +1217,6 @@ def sara_application(request, pk):
             response['Content-Disposition'] = f'inline; filename="{filename}"'
             return response
     raise Http404
-
 
 
 @login_required()
@@ -1273,6 +1275,7 @@ def export_sar_workplan(request):
 
             return response
     raise Http404
+
 
 # ADMIN USERS
 
