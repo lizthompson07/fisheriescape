@@ -12,7 +12,7 @@ from django.utils.translation import gettext
 import pandas as pd
 
 from bio_diversity import models
-from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter
+from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env
 
 
 class CreatePrams(forms.ModelForm):
@@ -85,14 +85,14 @@ class CreateTimePrams(forms.ModelForm):
             start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M').time(),
                                     timezone=timezone.get_current_timezone())
         else:
-            start_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
+            start_time = make_aware(datetime.min.time(), timezone=timezone.get_current_timezone())
         cleaned_data["start_datetime"] = datetime.combine(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
                 end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M').time(),
                                       timezone=timezone.get_current_timezone())
             else:
-                end_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
+                end_time = make_aware(datetime.min.time(), timezone=timezone.get_current_timezone())
             cleaned_data["end_datetime"] = datetime.combine(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -582,19 +582,6 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
@@ -917,6 +904,78 @@ class DataForm(CreatePrams):
                 self.request.session["load_success"] = False
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+        # ---------------------------MACTAQUAC WATER QUALITY DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Water Quality Record" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
+                                     converters={'Pond': str})
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                raise Exception("File format not valid: {}".format(err.__str__()))
+            parsed = True
+            self.request.session["load_success"] = True
+            for row in data_dict:
+                row_parsed = True
+                row_entered = False
+                try:
+                    contx = enter_tank_contx(row["Pond"], cleaned_data, None, return_contx=True)
+                    row_date = row["Date"].date()
+                    row_time = row["Time (24HR)"]
+                    if enter_env(row["Temp °C"], row_date, cleaned_data, "Temperature", contx=contx, env_start=row_time):
+                        row_entered = True
+                    if enter_env(row["DO%"], row_date, cleaned_data, "Oxygen Level", contx=contx, env_start=row_time):
+                        row_entered = True
+                    if enter_env(row["pH"], row_date, cleaned_data, "pH", contx=contx, env_start=row_time):
+                        row_entered = True
+                    if enter_env(row["Dissolved Nitrogen %"], row_date, cleaned_data, "Dissolved Nitrogen", contx=contx, env_start=row_time):
+                        row_entered = True
+
+                except Exception as err:
+                    parsed = False
+                    self.request.session["load_success"] = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
+            if not parsed:
+                self.request.session["load_success"] = False
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         else:
             log_data = "Data loading not set up for this event type.  No data loaded."
         self.request.session["log_data"] = log_data
@@ -998,14 +1057,14 @@ class EvntForm(CreatePrams):
             start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M').time(),
                                     timezone=timezone.get_current_timezone())
         else:
-            start_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
+            start_time = make_aware(datetime.min.time(), timezone=timezone.get_current_timezone())
         cleaned_data["evnt_start"] = datetime.combine(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
                 end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M').time(),
                                       timezone=timezone.get_current_timezone())
             else:
-                end_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
+                end_time = make_aware(datetime.min.time(), timezone=timezone.get_current_timezone())
             cleaned_data["evnt_end"] = datetime.combine(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -1207,7 +1266,7 @@ class LocForm(CreatePrams):
             start_time = make_aware(datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time(),
                                     timezone=timezone.get_current_timezone())
         else:
-            start_time = make_aware(time(0, 0), timezone=timezone.get_current_timezone())
+            start_time = make_aware(datetime.min.time(), timezone=timezone.get_current_timezone())
         obj.loc_date = datetime.combine(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj

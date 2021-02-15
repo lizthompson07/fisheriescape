@@ -164,7 +164,7 @@ class BioTimeModel(BioModel):
 
     @property
     def start_time(self):
-        if self.start_datetime.time() == datetime.time(0, 0):
+        if self.start_datetime.time() == datetime.datetime.min.time():
             return None
         return self.start_datetime.time().strftime("%H:%M")
 
@@ -177,7 +177,7 @@ class BioTimeModel(BioModel):
 
     @property
     def end_time(self):
-        if self.end_datetime.time() == datetime.time(0, 0):
+        if self.end_datetime.time() ==  datetime.datetime.min.time():
             return None
         return self.end_datetime.time().strftime("%H:%M")
 
@@ -269,7 +269,7 @@ class ContainerXRef(BioModel):
     # contx tag
     evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"),
                                 related_name="containers")
-    tank_id = models.ForeignKey("Tank", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tank"))
+    tank_id = models.ForeignKey("Tank", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tank"), related_name="contxs")
     trof_id = models.ForeignKey("Trough", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Trough"))
     tray_id = models.ForeignKey("Tray", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tray"))
     heat_id = models.ForeignKey("HeathUnit", on_delete=models.CASCADE, null=True, blank=True,
@@ -529,7 +529,7 @@ class Event(BioModel):
 
     @property
     def start_time(self):
-        if self.evnt_start.time() == datetime.time(0, 0):
+        if self.evnt_start.time() == datetime.datetime.min.time():
             return None
         return self.evnt_start.time().strftime("%H:%M")
 
@@ -542,7 +542,7 @@ class Event(BioModel):
 
     @property
     def end_time(self):
-        if self.evnt_end.time() == datetime.time(0, 0):
+        if self.evnt_end.time() ==  datetime.datetime.min.time():
             return None
         return self.evnt_end.time().strftime("%H:%M")
 
@@ -992,7 +992,7 @@ class Location(BioModel):
 
     @property
     def start_time(self):
-        if self.loc_date.time() == datetime.time(0, 0):
+        if self.loc_date.time() ==  datetime.datetime.min.time():
             return None
         return self.loc_date.time().strftime("%H:%M")
 

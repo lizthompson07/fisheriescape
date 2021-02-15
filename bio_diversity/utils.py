@@ -1,3 +1,4 @@
+import datetime
 import math
 
 from django.core.exceptions import ValidationError
@@ -115,7 +116,7 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str,
     return row_entered
 
 
-def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None):
+def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None, return_contx=False):
     row_entered = False
     if not tank == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -146,4 +147,52 @@ def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None):
         except (ValidationError, IntegrityError):
             pass
 
+        if return_contx:
+            return contx
+        else:
+            return row_entered
+    else:
+        return False
+
+
+def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_id=None, contx=None, inst_id=None, env_start=None,avg=False):
+    row_entered = False
+    if isinstance(env_value, float):
+        if math.isnan(env_value):
+            return False
+    if env_start:
+        env_datetime = datetime.datetime.combine(env_date, env_start)
+    else:
+        env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time())
+    if envsc_str:
+        env = models.EnvCondition(contx_id=contx,
+                                  loc_id=loc_id,
+                                  envc_id=models.EnvCode.objects.filter(name=envc_str).get(),
+                                  envsc_id=models.EnvSubjCode.objects.filter(name=envsc_str).get(),
+                                  inst_id=inst_id,
+                                  env_val=env_value,
+                                  env_avg=avg,
+                                  start_datetime=env_datetime,
+                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    else:
+        env = models.EnvCondition(contx_id=contx,
+                                  loc_id=loc_id,
+                                  envc_id=models.EnvCode.objects.filter(name=envc_str).get(),
+                                  inst_id=inst_id,
+                                  env_val=env_value,
+                                  env_avg=avg,
+                                  start_datetime=env_datetime,
+                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    try:
+        env.clean()
+        env.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
     return row_entered

@@ -859,6 +859,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             context["table_list"] = ["data", "grp", "trof"]
         elif evnt_code == "Maturity Sorting":
             context["table_list"] = ["data", "indv", "tank"]
+        elif evnt_code == "Water Quality Record":
+            context["table_list"] = ["data", "tank"]
 
         return context
 
@@ -1236,7 +1238,22 @@ class SubrDetails(mixins.SubrMixin, CommonDetails):
 
 
 class TankDetails(mixins.TankMixin, CommonDetails):
+    template_name = "bio_diversity/details_cont.html"
     fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        env_set = [env for contx in self.object.contxs.all() for env in contx.env_condition.all()]
+        context["env_list"] = env_set
+        context["env_object"] = models.EnvCondition.objects.first()
+        context["env_field_list"] = [
+            "envc_id",
+            "envsc_id",
+            "start_datetime",
+            "env_val",
+        ]
+
+        return context
 
 
 class TankdDetails(mixins.TankdMixin, CommonDetails):
