@@ -149,6 +149,10 @@ table, td {
     border-radius: 10px;
 }
 
-.admin-notes{
+.admin-notes {
     background-color: #f8f8c6;
+}
+
+[v-cloak] {
+    display: none;
 }
