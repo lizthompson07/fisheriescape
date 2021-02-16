@@ -202,9 +202,12 @@ class BioTimeModel(BioModel):
 
     @property
     def end_time(self):
-        if self.end_datetime.time() == datetime.datetime.min.time():
+        if self.end_datetime:
+            if self.end_datetime.time() == datetime.datetime.min.time():
+                return None
+            return self.end_datetime.time().strftime("%H:%M")
+        else:
             return None
-        return self.end_datetime.time().strftime("%H:%M")
 
 
 class AnimalDetCode(BioLookup):
@@ -573,9 +576,11 @@ class Event(BioModel):
 
     @property
     def end_time(self):
-        if self.evnt_end.time() == datetime.datetime.min.time():
-            return None
-        return self.evnt_end.time().strftime("%H:%M")
+        if self.evnt_end:
+            if self.evnt_end.time() == datetime.datetime.min.time():
+                return None
+            return self.evnt_end.time().strftime("%H:%M")
+        return None
 
     @property
     def is_current(self):
