@@ -33,4 +33,52 @@
             </table>
         {% endif %}
     </div>
+    <div class="card border border-dark my-1" name="indv-details">
+        <h5 class="card-header">{% trans "Individuals in Container" %}
+        </h5>
+        {% if indv_list %}
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                    {% for field in indv_field_list %}
+                        <th>{% get_verbose_label indv_object field %}</th>
+                    {% endfor %}
+                </thead>
+                <tbody>
+                    {% for obj in indv_list %}
+                        <tr href="{% url 'bio_diversity:details_indv' 'loc' object.id obj.id %}">
+                        {% for field in indv_field_list %}
+                            <td>
+                                {% get_field_value obj field %}
+                            </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <div class="card border border-dark my-1" name="grp-details">
+        <h5 class="card-header">{% trans "Groups in Container" %}
+        </h5>
+        {% if grp_list %}
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                    {% for field in grp_field_list %}
+                        <th>{% get_verbose_label grp_object field %}</th>
+                    {% endfor %}
+                </thead>
+                <tbody>
+                    {% for obj in grp_list %}
+                        <tr href="{% url 'bio_diversity:details_grp' 'loc' object.id obj.id %}">
+                        {% for field in grp_field_list %}
+                            <td>
+                                {% get_field_value obj field %}
+                            </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
 {% endblock  %}

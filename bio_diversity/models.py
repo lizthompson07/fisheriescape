@@ -3,6 +3,8 @@
 # Create your models here.
 import datetime
 import os
+from collections import Counter
+
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
@@ -138,6 +140,29 @@ class BioCont(BioLookup):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
 
+    @property
+    def fish_in_cont(self):
+        indv_list = []
+        grp_list = []
+
+        contx_set = self.contxs.filter(anixs__isnull=False)
+        anix_indv_sets = [contx.anixs.filter(final_contx_flag=True, indv_id__indv_valid=True) for contx in contx_set]
+        anix_grp_sets = [contx.anixs.filter(final_contx_flag=True, grp_id__grp_valid=True) for contx in contx_set]
+        indv_in_list = list(dict.fromkeys([anix.indv_id for anix_set in anix_indv_sets for anix in anix_set]))
+        grp_in_list = list(dict.fromkeys([anix.grp_id for anix_set in anix_grp_sets for anix in anix_set]))
+
+        for indv in indv_in_list:
+            if self in indv.current_tank:
+                indv_list.append(indv)
+        for grp in grp_in_list:
+            if self in grp.current_tank:
+                grp_list.append(indv)
+
+        return indv_list, grp_list
+
+
+
+
 
 class BioDateModel(BioModel):
     # model with start date/end date, still valid, created by and created date fields
@@ -177,7 +202,7 @@ class BioTimeModel(BioModel):
 
     @property
     def end_time(self):
-        if self.end_datetime.time() ==  datetime.datetime.min.time():
+        if self.end_datetime.time() == datetime.datetime.min.time():
             return None
         return self.end_datetime.time().strftime("%H:%M")
 
@@ -202,7 +227,7 @@ class AniDetailXref(BioModel):
     # anix tag
     evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"),
                                 related_name="animal_details")
-    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True,
+    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="anixs",
                                  verbose_name=_("Container Cross Reference"))
     final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), default=None, blank=True, null=True)
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True,
@@ -269,13 +294,18 @@ class ContainerXRef(BioModel):
     # contx tag
     evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"),
                                 related_name="containers")
-    tank_id = models.ForeignKey("Tank", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tank"), related_name="contxs")
-    trof_id = models.ForeignKey("Trough", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Trough"))
-    tray_id = models.ForeignKey("Tray", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tray"))
+    tank_id = models.ForeignKey("Tank", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tank"),
+                                related_name="contxs")
+    trof_id = models.ForeignKey("Trough", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Trough"),
+                                related_name="contxs")
+    tray_id = models.ForeignKey("Tray", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tray"),
+                                related_name="contxs")
     heat_id = models.ForeignKey("HeathUnit", on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Heath Unit"))
-    draw_id = models.ForeignKey("Drawer", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Drawer"))
-    cup_id = models.ForeignKey("Cup", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Cup"))
+                                verbose_name=_("Heath Unit"), related_name="contxs")
+    draw_id = models.ForeignKey("Drawer", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Drawer"),
+                                related_name="contxs")
+    cup_id = models.ForeignKey("Cup", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Cup"),
+                               related_name="contxs")
 
     class Meta:
         constraints = [
@@ -634,6 +664,22 @@ class Group(BioModel):
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
+    @property
+    def current_tank(self):
+        cont = []
+
+        anix_in_set = self.animal_details.filter(final_contx_flag=True)
+        tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
+        anix_out_set = self.animal_details.filter(final_contx_flag=False)
+        tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
+
+        for tank, in_count in tank_in_set:
+            if tank not in tank_out_set:
+                cont.append(tank)
+            elif in_count > tank_out_set[tank]:
+                cont.append(tank)
+        return cont
+
 
 class GroupDet(BioDet):
     # grpd tag
@@ -844,6 +890,22 @@ class Individual(BioModel):
 
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
+
+    @property
+    def current_tank(self):
+        cont = []
+
+        anix_in_set = self.animal_details.filter(final_contx_flag=True)
+        tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
+        anix_out_set = self.animal_details.filter(final_contx_flag=False)
+        tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
+
+        for tank, in_count in tank_in_set:
+            if tank not in tank_out_set:
+                cont.append(tank)
+            elif in_count > tank_out_set[tank]:
+                cont.append(tank)
+        return cont
 
 
 class IndividualDet(BioDet):

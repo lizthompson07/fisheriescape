@@ -1253,6 +1253,21 @@ class TankDetails(mixins.TankMixin, CommonDetails):
             "env_val",
         ]
 
+        context["indv_list"], context["grp_list"] = self.object.fish_in_cont
+        context["indv_object"] = models.Individual.objects.first()
+        context["indv_field_list"] = [
+            "ufid",
+            "pit_tag",
+            "grp_id",
+
+        ]
+        context["grp_object"] = models.Group.objects.first()
+        context["grp_field_list"] = [
+            "stok_id",
+            "coll_id",
+            "spec_id",
+        ]
+
         return context
 
 
