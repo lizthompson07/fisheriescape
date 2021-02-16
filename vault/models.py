@@ -213,9 +213,8 @@ class Outing(models.Model):
                                              verbose_name=_("observation platform"))
     region = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Region"))
     purpose = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Purpose"))
-    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date (YYYY-MM-DD)"))
-    start_time = models.TimeField(null=True, blank=True, verbose_name=_("Start time (format)"))
-    end_time = models.TimeField(null=True, blank=True, verbose_name=_("End time (format)"))
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date and time (YYYY-MM-DD)"))
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date and time (YYYY-MM-DD)"))
     duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True,
                                    verbose_name=_("Duration (hours)"))
     identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Identifier String"))
