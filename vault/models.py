@@ -207,16 +207,38 @@ class ObservationPlatform(models.Model):
     def get_absolute_url(self):
         return reverse("vault:observationplatform_detail", kwargs={"pk": self.id})
 
-
+#TODO add track file presence/absence / spatial display? to outing
 class Outing(models.Model):
+    REGION_CHOICES = (
+        (1, _("St. Lawrence Estuary")),
+        (2, _("Northern GSL")),
+        (3, _("Southern GSL")),
+        (4, _("Cabot Strait")),
+        (5, _("Western NFLD")),
+        (6, _("Northern NFLD")),
+        (7, _("Eastern NFLD")),
+        (8, _("Southern NFLD")),
+        (9, _("Eastern Scotian Shelf")),
+        (10, _("Scotian Shelf")),
+        (11, _("Western Scotian Shelf")),
+        (12, _("Bay of Fundy")),
+    )
+
+    PURPOSE_CHOICES = (
+        (1, _("Broadscale Marine Mammal Survey")),
+        (2, _("Science Multi-Species Survey")),
+        (3, _("Fisheries Surveillance")),
+        (4, _("Fisheries Management Support")),
+        (5, _("Shipping Lane Surveillance")),
+        (6, _("Whale Survey")),
+        (7, _("Routine Patrol")),
+    )
     observation_platform = models.ForeignKey(ObservationPlatform, on_delete=models.DO_NOTHING, related_name="outings",
                                              verbose_name=_("observation platform"))
-    region = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Region"))
-    purpose = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Purpose"))
+    region = models.IntegerField(blank=True, null=True, choices=REGION_CHOICES, verbose_name=_("Region"))
+    purpose = models.IntegerField(blank=True, null=True, choices=PURPOSE_CHOICES, verbose_name=_("Purpose"))
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date and time (YYYY-MM-DD)"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date and time (YYYY-MM-DD)"))
-    duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True,
-                                   verbose_name=_("Duration (hours)"))
     identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Identifier String"))
 
     def __str__(self):
@@ -224,6 +246,11 @@ class Outing(models.Model):
 
     def get_absolute_url(self):
         return reverse("vault:outing_detail", kwargs={"pk": self.id})
+
+    @property
+    def outing_duration(self):
+        """Determine the length in hours of the outing from the start and end date fields"""
+        return self.end_date - self.start_date
 
 
 class Observation(models.Model):

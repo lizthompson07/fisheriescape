@@ -400,9 +400,8 @@ class OutingListView(VaultAccessRequired, CommonFilterView):
         {"name": 'region', "class": "", "width": ""},
         {"name": 'purpose', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": ""},
-        {"name": 'start_time', "class": "", "width": ""},
-        {"name": 'end_time', "class": "red-font", "width": ""},
-        {"name": 'duration', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+        {"name": 'outing_duration|{}'.format(gettext_lazy("outing duration")), "class": "", "width": ""},
         {"name": 'identifier_string', "class": "", "width": ""},
 
     ]
@@ -419,9 +418,8 @@ class OutingDetailView(VaultAdminAccessRequired, CommonDetailView):
         'region',
         'purpose',
         'start_date',
-        'start_time',
-        'end_time',
-        'duration',
+        'end_date',
+        'outing_duration',
         'identifier_string',
     ]
     home_url_name = "vault:index"
