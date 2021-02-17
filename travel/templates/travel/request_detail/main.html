@@ -79,19 +79,16 @@
 
       {# ADMIN CANCEL BUTTON - only show this option for approved requests #}
       {% echo "danger" as cancel_btn_color %}
-      {% trans "Cancel Request" as cancel_btn_text %}
-      <span v-if="isAdmin && request.status !== 22 && request.status !== 10 && request.status !== 8" data-toggle="tooltip"
+      <span v-if="isAdmin && request.status !== 22 && request.status !== 10 && request.status !== 8 && !showAdminNotesForm" data-toggle="tooltip"
             title="{% trans "This is only an option to you as a system admin" %}">
         <a class="btn btn-admin" href="{% url 'travel:request_cancel' object.id %}">
-        {{ cancel_btn_text }}
+          {% trans "Cancel Request" %}
         </a>
       </span>
     </div>
 
     <div v-if="!showAdminNotesForm" class="btns mb-3">
-
       {# SUBMIT BUTTON #}
-
       {% if not object.submitted and object.is_late_request and not object.late_justification %}
         {% trans "You must provide a late justification in order to submit this trip." as submit_tip_text %}
       {% endif %}
@@ -136,19 +133,7 @@
 {% endblock %}
 
 
-
-
 {% block body_js %}
   {{ block.super }}
-
-  <script type="application/javascript">
-  var isReview = false;
-  var tripRequestId = {{ object.id }};
-  let travellerDeleteMsg = "{% trans 'Are you certain you want to delete this traveller? This action is irreversible!! \n\nIf you select yes, an administrative note recording this transaction will be added to this record.' %}";
-  let requestReviewerResetMsg = "{% trans 'Are you sure you want to reset the reviewers? This will undo any changes that you have made to the reviewer list and process order.' %}";
-  let deleteReviewerMsg = "{% trans 'Are you sure you want to delete this reviewer?' %}";
-  </script>
-
-  <script src="{% static 'travel/mainRequest.js' %}?version=0.8"></script>
-
+  {% include "travel/common/_script.html" %}
 {% endblock %}

@@ -9,7 +9,7 @@ var app = new Vue({
     loadingDMAppsUsers: false,
 
     isReview: isReview,  // declared in template SCRIPT tag
-
+    errorMsgReviewer: null,
     showAdminNotesForm: false,
     reviewerEditMode: false,
 
@@ -23,45 +23,84 @@ var app = new Vue({
     roleChoices: [],
   },
   methods: {
-    deleteReviewer(reviewer) {
-      userInput = confirm(deleteReviewerMsg);
+    skipReviewer(reviewer) {
+      userInput = prompt(skipReviewerMsg);
       if (userInput) {
-        let endpoint = `/api/travel/request-reviewers/${reviewer.id}/`;
-        apiService(endpoint, "DELETE")
+        reviewer.comments = userInput;
+        console.log(reviewer)
+        let endpoint = `/api/travel/request-reviewers/${reviewer.id}/?skip=true`;
+        apiService(endpoint, "PUT", reviewer)
             .then(response => {
-              this.$delete(this.request.reviewers, this.request.reviewers.indexOf(reviewer))
+              if (response.id) {
+                this.getRequest();
+              } else {
+                console.log(response)
+                this.errorMsgReviewer = this.groomJSON(response)
+              }
             })
       }
+    },
+    moveReviewer(reviewer, direction) {
+      if (direction === 'up') reviewer.order -= 1.5;
+      else if (direction === 'down') reviewer.order += 1.5;
+      this.request.reviewers.sort((a, b) => {
+        if (a["order"] < b["order"]) return -1
+        if (a["order"] > b["order"]) return 1
+      });
+      // reset the order numbers based on position in array
+      for (var i = 0; i < this.request.reviewers.length; i++) {
+        r = this.request.reviewers[i]
+        if (r.status === 4 || r.status === 20) r.order = i;
+        else r.order = i - 1000;
+        this.updateReviewer(this.request.reviewers[i])
+      }
+    },
+    addReviewer() {
+      this.request.reviewers.push({
+        request: this.request.id,
+        order: this.request.reviewers.length + 1,
+        role: null,
+        status: 4,  // this will be updated by the model save method. setting status == 4 just allows to show in list
+      })
     },
     closeReviewerForm() {
       this.getRequest();
       this.reviewerEditMode = false;
     },
-    updateReviewer(reviewer) {
-      let endpoint = `/api/travel/request-reviewers/${reviewer.id}/`;
-      apiService(endpoint, "PUT", reviewer)
-          .then(response => {
-            reviewer = response;
-          })
+    collapseTravellers() {
+      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = true;
+      this.$forceUpdate()
     },
-    getReviewerMetadata() {
-      let endpoint = `/api/travel/meta/models/request-reviewer/`;
-      apiService(endpoint).then(data => {
-        this.reviewerLabels = data.labels;
-        this.roleChoices = data.role_choices;
-      });
+    deleteReviewer(reviewer) {
+      if (reviewer.id) {
+        userInput = confirm(deleteReviewerMsg);
+        if (userInput) {
+          let endpoint = `/api/travel/request-reviewers/${reviewer.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                this.$delete(this.request.reviewers, this.request.reviewers.indexOf(reviewer))
+              })
+        }
+      } else {
+        this.$delete(this.request.reviewers, this.request.reviewers.indexOf(reviewer))
+      }
     },
-    getTravellerMetadata() {
-      let endpoint = `/api/travel/meta/models/traveller/`;
-      apiService(endpoint).then(data => {
-        this.travellerLabels = data.labels;
-      });
+    deleteTraveller(traveller) {
+      var userInput = false;
+      if (this.request.status === 8) userInput = confirm(travellerDeleteMsgLITE);
+      else userInput = confirm(travellerDeleteMsg);
+      if (userInput) {
+        let endpoint = `/api/travel/travellers/${traveller.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              console.log(response);
+              this.getRequest();
+            })
+      }
     },
-    getFileMetadata() {
-      let endpoint = `/api/travel/meta/models/file/`;
-      apiService(endpoint).then(data => {
-        this.fileLabels = data.labels;
-      });
+    expandTravellers() {
+      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = false;
+      this.$forceUpdate()
     },
     fetchDMAppsUsers() {
       this.loadingDMAppsUsers = true;
@@ -71,12 +110,6 @@ var app = new Vue({
         this.loadingDMAppsUsers = false;
       });
     },
-    goRequestReviewerReset() {
-      userInput = confirm(requestReviewerResetMsg)
-      if (userInput) {
-        window.location.href = `/travel-plans/requests/${tripRequestId}/reset-reviewers/`;
-      }
-    },
     getCurrentUser(request) {
       this.loading_user = true;
       let endpoint = `/api/travel/user/?request=${request.id}`;
@@ -85,6 +118,12 @@ var app = new Vue({
             this.loading_user = false;
             this.currentUser = response;
           })
+    },
+    getFileMetadata() {
+      let endpoint = `/api/travel/meta/models/file/`;
+      apiService(endpoint).then(data => {
+        this.fileLabels = data.labels;
+      });
     },
     getRequest() {
       this.loading_request = true;
@@ -100,6 +139,25 @@ var app = new Vue({
             })
           })
     },
+    getReviewerMetadata() {
+      let endpoint = `/api/travel/meta/models/request-reviewer/`;
+      apiService(endpoint).then(data => {
+        this.reviewerLabels = data.labels;
+        this.roleChoices = data.role_choices;
+      });
+    },
+    getTravellerMetadata() {
+      let endpoint = `/api/travel/meta/models/traveller/`;
+      apiService(endpoint).then(data => {
+        this.travellerLabels = data.labels;
+      });
+    },
+    goRequestReviewerReset() {
+      userInput = confirm(requestReviewerResetMsg)
+      if (userInput) {
+        window.location.href = `/travel-plans/requests/${tripRequestId}/reset-reviewers/`;
+      }
+    },
     updateRequestAdminNotes() {
       if (this.currentUser.is_admin) {
         let endpoint = `/api/travel/requests/${tripRequestId}/`;
@@ -110,25 +168,39 @@ var app = new Vue({
             })
       }
     },
-    deleteTraveller(traveller) {
-      let userInput = confirm(travellerDeleteMsg);
-      if (userInput) {
-        let endpoint = `/api/travel/travellers/${traveller.id}/`;
-        apiService(endpoint, "DELETE")
+    updateReviewer(reviewer) {
+      this.errorMsgReviewer = null;
+      if (reviewer.id) {
+        let endpoint = `/api/travel/request-reviewers/${reviewer.id}/`;
+        apiService(endpoint, "PUT", reviewer)
             .then(response => {
-              console.log(response);
-              this.getRequest();
+              if (response.id) {
+                reviewer = response;
+                this.errorMsgReviewer = null;
+              } else {
+                console.log(response)
+                this.errorMsgReviewer = this.groomJSON(response)
+              }
+
+            })
+      } else {
+        let endpoint = `/api/travel/request-reviewers/`;
+        apiService(endpoint, "POST", reviewer)
+            .then(response => {
+              console.log(response)
+              if (response.id) {
+                this.$delete(this.request.reviewers, this.request.reviewers.indexOf(reviewer))
+                this.request.reviewers.push(response)
+                this.errorMsgReviewer = null;
+              } else {
+                this.errorMsgReviewer = this.groomJSON(response)
+              }
             })
       }
     },
-    expandTravellers() {
-      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = false;
-      this.$forceUpdate()
+    groomJSON(json) {
+      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "")
     },
-    collapseTravellers() {
-      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = true;
-      this.$forceUpdate()
-    }
   },
   filters: {
     floatformat: function (value, precision = 2) {
@@ -182,6 +254,15 @@ var app = new Vue({
       }
       return false;
     },
+    editableReviewers() {
+      myArray = []
+      for (var i = 0; i < this.request.reviewers.length; i++) {
+        if (this.request.reviewers[i].status === 4 || this.request.reviewers[i].status === 20) {
+          myArray.push(this.request.reviewers[i])
+        }
+      }
+      return myArray
+    }
   },
   created() {
     this.getRequest();

@@ -65,7 +65,7 @@ class FileSerializer(serializers.ModelSerializer):
 class RequestReviewerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Reviewer
-        fields = "__all__"
+        exclude = ["trip_request", ]
 
     role_display = serializers.SerializerMethodField()
     status_date = serializers.SerializerMethodField()

@@ -2,7 +2,7 @@
 
 <button
   @click="showAdminNotesForm=true"
-  v-if="isAdmin"
+  v-if="isAdmin && !showAdminNotesForm"
   class="btn btn-admin">
   {% trans "Administrative Notes" %}
 </button>

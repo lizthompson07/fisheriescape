@@ -103,11 +103,6 @@
 
         {# Reviewers #}
         <div class="float-right mb-3" v-if="canModify && !isReview && !reviewerEditMode">
-          <button @click="goRequestReviewerReset"
-                  class="btn btn-sm btn-primary py-0 px-1" id="reset-btn">
-            <span class="mdi mdi-redo-variant text-light"></span>
-            {% trans "Reset" %}
-          </button>
           <button @click="reviewerEditMode=true" class="btn btn-sm btn-primary py-0 px-1">
             <span class="mdi mdi-plus text-light"></span> {% trans "Modify" %}
           </button>
@@ -127,7 +122,6 @@
 
           <table class="table table-bordered table-sm" v-if="request.reviewers.length && !reviewerEditMode">
             <thead>
-            <th>${ reviewerLabels.order}</th>
             <th>${ reviewerLabels.user}</th>
             <th>${ reviewerLabels.role}</th>
             <th>${ reviewerLabels.status}</th>
@@ -136,17 +130,17 @@
             </thead>
             <tbody>
             <tr v-for="item in request.reviewers" :key="item.id">
-              <td>${item.order }</td>
               <td>${item.user_display }</td>
               <td>${item.role_display }</td>
               <td :class="item.status_class">${item.status_display }</td>
               <td>${item.status_date |nz }</td>
               <td v-html="item.comments_html"></td>
-              <td v-if="isAdmin && item.status === 1" style="width: 75px">
+              <td v-if="isAdmin && item.status === 1 && (item.role !== 5 && item.role !== 6)" style="width: 75px">
                 <button
-                    class="btn btn-sm btn-danger py-0 px-1" data-toggle="tooltip" title="{% trans "Skip" %}">
-                    <span class="mdi mdi-skip-forward text-light"></span> Skip
-                  </button>
+                  @click="skipReviewer(item)"
+                  class="btn btn-sm btn-danger py-0 px-1" data-toggle="tooltip" title="{% trans "Skip" %}">
+                  <span class="mdi mdi-skip-forward text-light"></span> {% trans "Skip" %}
+                </button>
               </td>
             </tr>
             </tbody>
@@ -160,11 +154,11 @@
               <th>${ reviewerLabels.status}</th>
               </thead>
               <tbody>
-              <tr v-for="item in request.reviewers" :key="item.id" v-if="item.status === 4 || item.status == 20">
+              <tr v-for="(item, index) in editableReviewers" :key="item.id">
                 <td>
-                  <input v-model="item.order"
-                         type="number" class="form-control form-control-sm"
-                         @change="updateReviewer(item)"></td>
+                  <button v-if="index!==0" @click="moveReviewer(item, 'up')"><span class="mdi mdi-arrow-up-bold-circle-outline h5"></span></button>
+                  <button v-if="index!==request.reviewers.length-1" @click="moveReviewer(item, 'down')"><span
+                    class="mdi mdi-arrow-down-bold-circle-outline h5"></span></button>
                 <td>
                   <v-select
                     style="width: 100%"
@@ -195,7 +189,20 @@
               </tr>
               </tbody>
             </table>
+            <div v-if="errorMsgReviewer" class="alert alert-danger py-1 mt-3" role="alert" style="width: 80%">
+              <p class="mb-0">
+                <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+                <span class="h6">${errorMsgReviewer}</span>
+              </p>
+            </div>
             <div class="mt-3">
+              <div class="float-right">
+                <button @click="addReviewer" class="btn btn-sm btn-success text-light">
+                  <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}</button>
+                <button v-if="!request.submitted" @click="goRequestReviewerReset" class="btn btn-sm btn-warning" id="reset-btn">
+                  <span class="mdi mdi-redo-variant"></span>                  {% trans "Reset" %}
+                </button>
+              </div>
               <button @click="closeReviewerForm" class="btn btn-sm btn-primary text-light">{% trans "Done" %}</button>
             </div>
           </div>

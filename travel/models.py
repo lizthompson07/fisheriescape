@@ -1509,9 +1509,14 @@ class Reviewer(models.Model):
 
     def save(self, *args, **kwargs):
         # If the trip request is currently under review but changes have been requested, add this reviewer directly in the queue
-
         if self.request.status != 8 and self.status == 4:
             self.status = 20
+
+        # if the reviewer is in draft, there is no status date. Otherwise populate with current dt upon save
+        if self.status == 4 or self.status == 20:  # draft or queued
+            self.status_date = None
+        else:
+            self.status_date = timezone.now()
         return super().save(*args, **kwargs)
 
     @property

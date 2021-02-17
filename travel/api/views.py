@@ -1,3 +1,5 @@
+from gettext import gettext as _
+
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
@@ -201,21 +203,40 @@ class ReviewerViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save(updated_by=self.request.user)
 
     def perform_update(self, serializer):
-        # can only change if is in draft or queued
-        if serializer.instance.status in [4, 20]:
-            serializer.save(updated_by=self.request.user)
+        # first we must determine if this is a request to skip a reviewer. If it is, the user better be an admin
+        if self.request.query_params.get("skip"):
+            if not utils.is_admin(self.request.user):
+                raise ValidationError("Sorry this is an admin function and you are not an admin user")
+            else:
+                my_reviewer = serializer.instance
+                my_reviewer.status = 21
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.comments = _("Manually overridden by {user} with the following rationale: \n {comments}").format(
+                    user=self.request.user,
+                    comments=serializer.validated_data["comments"])
+                # now we save the reviewer for real
+                my_reviewer.save()
+                # update any statuses if necessary
+                utils.approval_seeker(my_reviewer.request, False, self.request)
         else:
-            raise ValidationError("cannot modify this reviewer who has the status of ", serializer.instance.get_status_display())
+            # can only change if is in draft or queued
+            if serializer.instance.status in [4, 20]:
+                serializer.save(updated_by=self.request.user)
+            else:
+                # we will only tolerate interacting with the order of the reviewer
+                instance = serializer.instance
+                instance.order = serializer.validated_data["order"]
+                instance.save()
 
     def perform_destroy(self, instance):
         # can only change if is in draft or queued
         if instance.status in [4, 20]:
             super().perform_destroy(instance)
         else:
-            raise ValidationError("cannot delete this reviewer who has the status of ", instance.get_status_display())
+            raise ValidationError("cannot delete this reviewer who has the status of " + instance.get_status_display())
 
     def get_queryset(self):
         qs = models.Reviewer.objects.all()
