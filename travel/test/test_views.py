@@ -404,7 +404,7 @@ class TestTripRequestReviewerUpdateView(CommonTest):
         self.reviewer2 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role=5, order=2)
         self.reviewer3 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role=6, order=3)
         # start the review process and get set the first reviewer to "pending"
-        utils.start_review_process(self.tr)
+        utils.start_request_review_process(self.tr)
         utils.approval_seeker(self.tr, True)
         self.test_url1 = reverse_lazy('travel:tr_review_update', kwargs={"pk": self.reviewer1.pk})
 
@@ -477,7 +477,7 @@ class TestTripRequestSubmitUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.reviewer = FactoryFloor.ReviewerFactory()
-        self.instance = self.reviewer.trip_request
+        self.instance = self.reviewer.request
         self.user = self.instance.user
         self.test_url = reverse_lazy('travel:request_submit', args=(self.instance.pk, "my"))
         self.expected_template = 'travel/trip_request_submission_form.html'
@@ -558,8 +558,7 @@ class TestTripRequestUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.IndividualTripRequestFactory()
         self.instance_child = FactoryFloor.IndividualTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_edit', args=(self.instance.pk, "my"))
-        self.test_url1 = reverse_lazy('travel:request_edit', args=(self.instance_child.pk, "pop"))
+        self.test_url = reverse_lazy('travel:request_edit', args=(self.instance.pk,))
         self.expected_template = 'travel/trip_request_form.html'
         self.expected_template1 = 'travel/trip_request_form_popout.html'
 
@@ -936,7 +935,7 @@ class TripRequestDetails(CommonTest):
     def setUp(self):
         super().setUp()  # used to import fixutres
         self.trip_request = FactoryFloor.IndividualTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_detail', args=(self.trip_request.pk, "my"))
+        self.test_url = reverse_lazy('travel:request_detail', args=(self.trip_request.pk, ))
         self.expected_template = 'travel/trip_request_detail.html'
 
     @tag("trip_request", 'detail', "view")

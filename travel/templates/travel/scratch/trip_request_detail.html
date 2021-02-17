@@ -166,7 +166,7 @@
       {% endif %}
 
       <span data-toggle="tooltip" title="{{ edit_tip_text }}">
-                <a class="btn btn-warning {{ edit_disabled_var }}" href="{% url 'travel:request_edit' object.id view.kwargs.type %}">
+                <a class="btn btn-warning {{ edit_disabled_var }}" href="{% url 'travel:request_edit' object.id %}">
                     {% trans "Edit" %}
                 </a>
                 </span>

@@ -19,3 +19,10 @@ def get_traveller_field_list():
         return utils.get_traveller_field_list()
     except Exception as e:
         return []
+
+@register.simple_tag
+def get_request_reviewer_field_list():
+    try:
+        return utils.get_request_reviewer_field_list()
+    except Exception as e:
+        return []

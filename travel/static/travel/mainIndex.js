@@ -75,7 +75,7 @@ var app = new Vue({
             console.log(response)
             this.regionalVerificationCount = response.count;
           })
-      apiService(`/api/travel/request-reviews/?rdg=true`)
+      apiService(`/api/travel/request-reviewers/?rdg=true`)
           .then(response => {
             this.loading_rdg_approval_list = false;
             if (response.count) this.regionalRDGApprovalCount = response.count;

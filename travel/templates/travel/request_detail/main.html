@@ -1,0 +1,154 @@
+{% extends "travel/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load i18n %}
+{% load humanize %}
+
+
+{#{% endif %}#}
+
+
+
+{% block subcontent %}
+  <div id="app" v-cloak>
+    <div v-if="canModify" class="alert alert-primary no-print py-1" role="alert" style="width: 60%">
+      <p class="mb-0">
+        <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+      </p>
+    </div>
+    <div v-if="request.id">
+      <div
+        v-if="request.trip.is_adm_approval_required && !request.submitted"
+        :class="{'alert py-1': true, 'alert-success':request.trip.days_until_eligible_for_adm_review > 45, 'alert-warning':request.trip.days_until_eligible_for_adm_review >= 15, 'alert-danger':request.trip.days_until_eligible_for_adm_review < 15}"
+        role="alert">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+          <span class="h6" v-if="request.trip.days_until_eligible_for_adm_review < 0">
+          {% blocktrans %}
+            This trip was eligible for review by the ADM office ${ request.trip.time_until_eligible_for_adm_review }.
+          {% endblocktrans %}
+          </span>
+          <span class="h6" v-else>
+          {% blocktrans %}
+            This trip will be eligible for review by the ADM office in ${ request.trip.time_until_eligible_for_adm_review }.
+          {% endblocktrans %}
+          </span>
+        </p>
+      </div>
+
+      <div v-if="request.is_late_request && !request.submitted" class="alert alert-danger py-1" role="alert" style="width: 80%">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+          <span class="h6 red-font"><u>{% trans "WARNING" %}</u></span>
+          <span class="h6">{% trans "In order to submit this request, you will need to provide a justification for the late submission." %}</span>
+        </p>
+      </div>
+      <div v-if="request.trip.status === 43" class="alert alert-danger py-1" role="alert" style="width: 80%">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+          <span class="h6 red-font"><u>{% trans "WARNING" %}</u></span>
+          <span class="h6">{% trans "The trip associated with this request has been cancelled." %}</span>
+        </p>
+      </div>
+      <div v-if="request.trip.status === 31" class="alert alert-danger py-1" role="alert" style="width: 80%">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+          <span class="h6">{% trans "This trip is currently under review from NCR." %}</span>
+        </p>
+      </div>
+      <div v-if="request.trip.status === 32" class="alert alert-danger py-1" role="alert" style="width: 80%">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+          <span class="h6">{% trans "This trip has already been reviewed by NCR." %}</span>
+        </p>
+      </div>
+
+
+    </div>
+
+
+    {# ADMIN BUTTON GROUP #}
+
+    <div class="btns mb-3">
+
+      {# ADMIN NOTES #}
+      {% include "travel/common/_request_admin_notes_button.html" %}
+
+      {# ADMIN CANCEL BUTTON - only show this option for approved requests #}
+      {% echo "danger" as cancel_btn_color %}
+      {% trans "Cancel Request" as cancel_btn_text %}
+      <span v-if="isAdmin && request.status !== 22 && request.status !== 10 && request.status !== 8" data-toggle="tooltip"
+            title="{% trans "This is only an option to you as a system admin" %}">
+        <a class="btn btn-admin" href="{% url 'travel:request_cancel' object.id %}">
+        {{ cancel_btn_text }}
+        </a>
+      </span>
+    </div>
+
+    <div v-if="!showAdminNotesForm" class="btns mb-3">
+
+      {# SUBMIT BUTTON #}
+
+      {% if not object.submitted and object.is_late_request and not object.late_justification %}
+        {% trans "You must provide a late justification in order to submit this trip." as submit_tip_text %}
+      {% endif %}
+
+      <span data-toggle="tooltip" title="{{ submit_tip_text }}">
+      <a
+        :class="{btn:true, 'btn-secondary': request.submitted, 'btn-success': !request.submitted, 'disabled': request.is_late_request && !request.late_justification}"
+        v-if="(canModify || isOwner) && request.status !== 11 && request.status !== 22"
+        href="{% url 'travel:request_submit' object.id %}">
+        <span v-if="!request.submitted">{% trans "Submit" %}</span>
+        <span v-else-if="request.status === 16">{% trans "Re-submit" %}</span>
+        <span v-else>{% trans "Un-submit" %}</span>
+      </a>
+      </span>
+
+      {# EDIT BUTTON #}
+      <a v-if="canModify"
+         class="btn btn-warning" href="{% url 'travel:request_edit' object.id %}">
+        {% trans "Edit" %}
+      </a>
+      {# DELETE BUTTON #}
+      <a v-if="canModify && !request.submitted"
+         class="btn btn-danger" href="{% url 'travel:request_delete' object.id %}">
+        {% trans "Delete" %}
+      </a>
+      {# CLONE BUTTON #}
+      <a class="btn btn-primary " href="{% url 'travel:request_clone' object.id %}">
+        {% trans "Clone Me" %}
+      </a>
+
+      {% trans "Travel Request and Approval Form (TRAF)" as print_tip %}
+      <a class="btn btn-outline-dark " href="{% url 'travel:request_print' object.id %}" data-toggle="tooltip" title="{{ print_tip }}">
+        <span class="mdi mdi-file-pdf h5"></span>
+        {% trans "Print TRAF" %}
+      </a>
+
+    </div>
+
+    {% include "travel/common/_request_summary.html" %}
+    {% include "travel/common/_request_travellers.html" %}
+  </div>
+{% endblock %}
+
+
+
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script type="application/javascript">
+  var isReview = false;
+  var tripRequestId = {{ object.id }};
+  let travellerDeleteMsg = "{% trans 'Are you certain you want to delete this traveller? This action is irreversible!! \n\nIf you select yes, an administrative note recording this transaction will be added to this record.' %}";
+  let requestReviewerResetMsg = "{% trans 'Are you sure you want to reset the reviewers? This will undo any changes that you have made to the reviewer list and process order.' %}";
+  let deleteReviewerMsg = "{% trans 'Are you sure you want to delete this reviewer?' %}";
+  </script>
+
+  <script src="{% static 'travel/mainRequest.js' %}?version=0.8"></script>
+
+{% endblock %}

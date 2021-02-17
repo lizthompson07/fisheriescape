@@ -5,8 +5,10 @@ from . import views
 app_name = 'travel'
 
 urlpatterns = [
-    path('util/conf_details', views.get_conf_details, name='conf_details'),  # this should be moved to the API section
+    # Download a file
+    path('download/file/<str:file>/', views.get_file, name="get_file"),
 
+    path('util/conf_details', views.get_conf_details, name='conf_details'),  # this should be moved to the API section
     path('', views.IndexTemplateView.as_view(), name="index"),
 
 
@@ -15,6 +17,13 @@ urlpatterns = [
     path('requests/', views.TripRequestListView.as_view(), name="request_list"),
     path('requests/new/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('requests/<int:pk>/view/', views.TripRequestDetailView.as_view(), name="request_detail"),
+    path('requests/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
+    path('requests/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
+    path('requests/<int:pk>/edit/', views.TripRequestUpdateView.as_view(), name="request_edit"),
+    path('requests/<int:pk>/delete/', views.TripRequestDeleteView.as_view(), name="request_delete"),
+    path('requests/<int:pk>/clone/', views.TripRequestCloneUpdateView.as_view(), name="request_clone"),
+    path('requests/<int:pk>/print-travel-plan/', views.TravelPlanPDF.as_view(), name="request_print"),
+    path('requests/<int:pk>/reset-reviewers/', views.reset_request_reviewers, name="reset_request_reviewers"),
 
     # Trips
     #######
@@ -32,42 +41,18 @@ urlpatterns = [
 
     # Request reviews
     ##################
-    path('rdg-approvals/', views.TripRequestAdminApprovalListView.as_view(), name="rdg_approvals"),
-
-
-
-    ############################################################################################################
-
-    # TRIP REQUEST #
-    ################
-    path('requests/<str:type>/', views.TripRequestListView.as_view(), name="request_list"),
-
-    path('request/<int:parent_request>/new-child-request/', views.TripRequestCreateView.as_view(), name="request_new"),
-
-    path('request/<int:pk>/view/from/<str:type>/', views.TripRequestDetailView.as_view(), name="request_detail"),
-    path('request/<int:pk>/edit/from/<str:type>/', views.TripRequestUpdateView.as_view(), name="request_edit"),
-    path('request/<int:pk>/delete/from/<str:type>/', views.TripRequestDeleteView.as_view(), name="request_delete"),
-    path('request/<int:pk>/submit/from/<str:type>/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
-    path('request/<int:pk>/clone/from/<str:type>/', views.TripRequestCloneUpdateView.as_view(), name="request_clone"),
-    path('request/<int:pk>/cancel/from/<str:type>/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
-
-    path('request/<int:pk>/print/', views.TravelPlanPDF.as_view(), name="request_print"),
-
-    path('request/<int:pk>/clone-child/pop/<str:type>', views.ChildTripRequestCloneUpdateView.as_view(), name="child_request_clone"),
-
-    path('request/<int:pk>/admin-notes/', views.TripRequestAdminNotesUpdateView.as_view(), name="admin_notes_edit"),
-
-    # TRIP REVIEWERS
     path('request-reviewers/', views.TripRequestReviewerListView.as_view(), name="request_reviewer_list"),
     path('request-reviewers/<int:pk>/review/', views.TripRequestReviewerUpdateView.as_view(), name="request_reviewer_update"),
+    path('rdg-approvals/', views.TripRequestAdminApprovalListView.as_view(), name="rdg_approvals"),
 
+    ############################################################################################################
 
 
 
     # ADMIN APPROVAL LIST (FOR ADM and RDG)
-    path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
-    path('admin/approval/for/<str:type>/region/<int:region>/', views.TripRequestAdminApprovalListView.as_view(),
-         name="admin_approval_list"),
+    # path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
+    # path('admin/approval/for/<str:type>/region/<int:region>/', views.TripRequestAdminApprovalListView.as_view(),
+    #      name="admin_approval_list"),
     # path('admin/<int:pk>/approve/', views.TripRequestAdminApproveUpdateView.as_view(), name="admin_approve"),
 
     # this would be for a reviewer, recommender, approver
@@ -76,7 +61,7 @@ urlpatterns = [
     path('adm-review/<int:pk>/<int:approve>/', views.TripRequestReviewerADMUpdateView.as_view(), name="tr_review_adm_update"),
 
     # TRIP REQUEST REVIEWERS
-    path('request/<int:triprequest>/reset-reviewers/for/<str:type>/', views.reset_reviewers, name="reset_tr_reviewers"),
+    path('request/<int:triprequest>/reset-reviewers/for/<str:type>/', views.reset_request_reviewers, name="reset_tr_reviewers"),
     path('request/<int:triprequest>/manage-reviewers/for/<str:type>/', views.manage_reviewers, name="manage_tr_reviewers"),
     path('trip-request-reviewer/<int:pk>/delete/', views.TripRequestReviewerHardDeleteView.as_view(), name="delete_tr_reviewer"),
     path('trip-request-reviewer/<int:pk>/skip/', views.SkipReviewerUpdateView.as_view(), name="skip_tr_reviewer"),
@@ -103,7 +88,7 @@ urlpatterns = [
     #      name="trip_reassign_confirm"),
 
     # TRIP REVIEWERS
-    path('trip/<int:trip>/reset-reviewers/from/<str:type>/', views.reset_reviewers, name="reset_trip_reviewers"),
+    path('trip/<int:trip>/reset-reviewers/from/<str:type>/', views.reset_trip_reviewers, name="reset_trip_reviewers"),
     path('trip/<int:trip>/manage-reviewers/from/<str:type>/', views.manage_reviewers, name="manage_trip_reviewers"),
     path('trip-reviewer/<int:pk>/delete/', views.TripReviewerHardDeleteView.as_view(), name="delete_trip_reviewer"),
 
@@ -187,7 +172,6 @@ urlpatterns = [
     path('reports/trip-list/fiscal-year/<str:fy>/region/<str:region>/adm/<str:adm>/from_date/<str:from_date>/to_date/<str:to_date>/',
          views.export_trip_list, name="export_trip_list"),
 
-    # Download a file
-    path('download/file/<str:file>/', views.get_file, name="get_file"),
+
 
 ]

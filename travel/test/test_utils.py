@@ -144,13 +144,13 @@ class UtilsTest(CommonTest):
         reviewer2 = FactoryFloor.ReviewerFactory(trip_request=tr, order=2)
         reviewer3 = FactoryFloor.ReviewerFactory(trip_request=tr, order=3)
 
-        utils.start_review_process(tr)
+        utils.start_request_review_process(tr)
         for reviewer in tr.reviewers.all():
             self.assertEqual(reviewer.status, 20)
             self.assertIsNone(reviewer.status_date)
 
         # now let's end the review process
-        utils.end_review_process(tr)
+        utils.end_request_review_process(tr)
         for reviewer in tr.reviewers.all():
             self.assertEqual(reviewer.status, 4)
             self.assertIsNone(reviewer.status_date)

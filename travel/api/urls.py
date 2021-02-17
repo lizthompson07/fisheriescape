@@ -7,6 +7,7 @@ router = DefaultRouter()
 router.register(r'trips', views.TripViewSet)
 router.register(r'requests', views.RequestViewSet)
 router.register(r'travellers', views.TravellerViewSet)
+router.register(r'request-reviewers', views.ReviewerViewSet)
 
 urlpatterns = [
     path("travel/", include(router.urls)),
@@ -15,7 +16,7 @@ urlpatterns = [
 
     # path("travel/trips/", views.TripListAPIView.as_view(), name="trip-list"),
     # path("travel/requests/", views.RequestListAPIView.as_view(), name="request-list"),
-    path("travel/request-reviews/", views.RequestReviewListAPIView.as_view(), name="request-review-list"),
+    # path("travel/request-reviews/", views.RequestReviewListAPIView.as_view(), name="request-review-list"),
 
 
     path("travel/trip-request/<int:trip_request>/costs/", views.TripRequestCostsListAPIView.as_view(), name="cost-list"),
@@ -25,6 +26,10 @@ urlpatterns = [
     path("travel/regions/", views.RegionListAPIView.as_view(), name="travel-region-list"),
     path("travel/divisions/", views.DivisionListAPIView.as_view(), name="travel-division-list"),
     path("travel/sections/", views.SectionListAPIView.as_view(), name="travel-section-list"),
+
+    path("travel/meta/models/request-reviewer/", views.ReviewerModelMetaAPIView.as_view(), name="reviewer-model-meta"),
+    path("travel/meta/models/traveller/", views.TravellerModelMetaAPIView.as_view(), name="traveller-model-meta"),
+    path("travel/meta/models/file/", views.FileModelMetaAPIView.as_view(), name="file-model-meta"),
 
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),

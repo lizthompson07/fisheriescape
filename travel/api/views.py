@@ -2,13 +2,16 @@ from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
 from rest_framework import status, viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section
+from shared_models.utils import special_capitalize
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyOrReadOnly
@@ -31,6 +34,12 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
         data["trip_reviews_count"] = trip_reviews.count()
         # requests awaiting changes!
         data["requests_awaiting_changes"] = requests.filter(status=16).exists()
+
+        if request.query_params.get("request"):
+            my_trip_request = get_object_or_404(models.TripRequest1, pk=request.query_params.get("request"))
+            data.update(utils.can_modify_request(request.user, trip_request_id=request.query_params.get("request"), as_dict=True))
+            data.update(dict(is_owner=request.user.id == my_trip_request.created_by))
+
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -167,7 +176,6 @@ class RequestViewSet(viewsets.ModelViewSet):
         serializer.save(last_modified_by=self.request.user)
 
 
-
 class TravellerViewSet(viewsets.ModelViewSet):
     queryset = models.Traveller.objects.all()
     serializer_class = serializers.TravellerSerializer
@@ -186,9 +194,28 @@ class TravellerViewSet(viewsets.ModelViewSet):
         my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
 
 
-class RequestReviewListAPIView(ListAPIView):
-    serializer_class = serializers.TripRequestReviewerSerializer
+class ReviewerViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.RequestReviewerSerializer
     permission_classes = [CanModifyOrReadOnly]
+    queryset = models.Reviewer.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        # can only change if is in draft or queued
+        if serializer.instance.status in [4, 20]:
+            serializer.save(updated_by=self.request.user)
+        else:
+            raise ValidationError("cannot modify this reviewer who has the status of ", serializer.instance.get_status_display())
+
+    def perform_destroy(self, instance):
+        # can only change if is in draft or queued
+        if instance.status in [4, 20]:
+            super().perform_destroy(instance)
+        else:
+            raise ValidationError("cannot delete this reviewer who has the status of ", instance.get_status_display())
 
     def get_queryset(self):
         qs = models.Reviewer.objects.all()
@@ -196,6 +223,18 @@ class RequestReviewListAPIView(ListAPIView):
         if qp.get("rdg"):
             return qs.filter(role=6, status=1).filter(~Q(request__status=16))  # rdg & pending
         return qs
+
+
+# class RequestReviewListAPIView(ListAPIView):
+#     serializer_class = serializers.TripRequestReviewerSerializer
+#     permission_classes = [CanModifyOrReadOnly]
+#
+#     def get_queryset(self):
+#         qs = models.Reviewer.objects.all()
+#         qp = self.request.query_params
+#         if qp.get("rdg"):
+#             return qs.filter(role=6, status=1).filter(~Q(request__status=16))  # rdg & pending
+#         return qs
 
 
 # LOOKUPS
@@ -240,3 +279,42 @@ class SectionListAPIView(ListAPIView):
         elif self.request.query_params.get("region"):
             qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
         return qs
+
+
+def _get_labels(model):
+    labels = {}
+    for field in model._meta.get_fields():
+        if hasattr(field, "name") and hasattr(field, "verbose_name"):
+            labels[field.name] = special_capitalize(field.verbose_name)
+    return labels
+
+
+class ReviewerModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Reviewer
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        data['role_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.role_choices]
+        return Response(data)
+
+
+class TravellerModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Traveller
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
+class FileModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.File
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
