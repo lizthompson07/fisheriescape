@@ -8,6 +8,7 @@ router.register(r'trips', views.TripViewSet)
 router.register(r'requests', views.RequestViewSet)
 router.register(r'travellers', views.TravellerViewSet)
 router.register(r'request-reviewers', views.ReviewerViewSet)
+router.register(r'request-files', views.FileViewSet)
 
 urlpatterns = [
     path("travel/", include(router.urls)),

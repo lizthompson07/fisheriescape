@@ -246,16 +246,17 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         return qs
 
 
-# class RequestReviewListAPIView(ListAPIView):
-#     serializer_class = serializers.TripRequestReviewerSerializer
-#     permission_classes = [CanModifyOrReadOnly]
-#
-#     def get_queryset(self):
-#         qs = models.Reviewer.objects.all()
-#         qp = self.request.query_params
-#         if qp.get("rdg"):
-#             return qs.filter(role=6, status=1).filter(~Q(request__status=16))  # rdg & pending
-#         return qs
+class FileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.FileSerializer
+    permission_classes = [CanModifyOrReadOnly]
+    queryset = models.File.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 
 # LOOKUPS

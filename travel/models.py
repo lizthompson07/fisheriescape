@@ -1588,7 +1588,7 @@ class TripReviewer(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'travel/trip_{0}/{1}'.format(instance.trip_request.id, filename)
+    return 'travel/trip_{0}/{1}'.format(instance.request.id, filename)
 
 
 class File(models.Model):
@@ -1596,7 +1596,7 @@ class File(models.Model):
     trip_request = models.ForeignKey(TripRequest, related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("attachment"))
-    date_created = models.DateTimeField(default=timezone.now, verbose_name=_("date created"))
+    date_created = models.DateTimeField(auto_now=True, verbose_name=_("date created"), editable=False)
 
     class Meta:
         ordering = ['trip_request', 'date_created']

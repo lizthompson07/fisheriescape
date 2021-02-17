@@ -12,6 +12,7 @@ var app = new Vue({
     errorMsgReviewer: null,
     showAdminNotesForm: false,
     reviewerEditMode: false,
+    inFileEditMode: false,
 
     currentUser: {},
     request: {},
@@ -21,39 +22,55 @@ var app = new Vue({
     travellerLabels: {},
     fileLabels: {},
     roleChoices: [],
+    fileToUpload: null
+
   },
   methods: {
-    skipReviewer(reviewer) {
-      userInput = prompt(skipReviewerMsg);
-      if (userInput) {
-        reviewer.comments = userInput;
-        console.log(reviewer)
-        let endpoint = `/api/travel/request-reviewers/${reviewer.id}/?skip=true`;
-        apiService(endpoint, "PUT", reviewer)
-            .then(response => {
-              if (response.id) {
-                this.getRequest();
-              } else {
-                console.log(response)
-                this.errorMsgReviewer = this.groomJSON(response)
-              }
-            })
+    fileCloseEditMode(file) {
+      this.inFileEditMode = false;
+      if (!file.id) {
+        // remove from array
+        this.$delete(this.request.files, this.request.files.indexOf(file))
+      } else {
+        file.editMode = false;
+        this.$forceUpdate()
       }
     },
-    moveReviewer(reviewer, direction) {
-      if (direction === 'up') reviewer.order -= 1.5;
-      else if (direction === 'down') reviewer.order += 1.5;
-      this.request.reviewers.sort((a, b) => {
-        if (a["order"] < b["order"]) return -1
-        if (a["order"] > b["order"]) return 1
-      });
-      // reset the order numbers based on position in array
-      for (var i = 0; i < this.request.reviewers.length; i++) {
-        r = this.request.reviewers[i]
-        if (r.status === 4 || r.status === 20) r.order = i;
-        else r.order = i - 1000;
-        this.updateReviewer(this.request.reviewers[i])
+    onFileChange(fileRef) {
+      this.fileToUpload = this.$refs[fileRef][0].files[0];
+    },
+    updateFile(file) {
+      // if there is a file attribute, delete it since we send back the file through a separate request
+      if (file.file) delete file.file
+      let endpoint1;
+      let method1;
+      if (!file.id) {
+        endpoint1 = `/api/travel/request-files/`;
+        method1 = "POST";
+      } else {
+        endpoint1 = `/api/travel/request-files/${file.id}/`;
+        method1 = "PATCH";
       }
+      apiService(endpoint1, method1, file).then(response => {
+        if (response.id) {
+          let endpoint2 = `/api/travel/request-files/${response.id}/`;
+          fileApiService(endpoint2, "PATCH", "file", this.fileToUpload).then(response => {
+            this.fileToUpload = null
+          })
+        } else console.log(response)
+        // regardless, refresh everything!!
+        this.getRequest();
+        this.inFileEditMode = false;
+      })
+    },
+    addAttachment() {
+      this.inFileEditMode = true;
+      this.request.files.push({
+        request: this.request.id,
+        name: null,
+        file: null,
+        editMode: true,
+      })
     },
     addReviewer() {
       this.request.reviewers.push({
@@ -83,6 +100,16 @@ var app = new Vue({
         }
       } else {
         this.$delete(this.request.reviewers, this.request.reviewers.indexOf(reviewer))
+      }
+    },
+    deleteFile(file) {
+      userInput = confirm(deleteFileMsg);
+      if (userInput) {
+        let endpoint = `/api/travel/request-files/${file.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.request.files, this.request.files.indexOf(file))
+            })
       }
     },
     deleteTraveller(traveller) {
@@ -158,6 +185,41 @@ var app = new Vue({
         window.location.href = `/travel-plans/requests/${tripRequestId}/reset-reviewers/`;
       }
     },
+    groomJSON(json) {
+      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "")
+    },
+    moveReviewer(reviewer, direction) {
+      if (direction === 'up') reviewer.order -= 1.5;
+      else if (direction === 'down') reviewer.order += 1.5;
+      this.request.reviewers.sort((a, b) => {
+        if (a["order"] < b["order"]) return -1
+        if (a["order"] > b["order"]) return 1
+      });
+      // reset the order numbers based on position in array
+      for (var i = 0; i < this.request.reviewers.length; i++) {
+        r = this.request.reviewers[i]
+        if (r.status === 4 || r.status === 20) r.order = i;
+        else r.order = i - 1000;
+        this.updateReviewer(this.request.reviewers[i])
+      }
+    },
+    skipReviewer(reviewer) {
+      userInput = prompt(skipReviewerMsg);
+      if (userInput) {
+        reviewer.comments = userInput;
+        console.log(reviewer)
+        let endpoint = `/api/travel/request-reviewers/${reviewer.id}/?skip=true`;
+        apiService(endpoint, "PUT", reviewer)
+            .then(response => {
+              if (response.id) {
+                this.getRequest();
+              } else {
+                console.log(response)
+                this.errorMsgReviewer = this.groomJSON(response)
+              }
+            })
+      }
+    },
     updateRequestAdminNotes() {
       if (this.currentUser.is_admin) {
         let endpoint = `/api/travel/requests/${tripRequestId}/`;
@@ -197,9 +259,6 @@ var app = new Vue({
               }
             })
       }
-    },
-    groomJSON(json) {
-      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "")
     },
   },
   filters: {
@@ -258,11 +317,11 @@ var app = new Vue({
       myArray = []
       for (var i = 0; i < this.request.reviewers.length; i++) {
         if (this.request.reviewers[i].status === 4 || this.request.reviewers[i].status === 20) {
-          myArray.push(this.request.reviewers[i])
+          myArray.push(this.request.reviewers[i]);
         }
       }
       return myArray
-    }
+    },
   },
   created() {
     this.getRequest();
