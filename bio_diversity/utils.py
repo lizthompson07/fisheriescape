@@ -44,6 +44,7 @@ def year_coll_splitter(full_str):
 
 
 def get_cont_evnt(contx_tuple):
+    # input should be in the form (contx, bool/null)
     contx = contx_tuple[0]
     in_out_dict = {None: "", False: "Origin", True: "Destination"}
     output_list = [contx.evnt_id.evntc_id.__str__(), contx.evnt_id.start_date, in_out_dict[contx_tuple[1]]]

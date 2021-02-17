@@ -156,7 +156,7 @@ class BioCont(BioLookup):
                 indv_list.append(indv)
         for grp in grp_in_list:
             if self in grp.current_tank:
-                grp_list.append(indv)
+                grp_list.append(grp)
 
         return indv_list, grp_list
 
@@ -1045,7 +1045,7 @@ class Location(BioModel):
     subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("SubRiver Code"))
     relc_id = models.ForeignKey('ReleaseSiteCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Release Site Code"))
+                                verbose_name=_("Site Code"))
     loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Lattitude"))
     loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,

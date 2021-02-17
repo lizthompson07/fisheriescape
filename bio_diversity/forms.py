@@ -120,9 +120,13 @@ class AnidcForm(CreatePrams):
 
 
 class AnixForm(CreatePrams):
+
     class Meta:
         model = models.AniDetailXref
         exclude = []
+        widgets = {
+            'final_contx_flag': forms.NullBooleanSelect()
+        }
 
 
 class AdscForm(CreatePrams):
@@ -460,11 +464,11 @@ class DataForm(CreatePrams):
                             cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id,
                                                               cnt=cnt.cnt).get()
                     if cnt:
-                        if not math.isnan(row["fishing seconds"]):
+                        if not math.isnan(row["Fishing seconds"]):
                             cntd = models.CountDet(cnt_id=cnt,
                                                    anidc_id=models.AnimalDetCode.objects.filter(
                                                        name__iexact="Electrofishing Seconds").get(),
-                                                   det_val=row["fishing seconds"],
+                                                   det_val=row["Fishing seconds"],
                                                    qual_id=models.QualCode.objects.filter(name="Good").get(),
                                                    created_by=cleaned_data["created_by"],
                                                    created_date=cleaned_data["created_date"],
@@ -654,7 +658,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'to tank': str})
+                                     converters={'to tank': str, "PIT": str})
                 data["Comments"] = data["Comments"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
@@ -743,7 +747,7 @@ class DataForm(CreatePrams):
                             row_entered = True
 
                     if row["Comments"]:
-                        comment_parser(row["Comments"], anix_indv)
+                        comment_parser(row["Comments"], anix_indv, det_date=row_date)
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
@@ -841,7 +845,10 @@ class DataForm(CreatePrams):
                 try:
                     contx = enter_tank_contx(row["Pond"], cleaned_data, None, return_contx=True)
                     row_date = row["Date"].date()
-                    row_time = make_aware(row["Time (24HR)"])
+                    if row["Time (24HR)"]:
+                        row_time = make_aware(row["Time (24HR)"])
+                    else:
+                        row_time = None
                     if enter_env(row["Temp °C"], row_date, cleaned_data, "Temperature", contx=contx, env_start=row_time):
                         row_entered = True
                     if enter_env(row["DO%"], row_date, cleaned_data, "Oxygen Level", contx=contx, env_start=row_time):

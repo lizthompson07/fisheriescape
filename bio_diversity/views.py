@@ -932,8 +932,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
                                                           indvt_id__isnull=True, spwn_id__isnull=True)
 
-        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
-        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
+        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
         context["cont_evnt_field_list"] = [
             "Evnt",
             "Date",
@@ -1027,8 +1027,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
                                                           indvt_id__isnull=True, spwn_id__isnull=True)
 
-        contx_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag)for anix in anix_evnt_set]))
-        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
+        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
         context["cont_evnt_field_list"] = [
             "Evnt",
             "Date",
