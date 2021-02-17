@@ -38,6 +38,15 @@ class TripSerializerLITE(serializers.ModelSerializer):
     days_until_eligible_for_adm_review = serializers.SerializerMethodField()
     time_until_eligible_for_adm_review = serializers.SerializerMethodField()
 
+    start_date = serializers.SerializerMethodField()
+    end_date = serializers.SerializerMethodField()
+
+    def get_start_date(self, instance):
+        return instance.start_date.strftime("%Y-%m-%d")
+
+    def get_end_date(self, instance):
+        return instance.end_date.strftime("%Y-%m-%d")
+
     def get_days_until_eligible_for_adm_review(self, instance):
         return instance.days_until_eligible_for_adm_review
 
@@ -94,6 +103,9 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
 
 
 class TravellerSerializer(serializers.ModelSerializer):
+    start_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+    end_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+
     class Meta:
         model = models.Traveller
         fields = "__all__"
@@ -104,6 +116,10 @@ class TravellerSerializer(serializers.ModelSerializer):
     dates = serializers.SerializerMethodField()
     long_role = serializers.SerializerMethodField()
     role = serializers.StringRelatedField()
+    non_dfo_costs_html = serializers.SerializerMethodField()
+
+    def get_non_dfo_costs_html(self, instance):
+        return instance.non_dfo_costs_html
 
     def get_long_role(self, instance):
         return instance.long_role

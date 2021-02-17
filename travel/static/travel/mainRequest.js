@@ -10,9 +10,12 @@ var app = new Vue({
 
     isReview: isReview,  // declared in template SCRIPT tag
     errorMsgReviewer: null,
+    errorMsgTraveller: null,
     showAdminNotesForm: false,
     reviewerEditMode: false,
     inFileEditMode: false,
+    useCustomAddress: false,
+    travellerToEdit: null,
 
     currentUser: {},
     request: {},
@@ -22,10 +25,49 @@ var app = new Vue({
     travellerLabels: {},
     fileLabels: {},
     roleChoices: [],
-    fileToUpload: null
+    travellerRoleChoices: [],
+    orgChoices: [],
+    fileToUpload: null,
+
+    yesNoChoices: yesNoChoices,
 
   },
   methods: {
+    updateTraveller() {
+      let endpoint;
+      let method;
+      if (!this.travellerToEdit.id) {
+        endpoint = `/api/travel/travellers/`;
+        method = "POST";
+      } else {
+        endpoint = `/api/travel/travellers/${file.id}/`;
+        method = "PATCH";
+      }
+      apiService(endpoint, method, this.travellerToEdit).then(response => {
+        // if (this.travellerToEdit.start_date) {
+        //   console.log(this.travellerToEdit.start_date)
+        //   this.travellerToEdit.start_date += " 06:00:00.000000-08:00"
+        //   console.log(this.travellerToEdit.start_date)
+        // }
+        // if (this.travellerToEdit.end_date) this.travellerToEdit.end_date += " 06:00:00.000000-08:00"
+
+        if (response.id) {
+          this.getRequest();
+          this.travellerToEdit = null;
+        } else {
+          console.log(response)
+          this.errorMsgTraveller = this.groomJSON(response)
+        }
+        // regardless, refresh everything!!
+      })
+
+
+    },
+    cancelTravellerEdit() {
+      this.getRequest();
+      this.travellerToEdit = null;
+    },
+
     fileCloseEditMode(file) {
       this.inFileEditMode = false;
       if (!file.id) {
@@ -71,6 +113,21 @@ var app = new Vue({
         file: null,
         editMode: true,
       })
+    },
+    addTraveller() {
+      this.request.travellers.push({
+        request: this.request.id,
+        start_date: this.request.trip.start_date,
+        end_date: this.request.trip.end_date,
+        name: null,
+        file: null,
+        editMode: true,
+        non_dfo_costs: 0,
+        is_public_servant: true,
+        is_research_scientist: false,
+        learning_plan: false,
+      })
+      this.travellerToEdit = this.request.travellers[this.request.travellers.length - 1];
     },
     addReviewer() {
       this.request.reviewers.push({
@@ -134,6 +191,7 @@ var app = new Vue({
       let endpoint = `/api/shared/users/?page_size=50000`;
       apiService(endpoint).then(data => {
         this.dmAppsUsers = data.results;
+        this.dmAppsUsers.unshift({full_name: "-----", id: null})
         this.loadingDMAppsUsers = false;
       });
     },
@@ -177,6 +235,8 @@ var app = new Vue({
       let endpoint = `/api/travel/meta/models/traveller/`;
       apiService(endpoint).then(data => {
         this.travellerLabels = data.labels;
+        this.travellerRoleChoices = data.role_choices;
+        this.orgChoices = data.org_choices;
       });
     },
     goRequestReviewerReset() {

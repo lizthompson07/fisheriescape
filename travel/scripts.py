@@ -6,6 +6,7 @@ from django.core.files import File
 from django.utils import timezone
 
 from lib.functions.custom_functions import listrify
+from shared_models.models import Organization
 from . import models
 from . import utils
 
@@ -242,6 +243,10 @@ def update_participant_role():
 
 
 def copy_old_tables_to_new():
+    # piggy back: resave all orgs
+    for o in Organization.objects.all():
+        o.save()
+
     # loop through all requests, except for child requests
 
     bad_trip = models.Conference.objects.create(

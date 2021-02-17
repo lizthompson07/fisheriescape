@@ -1,0 +1,207 @@
+{% load static %}
+{% load i18n %}
+{% load custom_filters %}
+{% load travel_filters %}
+{% load travel_tags %}
+{% load verbose_names %}
+<div class="card mb-2">
+  <h3 class="card-header bg-outline-dark">
+    <div class="float-right" v-if="isReview">
+      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down"></span></button>
+      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>
+    </div>
+    <div class="float-right" v-else-if="!isReview && canModify && !travellerToEdit">
+      <button @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}" class="btn btn-sm btn-primary py-0 px-1">
+        <span class="mdi mdi-plus text-light"></span> {% trans "Add traveller" %}
+      </button>
+    </div>
+    {% trans "Travellers Associated with this Request" %}
+    <span class="mdi mdi-help-circle-outline" data-toggle="popover"
+          data-trigger="hover"
+          title="{% trans "Travellers" %}"
+          data-content="{{ help_text.travellers_header }}"></span>
+  </h3>
+  <div class="card-body">
+    <div class="card-text">
+      <div v-if="loading_request" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <div v-if="!request.travellers.length">
+          <em>{% trans "There are no travellers associated with this request." %}</em>
+        </div>
+        <div v-else>
+          {% get_traveller_field_list as traveller_field_list %}
+
+          <div v-if="request && request.travellers.length">
+            <div v-if="!travellerToEdit">
+              <div class="row">
+                <div v-for="t in request.travellers" class="col" :key="t.id">
+                  <div class="card traveller-card">
+                    <div class="card-body">
+                      <div class="float-right" v-if="isReview">
+                        <input
+                          v-model="t.hide_me"
+                          class="form-check-input" type="checkbox"
+                          :id="'viewed-traveller-'+t.id"
+                          @change="$forceUpdate()"
+                        >
+                        <label class="" class="form-check-label" :for="'viewed-traveller-'+t.id">
+                          {% trans "Reviewed" %}
+                        </label>
+                      </div>
+                      <h4 class="card-title">${t.smart_name} ${t.hide}</h4>
+                      <div v-if="!t.hide_me" class="card-text">
+                        <hr>
+                        <div class="mb-3">
+                          <span v-html="t.traveller_info"></span>
+                        </div>
+                        {% for field in traveller_field_list %}
+                          <p>
+                            <b>{% get_verbose_label trip_request.travellers.first field %}</b>
+                            <span class="ml-1" v-if="t.{{ field|get_attr }} === true">{% trans "Yes" %}</span>
+                            <span class="ml-1" v-else-if="t.{{ field|get_attr }} === false">{% trans "No" %}</span>
+                            <span class="ml-1" v-else-if="t.{{ field|get_attr }} === '' || t.{{ field|get_attr }} === null">---</span>
+                            <span class="ml-1" v-else v-html="t.{{ field|get_attr }}"></span>
+                          </p>
+                        {% endfor %}
+                        <div class="float-right">
+                          <button v-if="!isReview && canModify" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit Traveller" %}</button>
+                          <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove Traveller" %}</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-else>
+              <form @submit.prevent="updateTraveller">
+
+                <div class="form-group">
+                  <label for="">${travellerLabels.user}</label>
+                  <v-select
+                    style="width: 100%"
+                    v-model="travellerToEdit.user"
+                    :options="dmAppsUsers"
+                    label='full_name'
+                    :reduce="full_name => full_name.id"
+                    :clearable="false"
+                    placeholder="{% trans "Start typing to search for a user" %}"
+                  >
+                  </v-select>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.is_public_servant}</label>
+                  <select v-model="travellerToEdit.is_public_servant" class="form-control form-control-sm" required>
+                    <option v-for="(obj, index) in yesNoChoices" :value="obj.value">${obj.text}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.is_research_scientist}</label>
+                  <select v-model="travellerToEdit.is_research_scientist" class="form-control form-control-sm" required>
+                    <option v-for="(obj, index) in yesNoChoices" :value="obj.value">${obj.text}</option>
+                  </select>
+                </div>
+                <div class="form-group" v-if="!travellerToEdit.user">
+                  <label for="">${travellerLabels.first_name}</label>
+                  <input type="text" v-model="travellerToEdit.first_name" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group" v-if="!travellerToEdit.user">
+                  <label for="">${travellerLabels.last_name}</label>
+                  <input type="text" v-model="travellerToEdit.last_name" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.address}</label>
+
+                  <select v-if="!useCustomAddress" v-model="travellerToEdit.address" class="form-control form-control-sm">
+                    <option :value="null"> ------</option>
+                    <option v-for="(obj, index) in orgChoices" :value="obj.value">${obj.text}</option>
+                  </select>
+                  <input v-else type="text" v-model="travellerToEdit.address" class="form-control form-control-sm"
+                         placeholder="{% trans "Please enter address" %}">
+
+                  <button v-if="!travellerToEdit.address" type="button" @click="useCustomAddress = !useCustomAddress"
+                          class="btn btn-sm btn-dark text-light px-1 py-0 mt-1">
+                    <span v-if="!useCustomAddress"><span class="mdi mdi-keyboard text-light mr-3"></span>{% trans "Enter manually" %}</span>
+                    <span v-else><span class="mdi mdi-form-dropdown text-light mr-3"></span>{% trans "Use a Predefined Address" %}</span>
+                  </button>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.phone}</label>
+                  <input type="text" v-model="travellerToEdit.phone" class="form-control form-control-sm">
+                </div>
+                <div class="form-group" v-if="!travellerToEdit.user">
+                  <label for="">${travellerLabels.email}</label>
+                  <input type="text" v-model="travellerToEdit.email" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group" v-if="!travellerToEdit.is_public_servant">
+                  <label for="">${travellerLabels.company_name}</label>
+                  <input type="text" v-model="travellerToEdit.company_name" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.departure_location}</label>
+                  <input type="text" v-model="travellerToEdit.departure_location" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.start_date}</label>
+                  <input type="date" v-model="travellerToEdit.start_date" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.end_date}</label>
+                  <input type="date" v-model="travellerToEdit.end_date" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.role}</label>
+                  <select v-model="travellerToEdit.role" class="form-control form-control-sm">
+                    <option v-for="(obj, index) in travellerRoleChoices" :value="obj.value">${obj.text}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.role_of_participant}</label>
+                  <textarea v-model="travellerToEdit.role_of_participant" class="form-control form-control-sm"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.learning_plan}</label>
+                  <select v-model="travellerToEdit.learning_plan" class="form-control form-control-sm" required>
+                    <option v-for="(obj, index) in yesNoChoices" :value="obj.value">${obj.text}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.non_dfo_costs}</label>
+                  <input type="text" v-model="travellerToEdit.non_dfo_costs" class="form-control form-control-sm">
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.non_dfo_org}</label>
+                  <input type="text" v-model="travellerToEdit.non_dfo_org" class="form-control form-control-sm">
+                </div>
+                <div class="form-group">
+                  <label for="">${travellerLabels.notes}</label>
+                  <textarea v-model="travellerToEdit.notes" class="form-control form-control-sm"></textarea>
+                </div>
+
+                <div class="float-right">
+                  <button type="submit" class="btn btn-sm btn-primary text-light">{% trans "Save" %}</button>
+                  <button type="button" @click="cancelTravellerEdit" class="btn btn-sm btn-secondary text-light">{% trans "Cancel" %}</button>
+                </div>
+                <div v-if="errorMsgTraveller" class="alert alert-danger py-1 mt-3" role="alert" style="width: 80%">
+                  <p class="mb-0">
+                    <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
+                    <span class="h6">${errorMsgTraveller}</span>
+                  </p>
+                </div>
+
+              </form>
+            </div>
+          </div>
+          <div v-else>
+            <em>{% trans "There are no travellers associated with this trip" %}</em>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

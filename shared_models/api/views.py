@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Q
 from rest_framework import filters, status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -22,7 +23,9 @@ def _get_labels(model):
 
 
 class UserListAPIView(ListAPIView):
-    queryset = User.objects.order_by("first_name", "last_name")
+    queryset = User.objects.filter(first_name__isnull=False, last_name__isnull=False).filter(
+        ~Q(first_name__exact="") & ~Q(last_name__exact="")
+    ).order_by("first_name", "last_name")
     serializer_class = serializers.UserSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
@@ -80,6 +83,7 @@ class SectionListAPIView(ListAPIView):
         elif self.request.query_params.get("region"):
             qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
         return qs
+
 
 class RegionListAPIView(ListAPIView):
     serializer_class = serializers.RegionSerializer

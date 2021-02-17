@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
-from shared_models.models import FiscalYear, Region, Division, Section
+from shared_models.models import FiscalYear, Region, Division, Section, Organization
 from shared_models.utils import special_capitalize
 from . import serializers
 from .pagination import StandardResultsSetPagination
@@ -185,15 +185,17 @@ class TravellerViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        print(serializer.validated_data)
+        serializer.save()
 
     def perform_update(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
+        serializer.save()
 
     def perform_destroy(self, instance):
         my_request = instance.request
         super().perform_destroy(instance)
-        my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
+        if my_request.status != 8:
+            my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
 
 
 class ReviewerViewSet(viewsets.ModelViewSet):
@@ -329,6 +331,8 @@ class TravellerModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+        data['role_choices'] = [dict(text=item.tname, value=item.id) for item in models.Role.objects.all()]
+        data['org_choices'] = [dict(text=item.full_name_and_address, value=item.full_name_and_address) for item in Organization.objects.filter(is_dfo=True)]
         return Response(data)
 
 

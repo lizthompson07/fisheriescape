@@ -1084,7 +1084,7 @@ class TripRequest1(models.Model):
     @property
     def request_title(self):
         if not self.travellers.exists():
-            my_str = f"{self.lead.get_full_name()}"
+            my_str = gettext("EMPTY REQUEST")
         elif self.travellers.count() == 1:
             my_str = f"{self.travellers.first().smart_name}"
         else:
@@ -1254,7 +1254,7 @@ class TripRequest1(models.Model):
 
 
 class Traveller(models.Model):
-    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="travellers", editable=False)
+    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="travellers")
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"))
     is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a research scientist (RES)?"))
@@ -1305,6 +1305,10 @@ class Traveller(models.Model):
         verbose_name = _("trip request")
 
     def save(self, *args, **kwargs):
+        if self.user:
+            self.first_name = self.user.first_name
+            self.last_name = self.user.last_name
+            self.email = self.user.email
         return super().save(*args, **kwargs)
 
     @property
@@ -1352,6 +1356,12 @@ class Traveller(models.Model):
         my_str += "</tbody></table>"
         my_str += "</table>"
         return my_str
+
+    @property
+    def non_dfo_costs_html(self):
+        if self.non_dfo_costs:
+            return f"{currency(self.non_dfo_costs, True)} ({self.non_dfo_org})"
+        return "---"
 
     @property
     def total_cost(self):
