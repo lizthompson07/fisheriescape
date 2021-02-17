@@ -1,0 +1,71 @@
+{% load i18n %}
+{% load custom_filters %}
+
+{# ATTACHMENTS #}
+<div class="mb-5" style="width: 50%">
+  <div class="float-right mb-3" v-if="canModify && !isReview && !inFileEditMode">
+    <button @click="addAttachment" class="btn btn-sm btn-primary py-0 px-1">
+      <span class="mdi mdi-plus text-light"></span> {% trans "Add attachement" %}
+    </button>
+  </div>
+  <p class="h5">
+    {% trans "Attachments" %}
+    <span
+      class="mdi mdi-information-outline" data-toggle="popover" data-trigger="hover" title="{% trans "File Attachments" %}"
+      data-content="{{ help_text_dict|lookup:"files_header" }}"></span>
+  </p>
+  <table class="table table-bordered table-sm" v-if="request.files.length">
+    <tr>
+      <th>${fileLabels.name}</th>
+      <th>${fileLabels.date_created}</th>
+      <th class="center-col">${fileLabels.file}</th>
+    </tr>
+    <tbody>
+    <tr v-for="(file, index) in request.files" :key="file.id">
+      <td v-if="!file.editMode">${ file.name }</td>
+      <td v-else>
+        <input type="text" v-model="file.name" class="form-control form-control-sm">
+      </td>
+
+
+      <td v-if="!file.editMode">${ file.date_created }</td>
+      <td v-else colspan="2">
+        <input type="file" v-on:change="onFileChange(`file${index}`)" :ref="`file${index}`" class="" >
+      </td>
+
+      <td class="center-col" v-if="!file.editMode">
+        <a v-if="file.file" data-toggle="tooltip" title="{% trans "Open the file" %}" :href="`/travel-plans/download/file/${file.id}/`">
+          <span class="h5 mdi mdi-attachment text-primary"></span>
+        </a>
+        <em v-else>{% trans "missing file" %}</em>
+      </td>
+
+
+      <td v-if="canModify && !isReview" style="width:75px">
+        <div v-if="!file.editMode && !inFileEditMode">
+          <button @click="file.editMode=true; inFileEditMode=true; $forceUpdate()" class="btn btn-sm btn-warning py-0 px-1"
+                  data-toggle="tooltip" title="{% trans "Edit" %}">
+            <span class="mdi mdi-pencil text-dark"></span>
+          </button>
+          <button @click="deleteFile(file)" class="btn btn-sm btn-danger py-0 px-1" data-toggle="tooltip"
+                  title="{% trans "Delete" %}">
+            <span class="mdi mdi-delete text-light"></span>
+          </button>
+        </div>
+        <div v-else-if="file.editMode">
+          <button @click="updateFile(file)"  class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip" title="{% trans "Save" %}">
+            <span class="mdi mdi-content-save text-light"></span>
+          </button>
+          <button @click="fileCloseEditMode(file)" class="btn btn-sm btn-secondary py-0 px-1" data-toggle="tooltip" title="{% trans "Cancel" %}">
+            <span class="mdi mdi-close text-light"></span>
+          </button>
+        </div>
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+  <div v-else>
+    <em> {% trans "No files have been attached to this request" %}... </em>
+  </div>
+</div>

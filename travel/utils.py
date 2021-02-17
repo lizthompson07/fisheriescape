@@ -713,6 +713,7 @@ def get_traveller_field_list():
         'role',
         'role_of_participant',
         'learning_plan',
+        'non_dfo_costs_html|{}'.format(_("Non-DFO costs:")),
         'cost_breakdown_html|{}'.format(_("cost breakdown:")),
     ]
     while None in my_list: my_list.remove(None)

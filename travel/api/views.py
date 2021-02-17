@@ -1,3 +1,5 @@
+from gettext import gettext as _
+
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
@@ -10,7 +12,7 @@ from rest_framework.views import APIView
 
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
-from shared_models.models import FiscalYear, Region, Division, Section
+from shared_models.models import FiscalYear, Region, Division, Section, Organization
 from shared_models.utils import special_capitalize
 from . import serializers
 from .pagination import StandardResultsSetPagination
@@ -183,15 +185,17 @@ class TravellerViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        print(serializer.validated_data)
+        serializer.save()
 
     def perform_update(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
+        serializer.save()
 
     def perform_destroy(self, instance):
         my_request = instance.request
         super().perform_destroy(instance)
-        my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
+        if my_request.status != 8:
+            my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
 
 
 class ReviewerViewSet(viewsets.ModelViewSet):
@@ -201,21 +205,40 @@ class ReviewerViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save(updated_by=self.request.user)
 
     def perform_update(self, serializer):
-        # can only change if is in draft or queued
-        if serializer.instance.status in [4, 20]:
-            serializer.save(updated_by=self.request.user)
+        # first we must determine if this is a request to skip a reviewer. If it is, the user better be an admin
+        if self.request.query_params.get("skip"):
+            if not utils.is_admin(self.request.user):
+                raise ValidationError("Sorry this is an admin function and you are not an admin user")
+            else:
+                my_reviewer = serializer.instance
+                my_reviewer.status = 21
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.comments = _("Manually overridden by {user} with the following rationale: \n {comments}").format(
+                    user=self.request.user,
+                    comments=serializer.validated_data["comments"])
+                # now we save the reviewer for real
+                my_reviewer.save()
+                # update any statuses if necessary
+                utils.approval_seeker(my_reviewer.request, False, self.request)
         else:
-            raise ValidationError("cannot modify this reviewer who has the status of ", serializer.instance.get_status_display())
+            # can only change if is in draft or queued
+            if serializer.instance.status in [4, 20]:
+                serializer.save(updated_by=self.request.user)
+            else:
+                # we will only tolerate interacting with the order of the reviewer
+                instance = serializer.instance
+                instance.order = serializer.validated_data["order"]
+                instance.save()
 
     def perform_destroy(self, instance):
         # can only change if is in draft or queued
         if instance.status in [4, 20]:
             super().perform_destroy(instance)
         else:
-            raise ValidationError("cannot delete this reviewer who has the status of ", instance.get_status_display())
+            raise ValidationError("cannot delete this reviewer who has the status of " + instance.get_status_display())
 
     def get_queryset(self):
         qs = models.Reviewer.objects.all()
@@ -225,16 +248,17 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         return qs
 
 
-# class RequestReviewListAPIView(ListAPIView):
-#     serializer_class = serializers.TripRequestReviewerSerializer
-#     permission_classes = [CanModifyOrReadOnly]
-#
-#     def get_queryset(self):
-#         qs = models.Reviewer.objects.all()
-#         qp = self.request.query_params
-#         if qp.get("rdg"):
-#             return qs.filter(role=6, status=1).filter(~Q(request__status=16))  # rdg & pending
-#         return qs
+class FileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.FileSerializer
+    permission_classes = [CanModifyOrReadOnly]
+    queryset = models.File.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 
 # LOOKUPS
@@ -307,6 +331,8 @@ class TravellerModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+        data['role_choices'] = [dict(text=item.tname, value=item.id) for item in models.Role.objects.all()]
+        data['org_choices'] = [dict(text=item.full_name_and_address, value=item.full_name_and_address) for item in Organization.objects.filter(is_dfo=True)]
         return Response(data)
 
 

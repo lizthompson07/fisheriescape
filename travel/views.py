@@ -495,7 +495,7 @@ class ChildTripRequestCloneUpdateView(TripRequestUpdateView):
 class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
     model = models.TripRequest1
     form_class = forms.TripRequestApprovalForm
-    template_name = 'travel/request_reviewer_submit.html'
+    template_name = 'travel/request_submit.html'
     submit_text = gettext_lazy("Proceed")
     home_url_name = "travel:index"
 
