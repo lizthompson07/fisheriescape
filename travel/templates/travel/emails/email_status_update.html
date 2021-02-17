@@ -25,7 +25,7 @@ table, th, td {
     </u>
   {% endif %}
   <br><br>
-  You can click <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">HERE</a> to access
+  You can click <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access
   the request. Here are the
   details:
   <br><br>
@@ -55,7 +55,7 @@ table, th, td {
       </u>
     {% endif %}
     <br><br>
-    Vous pouvez cliquer <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">ICI</a> pour
+    Vous pouvez cliquer <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour
     accéder la voyage.
     Voici les détails du voyage:
   </p>

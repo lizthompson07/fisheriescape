@@ -35,10 +35,8 @@
       {% if field.name != "late_justification" %}
         {% bootstrap_label field.label label_class="pr-1" %}
         {% if field.name in help_text_dict %}
-          {% with help_text_dict|lookup:field.name as help_text %}
-            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                 data-trigger="hover" title="{{ field.label }}" data-content="{{ help_text }}">
-          {% endwith %}
+          <span class="mdi mdi-help-circle-outline h6" data-toggle="popover"
+                data-trigger="hover" title="{{ field.label }}" data-content="{{ help_text_dict|lookup:field.name }}"></span>
         {% endif %}
         {% bootstrap_field field placeholder="" show_label=False %}
 
@@ -53,7 +51,7 @@
               <h4 class="alert-heading">
                 {% trans "The submission deadline for this trip has already passed. " %}
               </h4>
-              <p>
+              <p class="h6">
                 {% blocktrans %}
                   Understanding that not all potential trips can be predicted, unforeseen requests can be submitted via the Conference and
                   Travel Management System for consideration.
@@ -65,12 +63,10 @@
 
             </div>
             <label class="h5 red-font px-2" for="id_late_jsutification">{% trans "Please provide your late justification here" %}</label>
-            {% with help_text_dict|lookup:"late_justification" as help_text %}
-              <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                   data-trigger="hover"
-                   title="{{ form.late_justification.label }}"
-                   data-content="{{ help_text }}">
-            {% endwith %}
+            <span class="mdi mdi-help-circle-outline h6" data-toggle="popover"
+                  data-trigger="hover"
+                  title="{{ form.late_justification.label }}"
+                  data-content="{{ help_text.late_justification }}"></span>
             {% bootstrap_field form.late_justification placeholder="" show_label=False %}
 
           </div>
@@ -80,15 +76,21 @@
     {% endfor %}
 
     <div class="mb-3 blue-font center-col">
-      <h2>
-        {% trans "Select NEXT to save progress and go to next section" %}
-      </h2>
+      {% if not object %}
+        <h2>
+          {% trans "Select NEXT to save progress and go to next section" %}
+        </h2>
+      {% endif %}
     </div>
 
 
     <div class="container center-col">
       <button type="submit" class="btn btn-success">
-        {% trans "Next" %}
+        {% if object %}
+          {% trans "Save" %}
+        {% else %}
+          {% trans "Next" %}
+        {% endif %}
       </button>
       <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">
         {% trans "Cancel" %}

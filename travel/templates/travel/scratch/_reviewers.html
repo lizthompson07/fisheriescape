@@ -13,14 +13,12 @@
       <span class="blink-me red-font">({% trans "see note about group requests in help bubble" %})</span>
     {% endif %}
 
-    <div class="neighbours mb-3">
-      {% with help_text_dict|lookup:"reviewers_header" as help_text %}
-        <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
-             data-trigger="hover"
-             title="{% trans "Trip Request Reviewers" %}"
-             data-content="{{ help_text }}">
-      {% endwith %}
-    </div>
+    {% with help_text_dict|lookup:"reviewers_header" as help_text %}
+      <span class="mdi mdi-help-circle-outline" data-toggle="popover"
+            data-trigger="hover"
+            title="{% trans "Trip Request Reviewers" %}"
+            data-content="{{ help_text }}"></span>
+    {% endwith %}
     <div class="float-right mb-3">
 
       {% if not report_mode %}
@@ -46,12 +44,7 @@
   </h3>
   <div class="card-body">
     <div class="card-text">
-
-
       {#  REVIEWERS  #}
-
-
-
       {% if triprequest.reviewers.count > 0 %}
         <br>
         <table class="table table-sm sortable table-striped" style="width: 100%">

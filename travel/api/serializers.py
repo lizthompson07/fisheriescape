@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import slugify, date
 from rest_framework import serializers
 
@@ -8,7 +9,6 @@ from .. import models
 
 
 # from ..utils import can_modify_project
-from ..utils import can_modify_request
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):
@@ -35,12 +35,62 @@ class TripSerializerLITE(serializers.ModelSerializer):
 
     tname = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
+    days_until_eligible_for_adm_review = serializers.SerializerMethodField()
+    time_until_eligible_for_adm_review = serializers.SerializerMethodField()
+
+    def get_days_until_eligible_for_adm_review(self, instance):
+        return instance.days_until_eligible_for_adm_review
+
+    def get_time_until_eligible_for_adm_review(self, instance):
+        return naturaltime(instance.date_eligible_for_adm_review)
 
     def get_display(self, instance):
         return str(instance)
 
     def get_tname(self, instance):
         return instance.tname
+
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.File
+        fields = "__all__"
+
+    date_created = serializers.SerializerMethodField()
+
+    def get_date_created(self, instance):
+        return date(instance.date_created)
+
+
+class RequestReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Reviewer
+        fields = "__all__"
+
+    role_display = serializers.SerializerMethodField()
+    status_date = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    user_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    comments_html = serializers.SerializerMethodField()
+
+    def get_comments_html(self, instance):
+        return instance.comments_html
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
+
+    def get_role_display(self, instance):
+        return instance.get_role_display()
+
+    def get_status_date(self, instance):
+        return date(instance.status_date)
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_user_display(self, instance):
+        return instance.user.get_full_name() if instance.user else None
 
 
 class TravellerSerializer(serializers.ModelSerializer):
@@ -86,11 +136,25 @@ class TripRequestSerializer(serializers.ModelSerializer):
     total_non_dfo_funding = serializers.SerializerMethodField()
     total_non_dfo_funding_sources = serializers.SerializerMethodField()
     total_request_cost = serializers.SerializerMethodField()
-    travellers = TravellerSerializer(many=True)
+    travellers = TravellerSerializer(many=True, read_only=True)
+    files = FileSerializer(many=True, read_only=True)
+    reviewers = RequestReviewerSerializer(many=True, read_only=True)
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
     bta_attendees = serializers.SerializerMethodField()
     admin_notes_html = serializers.SerializerMethodField()
+    is_late_request = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+    reviewer_order_message = serializers.SerializerMethodField()
+
+    def get_reviewer_order_message(self, instance):
+        return instance.reviewer_order_message
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_is_late_request(self, instance):
+        return instance.is_late_request
 
     def get_admin_notes_html(self, instance):
         return instance.admin_notes_html
@@ -127,12 +191,6 @@ class TripRequestSerializer(serializers.ModelSerializer):
 
     def get_trip_display(self, instance):
         return instance.trip.tname
-
-
-class TripRequestReviewerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Reviewer
-        fields = "__all__"
 
 
 class TripReviewerSerializer(serializers.ModelSerializer):

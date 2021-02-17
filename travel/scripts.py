@@ -244,6 +244,13 @@ def update_participant_role():
 def copy_old_tables_to_new():
     # loop through all requests, except for child requests
 
+    bad_trip = models.Conference.objects.create(
+        name="NOT A REAL TRIP",
+        location="TestVille",
+        start_date=timezone.datetime(year=2020, month=1, day=1),
+        end_date=timezone.datetime(year=2021, month=1, day=1),
+    )
+
     for old_request in models.TripRequest.objects.filter(parent_request__isnull=True):
         # print(old_request.id)
         if old_request.user:
@@ -262,7 +269,7 @@ def copy_old_tables_to_new():
         else:
             new_request = models.TripRequest1.objects.create(
                 id=old_request.id,
-                trip=old_request.trip,
+                trip=old_request.trip if old_request.trip else bad_trip,
             )
         new_request.created_by = lead
         new_request.section = old_request.section

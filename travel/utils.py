@@ -188,7 +188,7 @@ def get_tr_reviewers(trip_request):
             # if the division head is the one creating the request, they should be skipped as a recommender
             if trip_request.section.division.head not in [t.user for t in travellers]:
                 models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.head, role=2, )
-        except (IntegrityError, AttributeError):
+        except (IntegrityError, AttributeError) as e:
             pass
 
         # branch level reviewer  - only applies if the branch head is not a traveller
@@ -225,7 +225,7 @@ def get_tr_reviewers(trip_request):
     trip_request.save()
 
 
-def start_review_process(trip_request):
+def start_request_review_process(trip_request):
     """this should be used when a trip is submitted. It will change over all reviewers' statuses to Pending"""
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip_request.reviewers.all():
@@ -235,7 +235,7 @@ def start_review_process(trip_request):
         reviewer.save()
 
 
-def end_review_process(trip_request):
+def end_request_review_process(trip_request):
     """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip_request.reviewers.all():
@@ -476,9 +476,9 @@ def populate_trip_request_costs(request, trip_request):
     # messages.success(request, _("All costs have been added to this project."))
 
 
-def clear_empty_trip_request_costs(trip_request):
+def clear_empty_trip_request_costs(traveller):
     for obj in models.Cost.objects.all():
-        for cost in models.TripRequestCost.objects.filter(trip_request=trip_request, cost=obj):
+        for cost in models.TripRequestCost.objects.filter(traveller=traveller, cost=obj):
             if (cost.amount_cad is None or cost.amount_cad == 0):
                 cost.delete()
 
@@ -697,6 +697,7 @@ def get_request_field_list(tr=None, user=None):
         'processing_time|{}'.format(_("Processing time")),
         'notes',
         'late_justification' if not tr or (tr and tr.is_late_request) else None,
+        'metadata|{}'.format(_("metadata")),
     ]
 
     while None in my_list: my_list.remove(None)
@@ -713,6 +714,19 @@ def get_traveller_field_list():
         'role_of_participant',
         'learning_plan',
         'cost_breakdown_html|{}'.format(_("cost breakdown:")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+
+def get_request_reviewer_field_list():
+    my_list = [
+        'order',
+        'user',
+        'role',
+        'status',
+        'status_date',
+        'comments_html|{}'.format(_("Comments")),
     ]
     while None in my_list: my_list.remove(None)
     return my_list

@@ -15,6 +15,7 @@ from lib.templatetags.custom_filters import nz, currency
 from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
 from shared_models.models import Lookup, SimpleLookup
+from shared_models.utils import get_metadata_string
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -1057,7 +1058,16 @@ class TripRequest1(models.Model):
     status = models.IntegerField(verbose_name=_("trip request status"), default=8, choices=status_choices, editable=False)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"), default=fiscal_year(sap_style=True),
                                     blank=True, null=True, related_name="requests", editable=False)
+
+    # metadata
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_updated_by", blank=True, null=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.created_at, self.created_by, self.updated_at, self.updated_by)
 
     @property
     def admin_notes_html(self):
@@ -1324,12 +1334,12 @@ class Traveller(models.Model):
     @property
     def cost_breakdown_html(self):
         """used for display on group traveller detail page"""
-        my_str = "<table class='mt-3 simple-table'><tbody>"
-        my_str += "<tr><th>{}</th><th>{}</td></tr>".format(_("Cost"), _("Amount"))
+        my_str = "<table class='mt-3 table table-sm table-bordered'><tbody>"
+        my_str += "<tr><th>{}</th><th>{}</th></tr>".format(_("Cost"), _("Amount"))
         for tr_cost in self.costs.all():
             if tr_cost.amount_cad:
                 if tr_cost.rate_cad:
-                    my_str += "<tr><td>{}</td> <td> ${:,.2f}  ({} x {:,.2f})<td></tr>".format(
+                    my_str += "<tr><td>{}</td> <td> ${:,.2f}  ({} x {:,.2f})</td></tr>".format(
                         tr_cost.cost,
                         nz(tr_cost.amount_cad, 0),
                         nz(tr_cost.number_of_days, 0),
@@ -1463,8 +1473,8 @@ class Reviewer(models.Model):
         (5, _("ADM")),
         (6, _("RDG")),
     )
-    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)
-    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")
+    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True) #  todo remove the non-null!!!!
+    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers",
                              verbose_name=_("DM Apps user"))
@@ -1472,6 +1482,15 @@ class Reviewer(models.Model):
     status = models.IntegerField(verbose_name=_("review status"), default=4, choices=status_choices)
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
     comments = models.TextField(null=True, verbose_name=_("Comments"))
+
+    # metadata
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="request_reviewers_updated_by", blank=True, null=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.created_at, None, self.updated_at, self.updated_by)
 
     def __str__(self):
         return gettext("Reviewer") + f' - {self.user}'
@@ -1491,7 +1510,7 @@ class Reviewer(models.Model):
     def save(self, *args, **kwargs):
         # If the trip request is currently under review but changes have been requested, add this reviewer directly in the queue
 
-        if self.trip_request.status != 8 and self.status == 4:
+        if self.request.status != 8 and self.status == 4:
             self.status = 20
         return super().save(*args, **kwargs)
 
@@ -1569,10 +1588,10 @@ def file_directory_path(instance, filename):
 
 class File(models.Model):
     request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="files", blank=True, null=True)
-    trip_request = models.ForeignKey(TripRequest, related_name="files", on_delete=models.CASCADE)
+    trip_request = models.ForeignKey(TripRequest, related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("caption"))
-    file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("file attachment"))
-    date_created = models.DateTimeField(default=timezone.now)
+    file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("attachment"))
+    date_created = models.DateTimeField(default=timezone.now, verbose_name=_("date created"))
 
     class Meta:
         ordering = ['trip_request', 'date_created']

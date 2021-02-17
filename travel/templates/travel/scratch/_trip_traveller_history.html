@@ -36,9 +36,9 @@
                                                 <td>
                                                     {% if d.trip_request.id %}
                                                         {% if d.trip_request.parent_request %}
-                                                            <a href="{% url 'travel:request_detail' d.trip_request.parent_request.id "all" %}">{{ d.trip_request.parent_request }}</a>
+                                                            <a href="{% url 'travel:request_detail' d.trip_request.parent_request.id %}">{{ d.trip_request.parent_request }}</a>
                                                         {% else %}
-                                                            <a href="{% url 'travel:request_detail' d.trip_request.id "all" %}">{{ d.trip_request }}</a>
+                                                            <a href="{% url 'travel:request_detail' d.trip_request.id %}">{{ d.trip_request }}</a>
                                                         {% endif %}
                                                         ({{ d.trip_request.smart_status.status_colored_span }})
                                                     {% endif %}
@@ -121,7 +121,7 @@
                                                                                 {{ obj.trip }} -
                                                                                 <span class='purple-font'>{% trans "CURRENT TRIP" %}</span>
                                                                             {% else %}
-                                                                                <a href='{% url 'travel:request_detail' obj.id "all" %}'
+                                                                                <a href='{% url 'travel:request_detail' obj.id  %}'
                                                                                    target='_blank'>{{ obj.trip }}</a>
                                                                             {% endif %}
                                                                             <em>({{ obj.status.status_colored_span }})</em>

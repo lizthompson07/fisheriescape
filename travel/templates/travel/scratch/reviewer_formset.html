@@ -37,7 +37,7 @@
                             {{ trip }}
                         </a>
                     {% else %}
-                        <a href="{% url 'travel:request_detail' triprequest.id type %}">
+                        <a href="{% url 'travel:request_detail' triprequest.id %}">
                             {{ triprequest }}
                         </a>
                     {% endif %}

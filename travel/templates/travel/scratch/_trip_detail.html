@@ -8,14 +8,12 @@
   <h3 class="card-header bg-outline-dark">
 
     {% trans "Trip Detail" %}
-    <div class="neighbours">
       {% with help_text_dict|lookup:"trip_header" as help_text %}
-        <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
+        <span class="mdi mdi-help-circle-outline" data-toggle="popover"
              data-trigger="hover"
              title="{% trans "Trip Summary" %}"
-             data-content="{{ help_text }}">
+              data-content="{{ help_text }}"> </span>
       {% endwith %}
-    </div>
 
     {% if is_admin or is_adm_admin %}
 
@@ -69,7 +67,7 @@
               <th>{% trans "Connected requests" %}</th>
               <td>
                 {% for obj in trip.trip_requests.all %}
-                  {% url 'travel:request_detail' obj.id "all" as my_url %}
+                  {% url 'travel:request_detail' obj.id as my_url %}
                   <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
                     <span class="mdi mdi-arrow-top-right text-primary table-bordered"></span>
                     {{ obj }}

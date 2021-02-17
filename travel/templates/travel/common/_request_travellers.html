@@ -11,14 +11,10 @@
       <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>
     </div>
     {% trans "Travellers Associated with this Request" %}
-    <div class="neighbours">
-      {% with help_text_dict|lookup:"travellers_header" as help_text %}
-        <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
-             data-trigger="hover"
-             title="{% trans "Travellers" %}"
-             data-content="{{ help_text }}">
-      {% endwith %}
-    </div>
+    <span class="mdi mdi-help-circle-outline" data-toggle="popover"
+          data-trigger="hover"
+          title="{% trans "Travellers" %}"
+          data-content="{{ help_text.travellers_header }}"></span>
   </h3>
   <div class="card-body">
     <div class="card-text">
@@ -64,6 +60,7 @@
                           <span class="ml-1" v-else v-html="t.{{ field|get_attr }}"></span>
                         </p>
                       {% endfor %}
+
                       <div class="float-right">
                         <button v-if="!isReview && canModify" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit Traveller" %}</button>
                         <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove Traveller" %}</button>
@@ -73,6 +70,8 @@
                 </div>
               </div>
             </div>
+          {% else %}
+            <em>{% trans "There are no travellers associated with this trip" %}</em>
           {% endif %}
         </div>
       </div>

@@ -57,7 +57,7 @@
           <tbody>
           {% for child in triprequest.children_requests.all %}
 
-            <tr {% if not report_mode %}pop href="{% url 'travel:request_edit' child.id "pop" %}" {% endif %}
+            <tr {% if not report_mode %}pop href="{% url 'travel:request_edit' child.id %}" {% endif %}
                 class="{% if child.total_cost == 0 %}bad{% endif %}{% if child.status == 10 %}bad red-font{% endif %}"
                 data-toggle="tooltip" title="{% trans "Click on a row to edit traveller informations." %}"
             >
