@@ -196,3 +196,26 @@ def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_i
     except (ValidationError, IntegrityError):
         pass
     return row_entered
+
+
+def enter_anix_indv(indv, cleaned_data):
+    if indv:
+        anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                         indv_id_id=indv.pk,
+                                         created_by=cleaned_data["created_by"],
+                                         created_date=cleaned_data["created_date"],
+                                         )
+        try:
+            anix_indv.clean()
+            anix_indv.save()
+            return anix_indv
+        except ValidationError:
+            anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
+                                                            indv_id=anix_indv.indv_id,
+                                                            contx_id__isnull=True,
+                                                            loc_id__isnull=True,
+                                                            spwn_id__isnull=True,
+                                                            grp_id__isnull=True,
+                                                            indvt_id__isnull=True,
+                                                            ).get()
+            return anix_indv

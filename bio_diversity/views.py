@@ -861,6 +861,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             context["table_list"] = ["data", "indv", "tank"]
         elif evnt_code == "Water Quality Record":
             context["table_list"] = ["data", "tank"]
+        elif evnt_code == "Spawning":
+            context["table_list"] = ["data", "indv", "spwn", "grp",]
 
         return context
 
@@ -1565,7 +1567,7 @@ class ImgcList(mixins.ImgcMixin, CommonList):
 
 class IndvList(mixins.IndvMixin, CommonList):
     filterset_class = filters.IndvFilter
-    fields = ["ufid", "spec_id", "stok_id", "indv_year" ]
+    fields = ["pit_tag", "spec_id", "stok_id", "indv_year" ]
     delete_url = "bio_diversity:delete_indv"
 
 

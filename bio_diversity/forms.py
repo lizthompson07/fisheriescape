@@ -12,7 +12,8 @@ from django.utils.translation import gettext
 import pandas as pd
 
 from bio_diversity import models
-from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env
+from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
+    enter_anix_indv
 
 
 class CreatePrams(forms.ModelForm):
@@ -602,24 +603,7 @@ class DataForm(CreatePrams):
                     if enter_tank_contx(row["to tank"], cleaned_data, final_flag=True, indv_pk=indv.pk):
                         row_entered = True
 
-                    anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                     indv_id_id=indv.pk,
-                                                     created_by=cleaned_data["created_by"],
-                                                     created_date=cleaned_data["created_date"],
-                                                     )
-                    try:
-                        anix_indv.clean()
-                        anix_indv.save()
-                        row_entered = True
-                    except ValidationError:
-                        anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
-                                                                        indv_id=anix_indv.indv_id,
-                                                                        contx_id__isnull=True,
-                                                                        loc_id__isnull=True,
-                                                                        spwn_id__isnull=True,
-                                                                        grp_id__isnull=True,
-                                                                        indvt_id__isnull=True,
-                                                                        ).get()
+                    anix_indv = enter_anix_indv(indv, cleaned_data)
 
                     anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                     indv_id_id=indv.pk,
@@ -728,24 +712,7 @@ class DataForm(CreatePrams):
                     if enter_tank_contx(row["Destination Pond"], cleaned_data, final_flag=True, indv_pk=indv.pk):
                         row_entered = True
 
-                    anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                     indv_id_id=indv.pk,
-                                                     created_by=cleaned_data["created_by"],
-                                                     created_date=cleaned_data["created_date"],
-                                                     )
-                    try:
-                        anix_indv.clean()
-                        anix_indv.save()
-                        row_entered = True
-                    except ValidationError:
-                        anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
-                                                                        indv_id=anix_indv.indv_id,
-                                                                        contx_id__isnull=True,
-                                                                        loc_id__isnull=True,
-                                                                        spwn_id__isnull=True,
-                                                                        grp_id__isnull=True,
-                                                                        indvt_id__isnull=True,
-                                                                        ).get()
+                    anix_indv = enter_anix_indv(indv, cleaned_data)
 
                     anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                     indv_id_id=indv.pk,
@@ -824,24 +791,7 @@ class DataForm(CreatePrams):
                         log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
 
                     if indv:
-                        anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                         indv_id_id=indv.pk,
-                                                         created_by=cleaned_data["created_by"],
-                                                         created_date=cleaned_data["created_date"],
-                                                         )
-                        try:
-                            anix_indv.clean()
-                            anix_indv.save()
-                            row_entered = True
-                        except ValidationError:
-                            anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
-                                                                            indv_id=anix_indv.indv_id,
-                                                                            contx_id__isnull=True,
-                                                                            loc_id__isnull=True,
-                                                                            spwn_id__isnull=True,
-                                                                            grp_id__isnull=True,
-                                                                            indvt_id__isnull=True,
-                                                                            ).get()
+                        anix_indv = enter_anix_indv(indv, cleaned_data)
 
                         row_date = row["DATE SORTED (ddmmmyr)"].date()
                         if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
@@ -917,6 +867,146 @@ class DataForm(CreatePrams):
                 self.request.session["load_success"] = False
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+        # ---------------------------MACTAQUAC SPAWNING DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], header=5, sheet_name="RECORDED matings" )
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                raise Exception("File format not valid: {}".format(err.__str__()))
+            parsed = True
+            self.request.session["load_success"] = True
+
+            for row in data_dict:
+                row_parsed = True
+                row_entered = False
+                try:
+                    indv_qs = models.Individual.objects.filter(pit_tag=row["Pit or carlin"])
+                    indv_qs_male = models.Individual.objects.filter(pit_tag=row["Pit or carlin.1"])
+                    if len(indv_qs) == 1 and len(indv_qs_male) == 1:
+                        indv_female = indv_qs.get()
+                        indv_male = indv_qs_male.get()
+                    else:
+                        row_entered = False
+                        row_parsed = False
+                        indv = False
+                        log_data += "Error parsing row: \n"
+                        log_data += str(row)
+                        log_data += "\nFish with PIT {} or PIT {} not found in db\n".format(row["Pit or carlin"], row["Pit or carlin.1"])
+                        break
+
+                    row_date = row["date"].date()
+
+                    anix_female = enter_anix_indv(indv_female, cleaned_data)
+                    anix_male = enter_anix_indv(indv_male, cleaned_data)
+
+                    if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Wt"], "Weight", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Ln.1"], "Length", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Wt.1"], "Weight", None):
+                        row_entered = True
+
+
+                    # pair
+                    pair = models.Pairing(start_date=row_date,
+                                          valid=True,
+                                          indv_id=indv_female,
+                                          comments=row["Comment"],
+                                          created_by=cleaned_data["created_by"],
+                                          created_date=cleaned_data["created_date"],
+                                          )
+                    try:
+                        pair.clean()
+                        pair.save()
+                        row_entered = True
+                    except (ValidationError, IntegrityError):
+                        pair = models.Pairing.objects.filter(start_date=row_date, indv_id=indv_female).get()
+
+                    # sire
+                    prio_dict = {"H": "High", "M": "Normal", "P": "Low"}
+                    sire = models.Sire(prio_id=models.PriorityCode.objects.filter(name__iexact=prio_dict[row["Pri..1"]]).get(),
+                                       pair_id=pair,
+                                       indv_id=indv_male,
+                                       choice=row["Choice"],
+                                       comments=row["Comment.1"],
+                                       created_by=cleaned_data["created_by"],
+                                       created_date=cleaned_data["created_date"],
+                                       )
+                    try:
+                        sire.clean()
+                        sire.save()
+                        row_entered = True
+                    except (ValidationError, IntegrityError):
+                        pass
+
+                    # spwn
+                    spwn = models.Spawning(pair_id=pair,
+                                           spwn_date=row_date,
+                                           est_fecu=row["Exp. #"],
+                                           comments=row["Comments"],
+                                           created_by=cleaned_data["created_by"],
+                                           created_date=cleaned_data["created_date"],
+                                           )
+                    try:
+                        spwn.clean()
+                        spwn.save()
+                        row_entered = True
+                    except (ValidationError, IntegrityError):
+                        spwn = models.Spawning.objects.filter(pair_id=pair).get()
+
+                    anix_spwn = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                     spwn_id=spwn,
+                                                     created_by=cleaned_data["created_by"],
+                                                     created_date=cleaned_data["created_date"],
+                                                     )
+                    try:
+                        anix_spwn.clean()
+                        anix_spwn.save()
+                        row_entered = True
+                    except ValidationError:
+                        pass
+                    # grp
+
+
+
+
+                except Exception as err:
+                    parsed = False
+                    self.request.session["load_success"] = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
+            if not parsed:
+                self.request.session["load_success"] = False
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         else:
             log_data = "Data loading not set up for this event type.  No data loaded."
         self.request.session["log_data"] = log_data

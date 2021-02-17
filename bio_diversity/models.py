@@ -1353,6 +1353,11 @@ class Sire(BioModel):
     def __str__(self):
         return "Sire {}".format(self.indv_id.__str__())
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['indv_id', 'pair_id'], name='Sire_Uniqueness')
+        ]
+
 
 class Spawning(BioModel):
     # spwn tag
