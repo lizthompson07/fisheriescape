@@ -260,4 +260,33 @@
             {% endif %}
         </div>
     {% endif %}
+    {% if "matp" in table_list %}
+        <div class="card border border-dark my-1" name="matp-details">
+            <h5 class="card-header">{% trans "Event Mating Plans" %}
+                <span>
+                    <a class="btn btn-secondary" href="#evnt-matp-list" data-toggle="collapse">+</a>
+                </span>
+            </h5>
+            {% if object.mating_plan.count > 0 %}
+                <table class="table table-sm sortable table-hover collapse" id="evnt-matp-list">
+                    <thead>
+                        {% for field in matp_field_list %}
+                            <th>{% get_verbose_label matp_object field %}</th>
+                        {% endfor %}
+                    </thead>
+                    <tbody>
+                        {% for obj in object.mating_plan.all %}
+                            <tr href="{% url 'bio_diversity:details_matp' 'evnt' object.id obj.id %}">
+                            {% for field in matp_field_list %}
+                                <td>
+                                    {% get_field_value obj field %}
+                                </td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    {% endif %}
 {% endblock %}

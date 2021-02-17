@@ -256,6 +256,7 @@ urlpatterns = [
 
     path('create/matp/', views.MatpCreate.as_view(), name="create_matp"),
     path('details/matp/<int:pk>/', views.MatpDetails.as_view(), name="details_matp"),
+    path('details/matp/<str:back>/<int:back_id>/<int:pk>/', views.MatpDetails.as_view(), name="details_matp"),
     path('list/matp/', views.MatpList.as_view(), name="list_matp"),
     path('update/matp/<int:pk>/', views.MatpUpdate.as_view(), name="update_matp"),
 

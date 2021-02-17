@@ -913,7 +913,6 @@ class DataForm(CreatePrams):
                     if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Wt.1"], "Weight", None):
                         row_entered = True
 
-
                     # pair
                     pair = models.Pairing(start_date=row_date,
                                           valid=True,
@@ -976,7 +975,6 @@ class DataForm(CreatePrams):
 
 
 
-
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
@@ -989,23 +987,28 @@ class DataForm(CreatePrams):
                     rows_parsed += 1
                 elif row_parsed:
                     rows_parsed += 1
+
+            # matp
+            indv_qs = models.Individual.objects.filter(pit_tag=data["Pit or carlin"][0])
+            if len(indv_qs) == 1:
+                indv_female = indv_qs.get()
+                matp = models.MatingPlan(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                         stok_id=indv_female.stok_id,
+                                         matp_xls=cleaned_data["data_csv"],
+                                         created_by=cleaned_data["created_by"],
+                                         created_date=cleaned_data["created_date"],
+                                         )
+                try:
+                    matp.clean()
+                    matp.save()
+                except (ValidationError, IntegrityError):
+                    pass
+
             if not parsed:
                 self.request.session["load_success"] = False
+
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         else:
             log_data = "Data loading not set up for this event type.  No data loaded."

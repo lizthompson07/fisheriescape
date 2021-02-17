@@ -849,7 +849,14 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "spwn_date",
         ]
 
-        context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "spwn"]
+        context["matp_object"] = models.MatingPlan.objects.first()
+        context["matp_field_list"] = [
+            "matp_xls",
+            "stok_id",
+        ]
+
+
+        context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "spwn", "matp"]
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
             context["table_list"] = ["data", "loc", "grp", "tank"]
@@ -862,7 +869,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         elif evnt_code == "Water Quality Record":
             context["table_list"] = ["data", "tank"]
         elif evnt_code == "Spawning":
-            context["table_list"] = ["data", "indv", "spwn", "grp",]
+            context["table_list"] = ["data", "indv", "spwn", "grp", "matp"]
 
         return context
 
