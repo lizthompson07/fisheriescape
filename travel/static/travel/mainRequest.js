@@ -3,6 +3,7 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
+    cloningTraveller: false,
     costChoices: [],
     costLabels: {},
     currentUser: {},
@@ -86,14 +87,24 @@ var app = new Vue({
           learning_plan: false,
         };
       } else {
+        this.cloningTraveller = true;
         newTraveller = JSON.parse(JSON.stringify(clonedtraveller));
+        newTraveller.start_date = newTraveller.start_date.split("T")[0];
+        newTraveller.end_date = newTraveller.end_date.split("T")[0];
+        newTraveller.old_name = clonedtraveller.smart_name;
+        newTraveller.old_id = newTraveller.id;
+        delete newTraveller.id
       }
       this.request.travellers.push(newTraveller);
       this.travellerToEdit = this.request.travellers[this.request.travellers.length - 1];
+      this.$nextTick(() => {
+        this.$refs.traveller_form_starting_point.focus()
+      })
     },
     cancelTravellerEdit() {
       this.getRequest();
       this.travellerToEdit = null;
+      this.cloningTraveller = false;
     },
 
     clearEmptyCosts(traveller) {
@@ -112,14 +123,14 @@ var app = new Vue({
       for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = true;
       this.$forceUpdate()
     },
-    deleteFile(file) {
-      userInput = confirm(deleteFileMsg);
-      if (userInput) {
-        let endpoint = `/api/travel/request-files/${file.id}/`;
-        apiService(endpoint, "DELETE")
-            .then(response => {
-              this.$delete(this.request.files, this.request.files.indexOf(file))
-            })
+    costCloseEditMode(traveller, cost) {
+      this.inCostEditMode = false;
+      if (!cost.id) {
+        // remove from array
+        this.$delete(traveller.costs, traveller.costs.indexOf(cost))
+      } else {
+        cost.editMode = false;
+        this.refreshCosts(traveller)
       }
     },
     deleteCost(traveller, cost) {
@@ -130,6 +141,16 @@ var app = new Vue({
             .then(response => {
               this.$delete(traveller.costs, traveller.costs.indexOf(cost));
               this.updateTotalCost(traveller);
+            })
+      }
+    },
+    deleteFile(file) {
+      userInput = confirm(deleteFileMsg);
+      if (userInput) {
+        let endpoint = `/api/travel/request-files/${file.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.request.files, this.request.files.indexOf(file))
             })
       }
     },
@@ -168,6 +189,9 @@ var app = new Vue({
         this.$refs.traveller_form_starting_point.focus()
       })
     },
+    enablePopovers() {
+      $('[data-toggle="popover"]').popover({html: true});
+    },
     expandTravellers() {
       for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = false;
       this.$forceUpdate()
@@ -189,16 +213,6 @@ var app = new Vue({
       } else {
         file.editMode = false;
         this.$forceUpdate()
-      }
-    },
-    costCloseEditMode(traveller, cost) {
-      this.inCostEditMode = false;
-      if (!cost.id) {
-        // remove from array
-        this.$delete(traveller.costs, traveller.costs.indexOf(cost))
-      } else {
-        cost.editMode = false;
-        this.refreshCosts(traveller)
       }
     },
     getCostMetadata() {
@@ -223,6 +237,12 @@ var app = new Vue({
         this.fileLabels = data.labels;
       });
     },
+    getHelpText() {
+      let endpoint = `/api/travel/help-text/`;
+      apiService(endpoint).then(data => {
+        this.helpText = data;
+      });
+    },
     getRequest() {
       this.loading_request = true;
       let endpoint = `/api/travel/requests/${tripRequestId}/`;
@@ -237,32 +257,11 @@ var app = new Vue({
             })
           })
     },
-    enablePopovers() {
-      $('[data-toggle="popover"]').popover({html: true});
-    },
-    refreshCosts(traveller) {
-      this.loading_costs = true;
-      let endpoint = `/api/travel/costs/?traveller=${traveller.id}`;
-      apiService(endpoint)
-          .then(response => {
-            traveller.costs = response;
-            this.loading_costs = false;
-          })
-    },
-    updateCostRowTotal(cost) {
-      cost.amount_cad = Number(cost.number_of_days) * Number(cost.rate_cad);
-    },
     getReviewerMetadata() {
       let endpoint = `/api/travel/meta/models/request-reviewer/`;
       apiService(endpoint).then(data => {
         this.reviewerLabels = data.labels;
         this.roleChoices = data.role_choices;
-      });
-    },
-    getHelpText() {
-      let endpoint = `/api/travel/help-text/`;
-      apiService(endpoint).then(data => {
-        this.helpText = data;
       });
     },
     getTravellerMetadata() {
@@ -280,7 +279,7 @@ var app = new Vue({
       }
     },
     groomJSON(json) {
-      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "")
+      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:","")
     },
     moveReviewer(reviewer, direction) {
       if (direction === 'up') reviewer.order -= 1.5;
@@ -300,6 +299,15 @@ var app = new Vue({
     onFileChange(fileRef) {
       this.fileToUpload = this.$refs[fileRef][0].files[0];
     },
+    refreshCosts(traveller) {
+      this.loading_costs = true;
+      let endpoint = `/api/travel/costs/?traveller=${traveller.id}`;
+      apiService(endpoint)
+          .then(response => {
+            traveller.costs = response;
+            this.loading_costs = false;
+          })
+    },
     skipReviewer(reviewer) {
       userInput = prompt(skipReviewerMsg);
       if (userInput) {
@@ -316,6 +324,30 @@ var app = new Vue({
               }
             })
       }
+    },
+    updateCost(traveller, cost) {
+      let endpoint;
+      let method;
+      if (!cost.id) {
+        endpoint = `/api/travel/costs/`;
+        method = "POST";
+      } else {
+        endpoint = `/api/travel/costs/${cost.id}/`;
+        method = "PATCH";
+      }
+      apiService(endpoint, method, cost).then(response => {
+        if (response.id) {
+          this.refreshCosts(traveller);
+          this.updateTotalCost(traveller)
+          this.inCostEditMode = false;
+        } else {
+          console.log(response)
+          this.errorMsgCost = this.groomJSON(response)
+        }
+      })
+    },
+    updateCostRowTotal(cost) {
+      cost.amount_cad = Number(cost.number_of_days) * Number(cost.rate_cad);
     },
     updateFile(file) {
       // if there is a file attribute, delete it since we send back the file through a separate request
@@ -381,6 +413,13 @@ var app = new Vue({
             })
       }
     },
+    updateTotalCost(traveller) {
+      let cost = 0;
+      for (var i = 0; i < traveller.costs.length; i++) {
+        cost += Number(traveller.costs[i].amount_cad);
+      }
+      traveller.total_cost = cost;
+    },
     updateTraveller() {
       if (this.travellerToEdit.start_date) this.travellerToEdit.start_date += "T00:00:00.421977Z"
       if (this.travellerToEdit.end_date) this.travellerToEdit.end_date += "T00:00:00.421977Z"
@@ -402,34 +441,6 @@ var app = new Vue({
           this.errorMsgTraveller = this.groomJSON(response)
         }
       })
-    },
-    updateCost(traveller, cost) {
-      let endpoint;
-      let method;
-      if (!cost.id) {
-        endpoint = `/api/travel/costs/`;
-        method = "POST";
-      } else {
-        endpoint = `/api/travel/costs/${cost.id}/`;
-        method = "PATCH";
-      }
-      apiService(endpoint, method, cost).then(response => {
-        if (response.id) {
-          this.refreshCosts(traveller);
-          this.updateTotalCost(traveller)
-          this.inCostEditMode = false;
-        } else {
-          console.log(response)
-          this.errorMsgCost = this.groomJSON(response)
-        }
-      })
-    },
-    updateTotalCost(traveller) {
-      let cost = 0;
-      for (var i = 0; i < traveller.costs.length; i++) {
-        cost += Number(traveller.costs[i].amount_cad);
-      }
-      traveller.total_cost = cost;
     },
   },
   filters: {

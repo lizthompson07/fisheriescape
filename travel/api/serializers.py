@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.db.models import Q
 from django.template.defaultfilters import slugify, date
 from django.utils.translation import gettext as _
 from rest_framework import serializers
@@ -146,17 +147,22 @@ class TravellerSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """
         form validation:
-        1) make sure the trip is opened for business
-        2) make sure that the request start date and the trip start date make sense with respect to each other and individually
+        - make sure that the user is not already attending this trip!
+        - make sure that the request start date and the trip start date make sense with respect to each other and individually
         """
-        print(attrs)
         trip_request = attrs.get("request")
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
+        user = attrs.get("user")
         trip = trip_request.trip
         trip_start_date = trip.start_date
         trip_end_date = trip.end_date
-
+        
+        # make sure that the user is not already attending this trip from another request!
+        if user and models.Traveller.objects.filter(~Q(request=trip_request)).filter(request__trip=trip, user=user).exists():
+            msg = _('This user is cannot be added here because they are listed on another request!')
+            raise ValidationError(msg)
+        
         # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
         # the length of the trip is not too long
         if start_date and end_date:

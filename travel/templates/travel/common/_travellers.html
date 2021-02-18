@@ -90,6 +90,12 @@
 
             <div v-else>
               <form @submit.prevent="updateTraveller">
+                <div v-if="cloningTraveller" class="alert alert-info" role="alert">
+                  <h4>{% trans "CLONING: " %} ${travellerToEdit.old_name}</h4>
+                  <p class="h5">
+                    {% trans "Please enter the new traveller information below." %}
+                  </p>
+                </div>
 
                 <div class="form-group">
                   <label for="">
