@@ -45,16 +45,6 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class TripRequestCostsListAPIView(ListAPIView):
-    queryset = models.TripRequestCost.objects.all()
-    serializer_class = serializers.TripRequestCostSerializer
-    permission_classes = [CanModifyOrReadOnly]
-
-    def get_queryset(self):
-        trip_request = models.TripRequest.objects.get(pk=self.kwargs.get("trip_request"))
-        return trip_request.trip_request_costs.all()
-
-
 class TripViewSet(viewsets.ModelViewSet):
     queryset = models.Conference.objects.all()
     serializer_class = serializers.TripSerializer
@@ -184,6 +174,14 @@ class TravellerViewSet(viewsets.ModelViewSet):
     permission_classes = [CanModifyOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
+    def post(self, request, pk):
+        obj = get_object_or_404(models.Traveller, pk=pk)
+        if self.request.query_params.get("populate_all_costs"):
+            utils.populate_traveller_costs(self.request, obj)
+        elif self.request.query_params.get("clear_empty_costs"):
+            utils.clear_empty_traveller_costs(obj)
+        return Response(None, status.HTTP_200_OK)
+
     def perform_create(self, serializer):
         print(serializer.validated_data)
         serializer.save()
@@ -259,6 +257,19 @@ class FileViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
+
+
+class CostViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CostSerializer
+    permission_classes = [CanModifyOrReadOnly]
+    queryset = models.TripRequestCost.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
 
 
 # LOOKUPS
@@ -339,6 +350,16 @@ class TravellerModelMetaAPIView(APIView):
 class FileModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.File
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
+class CostModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.TripRequestCost
 
     def get(self, request):
         data = dict()

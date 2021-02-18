@@ -1,0 +1,102 @@
+{% load i18n %}
+{% load static %}
+{% load verbose_names %}
+{% load custom_filters %}
+
+
+<div class="card mb-2">
+  <h5 class="card-header bg-outline-dark">
+    {% trans "Costs" %}
+    <div class="neighbours">
+      <span class="mdi mdi-help-circle-outline" data-toggle="popover"
+            data-trigger="hover"
+            title="{% trans "Trip Request Costs" %}"
+            data-content="{{ help_text_dict|lookup:" costs_header" }}"></span>
+    </div>
+  </h5>
+  <div class="card-body">
+    <div class="card-text">
+      <p>
+        {% blocktrans %}
+          Per diem rates for breakfast, lunch, supper and incidentals should follow the
+          <a href="https://www.njc-cnm.gc.ca/">National Joint Council</a> Travel Directive.
+          For travel within Canada and
+          USA, please refer to <a href="https://www.njc-cnm.gc.ca/directive/d10/v238/s659/en">Appendix C</a>
+          and for all other travel please refer to
+          <a href="https://www.njc-cnm.gc.ca/directive/app_d.php?lang=en">Appendix D</a>.
+          <span class="red-font">Please note that all expenses for this request should be entered in Canadian dollars.</span>
+        {% endblocktrans %}
+      </p>
+      <div v-if="!t.costs.length" class="mb-3">
+        <em> {% trans "There are no costs associated with this request" %}... </em>
+      </div>
+      <table v-else :class="{'table table-sm':true, 'table-hover':!isReview}">
+        <tr>
+          <th>${costLabels.cost}</th>
+          <th class="text-center">${costLabels.rate_cad}</th>
+          <th class="text-center">${costLabels.number_of_days}</th>
+          <th class="text-center">${costLabels.amount_cad}</th>
+        </tr>
+        <tbody>
+        <tr v-for="c in t.costs" :key="c.id">
+          {# cost #}
+          <td class=""> ${c.cost_display }</td>
+
+          {# daily_rate #}
+          <td class="center-col">
+            ${c.rate_cad |floatformat |nz|zero2NullMark}
+          </td>
+
+          {# days #}
+          <td class="center-col">
+            ${c.number_of_days|nz|zero2NullMark }
+          </td>
+
+          {# Amount CAD #}
+          <td class="text-center">
+            ${c.amount_cad |floatformat |zero2NullMark }
+          </td>
+
+          <td style="width: 70px">
+            <button @click="deleteFile(file)" class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip"
+                        title="{% trans "Edit" %}">
+                  <span class="mdi mdi-pencil text-dark"></span>
+                </button>
+            <button @click="deleteFile(file)" class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip"
+                        title="{% trans "Delete" %}">
+                  <span class="mdi mdi-delete text-dark"></span>
+                </button>
+
+          </td>
+        </tr>
+        <tr>
+          <td class=""><strong>TOTAL</strong></td>
+          <td class="center-col">---</td>
+          <td class="center-col">---</td>
+          {#          <td class="center-col"><strong>${ totalCosts |floatformat |nz|zero2NullMark }</strong></td>#}
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer">
+    <div class="text-center">
+      <button class="btn btn-sm btn-outline-primary px-1 py-0 text-sm">
+        {% trans "Add new cost" %}
+      </button>
+      <button class="btn btn-sm btn-outline-success px-1 py-0 text-sm" @click="addAllCosts(t)">
+        {% trans "Add all costs" %}
+      </button>
+      <button class="btn btn-sm btn-outline-dark px-1 py-0 text-sm" @click="clearEmptyCosts(t)">
+        {% trans "Clear empty lines" %} <span class="mdi mdi-broom"></span>
+      </button>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+
+

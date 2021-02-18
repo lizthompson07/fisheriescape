@@ -156,3 +156,7 @@ table, td {
 [v-cloak] {
     display: none;
 }
+
+.text-sm{
+    font-size: small;
+}

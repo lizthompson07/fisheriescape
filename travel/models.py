@@ -240,7 +240,7 @@ class Conference(models.Model):
                                 verbose_name=_("location (city, province, country)"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
                              verbose_name=_("Which region is the lead on this trip?"),
-                             related_name="meeting_leads", blank=False, null=True)
+                             related_name="meeting_leads", blank=True, null=True)
     has_event_template = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"), editable=False)
@@ -1430,11 +1430,12 @@ class Traveller(models.Model):
         return mark_safe(mystr)
 
 
+# SHOULD BE RENAMED TO TRAVELLER COST
 class TripRequestCost(models.Model):
     traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"), blank=True, null=True, editable=False)
 
     # DELETE
-    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs", verbose_name=_("trip request"))
+    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs", verbose_name=_("trip request"), blank=True, null=True)
 
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)

@@ -104,7 +104,7 @@ class TripRequestForm(forms.ModelForm):
                                          label=gettext_lazy("Are you a traveller on this request?"), required=False)
     class Meta:
         model = models.TripRequest1
-        exclude = ["administrative_notes"]
+        exclude = ["admin_notes"]
         labels = {
             'bta_attendees': gettext_lazy("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
         }

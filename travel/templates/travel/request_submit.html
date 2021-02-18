@@ -13,7 +13,7 @@
 
 
     <div v-if="request.id && !request.submitted" class="mt-5 mb-5" v-cloak>
-      <div class="form-check mb-3">
+      <div class="form-check mb-5">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation1" v-model="userConfirmed1">
         <label class="form-check-label h4" for="confirmation1">
           {% blocktrans %}
@@ -21,20 +21,20 @@
           {% endblocktrans %}
         </label>
       </div>
-      <div class="form-check mb-3">
+      <div class="form-check mb-5">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation2" v-model="userConfirmed2">
         <label class="form-check-label h4" for="confirmation2">
           {% blocktrans %}
-            I have done my due diligence to ensure that the <b>regional</b> reviewers in the approval queue are selected appropriately and are available to
-            evaluate this request.
+            I have done my due diligence to ensure that the regional reviewers in the approval queue are selected appropriately, are available to evaluate and
+            have the necessary authority to approve all the travellers on this request.
           {% endblocktrans %}
         </label>
       </div>
-      <div class="form-check mb-3">
+      <div class="form-check mb-5">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation3" v-model="userConfirmed3">
         <label class="form-check-label h4" for="confirmation3">
           {% blocktrans %}
-            The reviewers in the approval queue have the necessary authority to approve all the travellers on this request.
+            All costs have been entered in Canadian dollars.
           {% endblocktrans %}
         </label>
       </div>
@@ -84,7 +84,7 @@
       },
     },
     computed: {
-      allConfirmed () {
+      allConfirmed() {
         return this.userConfirmed1 && this.userConfirmed2 && this.userConfirmed3
       }
     },

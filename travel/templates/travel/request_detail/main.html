@@ -126,14 +126,25 @@
       </a>
 
     </div>
+    <div class="mb-3 card admin-notes" v-if="request.admin_notes_html && !showAdminNotesForm">
+      <div class="card-header">{% trans "Administrative Notes" %}</div>
+      <div class="card-body">
+        <p class="card-text" v-html="request.admin_notes_html"></p>
+      </div>
+    </div>
 
     {% include "travel/common/_request_summary.html" %}
     {% include "travel/common/_travellers.html" %}
+    {% include "travel/common/_files.html" %}
+    {% include "travel/common/_reviewers.html" %}
   </div>
 {% endblock %}
 
 
 {% block body_js %}
   {{ block.super }}
+  <script type="application/javascript">
+  let isReview = false;
+  </script>
   {% include "travel/common/_script.html" %}
 {% endblock %}
