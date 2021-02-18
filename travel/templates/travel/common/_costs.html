@@ -81,14 +81,14 @@
   </div>
   <div class="card-footer">
     <div class="text-center">
-      <button class="btn btn-sm btn-outline-primary px-1 py-0 text-sm">
-        {% trans "Add new cost" %}
+      <button class="btn btn-sm btn-outline-dark px-1 py-0 text-sm">
+        {% trans "Add a cost" %}<span class="mdi mdi-plus"></span>
       </button>
-      <button class="btn btn-sm btn-outline-success px-1 py-0 text-sm" @click="addAllCosts(t)">
-        {% trans "Add all costs" %}
+      <button class="btn btn-sm btn-outline-dark px-1 py-0 text-sm" @click="addAllCosts(t)">
+        {% trans "Add all costs" %} <span class="mdi mdi-plus-box-multiple-outline"></span>
       </button>
       <button class="btn btn-sm btn-outline-dark px-1 py-0 text-sm" @click="clearEmptyCosts(t)">
-        {% trans "Clear empty lines" %} <span class="mdi mdi-broom"></span>
+        {% trans "Clear unused lines" %} <span class="mdi mdi-broom"></span>
       </button>
     </div>
   </div>
