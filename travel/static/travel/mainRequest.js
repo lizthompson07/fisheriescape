@@ -24,6 +24,7 @@ var app = new Vue({
     orgChoices: [],
     request: {},
     reviewerEditMode: false,
+    requestLabels: {},
     reviewerLabels: {},
     helpText: {},
     roleChoices: [],
@@ -262,6 +263,12 @@ var app = new Vue({
       apiService(endpoint).then(data => {
         this.reviewerLabels = data.labels;
         this.roleChoices = data.role_choices;
+      });
+    },
+    getRequestMetadata() {
+      let endpoint = `/api/travel/meta/models/request/`;
+      apiService(endpoint).then(data => {
+        this.requestLabels = data.labels;
       });
     },
     getTravellerMetadata() {
@@ -530,6 +537,7 @@ var app = new Vue({
   created() {
     this.getRequest();
     this.fetchDMAppsUsers();
+    this.getRequestMetadata();
     this.getReviewerMetadata();
     this.getFileMetadata();
     this.getTravellerMetadata();

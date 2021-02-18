@@ -1,5 +1,3 @@
-# TODO: traveller clone
-
 # TODO: Trip Detail
 # TODO: more attention to reviewer form -- for example cost comparison tables etc
 # TODO: admo process

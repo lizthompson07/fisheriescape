@@ -23,6 +23,7 @@ urlpatterns = [
     path("travel/divisions/", views.DivisionListAPIView.as_view(), name="travel-division-list"),
     path("travel/sections/", views.SectionListAPIView.as_view(), name="travel-section-list"),
 
+    path("travel/meta/models/request/", views.RequestModelMetaAPIView.as_view(), name="reviewer-model-meta"),
     path("travel/meta/models/request-reviewer/", views.ReviewerModelMetaAPIView.as_view(), name="reviewer-model-meta"),
     path("travel/meta/models/traveller/", views.TravellerModelMetaAPIView.as_view(), name="traveller-model-meta"),
     path("travel/meta/models/file/", views.FileModelMetaAPIView.as_view(), name="file-model-meta"),

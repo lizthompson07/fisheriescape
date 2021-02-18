@@ -334,6 +334,16 @@ def _get_labels(model):
     return labels
 
 
+class RequestModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.TripRequest1
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
 class ReviewerModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Reviewer

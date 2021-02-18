@@ -172,7 +172,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
 
 class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
     model = models.TripRequest1
-    template_name = 'travel/request_detail/main.html'
+    template_name = 'travel/request_detail.html'
     home_url_name = "travel:index"
 
     def get_parent_crumb(self):
