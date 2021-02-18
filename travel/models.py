@@ -1369,7 +1369,7 @@ class Traveller(models.Model):
 
     @property
     def total_cost(self):
-        """ this is the total cost for the request. Does not include any children"""
+        """ this is the total cost for the traveller"""
         return nz(self.costs.all().values("amount_cad").order_by("amount_cad").aggregate(dsum=Sum("amount_cad"))['dsum'], 0)
 
     @property
@@ -1436,11 +1436,11 @@ class Traveller(models.Model):
 
 # SHOULD BE RENAMED TO TRAVELLER COST
 class TripRequestCost(models.Model):
-    traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"), blank=True, null=True, editable=False)
+    traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"), blank=True, null=True)
 
     # DELETE
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs", verbose_name=_("trip request"), blank=True,
-                                     null=True)
+                                     null=True, editable=False)
 
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)

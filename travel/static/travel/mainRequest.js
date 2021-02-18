@@ -55,6 +55,9 @@ var app = new Vue({
       this.inCostEditMode = true;
       traveller.costs.push({
         traveller: traveller.id,
+        rate_cad: null,
+        number_of_days: null,
+        amount_cad: 0,
         editMode: true,
       })
     },
@@ -402,12 +405,20 @@ var app = new Vue({
       apiService(endpoint, method, cost).then(response => {
         if (response.id) {
           this.refreshCosts(traveller);
+          this.updateTotalCost(traveller)
           this.inCostEditMode = false;
         } else {
           console.log(response)
           this.errorMsgCost = this.groomJSON(response)
         }
       })
+    },
+    updateTotalCost(traveller) {
+      let cost = 0;
+      for (var i = 0; i < traveller.costs.length; i++) {
+        cost += Number(traveller.costs[i].amount_cad);
+      }
+      traveller.total_cost = cost;
     },
   },
   filters: {

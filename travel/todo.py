@@ -13,8 +13,6 @@
 # todo: make sure emails are sent when requests are denied
 # TODO: revamp verification form
 # TODO: help bubble on traveller form
-# todo: TR Cost SHOULD BE RENAMED TO TRAVELLER COST
-# todo: TR1 SHOULD BE RENAMED TO TR
 # TODO: delete unneeded tables
 # TODO: fix up unit tests
     # TODO: test new model choices!!
@@ -22,3 +20,8 @@
 # TODO: sort all methods and attrs on serializers
 
 
+# after we are deployed
+# TODO: delete trip_request on cost, traveller,
+# todo: TR Cost SHOULD BE RENAMED TO TRAVELLER COST
+# todo: TR1 SHOULD BE RENAMED TO TR
+# todo: rename triprequest1 to something reasonable

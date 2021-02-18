@@ -55,12 +55,14 @@
           {# daily_rate #}
           <td v-if="!c.editMode" class="center-col"> ${c.rate_cad |floatformat |nz|zero2NullMark}</td>
           <td v-else>
-            <input @keyup='updateCostRowTotal(c)' type="number" step=".01" v-model="c.rate_cad" class="form-control form-control-sm">
+            <input @keyup='updateCostRowTotal(c)' type="number" step=".01" v-model="c.rate_cad" class="form-control form-control-sm"
+                   placeholder="{% trans "optional" %}">
           </td>
           {# days #}
           <td class="center-col" v-if="!c.editMode"> ${c.number_of_days|nz|zero2NullMark }</td>
           <td v-else>
-            <input @keyup='updateCostRowTotal(c)' type="number" v-model="c.number_of_days" class="form-control form-control-sm">
+            <input @keyup='updateCostRowTotal(c)' type="number" v-model="c.number_of_days" class="form-control form-control-sm"
+                   placeholder="{% trans "optional" %}">
           </td>
           {# Amount CAD #}
           <td class="text-center" v-if="!c.editMode"> ${c.amount_cad |floatformat |zero2NullMark }</td>
@@ -95,7 +97,7 @@
           <td class=""><strong>TOTAL</strong></td>
           <td class="center-col">---</td>
           <td class="center-col">---</td>
-          {#          <td class="center-col"><strong>${ totalCosts |floatformat |nz|zero2NullMark }</strong></td>#}
+          <td class="center-col"><strong>${ t.total_cost |floatformat }</strong></td>
         </tr>
         </tbody>
       </table>

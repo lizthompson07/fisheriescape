@@ -113,31 +113,35 @@ class TravellerSerializer(serializers.ModelSerializer):
         model = models.Traveller
         fields = "__all__"
 
-    smart_name = serializers.SerializerMethodField()
-    traveller_info = serializers.SerializerMethodField()
     cost_breakdown_html = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     long_role = serializers.SerializerMethodField()
-    role = serializers.StringRelatedField()
     non_dfo_costs_html = serializers.SerializerMethodField()
-
-    def get_non_dfo_costs_html(self, instance):
-        return instance.non_dfo_costs_html
-
-    def get_long_role(self, instance):
-        return instance.long_role
-
-    def get_dates(self, instance):
-        return instance.dates
+    role = serializers.StringRelatedField()
+    smart_name = serializers.SerializerMethodField()
+    total_cost = serializers.SerializerMethodField()
+    traveller_info = serializers.SerializerMethodField()
 
     def get_cost_breakdown_html(self, instance):
         return instance.cost_breakdown_html
 
-    def get_traveller_info(self, instance):
-        return instance.traveller_info
+    def get_dates(self, instance):
+        return instance.dates
+
+    def get_long_role(self, instance):
+        return instance.long_role
+
+    def get_non_dfo_costs_html(self, instance):
+        return instance.non_dfo_costs_html
 
     def get_smart_name(self, instance):
         return instance.smart_name
+
+    def get_total_cost(self, instance):
+        return instance.total_cost
+
+    def get_traveller_info(self, instance):
+        return instance.traveller_info
 
     def validate(self, attrs):
         """
