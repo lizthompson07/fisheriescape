@@ -18,7 +18,7 @@
 {% endif %}
 
 {% for group in user.groups.all %}
-  {% if group.name == "travel_admin" %}
+  {% if group.name == "travel_adm_admin" %}
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
          aria-haspopup="true" aria-expanded="false">
@@ -40,9 +40,6 @@
         <a class="dropdown-item" href="{% url 'travel:manage_costs' %}">
           {% trans "Manage Costs" %}
         </a>
-        {#                <a class="dropdown-item" href="{% url 'travel:manage_reasons' %}">#}
-        {#                    {% trans "Manage Trip Reasons" %}#}
-        {#                </a>#}
         <a class="dropdown-item" href="{% url 'travel:manage_trip_categories' %}">
           {% trans "Manage Trip Categories" %}
         </a>
@@ -51,7 +48,7 @@
         </a>
 
         <a class="dropdown-item" href="{% url 'travel:default_reviewer_list' %}">
-          {% trans "Set Default Reviewers" %}
+          {% trans "Manage Optional/Special Reviewers" %}
         </a>
         <a class="dropdown-item" href="{% url 'shared_models:index' %}" target="_blank">
           {% trans "Manage DFO Organizations" %}
@@ -69,7 +66,7 @@
           {% trans "Manage Reference Materials" %}
         </a>
         <a class="dropdown-item" href="{% url 'travel:manage_organizations' %}">
-          {% trans "Manage Organizations" %}
+          {% trans "Manage Physical Locations" %}
         </a>
 
       </div>

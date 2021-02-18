@@ -972,6 +972,7 @@ class DefaultReviewerForm(forms.ModelForm):
         widgets = {
             "user": forms.Select(attrs=chosen_js),
             "sections": forms.SelectMultiple(attrs=chosen_js),
+            "divisions": forms.SelectMultiple(attrs=chosen_js),
             "branches": forms.SelectMultiple(attrs=chosen_js),
             "reviewer_roles": forms.SelectMultiple(attrs=chosen_js),
         }

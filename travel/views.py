@@ -2128,14 +2128,16 @@ class ReferenceMaterialDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
 
 class DefaultReviewerListView(TravelAdminRequiredMixin, CommonListView):
     model = models.DefaultReviewer
-    template_name = 'travel/default_reviewer_list.html'
-    h1 = gettext_lazy("Default Reviewers")
+    template_name = 'travel/default_reviewer/default_reviewer_list.html'
+    h1 = gettext_lazy("Optional / Special Reviewers")
     h3 = gettext_lazy("Use this module to set the default reviewers that get added to a trip request.")
     new_object_url_name = "travel:default_reviewer_new"
     home_url_name = "travel:index"
+    container_class = "container-fluid"
     field_list = [
         {"name": 'user', "class": "", "width": ""},
         {"name": 'sections', "class": "", "width": ""},
+        {"name": 'divisions', "class": "", "width": ""},
         {"name": 'branches', "class": "", "width": ""},
         {"name": 'reviewer_roles', "class": "", "width": ""},
     ]
@@ -2145,21 +2147,21 @@ class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
-    template_name = 'travel/default_reviewer_form.html'
+    template_name = 'travel/default_reviewer/default_reviewer_form.html'
 
 
 class DefaultReviewerCreateView(TravelAdminRequiredMixin, CreateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
-    template_name = 'travel/default_reviewer_form.html'
+    template_name = 'travel/default_reviewer/default_reviewer_form.html'
 
 
 class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
     model = models.DefaultReviewer
     success_url = reverse_lazy('travel:default_reviewer_list')
     success_message = 'The default reviewer was successfully deleted!'
-    template_name = 'travel/default_reviewer_confirm_delete.html'
+    template_name = 'travel/default_reviewer/default_reviewer_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

@@ -6,8 +6,8 @@
 # TODO: bring back admin warnings
 # TODO: TRAF rejig
 # todo: api view validation
-# TODO: only travel NCR admin to access settings menu
-# TODO: implement new reviewer order
+
+
 # At a later date
 # todo:  email for when ppl are deleted from a request
 # todo: make sure emails are sent when requests are denied

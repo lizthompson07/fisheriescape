@@ -214,7 +214,7 @@ def get_request_reviewers(trip_request):
         # SPECIAL OPTIONAL INSERTS --> pre-branch
         ############################################
         # add each default reviewer to the queue
-        for default_reviewer in trip_request.section.branch.travel_default_reviewers.order_by("order"):
+        for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.order_by("order"):
             models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
 
         # RDS
@@ -230,7 +230,7 @@ def get_request_reviewers(trip_request):
             if national_branch.exists():
                 national_branch = national_branch.first()
                 if national_branch.head:
-                    models.Reviewer.objects.get_or_create(request=trip_request, user=national_branch, role=5)
+                    models.Reviewer.objects.get_or_create(request=trip_request, user=national_branch.head, role=5)
             else:
                 print("Cannot find branch named: 'national'")
 
