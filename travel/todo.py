@@ -8,6 +8,9 @@
 # TODO: TRAF rejig
 # todo: api view validation
 
+# TODO: problem -- > total cost at the request level does not update as costs are being added. Maybe the field should be hidden until under review?
+# TODO: redo the summary with pure vuejs in order to implement the above
+
 
 # At a later date
 # todo:  email for when ppl are deleted from a request

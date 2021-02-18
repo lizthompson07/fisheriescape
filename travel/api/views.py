@@ -184,7 +184,6 @@ class TravellerViewSet(viewsets.ModelViewSet):
         return Response(None, status.HTTP_200_OK)
 
     def perform_create(self, serializer):
-        print(serializer.validated_data)
         obj = serializer.save()
         utils.populate_traveller_costs(self.request, obj)
 

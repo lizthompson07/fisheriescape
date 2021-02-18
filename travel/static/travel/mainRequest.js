@@ -279,7 +279,7 @@ var app = new Vue({
       }
     },
     groomJSON(json) {
-      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:","")
+      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
     },
     moveReviewer(reviewer, direction) {
       if (direction === 'up') reviewer.order -= 1.5;
@@ -337,11 +337,12 @@ var app = new Vue({
       }
       apiService(endpoint, method, cost).then(response => {
         if (response.id) {
-          this.refreshCosts(traveller);
-          this.updateTotalCost(traveller)
+          if (traveller) {
+            this.refreshCosts(traveller);
+            this.updateTotalCost(traveller)
+          }
           this.inCostEditMode = false;
         } else {
-          console.log(response)
           this.errorMsgCost = this.groomJSON(response)
         }
       })
@@ -435,7 +436,28 @@ var app = new Vue({
       apiService(endpoint, method, this.travellerToEdit).then(response => {
         if (response.id) {
           this.getRequest();
+          if (this.cloningTraveller) {
+            // start by removing all costs
+            costs = this.travellerToEdit.costs // before this gets erased
+            endpoint = `/api/travel/travellers/${response.id}/?clear_empty_costs=true`;
+            apiService(endpoint, method, response).then(response1 => {
+              let newCost;
+              for (var i = 0; i < costs.length; i++) {
+                newCost = JSON.parse(JSON.stringify(costs[i]));
+                delete newCost.id;
+                newCost.traveller = response.id;
+                this.updateCost(null, newCost);
+              }
+            })
+            // sorry, I am not proud about this...
+            setTimeout(function () {
+              this.getRequest()
+            }.bind(this), 3000);
+
+          }
           this.travellerToEdit = null;
+
+
         } else {
           console.log(response)
           this.errorMsgTraveller = this.groomJSON(response)
