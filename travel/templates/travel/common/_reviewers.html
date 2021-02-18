@@ -4,7 +4,7 @@
 
 <div class="card mb-2">
   <h3 class="card-header bg-outline-dark">
-    <div class="float-right mb-3" v-if="canModify && !isReview && !reviewerEditMode">
+    <div class="float-right" v-if="canModify && !isReview && !reviewerEditMode">
       <button @click="reviewerEditMode=true" class="btn btn-sm btn-primary">
         <span class="mdi mdi-plus text-light"></span> {% trans "Modify" %}
       </button>

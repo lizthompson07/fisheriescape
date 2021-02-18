@@ -22,12 +22,6 @@
         </div>
       </div>
       <div v-else>
-        <div class="mb-3 card admin-notes" v-if="request.admin_notes_html && !showAdminNotesForm">
-          <div class="card-header">{% trans "Administrative Notes" %}</div>
-          <div class="card-body">
-            <p class="card-text" v-html="request.admin_notes_html"></p>
-          </div>
-        </div>
         <table class="table table-sm mb-5" style="width: auto">
           {% get_request_field_list tr=trip_request as request_field_list %}
           {% for field in request_field_list %}

@@ -33,9 +33,9 @@
       <table v-else :class="{'table table-sm':true, 'table-hover':!isReview}">
         <tr>
           <th>${costLabels.cost}</th>
-          <th>${costLabels.rate_cad}</th>
-          <th>${costLabels.number_of_days}</th>
-          <th>${costLabels.amount_cad}</th>
+          <th class="text-center">${costLabels.rate_cad}</th>
+          <th class="text-center">${costLabels.number_of_days}</th>
+          <th class="text-center">${costLabels.amount_cad}</th>
         </tr>
         <tbody>
         <tr v-for="c in t.costs" :key="c.id">
@@ -57,8 +57,16 @@
             ${c.amount_cad |floatformat |zero2NullMark }
           </td>
 
-          <td>
-            <span class="mdi mdi-pencil"></span>
+          <td style="width: 70px">
+            <button @click="deleteFile(file)" class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip"
+                        title="{% trans "Edit" %}">
+                  <span class="mdi mdi-pencil text-dark"></span>
+                </button>
+            <button @click="deleteFile(file)" class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip"
+                        title="{% trans "Delete" %}">
+                  <span class="mdi mdi-delete text-dark"></span>
+                </button>
+
           </td>
         </tr>
         <tr>
@@ -80,7 +88,7 @@
         {% trans "Add all costs" %}
       </button>
       <button class="btn btn-sm btn-outline-dark px-1 py-0 text-sm" @click="clearEmptyCosts(t)">
-        {% trans "Clear empty lines" %}
+        {% trans "Clear empty lines" %} <span class="mdi mdi-broom"></span>
       </button>
     </div>
   </div>
