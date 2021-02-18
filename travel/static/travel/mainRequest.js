@@ -24,6 +24,7 @@ var app = new Vue({
     request: {},
     reviewerEditMode: false,
     reviewerLabels: {},
+    helpText: {},
     roleChoices: [],
     showAdminNotesForm: false,
     travellerLabels: {},
@@ -127,7 +128,8 @@ var app = new Vue({
         let endpoint = `/api/travel/costs/${cost.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(traveller.costs, traveller.costs.indexOf(cost))
+              this.$delete(traveller.costs, traveller.costs.indexOf(cost));
+              this.updateTotalCost(traveller);
             })
       }
     },
@@ -235,6 +237,9 @@ var app = new Vue({
             })
           })
     },
+    enablePopovers() {
+      $('[data-toggle="popover"]').popover({html: true});
+    },
     refreshCosts(traveller) {
       this.loading_costs = true;
       let endpoint = `/api/travel/costs/?traveller=${traveller.id}`;
@@ -252,6 +257,12 @@ var app = new Vue({
       apiService(endpoint).then(data => {
         this.reviewerLabels = data.labels;
         this.roleChoices = data.role_choices;
+      });
+    },
+    getHelpText() {
+      let endpoint = `/api/travel/help-text/`;
+      apiService(endpoint).then(data => {
+        this.helpText = data;
       });
     },
     getTravellerMetadata() {
@@ -490,6 +501,7 @@ var app = new Vue({
     this.getFileMetadata();
     this.getTravellerMetadata();
     this.getCostMetadata();
+    this.getHelpText();
   },
   mounted() {
   },

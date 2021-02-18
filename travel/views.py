@@ -184,7 +184,6 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
         my_object = self.get_object()
         context = super().get_context_data(**kwargs)
         context["trip_request"] = self.get_object()
-        context['help_text_dict'] = get_help_text_dict()
         context['random_request_reviewer'] = models.Reviewer.objects.first()
         return context
 

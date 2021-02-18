@@ -9,10 +9,9 @@
 <div class="card mb-2">
   <h3 class="card-header bg-outline-dark">
     {% trans "Request Summary" %}
-    <span class="mdi mdi-help-circle-outline" data-toggle="popover"
-          data-trigger="hover"
-          title="{% trans "Request Summary" %}"
-          data-content="{{ help_text_dict.trip_request_header }}"></span>
+    <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+            data-trigger="hover" title="{% trans "Request Summary" %}"
+            :data-content="helpText.trip_request_header"></span>
   </h3>
   <div class="card-body">
     <div class="card-text">

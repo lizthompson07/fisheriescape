@@ -3,17 +3,11 @@
 {% load verbose_names %}
 {% load custom_filters %}
 
-
+<b>{% trans "Costs" %}</b>
+<span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+            data-trigger="hover" title="{% trans "Trip Request Costs" %}"
+            :data-content="helpText.costs_header"></span>
 <div class="card mb-2">
-  <h5 class="card-header bg-outline-dark">
-    {% trans "Costs" %}
-    <div class="neighbours">
-      <span class="mdi mdi-help-circle-outline" data-toggle="popover"
-            data-trigger="hover"
-            title="{% trans "Trip Request Costs" %}"
-            data-content="{{ help_text_dict|lookup:" costs_header" }}"></span>
-    </div>
-  </h5>
   <div class="card-body">
     <div class="card-text">
       <p>

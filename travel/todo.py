@@ -1,8 +1,9 @@
-# TODO: traveller edit
 # TODO: traveller clone
-# TODO: traveller costs
 
-# TODO: TR Cost help bubble not working
+# TODO: Trip Detail
+# TODO: more attention to reviewer form -- for example cost comparison tables etc
+# TODO: admo process
+
 # TODO: bring back admin warnings
 # TODO: TRAF rejig
 # todo: api view validation
@@ -12,7 +13,6 @@
 # todo:  email for when ppl are deleted from a request
 # todo: make sure emails are sent when requests are denied
 # TODO: revamp verification form
-# TODO: help bubble on traveller form
 # TODO: delete unneeded tables
 # TODO: fix up unit tests
     # TODO: test new model choices!!

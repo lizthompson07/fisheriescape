@@ -377,3 +377,14 @@ class CostModelMetaAPIView(APIView):
         data['cost_choices'] = [dict(text=item.tname, value=item.id) for item in models.Cost.objects.all()]
         data['labels'] = _get_labels(self.model)
         return Response(data)
+
+
+class HelpTextAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.HelpText
+
+    def get(self, request):
+        data = dict()
+        for obj in models.HelpText.objects.all():
+            data[obj.field_name] = str(obj)
+        return Response(data)

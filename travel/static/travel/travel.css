@@ -160,3 +160,7 @@ table, td {
 .text-sm{
     font-size: small;
 }
+
+.mdi-help-circle-outline{
+    color: blue;
+}
