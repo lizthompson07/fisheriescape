@@ -108,50 +108,6 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         return context
 
 
-request_group_field_list = [
-    'fiscal_year',
-    'trip',
-    'requester_name|{}'.format(gettext_lazy("organizer name")),
-    'status_string|{}'.format(gettext_lazy("request status")),
-    'section',
-    'destination',
-
-    'objective_of_event',
-    'benefit_to_dfo',
-    'bta_attendees',
-    'late_justification',
-    'funding_source',
-    'total_dfo_funding|{}'.format(gettext_lazy("Total amount of DFO funding (CAD)")),
-    'total_non_dfo_funding_sources|{}'.format(gettext_lazy("Non-DFO funding sources")),
-    'total_non_dfo_funding|{}'.format(gettext_lazy("Total amount of non-DFO funding (CAD)")),
-    'total_request_cost|{}'.format(gettext_lazy("Total cost")),
-    'original_submission_date',
-    'processing_time|{}'.format(gettext_lazy("Processing time")),
-    'notes',
-]
-
-request_child_field_list = [
-    'requester_name|{}'.format(gettext_lazy("Name")),
-    # 'is_public_servant',
-    'is_research_scientist|{}'.format(gettext_lazy("RES?")),  # Translators: as in "Research Scientist?"
-    'dates|{}'.format(gettext_lazy("Travel dates")),
-    'departure_location',
-    # 'reason',
-    'role',
-    # 'role_of_participant',
-    'total_cost|{}'.format(gettext_lazy("Total cost")),
-    'non_dfo_costs|{}'.format(gettext_lazy("non-DFO funding")),
-]
-
-reviewer_field_list = [
-    'order',
-    'user',
-    'role',
-    'status',
-    'status_date',
-    'comments_html|{}'.format(gettext_lazy("Comments")),
-]
-
 conf_field_list = [
     'tname|{}'.format(gettext_lazy("Name")),
     'location',
@@ -171,13 +127,6 @@ conf_field_list = [
     'adm_review_deadline',
     'total_cost|{}'.format(gettext_lazy("Total DFO cost (excluding BTA)")),
     'non_res_total_cost|{}'.format(gettext_lazy("Total DFO cost from non-RES travellers (excluding BTA)")),
-]
-
-cost_field_list = [
-    "cost",
-    "rate_cad",
-    "number_of_days",
-    "amount_cad",
 ]
 
 
@@ -575,7 +524,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
                         user=ncr_coord.user,
                         role=3,
                     )
-                    reviewer.order = 0
+                    reviewer.order = -1000000
                     reviewer.save()
 
             #  SUBMIT REQUEST
@@ -1131,11 +1080,12 @@ class TripListView(TravelAccessRequiredMixin, CommonTemplateView):
         'status',
         'trip_subcategory',
         'tname|{}'.format(gettext_lazy("title")),
-        'location',
+        'location|{}'.format(_("location")),
+        'lead|{}'.format(_("region")),
         'abstract_deadline|{}'.format(_("abstract deadline")),
         'registration_deadline',
         'dates|{}'.format(_("trip dates")),
-        'is_adm_approval_required|{}'.format(_("ADM approval required?")),
+        # 'is_adm_approval_required|{}'.format(_("ADM approval required?")),
         'date_eligible_for_adm_review',
     ]
 
@@ -1150,97 +1100,6 @@ class TripListView(TravelAccessRequiredMixin, CommonTemplateView):
         return reverse("travel:trip_new")
 
 
-class TripListView1(TravelAccessRequiredMixin, CommonFilterView):
-    model = models.Conference
-    filterset_class = filters.TripFilter
-    template_name = 'travel/trip_list.html'
-    row_object_url_name = "travel:trip_detail"
-    container_class = "container-fluid"
-    subtitle = _("Trips")
-    home_url_name = "travel:index"
-
-    def get_new_object_url(self):
-        return reverse("travel:trip_new", kwargs=self.kwargs)
-
-    def get_queryset(self):
-        queryset = models.Conference.objects.annotate(
-            search_term=Concat(
-                'name',
-                Value(" "),
-                'nom',
-                Value(" "),
-                'location',
-                output_field=TextField()))
-        # the only list that a regular user will have access to is th upcomming list
-        if self.kwargs.get("type") == "upcoming":
-            queryset = queryset.filter(start_date__gte=timezone.now())
-        else:
-            # otherwise, they should be an admin user
-            if in_travel_admin_group(self.request.user):
-                if self.kwargs.get("type").startswith("region"):
-                    queryset = queryset.filter(lead_id=self.kwargs.get("type").replace("region-", ""))
-                elif self.kwargs.get("type") == "adm-hit-list":
-                    queryset = utils.get_adm_eligible_trips().annotate(
-                        search_term=Concat(
-                            'name',
-                            Value(" "),
-                            'nom',
-                            Value(" "),
-                            'location',
-                            output_field=TextField())).order_by("adm_review_deadline")
-                elif self.kwargs.get("type") == "adm-all":
-                    queryset = queryset.filter(is_adm_approval_required=True)
-            else:
-                queryset = None
-        return queryset
-
-    def get_field_list(self):
-        field_list = [
-            {"name": 'fiscal_year', "class": "", "width": "75px"},
-            {"name": 'status_string|{}'.format("status"), "width": "150px", },
-            {"name": 'trip_subcategory', "class": "", "width": "200px", },
-            {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
-            {"name": 'location|{}'.format(_("location")), "class": "", },
-            {"name": 'abstract_deadline|{}'.format(_("abstract deadline")), "class": "", "width": "100px"},
-            {"name": 'registration_deadline', "class": "", "width": "100px"},
-            {"name": 'dates|{}'.format(_("trip dates")), "class": "", "width": "170px"},
-            # {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
-            # {"name": 'lead|{}'.format(_("Regional lead")), "class": "center-col", },
-            {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
-            # {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
-            {"name": 'date_eligible_for_adm_review', "class": "center-col", "width": "140px"},
-            # {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
-            # {"name": 'verified_by', "class": "", },
-        ]
-        if self.kwargs.get("type") == "adm-hit-list" or self.kwargs.get("type") == "adm-all":
-            field_list.append(
-                {"name": 'adm_review_deadline|{}'.format(_("ADM decision deadline")), "class": "", "width": "200px"}
-            )
-        return field_list
-
-    def get_h1(self):
-        if self.kwargs.get("type") == "adm-hit-list":
-            h1 = _("Trips Eligible for ADM Review")
-        elif self.kwargs.get("type") == "adm-all":
-            h1 = _("All Trips Requiring ADM Approval")
-        elif self.kwargs.get("type") == "upcoming":
-            h1 = _("Upcoming Trips")
-        elif self.kwargs.get("region"):
-            region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
-            h1 = _("Trips") + f' ({str(region)})'
-        else:
-            h1 = _("Trips")
-        return h1
-
-    def get_h3(self):
-        if self.kwargs.get("type") == "adm-hit-list":
-            return "<em>(" + _("i.e., Trips which are fair game for ADMO review to begin") + ")</em>"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["paginate_by"] = 10 if self.kwargs.get("type") != "adm-hit-list" else 50
-        context["is_admin"] = in_travel_admin_group(self.request.user)
-        return context
 
 
 class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
@@ -1498,31 +1357,6 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
             return HttpResponseRedirect(reverse("travel:trip_detail", kwargs=my_kwargs))
 
 
-class TripVerificationListView(TravelAdminRequiredMixin, CommonListView):
-    template_name = 'travel/trip_verification_list.html'
-    home_url_name = "travel:index"
-    h1 = gettext_lazy("Trips Awaiting Verification")
-
-    field_list = [
-        {"name": 'fiscal_year', "class": "", "width": "75px"},
-        {"name": 'tname|{}'.format("Name"), "class": "", "width": ""},
-        {"name": 'trip_subcategory', "class": "", "width": ""},
-        {"name": 'location|{}'.format(_("location")), "class": "", "width": ""},
-        {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
-        {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", "width": ""},
-        {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", "width": ""},
-    ]
-
-    def get_queryset(self):
-        if self.kwargs.get("adm") == 1:
-            queryset = models.Conference.objects.filter(status=30, is_adm_approval_required=True)
-        else:
-            queryset = models.Conference.objects.filter(
-                status=30, lead_id=self.kwargs.get("region"), is_adm_approval_required=False
-            )
-        return queryset
-
-
 class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
     template_name = 'travel/trip_verification_form.html'
     model = models.Conference
@@ -1574,7 +1408,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         my_trip.status = 41
         my_trip.verified_by = self.request.user
         my_trip.save()
-        return HttpResponseRedirect(reverse("travel:trip_list") + "?" + self.request.META['QUERY_STRING'])
+        return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
 
 
 class TripSelectFormView(TravelAdminRequiredMixin, CommonPopoutFormView):

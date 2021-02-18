@@ -428,19 +428,9 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
             __set_request_status__(trip_request, request)
 
 
-def populate_trip_request_costs(request, trip_request):
-    # determine if we are dealing with a child trip request - used to prepopulate number of days
-    if trip_request.parent_request:
-        trip = trip_request.parent_request.trip
-    else:
-        trip = trip_request.trip
-
+def populate_traveller_costs(request, traveller):
     for obj in models.Cost.objects.all():
-        new_item, created = models.TripRequestCost.objects.get_or_create(
-            trip_request=trip_request,
-            cost=obj,
-            # number_of_days=trip.number_of_days,
-        )
+        new_item, created = models.TripRequestCost.objects.get_or_create(traveller=traveller, cost=obj)
         if created:
             # breakfast
             if new_item.cost_id == 9:
@@ -473,10 +463,8 @@ def populate_trip_request_costs(request, trip_request):
                     messages.warning(request,
                                      _("NJC rates for incidentals missing from database. Please let your system administrator know."))
 
-    # messages.success(request, _("All costs have been added to this project."))
 
-
-def clear_empty_trip_request_costs(traveller):
+def clear_empty_traveller_costs(traveller):
     for obj in models.Cost.objects.all():
         for cost in models.TripRequestCost.objects.filter(traveller=traveller, cost=obj):
             if (cost.amount_cad is None or cost.amount_cad == 0):
@@ -684,7 +672,7 @@ def get_request_field_list(tr=None, user=None):
         'trip',
         'traveller_count|{}'.format(_("number of travellers (this request)")),
         'status_string|{}'.format(_("Request status")),
-        'section',
+        'section|{}'.format(_("DFO section")),
         'objective_of_event',
         'benefit_to_dfo',
         'bta_attendees',
@@ -708,13 +696,13 @@ def get_traveller_field_list():
     my_list = [
         'is_public_servant',
         'is_research_scientist|{}'.format(_("Is research scientist?")),
-        'dates|{}'.format(_("dates of travel")),
+        'dates|{}'.format(_("Dates of travel")),
         'departure_location',
         'role',
         'role_of_participant',
         'learning_plan',
         'non_dfo_costs_html|{}'.format(_("Non-DFO costs:")),
-        'cost_breakdown_html|{}'.format(_("cost breakdown:")),
+        'cost_breakdown_html|{}'.format(_("Cost breakdown:")),
     ]
     while None in my_list: my_list.remove(None)
     return my_list

@@ -9,6 +9,7 @@ router.register(r'requests', views.RequestViewSet)
 router.register(r'travellers', views.TravellerViewSet)
 router.register(r'request-reviewers', views.ReviewerViewSet)
 router.register(r'request-files', views.FileViewSet)
+router.register(r'costs', views.CostViewSet)
 
 urlpatterns = [
     path("travel/", include(router.urls)),
@@ -19,9 +20,6 @@ urlpatterns = [
     # path("travel/requests/", views.RequestListAPIView.as_view(), name="request-list"),
     # path("travel/request-reviews/", views.RequestReviewListAPIView.as_view(), name="request-review-list"),
 
-
-    path("travel/trip-request/<int:trip_request>/costs/", views.TripRequestCostsListAPIView.as_view(), name="cost-list"),
-
     # lookups
     path("travel/fiscal-years/", views.FiscalYearTravelListAPIView.as_view(), name="travel-fiscal-year-list"),
     path("travel/regions/", views.RegionListAPIView.as_view(), name="travel-region-list"),
@@ -31,6 +29,7 @@ urlpatterns = [
     path("travel/meta/models/request-reviewer/", views.ReviewerModelMetaAPIView.as_view(), name="reviewer-model-meta"),
     path("travel/meta/models/traveller/", views.TravellerModelMetaAPIView.as_view(), name="traveller-model-meta"),
     path("travel/meta/models/file/", views.FileModelMetaAPIView.as_view(), name="file-model-meta"),
+    path("travel/meta/models/cost/", views.CostModelMetaAPIView.as_view(), name="cost-model-meta"),
 
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),

@@ -38,16 +38,16 @@ var app = new Vue({
           })
     },
     goRow(trip) {
+      let win;
       if (this.pageType.search("verification") > -1) {
         url = `/travel-plans/trips/${trip.id}/verify/?${this.pageType}=true`;
-        window.location.href = url;
+        win = window.open(url, '_blank');
       }else if (this.pageType.search("hit-list") > -1) {
         url = `/travel-plans/trips/${trip.id}/review-process/?${this.pageType}=true`;
         window.location.href = url;
       } else {
         url = `/travel-plans/trips/${trip.id}/view/`;
-        var win = window.open(url, '_blank');
-
+        win = window.open(url, '_blank');
       }
     },
     getFilterData() {

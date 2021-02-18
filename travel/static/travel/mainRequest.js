@@ -24,6 +24,7 @@ var app = new Vue({
     reviewerLabels: {},
     travellerLabels: {},
     fileLabels: {},
+    costLabels: {},
     roleChoices: [],
     travellerRoleChoices: [],
     orgChoices: [],
@@ -33,6 +34,37 @@ var app = new Vue({
 
   },
   methods: {
+
+    addAllCosts(traveller) {
+      let endpoint = `/api/travel/travellers/${traveller.id}/?populate_all_costs=true`;
+      apiService(endpoint, "POST")
+          .then(response => {
+            console.log(response);
+            this.getRequest();
+          })
+    },
+    clearEmptyCosts(traveller) {
+      let endpoint = `/api/travel/travellers/${traveller.id}/?clear_empty_costs=true`;
+      apiService(endpoint, "POST")
+          .then(response => {
+            console.log(response);
+            this.getRequest();
+          })
+    },
+    editTraveller(traveller) {
+      var userInput = false;
+      if (this.request.status === 8) userInput = confirm(travellerDeleteMsgLITE);
+      else userInput = confirm(travellerDeleteMsg);
+      if (userInput) {
+        let endpoint = `/api/travel/travellers/${traveller.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              console.log(response);
+              this.getRequest();
+            })
+      }
+    },
+
     updateTraveller() {
       let endpoint;
       let method;
@@ -208,6 +240,12 @@ var app = new Vue({
       let endpoint = `/api/travel/meta/models/file/`;
       apiService(endpoint).then(data => {
         this.fileLabels = data.labels;
+      });
+    },
+    getCostMetadata() {
+      let endpoint = `/api/travel/meta/models/cost/`;
+      apiService(endpoint).then(data => {
+        this.costLabels = data.labels;
       });
     },
     getRequest() {
@@ -389,6 +427,7 @@ var app = new Vue({
     this.getReviewerMetadata();
     this.getFileMetadata();
     this.getTravellerMetadata();
+    this.getCostMetadata();
   },
   mounted() {
   },

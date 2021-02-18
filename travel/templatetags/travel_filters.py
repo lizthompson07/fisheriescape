@@ -10,6 +10,13 @@ def get_attr(value):
         return value
 
 
+@register.filter
+def get_label(value):
+    try:
+        return value.split("|")[1]
+    except:
+        return value
+
 # def is_markdown_field(value):
 #     target_field_list = [
 #         # project

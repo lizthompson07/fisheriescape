@@ -17,17 +17,6 @@ class UserDisplaySerializer(serializers.ModelSerializer):
         fields = ["username"]
 
 
-class TripRequestCostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.TripRequestCost
-        fields = "__all__"
-
-    cost_display = serializers.SerializerMethodField()
-
-    def get_cost_display(self, instance):
-        return str(instance.cost)
-
-
 class TripSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.Conference
@@ -102,9 +91,21 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
         return instance.user.get_full_name() if instance.user else None
 
 
+
+class CostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TripRequestCost
+        fields = "__all__"
+
+    cost_display = serializers.SerializerMethodField()
+
+    def get_cost_display(self, instance):
+        return str(instance.cost)
+
 class TravellerSerializer(serializers.ModelSerializer):
     start_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
     end_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+    costs = CostSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Traveller
@@ -231,6 +232,7 @@ class TripSerializer(serializers.ModelSerializer):
     dates = serializers.SerializerMethodField()
     date_eligible_for_adm_review = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
+    lead = serializers.StringRelatedField()
 
     def get_display(self, instance):
         return str(instance)

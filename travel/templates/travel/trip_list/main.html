@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load custom_filters %}
 {% load static %}
-
+{% load travel_filters %}
 {% block title_area %}
 
 {% endblock %}
@@ -41,7 +41,10 @@
 
             <div>
               <div class="text-center">
-                <p class="font-italic font-weight-bold">${trips.length} of ${count} loaded</p>
+                <p class="font-italic font-weight-bold">
+                  ${trips.length} of ${count} loaded
+                  <button @click="clearTrips();getTrips(null)"><span class="mdi mdi-refresh h5"></span></button>
+                </p>
               </div>
             </div>
             <table class="table table-sm table-hover">
@@ -57,11 +60,11 @@
                       {% get_verbose_label random_object field %}
                     </th>
                   {% elif "status" in field %}
-                    <th style="width: 150px" @click="sort('{{ field }}')" class="clickable">
+                    <th style="width: 80px" @click="sort('{{ field }}')" class="clickable">
                       {% get_verbose_label random_object field %}
                     </th>
                   {% elif "subcategory" in field %}
-                    <th style="width: 200px" @click="sort('{{ field }}')" class="clickable">
+                    <th style="width: 150px" @click="sort('{{ field }}')" class="clickable">
                       {% get_verbose_label random_object field %}
                     </th>
                   {% elif "dates" in field %}
@@ -93,11 +96,14 @@
                 <td>${t.trip_subcategory }</td>
                 <td>${t.tname }</td>
                 <td>${t.location }</td>
-                <td>${t.abstract_deadline }</td>
-                <td>${t.registration_deadline }</td>
+                <td>${t.lead |nz}</td>
+                <td>${t.abstract_deadline |nz }</td>
+                <td>${t.registration_deadline |nz}</td>
                 <td v-html="t.dates"></td>
-                <td>${t.is_adm_approval_required | yesNo}</td>
-                <td>${t.date_eligible_for_adm_review }</td>
+                <td>
+                  <span v-if="!t.is_adm_approval_required"> --- </span>
+                  <span v-else> ${t.date_eligible_for_adm_review } </span>
+                </td>
               </tr>
               </tbody>
             </table>
@@ -130,7 +136,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainTripList.js' %}?version=0.6" type="application/javascript"></script>
+  <script src="{% static '/travel/mainTripList.js' %}?version=0.7" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>
