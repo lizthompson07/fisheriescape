@@ -249,7 +249,6 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["cost_field_list"] = cost_field_list
 
         user_dict = {}
         for user in User.objects.all():

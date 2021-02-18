@@ -204,8 +204,8 @@ var app = new Vue({
     deleteTraveller(traveller) {
       var userInput = false;
       if (this.request.status === 8) userInput = confirm(travellerDeleteMsgLITE);
-      else userInput = confirm(travellerDeleteMsg);
-      if (userInput) {
+      else userInput = prompt(travellerDeleteMsg);
+      if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
         let endpoint = `/api/travel/travellers/${traveller.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
