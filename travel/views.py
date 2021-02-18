@@ -541,13 +541,13 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
                 utils.start_request_review_process(my_object)
                 # go and get approvals!!
 
+            # clean up any unused cost categories
+            for traveller in my_object.travellers.all():
+                utils.clear_empty_traveller_costs(traveller)
+
         # No matter what business was done, we will call this function to sort through reviewer and request statuses
         utils.approval_seeker(my_object, False, self.request)
         my_object.save()
-
-        # clean up any unused cost categories
-        for traveller in my_object.travellers.all():
-            utils.clear_empty_trip_request_costs(traveller)
 
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs))
 

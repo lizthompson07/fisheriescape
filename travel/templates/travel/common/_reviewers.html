@@ -56,7 +56,7 @@
           </tbody>
         </table>
         <div v-else-if="reviewerEditMode">
-          <table class="table table-bordered table-sm">
+          <table class="table table-sm">
             <thead>
             <th style="width: 125px">${ reviewerLabels.order}</th>
             <th>${ reviewerLabels.user}</th>
@@ -92,8 +92,8 @@
               <td v-if="canModify && !isReview" style="width:75px">
                 <button
                   @click="deleteReviewer(item)"
-                  class="btn btn-sm btn-danger py-0 px-1" data-toggle="tooltip" title="{% trans "Delete" %}">
-                  <span class="mdi mdi-delete text-light"></span>
+                  class="btn btn-sm btn-outline-dark py-0 px-1" data-toggle="tooltip" title="{% trans "Delete" %}">
+                  <span class="mdi mdi-delete text-dark"></span>
                 </button>
               </td>
             </tr>
@@ -106,14 +106,12 @@
             </p>
           </div>
           <div class="mt-3">
-            <div class="float-right">
-              <button @click="addReviewer" class="btn btn-sm btn-success text-light">
-                <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}</button>
-              <button v-if="!request.submitted" @click="goRequestReviewerReset" class="btn btn-sm btn-warning" id="reset-btn">
-                <span class="mdi mdi-redo-variant"></span> {% trans "Reset" %}
-              </button>
-            </div>
             <button @click="closeReviewerForm" class="btn btn-sm btn-primary text-light">{% trans "Done" %}</button>
+            <button @click="addReviewer" class="btn btn-sm btn-success text-light">
+              <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}</button>
+            <button v-if="!request.submitted" @click="goRequestReviewerReset" class="btn btn-sm btn-warning" id="reset-btn">
+              <span class="mdi mdi-redo-variant"></span> {% trans "Reset" %}
+            </button>
           </div>
         </div>
 
