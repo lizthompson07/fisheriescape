@@ -2,7 +2,6 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import timezone
@@ -162,66 +161,83 @@ def get_trip_reviewers(trip):
     trip.save()
 
 
-def get_tr_reviewers(trip_request):
-    if trip_request.section:
-        # section level reviewer
-        try:
-            # add each default reviewer to the queue
-            for default_reviewer in trip_request.section.travel_default_reviewers.all():
-                models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
-        except (IntegrityError, KeyError):
-            pass
+def get_request_reviewers(trip_request):
+    """
+    - NCR coordinator (if LATE --> handled by submit on_valid method)
+    - SPECIAL OPTIONAL INSERTs --> pre-section
+    - section admin
+    - section head
+    - SPECIAL OPTIONAL INSERTs --> pre-division
+    - div head
+    - SPECIAL OPTIONAL INSERTs --> pre-branch
+    - branch admin
+    - branch head
+    - ADM  --> THIS IS ACHIEVED INDIRECTLY THROUGH TRIP REVIEW
+    - RDG --> this step follows back tot the branch admin
+    """
 
+    if trip_request.section:
         travellers = trip_request.travellers.filter(user__isnull=False)
 
-        # section level recommender  - only applies if the section head is not a traveller
-        try:
-            # if the division head is the one creating the request, the section head should be skipped as a recommender AND
-            # if the section head is the one creating the request, they should be skipped as a recommender
-            if trip_request.section.head not in [t.user for t in travellers] and trip_request.section.division.head not in [t.user for t in travellers]:
-                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.head, role=2, )
-        except (IntegrityError, AttributeError):
-            pass
+        # SPECIAL OPTIONAL INSERTS --> pre-section
+        ############################################
+        # add each default reviewer to the queue
+        for default_reviewer in trip_request.section.travel_default_reviewers.order_by("order"):
+            models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
 
-        # division level recommender  - only applies if the division head is not a traveller
-        try:
-            # if the division head is the one creating the request, they should be skipped as a recommender
-            if trip_request.section.division.head not in [t.user for t in travellers]:
-                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.head, role=2, )
-        except (IntegrityError, AttributeError) as e:
-            pass
+        # section admin
+        ###############
+        if trip_request.section.admin:
+            models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.admin, role=1)
 
-        # branch level reviewer  - only applies if the branch head is not a traveller
-        try:
-            if trip_request.section.division.branch.head not in [t.user for t in travellers]:
-                # add each default reviewer to the queue
-                for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.all():
-                    models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
+        # section head
+        ##############
+        # if the division head is the one creating the request, the section head should be skipped as a recommender AND
+        # if the section head is the one creating the request, they should be skipped as a recommender
+        if trip_request.section.head and trip_request.section.head not in [t.user for t in travellers] and trip_request.section.division.head not in [t.user for
+                                                                                                                                                      t in
+                                                                                                                                                      travellers]:
+            models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.head, role=2)
 
-        except (IntegrityError, AttributeError, User.DoesNotExist):
-            pass
+        # SPECIAL OPTIONAL INSERTS --> pre-division
+        ############################################
+        # add each default reviewer to the queue
+        for default_reviewer in trip_request.section.division.travel_default_reviewers.order_by("order"):
+            models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
 
-        # Branch level recommender  - only applies if this is not the RDS
-        try:
-            if trip_request.section.division.branch.head not in [t.user for t in travellers]:
-                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.head, role=2, )
-        except (IntegrityError, AttributeError, User.DoesNotExist):
-            pass
+        # division manager
+        ###################
+        # if the division head is the one creating the request, they should be skipped as a recommender
+        if trip_request.section.division.head and trip_request.section.division.head not in [t.user for t in travellers]:
+            models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.head, role=2)
 
-    # should the ADMs office be involved?
-    if trip_request.trip.is_adm_approval_required:
-        try:
-            adm = User.objects.get(email__icontains="arran.mcpherson@dfo-mpo.gc.ca")
-            models.Reviewer.objects.get_or_create(request=trip_request, user=adm, role=5, )  # Arran McPherson
-        except (IntegrityError, AttributeError, User.DoesNotExist):
-            pass
+        # SPECIAL OPTIONAL INSERTS --> pre-branch
+        ############################################
+        # add each default reviewer to the queue
+        for default_reviewer in trip_request.section.branch.travel_default_reviewers.order_by("order"):
+            models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
 
-    # finally, we always need to add the RDG
-    try:
-        models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=6, )
-    except (IntegrityError, AttributeError, User.DoesNotExist):
-        pass
+        # RDS
+        #####
+        if trip_request.section.division.branch.head and trip_request.section.division.branch.head not in [t.user for t in travellers]:
+            models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.head, role=2, )
 
+        # ADM
+        #####
+        if trip_request.trip.is_adm_approval_required:
+            # the ADM is head of the National Branch.
+            national_branch = shared_models.Region.objects.filter(name__icontains="national")
+            if national_branch.exists():
+                national_branch = national_branch.first()
+                if national_branch.head:
+                    models.Reviewer.objects.get_or_create(request=trip_request, user=national_branch, role=5)
+            else:
+                print("Cannot find branch named: 'national'")
+
+        # RDG
+        #####
+        if trip_request.section.division.branch.region.head and trip_request.section.division.branch.region.head not in [t.user for t in travellers]:
+            models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=6)
     trip_request.save()
 
 

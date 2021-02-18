@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import slugify, date
+from django.utils.translation import gettext as _
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
@@ -91,7 +93,6 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
         return instance.user.get_full_name() if instance.user else None
 
 
-
 class CostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TripRequestCost
@@ -102,9 +103,10 @@ class CostSerializer(serializers.ModelSerializer):
     def get_cost_display(self, instance):
         return str(instance.cost)
 
+
 class TravellerSerializer(serializers.ModelSerializer):
-    start_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
-    end_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+    start_date = serializers.DateTimeField(format=None, input_formats=None, required=False, allow_null=True)
+    end_date = serializers.DateTimeField(format=None, input_formats=None, required=False, allow_null=True)
     costs = CostSerializer(many=True, read_only=True)
 
     class Meta:
@@ -137,15 +139,69 @@ class TravellerSerializer(serializers.ModelSerializer):
     def get_smart_name(self, instance):
         return instance.smart_name
 
+    def validate(self, attrs):
+        """
+        form validation:
+        1) make sure the trip is opened for business
+        2) make sure that the request start date and the trip start date make sense with respect to each other and individually
+        """
+        print(attrs)
+        trip_request = attrs.get("request")
+        start_date = attrs.get("start_date")
+        end_date = attrs.get("end_date")
+        trip = trip_request.trip
+        trip_start_date = trip.start_date
+        trip_end_date = trip.end_date
+
+        # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
+        # the length of the trip is not too long
+        if start_date and end_date:
+            if end_date < start_date:
+                msg = _('The start date of the trip must occur before the end date.')
+                raise ValidationError(msg)
+            if abs((start_date - end_date).days) > 180:
+                msg = _('The length of this trip is unrealistic.')
+                raise ValidationError(msg)
+            # is the start date of the travel request equal to or before the start date of the trip?
+            if trip_start_date:
+                delta = abs(start_date - trip_start_date)
+                if delta.days > 10:
+                    msg = _(
+                        "The start date of this request ({start_date}) has to be within 10 days of the start date of the selected trip ({trip_start_date})!").format(
+                        start_date=start_date.strftime("%Y-%m-%d"),
+                        trip_start_date=trip_start_date.strftime("%Y-%m-%d"),
+                    )
+                    raise ValidationError(msg)
+
+            # is the end_date of the travel request equal to or after the end date of the trip?
+            if trip_end_date:
+                delta = abs(end_date - trip_end_date)
+                if delta.days > 10:
+                    msg = _(
+                        "The end date of this request ({end_date}) must be within 10 days of the end date of the selected trip ({trip_end_date})!").format(
+                        end_date=end_date.strftime("%Y-%m-%d"),
+                        trip_end_date=trip_end_date.strftime("%Y-%m-%d"),
+                    )
+                    raise ValidationError(msg)
+        return attrs
+
 
 class TripRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TripRequest1
         fields = "__all__"
 
+    admin_notes_html = serializers.SerializerMethodField()
+    bta_attendees = serializers.SerializerMethodField()
     created_by = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
+    files = FileSerializer(many=True, read_only=True)
     fiscal_year = serializers.StringRelatedField()
+    is_late_request = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
     processing_time = serializers.SerializerMethodField()
+    reviewer_order_message = serializers.SerializerMethodField()
+    reviewers = RequestReviewerSerializer(many=True, read_only=True)
     section = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
@@ -154,24 +210,8 @@ class TripRequestSerializer(serializers.ModelSerializer):
     total_non_dfo_funding_sources = serializers.SerializerMethodField()
     total_request_cost = serializers.SerializerMethodField()
     travellers = TravellerSerializer(many=True, read_only=True)
-    files = FileSerializer(many=True, read_only=True)
-    reviewers = RequestReviewerSerializer(many=True, read_only=True)
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
-    bta_attendees = serializers.SerializerMethodField()
-    admin_notes_html = serializers.SerializerMethodField()
-    is_late_request = serializers.SerializerMethodField()
-    metadata = serializers.SerializerMethodField()
-    reviewer_order_message = serializers.SerializerMethodField()
-
-    def get_reviewer_order_message(self, instance):
-        return instance.reviewer_order_message
-
-    def get_metadata(self, instance):
-        return instance.metadata
-
-    def get_is_late_request(self, instance):
-        return instance.is_late_request
 
     def get_admin_notes_html(self, instance):
         return instance.admin_notes_html
@@ -182,8 +222,20 @@ class TripRequestSerializer(serializers.ModelSerializer):
     def get_created_by(self, instance):
         return instance.created_by.get_full_name()
 
+    def get_display(self, instance):
+        return str(instance)
+
+    def get_is_late_request(self, instance):
+        return instance.is_late_request
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
     def get_processing_time(self, instance):
         return instance.processing_time
+
+    def get_reviewer_order_message(self, instance):
+        return instance.reviewer_order_message
 
     def get_section(self, instance):
         return instance.section.shortish_name

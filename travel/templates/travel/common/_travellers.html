@@ -79,7 +79,7 @@
                         {% endfor %}
                         <div class="float-right">
                           <button v-if="!isReview && canModify" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
-                          <button v-if="!isReview && canModify" @click="editTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
+                          <button v-if="!isReview && canModify" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
                           <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
                         </div>
                       </div>
@@ -107,7 +107,7 @@
                 </div>
                 <div class="form-group">
                   <label for="">${travellerLabels.is_public_servant}</label>
-                  <select v-model="travellerToEdit.is_public_servant" class="form-control form-control-sm" required>
+                  <select v-model="travellerToEdit.is_public_servant" class="form-control form-control-sm" required ref="traveller_form_starting_point">
                     <option v-for="(obj, index) in yesNoChoices" :value="obj.value">${obj.text}</option>
                   </select>
                 </div>
@@ -183,7 +183,7 @@
                 </div>
                 <div class="form-group">
                   <label for="">${travellerLabels.non_dfo_costs}</label>
-                  <input type="text" v-model="travellerToEdit.non_dfo_costs" class="form-control form-control-sm">
+                  <input type="number" step=".01" v-model="travellerToEdit.non_dfo_costs" class="form-control form-control-sm">
                 </div>
                 <div class="form-group">
                   <label for="">${travellerLabels.non_dfo_org}</label>

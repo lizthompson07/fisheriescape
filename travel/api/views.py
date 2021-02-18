@@ -175,10 +175,11 @@ class TravellerViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def post(self, request, pk):
+        qp = request.query_params
         obj = get_object_or_404(models.Traveller, pk=pk)
-        if self.request.query_params.get("populate_all_costs"):
+        if qp.get("populate_all_costs"):
             utils.populate_traveller_costs(self.request, obj)
-        elif self.request.query_params.get("clear_empty_costs"):
+        elif qp.get("clear_empty_costs"):
             utils.clear_empty_traveller_costs(obj)
         return Response(None, status.HTTP_200_OK)
 
@@ -265,6 +266,15 @@ class CostViewSet(viewsets.ModelViewSet):
     permission_classes = [CanModifyOrReadOnly]
     queryset = models.TripRequestCost.objects.all()
     pagination_class = StandardResultsSetPagination
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("traveller"):
+            traveller = get_object_or_404(models.Traveller, pk=qp.get("traveller"))
+            qs = traveller.costs.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save()
@@ -364,5 +374,6 @@ class CostModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
+        data['cost_choices'] = [dict(text=item.tname, value=item.id) for item in models.Cost.objects.all()]
         data['labels'] = _get_labels(self.model)
         return Response(data)

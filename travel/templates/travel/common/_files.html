@@ -45,6 +45,7 @@
               </a>
               <em v-else>{% trans "missing file" %}</em>
             </td>
+
             <td v-if="canModify && !isReview" style="width:75px">
               <div v-if="!file.editMode && !inFileEditMode">
                 <button @click="file.editMode=true; inFileEditMode=true; $forceUpdate()" class="btn btn-sm btn-outline-dark py-0 px-1"
