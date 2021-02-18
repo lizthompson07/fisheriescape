@@ -21,7 +21,7 @@
                 </thead>
                 <tbody>
                     {% for obj in env_list %}
-                        <tr href="{% url 'bio_diversity:details_env' 'loc' object.id obj.id %}">
+                        <tr href="{% url 'bio_diversity:details_env' cont_key object.id obj.id %}">
                         {% for field in env_field_list %}
                             <td>
                                 {% get_field_value obj field %}
@@ -45,7 +45,7 @@
                 </thead>
                 <tbody>
                     {% for obj in indv_list %}
-                        <tr href="{% url 'bio_diversity:details_indv' 'loc' object.id obj.id %}">
+                        <tr href="{% url 'bio_diversity:details_indv' cont_key object.id obj.id %}">
                         {% for field in indv_field_list %}
                             <td>
                                 {% get_field_value obj field %}
@@ -69,7 +69,7 @@
                 </thead>
                 <tbody>
                     {% for obj in grp_list %}
-                        <tr href="{% url 'bio_diversity:details_grp' 'loc' object.id obj.id %}">
+                        <tr href="{% url 'bio_diversity:details_grp' cont_key object.id obj.id %}">
                         {% for field in grp_field_list %}
                             <td>
                                 {% get_field_value obj field %}

@@ -1252,6 +1252,7 @@ class TankDetails(mixins.TankMixin, CommonDetails):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["cont_key"] = self.key
         env_set = [env for contx in self.object.contxs.all() for env in contx.env_condition.all()]
         context["env_list"] = env_set
         context["env_object"] = models.EnvCondition.objects.first()
@@ -1262,7 +1263,7 @@ class TankDetails(mixins.TankMixin, CommonDetails):
             "env_val",
         ]
 
-        context["indv_list"], context["grp_list"] = self.object.fish_in_cont
+        context["indv_list"], context["grp_list"] = self.object.fish_in_cont()
         context["indv_object"] = models.Individual.objects.first()
         context["indv_field_list"] = [
             "ufid",

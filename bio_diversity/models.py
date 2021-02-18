@@ -140,8 +140,7 @@ class BioCont(BioLookup):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
 
-    @property
-    def fish_in_cont(self):
+    def fish_in_cont(self, at_date=datetime.datetime.now(timezone.get_current_timezone())):
         indv_list = []
         grp_list = []
 
@@ -152,16 +151,12 @@ class BioCont(BioLookup):
         grp_in_list = list(dict.fromkeys([anix.grp_id for anix_set in anix_grp_sets for anix in anix_set]))
 
         for indv in indv_in_list:
-            if self in indv.current_tank:
+            if self in indv.current_tank(at_date=at_date):
                 indv_list.append(indv)
         for grp in grp_in_list:
-            if self in grp.current_tank:
+            if self in grp.current_tank(at_date=at_date):
                 grp_list.append(grp)
-
         return indv_list, grp_list
-
-
-
 
 
 class BioDateModel(BioModel):
@@ -669,13 +664,12 @@ class Group(BioModel):
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
-    @property
-    def current_tank(self):
+    def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         cont = []
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True)
+        anix_in_set = self.animal_details.filter(final_contx_flag=True,evnt_id__evnt_start__lte=at_date)
         tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
-        anix_out_set = self.animal_details.filter(final_contx_flag=False)
+        anix_out_set = self.animal_details.filter(final_contx_flag=False,evnt_id__evnt_start__lte=at_date)
         tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
 
         for tank, in_count in tank_in_set:
@@ -896,13 +890,12 @@ class Individual(BioModel):
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
-    @property
-    def current_tank(self):
+    def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         cont = []
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True)
+        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__evnt_start__lte=at_date)
         tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
-        anix_out_set = self.animal_details.filter(final_contx_flag=False)
+        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__evnt_start__lte=at_date)
         tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
 
         for tank, in_count in tank_in_set:
