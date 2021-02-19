@@ -724,7 +724,7 @@ class ReviewerForm(forms.ModelForm):
 
             if my_object.user != user:
                 raise forms.ValidationError(
-                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.get_status_display}'))
+                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.get_status_display()}'))
 
             if my_object.order != order:
                 raise forms.ValidationError(
