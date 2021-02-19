@@ -483,7 +483,7 @@ var app = new Vue({
       return value
     },
     nz: function (value, arg = "---") {
-      if (value == null) return arg;
+      if (value === null || value === "") return arg;
       return value
     },
     yesNo: function (value) {

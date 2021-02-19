@@ -10,8 +10,8 @@
   <h3 class="card-header bg-outline-dark">
     {% trans "Request Summary" %}
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-            data-trigger="hover" title="{% trans "Request Summary" %}"
-            :data-content="helpText.trip_request_header"></span>
+          data-trigger="hover" title="{% trans "Request Summary" %}"
+          :data-content="helpText.trip_request_header"></span>
   </h3>
   <div class="card-body">
     <div class="card-text">
@@ -22,41 +22,98 @@
       </div>
       <div v-else>
         <table class="table table-sm mb-5" style="width: auto">
-            <tr>
-              <th style="width: 25%">${requestLabels.fiscal_year}</th>
-
-            </tr>
-
-
-
-
-
-
-          <tbody>
+          <tr>
+            <th style="width: 25%">${requestLabels.fiscal_year}</th>
+            <td>${request.fiscal_year}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">${requestLabels.created_by}</th>
+            <td>${request.created_by}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">${requestLabels.trip}</th>
+            <td>${request.trip.display}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Number of travellers (this request)" %}</th>
+            <td>${request.travellers.length}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Request status" %}</th>
+            <td><span :class="request.status_class + ' px-1 py-1'">${request.status_display}</span></td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "DFO Section" %}</th>
+            <td>${request.section}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Objective of trip" %}</th>
+            <td>${request.objective_of_event | nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Benefits to DFO" %}</th>
+            <td>${request.benefit_to_dfo | nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "BTA attendees" %}</th>
+            <td>${request.bta_attendees | nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Total cost" %}</th>
+            <td>${request.total_request_cost | floatformat}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Total non-DFO funding (CAD)" %}</th>
+            <td>${request.total_non_dfo_funding| floatformat}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Total DFO funding (CAD)" %}</th>
+            <td>${request.total_dfo_funding| floatformat }</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Non-DFO funding sources" %}</th>
+            <td>${request.total_non_dfo_funding_sources |nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "DFO funding source" %}</th>
+            <td>${request.funding_source |nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">${requestLabels.original_submission_date}</th>
+            <td>${request.original_submission_date}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Processing time" %}</th>
+            <td>${request.processing_time}</td>
+          </tr>
+          <tr v-if="request.late_justification">
+            <th style="width: 25%">${requestLabels.late_justification}</th>
+            <td>${request.late_justification}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Notes" %}</th>
+            <td>${request.notes}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Metadata" %}</th>
+            <td v-html="request.metadata"></td>
+          </tr>
         </table>
 
 
+        {#                {% else %}#}
+        {#                  {% if "cost" in field or "CAD" in field %}#}
+        {#                    <td>${request.{{ field|get_attr }} | floatformat}</td>#}
+        {#                  {% else %}#}
+        {#                    <td v-html="request.{{ field|get_attr }}"></td>#}
+        {#                  {% endif %}#}
+        {#                {% endif %}#}
+        {#              {% else %}#}
+        {#                <td v-html="request.{{ field }}"></td>#}
+        {#              {% endif %}#}
 
-{#        {% if  field == 'trip' %}#}
-{#                <td v-html="request.trip.display"></td>#}
-{#              {% elif "|" in field %}#}
-{#                {% if "status" in field %}#}
-{#                  <td>#}
-{#                    <span :class="request.status_class + ' px-1 py-1'">${request.status_display}</span>#}
-{#                  </td>#}
-{#                {% else %}#}
-{#                  {% if "cost" in field or "CAD" in field %}#}
-{#                    <td>${request.{{ field|get_attr }} | floatformat}</td>#}
-{#                  {% else %}#}
-{#                    <td v-html="request.{{ field|get_attr }}"></td>#}
-{#                  {% endif %}#}
-{#                {% endif %}#}
-{#              {% else %}#}
-{#                <td v-html="request.{{ field }}"></td>#}
-{#              {% endif %}#}
-
-{#        {% include "travel/common/_files.html" %}#}
-{#        {% include "travel/common/_reviewers.html" %}#}
+        {#        {% include "travel/common/_files.html" %}#}
+        {#        {% include "travel/common/_reviewers.html" %}#}
 
 
       </div>

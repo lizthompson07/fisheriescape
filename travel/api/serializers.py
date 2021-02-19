@@ -157,12 +157,12 @@ class TravellerSerializer(serializers.ModelSerializer):
         trip = trip_request.trip
         trip_start_date = trip.start_date
         trip_end_date = trip.end_date
-        
+
         # make sure that the user is not already attending this trip from another request!
         if user and models.Traveller.objects.filter(~Q(request=trip_request)).filter(request__trip=trip, user=user).exists():
             msg = _('This user is cannot be added here because they are listed on another request!')
             raise ValidationError(msg)
-        
+
         # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
         # the length of the trip is not too long
         if start_date and end_date:
@@ -222,6 +222,10 @@ class TripRequestSerializer(serializers.ModelSerializer):
     travellers = TravellerSerializer(many=True, read_only=True)
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
+    original_submission_date = serializers.SerializerMethodField()
+
+    def get_original_submission_date(self, instance):
+        return date(instance.original_submission_date)
 
     def get_admin_notes_html(self, instance):
         return instance.admin_notes_html
