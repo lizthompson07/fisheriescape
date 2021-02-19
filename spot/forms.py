@@ -2,7 +2,6 @@ from django import forms
 from django.forms import modelformset_factory
 from django.utils.translation import gettext as _
 from shared_models import models as shared_models
-from masterlist import models as ml_models
 from . import models
 
 attr_chosen_contains = {"class": "chosen-select-contains"}
@@ -22,50 +21,37 @@ YES_NO_CHOICES = (
 
 class OrganizationForm(forms.ModelForm):
     class Meta:
-        model = ml_models.Organization
-        fields = [
-            'org_num',
-            'name_eng',
-            'org_type',
-            #'name_ind',
-            #'abbrev',
-            'sub_org',
+        model = models.Organization #ml
+        fields = '__all__'
+        """          
+            'number',
+            'name',
+            'type',
+            'sub_organization',
             'address',
             'city',
             'postal_code',
             'province',
             'phone',
-            #'fax',
-            #'dfo_contact_instructions',
-            #'notes',
-            #'grouping',
-            #'regions',
-            #'sectors',
             'email',
-            'org_site',
+            'website',
             'last_modified_by',
-        ]
+        """
         widgets = {
-            'key_species': forms.Textarea(attrs={"rows": 2}),
-            'dfo_contact_instructions': forms.Textarea(attrs={"rows": 2}),
-            'notes': forms.Textarea(attrs={"rows": 2}),
             'last_modified_by': forms.HiddenInput(),
         }
 
 
 class MemberForm(forms.ModelForm):
     class Meta:
-        model = ml_models.OrganizationMember
+        model = models.OrganizationMember #ml
         fields = [
             'person',
             'organization',
             'role',
-            #'role_notes',
-            'notes',
             'last_modified_by',
         ]
         widgets = {
-            #'notes': forms.Textarea(attrs={"rows": 2}),
             'organization': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
         }
@@ -73,64 +59,46 @@ class MemberForm(forms.ModelForm):
 
 class PersonForm(forms.ModelForm):
     class Meta:
-        model = ml_models.Person
-        fields = [
-            #"designation",
+        model = models.Person #ml
+        fields = '__all__'
+        """
             "first_name",
             "last_name",
-            "email_1",
-            #"email_2",
-            "phone_1",
-            #"phone_2",
-            #"cell",
-            #"fax",
-            #"language",
-            #"email_block",
-            'organizations',
-            'org_sec',
+            "email",
+            "phone",
+            'organization',
+            'section',
             'role',
-            'oth_memb',
-        ]
-
+            'other_membership',
+        """
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-           # 'language': forms.Select(attrs=attr_chosen),
-            # 'email_block': forms.Textarea(attrs=class_editable),
         }
 
 
 class NewPersonForm(forms.ModelForm):
-    organization = forms.ChoiceField(widget=forms.Select(attrs=attr_chosen_contains))
-    #role = forms.CharField(required=False)
 
     class Meta:
-        model = ml_models.Person
+        model = models.Person #ml
         fields = [
-            #"designation",
             "first_name",
             "last_name",
-            "email_1",
-            #"email_2",
-            "phone_1",
-            #"phone_2",
-            #"cell",
-            #"fax",
-            #"language",
-            #'organizations',
-            'org_sec',
+            "email",
+            "phone",
+            'organization',
+            'section',
             'role',
-            'oth_memb',
+            'other_membership',
         ]
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-           # 'language': forms.Select(attrs=attr_chosen),
-            # 'notes': forms.Textarea(attrs={"rows": 3}),
+
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
+        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in models.Organization.objects.all()] #ml
         org_choices.insert(0, (None, "------"))
         self.fields['organization'].choices = org_choices
 
@@ -170,7 +138,7 @@ class ProjectForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
+        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in models.Organization.objects.all()] #ml_
         org_choices.insert(0, (None, "------"))
         self.fields['organization'].choices = org_choices
 
@@ -179,40 +147,15 @@ class NewProjectForm(forms.ModelForm):
     class Meta:
         model = models.Project
         fields = [
-            'regions',
-            'path_number',
-            'program_reference_number',
-            'organization',
-            'language',
-            'title',
-            'program',
-            'priority_area_or_threats',
-            'status',
-            'start_year',
-            'requested_funding_y1',
-            'requested_funding_y2',
-            'requested_funding_y3',
-            'requested_funding_y4',
-            'requested_funding_y5',
-            'last_modified_by',
-            'initiation_date',
+
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'initiation_date': forms.HiddenInput(),
-            'organization': forms.Select(attrs=attr_chosen_contains),
-            'program': forms.Select(attrs=attr_chosen_contains),
-            'priority_area_or_threats': forms.SelectMultiple(attrs=attr_chosen_contains),
-            'language': forms.Select(attrs=attr_chosen_contains),
-            'status': forms.Select(attrs=attr_chosen_contains),
-            'start_year': forms.Select(attrs=attr_chosen_contains),
-            'regions': forms.SelectMultiple(attrs=attr_chosen_contains),
-            'title': forms.Textarea(attrs={"rows": 4}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in ml_models.Organization.objects.all()]
+        org_choices = [(o.id, "{} ({})".format(str(o), o.abbrev)) for o in models.Organization.objects.all()] #ml_
         org_choices.insert(0, (None, "------"))
         self.fields['organization'].choices = org_choices
 
@@ -233,6 +176,95 @@ class ProjectPersonForm(forms.ModelForm):
         }
 
 
+class ObjectiveForm(forms.ModelForm):
+    class Meta:
+        model = models.Objective
+        fields = '__all__'
+        """[
+            'number',
+            'work_plan_sec',
+            'task_description',
+            'key_element',
+            'activity',
+            'element_title',
+            'activity_title',
+            'pst_req',
+            'location',
+            'objective_cat',
+            'duration',
+            'species',
+            'targ_samp_num',
+            'samp_type',
+            'salmon_stage',
+            'sil_req',
+            'exp_res',
+            'scientific_outcome',
+            'outcomes_cat',
+            'outcomes_deadline',
+            'outcomes_contact',
+            'data_quality_type',
+            'data_quality_level',
+            'last_modified_by',
+        ]
+        """
+        widgets = {
+            'outcomes_deadline': forms.DateInput(attrs={"type": "date"}),
+            'pst_req': forms.Select(choices=YES_NO_CHOICES),
+            'sil_req': forms.Select(choices=YES_NO_CHOICES),
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
+class MethodForm(forms.ModelForm):
+    class Meta:
+        model = models.Method
+        fields ='__all__'
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+""" [
+            'document_number',
+            'doc_cat',
+            'authors',
+            'year_pub',
+            'title',
+            'ref_num',
+            'publisher',
+            'doc_link',
+            'database',
+            'meth_cat',
+            'meth_type',
+            'form_name',
+            'region',
+            'form_cat',
+            'form_link',
+            'date_last_modified',
+            'last_modified_by',
+        ]
+        """
+
+
+class DatabasesUsedForm(forms.ModelForm):
+    class Meta:
+        model = models.DatabasesUsed
+        fields = '__all__'
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+        }
+"""    [
+            'database',
+            'analysis_program',
+            'models_used',
+            'data_format',
+            'data_fn',
+            'data_DFO',
+            'data_quality',
+            'date_last_modified',
+            'last_modified_by',
+        ]
+"""
+
+"""
 class SiteForm(forms.ModelForm):
     class Meta:
         model = models.Site
@@ -541,86 +573,5 @@ DrainageBasinFormSet = modelformset_factory(
     form=DrainageBasinForm,
     extra=1,
 )
+"""
 
-
-class ObjectiveForm(forms.ModelForm):
-    class Meta:
-        model = models.Objective
-        fields = [
-            'number',
-            'work_plan_sec',
-            'task_description',
-            'key_element',
-            'activity',
-            'element_title',
-            'activity_title',
-            'pst_req',
-            'location',
-            'objective_cat',
-            'duration',
-            'species',
-            'targ_samp_num',
-            'samp_type',
-            'salmon_stage',
-            'sil_req',
-            'exp_res',
-            'scientific_outcome',
-            'outcomes_cat',
-            'outcomes_deadline',
-            'outcomes_contact',
-            'data_quality_type',
-            'data_quality_level',
-            'last_modified_by',
-        ]
-        widgets = {
-            'outcomes_deadline': forms.DateInput(attrs={"type": "date"}),
-            'pst_req': forms.Select(choices=YES_NO_CHOICES),
-            'sil_req': forms.Select(choices=YES_NO_CHOICES),
-            'last_modified_by': forms.HiddenInput(),
-        }
-
-
-class MethodForm(forms.ModelForm):
-    class Meta:
-        model = models.Method
-        fields = [
-            'doc_num',
-            'doc_cat',
-            'authors',
-            'year_pub',
-            'title',
-            'ref_num',
-            'publisher',
-            'doc_link',
-            'database',
-            'meth_cat',
-            'meth_type',
-            'form_name',
-            'region',
-            'form_cat',
-            'form_link',
-            'date_last_modified',
-            'last_modified_by',
-        ]
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
-
-
-class DatabasesUsedForm(forms.ModelForm):
-    class Meta:
-        model = models.DatabasesUsed
-        fields = [
-            'database',
-            'analysis_program',
-            'models_used',
-            'data_format',
-            'data_fn',
-            'data_DFO',
-            'data_quality',
-            'date_last_modified',
-            'last_modified_by',
-        ]
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
