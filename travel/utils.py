@@ -6,7 +6,6 @@ from django.db import IntegrityError
 from django.db.models import Q
 from django.template.defaultfilters import slugify
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from msrestazure.azure_active_directory import MSIAuthentication
 
@@ -737,21 +736,23 @@ def get_request_reviewer_field_list():
     while None in my_list: my_list.remove(None)
     return my_list
 
+
 def get_cost_comparison(travellers):
-        """
-        This method is used to return a dictionary of trip requests and will compare cost across all of them.
-        """
-        costs = models.TripRequestCost.objects.filter(traveller__in=travellers, amount_cad__gt=0).values("cost").order_by("cost").distinct()
-        header = [models.Cost.objects.get(pk=c["cost"]).tname for c in costs]
-        header.insert(0, _("Name"))
-        list1 = [header, ]
-        for t in travellers.order_by("request__status", "first_name", "last_name"):
-            list2 = [f'{t.smart_name} (<span class="{slugify(t.request.get_status_display())} px-0 py-0">{t.request.get_status_display()}</span>)', ]
-            for cost in costs:
-                try:
-                    val = models.TripRequestCost.objects.get(traveller=t, cost_id=cost['cost']).amount_cad
-                except Exception as e:
-                    val = 0
-                list2.append(val)
-            list1.append(list2)
-        return list1
+    """
+    This method is used to return a dictionary of trip requests and will compare cost across all of them.
+    """
+    costs = models.TripRequestCost.objects.filter(traveller__in=travellers, amount_cad__gt=0).values("cost").order_by("cost").distinct()
+    header = [models.Cost.objects.get(pk=c["cost"]).tname for c in costs]
+    header.insert(0, _("Name"))
+    list1 = [header, ]
+    # get all travellers from active requests
+    for t in travellers.all():
+        list2 = [t.smart_name, ]
+        for cost in costs:
+            try:
+                val = models.TripRequestCost.objects.get(traveller=t, cost_id=cost['cost']).amount_cad
+            except Exception as e:
+                val = 0
+            list2.append(val)
+        list1.append(list2)
+    return list1

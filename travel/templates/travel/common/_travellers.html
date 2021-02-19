@@ -36,7 +36,7 @@
             <div v-if="!travellerToEdit">
               <div class="row">
                 <div v-for="t in request.travellers" class="col" :key="t.id">
-                  <div class="card traveller-card" @click="showMe(t)">
+                  <div class="card traveller-card">
                     <div class="card-body">
                       <div class="float-right">
                         <button  @click="toggleShowMe(t)"

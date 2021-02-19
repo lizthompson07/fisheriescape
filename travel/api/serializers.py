@@ -209,6 +209,10 @@ class TravellerSerializer(serializers.ModelSerializer):
     smart_name = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
     traveller_info = serializers.SerializerMethodField()
+    request_obj = serializers.SerializerMethodField()
+
+    def get_request_obj(self, instance):
+        return TripRequestSerializerLITE(instance.request).data
 
     def get_cost_breakdown_html(self, instance):
         return instance.cost_breakdown_html

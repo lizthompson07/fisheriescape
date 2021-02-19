@@ -370,7 +370,7 @@ class Conference(models.Model):
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
-            reverse("travel:trip_detail", args= [self.id]),
+            reverse("travel:trip_detail", args=[self.id]),
         )
 
         return mark_safe(my_str)
@@ -428,7 +428,7 @@ class Conference(models.Model):
     #
     @property
     def travellers(self):
-        return Traveller.objects.filter(request__trip=self)
+        return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 22]))  # exclude any travellers from inactive requests
 
     @property
     def total_cost(self):
@@ -1254,7 +1254,6 @@ class TripRequest1(models.Model):
             # otherwise we compare against submission datetime
             else:
                 return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
-
 
 
 class Traveller(models.Model):

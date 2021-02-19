@@ -18,6 +18,7 @@ var app = new Vue({
     roleChoices: [],
     showAdminNotesForm: false,
     travellerLabels: {},
+    requestLabels: {},
     yesNoChoices: yesNoChoices,
   },
   methods: {
@@ -53,8 +54,7 @@ var app = new Vue({
     },
     deleteTraveller(traveller) {
       var userInput = false;
-      if (this.trip.status === 8) userInput = confirm(travellerDeleteMsgLITE);
-      else userInput = prompt(travellerDeleteMsg);
+      userInput = prompt(travellerDeleteMsg);
       if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
         let endpoint = `/api/travel/travellers/${traveller.id}/`;
         apiService(endpoint, "DELETE")
@@ -112,6 +112,12 @@ var app = new Vue({
               $('[data-toggle="popover"]').popover({html: true});
             })
           })
+    },
+    getRequestMetadata() {
+      let endpoint = `/api/travel/meta/models/request/`;
+      apiService(endpoint).then(data => {
+        this.requestLabels = data.labels;
+      });
     },
     getTripMetadata() {
       let endpoint = `/api/travel/meta/models/trip/`;
@@ -285,7 +291,7 @@ var app = new Vue({
       return false;
     },
     isNCRAdmin() {
-      if (this.currentUser ) {
+      if (this.currentUser) {
         return this.currentUser.is_ncr_admin;
       }
       return false;
@@ -304,6 +310,7 @@ var app = new Vue({
     this.getTrip();
     this.fetchDMAppsUsers();
     this.getTripMetadata();
+    this.getRequestMetadata();
     this.getReviewerMetadata();
     this.getTravellerMetadata();
     this.getHelpText();

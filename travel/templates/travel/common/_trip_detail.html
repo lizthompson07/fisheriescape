@@ -110,8 +110,9 @@
           </tr>
         </table>
 
-        <div v-if="(isNCRAdmin || isReview) && trip.requests.length" class="mb-3">
-          <p class="h5" style="width: 40%">{% trans "Associated Requests:" %}</p>
+        <div v-if="(isNCRAdmin || isReview) && trip.requests.length" class="mb-5">
+          <p class="h5" style="width: 40%">{% trans "Associated Requests:" %}
+          </p>
           <ul class="ml-5">
             <li v-for="(r,i) in trip.requests" :key="r.id">
               <a :href="`/travel-plans/requests/${r.id}/view/`" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
@@ -122,8 +123,11 @@
           </ul>
         </div>
 
-        <div v-if="(isNCRAdmin || isReview) && trip.travellers.length" class="mb-3">
-          <p class="h5" style="width: 40%">{% trans "Comparison of Traveller Costs:" %}</p>
+        <div v-if="(isNCRAdmin || isReview) && trip.travellers.length" class="mb-5">
+          <p class="h5" style="width: 40%">{% trans "Comparison of Traveller Costs:" %}
+          <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+                  data-trigger="hover" title="{% trans "Active Travellers Only" %}"
+                  data-content="{% trans "Travellers on 'Draft' or 'Cancelled' trips will not be shown below." %}"></span></p>
           <table class="table table-sm table-bordered">
             <tr v-for="(row, i) in trip.cost_comparison" :key="i">
               <td v-for="(cell, j) in row" :key="j">

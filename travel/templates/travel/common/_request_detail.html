@@ -32,7 +32,15 @@
           </tr>
           <tr>
             <th style="width: 25%">${requestLabels.trip}</th>
-            <td><a href="#" @click="goTripDetail(request.trip)">${request.trip.display}</a></td>
+            <td><a href="#" @click="goTripDetail(request.trip)">${request.trip.tname}</a></td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Destination" %}</th>
+            <td>${request.trip.location}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Dates" %}</th>
+            <td v-html="request.trip.dates"></td>
           </tr>
           <tr>
             <th style="width: 25%">{% trans "Number of travellers" %}</th>
@@ -107,7 +115,6 @@
               <td v-for="(cell, j) in row" :key="j">
                 <span v-if="i===0"><b>${cell}</b></span>
                 <span v-else>${cell |floatformat}</span>
-
               </td>
             </tr>
           </table>
