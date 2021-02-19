@@ -108,26 +108,26 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         return context
 
 
-conf_field_list = [
-    'tname|{}'.format(gettext_lazy("Name")),
-    'location',
-    'trip_subcategory',
-    'lead',
-    'has_event_template',
-    'number',
-    'start_date',
-    'end_date',
-    'meeting_url',
-    'abstract_deadline',
-    'registration_deadline',
-    'is_adm_approval_required',
-    'notes',
-    'status_string|{}'.format("status"),
-    'date_eligible_for_adm_review',
-    'adm_review_deadline',
-    'total_cost|{}'.format(gettext_lazy("Total DFO cost (excluding BTA)")),
-    'non_res_total_cost|{}'.format(gettext_lazy("Total DFO cost from non-RES travellers (excluding BTA)")),
-]
+# conf_field_list = [
+#     'tname|{}'.format(gettext_lazy("Name")),
+#     'location',
+#     'trip_subcategory',
+#     'lead',
+#     'has_event_template',
+#     'number',
+#     'start_date',
+#     'end_date',
+#     'meeting_url',
+#     'abstract_deadline',
+#     'registration_deadline',
+#     'is_adm_approval_required',
+#     'notes',
+#     'status_string|{}'.format("status"),
+#     'date_eligible_for_adm_review',
+#     'adm_review_deadline',
+#     'total_cost|{}'.format(gettext_lazy("Total DFO cost (excluding BTA)")),
+#     'non_res_total_cost|{}'.format(gettext_lazy("Total DFO cost from non-RES travellers (excluding BTA)")),
+# ]
 
 
 def get_help_text_dict():
@@ -1028,17 +1028,6 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["conf_field_list"] = conf_field_list
-        # context["reviewer_field_list"] = reviewer_field_list
-        # context["traveller_field_list"] = traveller_field_list
-        context["trip"] = self.get_object()
-        context["can_modify"] = (self.get_object().is_adm_approval_required and in_adm_admin_group(self.request.user)) or (
-                not self.get_object().is_adm_approval_required and in_travel_admin_group(self.request.user))
-
-        context["is_adm_admin"] = in_adm_admin_group(self.request.user)
-        context["is_admin"] = in_travel_admin_group(self.request.user)
-        context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().reviewers.all()]
-
         return context
 
 

@@ -412,14 +412,10 @@ class Conference(models.Model):
 
     @property
     def dates(self):
-        my_str = "{}".format(
-            self.start_date.strftime("%Y-%m-%d"),
-        )
+        my_str = date(self.start_date)
         if self.end_date:
-            my_str += " &rarr; {}".format(
-                self.end_date.strftime("%Y-%m-%d"),
-            )
-        return my_str
+            my_str += f" &rarr; {date(self.end_date)}"
+        return mark_safe(my_str)
 
     @property
     def total_traveller_list(self):
