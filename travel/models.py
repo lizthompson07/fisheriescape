@@ -1257,6 +1257,7 @@ class TripRequest1(models.Model):
                 return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
 
 
+
 class Traveller(models.Model):
     request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="travellers")
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"))

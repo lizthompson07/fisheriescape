@@ -293,6 +293,10 @@ var app = new Vue({
         window.location.href = `/travel-plans/requests/${tripRequestId}/reset-reviewers/`;
       }
     },
+    goTripDetail(trip) {
+      let url = `/travel-plans/trips/${trip.id}/view/`;
+      let win = window.open(url, '_blank');
+    },
     groomJSON(json) {
       return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
     },

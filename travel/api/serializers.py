@@ -12,6 +12,7 @@ from .. import models
 
 
 # from ..utils import can_modify_project
+from ..utils import get_cost_comparison
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):
@@ -223,6 +224,11 @@ class TripRequestSerializer(serializers.ModelSerializer):
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
     original_submission_date = serializers.SerializerMethodField()
+
+    cost_comparison = serializers.SerializerMethodField()
+
+    def get_cost_comparison(self, instance):
+        return get_cost_comparison(instance.travellers.all())
 
     def get_original_submission_date(self, instance):
         return date(instance.original_submission_date)
