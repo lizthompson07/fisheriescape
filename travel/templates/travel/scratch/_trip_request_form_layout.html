@@ -49,7 +49,7 @@
 
     {% if field.name == "trip" %}
       <div class="mb-3">
-        <a id="add_trip" class="btn btn-sm btn-success py-0 px-1" tabindex="-1" href="#" pop-href="{% url 'travel:trip_new' "pop" %}">
+        <a id="add_trip" class="btn btn-sm btn-success py-0 px-1" tabindex="-1" href="#" pop-href="{% url 'travel:trip_new' %}?pop=true">
           {% trans "add a new trip" %}
         </a>
       </div>

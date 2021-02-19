@@ -29,8 +29,16 @@ urlpatterns = [
     #######
     path('trips/', views.TripListView.as_view(), name="trip_list"),
     path('trips/new/', views.TripCreateView.as_view(), name="trip_new"),
+
+    path('trips/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
+    path('trips/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trips/<int:pk>/clone/', views.TripCloneView.as_view(), name="trip_clone"),
+    path('trips/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
+    path('trips/<int:pk>/cancel/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
+
     path('trips/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
     path('trips/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
+
 
     # verification
     path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
@@ -50,30 +58,23 @@ urlpatterns = [
 
     # Trip reviewers
     ##################
-    path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
-    path('adm-review/<int:pk>/<int:approve>/', views.TripRequestReviewerADMUpdateView.as_view(), name="tr_review_adm_update"),
-    path('trip/<int:trip>/reset-reviewers/from/<str:type>/', views.reset_trip_reviewers, name="reset_trip_reviewers"),
-    path('trip/<int:trip>/manage-reviewers/from/<str:type>/', views.manage_reviewers, name="manage_trip_reviewers"),
-    path('trip-reviewer/<int:pk>/delete/', views.TripReviewerHardDeleteView.as_view(), name="delete_trip_reviewer"),
+    # path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
+    # path('adm-review/<int:pk>/<int:approve>/', views.TripRequestReviewerADMUpdateView.as_view(), name="tr_review_adm_update"),
+    # path('trip/<int:trip>/reset-reviewers/from/<str:type>/', views.reset_trip_reviewers, name="reset_trip_reviewers"),
+    # path('trip/<int:trip>/manage-reviewers/from/<str:type>/', views.manage_reviewers, name="manage_trip_reviewers"),
+    # path('trip-reviewer/<int:pk>/delete/', views.TripReviewerHardDeleteView.as_view(), name="delete_trip_reviewer"),
 
-# REVIEWER APPROVAL
+    # REVIEWER APPROVAL
     path('trips-for-your-review/<str:which_ones>/', views.TripReviewListView.as_view(), name="trip_review_list"),
-    path('tagged-trips/', views.TripReviewListView.as_view(), name="trip_review_list"),
-    path('trip-reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_reviewer_update"),
-    path('trip/<int:pk>/skip/', views.SkipTripReviewerUpdateView.as_view(), name="trip_skip"),
-
-
+    # path('tagged-trips/', views.TripReviewListView.as_view(), name="trip_review_list"),
+    # path('trip-reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_reviewer_update"),
+    # path('trip/<int:pk>/skip/', views.SkipTripReviewerUpdateView.as_view(), name="trip_skip"),
 
     # TRIP #
     ########
     # path('trips/', views.TripListView.as_view(), name="trip_list"),
-    path('trips/<str:type>/', views.TripListView.as_view(), name="trip_list"),
-    path('trip/new/<str:type>/', views.TripCreateView.as_view(), name="trip_new"),
-    path('trip/<int:pk>/view/from/<str:type>/', views.TripDetailView.as_view(), name="trip_detail"),
-    path('trip/<int:pk>/edit/from/<str:type>/', views.TripUpdateView.as_view(), name="trip_edit"),
-    path('trip/<int:pk>/clone/from/<str:type>/', views.TripCloneView.as_view(), name="trip_clone"),
-    path('trip/<int:pk>/delete/from/<str:type>/', views.TripDeleteView.as_view(), name="trip_delete"),
-    path('trip/<int:pk>/cancel/from/<str:type>/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
+    # path('trips/<str:type>/', views.TripListView.as_view(), name="trip_list"),
+
 
     # verification / other admin views
     # path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
@@ -84,15 +85,6 @@ urlpatterns = [
     # path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
     # path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
     #      name="trip_reassign_confirm"),
-
-
-
-    # FILES #
-    #########
-    path('request/<int:trip_request>/file/new/', views.FileCreateView.as_view(), name='file_new'),
-    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
-    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
-    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 
     # SETTINGS #
     ############
@@ -140,15 +132,6 @@ urlpatterns = [
     path('settings/users/travel/<int:travel>/', views.UserListView.as_view(), name='user_list'),
     path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
 
-    # TRIP REQUEST COST #
-    #####################
-    path('trip-request/<int:trip_request>/cost/new/', views.TRCostCreateView.as_view(), name="tr_cost_new"),
-    path('trip-request-cost/<int:pk>/edit/', views.TRCostUpdateView.as_view(), name="tr_cost_edit"),
-    path('trip-request-cost/<int:pk>/delete/', views.tr_cost_delete, name="tr_cost_delete"),
-
-    path('trip-request/<int:trip_request>/clear-empty-costs/', views.tr_cost_clear, name="tr_cost_clear"),
-    path('trip-request/<int:trip_request>/populate-all-costs/', views.tr_cost_populate, name="tr_cost_populate"),
-
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
@@ -160,7 +143,4 @@ urlpatterns = [
 
     path('reports/trip-list/fiscal-year/<str:fy>/region/<str:region>/adm/<str:adm>/from_date/<str:from_date>/to_date/<str:to_date>/',
          views.export_trip_list, name="export_trip_list"),
-
-
-
 ]

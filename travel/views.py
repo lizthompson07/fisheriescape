@@ -1029,8 +1029,8 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["conf_field_list"] = conf_field_list
-        context["reviewer_field_list"] = reviewer_field_list
-        context["traveller_field_list"] = traveller_field_list
+        # context["reviewer_field_list"] = reviewer_field_list
+        # context["traveller_field_list"] = traveller_field_list
         context["trip"] = self.get_object()
         context["can_modify"] = (self.get_object().is_adm_approval_required and in_adm_admin_group(self.request.user)) or (
                 not self.get_object().is_adm_approval_required and in_travel_admin_group(self.request.user))
@@ -1056,27 +1056,18 @@ class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     def get_parent_crumb(self):
         return {"title": str(self.get_object()), "url": reverse("travel:trip_detail", kwargs=self.kwargs)}
 
-    def get_grandparent_crumb(self):
-        my_kwargs = deepcopy(self.kwargs)
-        del my_kwargs["pk"]
-        trips_url = reverse("travel:trip_list", kwargs=my_kwargs)
-        trips_title = _("Trips")
-        return {"title": trips_title, "url": trips_url}
-
     def get_template_names(self):
-        return 'travel/trip_form_popout.html' if self.kwargs.get("type") == "pop" else 'travel/trip_form.html'
+        return 'travel/trip_form_popout.html' if self.request.GET.get("pop") else 'travel/trip_form.html'
 
     def form_valid(self, form):
         my_object = form.save()
-
         # This is a bit tricky here. Right now will work with the assumption that we do not ever want to reset the reviewers unless
         # the trip was ADM approval required, and now is not, OR if it wasn't and now it is.
         if my_object.is_adm_approval_required and my_object.reviewers.count() == 0 or not my_object.is_adm_approval_required:
             # Add any trip reviewers to the trip, if adm approval is required.
             # This function will also delete any reviewers if adm approval is not required
             utils.get_trip_reviewers(my_object)
-
-        if self.kwargs.get("type") == "pop":
+        if self.request.GET.get("pop"):
             return HttpResponseRedirect(reverse("shared_models:close_me"))
         else:
             return HttpResponseRedirect(reverse('travel:trip_detail', kwargs=self.kwargs))
@@ -1084,7 +1075,6 @@ class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
-
         return context
 
 
@@ -1122,40 +1112,19 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
     form_class = forms.TripForm
     home_url_name = "travel:index"
 
-    def get_parent_crumb(self):
-        trips_url = reverse("travel:trip_list", kwargs=self.kwargs)
-        if self.kwargs.get("type") == "upcoming":
-            trips_title = _("Upcoming Trips")
-        elif self.kwargs.get("type") == "adm-hit-list":
-            # trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
-            trips_title = _("Trips Eligible for ADM Review")
-        elif self.kwargs.get("region"):
-            region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
-            # trips_url = reverse("travel:trip_list", kwargs={"region": self.kwargs.get("region")})
-            trips_title = _("Trips") + f' ({str(region)})'
-        else:
-            return None
-        return {"title": trips_title, "url": trips_url}
-
     def get_template_names(self):
-        if self.kwargs.get("type") == "pop":
-            return 'travel/trip_form_popout.html'
-        else:
-            return 'travel/trip_form.html'
+        return 'travel/trip_form_popout.html' if self.request.GET.get("pop") else 'travel/trip_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
-
         return context
 
     def form_valid(self, form):
         my_object = form.save()
-
         # Add any trip reviewers to the trip, if adm approval is required
         utils.get_trip_reviewers(my_object)
-
-        if self.kwargs.get("type") == "pop":
+        if self.request.GET.get("pop"):
             # create a new email object
             email = emails.NewTripEmail(my_object, self.request)
             # send the email object
@@ -1165,12 +1134,10 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
                 from_email=email.from_email,
                 recipient_list=email.to_list
             )
-            messages.success(self.request,
-                             _("The trip has been added to the database!"))
-
+            messages.success(self.request, _("The trip has been added to the database!"))
             return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
         else:
-            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_object.id, "type": "pop"}))
+            return HttpResponseRedirect(reverse("travel:trip_detail", args=[my_object.id]))
 
 
 class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):

@@ -367,7 +367,7 @@ class Conference(models.Model):
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
-            reverse("travel:trip_detail", kwargs={"pk": self.id, "type": "verify"}),
+            reverse("travel:trip_detail", args= [self.id]),
         )
 
         return mark_safe(my_str)

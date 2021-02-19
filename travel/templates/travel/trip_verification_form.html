@@ -201,7 +201,7 @@
             </h3>
         </div>
         <div class="">
-            <a href="#" pop-href="{% url 'travel:trip_edit' object.id "pop" %}" class="btn btn-primary">
+            <a href="#" pop-href="{% url 'travel:trip_edit' object.id %}?pop=true" class="btn btn-primary">
                 {% trans "Click HERE to edit the trip purpose" %}
             </a>
         </div>
@@ -277,7 +277,7 @@
                     {% trans "Yes, looks good!" %}
                 </button>
 
-                <a href="#" pop-href="{% url 'travel:trip_edit' object.id "pop" %}" class="btn btn-primary">
+                <a href="#" pop-href="{% url 'travel:trip_edit' object.id %}?pop=true" class="btn btn-primary">
                     {% trans "Make some changes" %}
                 </a>
                 {% if object.trip_requests.count %}
@@ -290,7 +290,7 @@
                 {% endif %}
                 <span data-toggle="tooltip" title="{{ tip_text }}">
                     <a class="btn btn-danger {{ disabled_var }}"
-                       href="{% url 'travel:trip_delete' object.id "back_to_verify" %}">
+                       href="{% url 'travel:trip_delete' object.id  %}?back_to_verify=true">
                         {% trans "Delete" %}
                     </a>
                     </span>
