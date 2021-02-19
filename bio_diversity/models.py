@@ -951,14 +951,14 @@ class IndividualDet(BioDet):
                                                   individual_details__anidc_id=self.anidc_id,
                                                   individual_details__adsc_id=self.adsc_id,
                                                   )
-            old_indvd_set = [anix.individual_details.filter(detail_date__lte=self.detail_date) for anix in anix_set]
+            old_indvd_set = [anix.individual_details.filter(detail_date__lt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
             for old_indvd in old_indvd_set:
                 if old_indvd:
                     old_indvd = old_indvd.get()
                     old_indvd.indvd_valid = False
                     old_indvd.save()
 
-            current_indvd_set = [anix.individual_details.filter(detail_date__gt=self.detail_date) for anix in anix_set]
+            current_indvd_set = [anix.individual_details.filter(detail_date__gt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
             for current_indvd in current_indvd_set:
                 if current_indvd:
                     self.indvd_valid = False

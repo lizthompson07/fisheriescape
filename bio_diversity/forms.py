@@ -13,7 +13,7 @@ import pandas as pd
 
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
-    enter_anix_indv
+    enter_anix_indv, create_movement_evnt
 
 
 class CreatePrams(forms.ModelForm):
@@ -582,6 +582,7 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     year, coll = year_coll_splitter(row["Group"])
+                    row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date()
                     indv = models.Individual(grp_id_id=grp_id,
                                              spec_id_id=1,
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
@@ -601,13 +602,10 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    if enter_tank_contx(row["from Tank"], cleaned_data, final_flag=False, indv_pk=indv.pk):
+                    if create_movement_evnt(row["from Tank"], row["to tank"], cleaned_data, row_date, indv_pk=indv.pk):
                         row_entered = True
 
-                    if enter_tank_contx(row["to tank"], cleaned_data, final_flag=True, indv_pk=indv.pk):
-                        row_entered = True
-
-                    anix_indv = enter_anix_indv(indv, cleaned_data)
+                    anix_indv = enter_anix_indv(indv.pk, cleaned_data)
 
                     anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                     indv_id_id=indv.pk,
@@ -621,7 +619,6 @@ class DataForm(CreatePrams):
                         row_entered = True
                     except ValidationError:
                         pass
-                    row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date()
                     if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                         row_entered = True
 
@@ -668,9 +665,17 @@ class DataForm(CreatePrams):
             try:
 
                 year, coll = year_coll_splitter(data["Collection"][0])
-                grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
+                grp_qs = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
                                                      coll_id__name__iexact=coll,
-                                                     grp_year=year).get().pk
+                                                     grp_year=year)
+                if len(grp_qs) == 1:
+                    grp_id = grp_qs.get().pk
+                elif len(grp_qs) > 1:
+                    for grp in grp_qs:
+                        tank_list = grp.current_tank()
+                        if data["Origin Pond"][0] in [tank.name for tank in tank_list]:
+                            grp_id = grp.pk
+
                 anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                 grp_id_id=grp_id,
                                                 created_by=cleaned_data["created_by"],
@@ -692,6 +697,7 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     year, coll = year_coll_splitter(row["Collection"])
+                    row_date = row["Date"].date()
                     indv = models.Individual(grp_id_id=grp_id,
                                              spec_id_id=1,
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
@@ -710,13 +716,10 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    if enter_tank_contx(row["Origin Pond"], cleaned_data, final_flag=False, indv_pk=indv.pk):
+                    if create_movement_evnt(row["Origin Pond"], row["Destination Pond"], cleaned_data, row_date, indv_pk=indv.pk):
                         row_entered = True
 
-                    if enter_tank_contx(row["Destination Pond"], cleaned_data, final_flag=True, indv_pk=indv.pk):
-                        row_entered = True
-
-                    anix_indv = enter_anix_indv(indv, cleaned_data)
+                    anix_indv = enter_anix_indv(indv.pk, cleaned_data)
 
                     anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                                     indv_id_id=indv.pk,
@@ -730,8 +733,6 @@ class DataForm(CreatePrams):
                         row_entered = True
                     except ValidationError:
                         pass
-
-                    row_date = row["Date"].date()
 
                     if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                         row_entered = True
@@ -795,16 +796,14 @@ class DataForm(CreatePrams):
                         log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
 
                     if indv:
-                        anix_indv = enter_anix_indv(indv, cleaned_data)
+                        anix_indv = enter_anix_indv(indv.pk, cleaned_data)
 
                         row_date = row["DATE SORTED (ddmmmyr)"].date()
                         if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
                             row_entered = True
 
-                        if enter_tank_contx(row["ORIGIN POND"], cleaned_data, final_flag=False, indv_pk=indv.pk):
-                            row_entered = True
-
-                        if enter_tank_contx(row["DESTINATION POND"], cleaned_data, final_flag=True, indv_pk=indv.pk):
+                        if create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_date,
+                                                indv_pk=indv.pk):
                             row_entered = True
 
                         if row["COMMENTS"]:
@@ -905,8 +904,8 @@ class DataForm(CreatePrams):
 
                     row_date = row["date"].date()
 
-                    anix_female = enter_anix_indv(indv_female, cleaned_data)
-                    anix_male = enter_anix_indv(indv_male, cleaned_data)
+                    anix_female = enter_anix_indv(indv_female.pk, cleaned_data)
+                    anix_male = enter_anix_indv(indv_male.pk, cleaned_data)
 
                     if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
                         row_entered = True

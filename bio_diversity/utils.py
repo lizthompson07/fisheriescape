@@ -63,7 +63,7 @@ def comment_parser(comment_str, anix_indv, det_date):
         if term.lower() in comment_str.lower():
             adsc = coke_dict[term]
             if adsc.name == "Mortality":
-                mortality=True
+                mortality = True
             indvd_parsed = models.IndividualDet(anix_id_id=anix_indv.pk,
                                                 anidc_id=adsc.anidc_id,
                                                 adsc_id=adsc,
@@ -117,6 +117,51 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str,
     return row_entered
 
 
+def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, indv_pk=None, grp_pk=None):
+    row_entered = False
+    new_cleaned_data = cleaned_data.copy()
+
+    if enter_tank_contx(origin, cleaned_data, None):
+        row_entered = True
+
+    if enter_tank_contx(destination, cleaned_data, None):
+        row_entered = True
+
+    if not origin == "nan" and not destination == "nan":
+        movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
+                                     facic_id=cleaned_data["evnt_id"].facic_id,
+                                     perc_id=cleaned_data["evnt_id"].perc_id,
+                                     prog_id=cleaned_data["evnt_id"].prog_id,
+                                     evnt_start=movement_date,
+                                     evnt_end=movement_date,
+                                     created_by=new_cleaned_data["created_by"],
+                                     created_date=new_cleaned_data["created_date"],
+                                     )
+        try:
+            movement_evnt.clean()
+            movement_evnt.save()
+            row_entered = True
+        except (ValidationError, IntegrityError):
+            movement_evnt = models.Event.objects.filter(evntc_id=movement_evnt.evntc_id,
+                                                        facic_id=movement_evnt.facic_id,
+                                                        prog_id=movement_evnt.prog_id,
+                                                        evnt_start=movement_evnt.evnt_start,
+                                                        evnt_end=movement_evnt.evnt_end,
+                                                        ).get()
+
+        new_cleaned_data["evnt_id"] = movement_evnt
+        if indv_pk:
+            enter_anix_indv(indv_pk, new_cleaned_data)
+        if grp_pk:
+            enter_anix_grp(grp_pk, new_cleaned_data)
+        if enter_tank_contx(origin, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk):
+            row_entered = True
+        if enter_tank_contx(destination, new_cleaned_data, True, indv_pk=indv_pk, grp_pk=grp_pk):
+            row_entered = True
+
+        return row_entered
+
+
 def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None, return_contx=False):
     row_entered = False
     if not tank == "nan":
@@ -156,7 +201,7 @@ def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None, 
         return False
 
 
-def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_id=None, contx=None, inst_id=None, env_start=None,avg=False):
+def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_id=None, contx=None, inst_id=None, env_start=None, avg=False):
     row_entered = False
     if isinstance(env_value, float):
         if math.isnan(env_value):
@@ -199,10 +244,10 @@ def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_i
     return row_entered
 
 
-def enter_anix_indv(indv, cleaned_data):
-    if indv:
+def enter_anix_indv(indv_pk, cleaned_data):
+    if indv_pk:
         anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                         indv_id_id=indv.pk,
+                                         indv_id_id=indv_pk,
                                          created_by=cleaned_data["created_by"],
                                          created_date=cleaned_data["created_date"],
                                          )
@@ -220,3 +265,63 @@ def enter_anix_indv(indv, cleaned_data):
                                                             indvt_id__isnull=True,
                                                             ).get()
             return anix_indv
+
+
+def enter_anix_grp(grp_pk, cleaned_data):
+    if grp_pk:
+        anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                        grp_id_id=grp_pk,
+                                        created_by=cleaned_data["created_by"],
+                                        created_date=cleaned_data["created_date"],
+                                        )
+        try:
+            anix_grp.clean()
+            anix_grp.save()
+            return anix_grp
+        except ValidationError:
+            anix_grp = models.AniDetailXref.objects.filter(evnt_id=anix_grp.evnt_id,
+                                                           grp_id=anix_grp.grp_id,
+                                                           contx_id__isnull=True,
+                                                           loc_id__isnull=True,
+                                                           spwn_id__isnull=True,
+                                                           indv_id__isnull=True,
+                                                           indvt_id__isnull=True,
+                                                           ).get()
+            return anix_grp
+
+
+def enter_anix_contx(tank, cleaned_data):
+    if tank:
+        contx = models.ContainerXRef(evnt_id=cleaned_data["evnt_id"],
+                                     tank_id=tank,
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+        try:
+            contx.clean()
+            contx.save()
+            return contx
+        except ValidationError:
+            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
+                                                        tank=contx.tank_id,
+                                                        ).get()
+
+        anix_contx = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                          contx_id=contx,
+                                          created_by=cleaned_data["created_by"],
+                                          created_date=cleaned_data["created_date"],
+                                          )
+        try:
+            anix_contx.clean()
+            anix_contx.save()
+            return anix_contx
+        except ValidationError:
+            anix_contx = models.AniDetailXref.objects.filter(evnt_id=anix_contx.evnt_id,
+                                                             contx_id=anix_contx.contx_id,
+                                                             indv_id__isnull=True,
+                                                             loc_id__isnull=True,
+                                                             spwn_id__isnull=True,
+                                                             grp_id__isnull=True,
+                                                             indvt_id__isnull=True,
+                                                             ).get()
+            return anix_contx

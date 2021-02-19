@@ -791,12 +791,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "subr_id",
             "start_date",
         ]
-        context["contx_object"] = models.ContainerXRef.objects.first()
-        context["contx_field_list"] = [
-            "tank_id",
-            "tray_id",
-            "cup_id",
-        ]
+
         contx_set = self.object.containers.filter(tank_id__isnull=False, cup_id__isnull=True, heat_id__isnull=True,
                                                   tray_id__isnull=True, trof_id__isnull=True, draw_id__isnull=True)
         context["tank_list"] = list(dict.fromkeys([contx.tank_id for contx in contx_set]))
@@ -854,7 +849,6 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "matp_xls",
             "stok_id",
         ]
-
 
         context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "spwn", "matp"]
         evnt_code = self.object.evntc_id.__str__()
