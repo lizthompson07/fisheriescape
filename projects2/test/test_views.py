@@ -1167,8 +1167,8 @@ class TestSARWorkplanReportView(CommonTest):
         # At a minimum a year is required
         self.test_url = reverse_lazy('projects2:export_sar_workplan') + f'?year={year}'
 
-        # tests for year and region (region=2 => maritimes)
-        self.test_url_yr = reverse_lazy('projects2:export_sar_workplan') + f'?year={year};region=2'
+        # tests for year and region (region=1 => Gulf)
+        self.test_url_yr = reverse_lazy('projects2:export_sar_workplan') + f'?year={year};region=1'
 
         self.user = self.get_and_login_user()
 
