@@ -70,6 +70,12 @@
       $(".region_div").removeClass("gone");
       $("#id_year").prop("required", true);
     }
+    else if (reportChoice === "6") {
+      $(".year_div").removeClass("gone");
+      $(".region_div").removeClass("gone");
+      $("#id_year").prop("required", true);
+      $("#id_region").prop("required", true);
+    }
   }
 
   $(document).ready(function () {
