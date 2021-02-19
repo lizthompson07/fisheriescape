@@ -108,26 +108,26 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         return context
 
 
-# conf_field_list = [
-#     'tname|{}'.format(gettext_lazy("Name")),
-#     'location',
-#     'trip_subcategory',
-#     'lead',
-#     'has_event_template',
-#     'number',
-#     'start_date',
-#     'end_date',
-#     'meeting_url',
-#     'abstract_deadline',
-#     'registration_deadline',
-#     'is_adm_approval_required',
-#     'notes',
-#     'status_string|{}'.format("status"),
-#     'date_eligible_for_adm_review',
-#     'adm_review_deadline',
-#     'total_cost|{}'.format(gettext_lazy("Total DFO cost (excluding BTA)")),
-#     'non_res_total_cost|{}'.format(gettext_lazy("Total DFO cost from non-RES travellers (excluding BTA)")),
-# ]
+conf_field_list = [
+    'tname|{}'.format(gettext_lazy("Name")),
+    'location',
+    'trip_subcategory',
+    'lead',
+    'has_event_template',
+    'number',
+    'start_date',
+    'end_date',
+    'meeting_url',
+    'abstract_deadline',
+    'registration_deadline',
+    'is_adm_approval_required',
+    'notes',
+    'status_string|{}'.format("status"),
+    'date_eligible_for_adm_review',
+    'adm_review_deadline',
+    'total_cost|{}'.format(gettext_lazy("Total DFO cost (excluding BTA)")),
+    'non_res_total_cost|{}'.format(gettext_lazy("Total DFO cost from non-RES travellers (excluding BTA)")),
+]
 
 
 def get_help_text_dict():

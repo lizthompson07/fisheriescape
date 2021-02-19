@@ -104,6 +104,10 @@ class TripRequestSerializerLITE(serializers.ModelSerializer):
     traveller_count = serializers.SerializerMethodField()
     trip = TripSerializerLITE(read_only=True)
     section = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return str(instance)
 
     def get_section(self, instance):
         return instance.section.shortish_name
@@ -390,6 +394,19 @@ class TripSerializer(serializers.ModelSerializer):
     tname = serializers.SerializerMethodField()
     travellers = serializers.SerializerMethodField()
     trip_subcategory = serializers.StringRelatedField()
+    adm_review_deadline = serializers.SerializerMethodField()
+    time_until_adm_review_deadline = serializers.SerializerMethodField()
+    days_until_adm_review_deadline = serializers.SerializerMethodField()
+    requests = TripRequestSerializerLITE(many=True, read_only=True)
+
+    def get_days_until_adm_review_deadline(self, instance):
+        return instance.days_until_adm_review_deadline
+
+    def get_time_until_adm_review_deadline(self, instance):
+        return naturaltime(instance.adm_review_deadline)
+
+    def get_adm_review_deadline(self, instance):
+        return date(instance.adm_review_deadline)
 
     def get_abstract_deadline(self, instance):
         return date(instance.abstract_deadline)

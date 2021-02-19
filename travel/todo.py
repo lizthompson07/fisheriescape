@@ -7,7 +7,6 @@
 # TODO: TRAF rejig
 # todo: api view validation
 
-# TODO: browse upcoming trip should have abstract deadline
 # TODO: adm-hit-list needs special column in list
 # TODO: request list to pure vuejs
 
@@ -22,6 +21,7 @@
 
 # TODO: sort all methods and attrs on serializers
 
+# todo: it would be nice for the trips to have the same flow as requests. right now they are opening in new widows all the time!
 
 # after we are deployed
 # TODO: delete trip_request on cost, traveller,
