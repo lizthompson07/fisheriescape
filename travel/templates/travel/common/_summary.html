@@ -32,7 +32,7 @@
           </tr>
           <tr>
             <th style="width: 25%">${requestLabels.trip}</th>
-            <td>${request.trip.display}</td>
+            <td><a href="#" @click="goTripDetail(request.trip)">${request.trip.display}</a></td>
           </tr>
           <tr>
             <th style="width: 25%">{% trans "Number of travellers" %}</th>
@@ -99,6 +99,21 @@
             <td v-html="request.metadata"></td>
           </tr>
         </table>
+
+        <div v-if="isReview">
+          <b style="width: 25%">{% trans "Comparison of Traveller Costs" %}</b>
+          <table class="table table-sm table-bordered">
+            <tr v-for="(row, i) in request.cost_comparison" :key="i">
+              <td v-for="(cell, j) in row" :key="j">
+                <span v-if="i===0"><b>${cell}</b></span>
+                <span v-else>${cell |floatformat}</span>
+
+              </td>
+            </tr>
+          </table>
+
+
+        </div>
 
       </div>
     </div>
