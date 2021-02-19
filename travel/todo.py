@@ -1,5 +1,3 @@
-# TODO: more attention to reviewer form -- for example cost comparison tables etc
-
 
 # TODO: Trip Detail
 # TODO: admo process

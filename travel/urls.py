@@ -45,20 +45,16 @@ urlpatterns = [
     path('request-reviewers/<int:pk>/review/', views.TripRequestReviewerUpdateView.as_view(), name="request_reviewer_update"),
     path('rdg-approvals/', views.TripRequestAdminApprovalListView.as_view(), name="rdg_approvals"),
 
+
+
     ############################################################################################################
 
-
-
-    # ADMIN APPROVAL LIST (FOR ADM and RDG)
-    # path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
-    # path('admin/approval/for/<str:type>/region/<int:region>/', views.TripRequestAdminApprovalListView.as_view(),
-    #      name="admin_approval_list"),
-    # path('admin/<int:pk>/approve/', views.TripRequestAdminApproveUpdateView.as_view(), name="admin_approve"),
-
-    # this would be for a reviewer, recommender, approver
-    # This would be for an admin
+    # Trip reviews
+    ##################
     path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
     path('adm-review/<int:pk>/<int:approve>/', views.TripRequestReviewerADMUpdateView.as_view(), name="tr_review_adm_update"),
+
+
 
     # TRIP REQUEST REVIEWERS
     path('request/<int:triprequest>/reset-reviewers/for/<str:type>/', views.reset_request_reviewers, name="reset_tr_reviewers"),
