@@ -28,6 +28,8 @@ var app = new Vue({
     divisions: [],
     sections: [],
 
+    tripLabels: {},
+
   },
   methods: {
     getCurrentUser() {
@@ -115,6 +117,12 @@ var app = new Vue({
       }
       this.currentSort = s;
     },
+    getTripMetadata() {
+      let endpoint = `/api/travel/meta/models/trip/`;
+      apiService(endpoint).then(data => {
+        this.tripLabels = data.labels;
+      });
+    },
   },
   filters: {
     floatformat: function (value, precision = 2) {
@@ -190,6 +198,7 @@ var app = new Vue({
     this.getCurrentUser()
     this.getTrips()
     this.getFilterData()
+    this.getTripMetadata()
   },
   mounted() {
   },

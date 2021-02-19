@@ -333,6 +333,8 @@ class Conference(models.Model):
         if self.is_adm_approval_required:
             # when was the deadline?
             deadline = self.date_eligible_for_adm_review
+            if not deadline:
+                self.save()
             # how many days until the deadline?
             return (deadline - timezone.now()).days
 
@@ -346,7 +348,8 @@ class Conference(models.Model):
 
     @property
     def admin_notes_html(self):
-        return textile.textile(self.admin_notes)
+        if self.admin_notes:
+            return textile.textile(self.admin_notes)
 
     @property
     def html_block(self):
@@ -417,15 +420,15 @@ class Conference(models.Model):
             my_str += f" &rarr; {date(self.end_date)}"
         return mark_safe(my_str)
 
-    @property
-    def total_traveller_list(self):
-        travellers = self.bta_traveller_list
-        travellers.extend(self.traveller_list)
-        return list(set(travellers))
-
+    # @property
+    # def total_traveller_list(self):
+    #     travellers = self.bta_traveller_list
+    #     travellers.extend(self.traveller_list)
+    #     return list(set(travellers))
+    #
     @property
     def travellers(self):
-        return listrify(self.total_traveller_list)
+        return Traveller.objects.filter(request__trip=self)
 
     @property
     def total_cost(self):

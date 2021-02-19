@@ -29,6 +29,7 @@ var app = new Vue({
     divisions: [],
     sections: [],
 
+    requestLabels: {},
   },
   methods: {
     getCurrentUser() {
@@ -120,6 +121,12 @@ var app = new Vue({
       }
       this.currentSort = s;
     },
+    getRequestMetadata() {
+      let endpoint = `/api/travel/meta/models/request/`;
+      apiService(endpoint).then(data => {
+        this.requestLabels = data.labels;
+      });
+    },
   },
   filters: {
     floatformat: function (value, precision = 2) {
@@ -172,6 +179,9 @@ var app = new Vue({
         } else if (this.currentSort && this.currentSort.search("trip") > -1) {
           if (a["trip"]["name"] < b["trip"]["name"]) return -1 * modifier;
           if (a["trip"]["name"] > b["trip"]["name"]) return 1 * modifier;
+        } else if (this.currentSort && this.currentSort.search("destination") > -1) {
+          if (a["trip"]["location"] < b["trip"]["location"]) return -1 * modifier;
+          if (a["trip"]["location"] > b["trip"]["location"]) return 1 * modifier;
         } else {
           if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
           if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
@@ -184,6 +194,8 @@ var app = new Vue({
     this.getCurrentUser()
     this.getRequests()
     this.getFilterData()
+    this.getRequestMetadata()
+
   },
   mounted() {
   },

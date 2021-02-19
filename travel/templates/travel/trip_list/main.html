@@ -50,39 +50,17 @@
             <table class="table table-sm table-hover">
               <thead>
               <tr>
-                {% for field in field_list %}
-                  {% if "title" in field %}
-                    <th style="width: 200px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% elif "fiscal" in field or "funding" in field %}
-                    <th style="width: 75px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% elif "status" in field %}
-                    <th style="width: 80px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% elif "subcategory" in field %}
-                    <th style="width: 150px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% elif "dates" in field %}
-                    <th style="width: 170px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% elif "date_eligible_for_adm_review" in field %}
-                    <th style="width: 140px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% else %}
-                    <th @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% endif %}
-
-                {% endfor %}
-
+                <th style="width: 75px" @click="sort('fiscal_year')" class="clickable">${tripLabels.fiscal_year}</th>
+                <th style="width: 200px" @click="sort('{% trans "name" %}')" class="clickable">{% trans "Title" %}</th>
+                <th style="width: 80px" @click="sort('{% trans "status_display" %}')" class="clickable">{% trans "Trip status" %}</th>
+                <th style="" @click="sort('location')" class="clickable">{% trans "Location" %}</th>
+                <th style="" @click="sort('lead')" class="clickable">{% trans "Region lead" %}</th>
+                <th style="" @click="sort('travellers')" class="clickable">{% trans "Travellers" %}</th>
+                <th style="width: 225px" @click="sort('dates')" class="clickable">{% trans "Dates" %}</th>
+                <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
+                <th style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>
+                <th style="width: 140px" @click="sort('registration_deadline')" class="clickable">${tripLabels.registration_deadline}</th>
+                <th style="width: 140px" @click="sort('date_eligible_for_adm_review')" class="clickable">${tripLabels.date_eligible_for_adm_review}</th>
               </tr>
               </thead>
               <tbody v-if="trips.length">
@@ -92,14 +70,15 @@
                 class="pointy"
               >
                 <td>${t.fiscal_year }</td>
-                <td :class="t.status_class">${t.status_display }</td>
-                <td>${t.trip_subcategory }</td>
                 <td>${t.tname }</td>
+                <td><span :class="t.status_class + ' px-1 py-1'">${t.status_display }</span></td>
                 <td>${t.location }</td>
                 <td>${t.lead |nz}</td>
-                <td>${t.abstract_deadline |nz }</td>
-                <td>${t.registration_deadline |nz}</td>
+                <td>${t.travellers.length}</td>
                 <td v-html="t.dates"></td>
+                <td>${t.is_adm_approval_required |yesNo }</td>
+                <td>${t.trip_subcategory }</td>
+                <td>${t.registration_deadline |nz}</td>
                 <td>
                   <span v-if="!t.is_adm_approval_required"> --- </span>
                   <span v-else> ${t.date_eligible_for_adm_review } </span>
@@ -136,7 +115,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainTripList.js' %}?version=0.7" type="application/javascript"></script>
+  <script src="{% static '/travel/mainTripList.js' %}?version=0.8" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>

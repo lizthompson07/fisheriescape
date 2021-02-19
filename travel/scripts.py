@@ -249,7 +249,7 @@ def copy_old_tables_to_new():
 
     # loop through all requests, except for child requests
 
-    bad_trip = models.Conference.objects.create(
+    bad_trip, created = models.Conference.objects.get_or_create(
         name="NOT A REAL TRIP",
         location="TestVille",
         start_date=timezone.datetime(year=2020, month=1, day=1),

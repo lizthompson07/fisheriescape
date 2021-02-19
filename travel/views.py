@@ -1019,12 +1019,12 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
     template_name = 'travel/trip_detail.html'
     home_url_name = "travel:index"
 
-    def get_parent_crumb(self):
-        my_kwargs = deepcopy(self.kwargs)
-        del my_kwargs["pk"]
-        trips_url = reverse("travel:trip_list", kwargs=my_kwargs)
-        trips_title = _("Trips")
-        return {"title": trips_title, "url": trips_url}
+    # def get_parent_crumb(self):
+    #     my_kwargs = deepcopy(self.kwargs)
+    #     del my_kwargs["pk"]
+    #     trips_url = reverse("travel:trip_list", kwargs=my_kwargs)
+    #     trips_title = _("Trips")
+    #     return {"title": trips_title, "url": trips_url}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

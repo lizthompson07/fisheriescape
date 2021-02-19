@@ -100,6 +100,16 @@ class TripViewSet(viewsets.ModelViewSet):
                         qs = qs.filter(trip_subcategory=input)
             return qs
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = serializers.TripSerializerLITE(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = serializers.TripSerializerLITE(queryset, many=True)
+        return Response(serializer.data)
+
     def perform_create(self, serializer):
         serializer.save(last_modified_by=self.request.user)
 
@@ -184,6 +194,16 @@ class RequestViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(last_modified_by=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = serializers.TripRequestSerializerLITE(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = serializers.TripRequestSerializerLITE(queryset, many=True)
+        return Response(serializer.data)
 
 
 class TravellerViewSet(viewsets.ModelViewSet):
