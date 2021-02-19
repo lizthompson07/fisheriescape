@@ -9,10 +9,9 @@
       </button>
     </div>
     {% trans "File Attachments" %}
-    <span class="mdi mdi-help-circle-outline" data-toggle="popover"
-          data-trigger="hover"
-          title="{% trans "File Attachments" %}"
-          data-content="{{ help_text.file_header }}"></span>
+    <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+            data-trigger="hover" title="{% trans "File Attachments" %}"
+            :data-content="helpText.files_header"></span>
   </h3>
   <div class="card-body">
     <div class="card-text">
@@ -45,6 +44,7 @@
               </a>
               <em v-else>{% trans "missing file" %}</em>
             </td>
+
             <td v-if="canModify && !isReview" style="width:75px">
               <div v-if="!file.editMode && !inFileEditMode">
                 <button @click="file.editMode=true; inFileEditMode=true; $forceUpdate()" class="btn btn-sm btn-outline-dark py-0 px-1"

@@ -8,13 +8,16 @@
 {% load humanize %}
 
 
-{#{% endif %}#}
-
+{% block title_area %}
+{% endblock %}
 
 
 {% block subcontent %}
   <div id="app" v-cloak>
-    <div v-if="canModify" class="alert alert-primary no-print py-1" role="alert" style="width: 60%">
+    <div class="mb-3" v-if="request">
+      <h2>${request.display}</h2>
+    </div>
+    <div v-if="canModify" class="alert alert-primary no-print py-2" role="alert" style="width: 60%">
       <p class="mb-0">
         <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
       </p>
@@ -22,7 +25,7 @@
     <div v-if="request.id">
       <div
         v-if="request.trip.is_adm_approval_required && !request.submitted"
-        :class="{'alert py-1': true, 'alert-success':request.trip.days_until_eligible_for_adm_review > 45, 'alert-warning':request.trip.days_until_eligible_for_adm_review >= 15, 'alert-danger':request.trip.days_until_eligible_for_adm_review < 15}"
+        :class="{'alert py-2': true, 'alert-success':request.trip.days_until_eligible_for_adm_review > 45, 'alert-warning':request.trip.days_until_eligible_for_adm_review >= 15, 'alert-danger':request.trip.days_until_eligible_for_adm_review < 15}"
         role="alert">
         <p class="mb-0">
           <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
@@ -39,27 +42,27 @@
         </p>
       </div>
 
-      <div v-if="request.is_late_request && !request.submitted" class="alert alert-danger py-1" role="alert" style="width: 80%">
+      <div v-if="request.is_late_request && !request.submitted && !request.late_justification" class="alert alert-danger py-2" role="alert">
         <p class="mb-0">
           <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
           <span class="h6 red-font"><u>{% trans "WARNING" %}</u></span>
           <span class="h6">{% trans "In order to submit this request, you will need to provide a justification for the late submission." %}</span>
         </p>
       </div>
-      <div v-if="request.trip.status === 43" class="alert alert-danger py-1" role="alert" style="width: 80%">
+      <div v-if="request.trip.status === 43" class="alert alert-danger py-2" role="alert">
         <p class="mb-0">
           <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
           <span class="h6 red-font"><u>{% trans "WARNING" %}</u></span>
           <span class="h6">{% trans "The trip associated with this request has been cancelled." %}</span>
         </p>
       </div>
-      <div v-if="request.trip.status === 31" class="alert alert-danger py-1" role="alert" style="width: 80%">
+      <div v-if="request.trip.status === 31" class="alert alert-danger py-2" role="alert" style="width: 80%">
         <p class="mb-0">
           <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
           <span class="h6">{% trans "This trip is currently under review from NCR." %}</span>
         </p>
       </div>
-      <div v-if="request.trip.status === 32" class="alert alert-danger py-1" role="alert" style="width: 80%">
+      <div v-if="request.trip.status === 32" class="alert alert-danger py-2" role="alert" style="width: 80%">
         <p class="mb-0">
           <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
           <span class="h6">{% trans "This trip has already been reviewed by NCR." %}</span>
@@ -133,7 +136,7 @@
       </div>
     </div>
 
-    {% include "travel/common/_request_summary.html" %}
+    {% include "travel/common/_summary.html" %}
     {% include "travel/common/_travellers.html" %}
     {% include "travel/common/_files.html" %}
     {% include "travel/common/_reviewers.html" %}

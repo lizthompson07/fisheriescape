@@ -49,17 +49,21 @@ class HelpText(models.Model):
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
                                 verbose_name=_("DM Apps user"))
-    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer belongs to which DFO section(s)"),
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("To be added in front of which sections"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
-    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer belongs to which DFO branch(es)"),
+    divisions = models.ManyToManyField(shared_models.Division, verbose_name=_("To be added in front of which divisions"),
+                                       blank=True,
+                                       related_name="travel_default_reviewers")
+    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("To be added in front of which branches"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
     reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"),
                                             blank=True,
                                             related_name="travel_default_reviewers",
                                             limit_choices_to={"id__in": [3, 4, 5]})
-    order = models.IntegerField(blank=True, null=True)
+    order = models.IntegerField(blank=True, null=True,
+                                verbose_name=_("What order should they be in (only applicable when there is multiple reviewers at the same level)?"))
 
     def __str__(self):
         return "{}".format(self.user)
@@ -1365,7 +1369,7 @@ class Traveller(models.Model):
 
     @property
     def total_cost(self):
-        """ this is the total cost for the request. Does not include any children"""
+        """ this is the total cost for the traveller"""
         return nz(self.costs.all().values("amount_cad").order_by("amount_cad").aggregate(dsum=Sum("amount_cad"))['dsum'], 0)
 
     @property
@@ -1432,10 +1436,11 @@ class Traveller(models.Model):
 
 # SHOULD BE RENAMED TO TRAVELLER COST
 class TripRequestCost(models.Model):
-    traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"), blank=True, null=True, editable=False)
+    traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"), blank=True, null=True)
 
     # DELETE
-    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs", verbose_name=_("trip request"), blank=True, null=True)
+    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs", verbose_name=_("trip request"), blank=True,
+                                     null=True, editable=False)
 
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)
@@ -1484,7 +1489,7 @@ class Reviewer(models.Model):
         (5, _("ADM")),
         (6, _("RDG")),
     )
-    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True) #  todo remove the non-null!!!!
+    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)  # todo remove the non-null!!!!
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers",

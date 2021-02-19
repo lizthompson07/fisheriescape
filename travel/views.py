@@ -172,7 +172,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
 
 class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
     model = models.TripRequest1
-    template_name = 'travel/request_detail/main.html'
+    template_name = 'travel/request_detail.html'
     home_url_name = "travel:index"
 
     def get_parent_crumb(self):
@@ -184,40 +184,9 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
         my_object = self.get_object()
         context = super().get_context_data(**kwargs)
         context["trip_request"] = self.get_object()
-        context['help_text_dict'] = get_help_text_dict()
         context['random_request_reviewer'] = models.Reviewer.objects.first()
         return context
 
-        # context["field_list"] = request_field_list
-        # my_request_child_field_list = deepcopy(request_child_field_list)
-        # context["child_field_list"] = my_request_child_field_list
-        # context["reviewer_field_list"] = reviewer_field_list
-        # context["traveller_field_list"] = traveller_field_list
-        #
-        # context["conf_field_list"] = conf_field_list
-        # context["cost_field_list"] = cost_field_list
-        # context['help_text_dict'] = get_help_text_dict()
-        # context["fy"] = fiscal_year()
-        # context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
-        # context["is_owner"] = my_object.user == self.request.user
-        # context["now"] = timezone.now()
-        # context["trip"] = my_object.trip
-        # context["triprequest"] = my_object
-        #
-        # # Admins should be given the same permissions as a current reviewer; the two are synonymous
-        # if context["is_admin"]:
-        #     is_current_reviewer = True
-        # else:
-        #     is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
-        #
-        # context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().reviewers.all()]
-        # context["is_current_reviewer"] = is_current_reviewer
-        # if my_object.submitted and not is_current_reviewer:
-        #     context["report_mode"] = True
-        #
-        # # This might be a better thing to use for button disabling
-        # context["can_modify"] = can_modify_request(self.request.user, my_object.id)
-        # return context
 
 
 class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
@@ -249,7 +218,6 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["cost_field_list"] = cost_field_list
 
         user_dict = {}
         for user in User.objects.all():
@@ -295,15 +263,17 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
 
         # add user as traveller if asked to
         if form.cleaned_data.get("is_traveller", None):
-            models.Traveller.objects.create(
-                request=my_object,
-                user=self.request.user,
-                start_date=my_object.trip.start_date,
-                end_date=my_object.trip.end_date,
-            )
+            # just make sure they are not already on another trip!!
+            if not models.Traveller.objects.filter(request__trip=my_object.trip, user=self.request.user).exists():
+                models.Traveller.objects.create(
+                    request=my_object,
+                    user=self.request.user,
+                    start_date=my_object.trip.start_date,
+                    end_date=my_object.trip.end_date,
+                )
 
         # add reviewers
-        utils.get_tr_reviewers(my_object)
+        utils.get_request_reviewers(my_object)
         return HttpResponseRedirect(reverse_lazy("travel:request_detail", args=[my_object.id]))
 
     def get_context_data(self, **kwargs):
@@ -380,7 +350,7 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
         else:
 
             # add the reviewers based on the new request info
-            utils.get_tr_reviewers(new_obj)
+            utils.get_request_reviewers(new_obj)
             utils.approval_seeker(new_obj, False, self.request)
 
             if new_obj.is_group_request:
@@ -933,7 +903,7 @@ def reset_request_reviewers(request, pk):
             # first remove any existing reviewers
             my_obj.reviewers.all().delete()
             # next, re-add the defaults...
-            utils.get_tr_reviewers(my_obj)
+            utils.get_request_reviewers(my_obj)
         else:
             messages.error(request, _("This function can only be used when the trip request is still a draft"))
     else:
@@ -2159,14 +2129,16 @@ class ReferenceMaterialDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
 
 class DefaultReviewerListView(TravelAdminRequiredMixin, CommonListView):
     model = models.DefaultReviewer
-    template_name = 'travel/default_reviewer_list.html'
-    h1 = gettext_lazy("Default Reviewers")
+    template_name = 'travel/default_reviewer/default_reviewer_list.html'
+    h1 = gettext_lazy("Optional / Special Reviewers")
     h3 = gettext_lazy("Use this module to set the default reviewers that get added to a trip request.")
     new_object_url_name = "travel:default_reviewer_new"
     home_url_name = "travel:index"
+    container_class = "container-fluid"
     field_list = [
         {"name": 'user', "class": "", "width": ""},
         {"name": 'sections', "class": "", "width": ""},
+        {"name": 'divisions', "class": "", "width": ""},
         {"name": 'branches', "class": "", "width": ""},
         {"name": 'reviewer_roles', "class": "", "width": ""},
     ]
@@ -2176,21 +2148,21 @@ class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
-    template_name = 'travel/default_reviewer_form.html'
+    template_name = 'travel/default_reviewer/default_reviewer_form.html'
 
 
 class DefaultReviewerCreateView(TravelAdminRequiredMixin, CreateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
-    template_name = 'travel/default_reviewer_form.html'
+    template_name = 'travel/default_reviewer/default_reviewer_form.html'
 
 
 class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
     model = models.DefaultReviewer
     success_url = reverse_lazy('travel:default_reviewer_list')
     success_message = 'The default reviewer was successfully deleted!'
-    template_name = 'travel/default_reviewer_confirm_delete.html'
+    template_name = 'travel/default_reviewer/default_reviewer_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
