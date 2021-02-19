@@ -24,26 +24,27 @@ class TripSerializerLITE(serializers.ModelSerializer):
         model = models.Conference
         fields = "__all__"
 
-    tname = serializers.SerializerMethodField()
-    display = serializers.SerializerMethodField()
+    abstract_deadline = serializers.SerializerMethodField()
+    adm_review_deadline = serializers.SerializerMethodField()
+    date_eligible_for_adm_review = serializers.SerializerMethodField()
+    dates = serializers.SerializerMethodField()
+    days_until_adm_review_deadline = serializers.SerializerMethodField()
     days_until_eligible_for_adm_review = serializers.SerializerMethodField()
-    time_until_eligible_for_adm_review = serializers.SerializerMethodField()
-    start_date = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
-    traveller_count = serializers.SerializerMethodField()
+    fiscal_year = serializers.StringRelatedField()
+    lead = serializers.StringRelatedField()
+    registration_deadline = serializers.SerializerMethodField()
+    start_date = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
-    lead = serializers.StringRelatedField()
-    dates = serializers.SerializerMethodField()
-    date_eligible_for_adm_review = serializers.SerializerMethodField()
-    abstract_deadline = serializers.SerializerMethodField()
-    registration_deadline = serializers.SerializerMethodField()
+    time_until_eligible_for_adm_review = serializers.SerializerMethodField()
+    tname = serializers.SerializerMethodField()
+    traveller_count = serializers.SerializerMethodField()
     trip_subcategory = serializers.StringRelatedField()
-    adm_review_deadline = serializers.SerializerMethodField()
-    days_until_adm_review_deadline = serializers.SerializerMethodField()
 
-    def get_days_until_adm_review_deadline(self, instance):
-        return instance.days_until_adm_review_deadline
+    def get_abstract_deadline(self, instance):
+        return instance.abstract_deadline.strftime("%Y-%m-%d") if instance.abstract_deadline else None
 
     def get_adm_review_deadline(self, instance):
         return instance.adm_review_deadline.strftime("%Y-%m-%d") if instance.adm_review_deadline else None
@@ -51,14 +52,26 @@ class TripSerializerLITE(serializers.ModelSerializer):
     def get_date_eligible_for_adm_review(self, instance):
         return instance.date_eligible_for_adm_review.strftime("%Y-%m-%d") if instance.date_eligible_for_adm_review else None
 
-    def get_abstract_deadline(self, instance):
-        return instance.abstract_deadline.strftime("%Y-%m-%d") if instance.abstract_deadline else None
+    def get_dates(self, instance):
+        return instance.dates
+
+    def get_days_until_adm_review_deadline(self, instance):
+        return instance.days_until_adm_review_deadline
+
+    def get_days_until_eligible_for_adm_review(self, instance):
+        return instance.days_until_eligible_for_adm_review
+
+    def get_display(self, instance):
+        return str(instance)
+
+    def get_end_date(self, instance):
+        return instance.end_date.strftime("%Y-%m-%d")
 
     def get_registration_deadline(self, instance):
         return instance.registration_deadline.strftime("%Y-%m-%d") if instance.registration_deadline else None
 
-    def get_dates(self, instance):
-        return instance.dates
+    def get_start_date(self, instance):
+        return instance.start_date.strftime("%Y-%m-%d")
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
@@ -66,26 +79,14 @@ class TripSerializerLITE(serializers.ModelSerializer):
     def get_status_display(self, instance):
         return instance.get_status_display()
 
-    def get_traveller_count(self, instance):
-        return instance.travellers.count()
-
-    def get_start_date(self, instance):
-        return instance.start_date.strftime("%Y-%m-%d")
-
-    def get_end_date(self, instance):
-        return instance.end_date.strftime("%Y-%m-%d")
-
-    def get_days_until_eligible_for_adm_review(self, instance):
-        return instance.days_until_eligible_for_adm_review
-
     def get_time_until_eligible_for_adm_review(self, instance):
         return naturaltime(instance.date_eligible_for_adm_review)
 
-    def get_display(self, instance):
-        return str(instance)
-
     def get_tname(self, instance):
         return instance.tname
+
+    def get_traveller_count(self, instance):
+        return instance.travellers.count()
 
 
 class TripRequestSerializerLITE(serializers.ModelSerializer):

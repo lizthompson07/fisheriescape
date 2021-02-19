@@ -58,7 +58,7 @@
                 <th style="" @click="sort('travellers')" class="clickable">{% trans "Travellers" %}</th>
                 <th style="width: 225px" @click="sort('dates')" class="clickable">{% trans "Dates" %}</th>
                 <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
-                <th style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>
+                <th v-if="pageType !== 'upcoming'" style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>
                 <th style="width: 140px" @click="sort('registration_deadline')" class="clickable">${tripLabels.registration_deadline}</th>
                 <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('abstract_deadline')" class="clickable">${tripLabels.abstract_deadline}
                 </th>
@@ -81,7 +81,7 @@
                 <td>${t.traveller_count}</td>
                 <td v-html="t.dates"></td>
                 <td>${t.is_adm_approval_required |yesNo }</td>
-                <td>${t.trip_subcategory }</td>
+                <td v-if="pageType !== 'upcoming'">${t.trip_subcategory }</td>
                 <td>${t.registration_deadline |nz}</td>
                 <td v-if="pageType === 'upcoming'">${t.abstract_deadline |nz}</td>
                 <td>

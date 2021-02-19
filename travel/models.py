@@ -333,18 +333,18 @@ class Conference(models.Model):
         if self.is_adm_approval_required:
             # when was the deadline?
             deadline = self.date_eligible_for_adm_review
-            if not deadline:
-                self.save()
-            # how many days until the deadline?
-            return (deadline - timezone.now()).days
+            if deadline:
+                # how many days until the deadline?
+                return (deadline - timezone.now()).days
 
     @property
     def days_until_adm_review_deadline(self):
         if self.is_adm_approval_required:
             # when was the deadline?
             deadline = self.adm_review_deadline
-            # how many days until the deadline?
-            return (deadline - timezone.now()).days
+            if deadline:
+                # how many days until the deadline?
+                return (deadline - timezone.now()).days
 
     @property
     def admin_notes_html(self):
