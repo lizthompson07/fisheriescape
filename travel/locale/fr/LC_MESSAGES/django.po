@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-19 00:09-0400\n"
+"POT-Creation-Date: 2021-02-19 00:15-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -245,14 +245,14 @@ msgstr ""
 "Désolé, le rôle d'un examinateur dont le statut est fixé à {mon_objet."
 "status} ne peut être modifié"
 
-#: .\travel\forms.py:727
+#: .\travel\forms.py:727 .\travel\forms.py:784
 #, fuzzy
 #| msgid ""
 #| "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
 #| "status is set to {my_object.status}"
 msgid ""
 "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
-"status is set to {my_object.get_status_display}"
+"status is set to {my_object.get_status_display()}"
 msgstr ""
 "Désolé, vous ne pouvez pas changer l'utilisateur Applis GD associé à un "
 "examinateur dont le statut est défini sur {mon_objet.status}"
@@ -268,18 +268,6 @@ msgid ""
 msgstr ""
 "Désolé, l'ordre d'un examinateur dont le statut est fixé à {mon_objet."
 "status} ne peut être modifié"
-
-#: .\travel\forms.py:784
-#, fuzzy
-#| msgid ""
-#| "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
-#| "status is set to {my_object.status}"
-msgid ""
-"Sorry, you cannot change the associated DM Apps user of a reviewer whose "
-"status is set to {my_object.get_status_display()}"
-msgstr ""
-"Désolé, vous ne pouvez pas changer l'utilisateur Applis GD associé à un "
-"examinateur dont le statut est défini sur {mon_objet.status}"
 
 #: .\travel\models.py:34
 msgid "English text"
@@ -3739,6 +3727,17 @@ msgstr "Le coût a été supprimé avec succès."
 #: .\travel\views.py:2347
 msgid "All empty costs have been cleared."
 msgstr "Tous les frais vides ont été supprimés."
+
+#, fuzzy
+#~| msgid ""
+#~| "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
+#~| "status is set to {my_object.status}"
+#~ msgid ""
+#~ "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
+#~ "status is set to {my_object.get_status_display}"
+#~ msgstr ""
+#~ "Désolé, vous ne pouvez pas changer l'utilisateur Applis GD associé à un "
+#~ "examinateur dont le statut est défini sur {mon_objet.status}"
 
 #~ msgid "reviewer belongs to which DFO section(s)"
 #~ msgstr "l'examinateur appartient à quelle(s) section(s) du MPO"
