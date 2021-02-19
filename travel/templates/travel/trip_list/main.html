@@ -60,7 +60,11 @@
                 <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
                 <th style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>
                 <th style="width: 140px" @click="sort('registration_deadline')" class="clickable">${tripLabels.registration_deadline}</th>
+                <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('abstract_deadline')" class="clickable">${tripLabels.abstract_deadline}
+                </th>
                 <th style="width: 140px" @click="sort('date_eligible_for_adm_review')" class="clickable">${tripLabels.date_eligible_for_adm_review}</th>
+                <th v-if="pageType === 'adm-hit-list'" style="width: 140px" @click="sort('adm_review_deadline')"
+                    class="clickable">{% trans "ADM decision deadline" %}</th>
               </tr>
               </thead>
               <tbody v-if="trips.length">
@@ -74,14 +78,20 @@
                 <td><span :class="t.status_class + ' px-1 py-1'">${t.status_display }</span></td>
                 <td>${t.location }</td>
                 <td>${t.lead |nz}</td>
-                <td>${t.travellers.length}</td>
+                <td>${t.traveller_count}</td>
                 <td v-html="t.dates"></td>
                 <td>${t.is_adm_approval_required |yesNo }</td>
                 <td>${t.trip_subcategory }</td>
                 <td>${t.registration_deadline |nz}</td>
+                <td v-if="pageType === 'upcoming'">${t.abstract_deadline |nz}</td>
                 <td>
                   <span v-if="!t.is_adm_approval_required"> --- </span>
                   <span v-else> ${t.date_eligible_for_adm_review } </span>
+                </td>
+                <td v-if="pageType === 'adm-hit-list'">
+                  <span :class="{'px-1 py-1':true, 'bg-success text-light':t.days_until_adm_review_deadline > 45, 'bg-warning':t.days_until_adm_review_deadline >= 15, 'bg-danger text-light':t.days_until_adm_review_deadline < 15}">
+                    ${t.adm_review_deadline |nz}
+                  </span>
                 </td>
               </tr>
               </tbody>

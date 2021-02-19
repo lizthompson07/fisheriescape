@@ -1,7 +1,7 @@
+# TODO: request reviewer needs to see all travellers!!
 
 # TODO: Trip Detail
 # TODO: admo process
-# TODO: trip request very slow to load
 
 # TODO: bring back admin warnings
 # TODO: TRAF rejig
