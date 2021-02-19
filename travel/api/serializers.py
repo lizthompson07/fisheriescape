@@ -342,6 +342,11 @@ class TripSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     lead = serializers.StringRelatedField()
 
+    travellers = serializers.SerializerMethodField()
+
+    def get_travellers(self, instance):
+        return TravellerSerializer(models.Traveller.objects.filter(request__trip=instance), many=True, read_only=True).data
+
     def get_display(self, instance):
         return str(instance)
 

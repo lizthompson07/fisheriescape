@@ -1,7 +1,5 @@
 from rest_framework import permissions
 
-# from ..utils import can_modify_project
-
 #
 # class IsSuperuser(permissions.BasePermission):
 #     def has_object_permission(self, request, view, obj):
@@ -12,7 +10,10 @@ from rest_framework import permissions
 #     def has_object_permission(self, request, view, obj):
 #         return request.user.profile.oceanography
 #
-from travel.utils import can_modify_request
+from travel.utils import can_modify_request, is_admin
+
+
+# from ..utils import can_modify_project
 
 
 class CanModifyOrReadOnly(permissions.BasePermission):
@@ -25,3 +26,11 @@ class CanModifyOrReadOnly(permissions.BasePermission):
             return can_modify_request(request.user, obj.traveller.request_id)
         else:
             return can_modify_request(request.user, obj.id)
+
+
+class TravelAdminOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            return is_admin(request.user)

@@ -24,7 +24,9 @@ urlpatterns = [
     path("travel/sections/", views.SectionListAPIView.as_view(), name="travel-section-list"),
 
     path("travel/meta/models/request/", views.RequestModelMetaAPIView.as_view(), name="reviewer-model-meta"),
+    path("travel/meta/models/trip/", views.TripModelMetaAPIView.as_view(), name="reviewer-model-meta"),
     path("travel/meta/models/request-reviewer/", views.ReviewerModelMetaAPIView.as_view(), name="reviewer-model-meta"),
+    path("travel/meta/models/trip-reviewer/", views.TripReviewerModelMetaAPIView.as_view(), name="reviewer-model-meta"),
     path("travel/meta/models/traveller/", views.TravellerModelMetaAPIView.as_view(), name="traveller-model-meta"),
     path("travel/meta/models/file/", views.FileModelMetaAPIView.as_view(), name="file-model-meta"),
     path("travel/meta/models/cost/", views.CostModelMetaAPIView.as_view(), name="cost-model-meta"),

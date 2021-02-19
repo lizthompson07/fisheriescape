@@ -16,7 +16,7 @@ from shared_models.models import FiscalYear, Region, Division, Section, Organiza
 from shared_models.utils import special_capitalize
 from . import serializers
 from .pagination import StandardResultsSetPagination
-from .permissions import CanModifyOrReadOnly
+from .permissions import CanModifyOrReadOnly, TravelAdminOrReadOnly
 from .. import models, utils
 
 
@@ -48,7 +48,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
 class TripViewSet(viewsets.ModelViewSet):
     queryset = models.Conference.objects.all()
     serializer_class = serializers.TripSerializer
-    permission_classes = [CanModifyOrReadOnly]
+    permission_classes = [TravelAdminOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -371,9 +371,30 @@ class RequestModelMetaAPIView(APIView):
         return Response(data)
 
 
+class TripModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Conference
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
 class ReviewerModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Reviewer
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        data['role_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.role_choices]
+        return Response(data)
+
+
+class TripReviewerModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.TripReviewer
 
     def get(self, request):
         data = dict()
