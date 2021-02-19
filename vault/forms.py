@@ -70,10 +70,12 @@ class OutingForm(forms.ModelForm):
         model = models.Outing
         fields = "__all__"
         widgets = {
-            "region": forms.SelectMultiple(attrs=chosen_js),
-            "purpose": forms.SelectMultiple(attrs=chosen_js),
+            # "region": forms.SelectMultiple(attrs=chosen_js),
+            # "purpose": forms.SelectMultiple(attrs=chosen_js),
             "start_date": forms.TextInput(attrs=attr_fp_date_time),
-            "end_date": forms.TextInput(attrs=attr_fp_date_time)
+            "end_date": forms.TextInput(attrs=attr_fp_date_time),
+            # "created_by": forms.HiddenInput(),
+            # "verified_by": forms.HiddenInput(),
         }
 
 

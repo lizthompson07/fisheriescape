@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
-
+from django.contrib.auth.models import User as AuthUser
 
 class Species(models.Model):
     code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Internal code"), unique=True)
@@ -240,6 +240,10 @@ class Outing(models.Model):
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date and time (YYYY-MM-DD)"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date and time (YYYY-MM-DD)"))
     identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Identifier String"))
+    created_by = models.ForeignKey(AuthUser, related_name="outings", on_delete=models.DO_NOTHING)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    verified_by = models.ForeignKey(AuthUser, blank=True, null=True, on_delete=models.DO_NOTHING)
+    verified_at = models.DateTimeField(blank=True, null=True, editable=False)
 
     def __str__(self):
         return self.identifier_string

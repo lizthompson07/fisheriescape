@@ -1,4 +1,5 @@
 {% extends "shared_models/generic_form.html" %}
+{% load static %}
 
 {% block jquery_import %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -20,6 +21,12 @@
 
 {% block body %}
     {{ block.super }}
+    <div class = "container">
+        <div align = "center">
+            <h1>Region Reference Map</h1>
+            <img class="mh-80" src="{% static 'img/vault/MMVault General Areas.jpg' %}" alt="region image" style="width: 80%; height: 120%;">
+        </div>
+    </div>
 {% endblock body %}
 
 {% block left_auth %}

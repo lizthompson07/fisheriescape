@@ -119,6 +119,7 @@
 
     {% url 'vault:species_list' as species_list %}
     {% url 'vault:outing_list' as outing_list %}
+    {% url 'vault:outing_new' as outing_new %}
 
     {% url 'vault:manage_instrument_type' as manage_instrument_type %}
     {% url 'vault:manage_instrument' as manage_instrument %}
@@ -153,10 +154,10 @@
           {# User Pane #}
           <div id="user" class="container tab-pane fade active show"><br>
 
-            <div class="btns mb-3 center-col">
+            <div class="btns mb-3 left">
 
-              <a href="{{ species_list }}" class="btn btn-lg btn-outline-primary mx-3">
-                {% trans "Test Action Button" %}
+              <a href="{{ outing_new }}" class="btn btn-lg btn-outline-primary mx-3">
+                {% trans "Log New Outing" %}
               </a>
 
               {% if test_url > 0 %}

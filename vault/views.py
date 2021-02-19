@@ -429,7 +429,7 @@ class OutingDetailView(VaultAdminAccessRequired, CommonDetailView):
 class OutingUpdateView(VaultAdminAccessRequired, CommonUpdateView):
     model = models.Outing
     form_class = forms.OutingForm
-    template_name = 'vault/form.html'
+    template_name = 'vault/outing_form.html'
     cancel_text = _("Cancel")
     home_url_name = "vault:index"
 
@@ -458,7 +458,7 @@ class OutingUpdateView(VaultAdminAccessRequired, CommonUpdateView):
 class OutingCreateView(VaultAdminAccessRequired, CommonCreateView):
     model = models.Outing
     form_class = forms.OutingForm
-    template_name = 'vault/form.html'
+    template_name = 'vault/outing_form.html'
     home_url_name = "vault:index"
     h1 = gettext_lazy("Add New Outing")
     parent_crumb = {"title": gettext_lazy("Outing List"), "url": reverse_lazy("vault:outing_list")}
@@ -467,6 +467,9 @@ class OutingCreateView(VaultAdminAccessRequired, CommonCreateView):
         my_object = form.save()
         messages.success(self.request, _(f"Outing record successfully created for : {my_object}"))
         return super().form_valid(form)
+
+    def get_initial(self):
+        return {'created_by': self.request.user}
 
 
 class OutingDeleteView(VaultAdminAccessRequired, CommonDeleteView):
