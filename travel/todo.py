@@ -1,10 +1,12 @@
 # TODO: request reviewer needs to see all travellers!!
 
 # TODO: Trip Detail
+
 # TODO: admo process
 
 # TODO: bring back admin warnings
 # TODO: TRAF rejig
+# TODO: reports
 # todo: api view validation
 
 # TODO: adm-hit-list needs special column in list

@@ -195,7 +195,7 @@ var app = new Vue({
       this.$forceUpdate();
     },
     updateTripAdminNotes() {
-      if (this.isNCRAdmin) {
+      if (this.canModify) {
         let endpoint = `/api/travel/trips/${tripId}/`;
         apiService(endpoint, "PATCH", {admin_notes: this.trip.admin_notes})
             .then(response => {
@@ -295,6 +295,9 @@ var app = new Vue({
         return this.currentUser.is_ncr_admin;
       }
       return false;
+    },
+    canModify() {
+      return this.isNCRAdmin || (this.isRegionalAdmin && !this.trip.is_adm_approval_required)
     },
     editableReviewers() {
       myArray = []

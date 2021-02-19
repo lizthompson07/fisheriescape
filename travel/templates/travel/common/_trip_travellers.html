@@ -5,7 +5,7 @@
 {% load travel_tags %}
 {% load verbose_names %}
 
-<div v-if="(isNCRAdmin || isReview) && trip.travellers.length" class="card mb-2">
+<div v-if="canModify && trip.travellers.length" class="card mb-2">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right">
       <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down blue"></span></button>
@@ -87,16 +87,13 @@
                         <p><b>{% trans "Part of learning plan:" %}</b><span class="ml-1">${t.learning_plan|yesNo}</span></p>
                         <p><b>{% trans "Non-DFO costs:" %}</b><span class="ml-1" v-html="t.non_dfo_costs_html"></span></p>
 
-                        <div v-if="canModify && !isReview">
-                          {% include "travel/common/_costs.html" %}
-                        </div>
-                        <div v-else>
+                        <div>
                           <b>{% trans "Cost Breakdown:" %}</b>
                           <span class="ml-1" v-html="t.cost_breakdown_html"></span>
                         </div>
 
                         <div class="float-right">
-                          <button v-if="isNCRAdmin || isReview" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
+                          <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
                         </div>
                       </div>
                     </div>

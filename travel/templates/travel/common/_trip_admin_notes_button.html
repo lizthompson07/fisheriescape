@@ -2,7 +2,7 @@
 
 <button
   @click="showAdminNotesForm=true"
-  v-if="isNCRAdmin && !showAdminNotesForm"
+  v-if="isNCRAdmin || (isRegionalAdmin && !trip.is_adm_approval_required) && !showAdminNotesForm"
   class="btn btn-admin">
   {% trans "Administrative Notes" %}
 </button>

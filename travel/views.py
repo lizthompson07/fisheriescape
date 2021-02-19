@@ -250,6 +250,10 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
     form_class = forms.TripRequestForm
     template_name = 'travel/request_form.html'
 
+    def get_initial(self):
+        if self.request.GET.get("trip"):
+            return dict(trip=self.request.GET.get("trip"))
+
     def form_valid(self, form):
         my_object = form.save(commit=False)
         my_object.created_by = self.request.user
@@ -1093,7 +1097,7 @@ class TripCloneView(TripUpdateView):
         new_obj.pk = None
         new_obj.verified_by = self.request.user
         new_obj.save()
-        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", kwargs={"pk": new_obj.id, "type": self.kwargs.get("type")}))
+        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", args=[ new_obj.id]))
 
 
 class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
@@ -1586,7 +1590,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 
     model = models.Conference
     form_class = forms.TripAdminNotesForm
-    template_name = 'travel/trip_cancel_form.html'
+    template_name = 'travel/form.html'
     submit_text = _("Cancel the trip")
     h1 = _("Do you wish to undo your cancellation request for the following trip?")
     h2 = "<span class='red-font'>" + \
@@ -1602,12 +1606,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["conf_field_list"] = conf_field_list
         context["trip"] = self.get_object()
-        context["traveller_field_list"] = traveller_field_list
-
-        context['help_text_dict'] = get_help_text_dict()
-        context["report_mode"] = True
         return context
 
     def form_valid(self, form):
@@ -1631,7 +1630,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
             # cycle through every trip request associated with this trip and cancel it
             # denied = 10; cancelled = 22; draft = 8;
             tr_statuses_to_skip = [10, 22, 8]
-            for tr in my_trip.trip_requests.filter(~Q(status__in=tr_statuses_to_skip)):
+            for tr in my_trip.requests.filter(~Q(status__in=tr_statuses_to_skip)):
                 # set status to cancelled = 22
                 tr.status = 22
                 # update the admin notes
@@ -1649,7 +1648,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
                     r.save()
 
                 # send an email to the trip_request owner, if the user has an email address.
-                if tr.user:
+                if tr.created_by:
                     email = emails.StatusUpdateEmail(tr, self.request)
                     # # send the email object
                     custom_send_mail(
