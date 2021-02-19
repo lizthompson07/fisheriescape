@@ -1,5 +1,7 @@
-# TODO: Trip Detail
 # TODO: more attention to reviewer form -- for example cost comparison tables etc
+
+
+# TODO: Trip Detail
 # TODO: admo process
 
 # TODO: bring back admin warnings
@@ -7,7 +9,8 @@
 # todo: api view validation
 
 # TODO: problem -- > total cost at the request level does not update as costs are being added. Maybe the field should be hidden until under review?
-# TODO: redo the summary with pure vuejs in order to implement the above
+
+
 
 
 # At a later date

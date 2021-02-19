@@ -35,7 +35,7 @@
             <td>${request.trip.display}</td>
           </tr>
           <tr>
-            <th style="width: 25%">{% trans "Number of travellers (this request)" %}</th>
+            <th style="width: 25%">{% trans "Number of travellers" %}</th>
             <td>${request.travellers.length}</td>
           </tr>
           <tr>
@@ -99,22 +99,6 @@
             <td v-html="request.metadata"></td>
           </tr>
         </table>
-
-
-        {#                {% else %}#}
-        {#                  {% if "cost" in field or "CAD" in field %}#}
-        {#                    <td>${request.{{ field|get_attr }} | floatformat}</td>#}
-        {#                  {% else %}#}
-        {#                    <td v-html="request.{{ field|get_attr }}"></td>#}
-        {#                  {% endif %}#}
-        {#                {% endif %}#}
-        {#              {% else %}#}
-        {#                <td v-html="request.{{ field }}"></td>#}
-        {#              {% endif %}#}
-
-        {#        {% include "travel/common/_files.html" %}#}
-        {#        {% include "travel/common/_reviewers.html" %}#}
-
 
       </div>
     </div>

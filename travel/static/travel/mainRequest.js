@@ -121,7 +121,7 @@ var app = new Vue({
       this.reviewerEditMode = false;
     },
     collapseTravellers() {
-      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = true;
+      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].show_me = false;
       this.$forceUpdate()
     },
     costCloseEditMode(traveller, cost) {
@@ -194,7 +194,7 @@ var app = new Vue({
       $('[data-toggle="popover"]').popover({html: true});
     },
     expandTravellers() {
-      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].hide_me = false;
+      for (var i = 0; i < this.request.travellers.length; i++) this.request.travellers[i].show_me = true;
       this.$forceUpdate()
     },
     fetchDMAppsUsers() {
@@ -244,6 +244,10 @@ var app = new Vue({
         this.helpText = data;
       });
     },
+    toggleShowMe(obj) {
+      obj.show_me = !obj.show_me;
+      this.$forceUpdate();
+    },
     getRequest() {
       this.loading_request = true;
       let endpoint = `/api/travel/requests/${tripRequestId}/`;
@@ -251,6 +255,10 @@ var app = new Vue({
           .then(response => {
             this.loading_request = false;
             this.request = response;
+            // if there is one traveller, we should have that traveller on display
+            if (this.request.travellers.length === 1) {
+              this.request.travellers[0].show_me = true;
+            }
             this.getCurrentUser(response);
             this.$nextTick(() => {
               // enable popovers everywhere
@@ -475,7 +483,10 @@ var app = new Vue({
   filters: {
     floatformat: function (value, precision = 2) {
       if (!value) return '---';
-      value = value.toFixed(precision);
+      value = value.toLocaleString(undefined, {
+        minimumFractionDigits: precision,
+        maximumFractionDigits: precision
+      });
       return value
     },
     zero2NullMark: function (value) {
