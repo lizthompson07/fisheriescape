@@ -7,14 +7,13 @@
 {% load i18n %}
 {% load humanize %}
 
-
 {% block title_area %}
 {% endblock %}
 
 
 {% block subcontent %}
   <div id="app" v-cloak>
-    <div class="mb-3" v-if="request">
+    <div class="mb-3 mt-3" v-if="request">
       <h2>${request.display}</h2>
     </div>
     <div v-if="canModify" class="alert alert-primary no-print py-2" role="alert" style="width: 60%">
@@ -109,16 +108,16 @@
 
       {# EDIT BUTTON #}
       <a v-if="canModify"
-         class="btn btn-warning" href="{% url 'travel:request_edit' object.id %}">
+         class="btn btn-warning" href="{% url 'travel:request_edit' object.id %}?{{ request.META.QUERY_STRING }}">
         {% trans "Edit" %}
       </a>
       {# DELETE BUTTON #}
       <a v-if="canModify && !request.submitted"
-         class="btn btn-danger" href="{% url 'travel:request_delete' object.id %}">
+         class="btn btn-danger" href="{% url 'travel:request_delete' object.id %}?{{ request.META.QUERY_STRING }}">
         {% trans "Delete" %}
       </a>
       {# CLONE BUTTON #}
-      <a class="btn btn-primary " href="{% url 'travel:request_clone' object.id %}">
+      <a class="btn btn-primary " href="{% url 'travel:request_clone' object.id %}?{{ request.META.QUERY_STRING }}">
         {% trans "Clone Me" %}
       </a>
 

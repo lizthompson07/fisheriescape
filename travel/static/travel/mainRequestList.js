@@ -39,7 +39,8 @@ var app = new Vue({
           })
     },
     goRequestDetail(request) {
-      url = `/travel-plans/requests/${request.id}/view/`;
+      let params = window.location.search.substring(1);
+      url = `/travel-plans/requests/${request.id}/view/?${params}`;
       var win = window.open(url, '_blank');
     },
     getFilterData() {

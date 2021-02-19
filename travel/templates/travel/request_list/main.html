@@ -61,6 +61,7 @@
               <tr
                 v-for="(r, index) in sortedRequests"
                 @click="goRequestDetail(r)"
+                class="pointy"
               >
                 <td>${r.fiscal_year }</td>
                 <td>${r.created_by }</td>
@@ -102,7 +103,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainRequestList.js' %}?version=0.5" type="application/javascript"></script>
+  <script src="{% static '/travel/mainRequestList.js' %}?version=0.6" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>

@@ -9,8 +9,6 @@ from rest_framework.exceptions import ValidationError
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from .. import models
-
-
 # from ..utils import can_modify_project
 from ..utils import get_cost_comparison
 
@@ -53,6 +51,42 @@ class TripSerializerLITE(serializers.ModelSerializer):
         return instance.tname
 
 
+class TripRequestSerializerLITE(serializers.ModelSerializer):
+    class Meta:
+        model = models.TripRequest1
+        fields = "__all__"
+
+    created_by = serializers.SerializerMethodField()
+    is_late_request = serializers.SerializerMethodField()
+    processing_time = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    trip_display = serializers.SerializerMethodField()
+
+    def get_created_by(self, instance):
+        if instance.created_by:
+            return instance.created_by.get_full_name()
+
+    def get_is_late_request(self, instance):
+        return instance.is_late_request
+
+    def get_processing_time(self, instance):
+        return instance.processing_time
+
+    def get_region(self, instance):
+        return instance.section.division.branch.region.tname
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_trip_display(self, instance):
+        return str(instance.trip)
+
+
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.File
@@ -75,6 +109,7 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
     user_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
     comments_html = serializers.SerializerMethodField()
+    request = TripRequestSerializerLITE(read_only=True)
 
     def get_comments_html(self, instance):
         return instance.comments_html
@@ -240,7 +275,8 @@ class TripRequestSerializer(serializers.ModelSerializer):
         return listrify(instance.bta_attendees.all())
 
     def get_created_by(self, instance):
-        return instance.created_by.get_full_name()
+        if instance.created_by:
+            return instance.created_by.get_full_name()
 
     def get_display(self, instance):
         return str(instance)

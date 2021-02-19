@@ -29,8 +29,7 @@ def is_admin(user):
 
 
 def is_approver(user, trip_request):
-    if trip_request.current_reviewer and user == trip_request.current_reviewer.user:
-        return True
+    return get_related_request_reviewers(user).filter(request_id=trip_request.id).exists()
 
 
 def is_trip_approver(user, trip):
@@ -429,7 +428,7 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
                 email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
 
             elif next_reviewer.role in [6, ] and request:  # if we are going for RDG signature...
-                email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role, request)
+                email = emails.RDGReviewAwaitingEmail(trip_request, next_reviewer, request)
 
             if email and not suppress_email:
                 # send the email object
@@ -750,7 +749,6 @@ def get_cost_comparison(travellers):
                 try:
                     val = models.TripRequestCost.objects.get(traveller=t, cost_id=cost['cost']).amount_cad
                 except Exception as e:
-                    print(e)
                     val = 0
                 list2.append(val)
             list1.append(list2)

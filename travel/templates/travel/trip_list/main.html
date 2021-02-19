@@ -26,7 +26,7 @@
           <div v-if="(pageType.search('verification') > -1 || pageType.search('adm') > -1) && !trips.length && !trips_loading">
             <div class="text-center">
               <img src="{% static 'travel/you_are_done.png' %}" alt="">
-              <h3>Way to go! You're all done here :)</h3>
+              <h3>{% trans "Way to go! You're all done here" %} :)</h3>
             </div>
           </div>
 

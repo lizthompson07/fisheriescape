@@ -108,7 +108,7 @@
             <button @click="closeReviewerForm" class="btn btn-sm btn-primary text-light">{% trans "Done" %}</button>
             <button @click="addReviewer" class="btn btn-sm btn-success text-light">
               <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}</button>
-            <button v-if="!request.submitted" @click="goRequestReviewerReset" class="btn btn-sm btn-warning" id="reset-btn">
+            <button v-if="!request.submitted" @click="resetRequestReviewers" class="btn btn-sm btn-warning" id="reset-btn">
               <span class="mdi mdi-redo-variant"></span> {% trans "Reset" %}
             </button>
           </div>

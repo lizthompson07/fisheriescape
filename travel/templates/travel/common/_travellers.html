@@ -8,8 +8,8 @@
 <div class="card mb-2">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right">
-      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down"></span></button>
-      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>
+      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down blue"></span></button>
+      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up blue"></span></button>
       <button v-if="!isReview && canModify && !travellerToEdit" @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}"
               class="btn btn-sm btn-primary ml-2">
         <span class="mdi mdi-plus text-light"></span> {% trans "Add traveller" %}
@@ -41,8 +41,8 @@
                       <div class="float-right">
                         <button  @click="toggleShowMe(t)"
                                 data-toggle="tooltip" title="{% trans "collapse" %}">
-                          <span v-if="t.show_me" class="mdi mdi mdi-arrow-collapse-up h5"></span>
-                          <span v-else class="mdi mdi mdi-arrow-collapse-down h5"></span>
+                          <span v-if="t.show_me" class="mdi mdi mdi-arrow-collapse-up h4 blue"></span>
+                          <span v-else class="mdi mdi mdi-arrow-collapse-down h4 blue"></span>
                         </button>
                       </div>
                       <h4 class="card-title">${t.smart_name} ${t.hide}</h4>

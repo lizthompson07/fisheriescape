@@ -318,11 +318,15 @@ var app = new Vue({
           })
     },
     resetRequestReviewers() {
-      let endpoint = `/api/travel/requests/${traveller.id}/?reset_reviewers=true`;
-      apiService(endpoint, "POST", this.request)
-          .then(response => {
-            this.getRequest();
-          })
+      this.errorMsgReviewer = null
+      userInput = confirm(requestReviewerResetMsg)
+      if (userInput) {
+        let endpoint = `/api/travel/requests/${this.request.id}/?reset_reviewers=true`;
+        apiService(endpoint, "POST", this.request)
+            .then(() => {
+              this.getRequest();
+            })
+      }
     },
     skipReviewer(reviewer) {
       userInput = prompt(skipReviewerMsg);

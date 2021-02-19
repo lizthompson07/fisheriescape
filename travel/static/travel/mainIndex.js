@@ -78,7 +78,7 @@ var app = new Vue({
       apiService(`/api/travel/request-reviewers/?rdg=true`)
           .then(response => {
             this.loading_rdg_approval_list = false;
-            if (response.count) this.regionalRDGApprovalCount = response.count;
+            if (response.length) this.regionalRDGApprovalCount = response.length;
           })
     },
     changeTabs(tabFlag) {

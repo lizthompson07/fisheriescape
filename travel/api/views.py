@@ -113,10 +113,28 @@ class RequestViewSet(viewsets.ModelViewSet):
     permission_classes = [CanModifyOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
+    def post(self, request, pk):
+        qp = request.query_params
+        obj = get_object_or_404(models.TripRequest1, pk=pk)
+        if qp.get("reset_reviewers"):
+            if utils.can_modify_request(request.user, obj.id):
+                # This function should only ever be run if the TR is a draft
+                if obj.status == 8:
+                    # first remove any existing reviewers
+                    obj.reviewers.all().delete()
+                    # next, re-add the defaults...
+                    utils.get_request_reviewers(obj)
+                else:
+                    raise ValidationError(_("This function can only be used when the trip request is still a draft"))
+            else:
+                raise ValidationError(_("You do not have the permissions to reset the reviewer list"))
+            return Response(None, status.HTTP_204_NO_CONTENT)
+
     def get_queryset(self):
         # if someone is looking for a specific object...
         if self.kwargs.get("pk"):
-            can_proceed = utils.can_modify_request(self.request.user, self.kwargs.get("pk"))
+            related_ids = [r.id for r in utils.get_related_requests(self.request.user)]
+            can_proceed = utils.can_modify_request(self.request.user, self.kwargs.get("pk")) or int(self.kwargs.get("pk")) in related_ids
             if can_proceed:
                 return models.TripRequest1.objects.filter(pk=self.kwargs.get("pk"))
         else:
@@ -225,6 +243,9 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         else:
             # can only change if is in draft or queued
             if serializer.instance.status in [4, 20]:
+                # regular users should not be allowed to interact with RDG or ADM reviewers
+                if not utils.is_admin(self.request.user) and serializer.instance.role in [5, 6]:
+                    raise ValidationError(_("You do not have the necessary permission to modify this reviewer."))
                 serializer.save(updated_by=self.request.user)
             else:
                 # we will only tolerate interacting with the order of the reviewer
@@ -239,12 +260,18 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         else:
             raise ValidationError("cannot delete this reviewer who has the status of " + instance.get_status_display())
 
-    def get_queryset(self):
-        qs = models.Reviewer.objects.all()
-        qp = self.request.query_params
-        if qp.get("rdg"):
-            return qs.filter(role=6, status=1).filter(~Q(request__status=16))  # rdg & pending
-        return qs
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        qp = request.query_params
+        if qp.get("rdg") and utils.is_admin(request.user):
+            qs = qs.filter(role=6, status=1).filter(~Q(request__status=16))  # rdg & pending
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        else:
+            qs = utils.get_related_request_reviewers(request.user)
+            print(qs)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
 
 
 class FileViewSet(viewsets.ModelViewSet):

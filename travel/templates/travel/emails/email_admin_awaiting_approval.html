@@ -11,17 +11,11 @@
 </style>
 
 <h1>
-    A request is awaiting the approval of {{ triprequest.current_reviewer.user }} as {{ triprequest.current_reviewer.get_role_display }}.
+    A request is awaiting the approval of {{ reviewer.user }} as {{ reviewer.get_role_display }}.
 </h1>
-{% if reviewer_role == 5 %}
-    {% echo "adm" as my_type %}
-{% elif reviewer_role == 6 %}
-    {% echo "rdg" as my_type %}
-{% endif %}
 
 <p>
-    You can manage approvals via the <a href="{{ SITE_FULL_URL }}{% url 'travel:rdg_approvals' %}">TMS admin console</a>.
-    {#    To view the trips awaiting your approval, please click <a href="">HERE</a>. Here are the trip details:#}
+    You can manage approvals via the <a href="{{ SITE_FULL_URL }}{% url 'travel:request_reviewer_list' %}?rdg=true"> TMS admin console</a>.
 </p>
 {% language 'fr' %}
 

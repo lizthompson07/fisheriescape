@@ -101,7 +101,7 @@
         </table>
 
         <div v-if="isReview">
-          <b style="width: 25%">{% trans "Comparison of Traveller Costs" %}</b>
+          <p class="h5" style="width: 25%">{% trans "Comparison of Traveller Costs:" %}</p>
           <table class="table table-sm table-bordered">
             <tr v-for="(row, i) in request.cost_comparison" :key="i">
               <td v-for="(cell, j) in row" :key="j">
