@@ -333,20 +333,23 @@ class Conference(models.Model):
         if self.is_adm_approval_required:
             # when was the deadline?
             deadline = self.date_eligible_for_adm_review
-            # how many days until the deadline?
-            return (deadline - timezone.now()).days
+            if deadline:
+                # how many days until the deadline?
+                return (deadline - timezone.now()).days
 
     @property
     def days_until_adm_review_deadline(self):
         if self.is_adm_approval_required:
             # when was the deadline?
             deadline = self.adm_review_deadline
-            # how many days until the deadline?
-            return (deadline - timezone.now()).days
+            if deadline:
+                # how many days until the deadline?
+                return (deadline - timezone.now()).days
 
     @property
     def admin_notes_html(self):
-        return textile.textile(self.admin_notes)
+        if self.admin_notes:
+            return textile.textile(self.admin_notes)
 
     @property
     def html_block(self):
@@ -367,7 +370,7 @@ class Conference(models.Model):
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
-            reverse("travel:trip_detail", kwargs={"pk": self.id, "type": "verify"}),
+            reverse("travel:trip_detail", args= [self.id]),
         )
 
         return mark_safe(my_str)
@@ -412,24 +415,20 @@ class Conference(models.Model):
 
     @property
     def dates(self):
-        my_str = "{}".format(
-            self.start_date.strftime("%Y-%m-%d"),
-        )
+        my_str = date(self.start_date)
         if self.end_date:
-            my_str += " &rarr; {}".format(
-                self.end_date.strftime("%Y-%m-%d"),
-            )
-        return my_str
+            my_str += f" &rarr; {date(self.end_date)}"
+        return mark_safe(my_str)
 
-    @property
-    def total_traveller_list(self):
-        travellers = self.bta_traveller_list
-        travellers.extend(self.traveller_list)
-        return list(set(travellers))
-
+    # @property
+    # def total_traveller_list(self):
+    #     travellers = self.bta_traveller_list
+    #     travellers.extend(self.traveller_list)
+    #     return list(set(travellers))
+    #
     @property
     def travellers(self):
-        return listrify(self.total_traveller_list)
+        return Traveller.objects.filter(request__trip=self)
 
     @property
     def total_cost(self):

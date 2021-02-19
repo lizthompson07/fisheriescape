@@ -9,8 +9,6 @@ from rest_framework.exceptions import ValidationError
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from .. import models
-
-
 # from ..utils import can_modify_project
 from ..utils import get_cost_comparison
 
@@ -26,31 +24,114 @@ class TripSerializerLITE(serializers.ModelSerializer):
         model = models.Conference
         fields = "__all__"
 
-    tname = serializers.SerializerMethodField()
-    display = serializers.SerializerMethodField()
+    abstract_deadline = serializers.SerializerMethodField()
+    adm_review_deadline = serializers.SerializerMethodField()
+    date_eligible_for_adm_review = serializers.SerializerMethodField()
+    dates = serializers.SerializerMethodField()
+    days_until_adm_review_deadline = serializers.SerializerMethodField()
     days_until_eligible_for_adm_review = serializers.SerializerMethodField()
-    time_until_eligible_for_adm_review = serializers.SerializerMethodField()
-
-    start_date = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
+    fiscal_year = serializers.StringRelatedField()
+    lead = serializers.StringRelatedField()
+    registration_deadline = serializers.SerializerMethodField()
+    start_date = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    time_until_eligible_for_adm_review = serializers.SerializerMethodField()
+    tname = serializers.SerializerMethodField()
+    traveller_count = serializers.SerializerMethodField()
+    trip_subcategory = serializers.StringRelatedField()
 
-    def get_start_date(self, instance):
-        return instance.start_date.strftime("%Y-%m-%d")
+    def get_abstract_deadline(self, instance):
+        return instance.abstract_deadline.strftime("%Y-%m-%d") if instance.abstract_deadline else None
 
-    def get_end_date(self, instance):
-        return instance.end_date.strftime("%Y-%m-%d")
+    def get_adm_review_deadline(self, instance):
+        return instance.adm_review_deadline.strftime("%Y-%m-%d") if instance.adm_review_deadline else None
+
+    def get_date_eligible_for_adm_review(self, instance):
+        return instance.date_eligible_for_adm_review.strftime("%Y-%m-%d") if instance.date_eligible_for_adm_review else None
+
+    def get_dates(self, instance):
+        return instance.dates
+
+    def get_days_until_adm_review_deadline(self, instance):
+        return instance.days_until_adm_review_deadline
 
     def get_days_until_eligible_for_adm_review(self, instance):
         return instance.days_until_eligible_for_adm_review
 
-    def get_time_until_eligible_for_adm_review(self, instance):
-        return naturaltime(instance.date_eligible_for_adm_review)
-
     def get_display(self, instance):
         return str(instance)
 
+    def get_end_date(self, instance):
+        return instance.end_date.strftime("%Y-%m-%d")
+
+    def get_registration_deadline(self, instance):
+        return instance.registration_deadline.strftime("%Y-%m-%d") if instance.registration_deadline else None
+
+    def get_start_date(self, instance):
+        return instance.start_date.strftime("%Y-%m-%d")
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_time_until_eligible_for_adm_review(self, instance):
+        return naturaltime(instance.date_eligible_for_adm_review)
+
     def get_tname(self, instance):
         return instance.tname
+
+    def get_traveller_count(self, instance):
+        return instance.travellers.count()
+
+
+class TripRequestSerializerLITE(serializers.ModelSerializer):
+    class Meta:
+        model = models.TripRequest1
+        fields = "__all__"
+
+    created_by = serializers.SerializerMethodField()
+    is_late_request = serializers.SerializerMethodField()
+    processing_time = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    trip_display = serializers.SerializerMethodField()
+    traveller_count = serializers.SerializerMethodField()
+    trip = TripSerializerLITE(read_only=True)
+    section = serializers.SerializerMethodField()
+
+    def get_section(self, instance):
+        return instance.section.shortish_name
+
+    def get_traveller_count(self, instance):
+        return instance.travellers.count()
+
+    def get_created_by(self, instance):
+        if instance.created_by:
+            return instance.created_by.get_full_name()
+
+    def get_is_late_request(self, instance):
+        return instance.is_late_request
+
+    def get_processing_time(self, instance):
+        return instance.processing_time
+
+    def get_region(self, instance):
+        return instance.section.division.branch.region.tname
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_trip_display(self, instance):
+        return str(instance.trip)
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -75,6 +156,7 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
     user_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
     comments_html = serializers.SerializerMethodField()
+    request = TripRequestSerializerLITE(read_only=True)
 
     def get_comments_html(self, instance):
         return instance.comments_html
@@ -240,7 +322,8 @@ class TripRequestSerializer(serializers.ModelSerializer):
         return listrify(instance.bta_attendees.all())
 
     def get_created_by(self, instance):
-        return instance.created_by.get_full_name()
+        if instance.created_by:
+            return instance.created_by.get_full_name()
 
     def get_display(self, instance):
         return str(instance)
@@ -293,21 +376,29 @@ class TripSerializer(serializers.ModelSerializer):
         model = models.Conference
         fields = "__all__"
 
+    abstract_deadline = serializers.SerializerMethodField()
+    admin_notes_html = serializers.SerializerMethodField()
+    cost_comparison = serializers.SerializerMethodField()
+    date_eligible_for_adm_review = serializers.SerializerMethodField()
+    dates = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
     fiscal_year = serializers.StringRelatedField()
-    status_display = serializers.SerializerMethodField()
+    lead = serializers.StringRelatedField()
+    registration_deadline = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
+    travellers = serializers.SerializerMethodField()
     trip_subcategory = serializers.StringRelatedField()
 
-    abstract_deadline = serializers.SerializerMethodField()
-    registration_deadline = serializers.SerializerMethodField()
-    dates = serializers.SerializerMethodField()
-    date_eligible_for_adm_review = serializers.SerializerMethodField()
-    display = serializers.SerializerMethodField()
-    lead = serializers.StringRelatedField()
+    def get_abstract_deadline(self, instance):
+        return date(instance.abstract_deadline)
 
-    def get_display(self, instance):
-        return str(instance)
+    def get_admin_notes_html(self, instance):
+        return instance.admin_notes_html
+
+    def get_cost_comparison(self, instance):
+        return get_cost_comparison(instance.travellers)
 
     def get_date_eligible_for_adm_review(self, instance):
         return date(instance.date_eligible_for_adm_review)
@@ -315,17 +406,20 @@ class TripSerializer(serializers.ModelSerializer):
     def get_dates(self, instance):
         return instance.dates
 
+    def get_display(self, instance):
+        return str(instance)
+
     def get_registration_deadline(self, instance):
         return date(instance.registration_deadline)
-
-    def get_abstract_deadline(self, instance):
-        return date(instance.abstract_deadline)
-
-    def get_tname(self, instance):
-        return instance.tname
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
 
     def get_status_display(self, instance):
         return instance.get_status_display()
+
+    def get_tname(self, instance):
+        return instance.tname
+
+    def get_travellers(self, instance):
+        return TravellerSerializer(instance.travellers, many=True, read_only=True).data

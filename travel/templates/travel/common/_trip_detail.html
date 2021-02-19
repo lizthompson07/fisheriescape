@@ -1,0 +1,127 @@
+{% load i18n %}
+{% load static %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load travel_tags %}
+{% load travel_filters %}
+{#  BASIC DETAIL #}
+
+<div class="card mb-2">
+  <h3 class="card-header bg-outline-dark">
+    {% trans "Trip Summary" %}
+    <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+          data-trigger="hover" title="{% trans "Trip Summary" %}"
+          :data-content="helpText.trip_header"></span>
+  </h3>
+  <div class="card-body">
+    <div class="card-text">
+      <div v-if="loading_trip" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <table class="table table-sm mb-5" style="width: auto">
+          <tr>
+            <th style="width: 40%">{% trans "Fiscal year" %}</th>
+            <td>${trip.fiscal_year}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Title" %}</th>
+            <td>${trip.tname}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Trip status" %}</th>
+            <td><span :class="trip.status_class + ' px-1 py-1'">${trip.status_display}</span></td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Travellers" %}</th>
+            <td>${trip.travellers.length}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.location}</th>
+            <td>${trip.location}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.trip_subcategory}</th>
+            <td>${trip.trip_subcategory}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.lead}</th>
+            <td>${trip.lead}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Event template?" %}</th>
+            <td>${trip.has_event_template |yesNo}</td>
+          </tr>
+          <tr v-if="trip.has_event_template">
+            <th style="width: 40%">${tripLabels.number}</th>
+            <td>${trip.number |nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.dates}</th>
+            <td v-html="trip.dates"></td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.location}</th>
+            <td>${trip.location |nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.meeting_url}</th>
+            <td v-if="trip.meeting_url"><a :href="trip.meeting_url">${trip.meeting_url}</a></td>
+            <td v-else>---</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.abstract_deadline}</th>
+            <td>${trip.abstract_deadline|nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.registration_deadline}</th>
+            <td>${trip.registration_deadline|nz}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.is_adm_approval_required}</th>
+            <td>${trip.is_adm_approval_required|yesNo}</td>
+          </tr>
+          <tr v-if="trip.is_adm_approval_required">
+            <th style="width: 40%">${tripLabels.date_eligible_for_adm_review}</th>
+            <td>${trip.date_eligible_for_adm_review}</td>
+          </tr>
+          <tr v-if="trip.is_adm_approval_required">
+            <th style="width: 40%">${tripLabels.adm_review_deadline}</th>
+            <td>${trip.adm_review_deadline}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Total DFO cost" %}</th>
+            <td>${trip.total_cost}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Total DFO cost from non-RES travellers" %}</th>
+            <td>${trip.non_res_total_cost}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">${tripLabels.notes |nz}</th>
+            <td>${trip.notes}</td>
+          </tr>
+        </table>
+
+        <div v-if="(isNCRAdmin || isReview) && trip.travellers.length">
+          <p class="h5" style="width: 40%">{% trans "Comparison of Traveller Costs:" %}</p>
+          <table class="table table-sm table-bordered">
+            <tr v-for="(row, i) in trip.cost_comparison" :key="i">
+              <td v-for="(cell, j) in row" :key="j">
+                <span v-if="i===0"><b>${cell}</b></span>
+                <span v-else>${cell |floatformat}</span>
+
+              </td>
+            </tr>
+          </table>
+
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,5 +1,4 @@
-# TODO: more attention to reviewer form -- for example cost comparison tables etc
-
+# TODO: request reviewer needs to see all travellers!!
 
 # TODO: Trip Detail
 # TODO: admo process
@@ -8,9 +7,9 @@
 # TODO: TRAF rejig
 # todo: api view validation
 
-# TODO: problem -- > total cost at the request level does not update as costs are being added. Maybe the field should be hidden until under review?
-
-
+# TODO: browse upcoming trip should have abstract deadline
+# TODO: adm-hit-list needs special column in list
+# TODO: request list to pure vuejs
 
 
 # At a later date

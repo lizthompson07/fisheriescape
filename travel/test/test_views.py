@@ -251,7 +251,7 @@ class TestTripCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('travel:trip_new', kwargs={"type": "upcoming"})
-        self.test_url2 = reverse_lazy('travel:trip_new', kwargs={"type": "pop"})
+        self.test_url2 = reverse_lazy('travel:trip_new', kwargs={"type": "pop"}) + "?pop=true"
 
         self.expected_template = 'travel/trip_form.html'
         self.expected_template2 = 'travel/trip_form_popout.html'

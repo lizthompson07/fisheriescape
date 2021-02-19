@@ -244,10 +244,6 @@ var app = new Vue({
         this.helpText = data;
       });
     },
-    toggleShowMe(obj) {
-      obj.show_me = !obj.show_me;
-      this.$forceUpdate();
-    },
     getRequest() {
       this.loading_request = true;
       let endpoint = `/api/travel/requests/${tripRequestId}/`;
@@ -266,17 +262,17 @@ var app = new Vue({
             })
           })
     },
+    getRequestMetadata() {
+      let endpoint = `/api/travel/meta/models/request/`;
+      apiService(endpoint).then(data => {
+        this.requestLabels = data.labels;
+      });
+    },
     getReviewerMetadata() {
       let endpoint = `/api/travel/meta/models/request-reviewer/`;
       apiService(endpoint).then(data => {
         this.reviewerLabels = data.labels;
         this.roleChoices = data.role_choices;
-      });
-    },
-    getRequestMetadata() {
-      let endpoint = `/api/travel/meta/models/request/`;
-      apiService(endpoint).then(data => {
-        this.requestLabels = data.labels;
       });
     },
     getTravellerMetadata() {
@@ -286,12 +282,6 @@ var app = new Vue({
         this.travellerRoleChoices = data.role_choices;
         this.orgChoices = data.org_choices;
       });
-    },
-    goRequestReviewerReset() {
-      userInput = confirm(requestReviewerResetMsg)
-      if (userInput) {
-        window.location.href = `/travel-plans/requests/${tripRequestId}/reset-reviewers/`;
-      }
     },
     goTripDetail(trip) {
       let url = `/travel-plans/trips/${trip.id}/view/`;
@@ -327,6 +317,17 @@ var app = new Vue({
             this.loading_costs = false;
           })
     },
+    resetRequestReviewers() {
+      this.errorMsgReviewer = null
+      userInput = confirm(requestReviewerResetMsg)
+      if (userInput) {
+        let endpoint = `/api/travel/requests/${this.request.id}/?reset_reviewers=true`;
+        apiService(endpoint, "POST", this.request)
+            .then(() => {
+              this.getRequest();
+            })
+      }
+    },
     skipReviewer(reviewer) {
       userInput = prompt(skipReviewerMsg);
       if (userInput) {
@@ -343,6 +344,10 @@ var app = new Vue({
               }
             })
       }
+    },
+    toggleShowMe(obj) {
+      obj.show_me = !obj.show_me;
+      this.$forceUpdate();
     },
     updateCost(traveller, cost) {
       let endpoint;

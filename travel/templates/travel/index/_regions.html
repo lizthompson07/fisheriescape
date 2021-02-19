@@ -7,7 +7,7 @@
     <p class="card-text">{% trans "Perform tasks reserved for regional travel app administrators" %}</p>
 
     {# RDG list #}
-    <a href="{% url 'travel:rdg_approvals' %}" class="btn btn-lg btn-outline-primary mx-3">
+    <a href="{% url 'travel:request_reviewer_list' %}?rdg=true" class="btn btn-lg btn-outline-primary mx-3">
       {% trans "Requests Awaiting RDG Approval" %}
       (<span :class="{'red-font blink-me':regionalRDGApprovalCount>0}">${  regionalRDGApprovalCount }</span>)
     </a>

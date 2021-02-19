@@ -56,23 +56,23 @@ class NewTripEmail:
         return rendered
 
 
-class AdminApprovalAwaitingEmail:
-    def __init__(self, trip_request, reviewer_role, request):
+class RDGReviewAwaitingEmail:
+    def __init__(self, trip_request, reviewer, request):
         self.request = request
-        self.subject = 'A trip request is awaiting {} approval'.format(trip_request.current_reviewer.get_role_display())
-        self.message = self.load_html_template(trip_request, reviewer_role)
+        self.subject = 'A trip request is awaiting {} approval'.format(reviewer.get_role_display())
+        self.message = self.load_html_template(trip_request, reviewer)
         self.from_email = from_email
         self.to_list = [user.email for user in User.objects.filter(groups__name="travel_admin")]
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
-    def load_html_template(self, trip_request, reviewer_role):
+    def load_html_template(self, trip_request, reviewer):
         t = loader.get_template('travel/emails/email_admin_awaiting_approval.html')
 
         field_list = request_field_list
 
-        context = {'triprequest': trip_request, 'reviewer_role': reviewer_role, 'field_list': field_list}
+        context = {'triprequest': trip_request, 'reviewer': reviewer, 'field_list': field_list}
         context.update(my_envr(self.request))
         rendered = t.render(context)
         return rendered
@@ -155,7 +155,7 @@ class StatusUpdateEmail:
         self.subject += " - Votre demande de voyage a été " + str(trip_request_object.get_status_display())
         self.message = self.load_html_template(trip_request_object)
         self.from_email = from_email
-        self.to_list = [trip_request_object.user.email, ]
+        self.to_list = [trip_request_object.created_by.email, ]
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)

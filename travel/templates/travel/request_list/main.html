@@ -15,9 +15,9 @@
       <div class="row container-fluid bg-light curvy">
         <div class="col">
           <div>
-{#            <div class="">#}
-{#              <p class="h1 text-center">{% trans "Trip Requests" %}</p>#}
-{#            </div>#}
+            {#            <div class="">#}
+            {#              <p class="h1 text-center">{% trans "Trip Requests" %}</p>#}
+            {#            </div>#}
             <div>
               {% include "travel/request_list/_console.html" %}
             </div>
@@ -34,40 +34,31 @@
             <table class="table table-sm table-hover">
               <thead>
               <tr>
-                {% for field in field_list %}
-                  {% if "trip" in field %}
-                    <th style="width: 250px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% elif "funding" in field %}
-                    <th style="width: 150px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% elif "fiscal" in field or "funding" in field %}
-                    <th style="width: 100px" @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% else %}
-                    <th @click="sort('{{ field }}')" class="clickable">
-                      {% get_verbose_label random_object field %}
-                    </th>
-                  {% endif %}
 
-                {% endfor %}
-
+                <th style="width: 100px" @click="sort('fiscal_year')" class="clickable">${requestLabels.fiscal_year}</th>
+                <th style="" @click="sort('created_by')" class="clickable">${requestLabels.created_by}</th>
+                <th style="width: 350px" @click="sort('trip')" class="clickable">${requestLabels.trip}</th>
+                <th style="" @click="sort('location')" class="clickable">{% trans "Destination" %}</th>
+                <th style="" @click="sort('traveller_count')" class="clickable">{% trans "Travellers" %}</th>
+                <th style="width: 80px" @click="sort('{% trans "status_display" %}')" class="clickable">{% trans "Trip status" %}</th>
+                <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
+                <th style="" @click="sort('section')" class="clickable">{% trans "Section" %}</th>
+                <th style="" @click="sort('processing_time')" class="clickable">{% trans "Processing time" %}</th>
               </tr>
               </thead>
               <tbody v-if="requests.length">
               <tr
                 v-for="(r, index) in sortedRequests"
                 @click="goRequestDetail(r)"
+                class="pointy"
               >
                 <td>${r.fiscal_year }</td>
                 <td>${r.created_by }</td>
                 <td>${r.trip.tname }</td>
                 <td>${r.trip.location }</td>
-                <td>${r.travellers.length }</td>
+                <td>${r.traveller_count }</td>
                 <td :class="r.status_class">${r.status_display }</td>
+                <td>${r.trip.is_adm_approval_required |yesNo }</td>
                 <td>${r.section }</td>
                 <td>${r.processing_time }</td>
               </tr>
@@ -102,7 +93,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainRequestList.js' %}?version=0.5" type="application/javascript"></script>
+  <script src="{% static '/travel/mainRequestList.js' %}?version=0.7" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>
