@@ -586,8 +586,8 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
     def get_h1(self):
         if self.request.GET.get("rdg"):
             return _("Do you wish to approve on behalf of {user} ({role})".format(
-                user=self.get_object().trip_request.current_reviewer.user,
-                role=self.get_object().trip_request.current_reviewer.get_role_display(),
+                user=self.get_object().user,
+                role=self.get_object().get_role_display(),
             ))
         return _("Do you wish to approve the following request?")
 
@@ -646,11 +646,9 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
             utils.approval_seeker(my_reviewer.request, False, self.request)
 
         if stay_on_page:
-            return HttpResponseRedirect(reverse("travel:request_reviewer_update", args=[my_reviewer.id]) + self.get_query_string())
+            return HttpResponseRedirect(reverse("travel:request_reviewer_update", args=[my_reviewer.id]) + self.get_query_string() + "#id_comments")
         else:
-            # the answer lies in the parent crumb...
-            parent_crumb_url = self.get_parent_crumb().get("url")
-            return HttpResponseRedirect(parent_crumb_url)
+            return HttpResponseRedirect(reverse("travel:request_reviewer_list") + self.get_query_string())
 
 
 # class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, CommonListView):

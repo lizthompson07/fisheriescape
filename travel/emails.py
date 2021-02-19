@@ -155,7 +155,7 @@ class StatusUpdateEmail:
         self.subject += " - Votre demande de voyage a été " + str(trip_request_object.get_status_display())
         self.message = self.load_html_template(trip_request_object)
         self.from_email = from_email
-        self.to_list = [trip_request_object.user.email, ]
+        self.to_list = [trip_request_object.created_by.email, ]
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
