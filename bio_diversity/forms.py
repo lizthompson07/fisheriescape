@@ -83,17 +83,17 @@ class CreateTimePrams(forms.ModelForm):
         # the end datetime is after the start datetime
         # and set the datetime values
         if cleaned_data["start_time"]:
-            start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M'),
-                                    timezone=timezone.get_current_timezone()).time()
+            start_time = datetime.strptime(cleaned_data["start_time"],
+                                           '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
         else:
-            start_time = make_aware(datetime.min, timezone=timezone.get_current_timezone()).time()
+            start_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
         cleaned_data["start_datetime"] = datetime.combine(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
-                end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M'),
-                                      timezone=timezone.get_current_timezone()).time()
+                end_time = datetime.strptime(cleaned_data["end_time"],
+                                             '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
             else:
-                end_time = make_aware(datetime.min, timezone=timezone.get_current_timezone()).time()
+                end_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
             cleaned_data["end_datetime"] = datetime.combine(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -1085,17 +1085,17 @@ class EvntForm(CreatePrams):
         # the end datetime is after the start datetime
         # and set the datetime values
         if cleaned_data["start_time"]:
-            start_time = make_aware(datetime.strptime(cleaned_data["start_time"], '%H:%M'),
-                                    timezone=timezone.get_current_timezone()).time()
+            start_time = datetime.strptime(cleaned_data["start_time"],
+                                           '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
         else:
-            start_time = make_aware(datetime.min, timezone=timezone.get_current_timezone()).time()
+            start_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
         cleaned_data["evnt_start"] = datetime.combine(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
-                end_time = make_aware(datetime.strptime(cleaned_data["end_time"], '%H:%M'),
-                                      timezone=timezone.get_current_timezone()).time()
+                end_time = datetime.strptime(cleaned_data["end_time"],
+                                             '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
             else:
-                end_time = make_aware(datetime.min, timezone=timezone.get_current_timezone()).time()
+                end_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
             cleaned_data["evnt_end"] = datetime.combine(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -1293,10 +1293,10 @@ class LocForm(CreatePrams):
     def save(self, commit=True):
         obj = super().save(commit=False)  # here the object is not commited in db
         if self.cleaned_data["start_time"]:
-            start_time = make_aware(datetime.strptime(self.cleaned_data["start_time"], '%H:%M'),
-                                    timezone=timezone.get_current_timezone()).time()
+            start_time = datetime.strptime(self.cleaned_data["start_time"],
+                                           '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
         else:
-            start_time = make_aware(datetime.min, timezone=timezone.get_current_timezone()).time()
+            start_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
         obj.loc_date = datetime.combine(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj

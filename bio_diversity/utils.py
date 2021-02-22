@@ -3,6 +3,7 @@ import math
 
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.utils import timezone
 
 from bio_diversity import models
 
@@ -241,7 +242,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_i
         if math.isnan(env_value):
             return False
     if env_start:
-        env_datetime = datetime.datetime.combine(env_date, env_start)
+        env_datetime = datetime.datetime.combine(env_date, env_start).replace(tzinfo=timezone.get_current_timezone())
     else:
         env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time())
     if envsc_str:

@@ -10,6 +10,7 @@ from bio_diversity.test import BioFactoryFloor
 # from ..test.common_tests import CommonProjectTest as CommonTest
 from shared_models.test.common_tests import CommonTest
 from bio_diversity.models import PersonnelCode, Pairing, Program, Individual
+from django.utils import timezone
 
 
 @tag("Anix", 'forms')
@@ -148,7 +149,7 @@ class TestEnvForm(CommonTest):
     def test_null_unique(self):
         instance = BioFactoryFloor.EnvFactory()
         instance.contx_id = None
-        instance.start_datetime = make_aware(datetime.strptime(instance.start_datetime.strftime("%Y%m%d%H%M"), "%Y%m%d%H%M"))
+        instance.start_datetime = datetime.strptime(instance.start_datetime.strftime("%Y%m%d%H%M"), "%Y%m%d%H%M").replace(tzinfo=timezone.get_current_timezone())
         instance.save()
         invalid_data = model_to_dict(instance)
         invalid_data["start_date"] = invalid_data["start_datetime"].date()
