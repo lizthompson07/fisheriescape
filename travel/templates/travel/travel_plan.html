@@ -143,7 +143,7 @@ h1 {
         <img src="{% static 'travel/dfo_logo.png' %}" alt="" class="float-right">
       </td>
       <td>
-        <h1>{% trans "Crew and Group Travel Request and Approval Form" %}</h1>
+        <h1>{% trans "Travel Request and Approval Form" %}</h1>
       </td>
     </tr>
   </table>
@@ -157,38 +157,60 @@ h1 {
       <td class="w45p">
         <table class="show-bottom-border show-top-border">
           <tr>
-            <td class="w20p">{% trans "Date of Crew Change or Group Travel" %}</td>
-            <td class="data">{{ parent.start_date|date:"F d, Y" }} to {{ parent.end_date|date:"F d, Y" }}</td>
+            <td class="w20p">{% trans "Period Covered" %}</td>
+            <td class="data">{{ parent.trip.start_date|date:"F d, Y" }} to {{ parent.trip.end_date|date:"F d, Y" }}</td>
             <td class="w20p">{% trans "Plan Number (Optional)" %}</td>
-            <td class="data">{{ parent.plan_number|nz }}</td>
+            <td class="data">{{ parent.trip.plan_number|nz }}</td>
           </tr>
         </table>
         <table>
           <tr class="grey show-bottom-border">
             <td colspan="2" class="">
-              {% trans "Information" %}
+              {% trans "Traveller's Information" %}
             </td>
           </tr>
-          <tr class="show-bottom-border">
-            <td class="">{% trans "Vessel Name or Group Name" %}</td>
-            <td class="data">{% trans "(if applicable)" %}</td>
-          </tr>
-          <tr class="show-bottom-border">
-            <td class="">{% trans "Region/Sector/Branch/<br>Directorate/Section" %}</td>
-            <td
-              class="data">{{ parent.section.division.branch.region.name }}/{{ parent.section.division.branch.name }}/{{ parent.section.division.name }}/{{ parent.section.name }}</td>
-          </tr>
-          <tr class="show-bottom-border">
-            <td class="">{% trans "Trip Purpose" %}</td>
-            <td class="data">{{ parent.trip.trip_subcategory.trip_category|nz:"n/a" }}</td>
-          </tr>
-          <tr class="show-bottom-border">
-            <td class="">{% trans "Trip objective and justification for not using telepresence or other alternative to travel" %}</td>
-            <td class="data">{% trans "See comments" %}</td>
-          </tr>
-          <tr class="show-bottom-border">
-            <td class="">{% trans "Justification for the number of travellers" %}:</td>
-            <td class="data">{% trans "See comments" %}</td>
+          <tr>
+            <td class="w75p top">
+              <table class="show-bottom-border">
+                <tr>
+                  <td class="w40p">{% trans "Name of Traveller" %}</td>
+                  <td class="data">{{ parent.travellers.first.first_name }} {{ parent.travellers.first.last_name }}</td>
+                </tr>
+                <tr>
+                  <td class="w40p">{% trans "Region/Sector/Branch/<br>Directorate/Section" %}</td>
+                  <td
+                    class="data">{{ parent.section.division.branch.region.name }}/{{ parent.section.division.branch.name }}/{{ parent.section.division.name }}/{{ parent.section.name }}</td>
+                </tr>
+                <tr>
+                  <td class="w40p">{% trans "Address" %}</td>
+                  <td class="data">{{ parent.travellers.first.address|nz }}</td>
+                </tr>
+                <tr>
+                  <td class="w40p">{% trans "Telephone Number" %}</td>
+                  <td class="data">{{ parent.travellers.first.phone|nz }}</td>
+                </tr>
+                <tr>
+                  <td class="w40p">{% trans "Email" %}</td>
+                  <td class="data">{{ parent.travellers.first.email|nz }}</td>
+                </tr>
+              </table>
+            </td>
+            <td class="top">
+              <table class="show-borders">
+                <tr>
+                  <td class="">{% trans "Public Servant" %}</td>
+                </tr>
+                <tr>
+                  <td class="data">{{ parent.travellers.first.is_public_servant|yesno }}
+                </tr>
+                <tr>
+                  <td class="">{% trans "For non public servant, provide company name" %}</td>
+                </tr>
+                <tr>
+                  <td class="data">{{ parent.travellers.first.company_name|nz:"n\a" }}</td>
+                </tr>
+              </table>
+            </td>
           </tr>
         </table>
       </td>
@@ -255,68 +277,70 @@ h1 {
 
 {# COST BREAKDOWN #}
 <div class="block">
-
   <table class="show-all-borders">
     <tr>
-      <td rowspan="2" colspan="1" class="grey text-center">{% trans "Amended" %}</td>
-      <td rowspan="2" colspan="1" class="grey text-center">{% trans "Trip No" %}</td>
-      <td rowspan="2" colspan="1" class="grey text-center">{% trans "Traveller name" %}</td>
+      <td rowspan="2" class="grey">{% trans "Amended" %}</td>
+      <td rowspan="2" class="grey">{% trans "Trip No" %}</td>
+      <td rowspan="1" colspan="2" class="grey text-center">{% trans "Date" %}</td>
       <td rowspan="2" class="grey text-center">{% trans "Origin / Destination(s) of Travel" %}</td>
-      <td rowspan="2" class="grey text-center">{% trans "Public Servant?" %}</td>
+      <td rowspan="1" colspan="1" class="grey text-center">{% trans "Purpose of Travel" %}</td>
       <td rowspan="1" colspan="11" class="grey text-center">{% trans "Cost Information (include taxes)" %}</td>
-      <td rowspan="1" colspan="2" class="grey text-center">{% trans "Event" %}</td>
+      <td rowspan="1" colspan="1" class="grey">{% trans "Event" %}</td>
     </tr>
-    <tr>
-      {% with object_list.first  as random_object %}
-        {% for key in my_dict|lookup:random_object %}
-          {% if "accom" in key.name|lower %}
-            <td class="grey text-center">{% trans "Accommo-<br>dation" %}</td>
-          {% else %}
-            <td class="grey text-center">{{ key }}</td>
-          {% endif %}
-        {% endfor %}
-      {% endwith %}
-
-      <td class="grey text-center" style="text-align: center;">{% trans "Total Trip Amount" %}</td>
-      <td class="grey text-center">{% trans "Is the trip part of an Event?" %}</td>
-      <td class="grey text-center">{% trans "Event number (optional)" %}</td>
-    </tr>
-    {% for child in object_list %}
-      <tr>
-        <td class="data">&nbsp;</td>
-        <td class="data">{{ forloop.counter }}</td>
-        <td class="data">{{ child.first_name }} {{ child.last_name }}</td>
-        <td class="data">{{ child.departure_location }} to {{ parent.destination }}</td>
-        <td class="data">{{ child.is_public_servant|yesno }}</td>
-
-        {% for key in my_dict|lookup:child %}
-          <td class="data">{{ my_dict|lookup:child|lookup:key|zero2val:"---"|currency|nz }}</td>
-        {% endfor %}
-
-        <td class="data">{{ child.total_cost|zero2val:"---"|currency|nz }}</td>
-
-        {% if parent.trip %}
-          <td class="data">{{ parent.trip.has_event_template|yesno:"yes,no,unknown" }}</td>
+    <tr class="real">
+      <td class="grey">From<br>DD/MM</td>
+      <td class="grey">To<br>DD/MM</td>
+      <td class="grey">{% trans "Trip Purpose" %}</td>
+      {% for key in my_dict|lookup:parent.travellers.first %}
+        {% if "accom" in key.name|lower %}
+          <td class="grey">{% trans "Accommo-<br>dation" %}</td>
         {% else %}
-          <td class="data">{% trans "no" %}</td>
-        {% endif %}
-
-        <td class="data">{{ parent.trip.number|nz }}</td>
-
-      </tr>
-
-    {% endfor %}
-
-    <tr>
-      <td colspan="5" class="">&nbsp;</td>
-      {#            starting with AIR#}
-      {% for cat in my_dict.totals %}
-        {% if not cat == "total" %}
-          <td class="">{{ my_dict.totals|lookup:cat|zero2val:"---"|currency|nz }}</td>
+          <td class="grey">{{ key }}</td>
         {% endif %}
       {% endfor %}
-      <td class="">{{ my_dict.totals|lookup:"total"|zero2val:"---"|currency|nz }}</td>
-      <td class="" colspan="2">&nbsp;</td>
+      <td class="grey">{% trans "Total Trip Amount" %}</td>
+      <td class="grey">{% trans "Is the trip part of an Event?" %}</td>
+    </tr>
+    <tr>
+      <td class="data">{% trans "No" %}</td>
+      <td class="data">1</td>
+      <td class="data">{{ parent.travellers.first.start_date|date:"d-F" }}</td>
+      <td class="data">{{ parent.travellers.first.end_date|date:"d-F" }}</td>
+      <td class="data">
+        {% if parent.travellers.first.departure_location %}
+          {{ parent.travellers.first.departure_location }} to
+        {% endif %}
+        {{ parent.trip.location }}
+      </td>
+      <td class="data">{{ parent.trip.trip_subcategory.trip_category }}</td>
+      {% for key in my_dict|lookup:parent.travellers.first %}
+        <td class="data">{{ my_dict|lookup:parent.travellers.first|lookup:key|currency|nz }}</td>
+
+      {% endfor %}
+      <td class="data">{{ parent.travellers.first.total_cost|currency|nz }}</td>
+      {% if parent.trip %}
+        <td class="data">{{ parent.trip.has_event_template|yesno:"yes,no,unknown" }}</td>
+      {% else %}
+        <td class="data">no</td>
+      {% endif %}
+
+    </tr>
+    <tr>
+      <td colspan="8">
+        {% blocktrans %}
+          If "Other" is chosen as trip purpose, provide detailed explanation and provide specific trip objective and justification for not using telepresence or
+          other alternative to travel. Provide justification if agenda is not available.
+        {% endblocktrans %}
+      </td>
+      <td colspan="10" class="data">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="6">
+      </td>
+      {% for key in my_dict|lookup:parent.travellers.first %}
+        <td class="">{{ my_dict|lookup:parent.travellers.first|lookup:key|currency|nz }}</td>
+      {% endfor %}
+      <td class="">{{ parent.travellers.first.total_cost|currency|nz }}</td>
     </tr>
   </table>
 
@@ -325,36 +349,25 @@ h1 {
 <div class="block">
   <table>
     <tr>
-      <td class="top">
-        <table class="">
+      <td class="top w60p">
+        <table>
           <tr>
-            <td>{% trans "Comments" %}</td>
-          </tr>
-          <tr>
-            <td class="data">
-              <em>{% trans "Trip Title:" %}</em> {{ parent.trip.tname }}
-              <br>
-              {{ parent.purpose_long|safe|nz }}
-              <br>
-              <br>
-              {% trans "DETAILED COST BREAKDOWN PER TRAVELLER" %}:
-              <br>
-              {% for object in object_list %}
-                {{ object.first_name }} {{ object.last_name }} &rarr; {{ object.cost_breakdown }}<br><br>
-              {% endfor %}
-
+            <td class="text-right wide-cell">{% trans "Traveller" %}</td>
+            <td colspan="3" class="data wide-cell">
+              {{ parent.travellers.first.smart_name }}
+              {% if parent.submitted %}
+                ({% trans "submitted on" %} {{ parent.submitted }})
+              {% else %}
+                ({% trans "NOT SUBMITTED" %})
+              {% endif %}
             </td>
-
           </tr>
-
-        </table>
-
-      </td>
-      <td class="top w40p">
-        <table class="">
+          <tr class="thin">
+            <td class="thin">&nbsp;</td>
+          </tr>
           <tr>
-            <td class="text-right wide-cell w40p">{% trans "Expenditure Initiation approved by (Print)" %}</td>
-            <td class="data wide-cell" colspan="1">
+            <td class="text-right wide-cell">{% trans "Expenditure Initiation approved by (Print)" %}</td>
+            <td class="data wide-cell" colspan="3">
               {{ parent.rdg.user |nz:"n/a" }}
               {% if parent.rdg.user %} | {% trans "Regional Director General" %} | {{ parent.rdg.user.shared_models_regions.first }}
               {% endif %}
@@ -366,20 +379,15 @@ h1 {
           <tr>
             <td class="text-right very-wide-cell w40p">{% trans "Signature" %}</td>
             {% if parent.rdg.status == 2 %}
-              <td colspan="1" class="data">
+              <td colspan="3" class="data">
                 <span class="large-font">{% trans "Approved on" %} {{ parent.rdg.status_date }}</span>
                 <br> ({% trans "This is not an official copy." %})
               </td>
             {% else %}
-              <td colspan="1" class="data wide-cell w40p"> &nbsp;</td>
+              <td class="data wide-cell w40p"> &nbsp;</td>
+              <td class="text-right wide-cell w10p">{% trans "Date" %}</td>
+              <td class="data wide-cell"> &nbsp;</td>
             {% endif %}
-          </tr>
-          <tr class="thin">
-            <td class="thin">&nbsp;</td>
-          </tr>
-          <tr>
-            <td class="text-right wide-cell w40p">{% trans "Date" %}</td>
-            <td class="data wide-cell"> &nbsp;</td>
           </tr>
         </table>
       </td>
@@ -412,4 +420,28 @@ h1 {
       </td>
     </tr>
   </table>
+</div>
+
+<div class="block">
+  <table>
+    <tr>
+      <td class="w10p">{% trans "Comments" %}</td>
+      <td class="data wide-cell">
+
+        <table>
+          <tr>
+            <td class="top">
+              {{ parent.travellers.first.purpose_long|safe|nz }}
+            </td>
+            <td class="top">
+              {% trans "DETAILED COST BREAKDOWN" %}:<br> {{ parent.travellers.first.cost_breakdown }}
+            </td>
+          </tr>
+        </table>
+      </td>
+
+    </tr>
+  </table>
+
+
 </div>

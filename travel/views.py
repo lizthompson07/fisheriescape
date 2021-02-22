@@ -1753,7 +1753,7 @@ def export_request_cfts(request, trip=None, trip_request=None):
 class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     def get_template_names(self):
         my_object = models.TripRequest1.objects.get(id=self.kwargs['pk'])
-        if my_object.is_group_request:
+        if my_object.travellers.count() > 1:
             template_name = "travel/group_travel_plan.html"
         else:
             template_name = "travel/travel_plan.html"
@@ -1768,31 +1768,21 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         cost_categories = models.CostCategory.objects.all()
         my_dict = dict()
 
-        # first, let's create an object list;
-        if my_object.is_group_request:
-            object_list = my_object.children_requests.filter(exclude_from_travel_plan=False)
-        else:
-            object_list = models.TripRequest1.objects.filter(pk=my_object.id)
 
         my_dict["totals"] = dict()
         my_dict["totals"]["total"] = 0
-        for obj in object_list:
+        for obj in my_object.travellers.all():
             my_dict[obj] = dict()
-
             for cat in cost_categories:
                 if not my_dict["totals"].get(cat):
                     my_dict["totals"][cat] = 0
-
-                cat_amount = obj.trip_request_costs.filter(cost__cost_category=cat).values("amount_cad").order_by("amount_cad").aggregate(
+                cat_amount = obj.costs.filter(cost__cost_category=cat).values("amount_cad").order_by("amount_cad").aggregate(
                     dsum=Sum("amount_cad"))['dsum']
                 my_dict[obj][cat] = cat_amount
                 my_dict["totals"][cat] += nz(cat_amount, 0)
                 my_dict["totals"]["total"] += nz(cat_amount, 0)
 
-        # print(my_dict)
-        context['object_list'] = object_list
         context['my_dict'] = my_dict
-        # context['key_list'] = cost_categories
         return context
 
 

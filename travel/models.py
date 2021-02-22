@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 import textile
 from django.contrib.auth.models import User as AuthUser
@@ -1050,7 +1051,7 @@ class TripRequest1(models.Model):
         (17, _("Pending Review")),
         (22, _("Cancelled")),
     )
-
+    uuid = models.UUIDField(blank=True, null=True, verbose_name="unique identifier", editable=False)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
                                 verbose_name=_("under which section is this request being made?"), related_name="requests")
     trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, verbose_name=_("trip"), related_name="requests")
@@ -1110,6 +1111,9 @@ class TripRequest1(models.Model):
         verbose_name = _("trip request")
 
     def save(self, *args, **kwargs):
+        if self.uuid is None:
+            self.uuid = uuid.uuid1()
+
         self.fiscal_year = self.trip.fiscal_year
 
         # ensure the process order makes sense
