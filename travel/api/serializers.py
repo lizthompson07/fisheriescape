@@ -193,8 +193,8 @@ class CostSerializer(serializers.ModelSerializer):
 
 
 class TravellerSerializer(serializers.ModelSerializer):
-    start_date = serializers.DateTimeField(format=None, input_formats=None, required=False, allow_null=True)
-    end_date = serializers.DateTimeField(format=None, input_formats=None, required=False, allow_null=True)
+    start_date = serializers.DateTimeField(format="%Y-%m-%d", input_formats=None, required=False, allow_null=True)
+    end_date = serializers.DateTimeField(format="%Y-%m-%d", input_formats=None, required=False, allow_null=True)
     costs = CostSerializer(many=True, read_only=True)
 
     class Meta:
@@ -243,6 +243,7 @@ class TravellerSerializer(serializers.ModelSerializer):
         form validation:
         - make sure that the user is not already attending this trip!
         - make sure that the request start date and the trip start date make sense with respect to each other and individually
+        - if this user selects Other as a role they must provide a description of role
         """
         trip_request = attrs.get("request")
         start_date = attrs.get("start_date")
@@ -287,6 +288,14 @@ class TravellerSerializer(serializers.ModelSerializer):
                         trip_end_date=trip_end_date.strftime("%Y-%m-%d"),
                     )
                     raise ValidationError(msg)
+
+            # if this user selects Other as a role they must provide a description of role
+            role = attrs.get("role")
+            role_of_participant = attrs.get("role_of_participant")
+            if role and "other" in role.name.lower() and not role_of_participant:
+                msg = _("If you select the role 'other', you must also provide a description of the role.")
+                raise ValidationError(msg)
+
         return attrs
 
 
@@ -406,6 +415,14 @@ class TripSerializer(serializers.ModelSerializer):
     days_until_adm_review_deadline = serializers.SerializerMethodField()
     requests = TripRequestSerializerLITE(many=True, read_only=True)
     metadata = serializers.SerializerMethodField()
+    non_res_total_cost = serializers.SerializerMethodField()
+    total_cost = serializers.SerializerMethodField()
+
+    def get_total_cost(self, instance):
+        return instance.total_cost
+
+    def get_non_res_total_cost(self, instance):
+        return instance.non_res_total_cost
 
     def get_metadata(self, instance):
         return instance.metadata

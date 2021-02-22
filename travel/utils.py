@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
@@ -743,16 +745,35 @@ def get_cost_comparison(travellers):
     """
     costs = models.TripRequestCost.objects.filter(traveller__in=travellers, amount_cad__gt=0).values("cost").order_by("cost").distinct()
     header = [models.Cost.objects.get(pk=c["cost"]).tname for c in costs]
+    cost_totals = OrderedDict()
+    for c in costs:
+        cost_totals[c["cost"]] = 0
     header.insert(0, _("Name"))
+    header.append(_("Total"))
     list1 = [header, ]
     # get all travellers from active requests
+    total = 0
     for t in travellers.all():
-        list2 = [t.smart_name, ]
+        name = t.smart_name
+        if t.is_research_scientist:
+            name += " (RES)"
+        list2 = [name, ]
+        traveller_total = 0
         for cost in costs:
             try:
-                val = models.TripRequestCost.objects.get(traveller=t, cost_id=cost['cost']).amount_cad
+                c = models.TripRequestCost.objects.get(traveller=t, cost_id=cost['cost'])
+                val = c.amount_cad
+                cost_totals[c.cost.id] += c.amount_cad
+                traveller_total += c.amount_cad
+                total += c.amount_cad
             except Exception as e:
                 val = 0
             list2.append(val)
+        list2.append(traveller_total)
         list1.append(list2)
+
+    total_row = [cost_totals[c["cost"]] for c in costs]
+    total_row.insert(0, "TOTAL")
+    total_row.append(total)
+    list1.append(total_row)
     return list1

@@ -1,5 +1,5 @@
 # TODO: request reviewer needs to see all travellers!!
-
+# TODO: add total non dfo cost to trip
 # TODO: Trip Detail
 # TODO: trip reassign and delete
 # TODO: admo process
@@ -30,3 +30,4 @@
 # todo: TR Cost SHOULD BE RENAMED TO TRAVELLER COST
 # todo: TR1 SHOULD BE RENAMED TO TR
 # todo: rename conference to something trip
+# TODO: change role other:specify --> other

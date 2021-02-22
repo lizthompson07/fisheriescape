@@ -1349,7 +1349,7 @@ class Traveller(models.Model):
     @property
     def cost_breakdown_html(self):
         """used for display on group traveller detail page"""
-        my_str = "<table class='mt-3 table table-sm table-bordered'><tbody>"
+        my_str = "<table class='mt-3 table table-sm table-bordered' style='width: auto'><tbody>"
         my_str += "<tr><th>{}</th><th>{}</th></tr>".format(_("Cost"), _("Amount"))
         for tr_cost in self.costs.all():
             if tr_cost.amount_cad:

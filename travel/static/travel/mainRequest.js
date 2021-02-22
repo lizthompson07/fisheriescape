@@ -16,7 +16,7 @@ var app = new Vue({
     inFileEditMode: false,
     inCostEditMode: false,
     isReview: isReview,  // declared in template SCRIPT tag
-    loading_request: true,
+    loading: true,
     loading_reviewers: false,
     loading_user: false,
     loading_costs: false,
@@ -35,6 +35,8 @@ var app = new Vue({
     useCustomAddress: false,
     yesNoChoices: yesNoChoices,
 
+    // these are just being added for the sake of compatibility
+    trip: null,
   },
   methods: {
     addAllCosts(traveller) {
@@ -245,11 +247,11 @@ var app = new Vue({
       });
     },
     getRequest() {
-      this.loading_request = true;
+      this.loading = true;
       let endpoint = `/api/travel/requests/${tripRequestId}/`;
       apiService(endpoint)
           .then(response => {
-            this.loading_request = false;
+            this.loading = false;
             this.request = response;
             // if there is one traveller, we should have that traveller on display
             if (this.request.travellers.length === 1) {
@@ -449,6 +451,7 @@ var app = new Vue({
       traveller.total_cost = cost;
     },
     updateTraveller() {
+      this.errorMsgTraveller = null;
       if (this.travellerToEdit.start_date) this.travellerToEdit.start_date += "T00:00:00.421977Z"
       if (this.travellerToEdit.end_date) this.travellerToEdit.end_date += "T00:00:00.421977Z"
       let endpoint;
@@ -462,6 +465,7 @@ var app = new Vue({
       }
       apiService(endpoint, method, this.travellerToEdit).then(response => {
         if (response.id) {
+          console.log(123)
           this.getRequest();
           if (this.cloningTraveller) {
             // start by removing all costs
@@ -480,12 +484,11 @@ var app = new Vue({
             setTimeout(function () {
               this.getRequest()
             }.bind(this), 3000);
-
           }
           this.travellerToEdit = null;
-
-
         } else {
+          if (this.travellerToEdit.start_date) this.travellerToEdit.start_date = this.travellerToEdit.start_date.split("T")[0]
+          if (this.travellerToEdit.end_date) this.travellerToEdit.end_date = this.travellerToEdit.end_date.split("T")[0]
           console.log(response)
           this.errorMsgTraveller = this.groomJSON(response)
         }
@@ -529,6 +532,9 @@ var app = new Vue({
     }
   },
   computed: {
+    travellers() {
+      if (this.request) return this.request.travellers;
+    },
     canModify() {
       if (this.currentUser && this.currentUser.can_modify) {
         return this.currentUser.can_modify;

@@ -7,7 +7,7 @@ var app = new Vue({
     dmAppsUsers: [],
     errorMsgReviewer: null,
     isReview: isReview,  // declared in template SCRIPT tag
-    loading_trip: true,
+    loading: true,
     loading_user: false,
     loadingDMAppsUsers: false,
     trip: {},
@@ -20,8 +20,19 @@ var app = new Vue({
     travellerLabels: {},
     requestLabels: {},
     yesNoChoices: yesNoChoices,
+
+    // these are just being added for the sake of compatibility
+    travellerToEdit: null,
+    costLabels: {},
+    inCostEditMode: false,
+    loading_costs: false,
+    errorMsgCost: null,
+
   },
   methods: {
+
+
+    addTraveller() {}, // being added for the sake of compatibility,
     addReviewer() {
       this.trip.reviewers.push({
         trip: this.trip.id,
@@ -96,11 +107,11 @@ var app = new Vue({
       });
     },
     getTrip() {
-      this.loading_trip = true;
+      this.loading = true;
       let endpoint = `/api/travel/trips/${tripId}/`;
       apiService(endpoint)
           .then(response => {
-            this.loading_trip = false;
+            this.loading = false;
             this.trip = response;
             // if there is one traveller, we should have that traveller on display
             if (this.trip.travellers.length === 1) {
@@ -272,6 +283,9 @@ var app = new Vue({
     }
   },
   computed: {
+    travellers() {
+      if (this.trip) return this.trip.travellers;
+    },
     canModify() {
       if (this.currentUser && this.currentUser.can_modify) {
         return this.currentUser.can_modify;

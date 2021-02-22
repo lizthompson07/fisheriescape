@@ -15,13 +15,13 @@
   </h3>
   <div class="card-body">
     <div class="card-text">
-      <div v-if="loading_trip" class="loading mb-3 mt-3 text-center mt-5">
+      <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
         <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
           <span class="sr-only"></span>
         </div>
       </div>
       <div v-else>
-        <table class="table table-sm mb-5" style="width: auto">
+        <table class="table table-sm mb-5" style="width: 75%">
           <tr>
             <th style="width: 40%">{% trans "Fiscal year" %}</th>
             <td>${trip.fiscal_year}</td>
@@ -47,7 +47,7 @@
             <td>${trip.trip_subcategory}</td>
           </tr>
           <tr>
-            <th style="width: 40%">{% trans "Regional lead" %}}</th>
+            <th style="width: 40%">{% trans "Regional lead" %}</th>
             <td>${trip.lead}</td>
           </tr>
           <tr>
@@ -97,16 +97,16 @@
             </td>
           </tr>
           <tr>
-            <th style="width: 40%">{% trans "Total DFO cost" %}</th>
-            <td>${trip.total_cost|nz}</td>
+            <th style="width: 40%">{% trans "Total DFO cost (non RES)" %}</th>
+            <td>$ ${trip.non_res_total_cost|floatformat}</td>
           </tr>
           <tr>
-            <th style="width: 40%">{% trans "Total DFO cost from non-RES travellers" %}</th>
-            <td>${trip.non_res_total_cost|nz}</td>
+            <th style="width: 40%">{% trans "Total DFO cost (all)" %}</th>
+            <td>$ ${trip.total_cost|floatformat}</td>
           </tr>
           <tr>
             <th style="width: 40%">${tripLabels.notes |nz}</th>
-            <td>${trip.notes}</td>
+            <td>${trip.notes|nz}</td>
           </tr>
         </table>
 
@@ -133,6 +133,7 @@
               <td v-for="(cell, j) in row" :key="j">
                 <span v-if="i===0"><b v-html="cell"></b></span>
                 <span v-else-if="j===0" v-html="cell"></span>
+                <span v-else-if="i===trip.cost_comparison.length-1"><em>${cell |floatformat}</em></span>
                 <span v-else>${cell |floatformat}</span>
               </td>
             </tr>
