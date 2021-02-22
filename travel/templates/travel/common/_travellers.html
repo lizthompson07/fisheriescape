@@ -8,8 +8,8 @@
 <div class="card mb-2">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right">
-      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down blue"></span></button>
-      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up blue"></span></button>
+      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down"></span></button>
+      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>
       <button v-if="!isReview && canModify && !travellerToEdit" @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}"
               class="btn btn-sm btn-primary ml-2">
         <span class="mdi mdi-plus text-light"></span> {% trans "Add traveller" %}
@@ -34,45 +34,53 @@
         <div v-else>
           <div v-if="request && request.travellers.length">
             <div v-if="!travellerToEdit">
-              <div class="row">
-                <div v-for="t in request.travellers" class="col" :key="t.id">
-                  <div class="card traveller-card">
-                    <div class="card-body">
-                      <div class="float-right">
-                        <button  @click="toggleShowMe(t)"
-                                data-toggle="tooltip" title="{% trans "collapse" %}">
-                          <span v-if="t.show_me" class="mdi mdi mdi-arrow-collapse-up h4 blue"></span>
-                          <span v-else class="mdi mdi mdi-arrow-collapse-down h4 blue"></span>
-                        </button>
+              <div v-for="(t,index) in request.travellers" class="mx-1" :key="t.id">
+                <div :class="{'card traveller-card mx-1':true, 'closed-traveller':!t.show_me}">
+                  <div class="card-body">
+                    <div class="float-right">
+                      <button v-if="!isReview && canModify" @click="editTraveller(t)"><span v-if="!t.show_me" class="mdi mdi-pencil h4" data-toggle="tooltip"
+                                                                                            title="{% trans "Edit" %}"></span></button>
+                      <button v-if="!isReview && canModify" @click="addTraveller(t)"><span v-if="!t.show_me" class="mdi mdi-content-copy h4"
+                                                                                           data-toggle="tooltip" title="{% trans "Clone" %}"></span></button>
+                      <button v-if="canModify" @click="deleteTraveller(t)"><span v-if="!t.show_me" class="mdi mdi-delete h4" data-toggle="tooltip"
+                                                                                 title="{% trans "Remove" %}"></span></button>
+                      &nbsp; &nbsp; &nbsp;
+                      <button @click="toggleShowMe(t)"
+                              data-toggle="tooltip" title="{% trans "collapse" %}">
+                        <span v-if="t.show_me" class="mdi mdi-arrow-collapse-up h4"></span>
+                        <span v-else class="mdi mdi-arrow-collapse-down h4"></span>
+                      </button>
+                    </div>
+                    <h5 class="card-title">
+                      ${index+1}. ${t.smart_name} <span v-if="t.role"> (${t.role_display})</span>
+                      <span v-if="t.is_research_scientist"> &mdash; {% trans "Research Scientist" %}</span>
+                    </h5>
+                    <div v-if="t.show_me" class="card-text">
+                      <hr>
+                      <div class="mb-3">
+                        <span v-html="t.traveller_info"></span>
                       </div>
-                      <h4 class="card-title">${t.smart_name} ${t.hide}</h4>
-                      <div v-if="t.show_me" class="card-text">
-                        <hr>
-                        <div class="mb-3">
-                          <span v-html="t.traveller_info"></span>
-                        </div>
-                        <p><b>{% trans "Public servant:" %}</b><span class="ml-1">${t.is_public_servant|yesNo}</span></p>
-                        <p><b>{% trans "Research scientist:" %}</b><span class="ml-1">${t.is_research_scientist|yesNo}</span></p>
-                        <p><b>{% trans "Travel dates:" %}</b><span class="ml-1" v-html="t.dates"></span></p>
-                        <p><b>{% trans "Departure location:" %}</b><span class="ml-1" v-html="t.departure_location"></span></p>
-                        <p><b>${travellerLabels.role}</b><span class="ml-1" v-html="t.role">${t.role|nz}</span></p>
-                        <p><b>${travellerLabels.role_of_participant}</b><span class="ml-1">${t.role_of_participant|nz}</span></p>
-                        <p><b>{% trans "Part of learning plan:" %}</b><span class="ml-1">${t.learning_plan|yesNo}</span></p>
-                        <p><b>{% trans "Non-DFO costs:" %}</b><span class="ml-1" v-html="t.non_dfo_costs_html"></span></p>
+                      <p><b>{% trans "Public servant:" %}</b><span class="ml-1">${t.is_public_servant|yesNo}</span></p>
+                      <p><b>{% trans "Research scientist:" %}</b><span class="ml-1">${t.is_research_scientist|yesNo}</span></p>
+                      <p><b>{% trans "Travel dates:" %}</b><span class="ml-1" v-html="t.dates"></span></p>
+                      <p><b>{% trans "Departure location:" %}</b><span class="ml-1" v-html="t.departure_location"></span></p>
+                      <p><b>${travellerLabels.role}</b><span class="ml-1">${t.role_display|nz}</span></p>
+                      <p><b>${travellerLabels.role_of_participant}</b><span class="ml-1">${t.role_of_participant|nz}</span></p>
+                      <p><b>{% trans "Part of learning plan:" %}</b><span class="ml-1">${t.learning_plan|yesNo}</span></p>
+                      <p><b>{% trans "Non-DFO costs:" %}</b><span class="ml-1" v-html="t.non_dfo_costs_html"></span></p>
 
-                        <div v-if="canModify && !isReview">
-                          {% include "travel/common/_costs.html" %}
-                        </div>
-                        <div v-else>
-                          <b>{% trans "Cost Breakdown:" %}</b>
-                          <span class="ml-1" v-html="t.cost_breakdown_html"></span>
-                        </div>
+                      <div v-if="canModify && !isReview">
+                        {% include "travel/common/_costs.html" %}
+                      </div>
+                      <div v-else>
+                        <b>{% trans "Cost Breakdown:" %}</b>
+                        <span class="ml-1" v-html="t.cost_breakdown_html"></span>
+                      </div>
 
-                        <div class="float-right">
-                          <button v-if="!isReview && canModify" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
-                          <button v-if="!isReview && canModify" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
-                          <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
-                        </div>
+                      <div class="float-right">
+                        <button v-if="!isReview && canModify" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
+                        <button v-if="!isReview && canModify" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
+                        <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
                       </div>
                     </div>
                   </div>

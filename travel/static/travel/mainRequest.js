@@ -41,8 +41,7 @@ var app = new Vue({
       let endpoint = `/api/travel/travellers/${traveller.id}/?populate_all_costs=true`;
       apiService(endpoint, "POST")
           .then(response => {
-            console.log(response);
-            this.getRequest();
+            this.refreshCosts(traveller);
           })
     },
     addAttachment() {
@@ -113,7 +112,7 @@ var app = new Vue({
       apiService(endpoint, "POST")
           .then(response => {
             console.log(response);
-            this.getRequest();
+            this.refreshCosts(traveller);
           })
     },
     closeReviewerForm() {
@@ -183,6 +182,7 @@ var app = new Vue({
       }
     },
     editTraveller(traveller) {
+      this.errorMsgTraveller = null;
       this.travellerToEdit = traveller;
       this.travellerToEdit.start_date = this.travellerToEdit.start_date.split("T")[0]
       this.travellerToEdit.end_date = this.travellerToEdit.end_date.split("T")[0]
@@ -350,8 +350,11 @@ var app = new Vue({
       this.$forceUpdate();
     },
     updateCost(traveller, cost) {
+      this.errorMsgCost = null;
       let endpoint;
       let method;
+      if(cost.rate_cad === "") cost.rate_cad = null;
+      if(cost.number_of_days === "") cost.number_of_days = null;
       if (!cost.id) {
         endpoint = `/api/travel/costs/`;
         method = "POST";

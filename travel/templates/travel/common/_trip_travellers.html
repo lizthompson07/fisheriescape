@@ -41,9 +41,10 @@
                           <span v-else class="mdi mdi mdi-arrow-collapse-down h4 blue"></span>
                         </button>
                       </div>
-                      <h4 class="card-title">
-                        ${t.smart_name} <span v-if="t.is_research_scientist">(RES)</span>
-                      </h4>
+                      <h5 class="card-title">
+                        ${index+1}. ${t.smart_name} <span v-if="t.role"> (${t.role_display})</span>
+                        <span v-if="t.is_research_scientist"> &mdash; {% trans "Research Scientist" %}</span>
+                      </h5>
                       <div v-if="t.show_me" class="card-text">
                         <hr>
                         <h4>{% trans "Request Level" %}</h4>
@@ -82,7 +83,7 @@
                         <p><b>{% trans "Research scientist:" %}</b><span class="ml-1">${t.is_research_scientist|yesNo}</span></p>
                         <p><b>{% trans "Travel dates:" %}</b><span class="ml-1" v-html="t.dates"></span></p>
                         <p><b>{% trans "Departure location:" %}</b><span class="ml-1" v-html="t.departure_location"></span></p>
-                        <p><b>${travellerLabels.role}</b><span class="ml-1" v-html="t.role">${t.role|nz}</span></p>
+                        <p><b>${travellerLabels.role}</b><span class="ml-1">${t.role_display|nz}</span></p>
                         <p><b>${travellerLabels.role_of_participant}</b><span class="ml-1">${t.role_of_participant|nz}</span></p>
                         <p><b>{% trans "Part of learning plan:" %}</b><span class="ml-1">${t.learning_plan|yesNo}</span></p>
                         <p><b>{% trans "Non-DFO costs:" %}</b><span class="ml-1" v-html="t.non_dfo_costs_html"></span></p>

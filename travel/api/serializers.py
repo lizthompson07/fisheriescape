@@ -205,11 +205,14 @@ class TravellerSerializer(serializers.ModelSerializer):
     dates = serializers.SerializerMethodField()
     long_role = serializers.SerializerMethodField()
     non_dfo_costs_html = serializers.SerializerMethodField()
-    role = serializers.StringRelatedField()
+    role_display = serializers.SerializerMethodField()
     smart_name = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
     traveller_info = serializers.SerializerMethodField()
     request_obj = serializers.SerializerMethodField()
+
+    def get_role_display(self, instance):
+        return str(instance.role)
 
     def get_request_obj(self, instance):
         return TripRequestSerializerLITE(instance.request).data

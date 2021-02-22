@@ -312,7 +312,7 @@ class CostViewSet(viewsets.ModelViewSet):
     permission_classes = [CanModifyOrReadOnly]
     queryset = models.TripRequestCost.objects.all()
     pagination_class = StandardResultsSetPagination
-
+        
     def list(self, request, *args, **kwargs):
         qp = request.query_params
         if qp.get("traveller"):
@@ -324,8 +324,9 @@ class CostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
-
+    
     def perform_update(self, serializer):
+        print(self.request.data)
         serializer.save()
 
 

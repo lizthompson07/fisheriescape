@@ -16,7 +16,7 @@
     <div class="mb-3 mt-3" v-if="request">
       <h2>
         {% blocktrans %}
-          Trip Request for ${request.trip.tname}, ${request.trip.location}
+          Trip Request <span v-if="request.id">for ${request.trip.tname}, ${request.trip.location}</span>
         {% endblocktrans %}
       </h2>
     </div>

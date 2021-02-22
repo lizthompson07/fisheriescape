@@ -5,9 +5,22 @@
 
 <b>{% trans "Costs" %}</b>
 <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-            data-trigger="hover" title="{% trans "Trip Request Costs" %}"
-            :data-content="helpText.costs_header"></span>
+      data-trigger="hover" title="{% trans "Trip Request Costs" %}"
+      :data-content="helpText.costs_header"></span>
 <div class="card mb-2">
+  <div v-if="!inCostEditMode" class="card-header">
+    <div class="">
+      <button class="btn btn-sm btn-dark px-1 py-0 text-sm" @click="addCost(t)">
+        {% trans "Add a cost" %}<span class="mdi mdi-plus text-light"></span>
+      </button>
+      <button class="btn btn-sm btn-dark px-1 py-0 text-sm" @click="addAllCosts(t)">
+        {% trans "Add all costs" %} <span class="mdi mdi-plus-box-multiple-outline text-light"></span>
+      </button>
+      <button class="btn btn-sm btn-dark px-1 py-0 text-sm" @click="clearEmptyCosts(t)">
+        {% trans "Clear unused lines" %} <span class="mdi mdi-broom text-light"></span>
+      </button>
+    </div>
+  </div>
   <div class="card-body">
     <div class="card-text">
       <p>
@@ -39,6 +52,7 @@
         <tbody>
         <tr v-for="(c,index) in t.costs" :key="c.id">
           {# cost #}
+
           <td v-if="!c.editMode"> ${c.cost_display }</td>
           <td v-else>
             <select v-model="c.cost" class="form-control form-control-sm">
@@ -50,19 +64,19 @@
           <td v-if="!c.editMode" class="center-col"> ${c.rate_cad |floatformat |nz|zero2NullMark}</td>
           <td v-else>
             <input @keyup='updateCostRowTotal(c)' type="number" step=".01" v-model="c.rate_cad" class="form-control form-control-sm"
-                   placeholder="{% trans "rate" %}">
+                   placeholder="{% trans "rate" %}" v-on:keyup.enter="updateCost(t, c)">
           </td>
           {# days #}
           <td class="center-col" v-if="!c.editMode"> ${c.number_of_days|nz|zero2NullMark }</td>
           <td v-else>
             <input @keyup='updateCostRowTotal(c)' type="number" v-model="c.number_of_days" class="form-control form-control-sm"
-                   placeholder="{% trans "days" %}">
+                   placeholder="{% trans "days" %}" v-on:keyup.enter="updateCost(t, c)">
           </td>
           {# Amount CAD #}
           <td class="text-center" v-if="!c.editMode"> ${c.amount_cad |floatformat |zero2NullMark }</td>
           <td v-else>
             <input :disabled="(c.rate_cad !== null && c.rate_cad !== '') || (c.number_of_days !== null && c.number_of_days !== '')" type="number" step=".01"
-                   v-model="c.amount_cad" class="form-control form-control-sm">
+                   v-model="c.amount_cad" class="form-control form-control-sm" v-on:keyup.enter="updateCost(t, c)">
           </td>
 
           <td v-if="canModify && !isReview" style="width:75px">
@@ -103,19 +117,7 @@
       </div>
     </div>
   </div>
-  <div v-if="!inCostEditMode" class="card-footer">
-    <div class="text-center">
-      <button class="btn btn-sm btn-outline-dark px-1 py-0 text-sm" @click="addCost(t)">
-        {% trans "Add a cost" %}<span class="mdi mdi-plus"></span>
-      </button>
-      <button class="btn btn-sm btn-outline-dark px-1 py-0 text-sm" @click="addAllCosts(t)">
-        {% trans "Add all costs" %} <span class="mdi mdi-plus-box-multiple-outline"></span>
-      </button>
-      <button class="btn btn-sm btn-outline-dark px-1 py-0 text-sm" @click="clearEmptyCosts(t)">
-        {% trans "Clear unused lines" %} <span class="mdi mdi-broom"></span>
-      </button>
-    </div>
-  </div>
+
 </div>
 
 
