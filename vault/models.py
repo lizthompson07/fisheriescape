@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from django.contrib.auth.models import User as AuthUser
 
+
 class Species(models.Model):
     code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Internal code"), unique=True)
     english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("English name"))
@@ -207,8 +208,8 @@ class ObservationPlatform(models.Model):
     def get_absolute_url(self):
         return reverse("vault:observationplatform_detail", kwargs={"pk": self.id})
 
-#TODO add track file presence/absence / spatial display? to outing
-class Outing(models.Model):
+
+class Region(models.Model):
     REGION_CHOICES = (
         (1, _("St. Lawrence Estuary")),
         (2, _("Northern GSL")),
@@ -223,7 +224,13 @@ class Outing(models.Model):
         (11, _("Western Scotian Shelf")),
         (12, _("Bay of Fundy")),
     )
+    name = models.IntegerField(blank=True, null=True, choices=REGION_CHOICES, verbose_name=_("name"))
 
+    def __str__(self):
+        return self.get_name_display()
+
+
+class Purpose(models.Model):
     PURPOSE_CHOICES = (
         (1, _("Broadscale Marine Mammal Survey")),
         (2, _("Science Multi-Species Survey")),
@@ -233,13 +240,21 @@ class Outing(models.Model):
         (6, _("Whale Survey")),
         (7, _("Routine Patrol")),
     )
+    name = models.IntegerField(blank=True, null=True, choices=PURPOSE_CHOICES, verbose_name=_("name"))
+
+    def __str__(self):
+        return self.get_name_display()
+
+
+#TODO add track file presence/absence / spatial display? to outing
+class Outing(models.Model):
     observation_platform = models.ForeignKey(ObservationPlatform, on_delete=models.DO_NOTHING, related_name="outings",
                                              verbose_name=_("observation platform"))
-    region = models.IntegerField(blank=True, null=True, choices=REGION_CHOICES, verbose_name=_("Region"))
-    purpose = models.IntegerField(blank=True, null=True, choices=PURPOSE_CHOICES, verbose_name=_("Purpose"))
-    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date and time (YYYY-MM-DD)"))
-    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date and time (YYYY-MM-DD)"))
-    identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Identifier String"))
+    region = models.ManyToManyField(Region, blank=True, related_name="outings", verbose_name=_("region"))
+    purpose = models.ManyToManyField(Purpose, blank=True, related_name="outings", verbose_name=_("purpose"))
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("start date and time"))
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("end date and time"))
+    identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("identifier string"))
     created_by = models.ForeignKey(AuthUser, related_name="outings", on_delete=models.DO_NOTHING)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     verified_by = models.ForeignKey(AuthUser, blank=True, null=True, on_delete=models.DO_NOTHING)

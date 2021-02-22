@@ -2,10 +2,11 @@ from django import forms
 from django.forms import modelformset_factory
 
 from . import models
-from shared_models import models as shared_models
 
 attr_fp_date_time = {"class": "fp-date-time-with-seconds", "placeholder": "Select Date and Time.."}
 chosen_js = {"class": "chosen-select-contains"}
+multi_select_js = {"class": "multi-select"}
+
 
 class SpeciesForm(forms.ModelForm):
     class Meta:
@@ -70,8 +71,8 @@ class OutingForm(forms.ModelForm):
         model = models.Outing
         fields = "__all__"
         widgets = {
-            # "region": forms.SelectMultiple(attrs=chosen_js),
-            # "purpose": forms.SelectMultiple(attrs=chosen_js),
+            "region": forms.SelectMultiple(attrs=chosen_js),
+            "purpose": forms.SelectMultiple(attrs=chosen_js),
             "start_date": forms.TextInput(attrs=attr_fp_date_time),
             "end_date": forms.TextInput(attrs=attr_fp_date_time),
             # "created_by": forms.HiddenInput(),

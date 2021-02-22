@@ -391,7 +391,7 @@ class OutingListView(VaultAccessRequired, CommonFilterView):
     new_btn_text = "New Outing"
 
     queryset = models.Outing.objects.annotate(
-        search_term=Concat('id', 'observation_platform__longname', 'region', 'purpose', 'identifier_string',
+        search_term=Concat('id', 'observation_platform__longname', 'region__name', 'purpose__name', 'identifier_string',
                            output_field=TextField()))
 
     field_list = [
@@ -403,6 +403,7 @@ class OutingListView(VaultAccessRequired, CommonFilterView):
         {"name": 'end_date', "class": "", "width": ""},
         {"name": 'outing_duration|{}'.format(gettext_lazy("outing duration")), "class": "", "width": ""},
         {"name": 'identifier_string', "class": "", "width": ""},
+        {"name": 'created_by', "class": "", "width": ""},
 
     ]
 
@@ -421,6 +422,10 @@ class OutingDetailView(VaultAdminAccessRequired, CommonDetailView):
         'end_date',
         'outing_duration',
         'identifier_string',
+        'created_by',
+        'created_at',
+        'verified_by',
+        'verified_at',
     ]
     home_url_name = "vault:index"
     parent_crumb = {"title": gettext_lazy("Outing List"), "url": reverse_lazy("vault:outing_list")}
