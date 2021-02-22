@@ -536,6 +536,9 @@ var app = new Vue({
     travellers() {
       if (this.request) return this.request.travellers;
     },
+    reviewers() {
+      if (this.request) return this.request.reviewers;
+    },
     canModify() {
       if (this.currentUser && this.currentUser.can_modify) {
         return this.currentUser.can_modify;

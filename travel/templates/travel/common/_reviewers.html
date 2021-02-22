@@ -22,14 +22,14 @@
         </div>
       </div>
       <div v-else style="width: 90%">
-        <div v-if="request.reviewer_order_message" class="alert alert-danger py-1" role="alert" style="width: 80%">
+        <div v-if="!trip && request.reviewer_order_message" class="alert alert-danger py-1" role="alert" style="width: 80%">
           <p class="mb-0">
             <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
             <span class="h6">${request.reviewer_order_message}</span>
           </p>
         </div>
 
-        <table class="table table-sm" v-if="request.reviewers.length && !reviewerEditMode">
+        <table class="table table-sm" v-if="reviewers.length && !reviewerEditMode">
           <thead>
           <th>${ reviewerLabels.user}</th>
           <th>${ reviewerLabels.role}</th>
@@ -38,7 +38,7 @@
           <th style="width: 45%">${ reviewerLabels.comments}</th>
           </thead>
           <tbody>
-          <tr v-for="item in request.reviewers" :key="item.id">
+          <tr v-for="item in reviewers" :key="item.id">
             <td>${item.user_display }</td>
             <td>${item.role_display }</td>
             <td><span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span></td>
@@ -66,7 +66,7 @@
             <tr v-for="(item, index) in editableReviewers" :key="item.id">
               <td>
                 <button v-if="index!==0" @click="moveReviewer(item, 'up')"><span class="mdi mdi-arrow-up-bold-circle-outline h5"></span></button>
-                <button v-if="index!==request.reviewers.length-1" @click="moveReviewer(item, 'down')"><span
+                <button v-if="index!==reviewers.length-1" @click="moveReviewer(item, 'down')"><span
                   class="mdi mdi-arrow-down-bold-circle-outline h5"></span></button>
               <td>
                 <v-select
