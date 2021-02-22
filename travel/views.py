@@ -1003,6 +1003,14 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
     template_name = 'travel/trip_detail.html'
     home_url_name = "travel:index"
 
+    def get_query_string(self):
+        if nz(self.request.META['QUERY_STRING'], None):
+            return "?" + self.request.META['QUERY_STRING']
+        return ""
+
+    def get_parent_crumb(self):
+            return {"title": _("Trips"), "url": reverse_lazy("travel:trip_list") + self.get_query_string()}
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
@@ -1129,8 +1137,13 @@ class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
 class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     model = models.Conference
     form_class = forms.TripTimestampUpdateForm
-    template_name = 'travel/trip_review_process_form.html'
+    template_name = 'travel/form.html'
     submit_text = gettext_lazy("Proceed")
+
+    def get_query_string(self):
+        if nz(self.request.META['QUERY_STRING'], None):
+            return "?" + self.request.META['QUERY_STRING']
+        return ""
 
     def test_func(self):
         # make sure that this page can only be accessed for active trips (exclude those already reviewed and those canceled)
@@ -1146,7 +1159,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
 
     def get_h2(self):
         if self.get_object().status in [30, 41]:
-            return None
+            return self.get_object()
         elif self.get_object().status in [32]:
             return '<span class="blue-font">Re-opening the review on this trip reset the reviewer statuses but ' \
                    'will keep any existing reviewer comments. <br><br> This process will NOT undo any trip request approvals that ' \
@@ -1164,8 +1177,6 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["trip"] = self.get_object()
-        context["traveller_field_list"] = traveller_field_list
-
         context["conf_field_list"] = conf_field_list
         context['help_text_dict'] = get_help_text_dict()
         return context
@@ -1194,11 +1205,9 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
         # decide where to go. If the request user is the same as the active reviewer for the trip, go right to the review page.
         # otherwise go to the index
         if my_trip.current_reviewer and self.request.user == my_trip.current_reviewer.user:
-            return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs={"pk": my_trip.current_reviewer.id}))
+            return HttpResponseRedirect(reverse("travel:trip_reviewer_update", args=[my_trip.current_reviewer.id]))
         else:
-            my_kwargs = deepcopy(self.kwargs)
-            my_kwargs["type"] = "all"
-            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs=my_kwargs))
+            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs=self.kwargs) + self.get_query_string())
 
 
 class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):

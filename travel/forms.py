@@ -93,7 +93,7 @@ class TripTimestampUpdateForm(forms.ModelForm):
             "notes",
         ]
         widgets = {
-            "last_modified_by": forms.HiddenInput()
+            "notes": forms.HiddenInput()
         }
 
 

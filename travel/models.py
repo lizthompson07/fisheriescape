@@ -1233,7 +1233,7 @@ class TripRequest1(models.Model):
     @property
     def processing_time(self):
         # if draft
-        if self.status == 8 or not self.original_submission_date:
+        if self.status == 8 or not self.original_submission_date or not self.reviewers.exists():
             my_var = "---"
         # if approved, denied
         elif self.status in [10, 11]:

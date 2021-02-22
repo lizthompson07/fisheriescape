@@ -52,6 +52,7 @@
                   <h5 class="card-title">
                     ${index+1}. ${t.smart_name} <span v-if="t.role"> (${t.role_display})</span>
                     <span v-if="t.is_research_scientist"> &mdash; {% trans "Research Scientist" %}</span>
+                    <span v-else-if="!t.is_public_servant"> &mdash; {% trans "EXTERNAL" %}</span>
                   </h5>
                   <div v-if="t.show_me" class="card-text">
                     <div v-if="trip">
@@ -120,17 +121,20 @@
                     <p><b>{% trans "Part of learning plan:" %}</b><span class="ml-1">${t.learning_plan|yesNo}</span></p>
                     <p><b>{% trans "Non-DFO funding:" %}</b><span class="ml-1" v-html="t.non_dfo_costs_html"></span></p>
 
-
-                    <p v-if="trip"><b>{% trans "Travel History (ADM approved only):" %}</b>                    </p>
-                    <ul class="ml-5">
-                      <li v-for="(r,i) in t.adm_travel_history" :key="r.id">
-                        <a :href="`/travel-plans/requests/${r.id}/view/`" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
-                          <span class="mdi mdi-arrow-top-right text-primary table-bordered"></span> ${r.display}
-                        </a>
-                        <span :class="r.status_class + ' px-1 py-0'">${r.status_display}</span>
-                      </li>
-                    </ul>
-
+                    <div v-if="trip && t.is_public_servant">
+                      <p><b>{% trans "Travel History (ADM approved only):" %}</b></p>
+                      <ul class="ml-5">
+                        <li v-for="(r,i) in t.adm_travel_history" :key="r.id">
+                          <a :href="`/travel-plans/requests/${r.id}/view/`" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
+                            <span class="mdi mdi-arrow-top-right text-primary table-bordered"></span> ${r.display}
+                          </a>
+                          <span :class="r.status_class + ' px-1 py-0'">${r.status_display}</span>
+                        </li>
+                        <li v-if="!t.adm_travel_history.length">
+                          <em>{% trans "This traveller has no prior approved ADM requests on file." %}</em>
+                        </li>
+                      </ul>
+                    </div>
 
 
                     <div v-if="canModify && !isReview && !trip">

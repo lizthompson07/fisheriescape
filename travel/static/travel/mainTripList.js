@@ -48,8 +48,8 @@ var app = new Vue({
         url = `/travel-plans/trips/${trip.id}/review-process/?${this.pageType}=true`;
         window.location.href = url;
       } else {
-        url = `/travel-plans/trips/${trip.id}/view/`;
-        win = window.open(url, '_blank');
+        url = `/travel-plans/trips/${trip.id}/view/?${window.location.search.substring(1)}`;
+        window.location.href = url;
       }
     },
     getFilterData() {
