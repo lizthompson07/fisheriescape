@@ -391,7 +391,7 @@ class OutingListView(VaultAccessRequired, CommonFilterView):
     new_btn_text = "New Outing"
 
     queryset = models.Outing.objects.annotate(
-        search_term=Concat('id', 'observation_platform__longname', 'region__name', 'purpose__name', 'identifier_string',
+        search_term=Concat('id', 'observation_platform__longname', 'identifier_string',
                            output_field=TextField()))
 
     field_list = [
