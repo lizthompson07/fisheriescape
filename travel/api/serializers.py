@@ -208,8 +208,13 @@ class TravellerSerializer(serializers.ModelSerializer):
     role_display = serializers.SerializerMethodField()
     smart_name = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
-    traveller_info = serializers.SerializerMethodField()
     request_obj = serializers.SerializerMethodField()
+    adm_travel_history = serializers.SerializerMethodField()
+
+    def get_adm_travel_history(self, instance):
+        if instance.user:
+            qs = models.TripRequest1.objects.filter(travellers__user=instance.user, trip__is_adm_approval_required=True, status=11).distinct()
+            return TripRequestSerializerLITE(qs, many=True, read_only=True).data
 
     def get_role_display(self, instance):
         return str(instance.role)
@@ -234,9 +239,6 @@ class TravellerSerializer(serializers.ModelSerializer):
 
     def get_total_cost(self, instance):
         return instance.total_cost
-
-    def get_traveller_info(self, instance):
-        return instance.traveller_info
 
     def validate(self, attrs):
         """

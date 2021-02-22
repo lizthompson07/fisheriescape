@@ -103,24 +103,21 @@
 {% block body_js %}
 
   <script type="application/javascript">
-  var confObj = {{ conf_json|safe }};
-  {#var sectionObj = {{ section_json|safe }};#}
+  var confObj = {};
   var myId = "";
 
   function updateTrip() {
     $("#id_trip").load("# #id_trip>*", reloadTripSelect);
   }
 
-  function reloadTripSelect() {
+  function reloadTripSelect(update = true) {
     var maxValue = -1;
 
     $("#id_trip option").each(function () {
       maxValue = Math.max(maxValue, $(this).val());
     });
     console.log("max val: " + maxValue);
-
-    $("#id_trip").val(maxValue).trigger("chosen:updated");
-
+    if (update) $("#id_trip").val(maxValue).trigger("chosen:updated");
     $.ajax({
       url: '{% url 'travel:conf_details' %}',
       data: {},
@@ -147,7 +144,7 @@
     else myTrip = null;
     $input = $("#id_late_justification");
     $div = $("#late_justification_div");
-    if (!myTrip || myTrip.eligible) {
+    if (!myTrip || !myTrip.is_late_request) {
       $div.addClass("gone");
       $input.val("");
       $input.prop("required", false);
@@ -159,6 +156,7 @@
 
   $(document).ready(function () {
     // Stuff to do as soon as the DOM is ready
+    reloadTripSelect(update=false);
     refreshLateJustification();
   });
 

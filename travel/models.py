@@ -244,7 +244,7 @@ class Conference(models.Model):
                                 verbose_name=_("location (city, province, country)"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
                              verbose_name=_("Which region is the lead on this trip?"),
-                             related_name="meeting_leads", blank=True, null=True)
+                             related_name="meeting_leads", blank=False, null=True)
     has_event_template = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"), editable=False)
@@ -1424,21 +1424,6 @@ class Traveller(models.Model):
             return self.user.get_full_name()
         else:
             return f'{self.first_name} {self.last_name}'
-
-    @property
-    def traveller_info(self):
-        company = nz(self.company_name, "<span class='red-font'>{}</span>".format(gettext('missing company name')))
-        address = nz(self.address, "<span class='red-font'>{}</span>".format(_('missing address')))
-        phone = nz(self.phone, "<span class='red-font'>{}</span>".format(_('missing phone number')))
-        email = nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
-                   "<span class='red-font'>{}</span>".format(_('missing email address')))
-        mystr = ""
-        if not self.is_public_servant:
-            mystr += "<p><b>{}</b>: {}<br></p>".format(gettext("Company"), company)
-        mystr += "<p><b>{}</b>: {}<br></p>".format(gettext("Address"), address)
-        mystr += "<p><b>{}</b>: {}<br></p>".format(gettext("Phone"), phone)
-        mystr += "<p><b>{}</b>: {}<br></p>".format(gettext("Email"), email)
-        return mark_safe(mystr)
 
 
 # SHOULD BE RENAMED TO TRAVELLER COST

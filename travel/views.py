@@ -13,7 +13,7 @@ from django.db import IntegrityError
 from django.db.models import Sum, Q, Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse, HttpResponseForbidden
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
@@ -75,13 +75,18 @@ def get_file(request, file):
 
 
 def get_conf_details(request):
+    """ used exclusively for the request_form but should be phased out with REST Api"""
     conf_dict = {}
-    for conf in models.Conference.objects.all():
+    qs = models.Conference.objects.filter(start_date__gte=timezone.now())
+    for conf in qs:
         conf_dict[conf.id] = {}
         conf_dict[conf.id]['location'] = conf.location
         conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
         conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
-
+        if conf.date_eligible_for_adm_review and timezone.now() > conf.date_eligible_for_adm_review:
+            conf_dict[conf.id]['is_late_request'] = True
+        else:
+            conf_dict[conf.id]['is_late_request'] = False
     return JsonResponse(conf_dict)
 
 
@@ -228,21 +233,6 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
         # send JSON file to template so that it can be used by js script
         context['user_json'] = user_json
         context['org_form'] = forms.OrganizationForm1
-
-        conf_dict = {}
-        for conf in models.Conference.objects.all():
-            conf_dict[conf.id] = {}
-            conf_dict[conf.id]['location'] = conf.location
-            conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
-            conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
-            if conf.date_eligible_for_adm_review and timezone.now() > conf.date_eligible_for_adm_review:
-                conf_dict[conf.id]['eligible'] = False
-            else:
-                conf_dict[conf.id]['eligible'] = True
-
-        conf_json = json.dumps(conf_dict)
-        # send JSON file to template so that it can be used by js script
-        context['conf_json'] = conf_json
         context['help_text_dict'] = get_help_text_dict()
         return context
 
@@ -280,21 +270,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        conf_dict = {}
-        for conf in models.Conference.objects.all():
-            conf_dict[conf.id] = {}
-            conf_dict[conf.id]['location'] = conf.location
-            conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
-            conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
-            if conf.date_eligible_for_adm_review and timezone.now() > conf.date_eligible_for_adm_review:
-                conf_dict[conf.id]['eligible'] = False
-            else:
-                conf_dict[conf.id]['eligible'] = True
-        conf_json = json.dumps(conf_dict)
-        # send JSON file to template so that it can be used by js script
-        context['conf_json'] = conf_json
         context['help_text_dict'] = get_help_text_dict()
-
         return context
 
 

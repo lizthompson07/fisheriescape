@@ -85,9 +85,32 @@
 
                     <hr>
                     <h4 v-if="trip">{% trans "Traveller Level" %}</h4>
-                    <div class="mb-3">
-                      <span v-html="t.traveller_info"></span>
-                    </div>
+
+                    <p v-if="!t.is_public_servant">
+                      <b>{% trans "Company / Organization:" %}</b>
+                      <span v-if="t.company_name" class="ml-1">${t.company_name}</span>
+                      <span v-else class="ml-1 red-font">{% trans "missing!" %}</span>
+                    </p>
+
+                    <p>
+                      <b>{% trans "Address:" %}</b>
+                      <span v-if="t.address" class="ml-1">${t.address}</span>
+                      <span v-else class="ml-1 red-font">{% trans "missing!" %}</span>
+                    </p>
+
+                    <p>
+                      <b>{% trans "Phone:" %}</b>
+                      <span v-if="t.phone" class="ml-1">${t.phone}</span>
+                      <span v-else class="ml-1 red-font">{% trans "missing!" %}</span>
+                    </p>
+
+                    <p>
+                      <b>{% trans "E-mail:" %}</b>
+                      <a v-if="t.email" class="ml-1" :href="t.email">${t.email}</a>
+                      <span v-else class="ml-1 red-font">{% trans "missing!" %}</span>
+                    </p>
+
+
                     <p><b>{% trans "Public servant:" %}</b><span class="ml-1">${t.is_public_servant|yesNo}</span></p>
                     <p><b>{% trans "Research scientist:" %}</b><span class="ml-1">${t.is_research_scientist|yesNo}</span></p>
                     <p><b>{% trans "Travel dates:" %}</b><span class="ml-1" v-html="t.dates"></span></p>
@@ -96,6 +119,19 @@
                     <p><b>${travellerLabels.role_of_participant}</b><span class="ml-1">${t.role_of_participant|nz}</span></p>
                     <p><b>{% trans "Part of learning plan:" %}</b><span class="ml-1">${t.learning_plan|yesNo}</span></p>
                     <p><b>{% trans "Non-DFO funding:" %}</b><span class="ml-1" v-html="t.non_dfo_costs_html"></span></p>
+
+
+                    <p v-if="trip"><b>{% trans "Travel History (ADM approved only):" %}</b>                    </p>
+                    <ul class="ml-5">
+                      <li v-for="(r,i) in t.adm_travel_history" :key="r.id">
+                        <a :href="`/travel-plans/requests/${r.id}/view/`" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
+                          <span class="mdi mdi-arrow-top-right text-primary table-bordered"></span> ${r.display}
+                        </a>
+                        <span :class="r.status_class + ' px-1 py-0'">${r.status_display}</span>
+                      </li>
+                    </ul>
+
+
 
                     <div v-if="canModify && !isReview && !trip">
                       {% include "travel/common/_costs.html" %}
@@ -154,7 +190,7 @@
                   <option v-for="(obj, index) in yesNoChoices" :value="obj.value">${obj.text}</option>
                 </select>
               </div>
-              <div class="form-group">
+              <div class="form-group" v-if="travellerToEdit.is_public_servant">
                 <label for="">
                   ${travellerLabels.is_research_scientist}
                   <span v-if="helpText.is_research_scientist" @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"

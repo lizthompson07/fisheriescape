@@ -63,20 +63,20 @@
           {# daily_rate #}
           <td v-if="!c.editMode" class="center-col"> ${c.rate_cad |floatformat |nz|zero2NullMark}</td>
           <td v-else>
-            <input @keyup='updateCostRowTotal(c)' type="number" step=".01" v-model="c.rate_cad" class="form-control form-control-sm"
+            <input @keyup='updateCostRowTotal(c)' type="number" step=".01" v-model="c.rate_cad" class="form-control form-control-sm text-center"
                    placeholder="{% trans "rate" %}" v-on:keyup.enter="updateCost(t, c)">
           </td>
           {# days #}
           <td class="center-col" v-if="!c.editMode"> ${c.number_of_days|nz|zero2NullMark }</td>
           <td v-else>
-            <input @keyup='updateCostRowTotal(c)' type="number" v-model="c.number_of_days" class="form-control form-control-sm"
+            <input @keyup='updateCostRowTotal(c)' type="number" v-model="c.number_of_days" class="form-control form-control-sm text-center"
                    placeholder="{% trans "days" %}" v-on:keyup.enter="updateCost(t, c)">
           </td>
           {# Amount CAD #}
           <td class="text-center" v-if="!c.editMode"> ${c.amount_cad |floatformat |zero2NullMark }</td>
           <td v-else>
             <input :disabled="(c.rate_cad !== null && c.rate_cad !== '') || (c.number_of_days !== null && c.number_of_days !== '')" type="number" step=".01"
-                   v-model="c.amount_cad" class="form-control form-control-sm" v-on:keyup.enter="updateCost(t, c)">
+                   v-model="c.amount_cad" class="form-control form-control-sm text-center" v-on:keyup.enter="updateCost(t, c)">
           </td>
 
           <td v-if="canModify && !isReview" style="width:75px">

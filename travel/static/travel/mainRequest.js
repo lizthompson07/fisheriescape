@@ -80,6 +80,7 @@ var app = new Vue({
           request: this.request.id,
           start_date: this.request.trip.start_date,
           end_date: this.request.trip.end_date,
+          user: '',
           name: null,
           file: null,
           editMode: true,

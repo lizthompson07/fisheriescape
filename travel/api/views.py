@@ -234,6 +234,13 @@ class TravellerViewSet(viewsets.ModelViewSet):
         if my_request.status != 8:
             my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
 
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        return super().create(request, *args, **kwargs)
+    def update(self, request, *args, **kwargs):
+        print(request.data)
+        return super().update(request, *args, **kwargs)
+
 
 class ReviewerViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RequestReviewerSerializer
