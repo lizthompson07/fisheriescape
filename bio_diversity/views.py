@@ -246,11 +246,18 @@ class DataCreate(mixins.DataMixin, CommonCreate):
         init = super().get_initial()
         if 'evnt' in self.kwargs:
             init['evnt_id'] = self.kwargs['evnt']
-            init['evntc_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id
+            evntc = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id
+            init['evntc_id'] = evntc
             init['facic_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
+            if evntc.__str__() == "Electrofishing":
+                self.get_form_class().base_fields["tank_id"].widget = forms.Select()
+                self.get_form_class().base_fields["tank_id"].required = True
+            else:
+                self.get_form_class().base_fields["tank_id"].required = False
+                self.get_form_class().base_fields["tank_id"].widget = forms.HiddenInput()
         return init
 
     def get_context_data(self, **kwargs):

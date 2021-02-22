@@ -117,6 +117,40 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str,
     return row_entered
 
 
+def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=None, comments=None):
+    row_entered = False
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
+    if adsc_str:
+        grpd = models.GroupDet(anix_id_id=anix_pk,
+                               anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                               adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
+                               det_val=det_value,
+                               detail_date=det_date,
+                               qual_id=models.QualCode.objects.filter(name="Good").get(),
+                               comments=comments,
+                               created_by=cleaned_data["created_by"],
+                               created_date=cleaned_data["created_date"],
+                               )
+    else:
+        grpd = models.GroupDet(anix_id_id=anix_pk,
+                               anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                               det_val=det_value,
+                               detail_date=det_date,
+                               qual_id=models.QualCode.objects.filter(name="Good").get(),
+                               created_by=cleaned_data["created_by"],
+                               created_date=cleaned_data["created_date"],
+                               )
+    try:
+        grpd.clean()
+        grpd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
+
+
 def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, indv_pk=None, grp_pk=None):
     row_entered = False
     new_cleaned_data = cleaned_data.copy()

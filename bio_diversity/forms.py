@@ -13,7 +13,7 @@ import pandas as pd
 
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
-    enter_anix_indv, create_movement_evnt
+    enter_anix_indv, create_movement_evnt, enter_anix_grp, enter_grpd
 
 
 class CreatePrams(forms.ModelForm):
@@ -345,44 +345,40 @@ class DataForm(CreatePrams):
                     rows_parsed += 1
             if parsed:
                 try:
-                    grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                       stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
-                                       coll_id=models.Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
-                                       grp_year=datetime.strptime(data["Date"][0], "%Y-%b-%d").year,
-                                       grp_valid=True,
-                                       created_by=cleaned_data["created_by"],
-                                       created_date=cleaned_data["created_date"],
-                                       )
-                    try:
-                        grp.clean()
-                        grp.save()
-                    except ValidationError:
-                        grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
-                                                          coll_id=grp.coll_id).get()
-                    anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                grp_id_id=grp.pk,
-                                                created_by=cleaned_data["created_by"],
-                                                created_date=cleaned_data["created_date"],
-                                                )
-                    try:
-                        anix.clean()
-                        anix.save()
-                    except ValidationError:
-                        pass
-                    grpd = models.GroupDet(anix_id_id=anix.pk,
-                                           anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
-                                           det_val=data["# of salmon collected"].sum(),
-                                           qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                           grpd_valid=True,
-                                           detail_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                    anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
+                                                                      grp_id__isnull=False,
+                                                                      indv_id__isnull=True,
+                                                                      contx_id__isnull=True,
+                                                                      indvt_id__isnull=True,
+                                                                      loc_id__isnull=True,
+                                                                      spwn_id__isnull=True)
+                    if anix_grp_qs.count() == 0:
+
+                        grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                           stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
+                                           coll_id=models.Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
+                                           grp_year=datetime.strptime(data["Date"][0], "%Y-%b-%d").year,
+                                           grp_valid=True,
                                            created_by=cleaned_data["created_by"],
                                            created_date=cleaned_data["created_date"],
                                            )
-                    try:
-                        grpd.clean()
-                        grpd.save()
-                    except ValidationError:
-                        pass
+                        try:
+                            grp.clean()
+                            grp.save()
+                        except ValidationError:
+                            grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
+                                                              coll_id=grp.coll_id).get()
+
+                        anix_grp = enter_anix_grp(grp.pk, cleaned_data)
+                    elif anix_grp_qs.count() == 1:
+                        anix_grp = anix_grp_qs.get()
+                        grp = anix_grp.grp_id
+
+                        first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d")
+                        enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish")
+
+                        enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
+
                 except Exception as err:
                     log_data += "Error parsing common data: \n"
                     log_data += "\n Error: {}".format(err.__str__())
@@ -510,46 +506,40 @@ class DataForm(CreatePrams):
                     rows_parsed += 1
             if parsed:
                 try:
-                    relc = models.ReleaseSiteCode.objects.filter(name__iexact=row["Location Name"]).get()
-                    grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                       stok_id=models.StockCode.objects.filter(name__icontains=relc.rive_id.name).get(),
-                                       coll_id=models.Collection.objects.filter(name__icontains="Fall Parr").get(),
-                                       grp_year=data["Year"][0],
-                                       grp_valid=True,
-                                       created_by=cleaned_data["created_by"],
-                                       created_date=cleaned_data["created_date"],
-                                       )
-                    try:
-                        grp.clean()
-                        grp.save()
-                    except ValidationError:
-                        grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
-                                                          grp_year=grp.grp_year, coll_id=grp.coll_id).get()
-                    anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                grp_id_id=grp.pk,
-                                                created_by=cleaned_data["created_by"],
-                                                created_date=cleaned_data["created_date"],
-                                                )
-                    try:
-                        anix.clean()
-                        anix.save()
-                    except ValidationError:
-                        pass
-                    grpd = models.GroupDet(anix_id_id=anix.pk,
-                                           anidc_id=models.AnimalDetCode.objects.filter(
-                                               name__iexact="Number of Fish").get(),
-                                           det_val=data["# Parr Collected"].sum(),
-                                           qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                           grpd_valid=True,
-                                           detail_date=datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d"),
+                    relc = models.ReleaseSiteCode.objects.filter(name__iexact=data["Location Name"][0]).get()
+
+                    anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
+                                                                      grp_id__isnull=False,
+                                                                      indv_id__isnull=True,
+                                                                      contx_id__isnull=True,
+                                                                      indvt_id__isnull=True,
+                                                                      loc_id__isnull=True,
+                                                                      spwn_id__isnull=True)
+
+                    if anix_grp_qs.count() == 0:
+                        grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                           stok_id=models.StockCode.objects.filter(name__icontains=relc.rive_id.name).get(),
+                                           coll_id=models.Collection.objects.filter(name__icontains="Fall Parr").get(),
+                                           grp_year=data["Year"][0],
+                                           grp_valid=True,
                                            created_by=cleaned_data["created_by"],
                                            created_date=cleaned_data["created_date"],
                                            )
-                    try:
-                        grpd.clean()
-                        grpd.save()
-                    except ValidationError:
-                        pass
+                        try:
+                            grp.clean()
+                            grp.save()
+                        except ValidationError:
+                            grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
+                                                              grp_year=grp.grp_year, coll_id=grp.coll_id).get()
+                        anix_grp = enter_anix_grp(grp.pk, cleaned_data)
+                    elif anix_grp_qs.count() == 1:
+                        anix_grp = anix_grp_qs.get()
+                        grp = anix_grp.grp_id
+                        first_row_date = datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d")
+                        enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish" )
+
+                        enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
+
                 except Exception as err:
                     log_data += "Error parsing common data: \n"
                     log_data += "\n Error: {}".format(err.__str__())
@@ -569,13 +559,23 @@ class DataForm(CreatePrams):
             self.request.session["load_success"] = True
             try:
                 year, coll = year_coll_splitter(data["Group"][0])
-                grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
+                grp_qs = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
                                                      coll_id__name__iexact=coll,
-                                                     grp_year=year).get().pk
+                                                     grp_year=year)
+                if len(grp_qs) == 1:
+                    grp_id = grp_qs.get().pk
+                elif len(grp_qs) > 1:
+                    for grp in grp_qs:
+                        tank_list = grp.current_tank()
+                        if data["from Tank"][0] in [tank.name for tank in tank_list]:
+                            grp_id = grp.pk
+
             except Exception as err:
                 log_data += "Error finding origin group (check first row): \n"
                 log_data += "Error: {}\n\n".format(err.__str__())
                 self.request.session["load_success"] = False
+
+            enter_anix_grp(grp_id, cleaned_data)
 
             for row in data_dict:
                 row_parsed = True
@@ -676,21 +676,12 @@ class DataForm(CreatePrams):
                         if data["Origin Pond"][0] in [tank.name for tank in tank_list]:
                             grp_id = grp.pk
 
-                anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                grp_id_id=grp_id,
-                                                created_by=cleaned_data["created_by"],
-                                                created_date=cleaned_data["created_date"],
-                                                )
-                try:
-                    anix_grp.clean()
-                    anix_grp.save()
-                    row_entered = True
-                except ValidationError:
-                    pass
             except Exception as err:
                 log_data += "Error finding origin group (check first row): \n"
                 log_data += "Error: {}\n\n".format(err.__str__())
                 self.request.session["load_success"] = False
+
+            anix_grp = enter_anix_grp(grp_id, cleaned_data)
 
             for row in data_dict:
                 row_parsed = True
