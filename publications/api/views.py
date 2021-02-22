@@ -72,7 +72,8 @@ class PubsAPIView(APIView):
             try:
                 query_poly = wkt.loads(wkt_poly)
             except WKTReadingError:
-                raise WKTReadingError
+                data = [{"error": "Invalid WKT formating. Unable to parse wkt_poly argument with shapely.wkt.loads()"}]
+                return Response(data)
             proj_instances = models.Project.objects.none()
             for geoscope, polygon in poly_dict.items():
                 if polygon.intersects(query_poly):
