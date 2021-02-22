@@ -20,6 +20,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.views.i18n import JavaScriptCatalog
 
 from accounts import views as acc_views
 from . import views as views
@@ -29,6 +30,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('tracking/', include('tracking.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
+    path('api/shared/', include('shared_models.api.urls')),
 ]
 
 # Add application APIs
@@ -52,6 +54,15 @@ if settings.INSTALLED_APPS.count("publications"):
     urlpatterns.append(
         path('api/', include('publications.api.urls')),
     )
+
+if settings.INSTALLED_APPS.count("events"):
+    urlpatterns.extend([
+        path('events/', include('events.urls')),
+        path('api/', include('events.api.urls')),
+    ])
+else:
+    print("not connecting events app")
+
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
@@ -124,11 +135,6 @@ if settings.INSTALLED_APPS.count("scifi"):
     urlpatterns += i18n_patterns(path('scifi/', include('scifi.urls')), prefix_default_language=True)
 else:
     print("not connecting scifi app")
-
-if settings.INSTALLED_APPS.count("masterlist"):
-    urlpatterns += i18n_patterns(path('master-list/', include('masterlist.urls')), prefix_default_language=True)
-else:
-    print("not connecting masterlist app")
 
 if settings.INSTALLED_APPS.count("shares"):
     urlpatterns += i18n_patterns(path('gulf-shares/', include('shares.urls')), prefix_default_language=True)

@@ -105,7 +105,7 @@
                 <tbody>
                     {% for obj in filter.qs %}
                         <tr>
-                            {% if obj.region|slugify == 'quebec' %}    {# ===== starting Regional List ===== #}
+                            {% if obj.lead_region|slugify == 'quebec' or obj.region|slugify == 'quebec' %}    {# ===== starting Regional List ===== #}
 
                             {% for field in fields %}
                                 <td>{% get_field_value obj field %}</td>
@@ -154,6 +154,15 @@
                                            href="{% url ''|add:'csas:details_met_media' obj.pk %}">{% trans 'Media' %}</a>
                                     {% else %}
                                         <a class="btn btn-outline-primary btn-sm">{% trans 'Media' %}</a>
+                                    {% endif %}
+
+                                    {# ----- for button Delete #}
+                                    {% if csas_admin %}
+                                        {# ===================================================================== #}
+                                        <a class="btn btn-secondary btn-sm" href="#"
+                                           onclick="return popitup('{% url ''|add:'csas:confirm_delete_met_fr_lists' obj.pk %}','popoutWindow')"
+                                           title="{% trans 'Add' %}">{% trans 'Delete' %}</a>
+                                        {# ===================================================================== #}
                                     {% endif %}
                                 </td>
                             {% elif key == 'pub' %}
@@ -219,6 +228,15 @@
                                     {% else %}
                                         <a class="btn btn-outline-primary btn-sm">{% trans 'Com Results' %}</a>
                                     {% endif %}
+
+                                    {# ----- for button Delete #}
+                                    {% if csas_admin %}
+                                        {# ===================================================================== #}
+                                        <a class="btn btn-secondary btn-sm" href="#"
+                                           onclick="return popitup('{% url ''|add:'csas:confirm_delete_pub_fr_lists' obj.pk %}','popoutWindow')"
+                                           title="{% trans 'Add' %}">{% trans 'Delete' %}</a>
+                                        {# ===================================================================== #}
+                                    {% endif %}
                                  </td>
                             {% else %}
                                 {% if details_url %}
@@ -229,29 +247,57 @@
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:update_url obj.pk %}"
                                            title="{% trans 'Update' %}">{% trans 'Update' %}</a>
-                                        <a class="btn btn-secondary btn-sm"
-                                           href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>
+
+                                        {% if obj.req_status %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">
+                                               {% trans 'Status' %}</a>
+                                        {% else %}
+                                            <a class="btn btn-outline-primary btn-sm"> {% trans 'Status' %} </a>
+                                        {% endif %}
+
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:'csas:create_req_CSAS' %}">{% trans 'Status Update' %}</a>
+
+                                        {# ===================================================================== #}
+                                        <a class="btn btn-secondary btn-sm" href="#"
+                                           onclick="return popitup('{% url ''|add:'csas:confirm_delete_req_fr_lists' obj.pk %}','popoutWindow')"
+                                           title="{% trans 'Add' %}">{% trans 'Delete' %}</a>
+                                        {# ===================================================================== #}
                                     {% elif key == 'req' and auth %}
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:update_url obj.pk %}"
                                            title="{% trans 'Update' %}">{% trans 'Update' %}</a>
-                                        <a class="btn btn-secondary btn-sm"
-                                           href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>
+                                        {% if obj.req_status %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">
+                                               {% trans 'Status' %}</a>
+                                        {% else %}
+                                            <a class="btn btn-outline-primary btn-sm"> {% trans 'Status' %} </a>
+                                        {% endif %}
                                     {% elif key == 'req' %}
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
-                                        <a class="btn btn-secondary btn-sm"
-                                           href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>
+                                        {% if obj.req_status %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">
+                                               {% trans 'Status' %}</a>
+                                        {% else %}
+                                            <a class="btn btn-outline-primary btn-sm"> {% trans 'Status' %} </a>
+                                        {% endif %}
                                     {% elif key == 'con' and csas_admin %}
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:update_url obj.pk %}"
                                            title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {# ===================================================================== #}
+                                        <a class="btn btn-secondary btn-sm" href="#"
+                                           onclick="return popitup('{% url ''|add:'csas:confirm_delete_con_fr_lists' obj.pk %}','popoutWindow')"
+                                           title="{% trans 'Add' %}">{% trans 'Delete' %}</a>
+                                        {# ===================================================================== #}
                                     {% elif key == 'con' and auth %}
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>

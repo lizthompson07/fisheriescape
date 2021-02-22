@@ -1,9 +1,11 @@
 # from django.db import models
 
 # Create your models here.
+import datetime
 import os
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
+from django.utils import timezone
 
 from shared_models import models as shared_models
 from django.db import models
@@ -18,10 +20,19 @@ class BioModel(models.Model):
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
 
+    # to handle unresolved attirbute reference in pycharm
+    objects = models.Manager()
+
     def clean(self):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
+
+        try:
+            self.clean_fields()
+        except ValidationError:
+            return
+
         uniqueness_constraints = [constraint for constraint in self._meta.constraints
                                   if isinstance(constraint, models.UniqueConstraint)]
         for constraint in uniqueness_constraints:
@@ -43,7 +54,7 @@ class BioModel(models.Model):
                     unique_queryset = unique_queryset.exclude(pk=self.pk)
                 if unique_queryset.exists():
                     msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                    raise ValidationError(msg)
+                    raise ValidationError(msg, code="unique_together")
 
 
 class BioContainerDet(BioModel):
@@ -87,6 +98,9 @@ class BioLookup(shared_models.Lookup):
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
 
+    # to handle unresolved attirbute reference in pycharm
+    objects = models.Manager()
+
     def clean(self):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
@@ -115,7 +129,7 @@ class BioLookup(shared_models.Lookup):
                     raise ValidationError(msg)
 
 
-class BioTimeModel(BioModel):
+class BioDateModel(BioModel):
     # model with start date/end date, still valid, created by and created date fields
     class Meta:
         abstract = True
@@ -126,10 +140,42 @@ class BioTimeModel(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
 
+class BioTimeModel(BioModel):
+    # model with start datetime/end datetime, created by and created date fields
+    class Meta:
+        abstract = True
+
+    start_datetime = models.DateTimeField(verbose_name=_("Start date"))
+    end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End date"))
+
+    @property
+    def start_date(self):
+        return self.start_datetime.date()
+
+    @property
+    def start_time(self):
+        if self.start_datetime.time() == datetime.time(0, 0):
+            return None
+        return self.start_datetime.time().strftime("%H:%M")
+
+    @property
+    def end_date(self):
+        if self.end_datetime:
+            return self.end_datetime.date()
+        else:
+            return None
+
+    @property
+    def end_time(self):
+        if self.end_datetime.time() == datetime.time(0, 0):
+            return None
+        return self.end_datetime.time().strftime("%H:%M")
+
+
 class AnimalDetCode(BioLookup):
     # anidc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Minimum Value"))
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Maximum Value"))
     unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"))
     ani_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
 
@@ -138,9 +184,8 @@ class AnimalDetCode(BioLookup):
 
 
 class AniDetSubjCode(BioLookup):
-    # ansc tag
-    anidc_id = models.ForeignKey("AnimalDetCode", on_delete=models.CASCADE, null=True, blank=True,
-                                 verbose_name=_("Type of measurement"))
+    # adsc tag
+    anidc_id = models.ForeignKey("AnimalDetCode", on_delete=models.CASCADE, verbose_name=_("Type of measurement"))
 
 
 class AniDetailXref(BioModel):
@@ -149,6 +194,7 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details")
     contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"))
+    final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), null=True)
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True,
                                verbose_name=_("Location"))
     indvt_id = models.ForeignKey("IndTreatment", on_delete=models.CASCADE, null=True, blank=True,
@@ -178,6 +224,16 @@ class AniDetailXref(BioModel):
 class Collection(BioLookup):
     # coll tag
     pass
+
+
+# This is a special table used to house comment parsing abilities
+class CommentKeywords(models.Model):
+    # coke tag
+    keyword = models.CharField(max_length=255)
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Subjective Code"))
+
+    class Meta:
+        ordering = ['keyword', ]
 
 
 class ContainerDetCode(BioLookup):
@@ -254,7 +310,7 @@ class CountCode(BioLookup):
 
 class CountDet(BioDet):
     # cntd tag
-    cnt_id = models.ForeignKey("Count", on_delete=models.CASCADE, verbose_name=_("Count"))
+    cnt_id = models.ForeignKey("Count", on_delete=models.CASCADE, verbose_name=_("Count"), related_name="count_details")
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Animal Detail Subjective Code"))
@@ -272,9 +328,8 @@ class CountDet(BioDet):
         if self.det_val:
             if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.anidc_id.max_val,
-                                                                                                  self.anidc_id.min_val))
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
 
 
@@ -318,7 +373,7 @@ class EnvCode(BioLookup):
     env_subj_flag = models.BooleanField(verbose_name=_("Objective observation?"))
 
 
-class EnvCondition(BioModel):
+class EnvCondition(BioTimeModel):
     # env tag
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, null=True, blank=True,
                                  related_name="env_condition", verbose_name=_("Container Cross Reference"))
@@ -329,8 +384,6 @@ class EnvCondition(BioModel):
     env_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
     envsc_id = models.ForeignKey('EnvSubjCode', on_delete=models.CASCADE, null=True, blank=True,
                                  verbose_name=_("Environment Subjective Code"))
-    env_start = models.DateTimeField(verbose_name=_("Event start date"))
-    env_end = models.DateTimeField(null=True, blank=True, verbose_name=_("Event end date"))
     env_avg = models.BooleanField(default=False, verbose_name=_("Is value an average?"))
     qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality of observation"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
@@ -346,7 +399,7 @@ class EnvCondition(BioModel):
         elif self.loc_id:
             return "{}-{}".format(self.loc_id.__str__(), self.envc_id.__str__())
         else:
-            return "{}-{}".format(self.envc_id.__str__(), self.env_start)
+            return "{}-{}".format(self.envc_id.__str__(), self.start_date)
 
     def clean(self):
         super(EnvCondition, self).clean()
@@ -447,12 +500,46 @@ class Event(BioModel):
     prog_id = models.ForeignKey('Program', on_delete=models.CASCADE, verbose_name=_("Program"),
                                 limit_choices_to={'valid': True})
     team_id = models.ForeignKey('Team', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Team"))
-    evnt_start = models.DateTimeField(verbose_name=_("Event start date"))
-    evnt_end = models.DateTimeField(null=True, blank=True, verbose_name=_("Event end date"))
+
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
+    evnt_start = models.DateTimeField(verbose_name=_("Start date"))
+    evnt_end = models.DateTimeField(null=True, blank=True, verbose_name=_("End date"))
+
+    @property
+    def start_date(self):
+        return self.evnt_start.date()
+
+    @property
+    def start_time(self):
+        if self.evnt_start.time() == datetime.time(0, 0):
+            return None
+        return self.evnt_start.time().strftime("%H:%M")
+
+    @property
+    def end_date(self):
+        if self.evnt_end:
+            return self.evnt_end.date()
+        else:
+            return None
+
+    @property
+    def end_time(self):
+        if self.evnt_end.time() == datetime.time(0, 0):
+            return None
+        return self.evnt_end.time().strftime("%H:%M")
+
+    @property
+    def is_current(self):
+        if self.evnt_end and self.evnt_end < datetime.now(tz=timezone.get_current_timezone()):
+            return True
+        elif not self.evnt_end:
+            return True
+        else:
+            return False
+
     def __str__(self):
-        return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.evnt_start.date())
+        return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.start_date)
 
     class Meta:
         constraints = [
@@ -471,7 +558,7 @@ class FacilityCode(BioLookup):
     pass
 
 
-class Fecundity(BioTimeModel):
+class Fecundity(BioDateModel):
     # fecu tag
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True,
@@ -528,8 +615,12 @@ class Group(BioModel):
         return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
-class GroupDet(BioDet):
+class GroupDet(BioModel):
     # grpd tag
+    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
+    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"))
+    grpd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="group_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
@@ -546,13 +637,24 @@ class GroupDet(BioDet):
 
     def clean(self):
         super(GroupDet, self).clean()
-        if self.det_val:
-            if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
+        if self.is_numeric() and self.det_val is not None:
+            try:
+                float(self.det_val)
+            except ValueError:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.anidc_id.max_val,
-                                                                                                  self.anidc_id.min_val))
+                    "det_val": ValidationError(_("Enter a numeric value"), code="detail_must_be_numeric")
                 })
+            if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
+                raise ValidationError({
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
+                })
+
+    def is_numeric(self):
+        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 class HeathUnit(BioLookup):
@@ -695,8 +797,12 @@ class Individual(BioModel):
         return "{}-{}".format(self.stok_id.__str__(), self.coll_id.__str__())
 
 
-class IndividualDet(BioDet):
+class IndividualDet(BioModel):
     # indvd tag
+    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
+    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"))
+    indvd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
@@ -714,13 +820,25 @@ class IndividualDet(BioDet):
 
     def clean(self):
         super(IndividualDet, self).clean()
-        if self.det_val:
-            if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
+        if self.is_numeric() and self.det_val is not None:
+            try:
+                float(self.det_val)
+            except ValueError:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.anidc_id.max_val,
-                                                                                                  self.anidc_id.min_val))
+                    "det_val": ValidationError(_("Enter a numeric value"), code="detail_must_be_numeric")
                 })
+
+            if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
+                raise ValidationError({
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
+                })
+
+    def is_numeric(self):
+        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 class IndTreatCode(BioLookup):
@@ -729,15 +847,13 @@ class IndTreatCode(BioLookup):
     manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"))
 
 
-class IndTreatment(BioModel):
+class IndTreatment(BioTimeModel):
     # indvt tag
     indvtc_id = models.ForeignKey('IndTreatCode', on_delete=models.CASCADE,
                                   verbose_name=_("Individual Treatment Code"))
     lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"))
     dose = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"))
     unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"))
-    start_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
-    end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End Date"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
@@ -760,7 +876,7 @@ class InstrumentCode(BioLookup):
     pass
 
 
-class InstrumentDet(BioTimeModel):
+class InstrumentDet(BioDateModel):
     # instd tag
     inst_id = models.ForeignKey('Instrument', on_delete=models.CASCADE, verbose_name=_("Instrument"))
     instdc_id = models.ForeignKey('InstDetCode', on_delete=models.CASCADE, verbose_name=_("Instrument Detail Code"))
@@ -796,8 +912,19 @@ class Location(BioModel):
                                   verbose_name=_("Lattitude"))
     loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Longitude"))
-    loc_date = models.DateTimeField(verbose_name=_("Date event took place"))
+    loc_date = models.DateTimeField(verbose_name=_("Start date"))
+
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    @property
+    def start_date(self):
+        return self.loc_date.date()
+
+    @property
+    def start_time(self):
+        if self.loc_date.time() == datetime.time(0, 0):
+            return None
+        return self.loc_date.time().strftime("%H:%M")
 
     def __str__(self):
         return "{} location".format(self.locc_id.__str__())
@@ -819,10 +946,10 @@ class Organization(BioLookup):
     pass
 
 
-class Pairing(BioTimeModel):
+class Pairing(BioDateModel):
     # pair tag
     indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"),
-                                limit_choices_to={'ufid__isnull': False, 'indv_valid': True}, related_name="pairings")
+                                limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings")
 
     def __str__(self):
         return "Pair: {}-{}".format(self.indv_id.__str__(), self.start_date)
@@ -853,7 +980,7 @@ class PriorityCode(BioLookup):
     pass
 
 
-class Program(BioTimeModel):
+class Program(BioDateModel):
     # prog tag
     prog_name = models.CharField(max_length=30, unique=True, verbose_name=_("Program Name"))
     prog_desc = models.CharField(max_length=4000, verbose_name=_("Program Description"))
@@ -878,7 +1005,7 @@ class ProgAuthority(BioModel):
         ]
 
 
-class Protocol(BioTimeModel):
+class Protocol(BioDateModel):
     # prot tag
     prog_id = models.ForeignKey('Program', on_delete=models.CASCADE, verbose_name=_("Program"),
                                 limit_choices_to={'valid': True}, related_name="protocols")
@@ -1020,9 +1147,8 @@ class SampleDet(BioDet):
         if self.det_val:
             if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.anidc_id.max_val,
-                                                                                                  self.anidc_id.min_val))
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
 
 
@@ -1032,7 +1158,7 @@ class Sire(BioModel):
     pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, verbose_name=_("Pairing"), related_name="sire",
                                 limit_choices_to={'valid': True})
     indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Sire UFID"),
-                                limit_choices_to={'ufid__isnull':  False, 'indv_valid': True}, related_name="sires")
+                                limit_choices_to={'pit_tag__isnull':  False, 'indv_valid': True}, related_name="sires")
     choice = models.IntegerField(verbose_name=_("Choice"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
@@ -1077,9 +1203,8 @@ class SpawnDet(BioDet):
         if self.det_val:
             if self.det_val > self.spwndc_id.max_val or self.det_val < self.spwndc_id.min_val:
                 raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                  self.spwndc_id.max_val,
-                                                                                                  self.spwndc_id.min_val))
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.spwndc_id.max_val, self.spwndc_id.min_val))
                 })
 
 

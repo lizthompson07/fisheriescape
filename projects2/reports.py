@@ -5,9 +5,9 @@ from io import BytesIO
 import xlsxwriter
 from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import HttpResponse
-from django.template.defaultfilters import pluralize, slugify
+from django.template.defaultfilters import pluralize, slugify, date
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from docx import Document
@@ -17,7 +17,6 @@ from openpyxl import load_workbook
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from publications import models as pi_models
 from shared_models.models import Region, FiscalYear, Section
 from . import models, utils
 from .models import ProjectYear
@@ -127,6 +126,69 @@ def generate_acrdp_application(project):
                 row.cells[6].paragraphs[0].text = activity.responsible_party if activity.mitigation_measures else "MISSING!"
 
     document.save(target_file_path)
+
+    return target_url
+
+
+def generate_sar_workplan(year, region):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "sar_workplan_template.xlsx")
+
+    year_txt = str(FiscalYear.objects.get(pk=year))
+
+    # get all project years that are not in the following status: draft, not approved, cancelled
+    # and that are a part of a project whose default funding source has an english name containing "csrf"
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__contains="SAR", fiscal_year=year)
+    if region != "None":
+        qs = qs.filter(project__section__division__branch__region_id=region)
+
+    wb = load_workbook(filename=template_file_path)
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws = wb['template']
+    ws.title = year_txt
+    wb.copy_worksheet(ws).title = str("template")
+    try:
+        ws = wb[year_txt]
+    except KeyError:
+        print(year_txt, "is not a valid name of a worksheet")
+
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in qs:
+
+        ws['A' + str(row_count)].value = listrify([t.name for t in item.project.tags.all()])
+        ws['J' + str(row_count)].value = ws['A' + str(row_count)].value
+
+        ws['B' + str(row_count)].value = sum([c.amount for c in item.costs])
+        ws['C' + str(row_count)].value = listrify(["{} {}".format(u.first_name, u.last_name) for u in item.get_project_leads_as_users()])
+
+        ws['H' + str(row_count)].value = listrify([f.name for f in item.project.files.all()])
+        ws['I' + str(row_count)].value = item.project.id
+
+        if item.priorities:
+            ws['K' + str(row_count)].value = html2text(item.priorities)
+
+        ws['L' + str(row_count)].value = item.project.title
+
+        if item.project.overview_html:
+            ws['M' + str(row_count)].value = html2text(item.project.overview_html)
+
+        activities = [html2text(act.description) for act in item.activities.filter(type=1)]
+        ws['N' + str(row_count)].value = listrify(activities)
+
+        activities = [html2text(act.description) for act in item.activities.filter(type=2)]
+        ws['O' + str(row_count)].value = listrify(activities)
+
+        row_count += 1
+
+    wb.save(target_file_path)
 
     return target_url
 
@@ -284,7 +346,9 @@ def generate_csrf_submission_list(year, region):
     year_txt = str(FiscalYear.objects.get(pk=year))
     ws['A1'].value += year_txt
 
-    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year)
+    # get all project years that are not in the following status: draft, not approved, cancelled
+    # and that are a part of a project whose default funding source has an english name containing "csrf"
+    qs = models.ProjectYear.objects.filter(project__default_funding_source__name__icontains="csrf", fiscal_year_id=year).filter(~Q(status__in=[1, 5, 9]))
     if region != "None":
         qs = qs.filter(project__section__division__branch__region_id=region)
 
@@ -303,7 +367,8 @@ def generate_csrf_submission_list(year, region):
 
         leads = ""
         for l in item.get_project_leads_as_users():
-            leads += l.last_name + ", "
+            if l:
+                leads += l.last_name + ", "
         if len(leads) > 0:
             leads = leads[:-2]
 
@@ -326,6 +391,8 @@ def generate_csrf_submission_list(year, region):
 
 
 def generate_culture_committee_report():
+    from publications import models as pi_models
+
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -768,6 +835,8 @@ def generate_project_list(user, year, region, section):
         'project.id|Project Id',
         'fiscal_year',
         'project.title|title',
+        'Overview',
+        'Overview word count',
         'project.default_funding_source|Primary funding source',
         'project.functional_group|Functional group',
         'Project leads',
@@ -775,6 +844,10 @@ def generate_project_list(user, year, region, section):
         'updated_at|Last modified date',
         'modified_by|Last modified by',
         'Last modified description',
+        'Activity count',
+        'Staff count',
+        'Sum of staff FTE (weeks)',
+        'Sum of costs',
     ]
 
     if in_projects_admin_group(user):
@@ -808,6 +881,20 @@ def generate_project_list(user, year, region, section):
                 val = obj.updated_at.strftime("%Y-%m-%d")
             elif "Last modified description" in field:
                 val = naturaltime(obj.updated_at)
+            elif field == "Overview":
+                val = html2text(nz(obj.project.overview_html, ""))
+            elif field == "Overview word count":
+                val = len(html2text(nz(obj.project.overview_html, "")).split(" "))
+            elif field == "Activity count":
+                val = obj.activities.count()
+            elif field == "Staff count":
+                val = obj.staff_set.count()
+            elif field == "Sum of staff FTE (weeks)":
+                val = obj.staff_set.order_by("duration_weeks").aggregate(dsum=Sum("duration_weeks"))["dsum"]
+            elif field == "Sum of costs":
+                val = nz(obj.omcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
+                      nz(obj.capitalcost_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0) + \
+                      nz(obj.staff_set.filter(amount__isnull=False).aggregate(dsum=Sum("amount"))["dsum"], 0)
             else:
                 val = get_field_value(obj, field)
 
@@ -816,3 +903,96 @@ def generate_project_list(user, year, region, section):
         writer.writerow(data_row)
 
     return response
+
+
+def generate_sara_application(project, lang):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.docx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    if lang == "fr":
+        template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "sara_template.docx")
+    else:
+        template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "sara_template.docx")
+
+    with open(template_file_path, 'rb') as f:
+        source_stream = BytesIO(f.read())
+    document = Document(source_stream)
+    source_stream.close()
+
+    year = project.years.last()
+    priorities = str()
+    priorities += f'{year.priorities}\n\n'
+
+    milestones = str()
+    for milestone in models.Activity.objects.filter(project_year=year, type=1):
+        mystr = f'{date(milestone.target_date)} -> {milestone.name}: {milestone.description}. Responsible Parties: {milestone.responsible_party}'
+        milestones += f'{mystr}\n'
+
+    deliverables = str()
+    for deliverable in models.Activity.objects.filter(project_year=year, type=2):
+        mystr = f'{date(deliverable.target_date)} -> {deliverable.name}: {deliverable.description}. Responsible Parties: {deliverable.responsible_party}'
+        deliverables += f'{mystr}\n'
+
+    total_cost = 0
+    om_costs = str()
+    for cost in models.OMCost.objects.filter(project_year=year, funding_source__name__icontains="sara", amount__gt=0):
+        mystr = f'{cost.om_category} --> {cost.description}  Amount: {currency(cost.amount)}'
+        om_costs += f'{mystr}\n'
+        total_cost += cost.amount
+
+    capital_costs = str()
+    for cost in models.CapitalCost.objects.filter(project_year=year, funding_source__name__icontains="sara", amount__gt=0):
+        mystr = f'{cost.get_category_display()} --> {cost.description}  Amount: {currency(cost.amount)}'
+        capital_costs += f'{mystr}\n'
+        total_cost += cost.amount
+
+    salary_costs = str()
+    for staff in models.Staff.objects.filter(project_year=year, funding_source__name__icontains="sara", amount__gt=0):
+        mystr = f'{nz(staff.smart_name)} ({nz(staff.level)}) --> Duration in weeks: {nz(staff.duration_weeks)}  Amount: {currency(staff.amount)}'
+        salary_costs += f'{mystr}\n'
+        total_cost += staff.amount
+
+    field_dict = dict(
+        TAG_TITLE=project.title,
+        TAG_OM_COSTS=om_costs,
+        TAG_CAPITAL_COSTS=capital_costs,
+        TAG_SALARY_COSTS=salary_costs,
+        TAG_TOTAL_COST=currency(total_cost, True),
+        TAG_LEADS=listrify(project.lead_staff.all()),
+        TAG_TAGS=listrify(project.tags.all()),
+        TAG_OVERVIEW=project.overview,
+        TAG_ADDITIONAL_NOTES=year.additional_notes,
+
+        TAG_DELIVERABLES=deliverables,
+        TAG_MILESTONES=milestones,
+        TAG_PRIORITIES_METHODS=priorities,
+        TAG_REPORTING=project.reporting_mechanism,
+        TAG_FUNDING=project.future_funding_needs,
+    )
+    for item in field_dict:
+        # replace the tagged placeholders in tables
+        for table in document.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        if item in paragraph.text:
+                            try:
+                                paragraph.text = paragraph.text.replace(item, str(field_dict[item]))
+                            except Exception as E:
+                                print(E, field_dict[item])
+                                paragraph.text = "MISSING!"
+
+        # replace the tagged placeholders in paragraphs
+        for paragraph in document.paragraphs:
+            if item in paragraph.text:
+                try:
+                    paragraph.text = paragraph.text.replace(item, field_dict[item])
+                except:
+                    paragraph.text = "MISSING!"
+
+    document.save(target_file_path)
+
+    return target_url

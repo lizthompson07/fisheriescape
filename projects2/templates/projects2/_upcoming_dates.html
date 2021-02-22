@@ -38,7 +38,7 @@
 
                 <td>
                   {% if field == "date" %}
-                    {{ upcoming_date.date|date }}<br>
+                    {{ upcoming_date.date|date }} {{ upcoming_date.date|time }}<br>
                     ({{ upcoming_date.date|timeuntil }})
 
                   {% else %}

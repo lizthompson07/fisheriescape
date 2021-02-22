@@ -184,11 +184,11 @@ h1 {
           </tr>
           <tr class="show-bottom-border">
             <td class="">{% trans "Trip objective and justification for not using telepresence or other alternative to travel" %}</td>
-            <td class="data">{{ parent.phone|nz }}</td>
+            <td class="data">{% trans "See comments" %}</td>
           </tr>
           <tr class="show-bottom-border">
             <td class="">{% trans "Justification for the number of travellers" %}:</td>
-            <td class="data">{{ parent.multiple_attendee_rationale|nz }}</td>
+            <td class="data">{% trans "See comments" %}</td>
           </tr>
         </table>
       </td>
@@ -332,6 +332,8 @@ h1 {
           </tr>
           <tr>
             <td class="data">
+              <em>{% trans "Trip Title:" %}</em> {{ parent.trip.tname }}
+              <br>
               {{ parent.purpose_long|safe|nz }}
               <br>
               <br>

@@ -52,6 +52,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
     evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
     contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    final_contx_flag = factory.lazy_attribute(lambda o: faker.boolean())
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
     indvt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtFactory")
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
@@ -74,9 +75,9 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-
             'evnt_id': evnt.pk,
             'contx_id': contx.pk,
+            'final_contx_flag': obj.final_contx_flag,
             'loc_id': loc.pk,
             'indvt_id': indvt.pk,
             'indv_id': indv.pk,
@@ -109,7 +110,7 @@ class AdscFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'unit_id': anidc_id.pk,
+            'anidc_id': anidc_id.pk,
             'name': obj.name,
             'nom': obj.nom,
             'description_en': obj.description_en,
@@ -503,10 +504,10 @@ class EnvFactory(factory.django.DjangoModelFactory):
     envc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvcFactory")
     env_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     envsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvscFactory")
-    env_start = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                         tzinfo=timezone.get_current_timezone()))
-    env_end = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                       tzinfo=timezone.get_current_timezone()))
+    start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
+                                                                              tzinfo=timezone.get_current_timezone()))
+    end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
+                                                                            tzinfo=timezone.get_current_timezone()))
     env_avg = factory.lazy_attribute(lambda o: faker.boolean())
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -531,8 +532,10 @@ class EnvFactory(factory.django.DjangoModelFactory):
             'envc_id': envc.pk,
             'env_val': obj.env_val,
             'envsc_id': envsc.pk,
-            'env_start': obj.env_start,
-            'env_end': obj.env_end,
+            'start_date': obj.start_datetime.date(),
+            'start_time': obj.start_datetime.time().strftime("%H:%M"),
+            'end_date': obj.end_datetime.date(),
+            'end_time': obj.end_datetime.time().strftime("%H:%M"),
             'env_avg': obj.env_avg,
             'qual_id': qual.pk,
             'comments': obj.comments,
@@ -747,8 +750,10 @@ class EvntFactory(factory.django.DjangoModelFactory):
             'perc_id': perc.pk,
             'prog_id': prog.pk,
             'team_id': team.pk,
-            'evnt_start': obj.evnt_start,
-            'evnt_end': obj.evnt_end,
+            'start_date': obj.evnt_start.date(),
+            'start_time': obj.evnt_start.time().strftime("%H:%M"),
+            'end_date': obj.evnt_end.date(),
+            'end_time': obj.evnt_end.time().strftime("%H:%M"),
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1169,13 +1174,12 @@ class ImgcFactory(factory.django.DjangoModelFactory):
 class IndvFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Individual
-        django_get_or_create = ('ufid', 'pit_tag',)
+        django_get_or_create = ('pit_tag',)
 
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
     coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
-    ufid = factory.lazy_attribute(lambda o: faker.word())
     pit_tag = factory.lazy_attribute(lambda o: faker.word())
     indv_valid = True
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -1198,7 +1202,6 @@ class IndvFactory(factory.django.DjangoModelFactory):
             'spec_id': spec.pk,
             'stok_id': stok.pk,
             'coll_id': coll.pk,
-            'ufid': obj.ufid,
             'pit_tag': obj.pit_tag,
             'indv_valid': True,
             'comments': obj.comments,
@@ -1276,8 +1279,10 @@ class IndvtFactory(factory.django.DjangoModelFactory):
             'lot_num': obj.lot_num,
             'dose': obj.dose,
             'unit_id': unit.pk,
-            'start_datetime': obj.start_datetime,
-            'end_datetime': obj.end_datetime,
+            'start_date': obj.start_datetime.date(),
+            'start_time': obj.start_datetime.time().strftime("%H:%M"),
+            'end_date': obj.end_datetime.date(),
+            'end_time': obj.end_datetime.time().strftime("%H:%M"),
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1515,7 +1520,8 @@ class LocFactory(factory.django.DjangoModelFactory):
             'relc_id': relc.pk,
             'loc_lat': obj.loc_lat,
             'loc_lon': obj.loc_lon,
-            'loc_date': obj.loc_date,
+            'start_date': obj.loc_date.date(),
+            'start_time': obj.loc_date.time().strftime("%H:%M"),
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -2247,7 +2253,7 @@ class SpecFactory(factory.django.DjangoModelFactory):
         model = models.SpeciesCode
         django_get_or_create = ('name',)
 
-    name = factory.lazy_attribute(lambda o: faker.word())
+    name = factory.lazy_attribute(lambda o: faker.text(max_nb_chars=10))
     species = factory.lazy_attribute(lambda o: faker.word())
     com_name = factory.lazy_attribute(lambda o: faker.word())
     created_by = factory.lazy_attribute(lambda o: faker.name())

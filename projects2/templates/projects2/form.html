@@ -32,7 +32,7 @@
   <div class="{{ field.name }}_div">
     {% if field.name|is_markdown_field %}
 
-      <label for="id_priorities">{{ field.label}}</label>
+      <label for="id_{{ field.name }}">{{ field.label }}</label>
       <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
          title="{% trans "Markdown syntax is supported in this field" %}">
         <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
@@ -44,4 +44,38 @@
     {% endif %}
 
   </div>
+{% endblock %}
+
+{% block body_js %}
+
+  <script type="application/javascript">
+
+  function updateWordCount($inputElement, wordLimit) {
+    function _getCount() {
+      var remaining = 0;
+      if(wordLimit) remaining = Number(wordLimit - $inputElement.val().split(" ").length) + 1
+      else remaining = Number($inputElement.val().split(" ").length)
+
+
+
+      $wordCountElement = $("#" + $inputElement.attr("id") + "_word_count")
+      $wordCountElement.html(remaining)
+      if (remaining < 0) {
+        $wordCountElement.removeClass("blue-font")
+        $wordCountElement.addClass("red-font")
+      } else {
+        $wordCountElement.addClass("blue-font")
+        $wordCountElement.removeClass("red-font")
+      }
+    }
+
+    _getCount()
+    $inputElement.keyup(function () {
+      _getCount()
+    })
+
+
+  }
+  </script>
+
 {% endblock %}

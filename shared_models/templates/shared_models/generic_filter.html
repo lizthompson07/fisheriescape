@@ -96,10 +96,8 @@
           {% endfor %}
         {% endblock %}
         </thead>
-        <tbody>
-        {% block table_body_0 %}{% endblock %}
-        </tbody>
-        {% block table_body_1 %}
+
+        {% block table_body_0 %}
           <tbody>
           {% for object in list %}
             {% block table_tr %}
@@ -117,6 +115,9 @@
           {% endfor %}
           </tbody>
         {% endblock %}
+        <tbody>
+        {% block table_body_1 %}{% endblock %}
+        </tbody>
         <tbody>
         {% block table_body_2 %}{% endblock %}
         </tbody>
