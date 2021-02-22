@@ -40,7 +40,7 @@
         {% for obj in object.members.all %}
             <tr href="{% url 'ihub:member_edit' obj.id %}" pop>
                 <td>
-                    {{ obj.person.first_name }} {{ obj.person.last_name }}
+                    {{ obj.person.first_name }} {{ obj.person.last_name|nz:'' }}
                 </td>
                 <td>
                         {{ obj.role }}
