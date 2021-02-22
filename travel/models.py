@@ -265,14 +265,21 @@ class Conference(models.Model):
     status = models.IntegerField(verbose_name=_("trip status"), default=30, choices=status_choices, editable=False)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
-    last_modified = models.DateTimeField(verbose_name=_("last modified"), auto_now=True, editable=False)
-    last_modified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trips_last_modified_by",
-                                         verbose_name=_("last_modified_by"), blank=True, null=True)
 
     # calculated fields
     adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
     date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"),
                                                         blank=True, null=True)
+
+    # metadata
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_created_by", blank=True, null=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_updated_by", blank=True, null=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.created_at, self.created_by, self.updated_at, self.updated_by)
 
     def save(self, *args, **kwargs):
         # if the trip is verified but the status isn't for some reason, make it so
@@ -1111,6 +1118,7 @@ class TripRequest1(models.Model):
             r.order = count
             r.save()
             count += 1
+
         return super().save(*args, **kwargs)
 
     @property

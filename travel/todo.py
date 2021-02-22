@@ -1,7 +1,7 @@
 # TODO: request reviewer needs to see all travellers!!
 
 # TODO: Trip Detail
-
+# TODO: trip reassign and delete
 # TODO: admo process
 
 # TODO: bring back admin warnings
@@ -29,4 +29,4 @@
 # TODO: delete trip_request on cost, traveller,
 # todo: TR Cost SHOULD BE RENAMED TO TRAVELLER COST
 # todo: TR1 SHOULD BE RENAMED TO TR
-# todo: rename triprequest1 to something reasonable
+# todo: rename conference to something trip

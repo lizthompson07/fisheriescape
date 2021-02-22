@@ -90,7 +90,7 @@ class TripTimestampUpdateForm(forms.ModelForm):
     class Meta:
         model = models.Conference
         fields = [
-            "last_modified_by",
+            "notes",
         ]
         widgets = {
             "last_modified_by": forms.HiddenInput()
@@ -436,7 +436,7 @@ class TripAdminNotesForm(forms.ModelForm):
         model = models.Conference
         fields = [
             "admin_notes",
-            "last_modified_by",
+            # "last_modified_by",
         ]
         widgets = {
             "last_modified_by": forms.HiddenInput()
@@ -614,7 +614,7 @@ class TripForm(forms.ModelForm):
             'registration_deadline': forms.DateInput(attrs=attr_fp_date),
             'abstract_deadline': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
-            # 'trip_subcategory': forms.RadioSelect(),
+            'notes': forms.Textarea(attrs=attr_row3),
         }
 
     def __init__(self, *args, **kwargs):

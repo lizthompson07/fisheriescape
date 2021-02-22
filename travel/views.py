@@ -197,7 +197,11 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
         return {"title": str(self.get_object()), "url": reverse_lazy("travel:request_detail", kwargs=self.kwargs)}
 
     def form_valid(self, form):
-        my_object = form.save()
+        my_object = form.save(commit=False)
+        # if by mistake there is no owner, assign one now
+        if not my_object.created_by:
+            my_object.created_by = self.request.user
+        my_object.save()
 
         utils.manage_trip_warning(my_object.trip, self.request)
 
@@ -1023,22 +1027,9 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
     template_name = 'travel/trip_detail.html'
     home_url_name = "travel:index"
 
-    # def get_parent_crumb(self):
-    #     my_kwargs = deepcopy(self.kwargs)
-    #     del my_kwargs["pk"]
-    #     trips_url = reverse("travel:trip_list", kwargs=my_kwargs)
-    #     trips_title = _("Trips")
-    #     return {"title": trips_title, "url": trips_url}
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
-
-
-class TripAdminNotesUpdateView(TravelADMAdminRequiredMixin, CommonPopoutUpdateView):
-    model = models.Conference
-    form_class = forms.TripAdminNotesForm
-    h1 = _("Administrative Notes (Public)")
 
 
 class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
@@ -1053,7 +1044,9 @@ class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         return 'travel/trip_form_popout.html' if self.request.GET.get("pop") else 'travel/trip_form.html'
 
     def form_valid(self, form):
-        my_object = form.save()
+        my_object = form.save(commit=False)
+        my_object.updated_by = self.request.user
+        my_object.save()
         # This is a bit tricky here. Right now will work with the assumption that we do not ever want to reset the reviewers unless
         # the trip was ADM approval required, and now is not, OR if it wasn't and now it is.
         if my_object.is_adm_approval_required and my_object.reviewers.count() == 0 or not my_object.is_adm_approval_required:
@@ -1096,6 +1089,7 @@ class TripCloneView(TripUpdateView):
         old_obj = models.Conference.objects.get(pk=new_obj.pk)
         new_obj.pk = None
         new_obj.verified_by = self.request.user
+        new_obj.created_by = self.request.user
         new_obj.save()
         return HttpResponseRedirect(reverse_lazy("travel:trip_detail", args=[ new_obj.id]))
 
@@ -1114,7 +1108,9 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
         return context
 
     def form_valid(self, form):
-        my_object = form.save()
+        my_object = form.save(commit=False)
+        my_object.created_by = self.request.user
+        my_object.save()
         # Add any trip reviewers to the trip, if adm approval is required
         utils.get_trip_reviewers(my_object)
         if self.request.GET.get("pop"):

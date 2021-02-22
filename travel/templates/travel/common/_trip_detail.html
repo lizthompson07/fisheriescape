@@ -36,7 +36,7 @@
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Travellers" %}</th>
-            <td>${trip.travellers.length}</td>
+            <td>${trip.travellers.length | zero2NullMark}</td>
           </tr>
           <tr>
             <th style="width: 40%">${tripLabels.location}</th>
@@ -47,11 +47,11 @@
             <td>${trip.trip_subcategory}</td>
           </tr>
           <tr>
-            <th style="width: 40%">${tripLabels.lead}</th>
+            <th style="width: 40%">{% trans "Regional lead" %}}</th>
             <td>${trip.lead}</td>
           </tr>
           <tr>
-            <th style="width: 40%">{% trans "Event template?" %}</th>
+            <th style="width: 40%">{% trans "Event template required?" %}</th>
             <td>${trip.has_event_template |yesNo}</td>
           </tr>
           <tr v-if="trip.has_event_template">
@@ -59,11 +59,11 @@
             <td>${trip.number |nz}</td>
           </tr>
           <tr>
-            <th style="width: 40%">${tripLabels.dates}</th>
+            <th style="width: 40%">{% trans "Dates" %}</th>
             <td v-html="trip.dates"></td>
           </tr>
           <tr>
-            <th style="width: 40%">${tripLabels.location}</th>
+            <th style="width: 40%">{% trans "Location" %}</th>
             <td>${trip.location |nz}</td>
           </tr>
           <tr>
@@ -80,7 +80,7 @@
             <td>${trip.registration_deadline|nz}</td>
           </tr>
           <tr>
-            <th style="width: 40%">${tripLabels.is_adm_approval_required}</th>
+            <th style="width: 40%">{% trans "ADM approval required?" %}</th>
             <td>${trip.is_adm_approval_required|yesNo}</td>
           </tr>
           <tr v-if="trip.is_adm_approval_required">

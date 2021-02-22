@@ -402,6 +402,10 @@ class TripSerializer(serializers.ModelSerializer):
     time_until_adm_review_deadline = serializers.SerializerMethodField()
     days_until_adm_review_deadline = serializers.SerializerMethodField()
     requests = TripRequestSerializerLITE(many=True, read_only=True)
+    metadata = serializers.SerializerMethodField()
+
+    def get_metadata(self, instance):
+        return instance.metadata
 
     def get_days_until_adm_review_deadline(self, instance):
         return instance.days_until_adm_review_deadline
