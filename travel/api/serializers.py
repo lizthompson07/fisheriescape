@@ -401,6 +401,37 @@ class TripReviewerSerializer(serializers.ModelSerializer):
         model = models.TripReviewer
         fields = "__all__"
 
+    role_display = serializers.SerializerMethodField()
+    status_date = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    user_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    comments_html = serializers.SerializerMethodField()
+    trip_obj = serializers.SerializerMethodField()
+
+    def get_trip_obj(self, instance):
+        if instance.trip:
+            return TripSerializerLITE(instance.trip, read_only=True).data
+
+    def get_comments_html(self, instance):
+        return instance.comments_html
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
+
+    def get_role_display(self, instance):
+        return instance.get_role_display()
+
+    def get_status_date(self, instance):
+        return date(instance.status_date)
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_user_display(self, instance):
+        return instance.user.get_full_name() if instance.user else None
+
+
 
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
@@ -431,6 +462,7 @@ class TripSerializer(serializers.ModelSerializer):
     total_non_dfo_cost = serializers.SerializerMethodField()
     total_dfo_cost = serializers.SerializerMethodField()
     total_non_dfo_funding_sources = serializers.SerializerMethodField()
+    reviewers = TripReviewerSerializer(many=True, read_only=True)
 
     def get_total_non_dfo_funding_sources(self, instance):
         return instance.total_non_dfo_funding_sources

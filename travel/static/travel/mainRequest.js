@@ -320,7 +320,7 @@ var app = new Vue({
             this.loading_costs = false;
           })
     },
-    resetRequestReviewers() {
+    resetReviewers() {
       this.errorMsgReviewer = null
       userInput = confirm(requestReviewerResetMsg)
       if (userInput) {

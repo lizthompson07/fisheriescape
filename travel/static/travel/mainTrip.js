@@ -22,6 +22,7 @@ var app = new Vue({
     yesNoChoices: yesNoChoices,
 
     // these are just being added for the sake of compatibility
+    request: null,
     travellerToEdit: null,
     costLabels: {},
     inCostEditMode: false,
@@ -30,15 +31,13 @@ var app = new Vue({
 
   },
   methods: {
-
-
     addTraveller() {}, // being added for the sake of compatibility,
     addReviewer() {
       this.trip.reviewers.push({
         trip: this.trip.id,
         order: this.trip.reviewers.length + 1,
         role: null,
-        status: 4,  // this will be updated by the model save method. setting status == 4 just allows to show in list
+        status: 23,  // this will be updated by the model save method. setting status == 4 just allows to show in list
       })
     },
     closeReviewerForm() {
@@ -173,7 +172,7 @@ var app = new Vue({
         this.updateReviewer(this.trip.reviewers[i])
       }
     },
-    resetTripReviewers() {
+    resetReviewers() {
       this.errorMsgReviewer = null
       userInput = confirm(tripReviewerResetMsg)
       if (userInput) {
@@ -286,6 +285,19 @@ var app = new Vue({
     travellers() {
       if (this.trip) return this.trip.travellers;
     },
+    reviewers() {
+      if (this.trip) return this.trip.reviewers;
+    },
+    editableReviewers() {
+      myArray = []
+      for (var i = 0; i < this.trip.reviewers.length; i++) {
+        if (this.trip.reviewers[i].status === 23 || this.request.reviewers[i].status === 24) {
+          myArray.push(this.trip.reviewers[i]);
+        }
+      }
+      return myArray
+    },
+
     canModify() {
       if (this.currentUser && this.currentUser.can_modify) {
         return this.currentUser.can_modify;

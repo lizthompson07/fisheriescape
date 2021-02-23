@@ -73,42 +73,6 @@
 
 
     <div v-if="!showAdminNotesForm" class="btns mb-3">
-      {# SUBMIT BUTTON #}
-      {#      {% if not object.submitted and object.is_late_trip and not object.late_justification %}#}
-      {#        {% trans "You must provide a late justification in order to submit this trip." as submit_tip_text %}#}
-      {#      {% endif %}#}
-      {##}
-      {#      <span data-toggle="tooltip" title="{{ submit_tip_text }}">#}
-      {#      <a#}
-      {#        :class="{btn:true, 'btn-secondary': trip.submitted, 'btn-success': !trip.submitted, 'disabled': trip.is_late_trip && !trip.late_justification}"#}
-      {#        v-if="(canModify || isOwner) && trip.status !== 11 && trip.status !== 22"#}
-      {#        href="{% url 'travel:trip_submit' object.id %}">#}
-      {#        <span v-if="!trip.submitted">{% trans "Submit" %}</span>#}
-      {#        <span v-else-if="trip.status === 16">{% trans "Re-submit" %}</span>#}
-      {#        <span v-else>{% trans "Un-submit" %}</span>#}
-      {#      </a>#}
-      {#      </span>#}
-      {##}
-      {# EDIT BUTTON #}
-      {#      <a v-if="canModify"#}
-      {#         class="btn btn-warning" href="{% url 'travel:trip_edit' object.id %}?{{ trip.META.QUERY_STRING }}">#}
-      {#        {% trans "Edit" %}#}
-      {#      </a>#}
-      {# DELETE BUTTON #}
-      {#      <a v-if="canModify && !trip.submitted"#}
-      {#         class="btn btn-danger" href="{% url 'travel:trip_delete' object.id %}?{{ trip.META.QUERY_STRING }}">#}
-      {#        {% trans "Delete" %}#}
-      {#      </a>#}
-      {# CLONE BUTTON #}
-      {#      <a class="btn btn-primary " href="{% url 'travel:trip_clone' object.id %}?{{ trip.META.QUERY_STRING }}">#}
-      {#        {% trans "Clone Me" %}#}
-      {#      </a>#}
-      {##}
-      {#      {% trans "Travel Request and Approval Form (TRAF)" as print_tip %}#}
-      {#      <a class="btn btn-outline-dark " href="{% url 'travel:trip_print' object.id %}" data-toggle="tooltip" title="{{ print_tip }}">#}
-      {#        <span class="mdi mdi-file-pdf h5"></span>#}
-      {#        {% trans "Print TRAF" %}#}
-      {#      </a>#}
 
     </div>
     <div class="mb-3 card admin-notes" v-if="trip.admin_notes_html && !showAdminNotesForm">
@@ -120,6 +84,9 @@
 
     {% include "travel/common/_trip_detail.html" %}
     {% include "travel/common/_travellers.html" %}
+    <div v-if="trip.is_adm_approval_required">
+      {% include "travel/common/_reviewers.html" %}
+    </div>
   </div>
 {% endblock %}
 

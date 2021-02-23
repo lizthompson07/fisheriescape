@@ -11,8 +11,8 @@
     </div>
     {% trans "Approval Queue" %}
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-            data-trigger="hover" title="{% trans "Approval Queue" %}"
-            :data-content="helpText.reviewers_header"></span>
+          data-trigger="hover" title="{% trans "Approval Queue" %}"
+          :data-content="helpText.reviewers_header"></span>
   </h3>
   <div class="card-body">
     <div class="card-text">
@@ -108,14 +108,16 @@
             <button @click="closeReviewerForm" class="btn btn-sm btn-primary text-light">{% trans "Done" %}</button>
             <button @click="addReviewer" class="btn btn-sm btn-success text-light">
               <span class="mdi mdi-plus text-light"></span>{% trans "Add reviewer" %}</button>
-            <button v-if="!request.submitted" @click="resetRequestReviewers" class="btn btn-sm btn-warning" id="reset-btn">
+            <button v-if="(request && !request.submitted) || (trip && (trip.status ===30 ||trip.status ===41) )" @click="resetReviewers"
+                    class="btn btn-sm btn-warning" id="reset-btn">
               <span class="mdi mdi-redo-variant"></span> {% trans "Reset" %}
             </button>
           </div>
         </div>
 
         <div v-else>
-          <em>{% trans "No reviewers, recommenders or approvers have been added to this request." %}</em>
+          <em v-if="request">{% trans "No reviewers, recommenders or approvers have been added to this request." %}</em>
+          <em v-else>{% trans "No reviewers, recommenders or approvers have been added to this Trip." %}</em>
         </div>
       </div>
     </div>

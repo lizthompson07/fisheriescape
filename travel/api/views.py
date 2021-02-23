@@ -51,6 +51,23 @@ class TripViewSet(viewsets.ModelViewSet):
     permission_classes = [TravelAdminOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
+    def post(self, request, pk):
+        qp = request.query_params
+        obj = get_object_or_404(models.Conference, pk=pk)
+        if qp.get("reset_reviewers"):
+            if utils.in_adm_admin_group(request.user):
+                # This function should only ever be run if the trip is unreviewed (30 = unverified, unreviewer; 41 = verified, reviewed)
+                if obj.status in [30, 41]:
+                    # first remove any existing reviewers
+                    obj.reviewers.all().delete()
+                    # next, re-add the defaults...
+                    utils.get_trip_reviewers(obj)
+                else:
+                    raise ValidationError(_("This function can only be used with an unreviewed trip."))
+            else:
+                raise ValidationError(_("You do not have the permissions to reset the reviewer list"))
+            return Response(None, status.HTTP_204_NO_CONTENT)
+
     def get_queryset(self):
         if self.kwargs.get("pk"):
             return models.Conference.objects.filter(pk=self.kwargs.get("pk"))  # anybody can ask to see a trip.

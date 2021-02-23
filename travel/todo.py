@@ -1,9 +1,5 @@
-# CFTS
-# reports
-# TODO: request reviewer needs to see all travellers!!
-# TODO: Trip Detail
-# TODO: trip reassign and delete
 # TODO: admo process
+# TODO: trip reassign and delete
 
 # TODO: bring back admin warnings
 # todo: api view validation
