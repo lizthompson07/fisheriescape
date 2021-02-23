@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-22 13:57-0400\n"
+"POT-Creation-Date: 2021-02-23 10:54-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,41 +12,41 @@ msgstr ""
 "X-Generator: Poedit 2.4.2\n"
 "Language: fr_CA\n"
 
-#: .\travel\api\serializers.py:262
+#: .\travel\api\serializers.py:266
 msgid ""
 "This user is cannot be added here because they are listed on another request!"
 msgstr ""
 "Cet utilisateur ne peut pas être ajouté ici parce qu'il est inscrit sur une "
 "autre demande!"
 
-#: .\travel\api\serializers.py:269 .\travel\forms.py:175 .\travel\forms.py:178
-#: .\travel\forms.py:389 .\travel\forms.py:392 .\travel\forms.py:574
-#: .\travel\forms.py:634 .\travel\forms.py:637
+#: .\travel\api\serializers.py:273 .\travel\forms.py:174 .\travel\forms.py:177
+#: .\travel\forms.py:388 .\travel\forms.py:391 .\travel\forms.py:573
+#: .\travel\forms.py:633 .\travel\forms.py:636
 msgid "The start date of the trip must occur before the end date."
 msgstr "La date de début du voyage doit être antérieure à la date de fin."
 
-#: .\travel\api\serializers.py:272 .\travel\forms.py:180 .\travel\forms.py:394
-#: .\travel\forms.py:578 .\travel\forms.py:639
+#: .\travel\api\serializers.py:276 .\travel\forms.py:179 .\travel\forms.py:393
+#: .\travel\forms.py:577 .\travel\forms.py:638
 msgid "The length of this trip is unrealistic."
 msgstr "La durée de ce voyage est irréaliste."
 
-#: .\travel\api\serializers.py:279
+#: .\travel\api\serializers.py:283
 msgid ""
-"The start date of this request ({start_date}) has to be within 10 days of the "
-"start date of the selected trip ({trip_start_date})!"
+"The start date of this request ({start_date}) has to be within 10 days of "
+"the start date of the selected trip ({trip_start_date})!"
 msgstr ""
 "La date de début de cette demande ({start_date}) doit se situer dans les 10 "
 "jours suivant la date de début du voyage sélectionné ({trip_start_date}) !"
 
-#: .\travel\api\serializers.py:290
+#: .\travel\api\serializers.py:294
 msgid ""
 "The end date of this request ({end_date}) must be within 10 days of the end "
 "date of the selected trip ({trip_end_date})!"
 msgstr ""
-"La date de fin de cette demande ({end_date}) doit se situer dans les 10 jours "
-"suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
+"La date de fin de cette demande ({end_date}) doit se situer dans les 10 "
+"jours suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
 
-#: .\travel\api\serializers.py:300
+#: .\travel\api\serializers.py:304
 msgid ""
 "If you select the role 'other', you must also provide a description of the "
 "role."
@@ -54,19 +54,25 @@ msgstr ""
 "Si vous sélectionnez le rôle \"autre\", vous devez également fournir une "
 "description de ce rôle."
 
-#: .\travel\api\views.py:138 .\travel\views.py:836
+#: .\travel\api\views.py:66 .\travel\views.py:1084
+msgid "This function can only be used with an unreviewed trip."
+msgstr ""
+"Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
+"encore à l'état de brouillon."
+
+#: .\travel\api\views.py:68 .\travel\api\views.py:157 .\travel\views.py:1064
+msgid "You do not have the permissions to reset the reviewer list"
+msgstr ""
+"Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
+"des examinateurs"
+
+#: .\travel\api\views.py:155 .\travel\views.py:1062
 msgid "This function can only be used when the trip request is still a draft"
 msgstr ""
 "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
 "encore à l'état de brouillon"
 
-#: .\travel\api\views.py:140 .\travel\views.py:838
-msgid "You do not have the permissions to reset the reviewer list"
-msgstr ""
-"Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste des "
-"examinateurs"
-
-#: .\travel\api\views.py:263
+#: .\travel\api\views.py:281 .\travel\api\views.py:343
 msgid ""
 "Manually overridden by {user} with the following rationale: \n"
 " {comments}"
@@ -74,12 +80,12 @@ msgstr ""
 "Remplacé manuellement par {user} avec le raisonnement suivant : \n"
 " {commentaires}"
 
-#: .\travel\api\views.py:275
+#: .\travel\api\views.py:293 .\travel\api\views.py:336
 msgid "You do not have the necessary permission to modify this reviewer."
 msgstr ""
 "Vous n'avez pas l'autorisation nécessaire pour modifier cet examinateur."
 
-#: .\travel\api\views.py:287
+#: .\travel\api\views.py:305 .\travel\api\views.py:363
 msgid "You do not have the necessary permission to delete this reviewer."
 msgstr ""
 "Vous n'avez pas l'autorisation nécessaire pour supprimer cet examinateur."
@@ -88,26 +94,26 @@ msgstr ""
 msgid "User"
 msgstr "Utilisateur"
 
-#: .\travel\filters.py:34 .\travel\models.py:195 .\travel\models.py:322
-#: .\travel\models.py:323 .\travel\models.py:461 .\travel\models.py:462
-#: .\travel\templates\travel\trip_list\main.html:54 .\travel\utils.py:99
-#: .\travel\views.py:1960
+#: .\travel\filters.py:34 .\travel\models.py:196 .\travel\models.py:323
+#: .\travel\models.py:324 .\travel\models.py:484 .\travel\models.py:485
+#: .\travel\templates\travel\trip_list\main.html:54 .\travel\utils.py:98
+#: .\travel\views.py:2129
 msgid "name"
 msgstr "nom"
 
 #: .\travel\filters.py:38
 #: .\travel\templates\travel\scratch\trip_verification_form.html:155
+#: .\travel\templates\travel\trip_reviewer_list.html:37
 #: .\travel\templates\travel\trip_verification_form.html:155
-#: .\travel\views.py:1380
 msgid "Trip title"
 msgstr "Titre du voyage"
 
-#: .\travel\filters.py:46 .\travel\filters.py:97 .\travel\forms.py:664
+#: .\travel\filters.py:46 .\travel\filters.py:97 .\travel\forms.py:662
 #: .\travel\templates\travel\common\_trip_detail.html:26
 msgid "Fiscal year"
 msgstr "Exercice fiscal"
 
-#: .\travel\filters.py:47 .\travel\forms.py:668
+#: .\travel\filters.py:47 .\travel\forms.py:666
 #: .\travel\templates\travel\request_list\_console.html:60
 #: .\travel\templates\travel\scratch\_trip_request_approvals.html:22
 msgid "Region"
@@ -130,14 +136,16 @@ msgstr "Section"
 msgid "Trip Title"
 msgstr "Titre du voyage"
 
-#: .\travel\filters.py:100 .\travel\templates\travel\common\_trip_detail.html:50
+#: .\travel\filters.py:100
+#: .\travel\templates\travel\common\_trip_detail.html:50
 msgid "Regional lead"
 msgstr "Responsable régional"
 
-#: .\travel\filters.py:101 .\travel\templates\travel\common\_trip_detail.html:83
+#: .\travel\filters.py:101
+#: .\travel\templates\travel\common\_trip_detail.html:83
 #: .\travel\templates\travel\request_list\main.html:45
 #: .\travel\templates\travel\trip_list\_console.html:78
-#: .\travel\templates\travel\trip_list\main.html:60 .\travel\views.py:1384
+#: .\travel\templates\travel\trip_list\main.html:60
 msgid "ADM approval required?"
 msgstr "Approbation du SMA requis?"
 
@@ -145,43 +153,43 @@ msgstr "Approbation du SMA requis?"
 msgid "Name contains"
 msgstr "Le nom contient"
 
-#: .\travel\forms.py:12 .\travel\forms.py:260 .\travel\forms.py:261
+#: .\travel\forms.py:12 .\travel\forms.py:259 .\travel\forms.py:260
 msgid "Click to select a date.."
 msgstr "Cliquez pour sélectionner une date.."
 
-#: .\travel\forms.py:18 .\travel\forms.py:23 .\travel\models.py:21
-#: .\travel\models.py:27
+#: .\travel\forms.py:18 .\travel\forms.py:23 .\travel\models.py:22
+#: .\travel\models.py:28
 #: .\travel\templates\travel\common\_request_script.html:13
 #: .\travel\templates\travel\common\_trip_script.html:13
 #: .\travel\templates\travel\scratch\reviewer_skip_form.html:40
 msgid "Yes"
 msgstr "Oui"
 
-#: .\travel\forms.py:19 .\travel\forms.py:24 .\travel\models.py:22
-#: .\travel\models.py:28
+#: .\travel\forms.py:19 .\travel\forms.py:24 .\travel\models.py:23
+#: .\travel\models.py:29
 #: .\travel\templates\travel\common\_request_script.html:13
 #: .\travel\templates\travel\common\_trip_script.html:13
-#: .\travel\templates\travel\scratch\travel_plan.html:305
+#: .\travel\templates\travel\traf\single.html:187
 msgid "No"
 msgstr "Non"
 
-#: .\travel\forms.py:40 .\travel\forms.py:57
+#: .\travel\forms.py:40 .\travel\forms.py:56
 msgid "Please provide your comments here..."
 msgstr "Veuillez fournir vos commentaires ici..."
 
-#: .\travel\forms.py:71
+#: .\travel\forms.py:70
 msgid "If so, please provide the rationale here..."
 msgstr "Si oui, veuillez en donner la raison ici..."
 
-#: .\travel\forms.py:102 .\travel\forms.py:215
+#: .\travel\forms.py:101 .\travel\forms.py:214
 msgid "Do you want to reset the reviewer list?"
 msgstr "Voulez-vous réinitialiser la liste des examinateurs?"
 
-#: .\travel\forms.py:104
+#: .\travel\forms.py:103
 msgid "Are you a traveller on this request?"
 msgstr "Êtes-vous un voyageur sur cette demande ?"
 
-#: .\travel\forms.py:109 .\travel\forms.py:230
+#: .\travel\forms.py:108 .\travel\forms.py:229
 msgid ""
 "Other attendees covered under BTA (i.e., they will not need to have a travel "
 "plan)"
@@ -189,17 +197,17 @@ msgstr ""
 "Autres participants couverts par une AGV (c'est-à-dire qu'ils n'auront pas "
 "besoin d'avoir un plan de voyage)"
 
-#: .\travel\forms.py:167 .\travel\forms.py:381
+#: .\travel\forms.py:166 .\travel\forms.py:380
 #: .\travel\templates\travel\request_detail.html:52
 #: .\travel\templates\travel\scratch\trip_request_detail.html:32
 msgid ""
-"In order to submit this request, you will need to provide a justification for "
-"the late submission."
+"In order to submit this request, you will need to provide a justification "
+"for the late submission."
 msgstr ""
 "Afin de soumettre cette demande, vous devrez fournir une justification pour "
 "la soumission tardive."
 
-#: .\travel\forms.py:189 .\travel\forms.py:403 .\travel\forms.py:586
+#: .\travel\forms.py:188 .\travel\forms.py:402 .\travel\forms.py:585
 msgid ""
 "The start date of this request ({request_start_date}) has to be within 10 "
 "days of the start date of the selected trip ({trip_start_date})!"
@@ -208,7 +216,7 @@ msgstr ""
 "les 10 jours suivant la date de début du voyage sélectionné "
 "({trip_start_date}) !"
 
-#: .\travel\forms.py:202 .\travel\forms.py:416 .\travel\forms.py:598
+#: .\travel\forms.py:201 .\travel\forms.py:415 .\travel\forms.py:597
 msgid ""
 "The end date of this request ({request_end_date}) must be within 10 days of "
 "the end date of the selected trip ({trip_end_date})!"
@@ -216,13 +224,13 @@ msgstr ""
 "La date de fin de cette demande ({request_end_date}) doit se situer dans les "
 "10 jours suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
 
-#: .\travel\forms.py:567
+#: .\travel\forms.py:566
 msgid ""
 "There is already a trip request in the system for this user and this trip."
 msgstr ""
 "Il y a déjà une demande dans le système pour cet utilisateur et ce voyage."
 
-#: .\travel\forms.py:645
+#: .\travel\forms.py:644
 msgid ""
 "The abstract submission deadline (if present) must occur before the start "
 "date of the trip."
@@ -230,42 +238,42 @@ msgstr ""
 "La date limite de soumission des résumés (si elle existe) doit avoir lieu "
 "avant la date de début du voyage."
 
-#: .\travel\forms.py:650
+#: .\travel\forms.py:649
 msgid ""
-"The registration deadline (if present) must occur before or on the start date "
-"of the trip."
+"The registration deadline (if present) must occur before or on the start "
+"date of the trip."
 msgstr ""
 "La date limite d'inscription (si elle existe) doit avoir lieu avant ou à la "
 "date de début du voyage."
 
-#: .\travel\forms.py:658
+#: .\travel\forms.py:657
 msgid "CFTS export (xlsx)"
 msgstr "Rapport SCVE (xlsx)"
 
-#: .\travel\forms.py:660
+#: .\travel\forms.py:658
 msgid "Export trip list (xlsx)"
 msgstr "Exporter la liste des voyages (xlsx)"
 
-#: .\travel\forms.py:662
+#: .\travel\forms.py:660
 msgid "Report"
 msgstr "Rapport"
 
-#: .\travel\forms.py:666 .\travel\templates\travel\index\main.html:45
+#: .\travel\forms.py:664 .\travel\templates\travel\index\main.html:45
 #: .\travel\templates\travel\request_list\_console.html:23
 #: .\travel\templates\travel\scratch\_trip_traveller_cost_comparison.html:9
-#: .\travel\templates\travel\scratch\travel_plan.html:355
+#: .\travel\templates\travel\traf\single.html:237
 msgid "Traveller"
 msgstr "Voyageur"
 
-#: .\travel\forms.py:667
+#: .\travel\forms.py:665
 msgid "Trip"
 msgstr "Voyage"
 
-#: .\travel\forms.py:669
+#: .\travel\forms.py:667
 msgid "ADM approval required"
 msgstr "Approbation du SMA requis"
 
-#: .\travel\forms.py:723 .\travel\forms.py:780
+#: .\travel\forms.py:719 .\travel\forms.py:776
 msgid ""
 "Sorry, the role of a reviewer whose status is set to {my_object."
 "get_status_display()} cannot be changed"
@@ -273,7 +281,7 @@ msgstr ""
 "Désolé, le rôle d'un examinateur dont le statut est {my_object."
 "get_status_display()} ne peut pas être modifié"
 
-#: .\travel\forms.py:727 .\travel\forms.py:784
+#: .\travel\forms.py:723 .\travel\forms.py:780
 msgid ""
 "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
 "status is set to {my_object.get_status_display()}"
@@ -281,7 +289,7 @@ msgstr ""
 "Désolé, vous ne pouvez pas changer l'utilisateur DM Apps associé d'un "
 "réviseur dont le statut est fixé à {my_object.get_status_display()}"
 
-#: .\travel\forms.py:731 .\travel\forms.py:788
+#: .\travel\forms.py:727 .\travel\forms.py:784
 msgid ""
 "Sorry, the order of a reviewer whose status is set to {my_object."
 "get_status_display()} cannot be changed"
@@ -289,41 +297,41 @@ msgstr ""
 "Désolé, l'ordre d'un examinateur dont le statut est fixé à {my_object."
 "get_status_display()} ne peut être modifié"
 
-#: .\travel\models.py:34
+#: .\travel\models.py:35
 msgid "English text"
 msgstr "Texte en anglais"
 
-#: .\travel\models.py:35
+#: .\travel\models.py:36
 msgid "French text"
 msgstr "Texte en français"
 
 # please never touch this translation!!
-#: .\travel\models.py:39 .\travel\models.py:40
+#: .\travel\models.py:40 .\travel\models.py:41
 msgid "eng_text"
 msgstr "fra_text"
 
-#: .\travel\models.py:51 .\travel\models.py:573 .\travel\models.py:1269
-#: .\travel\models.py:1488 .\travel\models.py:1564
+#: .\travel\models.py:52 .\travel\models.py:596 .\travel\models.py:1303
+#: .\travel\models.py:1520 .\travel\models.py:1596
 msgid "DM Apps user"
 msgstr "Utilisateur de Applis GD"
 
-#: .\travel\models.py:52
+#: .\travel\models.py:53
 msgid "To be added in front of which sections"
 msgstr "À ajouter devant quelles sections"
 
-#: .\travel\models.py:55
+#: .\travel\models.py:56
 msgid "To be added in front of which divisions"
 msgstr "À ajouter devant quelles divisions"
 
-#: .\travel\models.py:58
+#: .\travel\models.py:59
 msgid "To be added in front of which branches"
 msgstr "À ajouter devant quelles branches"
 
-#: .\travel\models.py:61
+#: .\travel\models.py:62
 msgid "Do they have any special roles?"
 msgstr "Ont-ils un rôle particulier ?"
 
-#: .\travel\models.py:66
+#: .\travel\models.py:67
 msgid ""
 "What order should they be in (only applicable when there is multiple "
 "reviewers at the same level)?"
@@ -331,580 +339,579 @@ msgstr ""
 "Dans quel ordre devraient-ils être (applicables uniquement lorsqu’il y a "
 "plusieurs examinateurs au même niveau)?"
 
-#: .\travel\models.py:89
+#: .\travel\models.py:90
 msgid "Information Section"
 msgstr "Section d'information"
 
-#: .\travel\models.py:90
+#: .\travel\models.py:91
 msgid "Travel Request Process Outline"
 msgstr "Aperçu de la procédure de demande de voyage"
 
-#: .\travel\models.py:91
+#: .\travel\models.py:92
 msgid "Review Process Outline"
 msgstr "Aperçu du processus de révision"
 
-#: .\travel\models.py:102
+#: .\travel\models.py:103
 msgid "question (en)"
 msgstr "question (an)"
 
-#: .\travel\models.py:103
+#: .\travel\models.py:104
 msgid "question (fr)"
 msgstr "question (fr)"
 
-#: .\travel\models.py:104
+#: .\travel\models.py:105
 msgid "answer (en)"
 msgstr "réponse (an)"
 
-#: .\travel\models.py:105
+#: .\travel\models.py:106
 msgid "answer (fr)"
 msgstr "réponse (fr)"
 
 # please never touch this translation!!
-#: .\travel\models.py:110 .\travel\models.py:111
+#: .\travel\models.py:111 .\travel\models.py:112
 msgid "question_en"
 msgstr "question_fr"
 
 # please never touch this translation!!
-#: .\travel\models.py:120 .\travel\models.py:121
+#: .\travel\models.py:121 .\travel\models.py:122
 msgid "answer_en"
 msgstr "answer_fr"
 
-#: .\travel\models.py:134
+#: .\travel\models.py:135
 msgid "url (English)"
 msgstr "adresse url (anglais)"
 
-#: .\travel\models.py:135
+#: .\travel\models.py:136
 msgid "url (French)"
 msgstr "adresse url (français)"
 
-#: .\travel\models.py:136
+#: .\travel\models.py:137
 msgid "file attachment (English)"
 msgstr "pièce jointe (anglais)"
 
-#: .\travel\models.py:137
+#: .\travel\models.py:138
 msgid "file attachment (French)"
 msgstr "pièce jointe (français)"
 
 # please never touch this translation!!
-#: .\travel\models.py:144 .\travel\models.py:145
+#: .\travel\models.py:145 .\travel\models.py:146
 msgid "file_en"
 msgstr "file_fr"
 
 # please never touch this translation!!
-#: .\travel\models.py:153 .\travel\models.py:154
+#: .\travel\models.py:154 .\travel\models.py:155
 msgid "url_en"
 msgstr "url_fr"
 
-#: .\travel\models.py:171
+#: .\travel\models.py:172
 msgid "category"
 msgstr "catégorie"
 
-#: .\travel\models.py:183
+#: .\travel\models.py:184
 msgid "Number of days before earliest date that is eligible for review"
 msgstr "Nombre de jours avant la première date admissible à l'examen"
 
-#: .\travel\models.py:188
+#: .\travel\models.py:189
 msgid "name (en)"
 msgstr "nom (anglais)"
 
-#: .\travel\models.py:230
+#: .\travel\models.py:231
 msgid "Unverified"
 msgstr "Non vérifié"
 
-#: .\travel\models.py:231
+#: .\travel\models.py:232
 msgid "Under review"
 msgstr "En cours d'examen"
 
-#: .\travel\models.py:232
+#: .\travel\models.py:233
 msgid "Reviewed"
 msgstr "Révisé"
 
-#: .\travel\models.py:233
+#: .\travel\models.py:234
 msgid "Verified"
 msgstr "Vérifié"
 
-#: .\travel\models.py:234 .\travel\models.py:563 .\travel\models.py:1051
-#: .\travel\models.py:1472 .\travel\models.py:1552
+#: .\travel\models.py:235 .\travel\models.py:586 .\travel\models.py:1074
+#: .\travel\models.py:1504 .\travel\models.py:1584
 msgid "Cancelled"
 msgstr "Annulé"
 
-#: .\travel\models.py:237
+#: .\travel\models.py:238
 msgid "trip title (English)"
 msgstr "titre du voyage (anglais)"
 
-#: .\travel\models.py:238
+#: .\travel\models.py:239
 msgid "trip title (French)"
 msgstr "titre du voyage (français)"
 
-#: .\travel\models.py:239
+#: .\travel\models.py:240
 msgid "trip purpose"
 msgstr "but du voyage"
 
-#: .\travel\models.py:242
+#: .\travel\models.py:243
 msgid "does attendance to this require ADM approval?"
 msgstr ""
 "la participation à cette activité nécessite-t-elle l'approbation du SMA?"
 
-#: .\travel\models.py:244
+#: .\travel\models.py:245
 msgid "location (city, province, country)"
 msgstr "lieu (ville, province, pays)"
 
-#: .\travel\models.py:246
+#: .\travel\models.py:247
 msgid "Which region is the lead on this trip?"
 msgstr "Quelle région est en tête de ce voyage ?"
 
-#: .\travel\models.py:249
+#: .\travel\models.py:250
 msgid ""
 "Is there an event template being completed for this conference or meeting?"
 msgstr ""
-"Y a-t-il un plan d'événement en cours de réalisation pour cette conférence ou "
-"réunion ?"
+"Y a-t-il un plan d'événement en cours de réalisation pour cette conférence "
+"ou réunion ?"
 
-#: .\travel\models.py:250
+#: .\travel\models.py:251
 msgid "event number"
 msgstr "numéro d'événement"
 
-#: .\travel\models.py:251
+#: .\travel\models.py:252
 msgid "start date of event"
 msgstr "date de début de l'événement"
 
-#: .\travel\models.py:252
+#: .\travel\models.py:253
 msgid "end date of event"
 msgstr "date de fin de l'événement"
 
-#: .\travel\models.py:253
+#: .\travel\models.py:254
 msgid "meeting URL"
 msgstr "URL de la réunion"
 
-#: .\travel\models.py:254
+#: .\travel\models.py:255
 msgid "abstract submission deadline"
 msgstr "date limite de soumission des résumés"
 
-#: .\travel\models.py:255
+#: .\travel\models.py:256
 msgid "registration deadline"
 msgstr "date limite d'inscription"
 
-#: .\travel\models.py:256
+#: .\travel\models.py:257
 msgid "general notes"
 msgstr "notes générales"
 
-#: .\travel\models.py:258 .\travel\models.py:567 .\travel\models.py:1069
+#: .\travel\models.py:259 .\travel\models.py:590 .\travel\models.py:1092
 msgid "fiscal year"
 msgstr "exercice fiscal"
 
-#: .\travel\models.py:260
+#: .\travel\models.py:261
 msgid "verified?"
 msgstr "vérifié?"
 
-#: .\travel\models.py:263
+#: .\travel\models.py:264
 msgid "verified by"
 msgstr "vérifié par"
 
-#: .\travel\models.py:265
+#: .\travel\models.py:266
 msgid "trip status"
 msgstr "statut du voyage"
 
-#: .\travel\models.py:266 .\travel\models.py:635 .\travel\models.py:1063
+#: .\travel\models.py:267 .\travel\models.py:658 .\travel\models.py:1086
 msgid "Administrative notes"
 msgstr "Notes administratives"
 
-#: .\travel\models.py:267
+#: .\travel\models.py:268
 msgid "start date of the ADM review"
 msgstr "date de début de la révision du SMA"
 
-#: .\travel\models.py:270
+#: .\travel\models.py:271
 msgid "ADM Office review deadline"
 msgstr "Date limite d'examen du bureau du SMA"
 
-#: .\travel\models.py:271
+#: .\travel\models.py:272
 msgid "Date when eligible for ADM Office review"
 msgstr "Date d'admissibilité à l'examen du bureau du SMA"
 
-#: .\travel\models.py:327
+#: .\travel\models.py:328
 msgid "to"
 msgstr "à"
 
-#: .\travel\models.py:387 .\travel\models.py:598 .\travel\models.py:1056
+#: .\travel\models.py:388 .\travel\models.py:621 .\travel\models.py:1079
 #: .\travel\views.py:159
 msgid "trip"
 msgstr "voyage"
 
 #. Translators: This is for a header
-#: .\travel\models.py:389
+#: .\travel\models.py:390
 msgid "trips"
 msgstr "voyages"
 
-#: .\travel\models.py:415
+#: .\travel\models.py:416
 msgid "not a DM Apps user"
 msgstr "pas un utilisateur de Applis GD"
 
-#: .\travel\models.py:549 .\travel\models.py:930 .\travel\models.py:936
-#: .\travel\models.py:1218
+#: .\travel\models.py:572 .\travel\models.py:953 .\travel\models.py:959
+#: .\travel\models.py:1252
 msgid "by"
 msgstr "par"
 
-#: .\travel\models.py:555 .\travel\models.py:1043 .\travel\models.py:1471
-#: .\travel\models.py:1547
+#: .\travel\models.py:578 .\travel\models.py:1066 .\travel\models.py:1503
+#: .\travel\models.py:1579
 msgid "Draft"
 msgstr "Ébauche"
 
-#: .\travel\models.py:556 .\travel\models.py:1044 .\travel\models.py:1470
-#| msgid "Amended"
+#: .\travel\models.py:579 .\travel\models.py:1067 .\travel\models.py:1502
 msgid "Denied"
 msgstr "Refusé"
 
-#: .\travel\models.py:557 .\travel\models.py:1045 .\travel\models.py:1469
+#: .\travel\models.py:580 .\travel\models.py:1068 .\travel\models.py:1501
 msgid "Approved"
 msgstr "Approuvé"
 
-#: .\travel\models.py:558 .\travel\models.py:1046
+#: .\travel\models.py:581 .\travel\models.py:1069
 msgid "Pending Recommendation"
 msgstr "En attente de recommandation"
 
-#: .\travel\models.py:559 .\travel\models.py:1047
+#: .\travel\models.py:582 .\travel\models.py:1070
 msgid "Pending ADM Approval"
 msgstr "En attente de l'approbation du SMA "
 
-#: .\travel\models.py:560 .\travel\models.py:1048
+#: .\travel\models.py:583 .\travel\models.py:1071
 msgid "Pending RDG Approval"
 msgstr "En attente de l'approbation du DGR"
 
-#: .\travel\models.py:561 .\travel\models.py:1049
+#: .\travel\models.py:584 .\travel\models.py:1072
 msgid "Changes Requested"
 msgstr "Modifications demandées"
 
-#: .\travel\models.py:562 .\travel\models.py:1050
+#: .\travel\models.py:585 .\travel\models.py:1073
 msgid "Pending Review"
 msgstr "En cours d'examen"
 
-#: .\travel\models.py:575 .\travel\models.py:1270
+#: .\travel\models.py:598 .\travel\models.py:1304
 msgid "Is the traveller a public servant?"
 msgstr "Le voyageur est-il un fonctionnaire ?"
 
-#: .\travel\models.py:577
+#: .\travel\models.py:600
 msgid "Traveller belongs to which DFO region?"
 msgstr "Le voyageur appartient à quelle région du MPO?"
 
-#: .\travel\models.py:581 .\travel\models.py:1055
+#: .\travel\models.py:604 .\travel\models.py:1078
 msgid "under which section is this request being made?"
 msgstr "en vertu de quelle section du MPO cette demande est-elle faite?"
 
-#: .\travel\models.py:584 .\travel\models.py:1271
+#: .\travel\models.py:607 .\travel\models.py:1305
 msgid "Is the traveller a research scientist (RES)?"
 msgstr "Le voyageur est-il un chercheur(se) scientifique (RES) ?"
 
-#: .\travel\models.py:585 .\travel\models.py:1272
+#: .\travel\models.py:608 .\travel\models.py:1306
 msgid "first name"
 msgstr "prénom"
 
-#: .\travel\models.py:586 .\travel\models.py:1273
+#: .\travel\models.py:609 .\travel\models.py:1307
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\travel\models.py:587 .\travel\models.py:1274
+#: .\travel\models.py:610 .\travel\models.py:1308
 msgid "address"
 msgstr "adresse"
 
-#: .\travel\models.py:589 .\travel\models.py:1275
+#: .\travel\models.py:612 .\travel\models.py:1309
 msgid "phone (xxx-xxx-xxxx)"
 msgstr "téléphone (xxx-xxx-xxxx)"
 
-#: .\travel\models.py:590 .\travel\models.py:1276
+#: .\travel\models.py:613 .\travel\models.py:1310
 msgid "email"
 msgstr "courriel"
 
-#: .\travel\models.py:591 .\travel\models.py:1277
+#: .\travel\models.py:614 .\travel\models.py:1311
 msgid "company name"
 msgstr "nom de l'entreprise"
 
-#: .\travel\models.py:596
+#: .\travel\models.py:619
 msgid "Is this a group request (i.e., a request for multiple individuals)?"
 msgstr ""
 "S'agit-il d'une demande de groupe (c'est-à-dire une demande pour plusieurs "
 "personnes) ?"
 
-#: .\travel\models.py:602 .\travel\models.py:1278
+#: .\travel\models.py:625 .\travel\models.py:1312
 msgid "departure location (city, province, country)"
 msgstr "le lieu de départ (ville, province, pays)"
 
-#: .\travel\models.py:604
+#: .\travel\models.py:627
 msgid "destination location (city, province, country)"
 msgstr "le lieu de destination (ville, province, pays)"
 
-#: .\travel\models.py:607 .\travel\models.py:1279
+#: .\travel\models.py:630 .\travel\models.py:1313
 msgid "start date of travel"
 msgstr "date de début du voyage"
 
-#: .\travel\models.py:608 .\travel\models.py:1280
+#: .\travel\models.py:631 .\travel\models.py:1314
 msgid "end date of travel"
 msgstr "la date de fin du voyage"
 
-#: .\travel\models.py:610 .\travel\models.py:1281
+#: .\travel\models.py:633 .\travel\models.py:1315
 msgid "role of traveller"
 msgstr "rôle du voyageur"
 
-#: .\travel\models.py:613 .\travel\models.py:1282
+#: .\travel\models.py:636 .\travel\models.py:1316
 msgid "role description"
 msgstr "description du rôle"
 
-#: .\travel\models.py:614 .\travel\models.py:1283
+#: .\travel\models.py:637 .\travel\models.py:1317
 msgid "is this request included on your learning plan?"
 msgstr "cette demande est-elle incluse dans votre plan d'apprentissage ?"
 
-#: .\travel\models.py:615 .\travel\models.py:1057
+#: .\travel\models.py:638 .\travel\models.py:1080
 msgid "what is the objective of this meeting or conference?"
 msgstr "quel est l'objectif de cette réunion ou conférence?"
 
-#: .\travel\models.py:616 .\travel\models.py:1058
+#: .\travel\models.py:639 .\travel\models.py:1081
 msgid "what are the benefits to DFO?"
 msgstr "quels sont les avantages pour le MPO?"
 
-#: .\travel\models.py:617 .\travel\models.py:1059
+#: .\travel\models.py:640 .\travel\models.py:1082
 msgid "other attendees covered under BTA"
 msgstr "autres participants couverts par une AGV"
 
-#: .\travel\models.py:620 .\travel\models.py:1060
+#: .\travel\models.py:643 .\travel\models.py:1083
 msgid "justification for late submissions"
 msgstr "justification pour les soumissions tardives"
 
-#: .\travel\models.py:621
+#: .\travel\models.py:644
 msgid "what is the funding source?"
 msgstr "quel est la source de financement?"
 
-#: .\travel\models.py:622 .\travel\models.py:1062 .\travel\models.py:1284
+#: .\travel\models.py:645 .\travel\models.py:1085 .\travel\models.py:1318
 msgid "notes (optional)"
 msgstr "notes (facultatif)"
 
-#: .\travel\models.py:624 .\travel\models.py:1285
+#: .\travel\models.py:647 .\travel\models.py:1319
 msgid "amount of non-DFO funding (CAD)"
 msgstr "montant du financement non versé par le MPO (CAD)"
 
-#: .\travel\models.py:626 .\travel\models.py:1287
+#: .\travel\models.py:649 .\travel\models.py:1321
 msgid ""
 "give the full name(s) of the of the organization(s) providing non-DFO funding"
 msgstr ""
 "indiquer le nom complet de l'organisation (ou des organisations) qui fournit "
 "(ou fournissent) le financement non versé par le MPO"
 
-#: .\travel\models.py:630 .\travel\models.py:1066
+#: .\travel\models.py:653 .\travel\models.py:1089
 msgid "date submitted"
 msgstr "date de soumission"
 
-#: .\travel\models.py:631 .\travel\models.py:1067
+#: .\travel\models.py:654 .\travel\models.py:1090
 msgid "original submission date"
 msgstr "date de soumission initiale"
 
-#: .\travel\models.py:632 .\travel\models.py:1068
+#: .\travel\models.py:655 .\travel\models.py:1091
 msgid "trip request status"
 msgstr "statut de la demande"
 
-#: .\travel\models.py:637
+#: .\travel\models.py:660
 msgid "Exclude this traveller from the travel plan?"
 msgstr "Exclure ce voyageur du plan de voyage ?"
 
-#: .\travel\models.py:641
+#: .\travel\models.py:664
 msgid "created by"
 msgstr "créé par"
 
-#: .\travel\models.py:668 .\travel\models.py:1101
+#: .\travel\models.py:691 .\travel\models.py:1132
 msgid "Group Request"
 msgstr "Demande de groupe"
 
-#: .\travel\models.py:687 .\travel\models.py:1110 .\travel\models.py:1316
-#: .\travel\models.py:1434
+#: .\travel\models.py:710 .\travel\models.py:1141 .\travel\models.py:1348
+#: .\travel\models.py:1466
 msgid "trip request"
 msgstr "demande de voyage"
 
-#: .\travel\models.py:727 .\travel\models.py:1129
+#: .\travel\models.py:750 .\travel\models.py:1163
 msgid "WARNING: The roles of the reviewers are out of order!"
 msgstr "AVERTISSEMENT: Les rôles des examinateurs sont hors d’ordre!"
 
-#: .\travel\models.py:756 .\travel\models.py:1158 .\travel\models.py:1341
+#: .\travel\models.py:779 .\travel\models.py:1192 .\travel\models.py:1373
 msgid ""
 "NOTE: This trip request contains non-DFO funding sources from {}. Total DFO "
 "funding: ${:,.2f} | Total non-DFO funding: ${:,.2f}"
 msgstr ""
-"REMARQUE : Cette demande de voyage contient des sources de financement autres "
-"que le MPO de {}. Total du financement du MPO : ${ :,.2f} | Total des "
+"REMARQUE : Cette demande de voyage contient des sources de financement "
+"autres que le MPO de {}. Total du financement du MPO : ${ :,.2f} | Total des "
 "financements hors MPO : ${ :,.2f}"
 
-#: .\travel\models.py:812
+#: .\travel\models.py:835
 msgid "Cost category"
 msgstr "Catégorie de coût"
 
-#: .\travel\models.py:812
+#: .\travel\models.py:835
 msgid "Amount (CAD)"
 msgstr "Montant (CAD)"
 
-#: .\travel\models.py:826 .\travel\models.py:1366
+#: .\travel\models.py:849 .\travel\models.py:1398
 #: .\travel\templates\travel\scratch\_child_cost_breakdown.html:8
 #: .\travel\templates\travel\scratch\_trip_traveller_cost_comparison.html:20
 #: .\travel\templates\travel\scratch\_trip_traveller_cost_comparison.html:42
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: .\travel\models.py:959 .\travel\models.py:962 .\travel\models.py:1241
-#: .\travel\models.py:1244
+#: .\travel\models.py:982 .\travel\models.py:985 .\travel\models.py:1275
+#: .\travel\models.py:1278
 msgid "day"
 msgstr "jour"
 
-#: .\travel\models.py:974
+#: .\travel\models.py:997
 msgid "missing company name"
 msgstr "nom manquant de l’entreprise"
 
-#: .\travel\models.py:975
+#: .\travel\models.py:998
 msgid "missing address"
 msgstr "adresse manquante"
 
-#: .\travel\models.py:976
+#: .\travel\models.py:999
 msgid "missing phone number"
 msgstr "numéro de téléphone manquant"
 
-#: .\travel\models.py:978
+#: .\travel\models.py:1001
 msgid "missing email address"
 msgstr "adresse courriel manquante"
 
-#: .\travel\models.py:982
+#: .\travel\models.py:1005
 msgid "Company"
 msgstr "Entreprise"
 
-#: .\travel\models.py:983 .\travel\templates\travel\scratch\travel_plan.html:185
+#: .\travel\models.py:1006 .\travel\templates\travel\traf\single.html:67
 msgid "Address"
 msgstr "Adresse"
 
-#: .\travel\models.py:984
+#: .\travel\models.py:1007
 msgid "Phone"
 msgstr "Téléphone"
 
-#: .\travel\models.py:985 .\travel\templates\travel\scratch\travel_plan.html:193
+#: .\travel\models.py:1008 .\travel\templates\travel\traf\single.html:75
 msgid "Email"
 msgstr "Courriel"
 
-#: .\travel\models.py:1061
+#: .\travel\models.py:1084
 msgid "what is the DFO funding source?"
 msgstr "quelle est la source de financement du MPO ?"
 
-#: .\travel\models.py:1097
+#: .\travel\models.py:1128
 msgid "EMPTY REQUEST"
 msgstr "DEMANDE VIDE"
 
-#: .\travel\models.py:1353
+#: .\travel\models.py:1385
 msgid "Cost"
 msgstr "Coût"
 
-#: .\travel\models.py:1353
+#: .\travel\models.py:1385
 msgid "Amount"
 msgstr "Montant"
 
-#: .\travel\models.py:1431
+#: .\travel\models.py:1463
 msgid "traveller"
 msgstr "voyageur"
 
-#: .\travel\models.py:1437 .\travel\models.py:1447
+#: .\travel\models.py:1469 .\travel\models.py:1479
 msgid "cost"
 msgstr "coût"
 
-#: .\travel\models.py:1438
+#: .\travel\models.py:1470
 msgid "daily rate (CAD/day)"
 msgstr "taux journalier (CAD/jour)"
 
-#: .\travel\models.py:1439
+#: .\travel\models.py:1471
 msgid "number of days"
 msgstr "nombre de jours"
 
-#: .\travel\models.py:1440
+#: .\travel\models.py:1472
 msgid "amount (CAD)"
 msgstr "montant (CAD)"
 
-#: .\travel\models.py:1468 .\travel\models.py:1549
+#: .\travel\models.py:1500 .\travel\models.py:1581
 msgid "Pending"
 msgstr "En cours"
 
-#: .\travel\models.py:1473 .\travel\models.py:1548
+#: .\travel\models.py:1505 .\travel\models.py:1580
 msgid "Queued"
 msgstr "En attente"
 
-#: .\travel\models.py:1474 .\travel\models.py:1551
+#: .\travel\models.py:1506 .\travel\models.py:1583
 msgid "Skipped"
 msgstr "Sauter"
 
-#: .\travel\models.py:1477 .\travel\models.py:1504 .\travel\models.py:1555
+#: .\travel\models.py:1509 .\travel\models.py:1536 .\travel\models.py:1587
 #: .\travel\templates\travel\index\main.html:55
 msgid "Reviewer"
 msgstr "Examinateur"
 
-#: .\travel\models.py:1478 .\travel\models.py:1556
+#: .\travel\models.py:1510 .\travel\models.py:1588
 msgid "Recommender"
 msgstr "Recommandeur"
 
-#: .\travel\models.py:1479 .\travel\models.py:1557
+#: .\travel\models.py:1511 .\travel\models.py:1589
 msgid "NCR Travel Coordinators"
 msgstr "Coordonnateurs de voyage de la RCN"
 
-#: .\travel\models.py:1480 .\travel\models.py:1558
+#: .\travel\models.py:1512 .\travel\models.py:1590
 msgid "ADM Recommender"
 msgstr "Recommandeur du SMA"
 
-#: .\travel\models.py:1481 .\travel\models.py:1559
+#: .\travel\models.py:1513 .\travel\models.py:1591
 msgid "ADM"
 msgstr "SMA"
 
-#: .\travel\models.py:1482 .\travel\models.py:1560
+#: .\travel\models.py:1514 .\travel\models.py:1592
 msgid "RDG"
 msgstr "DGR"
 
-#: .\travel\models.py:1486 .\travel\models.py:1563
+#: .\travel\models.py:1518 .\travel\models.py:1595
 msgid "process order"
 msgstr "ordre de traitement"
 
-#: .\travel\models.py:1489 .\travel\models.py:1565
+#: .\travel\models.py:1521 .\travel\models.py:1597
 msgid "role"
 msgstr "rôle"
 
-#: .\travel\models.py:1490 .\travel\models.py:1566
+#: .\travel\models.py:1522 .\travel\models.py:1598
 msgid "review status"
 msgstr "statut de révision"
 
-#: .\travel\models.py:1491 .\travel\models.py:1567
+#: .\travel\models.py:1523 .\travel\models.py:1599
 msgid "status date"
 msgstr "date du statut"
 
-#: .\travel\models.py:1492 .\travel\models.py:1568
-#: .\travel\templates\travel\scratch\group_travel_plan.html:331
-#: .\travel\templates\travel\scratch\travel_plan.html:428 .\travel\utils.py:736
+#: .\travel\models.py:1524 .\travel\models.py:1600
+#: .\travel\templates\travel\traf\group.html:213
+#: .\travel\templates\travel\traf\single.html:309 .\travel\utils.py:736
 msgid "Comments"
 msgstr "Commentaires"
 
-#: .\travel\models.py:1509
+#: .\travel\models.py:1541
 msgid "reviewer"
 msgstr "examinateur"
 
-#: .\travel\models.py:1538 .\travel\models.py:1590
+#: .\travel\models.py:1570 .\travel\models.py:1631
 msgid "on"
 msgstr "sur"
 
-#: .\travel\models.py:1550
+#: .\travel\models.py:1582
 msgid "Complete"
 msgstr "Compléter"
 
-#: .\travel\models.py:1573
+#: .\travel\models.py:1614
 msgid "trip reviewer"
 msgstr "l'examinateur du voyage"
 
-#: .\travel\models.py:1605
+#: .\travel\models.py:1646
 msgid "caption"
 msgstr "légende"
 
-#: .\travel\models.py:1606
+#: .\travel\models.py:1647
 msgid "attachment"
 msgstr "pièce jointe"
 
-#: .\travel\models.py:1607
+#: .\travel\models.py:1648
 msgid "date created"
 msgstr "date de création"
 
 #. Translators: This is a 'file' as in something you attach to an email
-#: .\travel\models.py:1612
+#: .\travel\models.py:1653
 msgid "file"
 msgstr "fichier"
 
@@ -922,8 +929,8 @@ msgstr "Application de voyage"
 msgid "Home"
 msgstr "Accueil"
 
-#: .\travel\templates\travel\base\_nav_left_auth.html:10 .\travel\views.py:971
-#: .\travel\views.py:974 .\travel\views.py:1012
+#: .\travel\templates\travel\base\_nav_left_auth.html:10
+#: .\travel\views.py:1197 .\travel\views.py:1200 .\travel\views.py:1238
 msgid "Trips"
 msgstr "Voyages"
 
@@ -992,6 +999,7 @@ msgid "Manage Physical Locations"
 msgstr "Gérer les lieux physiques"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:76
+#: .\travel\views.py:1839
 msgid "Reports"
 msgstr "Rapports"
 
@@ -1067,7 +1075,7 @@ msgstr "jours"
 #: .\travel\templates\travel\common\_costs.html:85
 #: .\travel\templates\travel\common\_files.html:51
 #: .\travel\templates\travel\common\_travellers.html:39
-#: .\travel\templates\travel\common\_travellers.html:149
+#: .\travel\templates\travel\common\_travellers.html:147
 #: .\travel\templates\travel\request_detail.html:116
 #: .\travel\templates\travel\scratch\trip_detail.html:65
 #: .\travel\templates\travel\scratch\trip_request_detail.html:170
@@ -1097,7 +1105,7 @@ msgstr "Supprimer"
 #: .\travel\templates\travel\common\_costs.html:94
 #: .\travel\templates\travel\common\_files.html:60
 #: .\travel\templates\travel\common\_request_admin_notes_button.html:13
-#: .\travel\templates\travel\common\_travellers.html:361
+#: .\travel\templates\travel\common\_travellers.html:359
 #: .\travel\templates\travel\common\_trip_admin_notes_button.html:13
 #: .\travel\templates\travel\request_form.html:90
 #: .\travel\templates\travel\scratch\reviewer_formset.html:71
@@ -1109,13 +1117,12 @@ msgstr "Sauvegarder"
 #: .\travel\templates\travel\common\_costs.html:97
 #: .\travel\templates\travel\common\_files.html:63
 #: .\travel\templates\travel\common\_request_admin_notes_button.html:14
-#: .\travel\templates\travel\common\_travellers.html:362
+#: .\travel\templates\travel\common\_travellers.html:360
 #: .\travel\templates\travel\common\_trip_admin_notes_button.html:14
 #: .\travel\templates\travel\request_form.html:96
 #: .\travel\templates\travel\request_submit.html:45
 #: .\travel\templates\travel\scratch\reviewer_skip_form.html:43
 #: .\travel\templates\travel\scratch\trip_confirm_delete.html:31
-#: .\travel\views.py:1417
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -1148,7 +1155,7 @@ msgstr "Aucun fichier n'a été joint à cette demande"
 #: .\travel\templates\travel\request_detail.html:136
 #: .\travel\templates\travel\scratch\trip_detail.html:58
 #: .\travel\templates\travel\scratch\trip_request_detail.html:100
-#: .\travel\templates\travel\trip_detail.html:115
+#: .\travel\templates\travel\trip_detail.html:79
 msgid "Administrative Notes"
 msgstr "Notes administratives"
 
@@ -1159,83 +1166,89 @@ msgstr "Notes administratives"
 msgid "Request Summary"
 msgstr "Résumé de la demande"
 
-#: .\travel\templates\travel\common\_request_detail.html:38
+#: .\travel\templates\travel\common\_request_detail.html:42
 #: .\travel\templates\travel\request_list\main.html:41 .\travel\views.py:160
 msgid "Destination"
 msgstr "Destination"
 
-#: .\travel\templates\travel\common\_request_detail.html:42
+#: .\travel\templates\travel\common\_request_detail.html:46
 #: .\travel\templates\travel\common\_trip_detail.html:62
 #: .\travel\templates\travel\trip_list\main.html:59
+#: .\travel\templates\travel\trip_reviewer_list.html:39
 msgid "Dates"
 msgstr "Dates"
 
-#: .\travel\templates\travel\common\_request_detail.html:46
+#: .\travel\templates\travel\common\_request_detail.html:50
 msgid "Number of travellers"
 msgstr "Nombre de voyageurs"
 
-#: .\travel\templates\travel\common\_request_detail.html:50
+#: .\travel\templates\travel\common\_request_detail.html:54
 #: .\travel\utils.py:692
 msgid "Request status"
 msgstr "Statut de la demande"
 
-#: .\travel\templates\travel\common\_request_detail.html:54
+#: .\travel\templates\travel\common\_request_detail.html:58
 msgid "DFO Section"
 msgstr "Section MPO"
 
-#: .\travel\templates\travel\common\_request_detail.html:58
-#: .\travel\templates\travel\common\_travellers.html:74
+#: .\travel\templates\travel\common\_request_detail.html:62
+#: .\travel\templates\travel\common\_travellers.html:73
 msgid "Objective of trip"
 msgstr "Objectif du voyage"
 
-#: .\travel\templates\travel\common\_request_detail.html:62
-#: .\travel\templates\travel\common\_travellers.html:78
+#: .\travel\templates\travel\common\_request_detail.html:66
+#: .\travel\templates\travel\common\_travellers.html:77
 msgid "Benefits to DFO"
 msgstr "Avantages pour le MPO"
 
-#: .\travel\templates\travel\common\_request_detail.html:66
+#: .\travel\templates\travel\common\_request_detail.html:70
 msgid "BTA attendees"
 msgstr "Participants avec AGV"
 
-#: .\travel\templates\travel\common\_request_detail.html:70
+#: .\travel\templates\travel\common\_request_detail.html:74
 msgid "Total cost"
 msgstr "Coût total"
 
-#: .\travel\templates\travel\common\_request_detail.html:74
+#: .\travel\templates\travel\common\_request_detail.html:78
 msgid "Total non-DFO funding (CAD)"
 msgstr "Financement total non-MPO (CAD)"
 
-#: .\travel\templates\travel\common\_request_detail.html:78
+#: .\travel\templates\travel\common\_request_detail.html:82
 msgid "Total DFO funding (CAD)"
 msgstr "Financement total du MPO (CAD)"
 
-#: .\travel\templates\travel\common\_request_detail.html:82
+#: .\travel\templates\travel\common\_request_detail.html:86
+#: .\travel\templates\travel\common\_trip_detail.html:108
 #: .\travel\utils.py:700
 msgid "Non-DFO funding sources"
 msgstr "Source de financement non-MPO"
 
-#: .\travel\templates\travel\common\_request_detail.html:86
+#: .\travel\templates\travel\common\_request_detail.html:90
 msgid "DFO funding source"
 msgstr "Source de financement du MPO"
 
-#: .\travel\templates\travel\common\_request_detail.html:94
+#: .\travel\templates\travel\common\_request_detail.html:98
 #: .\travel\templates\travel\request_list\main.html:46 .\travel\utils.py:703
 #: .\travel\views.py:164
 msgid "Processing time"
 msgstr "Temps de traitement"
 
-#: .\travel\templates\travel\common\_request_detail.html:102
+#: .\travel\templates\travel\common\_request_detail.html:106
 msgid "Notes"
 msgstr "Notes"
 
-#: .\travel\templates\travel\common\_request_detail.html:106
+#: .\travel\templates\travel\common\_request_detail.html:110
 msgid "Metadata"
 msgstr "Métadonnées"
 
-#: .\travel\templates\travel\common\_request_detail.html:112
-#: .\travel\templates\travel\common\_trip_detail.html:127
+#: .\travel\templates\travel\common\_request_detail.html:116
+#: .\travel\templates\travel\common\_trip_detail.html:139
 msgid "Comparison of Traveller Costs:"
 msgstr "Comparaison des coûts des voyageurs :"
+
+#: .\travel\templates\travel\common\_request_detail.html:127
+msgid "Other Travellers to ${request.trip.tname}:"
+msgstr ""
 
 #: .\travel\templates\travel\common\_request_script.html:6
 #: .\travel\templates\travel\common\_trip_script.html:6
@@ -1257,20 +1270,22 @@ msgid ""
 "Are you certain you want to remove this traveller from the request? This "
 "action is irreversible!!"
 msgstr ""
-"Êtes-vous certain de vouloir retirer ce voyageur de la demande ? Cette action "
-"est irreversible!!"
+"Êtes-vous certain de vouloir retirer ce voyageur de la demande ? Cette "
+"action est irreversible!!"
 
 #: .\travel\templates\travel\common\_request_script.html:8
+#: .\travel\templates\travel\common\_trip_script.html:8
 #: .\travel\templates\travel\scratch\_trip_request_detail.html:46
 msgid ""
-"Are you sure you want to reset the reviewers? This will undo any changes that "
-"you have made to the reviewer list and process order."
+"Are you sure you want to reset the reviewers? This will undo any changes "
+"that you have made to the reviewer list and process order."
 msgstr ""
 "Êtes-vous sûr de vouloir réinitialiser les examinateurs ? Cela annulera les "
 "modifications que vous avez apportées à la liste des examinateurs et à "
 "l'ordre de traitement."
 
 #: .\travel\templates\travel\common\_request_script.html:9
+#: .\travel\templates\travel\common\_trip_script.html:9
 msgid "Are you sure you want to delete this reviewer?"
 msgstr "Êtes-vous sûr de vouloir supprimer cet examinateur ?"
 
@@ -1310,7 +1325,7 @@ msgid "Skip"
 msgstr "Sauter"
 
 #: .\travel\templates\travel\common\_reviewers.html:81
-#: .\travel\templates\travel\common\_travellers.html:182
+#: .\travel\templates\travel\common\_travellers.html:180
 msgid "Start typing to search for a user"
 msgstr "Commencez à taper pour rechercher un utilisateur"
 
@@ -1322,7 +1337,7 @@ msgstr "Terminé"
 msgid "Add reviewer"
 msgstr "Ajouter un examinateur"
 
-#: .\travel\templates\travel\common\_reviewers.html:112
+#: .\travel\templates\travel\common\_reviewers.html:113
 #: .\travel\templates\travel\scratch\_reviewers.html:34
 #: .\travel\templates\travel\scratch\_trip_reviewers.html:38
 #: .\travel\templates\travel\scratch\reviewer_formset.html:83
@@ -1330,11 +1345,21 @@ msgstr "Ajouter un examinateur"
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: .\travel\templates\travel\common\_reviewers.html:118
+#: .\travel\templates\travel\common\_reviewers.html:119
 #: .\travel\templates\travel\scratch\_reviewers.html:96
-msgid "No reviewers, recommenders or approvers have been added to this request."
+msgid ""
+"No reviewers, recommenders or approvers have been added to this request."
 msgstr ""
-"Aucun examinateur, recommandeur ou approbateur n'a été ajouté à cette demande."
+"Aucun examinateur, recommandeur ou approbateur n'a été ajouté à cette "
+"demande."
+
+#: .\travel\templates\travel\common\_reviewers.html:120
+#, fuzzy
+#| msgid ""
+#| "No reviewers, recommenders or approvers have been added to this trip."
+msgid "No reviewers, recommenders or approvers have been added to this Trip."
+msgstr ""
+"Aucun examinateur, recommandateur, ou approbateur n'a été ajouté à ce voyage."
 
 #: .\travel\templates\travel\common\_travellers.html:11
 msgid "Expand all"
@@ -1361,138 +1386,139 @@ msgid "Travellers"
 msgstr "Voyageurs"
 
 #: .\travel\templates\travel\common\_travellers.html:41
-#: .\travel\templates\travel\common\_travellers.html:150
+#: .\travel\templates\travel\common\_travellers.html:148
 #: .\travel\templates\travel\scratch\_group_travellers.html:101
 #: .\travel\templates\travel\scratch\trip_detail.html:68
 #: .\travel\templates\travel\trip_detail.html:49
 msgid "Clone"
 msgstr "Clone"
 
-#: .\travel\templates\travel\common\_travellers.html:44
-#: .\travel\templates\travel\common\_travellers.html:151
+#: .\travel\templates\travel\common\_travellers.html:43
+#: .\travel\templates\travel\common\_travellers.html:149
 msgid "Remove"
 msgstr "Retirer"
 
-#: .\travel\templates\travel\common\_travellers.html:47
+#: .\travel\templates\travel\common\_travellers.html:46
 msgid "collapse"
 msgstr "replier"
 
-#: .\travel\templates\travel\common\_travellers.html:54
+#: .\travel\templates\travel\common\_travellers.html:53
 msgid "Research Scientist"
 msgstr "Chercheur(se) scientifique"
 
-#: .\travel\templates\travel\common\_travellers.html:55
+#: .\travel\templates\travel\common\_travellers.html:54
 msgid "EXTERNAL"
 msgstr "EXTERNE"
 
-#: .\travel\templates\travel\common\_travellers.html:60
+#: .\travel\templates\travel\common\_travellers.html:59
 msgid "Request Level"
 msgstr "Niveau de la demande"
 
-#: .\travel\templates\travel\common\_travellers.html:62
+#: .\travel\templates\travel\common\_travellers.html:61
 #: .\travel\templates\travel\scratch\_trip_traveller_history.html:35
 msgid "Associated trip request"
 msgstr "Demande de voyage associée"
 
-#: .\travel\templates\travel\common\_travellers.html:70
+#: .\travel\templates\travel\common\_travellers.html:69
 msgid "DFO region"
 msgstr "Région du MPO"
 
-#: .\travel\templates\travel\common\_travellers.html:88
+#: .\travel\templates\travel\common\_travellers.html:87
 msgid "Traveller Level"
 msgstr "Niveau du voyageur"
 
-#: .\travel\templates\travel\common\_travellers.html:91
+#: .\travel\templates\travel\common\_travellers.html:90
 msgid "Company / Organization:"
 msgstr "Entreprise / Organisation :"
 
-#: .\travel\templates\travel\common\_travellers.html:93
-#: .\travel\templates\travel\common\_travellers.html:99
-#: .\travel\templates\travel\common\_travellers.html:105
-#: .\travel\templates\travel\common\_travellers.html:111
+#: .\travel\templates\travel\common\_travellers.html:92
+#: .\travel\templates\travel\common\_travellers.html:98
+#: .\travel\templates\travel\common\_travellers.html:104
+#: .\travel\templates\travel\common\_travellers.html:110
 msgid "missing!"
 msgstr "manquants !"
 
-#: .\travel\templates\travel\common\_travellers.html:97
+#: .\travel\templates\travel\common\_travellers.html:96
 msgid "Address:"
 msgstr "Adresse :"
 
-#: .\travel\templates\travel\common\_travellers.html:103
+#: .\travel\templates\travel\common\_travellers.html:102
 msgid "Phone:"
 msgstr "Téléphone :"
 
-#: .\travel\templates\travel\common\_travellers.html:109
+#: .\travel\templates\travel\common\_travellers.html:108
 msgid "E-mail:"
 msgstr "Courrier électronique :"
 
-#: .\travel\templates\travel\common\_travellers.html:115
+#: .\travel\templates\travel\common\_travellers.html:114
 msgid "Public servant:"
 msgstr "Fonctionnaire :"
 
-#: .\travel\templates\travel\common\_travellers.html:116
+#: .\travel\templates\travel\common\_travellers.html:115
 msgid "Research scientist:"
 msgstr "Chercheur(se) scientifique :"
 
-#: .\travel\templates\travel\common\_travellers.html:117
+#: .\travel\templates\travel\common\_travellers.html:116
 msgid "Travel dates:"
 msgstr "Dates de voyage :"
 
-#: .\travel\templates\travel\common\_travellers.html:118
+#: .\travel\templates\travel\common\_travellers.html:117
 msgid "Departure location:"
 msgstr "Lieu de départ :"
 
-#: .\travel\templates\travel\common\_travellers.html:121
+#: .\travel\templates\travel\common\_travellers.html:119
 msgid "Part of learning plan:"
 msgstr "Fait partie du plan d'apprentissage :"
 
-#: .\travel\templates\travel\common\_travellers.html:122
+#: .\travel\templates\travel\common\_travellers.html:120
 msgid "Non-DFO funding:"
 msgstr "fFinancement non-MPO :"
 
-#: .\travel\templates\travel\common\_travellers.html:125
+#: .\travel\templates\travel\common\_travellers.html:123
 msgid "Travel History (ADM approved only):"
 msgstr "Historique des voyages (uniquement approuvé par le SMA) :"
 
-#: .\travel\templates\travel\common\_travellers.html:128
-#: .\travel\templates\travel\common\_trip_detail.html:118
+#: .\travel\templates\travel\common\_travellers.html:126
+#: .\travel\templates\travel\common\_trip_detail.html:130
 #: .\travel\templates\travel\scratch\_trip_detail.html:71
 msgid "open in new window"
 msgstr "ouvrir dans une nouvelle fenêtre"
 
-#: .\travel\templates\travel\common\_travellers.html:134
-msgid "This traveller has no prior approved ADM requests on file."
+#: .\travel\templates\travel\common\_travellers.html:132
+msgid "This traveller has no ADM approved requests on file."
 msgstr ""
 
-#: .\travel\templates\travel\common\_travellers.html:144
+#: .\travel\templates\travel\common\_travellers.html:142
 msgid "Cost Breakdown:"
 msgstr "Répartition des coûts :"
 
-#: .\travel\templates\travel\common\_travellers.html:162
+#: .\travel\templates\travel\common\_travellers.html:160
 msgid "CLONING: "
 msgstr "CLONAGE : "
 
-#: .\travel\templates\travel\common\_travellers.html:164
+#: .\travel\templates\travel\common\_travellers.html:162
 msgid "Please enter the new traveller information below."
 msgstr ""
-"Veuillez indiquer ci-dessous les nouvelles informations relatives au voyageur."
+"Veuillez indiquer ci-dessous les nouvelles informations relatives au "
+"voyageur."
 
-#: .\travel\templates\travel\common\_travellers.html:239
+#: .\travel\templates\travel\common\_travellers.html:237
 msgid "Please enter address"
 msgstr "Veuillez indiquer l'adresse"
 
-#: .\travel\templates\travel\common\_travellers.html:243
+#: .\travel\templates\travel\common\_travellers.html:241
 msgid "Enter manually"
 msgstr "Saisir manuellement"
 
-#: .\travel\templates\travel\common\_travellers.html:244
+#: .\travel\templates\travel\common\_travellers.html:242
 msgid "Use a Predefined Address"
 msgstr "Utiliser une adresse prédéfinie"
 
-#: .\travel\templates\travel\common\_travellers.html:375
+#: .\travel\templates\travel\common\_travellers.html:373
 msgid "There are no travellers associated with this trip"
 msgstr "Aucun voyageur n'est lié à ce voyage"
 
-#: .\travel\templates\travel\common\_travellers.html:376
+#: .\travel\templates\travel\common\_travellers.html:374
 msgid "There are no travellers associated with this request"
 msgstr "Aucun voyageur n'est lié à cette demande"
 
@@ -1514,31 +1540,56 @@ msgid "Trip status"
 msgstr "Statut du voyage"
 
 #: .\travel\templates\travel\common\_trip_detail.html:54
-msgid "Event template required?"
-msgstr ""
+#, fuzzy
+#| msgid "ADM approval required?"
+msgid "Event plan required?"
+msgstr "Approbation du SMA requis?"
 
 #: .\travel\templates\travel\common\_trip_detail.html:66
 #: .\travel\templates\travel\trip_list\main.html:56
+#: .\travel\templates\travel\trip_reviewer_list.html:38
 msgid "Location"
 msgstr "Lieu"
 
 #: .\travel\templates\travel\common\_trip_detail.html:100
-msgid "Total DFO cost (non RES)"
-msgstr "Coût total du MPO (non RES)"
+#, fuzzy
+#| msgid "Total cost"
+msgid "Total trip cost"
+msgstr "Coût total"
 
 #: .\travel\templates\travel\common\_trip_detail.html:104
-msgid "Total DFO cost (all)"
-msgstr "Coût total du MPO (tout)"
+#, fuzzy
+#| msgid "Total non-DFO funding (CAD)"
+msgid "Total non-DFO funding"
+msgstr "Financement total non-MPO (CAD)"
 
-#: .\travel\templates\travel\common\_trip_detail.html:114
+#: .\travel\templates\travel\common\_trip_detail.html:112
+#, fuzzy
+#| msgid "Total cost"
+msgid "Total DFO cost"
+msgstr "Coût total"
+
+#: .\travel\templates\travel\common\_trip_detail.html:116
+#, fuzzy
+#| msgid "Total DFO cost (excluding BTA)"
+msgid "Total DFO cost (excluding research scientists)"
+msgstr "Coût total du MPO (excluant l’AGV)"
+
+#: .\travel\templates\travel\common\_trip_detail.html:117
+#, fuzzy
+#| msgid "amount of non-DFO funding (CAD)"
+msgid "excluding any non-DFO funding"
+msgstr "montant du financement non versé par le MPO (CAD)"
+
+#: .\travel\templates\travel\common\_trip_detail.html:126
 msgid "Associated Requests:"
 msgstr "Demandes associées :"
 
-#: .\travel\templates\travel\common\_trip_detail.html:129
+#: .\travel\templates\travel\common\_trip_detail.html:141
 msgid "Active Travellers Only"
 msgstr "Voyageurs actifs uniquement"
 
-#: .\travel\templates\travel\common\_trip_detail.html:130
+#: .\travel\templates\travel\common\_trip_detail.html:142
 msgid "Travellers on 'Draft' or 'Cancelled' trips will not be shown below."
 msgstr ""
 "Les voyageurs en voyage \"provisoire\" ou \"annulé\" ne seront pas indiqués "
@@ -1562,8 +1613,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)s "
-"en tant qu'examinateur par défaut \n"
+"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)"
+"s en tant qu'examinateur par défaut \n"
 "            "
 
 #: .\travel\templates\travel\default_reviewer\default_reviewer_form.html:22
@@ -1628,11 +1679,11 @@ msgstr ""
 "Affichez et gérez les demandes de voyage pour lesquelles vous êtes des "
 "réviseurs"
 
-#: .\travel\templates\travel\index\_reviewer.html:14
+#: .\travel\templates\travel\index\_reviewer.html:14 .\travel\views.py:799
 msgid "Trips Awaiting Review"
 msgstr "Voyages en attente d'un examen"
 
-#: .\travel\templates\travel\index\_reviewer.html:20 .\travel\views.py:579
+#: .\travel\templates\travel\index\_reviewer.html:20 .\travel\views.py:586
 msgid "Requests Awaiting Review"
 msgstr "Demandes en cours de traitement"
 
@@ -1657,8 +1708,8 @@ msgid ""
 "      "
 msgstr ""
 "\n"
-"      Si vous avez d’autres questions ou suggestions concernant le système de "
-"demande de voyage,\n"
+"      Si vous avez d’autres questions ou suggestions concernant le système "
+"de demande de voyage,\n"
 "      n’hésitez pas à\n"
 "      <a href=\"mailto:DFO.ScienceTravel-VoyagesSciences.MPO@dfo-mpo.gc.ca"
 "\">nous contacter</a>\n"
@@ -1712,6 +1763,30 @@ msgstr "Administrateurs régionaux des voyages"
 #: .\travel\templates\travel\index\main.html:96
 msgid "Support"
 msgstr "Soutien"
+
+#: .\travel\templates\travel\reports.html:56
+msgid "Please select the report"
+msgstr "Veuillez sélectionner le rapport"
+
+#: .\travel\templates\travel\reports.html:67
+msgid "Generate"
+msgstr "Générer"
+
+#: .\travel\templates\travel\reports.html:100
+msgid "From date<br>(filters on trip request start date)"
+msgstr "De la date<br>(filtres sur la date de début de la demande de voyage)"
+
+#: .\travel\templates\travel\reports.html:101
+msgid "To date<br>(filters on trip request start date)"
+msgstr "A ce jour<br>(filtres sur la date de début de la demande de voyage)"
+
+#: .\travel\templates\travel\reports.html:111
+msgid "From date<br>(filters on trip start date)"
+msgstr "De la date<br>(filtres sur la date de début du voyage)"
+
+#: .\travel\templates\travel\reports.html:112
+msgid "To date<br>(filters on trip start date)"
+msgstr "A ce jour<br>(filtres sur la date de début du voyage)"
 
 #: .\travel\templates\travel\request_detail.html:18
 msgid ""
@@ -1775,7 +1850,8 @@ msgstr "Ce voyage a déjà été examiné par la RCN."
 #: .\travel\templates\travel\request_detail.html:89
 #: .\travel\templates\travel\scratch\trip_request_detail.html:109
 msgid "This is only an option to you as a system admin"
-msgstr "Ceci n'est qu'une option pour vous en tant qu'administrateur du système"
+msgstr ""
+"Ceci n'est qu'une option pour vous en tant qu'administrateur du système"
 
 #: .\travel\templates\travel\request_detail.html:91
 #: .\travel\templates\travel\scratch\trip_request_detail.html:107
@@ -1831,8 +1907,8 @@ msgid ""
 "                  <br><br>\n"
 "                  These requests must have a very strong rationale outlining "
 "the necessity of the trip and clearly articulate the reason for the\n"
-"                  late request; requests of this nature will only be approved "
-"in exceptional circumstances.\n"
+"                  late request; requests of this nature will only be "
+"approved in exceptional circumstances.\n"
 "                "
 msgstr ""
 "\n"
@@ -1910,15 +1986,17 @@ msgid "Requests Awaiting Your Review"
 msgstr "Demandes en attente de votre examen"
 
 #: .\travel\templates\travel\request_reviewer_list.html:23
-#: .\travel\templates\travel\request_reviewer_list_old.html:11
 #: .\travel\templates\travel\scratch\trip_review_list.html:10
 #: .\travel\templates\travel\scratch\trip_verification_list.html:28
 #: .\travel\templates\travel\trip_list\main.html:29
+#: .\travel\templates\travel\trip_reviewer_list.html:22
 msgid "Way to go! You're all done here"
 msgstr "Bravo ! Vous avez terminé"
 
 #: .\travel\templates\travel\request_reviewer_list.html:31
 #: .\travel\templates\travel\request_reviewer_list.html:67
+#: .\travel\templates\travel\trip_reviewer_list.html:30
+#: .\travel\templates\travel\trip_reviewer_list.html:75
 msgid "${count} results loaded"
 msgstr "${count} résultats chargés"
 
@@ -1932,6 +2010,7 @@ msgstr "Temps de traitement actuel"
 
 #: .\travel\templates\travel\request_reviewer_update.html:25
 #: .\travel\templates\travel\scratch\reviewer_approval_form.html:50
+#: .\travel\templates\travel\trip_reviewer_update.html:26
 msgid "Please provide your approval comments here (required)"
 msgstr "Veuillez fournir vos commentaires d'approbation ici (obligatoire)"
 
@@ -2017,8 +2096,8 @@ msgid ""
 "\n"
 "            Per diem rates for breakfast, lunch, supper and incidentals "
 "should follow the\n"
-"            <a href=\"https://www.njc-cnm.gc.ca/\">National Joint Council</a> "
-"Travel Directive.\n"
+"            <a href=\"https://www.njc-cnm.gc.ca/\">National Joint Council</"
+"a> Travel Directive.\n"
 "            For travel within Canada and\n"
 "            USA, please refer to <a href=\"https://www.njc-cnm.gc.ca/"
 "directive/d10/v238/s659/en\">Appendix C</a>\n"
@@ -2030,8 +2109,8 @@ msgid ""
 "          "
 msgstr ""
 "\n"
-"Les taux journaliers pour le petit déjeuner, le dîner, le souper et les frais "
-"accessoires doivent suivre la\n"
+"Les taux journaliers pour le petit déjeuner, le dîner, le souper et les "
+"frais accessoires doivent suivre la\n"
 "<a href=\"https://www.njc-cnm.gc.ca/\" target=\"_blank\">Directive sur les "
 "voyages du Conseil national mixte</a>.\n"
 "Pour les voyages au Canada et\n"
@@ -2132,7 +2211,7 @@ msgstr "Rapport SCVE pour le voyage"
 msgid "Unsure"
 msgstr "Incertain"
 
-#: .\travel\templates\travel\scratch\_trip_detail.html:67 .\travel\views.py:1386
+#: .\travel\templates\travel\scratch\_trip_detail.html:67
 msgid "Connected requests"
 msgstr "Demandes liées"
 
@@ -2198,12 +2277,12 @@ msgid "Decision made"
 msgstr "Décision prise"
 
 #: .\travel\templates\travel\scratch\_trip_request_approvals.html:71
-#: .\travel\views.py:696
+#: .\travel\views.py:922
 msgid "Approve"
 msgstr "Approuver"
 
 #: .\travel\templates\travel\scratch\_trip_request_approvals.html:74
-#: .\travel\views.py:696
+#: .\travel\views.py:922
 msgid "Deny"
 msgstr "Refuser"
 
@@ -2261,14 +2340,15 @@ msgstr "Commentaires sur l’approbation"
 #: .\travel\templates\travel\scratch\_trip_reviewers.html:28
 msgid "You cannot reset the reviewers while a trip is under review."
 msgstr ""
-"Vous ne pouvez pas réinitialiser les examinateurs pendant qu'un voyage est en "
-"cours d'examen."
+"Vous ne pouvez pas réinitialiser les examinateurs pendant qu'un voyage est "
+"en cours d'examen."
 
 #: .\travel\templates\travel\scratch\_trip_reviewers.html:31
-msgid "You cannot reset the reviewers on a trip that has already been reviewed."
+msgid ""
+"You cannot reset the reviewers on a trip that has already been reviewed."
 msgstr ""
-"Vous ne pouvez pas réinitialiser les examinateurs lors d'un voyage qui a déjà "
-"été examiné."
+"Vous ne pouvez pas réinitialiser les examinateurs lors d'un voyage qui a "
+"déjà été examiné."
 
 #: .\travel\templates\travel\scratch\_trip_reviewers.html:84
 msgid "No reviewers, recommenders or approvers have been added to this trip."
@@ -2285,8 +2365,8 @@ msgstr "(AGV)"
 
 #: .\travel\templates\travel\scratch\_trip_traveller_history.html:30
 msgid ""
-"no additional information about this traveller can be provided since they are "
-"travelling on BTA"
+"no additional information about this traveller can be provided since they "
+"are travelling on BTA"
 msgstr ""
 "aucune information supplémentaire sur ce voyageur ne peut être fournie "
 "puisqu'il voyage sur un AGV"
@@ -2302,316 +2382,6 @@ msgstr "DEMANDE ACTUELLE"
 #: .\travel\templates\travel\scratch\_trip_traveller_history.html:122
 msgid "CURRENT TRIP"
 msgstr "VOYAGE ACTUELLE"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:146
-msgid "Crew and Group Travel Request and Approval Form"
-msgstr ""
-"Demande de voyage et formulaire d'approbation des équipages et des groupes"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:160
-msgid "Date of Crew Change or Group Travel"
-msgstr "Date de changement de l'équipage ou du voyage du groupe"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:162
-#: .\travel\templates\travel\scratch\travel_plan.html:162
-msgid "Plan Number (Optional)"
-msgstr "Numéro du plan (optionnel)"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:169
-msgid "Information"
-msgstr "Information"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:173
-msgid "Vessel Name or Group Name"
-msgstr "Nom du vaisseau ou du groupe"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:174
-msgid "(if applicable)"
-msgstr "(si applicable)"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:177
-#: .\travel\templates\travel\scratch\travel_plan.html:180
-msgid "Region/Sector/Branch/<br>Directorate/Section"
-msgstr "Région/secteur/direction générale/<br>direction/section"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:182
-#: .\travel\templates\travel\scratch\travel_plan.html:293
-msgid "Trip Purpose"
-msgstr "But du voyage"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:186
-msgid ""
-"Trip objective and justification for not using telepresence or other "
-"alternative to travel"
-msgstr ""
-"But précis du voyage et raison pour laquelle on ne pouvait pas avoir recours "
-"à la telepresence ou à d'autres solutions de rechange au voyage"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:187
-#: .\travel\templates\travel\scratch\group_travel_plan.html:191
-msgid "See comments"
-msgstr "Voir les commentaires"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:190
-msgid "Justification for the number of travellers"
-msgstr "Justification du nombre de voyageurs"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:200
-#: .\travel\templates\travel\scratch\travel_plan.html:222
-#: .\travel\templates\travel\scratch\travel_plan.html:286
-msgid "Purpose of Travel"
-msgstr "But du voyage"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:201
-#: .\travel\templates\travel\scratch\travel_plan.html:223
-msgid "Explanation"
-msgstr "Explication"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:204
-#: .\travel\templates\travel\scratch\travel_plan.html:226
-msgid "Operational Activities"
-msgstr "Activités opérationnelles"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:206
-#: .\travel\templates\travel\scratch\travel_plan.html:228
-msgid ""
-"\n"
-"                Travel that is required in support of the direct delivery of "
-"the core mandate of the Department of Fisheries and Oceans and/or the "
-"Canadian\n"
-"                Coast Guard or legislative or legal requirements.\n"
-"              "
-msgstr ""
-"\n"
-"                Voyages qui sont exigés à l'appui de la prestation directe du "
-"mandat de base de Pêches et Océans Canada et/ou de la Garde côtière\n"
-"                canadienne ou d'obligations législatives ou juridiques.\n"
-"              "
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:213
-#: .\travel\templates\travel\scratch\travel_plan.html:235
-msgid "Key stakeholder Engagement"
-msgstr "Mobilisation des intervenants clés"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:215
-#: .\travel\templates\travel\scratch\travel_plan.html:237
-msgid ""
-"\n"
-"                Travel that is necessary to engage key stakeholders in "
-"relation to policy, program or regulatory development or renewal or other "
-"matters that\n"
-"                support the Department of Fisheries and Oceans and Canadian "
-"Coast Guard's ongoing working relationship or operations with such "
-"communities.\n"
-"              "
-msgstr ""
-"\n"
-"                Voyages qui sont nécessaires pour mobiliser des intervenants "
-"clés à l'égard du renouvellement ou de l'élaboration d'un règlement, d'une "
-"politique,\n"
-"                d'un programme ou d'autres questions qui soutiennent les "
-"relations de travail et les opérations continues de Pêches et Océans Canada \n"
-"              et/ou de la Garde côtière canadienne avec ces communautés."
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:222
-#: .\travel\templates\travel\scratch\travel_plan.html:244
-msgid "Internal Governance"
-msgstr "Gouvernance interne"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:224
-#: .\travel\templates\travel\scratch\travel_plan.html:246
-msgid ""
-"\n"
-"                Travel that is necessary to support sound internal governance "
-"of the Department of Fisheries and Oceans and/or the Canadian Coast Guard\n"
-"                including management meetings and Departmental Audit "
-"Committee meetings, or that is necessary for the recruitment or hiring of "
-"employees.\n"
-"              "
-msgstr ""
-"\n"
-"                Voyages qui sont nécessaires pour appuyer la saine "
-"gouvernance interne de Pêches et Océans Canada et/ou de la Garde côtière "
-"canadienne, \n"
-"                y compris pour des réunions de la direction et du comité "
-"ministériel de vérification, ou aux fins du recrutement ou de l'embauche "
-"d'employés.\n"
-"              "
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:231
-#: .\travel\templates\travel\scratch\travel_plan.html:253
-msgid "Training"
-msgstr "Formation"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:233
-#: .\travel\templates\travel\scratch\travel_plan.html:255
-msgid ""
-"\n"
-"                Travel to enable the training of employees to meet the "
-"assigned duties of their positions.\n"
-"              "
-msgstr ""
-"\n"
-"                Voyages d'employés aux fins d'une formation qui leur "
-"permettra de s'acquitter des fonctions propres à leur poste.\n"
-"              "
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:239
-#: .\travel\templates\travel\scratch\travel_plan.html:261
-msgid "Other"
-msgstr "Autre"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:241
-#: .\travel\templates\travel\scratch\travel_plan.html:263
-msgid ""
-"\n"
-"                Other travel - please provide detailed explanation\n"
-"              "
-msgstr ""
-"\n"
-"                    Autre voyage – Veuillez fournir une explication "
-"détaillée\n"
-"                "
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:261
-#: .\travel\templates\travel\scratch\travel_plan.html:282
-msgid "Amended"
-msgstr "Modifié"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:262
-#: .\travel\templates\travel\scratch\travel_plan.html:283
-msgid "Trip No"
-msgstr "Voyage"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:263
-msgid "Traveller name"
-msgstr "Nom du voyageur"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:264
-#: .\travel\templates\travel\scratch\travel_plan.html:285
-msgid "Origin / Destination(s) of Travel"
-msgstr "Origine / Destination du voyage"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:265
-msgid "Public Servant?"
-msgstr "Fonctionnaire?"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:266
-#: .\travel\templates\travel\scratch\travel_plan.html:287
-msgid "Cost Information (include taxes)"
-msgstr "Renseignements sur les frais (taxes comprises)"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:267
-#: .\travel\templates\travel\scratch\travel_plan.html:288
-msgid "Event"
-msgstr "Évènement"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:273
-#: .\travel\templates\travel\scratch\travel_plan.html:296
-msgid "Accommo-<br>dation"
-msgstr "Héberge-<br>ment"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:280
-#: .\travel\templates\travel\scratch\travel_plan.html:301
-msgid "Total Trip Amount"
-msgstr "Coût total du voyage"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:281
-#: .\travel\templates\travel\scratch\travel_plan.html:302
-msgid "Is the trip part of an Event?"
-msgstr "Le voyage fait-il partie d'un événement?"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:282
-msgid "Event number (optional)"
-msgstr "Numéro d’événement (facultatif)"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:301
-#: .\travel\templates\travel\trip_list\_console.html:86
-msgid "no"
-msgstr "non"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:335
-msgid "Trip Title:"
-msgstr "Titre du voyage:"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:340
-msgid "DETAILED COST BREAKDOWN PER TRAVELLER"
-msgstr "VENTILATION DÉTAILLÉE DES COÛTS PAR VOYAGEUR"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:356
-#: .\travel\templates\travel\scratch\travel_plan.html:369
-msgid "Expenditure Initiation approved by (Print)"
-msgstr "Engagement des dépenses approuvé par (en caractère d'imprimerie)"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:359
-#: .\travel\templates\travel\scratch\travel_plan.html:372
-msgid "Regional Director General"
-msgstr "Directeur général régional"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:367
-#: .\travel\templates\travel\scratch\travel_plan.html:380
-msgid "Signature"
-msgstr "Signature"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:370
-#: .\travel\templates\travel\scratch\travel_plan.html:383
-msgid "Approved on"
-msgstr "Approuvé le"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:371
-#: .\travel\templates\travel\scratch\travel_plan.html:384
-msgid "This is not an official copy."
-msgstr "Ceci n'est pas une copie officielle."
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:381
-#: .\travel\templates\travel\scratch\travel_plan.html:284
-#: .\travel\templates\travel\scratch\travel_plan.html:388
-msgid "Date"
-msgstr "Date"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:391
-#: .\travel\templates\travel\scratch\travel_plan.html:399
-msgid "Recommended by"
-msgstr "Recommandé par"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:395
-#: .\travel\templates\travel\scratch\travel_plan.html:403
-msgid "digitally reviewed"
-msgstr "examiné par voie numérique"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:397
-#: .\travel\templates\travel\scratch\travel_plan.html:405
-msgid "NOT RECOMMENDED"
-msgstr "NON RECOMMANDÉ"
-
-#: .\travel\templates\travel\scratch\group_travel_plan.html:405
-#: .\travel\templates\travel\scratch\travel_plan.html:413
-msgid "Approved by"
-msgstr "Approuvé par"
-
-#: .\travel\templates\travel\scratch\report_search.html:55
-msgid "Please select the report"
-msgstr "Veuillez sélectionner le rapport"
-
-#: .\travel\templates\travel\scratch\report_search.html:67
-msgid "Generate"
-msgstr "Générer"
-
-#: .\travel\templates\travel\scratch\report_search.html:102
-msgid "From date<br>(filters on trip request start date)"
-msgstr "De la date<br>(filtres sur la date de début de la demande de voyage)"
-
-#: .\travel\templates\travel\scratch\report_search.html:103
-msgid "To date<br>(filters on trip request start date)"
-msgstr "A ce jour<br>(filtres sur la date de début de la demande de voyage)"
-
-#: .\travel\templates\travel\scratch\report_search.html:113
-msgid "From date<br>(filters on trip start date)"
-msgstr "De la date<br>(filtres sur la date de début du voyage)"
-
-#: .\travel\templates\travel\scratch\report_search.html:114
-msgid "To date<br>(filters on trip start date)"
-msgstr "A ce jour<br>(filtres sur la date de début du voyage)"
 
 #: .\travel\templates\travel\scratch\reviewer_approval_form.html:35
 msgid "Print Travel Request and Approval Form (TRAF)"
@@ -2692,8 +2462,8 @@ msgid ""
 "                                        USA, please refer to\n"
 "                                        <a href=\"https://www.njc-cnm.gc.ca/"
 "directive/d10/v238/s659/en\" target=\"_blank\">Appendix C</a>\n"
-"                                        and for all other travel please refer "
-"to\n"
+"                                        and for all other travel please "
+"refer to\n"
 "                                        <a href=\"https://www.njc-cnm.gc.ca/"
 "directive/app_d.php?lang=en\" target=\"_blank\">Appendix D</a>.\n"
 "                                        <span class=\"red-font\">Please note "
@@ -2723,63 +2493,6 @@ msgstr ""
 #: .\travel\templates\travel\trip_form_popout.html:68
 msgid "Close"
 msgstr "Fermer"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:146
-msgid "Travel Request and Approval Form"
-msgstr "Demande de voyage et formulaire d'approbation"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:160
-msgid "Period Covered"
-msgstr "Période couverte"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:169
-msgid "Traveller's Information"
-msgstr "Renseignements sur le voyageur"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:176
-msgid "Name of Traveller"
-msgstr "Nom du voyageur"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:189
-msgid "Telephone Number"
-msgstr "Numéro de téléphone"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:201
-msgid "Public Servant"
-msgstr "Fonctionnaire"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:207
-msgid "For non public servant, provide company name"
-msgstr "Pour un non-fonctionnaire, fournir le nom de la compagnie ci-dessous"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:330
-msgid ""
-"\n"
-"          If \"Other\" is chosen as trip purpose, provide detailed "
-"explanation and provide specific trip objective and justification for not "
-"using telepresence or\n"
-"          other alternative to travel. Provide justification if agenda is not "
-"available.\n"
-"        "
-msgstr ""
-"\n"
-"          Si le but est « Autre », fournir une explication détaillée. Fournir "
-"le but précis du voyage et raison pour\n"
-"          laquelle on ne pouvait pas avoir recours à la téléprésence ou à "
-"d'autres solutions de rechange au voyage.\n"
-"        Fournir justification si l'agenda n'est pas disponible."
-
-#: .\travel\templates\travel\scratch\travel_plan.html:359
-msgid "submitted on"
-msgstr "soumis le"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:361
-msgid "NOT SUBMITTED"
-msgstr "NON SOUMIS"
-
-#: .\travel\templates\travel\scratch\travel_plan.html:437
-msgid "DETAILED COST BREAKDOWN"
-msgstr "VENTILATION DÉTAILLÉE DES COÛTS"
 
 #: .\travel\templates\travel\scratch\trip_detail.html:18
 msgid "This trip and all associated requests have been cancelled."
@@ -2871,8 +2584,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"            This trip will be eligible for review by the ADM office in "
-"%(time)s.\n"
+"            This trip will be eligible for review by the ADM office in %"
+"(time)s.\n"
 "          "
 msgstr ""
 "\n"
@@ -2953,14 +2666,16 @@ msgid "Trip Justification"
 msgstr "Justificaiton du voyage"
 
 #: .\travel\templates\travel\scratch\trip_reviewer_approval_form.html:59
+#: .\travel\templates\travel\trip_reviewer_update.html:55
 msgid ""
-"By proceeding, you will be returning this review to the first reviewer in the "
-"queue: "
+"By proceeding, you will be returning this review to the first reviewer in "
+"the queue: "
 msgstr ""
 "En procédant, vous retournerez cet examen au premier examinateur dans la "
 "queue: "
 
 #: .\travel\templates\travel\scratch\trip_reviewer_approval_form.html:59
+#: .\travel\templates\travel\trip_reviewer_update.html:55
 msgid "Are you certain you wish to proceed?"
 msgstr "Êtes-vous certain de vouloir procéder ?"
 
@@ -3065,14 +2780,14 @@ msgstr "Autres options"
 #: .\travel\templates\travel\trip_verification_form.html:166
 msgid ""
 "\n"
-"                            There is no trip purpose. You will not be allowed "
-"to submit this form without selecting a\n"
+"                            There is no trip purpose. You will not be "
+"allowed to submit this form without selecting a\n"
 "                            trip purpose!\n"
 "                        "
 msgstr ""
 "\n"
-"                            There is no trip purpose. You will not be allowed "
-"to submit this form without selecting a\n"
+"                            There is no trip purpose. You will not be "
+"allowed to submit this form without selecting a\n"
 "                            trip purpose!\n"
 "                        "
 
@@ -3137,6 +2852,361 @@ msgstr "Coordonnateurs régionaux"
 msgid "National Coordinator"
 msgstr "Coordonnateur national"
 
+#: .\travel\templates\travel\traf\_rdg_approval.html:3
+msgid "Digitally Approval Obtained on:"
+msgstr ""
+
+#: .\travel\templates\travel\traf\_rdg_approval.html:6
+#, fuzzy
+#| msgid "EOS Conference and Travel Management System"
+msgid ""
+"This request was approved through the DM Apps EOS Conference and Travel "
+"Management System."
+msgstr "Système de gestion des conférences et des voyages du SEO"
+
+#: .\travel\templates\travel\traf\_rdg_approval.html:9
+msgid "The unique identifier for this request is:"
+msgstr ""
+
+#: .\travel\templates\travel\traf\_rdg_approval.html:12
+msgid "The full details of this request can be viewed at the following URL:"
+msgstr ""
+
+#: .\travel\templates\travel\traf\group.html:28
+msgid "Crew and Group Travel Request and Approval Form"
+msgstr ""
+"Demande de voyage et formulaire d'approbation des équipages et des groupes"
+
+#: .\travel\templates\travel\traf\group.html:42
+msgid "Date of Crew Change or Group Travel"
+msgstr "Date de changement de l'équipage ou du voyage du groupe"
+
+#: .\travel\templates\travel\traf\group.html:44
+#: .\travel\templates\travel\traf\single.html:44
+msgid "Plan Number (Optional)"
+msgstr "Numéro du plan (optionnel)"
+
+#: .\travel\templates\travel\traf\group.html:51
+msgid "Information"
+msgstr "Information"
+
+#: .\travel\templates\travel\traf\group.html:55
+msgid "Vessel Name or Group Name"
+msgstr "Nom du vaisseau ou du groupe"
+
+#: .\travel\templates\travel\traf\group.html:56
+msgid "(if applicable)"
+msgstr "(si applicable)"
+
+#: .\travel\templates\travel\traf\group.html:59
+#: .\travel\templates\travel\traf\single.html:62
+msgid "Region/Sector/Branch/<br>Directorate/Section"
+msgstr "Région/secteur/direction générale/<br>direction/section"
+
+#: .\travel\templates\travel\traf\group.html:64
+#: .\travel\templates\travel\traf\single.html:175
+msgid "Trip Purpose"
+msgstr "But du voyage"
+
+#: .\travel\templates\travel\traf\group.html:68
+msgid ""
+"Trip objective and justification for not using telepresence or other "
+"alternative to travel"
+msgstr ""
+"But précis du voyage et raison pour laquelle on ne pouvait pas avoir recours "
+"à la telepresence ou à d'autres solutions de rechange au voyage"
+
+#: .\travel\templates\travel\traf\group.html:69
+#: .\travel\templates\travel\traf\group.html:73
+msgid "See comments"
+msgstr "Voir les commentaires"
+
+#: .\travel\templates\travel\traf\group.html:72
+msgid "Justification for the number of travellers"
+msgstr "Justification du nombre de voyageurs"
+
+#: .\travel\templates\travel\traf\group.html:82
+#: .\travel\templates\travel\traf\single.html:104
+#: .\travel\templates\travel\traf\single.html:168
+msgid "Purpose of Travel"
+msgstr "But du voyage"
+
+#: .\travel\templates\travel\traf\group.html:83
+#: .\travel\templates\travel\traf\single.html:105
+msgid "Explanation"
+msgstr "Explication"
+
+#: .\travel\templates\travel\traf\group.html:86
+#: .\travel\templates\travel\traf\single.html:108
+msgid "Operational Activities"
+msgstr "Activités opérationnelles"
+
+#: .\travel\templates\travel\traf\group.html:88
+#: .\travel\templates\travel\traf\single.html:110
+msgid ""
+"\n"
+"                Travel that is required in support of the direct delivery of "
+"the core mandate of the Department of Fisheries and Oceans and/or the "
+"Canadian\n"
+"                Coast Guard or legislative or legal requirements.\n"
+"              "
+msgstr ""
+"\n"
+"                Voyages qui sont exigés à l'appui de la prestation directe "
+"du mandat de base de Pêches et Océans Canada et/ou de la Garde côtière\n"
+"                canadienne ou d'obligations législatives ou juridiques.\n"
+"              "
+
+#: .\travel\templates\travel\traf\group.html:95
+#: .\travel\templates\travel\traf\single.html:117
+msgid "Key stakeholder Engagement"
+msgstr "Mobilisation des intervenants clés"
+
+#: .\travel\templates\travel\traf\group.html:97
+#: .\travel\templates\travel\traf\single.html:119
+msgid ""
+"\n"
+"                Travel that is necessary to engage key stakeholders in "
+"relation to policy, program or regulatory development or renewal or other "
+"matters that\n"
+"                support the Department of Fisheries and Oceans and Canadian "
+"Coast Guard's ongoing working relationship or operations with such "
+"communities.\n"
+"              "
+msgstr ""
+"\n"
+"                Voyages qui sont nécessaires pour mobiliser des intervenants "
+"clés à l'égard du renouvellement ou de l'élaboration d'un règlement, d'une "
+"politique,\n"
+"                d'un programme ou d'autres questions qui soutiennent les "
+"relations de travail et les opérations continues de Pêches et Océans "
+"Canada \n"
+"              et/ou de la Garde côtière canadienne avec ces communautés."
+
+#: .\travel\templates\travel\traf\group.html:104
+#: .\travel\templates\travel\traf\single.html:126
+msgid "Internal Governance"
+msgstr "Gouvernance interne"
+
+#: .\travel\templates\travel\traf\group.html:106
+#: .\travel\templates\travel\traf\single.html:128
+msgid ""
+"\n"
+"                Travel that is necessary to support sound internal "
+"governance of the Department of Fisheries and Oceans and/or the Canadian "
+"Coast Guard\n"
+"                including management meetings and Departmental Audit "
+"Committee meetings, or that is necessary for the recruitment or hiring of "
+"employees.\n"
+"              "
+msgstr ""
+"\n"
+"                Voyages qui sont nécessaires pour appuyer la saine "
+"gouvernance interne de Pêches et Océans Canada et/ou de la Garde côtière "
+"canadienne, \n"
+"                y compris pour des réunions de la direction et du comité "
+"ministériel de vérification, ou aux fins du recrutement ou de l'embauche "
+"d'employés.\n"
+"              "
+
+#: .\travel\templates\travel\traf\group.html:113
+#: .\travel\templates\travel\traf\single.html:135
+msgid "Training"
+msgstr "Formation"
+
+#: .\travel\templates\travel\traf\group.html:115
+#: .\travel\templates\travel\traf\single.html:137
+msgid ""
+"\n"
+"                Travel to enable the training of employees to meet the "
+"assigned duties of their positions.\n"
+"              "
+msgstr ""
+"\n"
+"                Voyages d'employés aux fins d'une formation qui leur "
+"permettra de s'acquitter des fonctions propres à leur poste.\n"
+"              "
+
+#: .\travel\templates\travel\traf\group.html:121
+#: .\travel\templates\travel\traf\single.html:143
+msgid "Other"
+msgstr "Autre"
+
+#: .\travel\templates\travel\traf\group.html:123
+#: .\travel\templates\travel\traf\single.html:145
+msgid ""
+"\n"
+"                Other travel - please provide detailed explanation\n"
+"              "
+msgstr ""
+"\n"
+"                    Autre voyage – Veuillez fournir une explication "
+"détaillée\n"
+"                "
+
+#: .\travel\templates\travel\traf\group.html:143
+#: .\travel\templates\travel\traf\single.html:164
+msgid "Amended"
+msgstr "Modifié"
+
+#: .\travel\templates\travel\traf\group.html:144
+#: .\travel\templates\travel\traf\single.html:165
+msgid "Trip No"
+msgstr "Voyage"
+
+#: .\travel\templates\travel\traf\group.html:145
+msgid "Traveller name"
+msgstr "Nom du voyageur"
+
+#: .\travel\templates\travel\traf\group.html:146
+#: .\travel\templates\travel\traf\single.html:167
+msgid "Origin / Destination(s) of Travel"
+msgstr "Origine / Destination du voyage"
+
+#: .\travel\templates\travel\traf\group.html:147
+msgid "Public Servant?"
+msgstr "Fonctionnaire?"
+
+#: .\travel\templates\travel\traf\group.html:148
+#: .\travel\templates\travel\traf\single.html:169
+msgid "Cost Information (include taxes)"
+msgstr "Renseignements sur les frais (taxes comprises)"
+
+#: .\travel\templates\travel\traf\group.html:149
+#: .\travel\templates\travel\traf\single.html:170
+msgid "Event"
+msgstr "Évènement"
+
+#: .\travel\templates\travel\traf\group.html:155
+#: .\travel\templates\travel\traf\single.html:178
+msgid "Accommo-<br>dation"
+msgstr "Héberge-<br>ment"
+
+#: .\travel\templates\travel\traf\group.html:162
+#: .\travel\templates\travel\traf\single.html:183
+msgid "Total Trip Amount"
+msgstr "Coût total du voyage"
+
+#: .\travel\templates\travel\traf\group.html:163
+#: .\travel\templates\travel\traf\single.html:184
+msgid "Is the trip part of an Event?"
+msgstr "Le voyage fait-il partie d'un événement?"
+
+#: .\travel\templates\travel\traf\group.html:164
+msgid "Event number (optional)"
+msgstr "Numéro d’événement (facultatif)"
+
+#: .\travel\templates\travel\traf\group.html:183
+#: .\travel\templates\travel\trip_list\_console.html:86
+msgid "no"
+msgstr "non"
+
+#: .\travel\templates\travel\traf\group.html:217
+msgid "Trip Title:"
+msgstr "Titre du voyage:"
+
+#: .\travel\templates\travel\traf\group.html:222
+msgid "DETAILED COST BREAKDOWN PER TRAVELLER"
+msgstr "VENTILATION DÉTAILLÉE DES COÛTS PAR VOYAGEUR"
+
+#: .\travel\templates\travel\traf\group.html:238
+#: .\travel\templates\travel\traf\single.html:251
+msgid "Expenditure Initiation approved by (Print)"
+msgstr "Engagement des dépenses approuvé par (en caractère d'imprimerie)"
+
+#: .\travel\templates\travel\traf\group.html:241
+#: .\travel\templates\travel\traf\single.html:254
+msgid "Regional Director General"
+msgstr "Directeur général régional"
+
+#: .\travel\templates\travel\traf\group.html:254
+#: .\travel\templates\travel\traf\single.html:267
+msgid "Signature"
+msgstr "Signature"
+
+#: .\travel\templates\travel\traf\group.html:263
+#: .\travel\templates\travel\traf\single.html:166
+#: .\travel\templates\travel\traf\single.html:269
+msgid "Date"
+msgstr "Date"
+
+#: .\travel\templates\travel\traf\group.html:274
+#: .\travel\templates\travel\traf\single.html:280
+msgid "Recommended by"
+msgstr "Recommandé par"
+
+#: .\travel\templates\travel\traf\group.html:278
+#: .\travel\templates\travel\traf\single.html:284
+msgid "digitally reviewed"
+msgstr "examiné par voie numérique"
+
+#: .\travel\templates\travel\traf\group.html:280
+#: .\travel\templates\travel\traf\single.html:286
+msgid "NOT RECOMMENDED"
+msgstr "NON RECOMMANDÉ"
+
+#: .\travel\templates\travel\traf\group.html:288
+#: .\travel\templates\travel\traf\single.html:294
+msgid "Approved by"
+msgstr "Approuvé par"
+
+#: .\travel\templates\travel\traf\single.html:28
+msgid "Travel Request and Approval Form"
+msgstr "Demande de voyage et formulaire d'approbation"
+
+#: .\travel\templates\travel\traf\single.html:42
+msgid "Period Covered"
+msgstr "Période couverte"
+
+#: .\travel\templates\travel\traf\single.html:51
+msgid "Traveller's Information"
+msgstr "Renseignements sur le voyageur"
+
+#: .\travel\templates\travel\traf\single.html:58
+msgid "Name of Traveller"
+msgstr "Nom du voyageur"
+
+#: .\travel\templates\travel\traf\single.html:71
+msgid "Telephone Number"
+msgstr "Numéro de téléphone"
+
+#: .\travel\templates\travel\traf\single.html:83
+msgid "Public Servant"
+msgstr "Fonctionnaire"
+
+#: .\travel\templates\travel\traf\single.html:89
+msgid "For non public servant, provide company name"
+msgstr "Pour un non-fonctionnaire, fournir le nom de la compagnie ci-dessous"
+
+#: .\travel\templates\travel\traf\single.html:212
+msgid ""
+"\n"
+"          If \"Other\" is chosen as trip purpose, provide detailed "
+"explanation and provide specific trip objective and justification for not "
+"using telepresence or\n"
+"          other alternative to travel. Provide justification if agenda is "
+"not available.\n"
+"        "
+msgstr ""
+"\n"
+"          Si le but est « Autre », fournir une explication détaillée. Fournir "
+"le but précis du voyage et raison pour\n"
+"          laquelle on ne pouvait pas avoir recours à la téléprésence ou à "
+"d'autres solutions de rechange au voyage.\n"
+"        Fournir justification si l'agenda n'est pas disponible."
+
+#: .\travel\templates\travel\traf\single.html:241
+msgid "submitted on"
+msgstr "soumis le"
+
+#: .\travel\templates\travel\traf\single.html:243
+msgid "NOT SUBMITTED"
+msgstr "NON SOUMIS"
+
+#: .\travel\templates\travel\traf\single.html:318
+msgid "DETAILED COST BREAKDOWN"
+msgstr "VENTILATION DÉTAILLÉE DES COÛTS"
+
 #: .\travel\templates\travel\trip_detail.html:21
 msgid "You are viewing this trip as an admin user."
 msgstr "Vous voyez ce voyage en tant qu'utilisateur administratif."
@@ -3156,8 +3226,8 @@ msgid ""
 "With exception of words like DFO and ICES, please do not use undefined "
 "acronyms in trip titles!!!"
 msgstr ""
-"À l'exception de mots comme MPO et CIEM, veuillez ne pas utiliser d'acronymes "
-"indéfinis dans les titres de voyage !!!"
+"À l'exception de mots comme MPO et CIEM, veuillez ne pas utiliser "
+"d'acronymes indéfinis dans les titres de voyage !!!"
 
 #: .\travel\templates\travel\trip_form_popout.html:17
 #, python-format
@@ -3224,10 +3294,21 @@ msgid "Region lead"
 msgstr "Région responsable"
 
 #: .\travel\templates\travel\trip_list\main.html:67
+#: .\travel\templates\travel\trip_reviewer_list.html:42
 msgid "ADM decision deadline"
 msgstr "Date limite de décision du SMA"
 
-#: .\travel\utils.py:65
+#: .\travel\templates\travel\trip_reviewer_list.html:14
+msgid "Trips Awaiting Your Review"
+msgstr "Voyages en attente de votre examen"
+
+#: .\travel\templates\travel\trip_reviewer_list.html:41
+#, fuzzy
+#| msgid "Number of travellers"
+msgid "Number of Travellers"
+msgstr "Nombre de voyageurs"
+
+#: .\travel\utils.py:64
 msgid ""
 "You can edit this record because you are in the NCR National Coordinator "
 "Group."
@@ -3235,36 +3316,38 @@ msgstr ""
 "Vous pouvez modifier cette fiche parce que vous êtes dans le groupe des "
 "coordinateurs nationaux de la RCN."
 
-#: .\travel\utils.py:69
+#: .\travel\utils.py:68
 msgid ""
 "You can edit this record because you are in the Regional Administrator Group."
 msgstr ""
 "Vous pouvez modifier cette fiche parce que vous êtes dans le groupe des "
 "administrateurs régionaux."
 
-#: .\travel\utils.py:74
+#: .\travel\utils.py:73
 msgid ""
-"You can edit this record because you are the active reviewer for this request."
+"You can edit this record because you are the active reviewer for this "
+"request."
 msgstr ""
 "Vous pouvez modifier cette fiche car vous êtes l'examinateur actif de cette "
 "demande."
 
-#: .\travel\utils.py:80
+#: .\travel\utils.py:79
 msgid "You can edit this record because you are the request owner."
 msgstr ""
 "Vous pouvez modifier cette fiche car vous êtes le propriétaire de la demande."
 
-#: .\travel\utils.py:83
+#: .\travel\utils.py:82
 msgid "You can edit this record because you are a traveller on this request."
 msgstr ""
 "Vous pouvez modifier cette fiche car vous êtes un voyageur sur cette demande."
 
-#: .\travel\utils.py:87
+#: .\travel\utils.py:86
 msgid "You can un-submit this request because you are the request owner."
 msgstr ""
-"Vous pouvez annuler cette demande car vous êtes le propriétaire de la demande."
+"Vous pouvez annuler cette demande car vous êtes le propriétaire de la "
+"demande."
 
-#: .\travel\utils.py:460
+#: .\travel\utils.py:459
 msgid ""
 "NJC rates for breakfast missing from database. Please let your system "
 "administrator know."
@@ -3272,15 +3355,15 @@ msgstr ""
 "Tarifs du CNM pour le petit déjeuner manquant dans la base de données. "
 "Veuillez en informer votre administrateur système."
 
-#: .\travel\utils.py:467
+#: .\travel\utils.py:466
 msgid ""
 "NJC rates for lunch missing from database. Please let your system "
 "administrator know."
 msgstr ""
-"Les tarifs du CNM pour le dîner manquant dans la base de données. Veuillez en "
-"informer votre administrateur système."
+"Les tarifs du CNM pour le dîner manquant dans la base de données. Veuillez "
+"en informer votre administrateur système."
 
-#: .\travel\utils.py:474
+#: .\travel\utils.py:473
 msgid ""
 "NJC rates for supper missing from database. Please let your system "
 "administrator know."
@@ -3288,7 +3371,7 @@ msgstr ""
 "Taux du CNM pour le souper manquant dans la base de données. Veuillez en "
 "informer votre administrateur système."
 
-#: .\travel\utils.py:482
+#: .\travel\utils.py:481
 msgid ""
 "NJC rates for incidentals missing from database. Please let your system "
 "administrator know."
@@ -3356,282 +3439,256 @@ msgstr "Demandes de voyage"
 msgid "travellers"
 msgstr "voyageurs"
 
-#: .\travel\views.py:194
+#: .\travel\views.py:200
 msgid "Edit Trip Request"
 msgstr "Modifier la demande de voyage"
 
-#: .\travel\views.py:243
+#: .\travel\views.py:249
 msgid "New Trip Request"
 msgstr "Nouvelle demande de voyage"
 
-#: .\travel\views.py:297
+#: .\travel\views.py:304
 msgid "Clone a Trip Request"
 msgstr "Cloner une demande de voyage"
 
-#: .\travel\views.py:298
+#: .\travel\views.py:305
 msgid "Please update the request details"
 msgstr "Veuillez mettre à jour les détails de la demande"
 
-#: .\travel\views.py:330
+#: .\travel\views.py:337
 msgid ""
 "sorry, cannot clone this trip because there is another trip request with the "
 "same user in the system"
 msgstr ""
-"désolé, ne peut pas reproduire ce voyage parce qu'il y a une autre demande de "
-"voyage avec le même utilisateur dans le système"
+"désolé, ne peut pas reproduire ce voyage parce qu'il y a une autre demande "
+"de voyage avec le même utilisateur dans le système"
 
-#: .\travel\views.py:370 .\travel\views.py:376 .\travel\views.py:483
-#: .\travel\views.py:1141 .\travel\views.py:1271
+#: .\travel\views.py:377 .\travel\views.py:383 .\travel\views.py:490
+#: .\travel\views.py:1357 .\travel\views.py:1495
 msgid "Proceed"
 msgstr "Poursuivre"
 
-#: .\travel\views.py:378
+#: .\travel\views.py:385
 msgid "Proceed with late submission"
 msgstr "Procéder à la soumission tardive"
 
-#: .\travel\views.py:383
+#: .\travel\views.py:390
 msgid "Un-submit request"
 msgstr "Annuler la soumission"
 
-#: .\travel\views.py:385
+#: .\travel\views.py:392
 msgid "Re-submit request"
 msgstr "Soumettre à nouveau la demande"
 
-#: .\travel\views.py:385
+#: .\travel\views.py:392
 msgid "Submit request"
 msgstr "Soumettre la demande"
 
-#: .\travel\views.py:391
+#: .\travel\views.py:398
 msgid "Do you wish to un-submit the following request?"
 msgstr "Souhaitez-vous annuler la demande suivante ?"
 
-#: .\travel\views.py:394
+#: .\travel\views.py:401
 msgid "Do you wish to re-submit the following request?"
 msgstr "Souhaitez-vous soumettre à nouveau la demande suivante ?"
 
-#: .\travel\views.py:395
+#: .\travel\views.py:402
 msgid "Do you wish to submit the following request?"
 msgstr "Souhaitez-vous soumettre la demande suivante ?"
 
-#: .\travel\views.py:397
+#: .\travel\views.py:404
 msgid "Do you wish to re-submit the following late request?"
 msgstr "Souhaitez-vous soumettre à nouveau la demande tardive suivante ?"
 
-#: .\travel\views.py:398
+#: .\travel\views.py:405
 msgid "Do you wish to submit the following late request?"
 msgstr "Souhaitez-vous soumettre la demande tardive suivante ?"
 
-#: .\travel\views.py:481
+#: .\travel\views.py:488
 msgid "Do you wish to cancel the following trip request?"
 msgstr "Souhaitez-vous annuler la demande de voyage suivante ?"
 
-#: .\travel\views.py:482
+#: .\travel\views.py:489
 msgid "Cancel request"
 msgstr "Annuler la demande"
 
-#: .\travel\views.py:487
+#: .\travel\views.py:494
 msgid "Please note that this action cannot be undone!!"
 msgstr "Veuillez noter que cette action ne peut être annulée !"
 
-#: .\travel\views.py:512
+#: .\travel\views.py:519
 msgid "Sorry, it is currently not possible to cancel your cancellation "
 msgstr "Désolé, il n'est actuellement pas possible d'annuler votre annulation"
 
-#: .\travel\views.py:549
+#: .\travel\views.py:556
 msgid "Request reviews"
 msgstr "Demande d'examen"
 
-#: .\travel\views.py:572
+#: .\travel\views.py:579
 msgid "Do you wish to approve on behalf of {user} ({role})"
 msgstr "Souhaitez-vous approuver au nom de {user} ({role})"
 
-#: .\travel\views.py:576
+#: .\travel\views.py:583
 msgid "Do you wish to approve the following request?"
 msgstr "Souhaitez-vous approuver la demande suivante ?"
 
-#: .\travel\views.py:616
+#: .\travel\views.py:623 .\travel\views.py:842
 msgid "Success! An email has been sent to the trip request owner."
 msgstr ""
 "Succès ! Un courriel a été envoyé au responsable de la demande de voyage."
 
-#: .\travel\views.py:684
+#: .\travel\views.py:653
+#, fuzzy
+#| msgid "trip reviewer"
+msgid "Trip reviews"
+msgstr "l'examinateur du voyage"
+
+#: .\travel\views.py:796
+#, fuzzy
+#| msgid "Do you wish to approve the following request?"
+msgid "Do you wish to approve the following trip?"
+msgstr "Souhaitez-vous approuver la demande suivante ?"
+
+#: .\travel\views.py:809
+msgid "Complete the review"
+msgstr "Terminer l'examen"
+
+#: .\travel\views.py:811
+msgid "Submit your review"
+msgstr "Soumettre votre évaluation"
+
+#: .\travel\views.py:910
 msgid "Do you wish to approve the following request for {}"
 msgstr "Souhaitez-vous approuver la demande suivante pour {}"
 
-#: .\travel\views.py:688
+#: .\travel\views.py:914
 msgid "Do you wish to deny the following request for {}"
 msgstr "Souhaitez-vous refuser la demande suivante pour {}"
 
-#: .\travel\views.py:693
+#: .\travel\views.py:919
 msgid "These comments will be visible to the traveller"
 msgstr "Ces commentaires seront visibles par le voyageur"
 
-#: .\travel\views.py:796
+#: .\travel\views.py:1022
 msgid "Are you certain you wish to skip the following user?"
 msgstr "Êtes-vous certain de vouloir passer l'utilisateur suivant ?"
 
-#: .\travel\views.py:858
-msgid "This function can only be used with an unreviewed trip."
-msgstr ""
-"Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
-"encore à l'état de brouillon."
-
-#: .\travel\views.py:872 .\travel\views.py:884
+#: .\travel\views.py:1098 .\travel\views.py:1110
 msgid ""
 "Sorry, you cannot delete a reviewer who's status is set to {my_obj."
 "get_status_display()}"
 msgstr ""
-"Désolé, vous ne pouvez pas supprimer un examinateur dont le statut est fixé à "
-"{my_obj.get_status_display()}"
+"Désolé, vous ne pouvez pas supprimer un examinateur dont le statut est fixé "
+"à {my_obj.get_status_display()}"
 
-#: .\travel\views.py:907 .\travel\views.py:945
+#: .\travel\views.py:1133 .\travel\views.py:1171
 msgid "The reviewer list has been successfully updated"
 msgstr "La liste des examinateurs a été mise à jour avec succès"
 
-#: .\travel\views.py:927
+#: .\travel\views.py:1153
 msgid "You do not have the permissions to modify the reviewer list"
 msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour modifier la liste des "
 "examinateurs"
 
-#: .\travel\views.py:934
+#: .\travel\views.py:1160
 msgid "Sorry, you cannot modify the reviewers on a trip that is under review."
 msgstr ""
 "Désolé, vous ne pouvez pas modifier les examinateurs lorsqu'un voyage est en "
 "cours de révision."
 
-#: .\travel\views.py:980
+#: .\travel\views.py:1206
 msgid "title"
 msgstr "titre"
 
-#: .\travel\views.py:981 .\travel\views.py:1381
+#: .\travel\views.py:1207
 msgid "location"
 msgstr "location"
 
-#: .\travel\views.py:982
+#: .\travel\views.py:1208
 msgid "region"
 msgstr "région"
 
-#: .\travel\views.py:983
+#: .\travel\views.py:1209
 msgid "abstract deadline"
 msgstr "date limite de soumission des résumés"
 
-#: .\travel\views.py:985
+#: .\travel\views.py:1211
 msgid "trip dates"
 msgstr "les dates de voyages"
 
-#: .\travel\views.py:1052
+#: .\travel\views.py:1279
 msgid "Clone a Trip"
 msgstr "Cloner un voyage"
 
-#: .\travel\views.py:1053
+#: .\travel\views.py:1280
 msgid "Please update the trip details"
 msgstr "Veuillez mettre à jour les détails du voyage"
 
-#: .\travel\views.py:1110
+#: .\travel\views.py:1337
 msgid "The trip has been added to the database!"
 msgstr "Le voyage a été ajouté à la base de données !"
 
-#: .\travel\views.py:1154
+#: .\travel\views.py:1370
 msgid "Do you wish to start a review on this trip?"
 msgstr "Souhaitez-vous commencer un examen sur ce voyage?"
 
-#: .\travel\views.py:1156
+#: .\travel\views.py:1372
 msgid "Do you wish to re-examine this trip?"
 msgstr "Souhaitez-vous réexaminer ce voyage ?"
 
-#: .\travel\views.py:1158
+#: .\travel\views.py:1374
 msgid "Do you wish to end the review of this trip?"
 msgstr "Souhaitez-vous terminer l’examen de ce voyage?"
 
-#: .\travel\views.py:1172
+#: .\travel\views.py:1388
 msgid "Start a Review"
 msgstr "Commencer un examen"
 
-#: .\travel\views.py:1172
+#: .\travel\views.py:1388
 msgid "End a Review"
 msgstr "Terminer un examen"
 
-#: .\travel\views.py:1218
+#: .\travel\views.py:1434
 msgid "Verify Trip"
 msgstr "Vérification du voyage"
 
-#: .\travel\views.py:1231 .\travel\views.py:1284 .\travel\views.py:1325
+#: .\travel\views.py:1452 .\travel\views.py:1508 .\travel\views.py:1549
 msgid ""
 "Sorry, only ADMO administrators can verify trips that require ADM approval."
 msgstr ""
 "Désolé, seuls les administrateurs du bureau de la SMA peuvent vérifier les "
 "voyages qui nécessitent l'approbation de la SMA."
 
-#: .\travel\views.py:1269
+#: .\travel\views.py:1493
 msgid "Please select a trip to re-assign:"
 msgstr "Veuillez sélectionner un voyage à réassigner :"
 
-#: .\travel\views.py:1270
-msgid "(You will have a chance to review this action before it is carried out.)"
+#: .\travel\views.py:1494
+msgid ""
+"(You will have a chance to review this action before it is carried out.)"
 msgstr ""
 "(Vous aurez la possibilité d'examiner cette action avant qu'elle ne soit "
 "réalisée.)"
 
-#: .\travel\views.py:1298
+#: .\travel\views.py:1522
 msgid "Please confirm the following:"
 msgstr "Veuillez confirmer ce qui suit :"
 
-#: .\travel\views.py:1299
+#: .\travel\views.py:1523
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: .\travel\views.py:1379
-msgid "status"
-msgstr "statut"
-
-#: .\travel\views.py:1382
-msgid "dates"
-msgstr "dates"
-
-#: .\travel\views.py:1383
-msgid "length (days)"
-msgstr "durée (jours)"
-
-#: .\travel\views.py:1385
-msgid "Total travellers"
-msgstr "Nombre total de voyageurs"
-
-#: .\travel\views.py:1400 .\travel\views.py:1419
-msgid "Trips Awaiting Your Review"
-msgstr "Voyages en attente de votre examen"
-
-#: .\travel\views.py:1402
-msgid "Tagged Trips"
-msgstr ""
-"Demandes de voyage pour lesquelles vous avez été inscrit comme examinateur"
-
-#: .\travel\views.py:1429
-msgid "{}'s Trip Review"
-msgstr "Revue de voyage pour {}"
-
-#: .\travel\views.py:1431
-msgid "ADM Level Review"
-msgstr "Examen au niveau du SMA"
-
-#: .\travel\views.py:1436
-msgid "Complete the review"
-msgstr "Terminer l'examen"
-
-#: .\travel\views.py:1438
-msgid "Submit your review"
-msgstr "Soumettre votre évaluation"
-
-#: .\travel\views.py:1575
+#: .\travel\views.py:1761
 msgid "Cancel the trip"
 msgstr "Annuler le voyage"
 
-#: .\travel\views.py:1576
+#: .\travel\views.py:1762
 msgid "Do you wish to undo your cancellation request for the following trip?"
 msgstr ""
 "Souhaitez-vous annuler votre demande d'annulation pour le voyage suivant ?"
 
-#: .\travel\views.py:1578
+#: .\travel\views.py:1764
 msgid ""
 "Cancelling this trip will result in all linked requests to be 'cancelled'. "
 "The list of associated trip requests can be viewed below in the trip detail."
@@ -3640,49 +3697,84 @@ msgstr ""
 "liées. La liste de demandes de voyage associées peut être consultée ci-"
 "dessous dans le détail du voyage."
 
-#: .\travel\views.py:1582
+#: .\travel\views.py:1768
 msgid "This action cannot be undone."
 msgstr "Cette action ne peut être annulée."
 
-#: .\travel\views.py:1584
+#: .\travel\views.py:1770
 msgid "Cancel Trip"
 msgstr "Annuler le voyage"
 
-#: .\travel\views.py:1961
+#: .\travel\views.py:2130
 msgid "URL"
 msgstr "Adresse URL"
 
-#: .\travel\views.py:1962
+#: .\travel\views.py:2131
 msgid "File"
 msgstr "Fichier"
 
-#: .\travel\views.py:1969 .\travel\views.py:1977 .\travel\views.py:1990
-#: .\travel\views.py:2000
+#: .\travel\views.py:2138 .\travel\views.py:2146 .\travel\views.py:2159
+#: .\travel\views.py:2169
 msgid "Reference Materials"
 msgstr "Documents de référence"
 
-#: .\travel\views.py:2011
+#: .\travel\views.py:2180
 msgid "Optional / Special Reviewers"
 msgstr "Facultatif / Examinateurs spéciaux"
 
-#: .\travel\views.py:2012
+#: .\travel\views.py:2181
 msgid ""
-"Use this module to set the default reviewers that get added to a trip request."
+"Use this module to set the default reviewers that get added to a trip "
+"request."
 msgstr ""
 "Utilisez ce module pour définir les examinateurs par défaut qui sont ajoutés "
 "à une demande de voyage."
 
-#: .\travel\views.py:2060
+#: .\travel\views.py:2229
 msgid "Last login to DM Apps"
 msgstr "Dernière connexion à Applis GD"
 
-#: .\travel\views.py:2215
+#: .\travel\views.py:2384
 msgid "The cost has been successfully deleted."
 msgstr "Le coût a été supprimé avec succès."
 
-#: .\travel\views.py:2225
+#: .\travel\views.py:2394
 msgid "All empty costs have been cleared."
 msgstr "Tous les frais vides ont été supprimés."
+
+#~ msgid "Total DFO cost (non RES)"
+#~ msgstr "Coût total du MPO (non RES)"
+
+#~ msgid "Total DFO cost (all)"
+#~ msgstr "Coût total du MPO (tout)"
+
+#~ msgid "Approved on"
+#~ msgstr "Approuvé le"
+
+#~ msgid "This is not an official copy."
+#~ msgstr "Ceci n'est pas une copie officielle."
+
+#~ msgid "status"
+#~ msgstr "statut"
+
+#~ msgid "dates"
+#~ msgstr "dates"
+
+#~ msgid "length (days)"
+#~ msgstr "durée (jours)"
+
+#~ msgid "Total travellers"
+#~ msgstr "Nombre total de voyageurs"
+
+#~ msgid "Tagged Trips"
+#~ msgstr ""
+#~ "Demandes de voyage pour lesquelles vous avez été inscrit comme examinateur"
+
+#~ msgid "{}'s Trip Review"
+#~ msgstr "Revue de voyage pour {}"
+
+#~ msgid "ADM Level Review"
+#~ msgstr "Examen au niveau du SMA"
 
 #~ msgid "last modified"
 #~ msgstr "dernière modification"
@@ -3762,11 +3854,12 @@ msgstr "Tous les frais vides ont été supprimés."
 #~ msgstr "Demandes en cours de traitement par la SMA"
 
 #~ msgid ""
-#~ "Select NEXT to go to the Group Traveller’s table where you will be able to "
-#~ "enter details for each traveller associated with this group request."
+#~ "Select NEXT to go to the Group Traveller’s table where you will be able "
+#~ "to enter details for each traveller associated with this group request."
 #~ msgstr ""
 #~ "Sélectionnez SUIVANT pour passer au tableau des voyageurs en groupe où "
-#~ "vous pourrez entrer les détails de chaque voyageur associé à cette demande."
+#~ "vous pourrez entrer les détails de chaque voyageur associé à cette "
+#~ "demande."
 
 #~ msgid "Requester Information"
 #~ msgstr "Informations sur le requérant"
@@ -3793,11 +3886,11 @@ msgstr "Tous les frais vides ont été supprimés."
 #~ "intervention!!"
 
 #~ msgid ""
-#~ "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
-#~ "trip{pluralization} requiring attention!!"
+#~ "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
+#~ "{pluralization} requiring attention!!"
 #~ msgstr ""
-#~ "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
-#~ "trip{pluralization} requiring attention!!"
+#~ "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
+#~ "{pluralization} requiring attention!!"
 
 #~ msgid "Traveller information"
 #~ msgstr "Information du voyageur"
@@ -3862,8 +3955,8 @@ msgstr "Tous les frais vides ont été supprimés."
 
 #~ msgid ""
 #~ "\n"
-#~ "            Travel requests can be submitted up to <b>180 calendar days in "
-#~ "advance of any potential trip</b>, regardless of the purpose\n"
+#~ "            Travel requests can be submitted up to <b>180 calendar days "
+#~ "in advance of any potential trip</b>, regardless of the purpose\n"
 #~ "            and across fiscal years.\n"
 #~ "          "
 #~ msgstr ""
@@ -3973,9 +4066,9 @@ msgstr "Tous les frais vides ont été supprimés."
 #~ "                    Une demande de voyage peut avoir plusieurs voyageurs "
 #~ "de divers secteurs (par exemple, publique, universitaire, privé), mais "
 #~ "seulement\n"
-#~ "                    un employé de Pêches et Océans disposant d'une adresse "
-#~ "électronique valide du Gouvernement du Canada peut initier et soumettre "
-#~ "une demande de voyage.\n"
+#~ "                    un employé de Pêches et Océans disposant d'une "
+#~ "adresse électronique valide du Gouvernement du Canada peut initier et "
+#~ "soumettre une demande de voyage.\n"
 #~ "                    En outre, la demande doit déjà avoir confirmé ou "
 #~ "anticipé les fonds disponibles pour financer le voyage.\n"
 #~ "                "
@@ -3984,8 +4077,8 @@ msgstr "Tous les frais vides ont été supprimés."
 #~ "\n"
 #~ "          Please ensure your request is properly completed and submitted "
 #~ "on time to allow for efficient and appropriate\n"
-#~ "          review. Incomplete requests will not be evaluated. You can check "
-#~ "the status of your request by going to the\n"
+#~ "          review. Incomplete requests will not be evaluated. You can "
+#~ "check the status of your request by going to the\n"
 #~ "          home page and selecting “view your request”.\n"
 #~ "        "
 #~ msgstr ""
