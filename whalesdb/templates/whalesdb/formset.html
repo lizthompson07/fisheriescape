@@ -77,14 +77,20 @@
                         d += "<tr><td>" +(i+1) + "</td><td>" + data['fields'][i][1] + "</td><td>" + data['fields'][i][0] + "</td></tr>"
                     }
                     $("#field_names").html(d);
-
-                    $("#" + id_field).val("");
                 },
                 error: function(response) {
                     alert(response["responseJSON"]["error"]);
                 }
             });
         }
+
+        $("input.form-control").focus(function() {
+            var field = $(this).attr('id');
+            var id_field = field.replace(/-field_name/g, "-model");
+            var model = $("#" + id_field).val();
+
+            change_field_names(model, field)
+        });
 
         $("select.form-control").change(function() {
             var model = $(this).val();
