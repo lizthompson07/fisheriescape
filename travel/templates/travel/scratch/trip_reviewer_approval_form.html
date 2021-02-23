@@ -56,7 +56,7 @@
         });
 
         $("#reset").click(function () {
-            var input = confirm("{% trans 'By proceeding, you will be returning this review to the first reviewer in the queue: '%}  {{ object.trip.reviewers.first.user }} \n\n {%trans 'Are you certain you wish to proceed?'%}");
+            var input = confirm("");
             $("#id_reset").val(1);
             $("form").submit();
         });
