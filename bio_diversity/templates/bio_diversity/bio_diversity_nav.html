@@ -2,19 +2,6 @@
 {% load i18n %}
 
 <li class="nav-item"><a class="nav-link" href="{% url 'bio_diversity:index' %}"> Home</a></li>
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-       aria-haspopup="true" aria-expanded="false">
-        {% trans "Biodiversity" %}
-    </a>
-    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-       <!--
-       <a class="dropdown-item" href="">
-            {% trans "Requests for Science Advice" %}
-        </a>
-        -->
-    </div>
-</li>
 {% for group in user.groups.all %}
   {% if group.name == "bio_diversity_admin" %}
     <li class="nav-item dropdown">
@@ -27,6 +14,9 @@
         <a class="dropdown-item" href="{% url 'bio_diversity:manage_help_texts' %}">
           {% trans "Help Text" %}
         </a>
+        <a class="dropdown-item" href="{% url 'bio_diversity:manage_comment_keywords' %}">
+          {% trans "Comment Keywords" %}
+        </a>
         <a class="dropdown-item" href="{% url 'bio_diversity:admin_index' %}">
           {% trans "Admin Page" %}
         </a>
@@ -36,22 +26,6 @@
   {% endif %}
 {% endfor %}
 
-
-{% if bio_diversity_super %}
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-       aria-haspopup="true" aria-expanded="false">
-        {% trans "Lookup" %}
-    </a>
-    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-        <!--
-        <a class="dropdown-item" href="">
-            {% trans "Honorific" %}
-        </a>
-        -->
-    </div>
-</li>
-{% endif %}
 <!-- EXAMPLE FOR CREATING NEW TOP LEVEL MENU -->
 <!--  <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"

@@ -116,7 +116,7 @@ class TestAllHardDeleteViews(CommonTest):
             if m == ml_models.Sector:
                 obj = FactoryFloor.SectorFactory()
             elif m == ml_models.RelationshipRating:
-                obj = m.objects.create(name=faker.catch_phrase(), level=faker.pyint(1,100))
+                obj = m.objects.create(name=faker.catch_phrase(), level=faker.pyint(1,10000))
             else:
                 obj = m.objects.create(name=faker.catch_phrase())
             new_d["obj"] = obj
