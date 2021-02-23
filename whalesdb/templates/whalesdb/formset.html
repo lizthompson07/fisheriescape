@@ -37,9 +37,16 @@
 </style>
 {% endblock %}
 
-{% block body %}
+{% block subcontent %}
     {{ block.super }}
-{% endblock body %}
+    <div class="container-fluid container">
+        <h3>Model Fields</h3>
+        <table class="table">
+            <thead><tr><th>#</th><th>Label</th><th>Field Name</th></tr></thead>
+            <tbody id="field_names"></tbody>
+        </table>
+    </div>
+{% endblock subcontent %}
 
 {% block left_auth %}
     {% include "whalesdb/base/whales_nav_menu.html" %}
@@ -52,10 +59,9 @@
 
 {% block body_js %}
     <script type="application/javascript">
-        $("select.form-control").change(function() {
-            var model = $(this).val();
-            var str = $(this).attr('id');
-            var id_field = str.replace(/-model/g, "-field_name");
+
+        function change_field_names(model, field) {
+            var id_field = field.replace(/-model/g, "-field_name");
 
             $.ajax({
                 type: 'GET',
@@ -65,16 +71,26 @@
                 },
                 dataType: 'json',
                 success: function(data) {
-                    alert("clear field '" + id_field + "'");
-                    $("#" + id_field).val("");
+                    var d = '';
 
-                    alert("set field '" + data["fields"][0] + "'");
-                    $("#" + id_field).val(data["fields"][0]);
+                    for(i=0; i < data['fields'].length; i++) {
+                        d += "<tr><td>" +(i+1) + "</td><td>" + data['fields'][i][1] + "</td><td>" + data['fields'][i][0] + "</td></tr>"
+                    }
+                    $("#field_names").html(d);
+
+                    $("#" + id_field).val("");
                 },
                 error: function(response) {
                     alert(response["responseJSON"]["error"]);
                 }
             });
+        }
+
+        $("select.form-control").change(function() {
+            var model = $(this).val();
+            var field = $(this).attr('id');
+
+            change_field_names(model, field)
         });
     </script>
     {{ block.super }}

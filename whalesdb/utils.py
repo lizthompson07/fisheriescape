@@ -47,9 +47,17 @@ def ajax_get_fields(request):
     # remove the trailing parentheses, split the string up based on ', ', then drop the first element
     # which is the model name and the id.
     match = str(model.__dict__['__doc__']).replace(")", "").split(", ")[1:]
+    fields = list()
+    for f in match:
+        label = "---"
+        attr = getattr(model, f).field
+        if hasattr(attr, 'verbose_name'):
+            label = attr.verbose_name
+
+        fields.append([f, label])
 
     data = {
-        'fields': match
+        'fields': fields
     }
 
     return JsonResponse(data)
