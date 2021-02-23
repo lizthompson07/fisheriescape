@@ -38,6 +38,7 @@ class TripSerializerLITE(serializers.ModelSerializer):
     start_date = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
+    time_until_adm_review_deadline = serializers.SerializerMethodField()
     time_until_eligible_for_adm_review = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
     traveller_count = serializers.SerializerMethodField()
@@ -78,6 +79,9 @@ class TripSerializerLITE(serializers.ModelSerializer):
 
     def get_status_display(self, instance):
         return instance.get_status_display()
+
+    def get_time_until_adm_review_deadline(self, instance):
+        return naturaltime(instance.adm_review_deadline)
 
     def get_time_until_eligible_for_adm_review(self, instance):
         return naturaltime(instance.date_eligible_for_adm_review)
@@ -430,7 +434,6 @@ class TripReviewerSerializer(serializers.ModelSerializer):
 
     def get_user_display(self, instance):
         return instance.user.get_full_name() if instance.user else None
-
 
 
 class TripSerializer(serializers.ModelSerializer):
