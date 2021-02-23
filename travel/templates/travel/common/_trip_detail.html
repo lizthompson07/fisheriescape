@@ -97,12 +97,24 @@
             </td>
           </tr>
           <tr>
-            <th style="width: 40%">{% trans "Total DFO cost (non RES)" %}</th>
-            <td>$ ${trip.non_res_total_cost|floatformat}</td>
+            <th style="width: 40%">{% trans "Total trip costs" %}</th>
+            <td>$ ${trip.total_cost|floatformat}</td>
           </tr>
           <tr>
-            <th style="width: 40%">{% trans "Total DFO cost (all)" %}</th>
-            <td>$ ${trip.total_cost|floatformat}</td>
+            <th style="width: 40%">{% trans "Total non-DFO funding" %}</th>
+            <td>$ ${trip.total_non_dfo_cost|floatformat}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Non-DFO funding sources" %}</th>
+            <td>${trip.total_non_dfo_funding_sources}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Total DFO funding" %}</th>
+            <td class="font-weight-bold">$ ${trip.total_dfo_cost|floatformat}</td>
+          </tr>
+          <tr>
+            <th style="width: 40%">{% trans "Total DFO cost (non RES)" %}</th>
+            <td>$ ${trip.non_res_total_cost|floatformat}  ({% trans "excluding any non-DFO funding" %})</td>
           </tr>
           <tr>
             <th style="width: 40%">${tripLabels.notes |nz}</th>

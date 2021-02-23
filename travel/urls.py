@@ -135,12 +135,9 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportFormView.as_view(), name="reports"),
-    path('reports/export-cfts-list/year/<str:fy>/region/<str:region>/trip/<str:trip>/traveller/'
-         '<str:user>/from_date/<str:from_date>/to_date/<str:to_date>/', views.export_cfts_list, name="export_cfts_list"),
+    path('reports/export-cfts-list/', views.export_cfts_list, name="export_cfts_list"),
+    path('reports/trip-list/fiscal-year/', views.export_trip_list, name="export_trip_list"),
+
     path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"),
     path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),
-    # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
-
-    path('reports/trip-list/fiscal-year/<str:fy>/region/<str:region>/adm/<str:adm>/from_date/<str:from_date>/to_date/<str:to_date>/',
-         views.export_trip_list, name="export_trip_list"),
 ]

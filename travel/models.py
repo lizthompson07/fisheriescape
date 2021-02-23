@@ -441,20 +441,42 @@ class Conference(models.Model):
     @property
     def total_cost(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
-        total_cost = TripRequestCost.objects.filter(traveller__request__trip=self).filter(
+        amt = TripRequestCost.objects.filter(traveller__request__trip=self).filter(
             ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
-        total_non_dfo_costs = Traveller.objects.filter(request__trip=self).filter(
+        return nz(amt, 0)
+
+    @property
+    def total_non_dfo_cost(self):
+        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
+        amt = Traveller.objects.filter(request__trip=self).filter(
             ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
-        return nz(total_cost, 0) - nz(total_non_dfo_costs, 0)
+        return nz(amt, 0)
+
+
+    @property
+    def total_dfo_cost(self):
+        # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
+        total = self.total_cost
+        non_dfo = self.total_non_dfo_cost
+        return total-non_dfo
 
     @property
     def non_res_total_cost(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
-        total_cost = TripRequestCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
+        dfo = TripRequestCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
             ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
-        total_non_dfo_costs = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(
+        non_dfo = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(
             ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
-        return nz(total_cost, 0) - nz(total_non_dfo_costs, 0)
+        return nz(dfo, 0) - nz(non_dfo, 0)
+
+    @property
+    def total_non_dfo_funding_sources(self):
+        """
+        this is a comprehensive list of the non-dfo funding sources for the trip
+        """
+        qs = self.travellers.filter(non_dfo_org__isnull=False)
+        if qs.exists():
+            return listrify(set([item.non_dfo_org for item in qs]))
 
     @property
     def tname(self):
@@ -1077,6 +1099,10 @@ class TripRequest1(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     @property
+    def region(self):
+        return self.section.division.branch.region
+
+    @property
     def metadata(self):
         return get_metadata_string(self.created_at, self.created_by, self.updated_at, self.updated_by)
 
@@ -1270,7 +1296,7 @@ class TripRequest1(models.Model):
 
 class Traveller(models.Model):
     request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="travellers")
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"), related_name="travellers")
     is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a research scientist (RES)?"))
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)

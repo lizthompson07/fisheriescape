@@ -99,7 +99,7 @@ def get_section_choices(all=False, full_name=True):
 
     if not all:
         return [(s.id, getattr(s, my_attr)) for s in
-                shared_models.Section.objects.filter(trip_requests__isnull=False).order_by(
+                shared_models.Section.objects.filter(requests__isnull=False).order_by(
                     "division__branch__region",
                     "division__branch",
                     "division",
@@ -115,7 +115,7 @@ def get_division_choices(all=False):
         return [(d.id, str(d)) for d in shared_models.Division.objects.all()]
     else:
         return [(d.id, str(d)) for d in
-                shared_models.Division.objects.filter(sections__in=shared_models.Section.objects.filter(trip_requests__isnull=False)).distinct()]
+                shared_models.Division.objects.filter(sections__in=shared_models.Section.objects.filter(requests__isnull=False)).distinct()]
 
 
 def get_region_choices(all=False):
@@ -125,7 +125,7 @@ def get_region_choices(all=False):
         # return [(d.id, str(d)) for d in shared_models.Region.objects.all()]
         return [(r.id, str(r)) for r in
                 shared_models.Region.objects.filter(branches__divisions__sections__in=shared_models.Section.objects.filter(
-                    trip_requests__isnull=False)).distinct()]
+                    requests__isnull=False)).distinct()]
 
 
 def get_trip_reviewers(trip):

@@ -330,7 +330,6 @@ class TripRequestSerializer(serializers.ModelSerializer):
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
     original_submission_date = serializers.SerializerMethodField()
-
     cost_comparison = serializers.SerializerMethodField()
 
     def get_cost_comparison(self, instance):
@@ -421,6 +420,18 @@ class TripSerializer(serializers.ModelSerializer):
     metadata = serializers.SerializerMethodField()
     non_res_total_cost = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
+    total_non_dfo_cost = serializers.SerializerMethodField()
+    total_dfo_cost = serializers.SerializerMethodField()
+    total_non_dfo_funding_sources = serializers.SerializerMethodField()
+
+    def get_total_non_dfo_funding_sources(self, instance):
+        return instance.total_non_dfo_funding_sources
+
+    def get_total_non_dfo_cost(self, instance):
+        return instance.total_non_dfo_cost
+
+    def get_total_dfo_cost(self, instance):
+        return instance.total_dfo_cost
 
     def get_total_cost(self, instance):
         return instance.total_cost

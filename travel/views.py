@@ -1016,7 +1016,7 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
         return ""
 
     def get_parent_crumb(self):
-            return {"title": _("Trips"), "url": reverse_lazy("travel:trip_list") + self.get_query_string()}
+        return {"title": _("Trips"), "url": reverse_lazy("travel:trip_list") + self.get_query_string()}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1082,7 +1082,7 @@ class TripCloneView(TripUpdateView):
         new_obj.verified_by = self.request.user
         new_obj.created_by = self.request.user
         new_obj.save()
-        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", args=[ new_obj.id]))
+        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", args=[new_obj.id]))
 
 
 class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
@@ -1678,37 +1678,25 @@ class ReportFormView(TravelAdminRequiredMixin, FormView):
         adm = nz(form.cleaned_data["adm"], "None")
 
         if report == 1:
-            return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
-                'fy': fy,
-                'region': region,
-                'trip': trip,
-                'user': user,
-                'from_date': from_date,
-                'to_date': to_date,
-            }))
+            return HttpResponseRedirect(reverse("travel:export_cfts_list") +
+                                        f'?fy={fy};region={region};trip={trip};user={user};from_date={from_date};to_date={to_date};')
         elif report == 2:
-            email = form.cleaned_data["traveller"]
-            return HttpResponseRedirect(reverse("travel:travel_plan", kwargs={
-                'fy': fy,
-                'email': email,
-            }))
-
-        elif report == 3:
-            return HttpResponseRedirect(reverse("travel:export_trip_list", kwargs={
-                'fy': fy,
-                'region': region,
-                'adm': adm,
-                'from_date': from_date,
-                'to_date': to_date,
-            }))
-
+            return HttpResponseRedirect(reverse("travel:export_trip_list") +
+                                        f'?fy={fy};region={region};adm={adm};from_date={from_date};to_date={to_date};')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:reports"))
 
 
 @login_required()
-def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
+def export_cfts_list(request):
+    fy = request.GET.get("year")
+    region = request.GET.get("region")
+    trip = request.GET.get("trip")
+    user = request.GET.get("user")
+    from_date = request.GET.get("from_date")
+    to_date = request.GET.get("to_date")
+
     file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region, trip=trip, user=user, from_date=from_date, to_date=to_date)
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
 
@@ -1724,7 +1712,13 @@ def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
 
 
 @login_required()
-def export_trip_list(request, fy, region, adm, from_date, to_date):
+def export_trip_list(request):
+    fy = request.GET.get("year")
+    region = request.GET.get("region")
+    adm = request.GET.get("adm")
+    from_date = request.GET.get("from_date")
+    to_date = request.GET.get("to_date")
+
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date, site_url=site_url)
     export_file_name = f'CTMS trip list {timezone.now().strftime("%Y-%m-%d")}.xlsx'
@@ -1770,7 +1764,7 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         context = super().get_context_data(**kwargs)
         my_object = models.TripRequest1.objects.get(id=self.kwargs['pk'])
         context["parent"] = my_object
-        context["SITE_FULL_URL"] =  my_envr(self.request)["SITE_FULL_URL"]
+        context["SITE_FULL_URL"] = my_envr(self.request)["SITE_FULL_URL"]
         context["trip_category_list"] = models.TripCategory.objects.all()
         cost_categories = models.CostCategory.objects.all()
         my_dict = dict()

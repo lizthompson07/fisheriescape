@@ -656,8 +656,7 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
         (1, gettext_lazy("CFTS export (xlsx)")),
-        # (2, "Print Travel Plan PDF"),
-        (3, gettext_lazy("Export trip list (xlsx)")),
+        (2, gettext_lazy("Export trip list (xlsx)")),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES, label=gettext_lazy("Report"))
     # report #1
@@ -671,12 +670,10 @@ class ReportSearchForm(forms.Form):
     to_date = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
 
     def __init__(self, *args, **kwargs):
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trip_requests.count() > 0]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.filter(requests__isnull=False).order_by("id").distinct()]
         fy_choices.insert(0, tuple((None, "---")))
-        # TRAVELLER_CHOICES = [(e['email'], "{}, {}".format(e['last_name'], e['first_name'])) for e in
-        #                      models.Trip.objects.values("email", "first_name", "last_name").order_by("last_name", "first_name").distinct()]
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                        AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trip_requests.count() > 0]
+                        AuthUser.objects.filter(travellers__isnull=False).order_by("last_name", "first_name").distinct()]
         user_choices.insert(0, tuple((None, "---")))
         trip_choices = [(trip.id, f"{trip}") for trip in models.Conference.objects.all()]
         trip_choices.insert(0, tuple((None, "---")))
