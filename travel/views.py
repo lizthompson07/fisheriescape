@@ -758,27 +758,6 @@ class TripReviewerListView(TravelAccessRequiredMixin, CommonTemplateView):
 #             context["adm_can_submit"] = True
 #         return context
 #
-#     def form_valid(self, form):
-#         my_reviewer = form.save()
-#         stay_on_page = form.cleaned_data.get("stay_on_page")
-#         reset = form.cleaned_data.get("reset")
-#
-#         if not stay_on_page:
-#             if reset:
-#                 utils.reset_trip_review_process(my_reviewer.trip)
-#             else:
-#                 # if it was approved, then we change the reviewer status to 'approved'
-#                 my_reviewer.status = 26
-#                 my_reviewer.status_date = timezone.now()
-#                 my_reviewer.save()
-#
-#             # update any statuses if necessary
-#             utils.trip_approval_seeker(my_reviewer.trip, self.request)
-#             return HttpResponseRedirect(reverse("travel:trip_review_list", kwargs={"which_ones": "awaiting"}))
-#
-#         else:
-#             my_kwargs = {"pk": my_reviewer.id}
-#             return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs=my_kwargs))
 
 
 class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
@@ -817,48 +796,28 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
         return context
 
     def form_valid(self, form):
-        # don't save the reviewer yet because there are still changes to make
-        my_reviewer = form.save(commit=True)
-
-        approved = form.cleaned_data.get("approved")
+        my_reviewer = form.save()
         stay_on_page = form.cleaned_data.get("stay_on_page")
-        changes_requested = form.cleaned_data.get("changes_requested")
-        # first scenario: changes were requested for the request
-        # in this case, the reviewer status does not change but the request status will
-        if not stay_on_page:
-            if changes_requested:
-                my_reviewer.request.status = 16
-                my_reviewer.request.submitted = None
-                my_reviewer.request.save()
-                # send an email to the request owner
-                email = emails.ChangesTripedEmail(my_reviewer.request, self.request)
-                # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
-                messages.success(self.request, _("Success! An email has been sent to the trip request owner."))
+        reset = form.cleaned_data.get("reset")
 
-            # if it was approved, then we change the reviewer status to 'approved'
-            elif approved:
-                my_reviewer.status = 2
-                my_reviewer.status_date = timezone.now()
-                my_reviewer.save()
-            # if it was not approved, then we change the reviewer status to 'denied'
+        if not stay_on_page:
+            if reset:
+                utils.reset_trip_review_process(my_reviewer.trip)
             else:
-                my_reviewer.status = 3
+                # if it was approved, then we change the reviewer status to 'approved'
+                my_reviewer.status = 26
                 my_reviewer.status_date = timezone.now()
                 my_reviewer.save()
 
             # update any statuses if necessary
-            utils.approval_seeker(my_reviewer.request, False, self.request)
+            utils.trip_approval_seeker(my_reviewer.trip, self.request)
+            return HttpResponseRedirect(reverse("travel:trip_reviewer_list"))
 
-        if stay_on_page:
-            return HttpResponseRedirect(reverse("travel:request_reviewer_update", args=[my_reviewer.id]) + self.get_query_string() + "#id_comments")
         else:
-            return HttpResponseRedirect(reverse("travel:request_reviewer_list") + self.get_query_string())
+            my_kwargs = {"pk": my_reviewer.id}
+            return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs=my_kwargs))
+
+
 
 
 # class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, CommonListView):

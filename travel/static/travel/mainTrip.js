@@ -31,6 +31,15 @@ var app = new Vue({
 
   },
   methods: {
+    getDeadlineClass(days) {
+      let myStr = 'px-1 py-1 ';
+      if (days) {
+        if (days > 45) myStr += 'bg-success text-light';
+        else if (days >= 15) myStr +=  'bg-warning';
+        else myStr += 'bg-danger text-light';
+      }
+      return myStr;
+    },
     addTraveller() {
     }, // being added for the sake of compatibility,
     addReviewer() {

@@ -91,7 +91,7 @@
             <th style="width: 40%">${tripLabels.adm_review_deadline}</th>
             <td>
             <span
-              :class="{'px-1 py-1':true, 'bg-success text-light':trip.days_until_adm_review_deadline > 45, 'bg-warning':trip.days_until_adm_review_deadline >= 15, 'bg-danger text-light':trip.days_until_adm_review_deadline < 15}">
+              :class="getDeadlineClass(trip.days_until_adm_review_deadline)">
               ${trip.adm_review_deadline} (${trip.time_until_adm_review_deadline})
             </span>
             </td>

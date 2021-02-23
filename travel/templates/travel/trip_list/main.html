@@ -89,7 +89,7 @@
                   <span v-else> ${t.date_eligible_for_adm_review } </span>
                 </td>
                 <td v-if="pageType === 'adm-hit-list'">
-                  <span :class="{'px-1 py-1':true, 'bg-success text-light':t.days_until_adm_review_deadline > 45, 'bg-warning':t.days_until_adm_review_deadline >= 15, 'bg-danger text-light':t.days_until_adm_review_deadline < 15}">
+                  <span :class="getDeadlineClass(t.days_until_adm_review_deadline)">
                     ${t.adm_review_deadline |nz}
                   </span>
                 </td>
@@ -125,7 +125,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainTripList.js' %}?version=0.9" type="application/javascript"></script>
+  <script src="{% static '/travel/mainTripList.js' %}?version=1.1" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>

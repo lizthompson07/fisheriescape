@@ -37,6 +37,7 @@
                 <th>{% trans "Trip title" %}</th>
                 <th>{% trans "Location" %}</th>
                 <th>{% trans "Dates" %}</th>
+                <th>{% trans "Your role" %}</th>
                 <th v-html="tripLabels.status"></th>
                 <th class="text-center">{% trans "Number of Travellers" %}</th>
                 <th>{% trans "ADM decision deadline" %}</th>
@@ -53,10 +54,11 @@
                 <td>${item.trip_obj.tname }</td>
                 <td>${item.trip_obj.location }</td>
                 <td v-html="item.trip_obj.dates"></td>
+                <td>${item.role_display }</td>
                 <td :class="item.trip_obj.status_class">${item.trip_obj.status_display }</td>
                 <td class="text-center">${item.trip_obj.traveller_count }</td>
                 <td>
-                  <span :class="{'px-1 py-1':true, 'bg-success text-light':item.trip_obj.days_until_adm_review_deadline > 45, 'bg-warning':item.trip_obj.days_until_adm_review_deadline >= 15, 'bg-danger text-light':item.trip_obj.days_until_adm_review_deadline < 15}">
+                  <span :class="getDeadlineClass(item.trip_obj.days_until_adm_review_deadline)">
                     ${item.trip_obj.adm_review_deadline |nz}
                   </span>
                 </td>
@@ -102,6 +104,16 @@
       count: null,
     },
     methods: {
+      getDeadlineClass(days) {
+        console.log(days)
+        let myStr = 'px-1 py-1 ';
+        if (days) {
+          if (days > 45) myStr += 'bg-success text-light';
+          else if (days >= 15) myStr += 'bg-warning';
+          else myStr += 'bg-danger text-light';
+        }
+        return myStr;
+      },
       getCurrentUser() {
         let endpoint = `/api/travel/user/`;
         apiService(endpoint)

@@ -44,9 +44,6 @@ var app = new Vue({
       if (this.pageType.search("verification") > -1) {
         url = `/travel-plans/trips/${trip.id}/verify/?${this.pageType}=true`;
         win = window.open(url, '_blank');
-      }else if (this.pageType.search("hit-list") > -1) {
-        url = `/travel-plans/trips/${trip.id}/review-process/?${this.pageType}=true`;
-        window.location.href = url;
       } else {
         url = `/travel-plans/trips/${trip.id}/view/?${window.location.search.substring(1)}`;
         window.location.href = url;
@@ -122,6 +119,15 @@ var app = new Vue({
       apiService(endpoint).then(data => {
         this.tripLabels = data.labels;
       });
+    },
+    getDeadlineClass(days) {
+      let myStr = 'px-1 py-1 ';
+      if (days) {
+        if (days > 45) myStr += 'bg-success text-light';
+        else if (days >= 15) myStr +=  'bg-warning';
+        else myStr += 'bg-danger text-light';
+      }
+      return myStr;
     },
   },
   filters: {
