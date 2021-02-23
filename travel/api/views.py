@@ -28,7 +28,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
         data["is_admin"] = utils.is_admin(request.user)
         requests = utils.get_related_requests(request.user)
         request_reviews = utils.get_related_request_reviewers(request.user)
-        trip_reviews = utils.get_trip_reviews(request.user)
+        trip_reviews = utils.get_related_trip_reviewers(request.user)
         # created by or traveller on a request
         data["related_requests_count"] = requests.count()
         # number of requests where review is pending (excluding those that are drafts (from children), changes_requested and pending ADM approval)
@@ -254,6 +254,7 @@ class TravellerViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         print(request.data)
         return super().create(request, *args, **kwargs)
+
     def update(self, request, *args, **kwargs):
         print(request.data)
         return super().update(request, *args, **kwargs)
@@ -320,6 +321,57 @@ class ReviewerViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
 
+class TripReviewerViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.TripReviewerSerializer
+    permission_classes = [TravelAdminOrReadOnly]
+    queryset = models.TripReviewer.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def perform_create(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    def perform_update(self, serializer):
+        # the only type of user who should be interacting with this is an NCR admin
+        if not utils.in_adm_admin_group(self.request.user):
+            raise ValidationError(_("You do not have the necessary permission to modify this reviewer."))
+
+        # first we must determine if this is a request to skip a reviewer. If it is, the user better be an admin
+        if self.request.query_params.get("skip"):
+            my_reviewer = serializer.instance
+            my_reviewer.status = 44
+            my_reviewer.status_date = timezone.now()
+            my_reviewer.comments = _("Manually overridden by {user} with the following rationale: \n {comments}").format(
+                user=self.request.user,
+                comments=serializer.validated_data["comments"])
+            # now we save the reviewer for real
+            my_reviewer.save()
+            # update any statuses if necessary
+            utils.trip_approval_seeker(my_reviewer.trip, self.request)
+        else:
+            # can only change if is in draft or queued
+            if serializer.instance.status in [23, 24]:
+                serializer.save(updated_by=self.request.user)
+            else:
+                # we will only tolerate interacting with the order of the reviewer
+                instance = serializer.instance
+                instance.order = serializer.validated_data["order"]
+                instance.save()
+
+    def perform_destroy(self, instance):
+        # can only change if is in draft or queued
+        if not utils.in_adm_admin_group(self.request.user):
+            raise ValidationError(_("You do not have the necessary permission to delete this reviewer."))
+        if instance.status in [23, 24]:
+            super().perform_destroy(instance)
+        else:
+            raise ValidationError("cannot delete this reviewer who has the status of " + instance.get_status_display())
+
+    def list(self, request, *args, **kwargs):
+        qs = utils.get_related_trip_reviewers(request.user)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+
 class FileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FileSerializer
     permission_classes = [CanModifyOrReadOnly]
@@ -338,7 +390,7 @@ class CostViewSet(viewsets.ModelViewSet):
     permission_classes = [CanModifyOrReadOnly]
     queryset = models.TripRequestCost.objects.all()
     pagination_class = StandardResultsSetPagination
-        
+
     def list(self, request, *args, **kwargs):
         qp = request.query_params
         if qp.get("traveller"):
@@ -350,7 +402,7 @@ class CostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
-    
+
     def perform_update(self, serializer):
         print(self.request.data)
         serializer.save()

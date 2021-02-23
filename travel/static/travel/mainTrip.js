@@ -31,7 +31,8 @@ var app = new Vue({
 
   },
   methods: {
-    addTraveller() {}, // being added for the sake of compatibility,
+    addTraveller() {
+    }, // being added for the sake of compatibility,
     addReviewer() {
       this.trip.reviewers.push({
         trip: this.trip.id,
@@ -322,17 +323,11 @@ var app = new Vue({
       }
       return false;
     },
+    isAdmin() {
+      return this.isNCRAdmin; // being adding in for compatibility with reviewer form
+    },
     canModify() {
       return this.isNCRAdmin || (this.isRegionalAdmin && !this.trip.is_adm_approval_required)
-    },
-    editableReviewers() {
-      myArray = []
-      for (var i = 0; i < this.trip.reviewers.length; i++) {
-        if (this.trip.reviewers[i].status === 4 || this.trip.reviewers[i].status === 20) {
-          myArray.push(this.trip.reviewers[i]);
-        }
-      }
-      return myArray
     },
   },
   created() {

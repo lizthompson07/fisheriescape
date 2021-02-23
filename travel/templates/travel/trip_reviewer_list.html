@@ -11,8 +11,7 @@
 {% block subcontent %}
   <div id="app" v-cloak>
 
-    <h1 v-if="pageType=== 'rdg'">{% trans "Requests Awaiting RDG-level Approval" %}</h1>
-    <h1 v-else>{% trans "Requests Awaiting Your Review" %}</h1>
+    <h1>{% trans "Trips Awaiting Your Review" %}</h1>
 
     <div>
       <div class="row container-fluid bg-light curvy">
@@ -35,11 +34,14 @@
             <table class="table table-sm table-hover">
               <thead>
               <tr>
-                <th v-if="pageType=== 'rdg'">{% trans "For which RDG" %}</th>
-                <th v-html="requestLabels.created_by"></th>
-                <th v-html="requestLabels.status"></th>
-                <th style="width: 350px" v-html="requestLabels.trip"></th>
-                <th>{% trans "Current processing time" %}</th>
+                <th>{% trans "Trip title" %}</th>
+                <th>{% trans "Location" %}</th>
+                <th>{% trans "Dates" %}</th>
+                <th v-html="tripLabels.status"></th>
+                <th class="text-center">{% trans "Number of Travellers" %}</th>
+                <th>{% trans "ADM decision deadline" %}</th>
+
+
               </tr>
               </thead>
               <tbody>
@@ -48,11 +50,17 @@
                 @click="goRow(item)"
                 class="pointy"
               >
-                <td v-if="pageType=== 'rdg'">${item.user_display }</td>
-                <td>${item.request_obj.created_by }</td>
-                <td :class="item.request_obj.status_class">${item.request_obj.status_display }</td>
-                <td>${item.request_obj.trip_display }</td>
-                <td>${item.request_obj.processing_time }</td>
+                <td>${item.trip_obj.tname }</td>
+                <td>${item.trip_obj.location }</td>
+                <td v-html="item.trip_obj.dates"></td>
+                <td :class="item.trip_obj.status_class">${item.trip_obj.status_display }</td>
+                <td class="text-center">${item.trip_obj.traveller_count }</td>
+                <td>
+                  <span :class="{'px-1 py-1':true, 'bg-success text-light':item.trip_obj.days_until_adm_review_deadline > 45, 'bg-warning':item.trip_obj.days_until_adm_review_deadline >= 15, 'bg-danger text-light':item.trip_obj.days_until_adm_review_deadline < 15}">
+                    ${item.trip_obj.adm_review_deadline |nz}
+                  </span>
+                </td>
+
               </tr>
               </tbody>
             </table>
@@ -90,7 +98,7 @@
       currentUser: {},
       loading_reviewers: false,
       reviewers: [],
-      requestLabels: {},
+      tripLabels: {},
       count: null,
     },
     methods: {
@@ -102,13 +110,12 @@
             })
       },
       goRow(reviewer) {
-        var url = `/travel-plans/request-reviewers/${reviewer.id}/review/?${window.location.search.substring(1)}`;
+        var url = `/travel-plans/trip-reviewers/${reviewer.id}/review/?${window.location.search.substring(1)}`;
         window.location.href = url;
       },
       getReviewers() {
         this.loading_reviewers = true;
-        endpoint = `/api/travel/request-reviewers/`;
-        if (this.pageType === 'rdg') endpoint += '?rdg=true'
+        endpoint = `/api/travel/trip-reviewers/`;
         apiService(endpoint)
             .then(response => {
               this.loading_reviewers = false;
@@ -116,10 +123,10 @@
               this.count = response.count;
             })
       },
-      getRequestMetadata() {
-        let endpoint = `/api/travel/meta/models/request/`;
+      getTripMetadata() {
+        let endpoint = `/api/travel/meta/models/trip/`;
         apiService(endpoint).then(data => {
-          this.requestLabels = data.labels;
+          this.tripLabels = data.labels;
         });
       },
     },
@@ -162,18 +169,10 @@
         return value;
       }
     },
-    computed: {
-      pageType() {
-        let uri = window.location.search.substring(1);
-        let params = new URLSearchParams(uri);
-        if (params.get("rdg")) return 'rdg';
-      }
-
-    },
     created() {
       this.getCurrentUser()
       this.getReviewers()
-      this.getRequestMetadata()
+      this.getTripMetadata()
     },
     mounted() {
     },

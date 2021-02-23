@@ -615,8 +615,9 @@ def get_related_request_reviewers(user):
     return qs
 
 
-def get_trip_reviews(user):
-    """give me a user and I'll send back a queryset with all related trips reviews that are actionable (pending = 25)"""
+def get_related_trip_reviewers(user):
+    """give me a user and I'll send back a queryset with all related trips reviews that are actionable (pending = 25)
+     """
     qs = models.TripReviewer.objects.filter(status=25, user=user)
     return qs
 
@@ -626,14 +627,14 @@ def get_adm_eligible_trips():
     # start with trips that need adm approval that have not already been reviewed or those that have been cancelled
     trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status__in=[32, 43, 31]))
 
-    t_ids = list()
+    keepers = list()
     for t in trips:
-        # only get trips that have attached requests
-        if t.get_connected_active_requests().count():
+        # only get trips that have attached travellers and that are in an active status (i.e. not draft=8, cancelled=22, denied=10)
+        if t.status not in [10, 22, 8] and t.travellers.exists():
             # only get trips that are within three months from the closest date
             if t.date_eligible_for_adm_review and t.date_eligible_for_adm_review <= timezone.now():
-                t_ids.append(t.id)
-    return models.Conference.objects.filter(id__in=t_ids)
+                keepers.append(t.id)
+    return models.Conference.objects.filter(id__in=keepers)
 
 
 user_attr_list = [

@@ -1599,6 +1599,15 @@ class TripReviewer(models.Model):
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
     comments = models.TextField(null=True, verbose_name=_("Comments"))
 
+    # metadata
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers_updated_by", blank=True, null=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.created_at, None, self.updated_at, self.updated_by)
+
     class Meta:
         unique_together = ['trip', 'user', 'role', ]
         ordering = ['trip', 'order', ]
