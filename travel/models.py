@@ -1308,7 +1308,7 @@ class Traveller(models.Model):
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True, null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"))
     end_date = models.DateTimeField(verbose_name=_("end date of travel"))
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of traveller"))
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("role of traveller"))
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
     learning_plan = models.BooleanField(default=False, verbose_name=_("is this request included on your learning plan?"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes (optional)"))
@@ -1332,9 +1332,7 @@ class Traveller(models.Model):
     @property
     def long_role(self):
         if self.role or self.role_of_participant:
-            mystr = str(self.role)
-            if self.role_of_participant:
-                mystr += f" &mdash; {self.role_of_participant}"
+            mystr = f"{self.role} &mdash; {nz(self.role_of_participant, _('<em>No description of role provided.</em>'))}"
             return mark_safe(mystr)
 
     def __str__(self):

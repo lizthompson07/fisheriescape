@@ -34,13 +34,12 @@
               <div :class="{'card traveller-card mx-1':true, 'closed-traveller':!t.show_me}">
                 <div class="card-body">
                   <div class="float-right">
-                    <button v-if="!isReview && canModify && !trip" @click="editTraveller(t)"><span v-if="!t.show_me" class="mdi mdi-pencil h4"
+                    <button v-if="!isReview && canModify && !trip && !t.show_me" @click="editTraveller(t)"><span class="mdi mdi-pencil h4"
                                                                                                    data-toggle="tooltip"
                                                                                                    title="{% trans "Edit" %}"></span></button>
-                    <button v-if="!isReview && canModify && !trip" @click="addTraveller(t)"><span v-if="!t.show_me" class="mdi mdi-content-copy h4"
-                                                                                                  data-toggle="tooltip" title="{% trans "Clone" %}"></span>
-                    </button>
-                    <button v-if="canModify" @click="deleteTraveller(t)"><span v-if="!t.show_me" class="mdi mdi-delete h4" data-toggle="tooltip"
+                    <button v-if="!isReview && canModify && !trip && !t.show_me" @click="addTraveller(t)"><span class="mdi mdi-content-copy h4"
+                                                                                                  data-toggle="tooltip" title="{% trans "Clone" %}"></span></button>
+                    <button v-if="canModify && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4" data-toggle="tooltip"
                                                                                title="{% trans "Remove" %}"></span></button>
                     &nbsp; &nbsp; &nbsp;
                     <button @click="toggleShowMe(t)"
@@ -116,8 +115,7 @@
                     <p><b>{% trans "Research scientist:" %}</b><span class="ml-1">${t.is_research_scientist|yesNo}</span></p>
                     <p><b>{% trans "Travel dates:" %}</b><span class="ml-1" v-html="t.dates"></span></p>
                     <p><b>{% trans "Departure location:" %}</b><span class="ml-1" v-html="t.departure_location"></span></p>
-                    <p><b>${travellerLabels.role}</b><span class="ml-1">${t.role_display|nz}</span></p>
-                    <p><b>${travellerLabels.role_of_participant}</b><span class="ml-1">${t.role_of_participant|nz}</span></p>
+                    <p><b>${travellerLabels.role}</b><span class="ml-1" v-html="t.long_role"></span></p>
                     <p><b>{% trans "Part of learning plan:" %}</b><span class="ml-1">${t.learning_plan|yesNo}</span></p>
                     <p><b>{% trans "Non-DFO funding:" %}</b><span class="ml-1" v-html="t.non_dfo_costs_html"></span></p>
 
