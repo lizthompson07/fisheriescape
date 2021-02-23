@@ -1,10 +1,4 @@
-from django.contrib.auth.models import User
-from django.db.models import Q
-from pandas import date_range
-from rest_framework import status
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView, \
-    RetrieveUpdateAPIView
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,9 +6,6 @@ from shapely.errors import WKTReadingError
 from shapely.geometry import Point, Polygon
 from shapely import wkt
 
-from dm_apps.utils import custom_send_mail
-from shared_models import models as shared_models
-from . import permissions, pagination
 from . import serializers
 from .. import models
 
@@ -32,14 +23,14 @@ class CurrentPublicationUserAPIView(APIView):
 
 # Pubs
 #######
-class PubsAPIView(APIView):
+class PublicationsAPIView(APIView):
     # permission_classes = [IsAuthenticated]
 
     # sample WKT polygon:
     # POLYGON((45 -60, 46 -60, 46 -61, 45 -61, 45 -60))
 
     def get(self, request):
-        lat = lon = sar = start_year = end_year = wkt_poly= False
+        lat = lon = sar = start_year = end_year = wkt_poly = False
         if request.query_params.get("lat"):
             lat = float(request.query_params.get("lat"))
         if request.query_params.get("lon"):
@@ -90,8 +81,6 @@ class PubsAPIView(APIView):
 
         proj_instances = proj_instances.filter().distinct()
 
-        serializer = serializers.PubsDisplaySerializer(instance=proj_instances, many=True)
+        serializer = serializers.PubsDisplaySerializer(instance=proj_instances, many=True,  context={'request': request})
         data = serializer.data
         return Response(data)
-
-
