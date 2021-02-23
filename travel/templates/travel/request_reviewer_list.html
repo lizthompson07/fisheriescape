@@ -49,10 +49,10 @@
                 class="pointy"
               >
                 <td v-if="pageType=== 'rdg'">${item.user_display }</td>
-                <td>${item.request.created_by }</td>
-                <td :class="item.request.status_class">${item.request.status_display }</td>
-                <td>${item.request.trip_display }</td>
-                <td>${item.request.processing_time }</td>
+                <td>${item.request_obj.created_by }</td>
+                <td :class="item.request_obj.status_class">${item.request_obj.status_display }</td>
+                <td>${item.request_obj.trip_display }</td>
+                <td>${item.request_obj.processing_time }</td>
               </tr>
               </tbody>
             </table>

@@ -160,7 +160,11 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
     user_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
     comments_html = serializers.SerializerMethodField()
-    request = TripRequestSerializerLITE(read_only=True)
+    request_obj = serializers.SerializerMethodField()
+
+    def get_request_obj(self, instance):
+        if instance.request:
+            return TripRequestSerializerLITE(instance.request, read_only=True).data
 
     def get_comments_html(self, instance):
         return instance.comments_html

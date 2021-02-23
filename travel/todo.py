@@ -21,6 +21,8 @@
 # TODO: sort all methods and attrs on serializers
 
 # todo: it would be nice for the trips to have the same flow as requests. right now they are opening in new widows all the time!
+# TODO: seek and destroy print statements
+
 
 # after we are deployed
 # TODO: delete trip_request on cost, traveller,
