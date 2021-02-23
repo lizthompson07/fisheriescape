@@ -180,6 +180,12 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
     template_name = 'travel/request_detail.html'
     home_url_name = "travel:index"
 
+    def get_object(self, queryset=None):
+        if self.kwargs.get("uuid"):
+            return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
+        else:
+            return super().get_object(queryset=None)
+
     def get_context_data(self, **kwargs):
         my_object = self.get_object()
         context = super().get_context_data(**kwargs)
@@ -1755,21 +1761,19 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     def get_template_names(self):
         my_object = models.TripRequest1.objects.get(id=self.kwargs['pk'])
         if my_object.travellers.count() > 1:
-            template_name = "travel/group_travel_plan.html"
+            template_name = "travel/traf/group.html"
         else:
-            template_name = "travel/travel_plan.html"
+            template_name = "travel/traf/single.html"
         return template_name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_object = models.TripRequest1.objects.get(id=self.kwargs['pk'])
         context["parent"] = my_object
+        context["SITE_FULL_URL"] =  my_envr(self.request)["SITE_FULL_URL"]
         context["trip_category_list"] = models.TripCategory.objects.all()
-
         cost_categories = models.CostCategory.objects.all()
         my_dict = dict()
-
-
         my_dict["totals"] = dict()
         my_dict["totals"]["total"] = 0
         for obj in my_object.travellers.all():

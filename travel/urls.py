@@ -17,6 +17,7 @@ urlpatterns = [
     path('requests/', views.TripRequestListView.as_view(), name="request_list"),
     path('requests/new/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('requests/<int:pk>/view/', views.TripRequestDetailView.as_view(), name="request_detail"),
+    path('requests/<slug:uuid>/', views.TripRequestDetailView.as_view(), name="request_detail"), # for display in the TRAF
     path('requests/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
     path('requests/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
     path('requests/<int:pk>/edit/', views.TripRequestUpdateView.as_view(), name="request_edit"),

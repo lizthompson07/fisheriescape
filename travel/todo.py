@@ -8,12 +8,9 @@ todo TRAF
 # TODO: admo process
 
 # TODO: bring back admin warnings
-# TODO: TRAF rejig
 # TODO: reports
 # todo: api view validation
 
-# TODO: adm-hit-list needs special column in list
-# TODO: request list to pure vuejs
 
 
 # At a later date
