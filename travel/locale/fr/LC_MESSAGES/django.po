@@ -9,13 +9,15 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.4.2\n"
 "Language: fr_CA\n"
 
 #: .\travel\api\serializers.py:262
 msgid ""
 "This user is cannot be added here because they are listed on another request!"
 msgstr ""
+"Cet utilisateur ne peut pas être ajouté ici parce qu'il est inscrit sur une "
+"autre demande!"
 
 #: .\travel\api\serializers.py:269 .\travel\forms.py:175 .\travel\forms.py:178
 #: .\travel\forms.py:389 .\travel\forms.py:392 .\travel\forms.py:574
@@ -29,35 +31,28 @@ msgid "The length of this trip is unrealistic."
 msgstr "La durée de ce voyage est irréaliste."
 
 #: .\travel\api\serializers.py:279
-#, fuzzy
-#| msgid ""
-#| "The start date of this request ({request_start_date}) has to be within 10 "
-#| "days of the start date of the selected trip ({trip_start_date})!"
 msgid ""
-"The start date of this request ({start_date}) has to be within 10 days of "
-"the start date of the selected trip ({trip_start_date})!"
+"The start date of this request ({start_date}) has to be within 10 days of the "
+"start date of the selected trip ({trip_start_date})!"
 msgstr ""
-"La date de début de cette demande ({request_start_date}) doit se situer dans "
-"les 10 jours suivant la date de début du voyage sélectionné "
-"({trip_start_date}) !"
+"La date de début de cette demande ({start_date}) doit se situer dans les 10 "
+"jours suivant la date de début du voyage sélectionné ({trip_start_date}) !"
 
 #: .\travel\api\serializers.py:290
-#, fuzzy
-#| msgid ""
-#| "The end date of this request ({request_end_date}) must be within 10 days "
-#| "of the end date of the selected trip ({trip_end_date})!"
 msgid ""
 "The end date of this request ({end_date}) must be within 10 days of the end "
 "date of the selected trip ({trip_end_date})!"
 msgstr ""
-"La date de fin de cette demande ({request_end_date}) doit se situer dans les "
-"10 jours suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
+"La date de fin de cette demande ({end_date}) doit se situer dans les 10 jours "
+"suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
 
 #: .\travel\api\serializers.py:300
 msgid ""
 "If you select the role 'other', you must also provide a description of the "
 "role."
 msgstr ""
+"Si vous sélectionnez le rôle \"autre\", vous devez également fournir une "
+"description de ce rôle."
 
 #: .\travel\api\views.py:138 .\travel\views.py:836
 msgid "This function can only be used when the trip request is still a draft"
@@ -68,30 +63,26 @@ msgstr ""
 #: .\travel\api\views.py:140 .\travel\views.py:838
 msgid "You do not have the permissions to reset the reviewer list"
 msgstr ""
-"Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
-"des examinateurs"
+"Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste des "
+"examinateurs"
 
 #: .\travel\api\views.py:263
 msgid ""
 "Manually overridden by {user} with the following rationale: \n"
 " {comments}"
 msgstr ""
+"Remplacé manuellement par {user} avec le raisonnement suivant : \n"
+" {commentaires}"
 
 #: .\travel\api\views.py:275
-#, fuzzy
-#| msgid "You do not have the permissions to modify the reviewer list"
 msgid "You do not have the necessary permission to modify this reviewer."
 msgstr ""
-"Vous n'avez pas les autorisations nécessaires pour modifier la liste des "
-"examinateurs"
+"Vous n'avez pas l'autorisation nécessaire pour modifier cet examinateur."
 
 #: .\travel\api\views.py:287
-#, fuzzy
-#| msgid "You do not have the permissions to reset the reviewer list"
 msgid "You do not have the necessary permission to delete this reviewer."
 msgstr ""
-"Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
-"des examinateurs"
+"Vous n'avez pas l'autorisation nécessaire pour supprimer cet examinateur."
 
 #: .\travel\filters.py:32
 msgid "User"
@@ -139,13 +130,11 @@ msgstr "Section"
 msgid "Trip Title"
 msgstr "Titre du voyage"
 
-#: .\travel\filters.py:100
-#: .\travel\templates\travel\common\_trip_detail.html:50
+#: .\travel\filters.py:100 .\travel\templates\travel\common\_trip_detail.html:50
 msgid "Regional lead"
 msgstr "Responsable régional"
 
-#: .\travel\filters.py:101
-#: .\travel\templates\travel\common\_trip_detail.html:83
+#: .\travel\filters.py:101 .\travel\templates\travel\common\_trip_detail.html:83
 #: .\travel\templates\travel\request_list\main.html:45
 #: .\travel\templates\travel\trip_list\_console.html:78
 #: .\travel\templates\travel\trip_list\main.html:60 .\travel\views.py:1384
@@ -189,10 +178,8 @@ msgid "Do you want to reset the reviewer list?"
 msgstr "Voulez-vous réinitialiser la liste des examinateurs?"
 
 #: .\travel\forms.py:104
-#, fuzzy
-#| msgid "Group Travellers Associated with this Request"
 msgid "Are you a traveller on this request?"
-msgstr "Groupe de voyageurs associé à cette demande"
+msgstr "Êtes-vous un voyageur sur cette demande ?"
 
 #: .\travel\forms.py:109 .\travel\forms.py:230
 msgid ""
@@ -206,8 +193,8 @@ msgstr ""
 #: .\travel\templates\travel\request_detail.html:52
 #: .\travel\templates\travel\scratch\trip_request_detail.html:32
 msgid ""
-"In order to submit this request, you will need to provide a justification "
-"for the late submission."
+"In order to submit this request, you will need to provide a justification for "
+"the late submission."
 msgstr ""
 "Afin de soumettre cette demande, vous devrez fournir une justification pour "
 "la soumission tardive."
@@ -245,8 +232,8 @@ msgstr ""
 
 #: .\travel\forms.py:650
 msgid ""
-"The registration deadline (if present) must occur before or on the start "
-"date of the trip."
+"The registration deadline (if present) must occur before or on the start date "
+"of the trip."
 msgstr ""
 "La date limite d'inscription (si elle existe) doit avoir lieu avant ou à la "
 "date de début du voyage."
@@ -279,40 +266,28 @@ msgid "ADM approval required"
 msgstr "Approbation du SMA requis"
 
 #: .\travel\forms.py:723 .\travel\forms.py:780
-#, fuzzy
-#| msgid ""
-#| "Sorry, the role of a reviewer whose status is set to {my_object.status} "
-#| "cannot be changed"
 msgid ""
 "Sorry, the role of a reviewer whose status is set to {my_object."
 "get_status_display()} cannot be changed"
 msgstr ""
-"Désolé, le rôle d'un examinateur dont le statut est fixé à {mon_objet."
-"status} ne peut être modifié"
+"Désolé, le rôle d'un examinateur dont le statut est {my_object."
+"get_status_display()} ne peut pas être modifié"
 
 #: .\travel\forms.py:727 .\travel\forms.py:784
-#, fuzzy
-#| msgid ""
-#| "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
-#| "status is set to {my_object.status}"
 msgid ""
 "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
 "status is set to {my_object.get_status_display()}"
 msgstr ""
-"Désolé, vous ne pouvez pas changer l'utilisateur Applis GD associé à un "
-"examinateur dont le statut est défini sur {mon_objet.status}"
+"Désolé, vous ne pouvez pas changer l'utilisateur DM Apps associé d'un "
+"réviseur dont le statut est fixé à {my_object.get_status_display()}"
 
 #: .\travel\forms.py:731 .\travel\forms.py:788
-#, fuzzy
-#| msgid ""
-#| "Sorry, the order of a reviewer whose status is set to {my_object.status} "
-#| "cannot be changed"
 msgid ""
 "Sorry, the order of a reviewer whose status is set to {my_object."
 "get_status_display()} cannot be changed"
 msgstr ""
-"Désolé, l'ordre d'un examinateur dont le statut est fixé à {mon_objet."
-"status} ne peut être modifié"
+"Désolé, l'ordre d'un examinateur dont le statut est fixé à {my_object."
+"get_status_display()} ne peut être modifié"
 
 #: .\travel\models.py:34
 msgid "English text"
@@ -334,15 +309,15 @@ msgstr "Utilisateur de Applis GD"
 
 #: .\travel\models.py:52
 msgid "To be added in front of which sections"
-msgstr ""
+msgstr "À ajouter devant quelles sections"
 
 #: .\travel\models.py:55
 msgid "To be added in front of which divisions"
-msgstr ""
+msgstr "À ajouter devant quelles divisions"
 
 #: .\travel\models.py:58
 msgid "To be added in front of which branches"
-msgstr ""
+msgstr "À ajouter devant quelles branches"
 
 #: .\travel\models.py:61
 msgid "Do they have any special roles?"
@@ -353,6 +328,8 @@ msgid ""
 "What order should they be in (only applicable when there is multiple "
 "reviewers at the same level)?"
 msgstr ""
+"Dans quel ordre devraient-ils être (applicables uniquement lorsqu’il y a "
+"plusieurs examinateurs au même niveau)?"
 
 #: .\travel\models.py:89
 msgid "Information Section"
@@ -431,35 +408,25 @@ msgid "name (en)"
 msgstr "nom (anglais)"
 
 #: .\travel\models.py:230
-#, fuzzy
-#| msgid "verified?"
 msgid "Unverified"
-msgstr "vérifié?"
+msgstr "Non vérifié"
 
 #: .\travel\models.py:231
-#, fuzzy
-#| msgid "End a Review"
 msgid "Under review"
-msgstr "Terminer un examen"
+msgstr "En cours d'examen"
 
 #: .\travel\models.py:232
-#, fuzzy
-#| msgid "Reviewer"
 msgid "Reviewed"
-msgstr "Examinateur"
+msgstr "Révisé"
 
 #: .\travel\models.py:233
-#, fuzzy
-#| msgid "verified?"
 msgid "Verified"
-msgstr "vérifié?"
+msgstr "Vérifié"
 
 #: .\travel\models.py:234 .\travel\models.py:563 .\travel\models.py:1051
 #: .\travel\models.py:1472 .\travel\models.py:1552
-#, fuzzy
-#| msgid "Cancel"
 msgid "Cancelled"
-msgstr "Annuler"
+msgstr "Annulé"
 
 #: .\travel\models.py:237
 msgid "trip title (English)"
@@ -490,8 +457,8 @@ msgstr "Quelle région est en tête de ce voyage ?"
 msgid ""
 "Is there an event template being completed for this conference or meeting?"
 msgstr ""
-"Y a-t-il un plan d'événement en cours de réalisation pour cette conférence "
-"ou réunion ?"
+"Y a-t-il un plan d'événement en cours de réalisation pour cette conférence ou "
+"réunion ?"
 
 #: .\travel\models.py:250
 msgid "event number"
@@ -578,50 +545,37 @@ msgstr "par"
 
 #: .\travel\models.py:555 .\travel\models.py:1043 .\travel\models.py:1471
 #: .\travel\models.py:1547
-#, fuzzy
-#| msgid "Date"
 msgid "Draft"
-msgstr "Date"
+msgstr "Ébauche"
 
 #: .\travel\models.py:556 .\travel\models.py:1044 .\travel\models.py:1470
-#, fuzzy
 #| msgid "Amended"
 msgid "Denied"
-msgstr "Modifié"
+msgstr "Refusé"
 
 #: .\travel\models.py:557 .\travel\models.py:1045 .\travel\models.py:1469
-#, fuzzy
-#| msgid "Approve"
 msgid "Approved"
-msgstr "Approuver"
+msgstr "Approuvé"
 
 #: .\travel\models.py:558 .\travel\models.py:1046
-#, fuzzy
-#| msgid "Regional recommendation notes"
 msgid "Pending Recommendation"
-msgstr "Notes de recommandation régionales"
+msgstr "En attente de recommandation"
 
 #: .\travel\models.py:559 .\travel\models.py:1047
-#, fuzzy
-#| msgid "All Trips Requiring ADM Approval"
 msgid "Pending ADM Approval"
-msgstr "Tous les voyages nécessitant l'approbation du SMA"
+msgstr "En attente de l'approbation du SMA "
 
 #: .\travel\models.py:560 .\travel\models.py:1048
 msgid "Pending RDG Approval"
-msgstr ""
+msgstr "En attente de l'approbation du DGR"
 
 #: .\travel\models.py:561 .\travel\models.py:1049
-#, fuzzy
-#| msgid "Cancel Request"
 msgid "Changes Requested"
-msgstr "Annuler la demande"
+msgstr "Modifications demandées"
 
 #: .\travel\models.py:562 .\travel\models.py:1050
-#, fuzzy
-#| msgid "End a Review"
 msgid "Pending Review"
-msgstr "Terminer un examen"
+msgstr "En cours d'examen"
 
 #: .\travel\models.py:575 .\travel\models.py:1270
 msgid "Is the traveller a public servant?"
@@ -763,15 +717,15 @@ msgstr "demande de voyage"
 
 #: .\travel\models.py:727 .\travel\models.py:1129
 msgid "WARNING: The roles of the reviewers are out of order!"
-msgstr ""
+msgstr "AVERTISSEMENT: Les rôles des examinateurs sont hors d’ordre!"
 
 #: .\travel\models.py:756 .\travel\models.py:1158 .\travel\models.py:1341
 msgid ""
 "NOTE: This trip request contains non-DFO funding sources from {}. Total DFO "
 "funding: ${:,.2f} | Total non-DFO funding: ${:,.2f}"
 msgstr ""
-"REMARQUE : Cette demande de voyage contient des sources de financement "
-"autres que le MPO de {}. Total du financement du MPO : ${ :,.2f} | Total des "
+"REMARQUE : Cette demande de voyage contient des sources de financement autres "
+"que le MPO de {}. Total du financement du MPO : ${ :,.2f} | Total des "
 "financements hors MPO : ${ :,.2f}"
 
 #: .\travel\models.py:812
@@ -814,8 +768,7 @@ msgstr "adresse courriel manquante"
 msgid "Company"
 msgstr "Entreprise"
 
-#: .\travel\models.py:983
-#: .\travel\templates\travel\scratch\travel_plan.html:185
+#: .\travel\models.py:983 .\travel\templates\travel\scratch\travel_plan.html:185
 msgid "Address"
 msgstr "Adresse"
 
@@ -823,40 +776,29 @@ msgstr "Adresse"
 msgid "Phone"
 msgstr "Téléphone"
 
-#: .\travel\models.py:985
-#: .\travel\templates\travel\scratch\travel_plan.html:193
+#: .\travel\models.py:985 .\travel\templates\travel\scratch\travel_plan.html:193
 msgid "Email"
 msgstr "Courriel"
 
 #: .\travel\models.py:1061
-#, fuzzy
-#| msgid "what is the funding source?"
 msgid "what is the DFO funding source?"
-msgstr "quel est la source de financement?"
+msgstr "quelle est la source de financement du MPO ?"
 
 #: .\travel\models.py:1097
-#, fuzzy
-#| msgid "CURRENT REQUEST"
 msgid "EMPTY REQUEST"
-msgstr "DEMANDE ACTUELLE"
+msgstr "DEMANDE VIDE"
 
 #: .\travel\models.py:1353
-#, fuzzy
-#| msgid "Costs"
 msgid "Cost"
-msgstr "Coûts"
+msgstr "Coût"
 
 #: .\travel\models.py:1353
-#, fuzzy
-#| msgid "Amount (CAD)"
 msgid "Amount"
-msgstr "Montant (CAD)"
+msgstr "Montant"
 
 #: .\travel\models.py:1431
-#, fuzzy
-#| msgid "Traveller"
 msgid "traveller"
-msgstr "Voyageur"
+msgstr "voyageur"
 
 #: .\travel\models.py:1437 .\travel\models.py:1447
 msgid "cost"
@@ -876,15 +818,13 @@ msgstr "montant (CAD)"
 
 #: .\travel\models.py:1468 .\travel\models.py:1549
 msgid "Pending"
-msgstr ""
+msgstr "En cours"
 
 #: .\travel\models.py:1473 .\travel\models.py:1548
 msgid "Queued"
-msgstr ""
+msgstr "En attente"
 
 #: .\travel\models.py:1474 .\travel\models.py:1551
-#, fuzzy
-#| msgid "Skip"
 msgid "Skipped"
 msgstr "Sauter"
 
@@ -894,30 +834,24 @@ msgid "Reviewer"
 msgstr "Examinateur"
 
 #: .\travel\models.py:1478 .\travel\models.py:1556
-#, fuzzy
-#| msgid "Recommended by"
 msgid "Recommender"
-msgstr "Recommandé par"
+msgstr "Recommandeur"
 
 #: .\travel\models.py:1479 .\travel\models.py:1557
-#, fuzzy
-#| msgid "Regional Coordinators"
 msgid "NCR Travel Coordinators"
-msgstr "Coordonnateurs régionaux"
+msgstr "Coordonnateurs de voyage de la RCN"
 
 #: .\travel\models.py:1480 .\travel\models.py:1558
-#, fuzzy
-#| msgid "Recommended by"
 msgid "ADM Recommender"
-msgstr "Recommandé par"
+msgstr "Recommandeur du SMA"
 
 #: .\travel\models.py:1481 .\travel\models.py:1559
 msgid "ADM"
-msgstr ""
+msgstr "SMA"
 
 #: .\travel\models.py:1482 .\travel\models.py:1560
 msgid "RDG"
-msgstr ""
+msgstr "DGR"
 
 #: .\travel\models.py:1486 .\travel\models.py:1563
 msgid "process order"
@@ -937,8 +871,7 @@ msgstr "date du statut"
 
 #: .\travel\models.py:1492 .\travel\models.py:1568
 #: .\travel\templates\travel\scratch\group_travel_plan.html:331
-#: .\travel\templates\travel\scratch\travel_plan.html:428
-#: .\travel\utils.py:736
+#: .\travel\templates\travel\scratch\travel_plan.html:428 .\travel\utils.py:736
 msgid "Comments"
 msgstr "Commentaires"
 
@@ -951,10 +884,8 @@ msgid "on"
 msgstr "sur"
 
 #: .\travel\models.py:1550
-#, fuzzy
-#| msgid "Comments"
 msgid "Complete"
-msgstr "Commentaires"
+msgstr "Compléter"
 
 #: .\travel\models.py:1573
 msgid "trip reviewer"
@@ -965,16 +896,12 @@ msgid "caption"
 msgstr "légende"
 
 #: .\travel\models.py:1606
-#, fuzzy
-#| msgid "file attachment"
 msgid "attachment"
 msgstr "pièce jointe"
 
 #: .\travel\models.py:1607
-#, fuzzy
-#| msgid "Date Created"
 msgid "date created"
-msgstr "Date de création"
+msgstr "date de création"
 
 #. Translators: This is a 'file' as in something you attach to an email
 #: .\travel\models.py:1612
@@ -1037,10 +964,8 @@ msgid "Manage Trip Subcategories"
 msgstr "Gérer les sous-catégories de voyages"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:51
-#, fuzzy
-#| msgid "Managing Reviewers:"
 msgid "Manage Optional/Special Reviewers"
-msgstr "Gérer les examinateurs :"
+msgstr "Gérer les examinateurs optionnels/spéciaux"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:54
 msgid "Manage DFO Organizations"
@@ -1063,10 +988,8 @@ msgid "Manage Reference Materials"
 msgstr "Gérer les documents de référence"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:69
-#, fuzzy
-#| msgid "Manage Organizations"
 msgid "Manage Physical Locations"
-msgstr "Gérer les organisations"
+msgstr "Gérer les lieux physiques"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:76
 msgid "Reports"
@@ -1083,10 +1006,8 @@ msgid "Trip Request Costs"
 msgstr "Frais de demande de voyage"
 
 #: .\travel\templates\travel\common\_costs.html:14
-#, fuzzy
-#| msgid "Add all costs"
 msgid "Add a cost"
-msgstr "Ajouter tous les coûts"
+msgstr "Ajouter un coût"
 
 #: .\travel\templates\travel\common\_costs.html:17
 #: .\travel\templates\travel\scratch\_costs.html:28
@@ -1094,28 +1015,10 @@ msgid "Add all costs"
 msgstr "Ajouter tous les coûts"
 
 #: .\travel\templates\travel\common\_costs.html:20
-#, fuzzy
-#| msgid "Clear empty lines"
 msgid "Clear unused lines"
-msgstr "Effacer les lignes vides"
+msgstr "Effacer les lignes non utilisées"
 
 #: .\travel\templates\travel\common\_costs.html:27
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "            Per diem rates for breakfast, lunch, supper and incidentals "
-#| "should follow the\n"
-#| "            <a href=\"https://www.njc-cnm.gc.ca/\">National Joint "
-#| "Council</a> Travel Directive.\n"
-#| "            For travel within Canada and\n"
-#| "            USA, please refer to <a href=\"https://www.njc-cnm.gc.ca/"
-#| "directive/d10/v238/s659/en\">Appendix C</a>\n"
-#| "            and for all other travel please refer to\n"
-#| "            <a href=\"https://www.njc-cnm.gc.ca/directive/app_d.php?"
-#| "lang=en\">Appendix D</a>.\n"
-#| "            <span class=\"red-font\">Please note that all expenses for "
-#| "this request should be entered in Canadian dollars.</span>\n"
-#| "          "
 msgid ""
 "\n"
 "          Per diem rates for breakfast, lunch, supper and incidentals should "
@@ -1134,7 +1037,7 @@ msgid ""
 msgstr ""
 "\n"
 "Les taux journaliers pour le petit déjeuner, le dîner, le souper et les "
-"frais accessoires doivent suivre la\n"
+"indemnités de faux frais doivent suivre la\n"
 "<a href=\"https://www.njc-cnm.gc.ca/\" target=\"_blank\">Directive sur les "
 "voyages du Conseil national mixte</a>.\n"
 "Pour les voyages au Canada et\n"
@@ -1154,16 +1057,12 @@ msgid "There are no costs associated with this request"
 msgstr "Il n'y a pas de frais associés à cette demande"
 
 #: .\travel\templates\travel\common\_costs.html:67
-#, fuzzy
-#| msgid "Date"
 msgid "rate"
-msgstr "Date"
+msgstr "taux"
 
 #: .\travel\templates\travel\common\_costs.html:73
-#, fuzzy
-#| msgid "day"
 msgid "days"
-msgstr "jour"
+msgstr "jours"
 
 #: .\travel\templates\travel\common\_costs.html:85
 #: .\travel\templates\travel\common\_files.html:51
@@ -1221,10 +1120,8 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #: .\travel\templates\travel\common\_files.html:8
-#, fuzzy
-#| msgid "file attachment"
 msgid "Add attachement"
-msgstr "pièce jointe"
+msgstr "Ajouter une pièce jointe"
 
 #: .\travel\templates\travel\common\_files.html:11
 #: .\travel\templates\travel\common\_files.html:13
@@ -1239,19 +1136,12 @@ msgid "Open the file"
 msgstr "Ouvrir le fichier"
 
 #: .\travel\templates\travel\common\_files.html:45
-#, fuzzy
-#| msgid "missing address"
 msgid "missing file"
-msgstr "adresse manquante"
+msgstr "fichier manquant"
 
 #: .\travel\templates\travel\common\_files.html:72
-#, fuzzy
-#| msgid ""
-#| "No reviewers, recommenders or approvers have been added to this request."
 msgid "No files have been attached to this request"
-msgstr ""
-"Aucun examinateur, recommandeur ou approbateur n'a été ajouté à cette "
-"demande."
+msgstr "Aucun fichier n'a été joint à cette demande"
 
 #: .\travel\templates\travel\common\_request_admin_notes_button.html:7
 #: .\travel\templates\travel\common\_trip_admin_notes_button.html:7
@@ -1277,16 +1167,12 @@ msgstr "Destination"
 #: .\travel\templates\travel\common\_request_detail.html:42
 #: .\travel\templates\travel\common\_trip_detail.html:62
 #: .\travel\templates\travel\trip_list\main.html:59
-#, fuzzy
-#| msgid "Date"
 msgid "Dates"
-msgstr "Date"
+msgstr "Dates"
 
 #: .\travel\templates\travel\common\_request_detail.html:46
-#, fuzzy
-#| msgid "Name of Traveller"
 msgid "Number of travellers"
-msgstr "Nom du voyageur"
+msgstr "Nombre de voyageurs"
 
 #: .\travel\templates\travel\common\_request_detail.html:50
 #: .\travel\utils.py:692
@@ -1294,42 +1180,34 @@ msgid "Request status"
 msgstr "Statut de la demande"
 
 #: .\travel\templates\travel\common\_request_detail.html:54
-#, fuzzy
-#| msgid "Section"
 msgid "DFO Section"
-msgstr "Section"
+msgstr "Section MPO"
 
 #: .\travel\templates\travel\common\_request_detail.html:58
 #: .\travel\templates\travel\common\_travellers.html:74
 msgid "Objective of trip"
-msgstr ""
+msgstr "Objectif du voyage"
 
 #: .\travel\templates\travel\common\_request_detail.html:62
 #: .\travel\templates\travel\common\_travellers.html:78
-#, fuzzy
-#| msgid "what are the benefits to DFO?"
 msgid "Benefits to DFO"
-msgstr "quels sont les avantages pour le MPO?"
+msgstr "Avantages pour le MPO"
 
 #: .\travel\templates\travel\common\_request_detail.html:66
 msgid "BTA attendees"
-msgstr ""
+msgstr "Participants avec AGV"
 
 #: .\travel\templates\travel\common\_request_detail.html:70
 msgid "Total cost"
 msgstr "Coût total"
 
 #: .\travel\templates\travel\common\_request_detail.html:74
-#, fuzzy
-#| msgid "Total amount of non-DFO funding (CAD)"
 msgid "Total non-DFO funding (CAD)"
-msgstr "Montant du financement non-MPO (CAD)"
+msgstr "Financement total non-MPO (CAD)"
 
 #: .\travel\templates\travel\common\_request_detail.html:78
-#, fuzzy
-#| msgid "Total amount of DFO funding (CAD)"
 msgid "Total DFO funding (CAD)"
-msgstr "Montant total des financements du MPO (CAD)"
+msgstr "Financement total du MPO (CAD)"
 
 #: .\travel\templates\travel\common\_request_detail.html:82
 #: .\travel\utils.py:700
@@ -1337,10 +1215,8 @@ msgid "Non-DFO funding sources"
 msgstr "Source de financement non-MPO"
 
 #: .\travel\templates\travel\common\_request_detail.html:86
-#, fuzzy
-#| msgid "Non-DFO funding sources"
 msgid "DFO funding source"
-msgstr "Source de financement non-MPO"
+msgstr "Source de financement du MPO"
 
 #: .\travel\templates\travel\common\_request_detail.html:94
 #: .\travel\templates\travel\request_list\main.html:46 .\travel\utils.py:703
@@ -1349,21 +1225,17 @@ msgid "Processing time"
 msgstr "Temps de traitement"
 
 #: .\travel\templates\travel\common\_request_detail.html:102
-#, fuzzy
-#| msgid "No Files"
 msgid "Notes"
-msgstr "Aucun fichier"
+msgstr "Notes"
 
 #: .\travel\templates\travel\common\_request_detail.html:106
 msgid "Metadata"
-msgstr ""
+msgstr "Métadonnées"
 
 #: .\travel\templates\travel\common\_request_detail.html:112
 #: .\travel\templates\travel\common\_trip_detail.html:127
-#, fuzzy
-#| msgid "Comparision of costs"
 msgid "Comparison of Traveller Costs:"
-msgstr "Comparaison des coûts"
+msgstr "Comparaison des coûts des voyageurs :"
 
 #: .\travel\templates\travel\common\_request_script.html:6
 #: .\travel\templates\travel\common\_trip_script.html:6
@@ -1374,44 +1246,49 @@ msgid ""
 "transaction and an email notification will be sent to the removed traveller. "
 "\\n\\nPlease type 'yes' to confirm:"
 msgstr ""
+"Vous êtes sur le point de retirer ce voyageur de la demande ? Cette action "
+"est irréversible ! \\n\\nSi vous procédez à cette action, une note "
+"administrative sera automatiquement ajoutée à cette demande afin "
+"d'enregistrer cette transaction et un avis par courriel sera envoyé au "
+"voyageur retiré. \\n\\nVeuillez taper \"oui\" pour confirmer :"
 
 #: .\travel\templates\travel\common\_request_script.html:7
 msgid ""
 "Are you certain you want to remove this traveller from the request? This "
 "action is irreversible!!"
 msgstr ""
+"Êtes-vous certain de vouloir retirer ce voyageur de la demande ? Cette action "
+"est irreversible!!"
 
 #: .\travel\templates\travel\common\_request_script.html:8
 #: .\travel\templates\travel\scratch\_trip_request_detail.html:46
 msgid ""
-"Are you sure you want to reset the reviewers? This will undo any changes "
-"that you have made to the reviewer list and process order."
+"Are you sure you want to reset the reviewers? This will undo any changes that "
+"you have made to the reviewer list and process order."
 msgstr ""
 "Êtes-vous sûr de vouloir réinitialiser les examinateurs ? Cela annulera les "
 "modifications que vous avez apportées à la liste des examinateurs et à "
 "l'ordre de traitement."
 
 #: .\travel\templates\travel\common\_request_script.html:9
-#, fuzzy
-#| msgid "Do you want to reset the reviewer list?"
 msgid "Are you sure you want to delete this reviewer?"
-msgstr "Voulez-vous réinitialiser la liste des examinateurs?"
+msgstr "Êtes-vous sûr de vouloir supprimer cet examinateur ?"
 
 #: .\travel\templates\travel\common\_request_script.html:10
 msgid "Are you sure you want to delete this file?"
-msgstr ""
+msgstr "Êtes-vous sûr de vouloir supprimer ce fichier?"
 
 #: .\travel\templates\travel\common\_request_script.html:11
-#, fuzzy
-#| msgid "Do you want to reset the reviewer list?"
 msgid "Are you sure you want to delete this cost?"
-msgstr "Voulez-vous réinitialiser la liste des examinateurs?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce coût ?"
 
 #: .\travel\templates\travel\common\_request_script.html:12
 msgid ""
 "Are you sure you want to skip this reviewer? \\n\\n If so, please provide "
 "your rationale:"
 msgstr ""
+"Êtes-vous certain de ne pas vouloir consulter cet examinateur? \\n\\n Dans "
+"l’affirmative, veuillez fournir votre justification:"
 
 #: .\travel\templates\travel\common\_reviewers.html:9
 #: .\travel\templates\travel\scratch\_reviewers.html:38
@@ -1435,19 +1312,15 @@ msgstr "Sauter"
 #: .\travel\templates\travel\common\_reviewers.html:81
 #: .\travel\templates\travel\common\_travellers.html:182
 msgid "Start typing to search for a user"
-msgstr ""
+msgstr "Commencez à taper pour rechercher un utilisateur"
 
 #: .\travel\templates\travel\common\_reviewers.html:108
-#, fuzzy
-#| msgid "Phone"
 msgid "Done"
-msgstr "Téléphone"
+msgstr "Terminé"
 
 #: .\travel\templates\travel\common\_reviewers.html:110
-#, fuzzy
-#| msgid "reviewer"
 msgid "Add reviewer"
-msgstr "examinateur"
+msgstr "Ajouter un examinateur"
 
 #: .\travel\templates\travel\common\_reviewers.html:112
 #: .\travel\templates\travel\scratch\_reviewers.html:34
@@ -1459,41 +1332,33 @@ msgstr "Réinitialiser"
 
 #: .\travel\templates\travel\common\_reviewers.html:118
 #: .\travel\templates\travel\scratch\_reviewers.html:96
-msgid ""
-"No reviewers, recommenders or approvers have been added to this request."
+msgid "No reviewers, recommenders or approvers have been added to this request."
 msgstr ""
-"Aucun examinateur, recommandeur ou approbateur n'a été ajouté à cette "
-"demande."
+"Aucun examinateur, recommandeur ou approbateur n'a été ajouté à cette demande."
 
 #: .\travel\templates\travel\common\_travellers.html:11
 msgid "Expand all"
-msgstr ""
+msgstr "Déplier"
 
 #: .\travel\templates\travel\common\_travellers.html:12
 msgid "Collapse all"
-msgstr ""
+msgstr "Replier"
 
 #: .\travel\templates\travel\common\_travellers.html:13
 #: .\travel\templates\travel\common\_travellers.html:15
-#, fuzzy
-#| msgid "Add Traveller"
 msgid "Add traveller"
 msgstr "Ajouter un voyageur"
 
 #: .\travel\templates\travel\common\_travellers.html:18
-#, fuzzy
-#| msgid "Group Travellers Associated with this Request"
 msgid "Travellers Associated with this Request"
-msgstr "Groupe de voyageurs associé à cette demande"
+msgstr "Voyageurs liés à cette demande"
 
 #: .\travel\templates\travel\common\_travellers.html:20
 #: .\travel\templates\travel\common\_trip_detail.html:38
 #: .\travel\templates\travel\request_list\main.html:43
 #: .\travel\templates\travel\trip_list\main.html:58
-#, fuzzy
-#| msgid "Traveller"
 msgid "Travellers"
-msgstr "Voyageur"
+msgstr "Voyageurs"
 
 #: .\travel\templates\travel\common\_travellers.html:41
 #: .\travel\templates\travel\common\_travellers.html:150
@@ -1506,27 +1371,23 @@ msgstr "Clone"
 #: .\travel\templates\travel\common\_travellers.html:44
 #: .\travel\templates\travel\common\_travellers.html:151
 msgid "Remove"
-msgstr ""
+msgstr "Retirer"
 
 #: .\travel\templates\travel\common\_travellers.html:47
 msgid "collapse"
-msgstr ""
+msgstr "replier"
 
 #: .\travel\templates\travel\common\_travellers.html:54
-#, fuzzy
-#| msgid "Is the traveller a research scientist (RES)?"
 msgid "Research Scientist"
-msgstr "Le voyageur est-il un chercheur(se) scientifique (RES) ?"
+msgstr "Chercheur(se) scientifique"
 
 #: .\travel\templates\travel\common\_travellers.html:55
 msgid "EXTERNAL"
-msgstr ""
+msgstr "EXTERNE"
 
 #: .\travel\templates\travel\common\_travellers.html:60
-#, fuzzy
-#| msgid "Trip Request Reviewers"
 msgid "Request Level"
-msgstr "Examinateurs des demandes de voyage"
+msgstr "Niveau de la demande"
 
 #: .\travel\templates\travel\common\_travellers.html:62
 #: .\travel\templates\travel\scratch\_trip_traveller_history.html:35
@@ -1534,93 +1395,69 @@ msgid "Associated trip request"
 msgstr "Demande de voyage associée"
 
 #: .\travel\templates\travel\common\_travellers.html:70
-#, fuzzy
-#| msgid "Section"
 msgid "DFO region"
-msgstr "Section"
+msgstr "Région du MPO"
 
 #: .\travel\templates\travel\common\_travellers.html:88
-#, fuzzy
-#| msgid "Traveller name"
 msgid "Traveller Level"
-msgstr "Nom du voyageur"
+msgstr "Niveau du voyageur"
 
 #: .\travel\templates\travel\common\_travellers.html:91
-#, fuzzy
-#| msgid "Manage DFO Organizations"
 msgid "Company / Organization:"
-msgstr "Gérer les organisations du MPO"
+msgstr "Entreprise / Organisation :"
 
 #: .\travel\templates\travel\common\_travellers.html:93
 #: .\travel\templates\travel\common\_travellers.html:99
 #: .\travel\templates\travel\common\_travellers.html:105
 #: .\travel\templates\travel\common\_travellers.html:111
-#, fuzzy
-#| msgid "missing address"
 msgid "missing!"
-msgstr "adresse manquante"
+msgstr "manquants !"
 
 #: .\travel\templates\travel\common\_travellers.html:97
-#, fuzzy
-#| msgid "Address"
 msgid "Address:"
-msgstr "Adresse"
+msgstr "Adresse :"
 
 #: .\travel\templates\travel\common\_travellers.html:103
-#, fuzzy
-#| msgid "Phone"
 msgid "Phone:"
-msgstr "Téléphone"
+msgstr "Téléphone :"
 
 #: .\travel\templates\travel\common\_travellers.html:109
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail:"
-msgstr "Courriel"
+msgstr "Courrier électronique :"
 
 #: .\travel\templates\travel\common\_travellers.html:115
-#, fuzzy
-#| msgid "Public Servant"
 msgid "Public servant:"
-msgstr "Fonctionnaire"
+msgstr "Fonctionnaire :"
 
 #: .\travel\templates\travel\common\_travellers.html:116
-#, fuzzy
-#| msgid "Is the traveller a research scientist (RES)?"
 msgid "Research scientist:"
-msgstr "Le voyageur est-il un chercheur(se) scientifique (RES) ?"
+msgstr "Chercheur(se) scientifique :"
 
 #: .\travel\templates\travel\common\_travellers.html:117
-#, fuzzy
-#| msgid "Travel dates"
 msgid "Travel dates:"
-msgstr "Dates de voyage"
+msgstr "Dates de voyage :"
 
 #: .\travel\templates\travel\common\_travellers.html:118
-#, fuzzy
-#| msgid "Departure location"
 msgid "Departure location:"
-msgstr "Lieu de départ"
+msgstr "Lieu de départ :"
 
 #: .\travel\templates\travel\common\_travellers.html:121
 msgid "Part of learning plan:"
-msgstr ""
+msgstr "Fait partie du plan d'apprentissage :"
 
 #: .\travel\templates\travel\common\_travellers.html:122
-#, fuzzy
-#| msgid "non-DFO funding"
 msgid "Non-DFO funding:"
-msgstr "financement non-MPO"
+msgstr "fFinancement non-MPO :"
 
 #: .\travel\templates\travel\common\_travellers.html:125
 msgid "Travel History (ADM approved only):"
-msgstr ""
+msgstr "Historique des voyages (uniquement approuvé par le SMA) :"
 
 #: .\travel\templates\travel\common\_travellers.html:128
 #: .\travel\templates\travel\common\_trip_detail.html:118
 #: .\travel\templates\travel\scratch\_trip_detail.html:71
 msgid "open in new window"
-msgstr ""
+msgstr "ouvrir dans une nouvelle fenêtre"
 
 #: .\travel\templates\travel\common\_travellers.html:134
 msgid "This traveller has no prior approved ADM requests on file."
@@ -1628,48 +1465,36 @@ msgstr ""
 
 #: .\travel\templates\travel\common\_travellers.html:144
 msgid "Cost Breakdown:"
-msgstr ""
+msgstr "Répartition des coûts :"
 
 #: .\travel\templates\travel\common\_travellers.html:162
-#, fuzzy
-#| msgid "CLONING:"
 msgid "CLONING: "
-msgstr "CLONAGE :"
+msgstr "CLONAGE : "
 
 #: .\travel\templates\travel\common\_travellers.html:164
-#, fuzzy
-#| msgid "Click on a row to edit traveller informations."
 msgid "Please enter the new traveller information below."
 msgstr ""
-"Cliquez sur une ligne pour modifier les informations relatives au voyageur."
+"Veuillez indiquer ci-dessous les nouvelles informations relatives au voyageur."
 
 #: .\travel\templates\travel\common\_travellers.html:239
-#, fuzzy
-#| msgid "Please update the trip details"
 msgid "Please enter address"
-msgstr "Veuillez mettre à jour les détails du voyage"
+msgstr "Veuillez indiquer l'adresse"
 
 #: .\travel\templates\travel\common\_travellers.html:243
 msgid "Enter manually"
-msgstr ""
+msgstr "Saisir manuellement"
 
 #: .\travel\templates\travel\common\_travellers.html:244
-#, fuzzy
-#| msgid "Use a Predefined Address:"
 msgid "Use a Predefined Address"
-msgstr "Utilisez une adresse prédéfinie :"
+msgstr "Utiliser une adresse prédéfinie"
 
 #: .\travel\templates\travel\common\_travellers.html:375
-#, fuzzy
-#| msgid "There are no costs associated with this request"
 msgid "There are no travellers associated with this trip"
-msgstr "Il n'y a pas de frais associés à cette demande"
+msgstr "Aucun voyageur n'est lié à ce voyage"
 
 #: .\travel\templates\travel\common\_travellers.html:376
-#, fuzzy
-#| msgid "There are no costs associated with this request"
 msgid "There are no travellers associated with this request"
-msgstr "Il n'y a pas de frais associés à cette demande"
+msgstr "Aucun voyageur n'est lié à cette demande"
 
 #: .\travel\templates\travel\common\_trip_detail.html:11
 #: .\travel\templates\travel\common\_trip_detail.html:13
@@ -1679,18 +1504,14 @@ msgstr "Résumé du voyage"
 
 #: .\travel\templates\travel\common\_trip_detail.html:30
 #: .\travel\templates\travel\trip_list\main.html:54
-#, fuzzy
-#| msgid "Trip title"
 msgid "Title"
-msgstr "Titre du voyage"
+msgstr "Titre"
 
 #: .\travel\templates\travel\common\_trip_detail.html:34
 #: .\travel\templates\travel\request_list\main.html:44
 #: .\travel\templates\travel\trip_list\main.html:55
-#, fuzzy
-#| msgid "trip status"
 msgid "Trip status"
-msgstr "statut du voyage"
+msgstr "Statut du voyage"
 
 #: .\travel\templates\travel\common\_trip_detail.html:54
 msgid "Event template required?"
@@ -1698,38 +1519,30 @@ msgstr ""
 
 #: .\travel\templates\travel\common\_trip_detail.html:66
 #: .\travel\templates\travel\trip_list\main.html:56
-#, fuzzy
-#| msgid "location"
 msgid "Location"
-msgstr "location"
+msgstr "Lieu"
 
 #: .\travel\templates\travel\common\_trip_detail.html:100
-#, fuzzy
-#| msgid "Total DFO cost (excluding BTA)"
 msgid "Total DFO cost (non RES)"
-msgstr "Coût total du MPO (excluant l’AGV)"
+msgstr "Coût total du MPO (non RES)"
 
 #: .\travel\templates\travel\common\_trip_detail.html:104
-#, fuzzy
-#| msgid "Total cost (DFO)"
 msgid "Total DFO cost (all)"
-msgstr "Coût total (MPO)"
+msgstr "Coût total du MPO (tout)"
 
 #: .\travel\templates\travel\common\_trip_detail.html:114
-#, fuzzy
-#| msgid "Associated trip request"
 msgid "Associated Requests:"
-msgstr "Demande de voyage associée"
+msgstr "Demandes associées :"
 
 #: .\travel\templates\travel\common\_trip_detail.html:129
-#, fuzzy
-#| msgid "Name of Traveller"
 msgid "Active Travellers Only"
-msgstr "Nom du voyageur"
+msgstr "Voyageurs actifs uniquement"
 
 #: .\travel\templates\travel\common\_trip_detail.html:130
 msgid "Travellers on 'Draft' or 'Cancelled' trips will not be shown below."
 msgstr ""
+"Les voyageurs en voyage \"provisoire\" ou \"annulé\" ne seront pas indiqués "
+"ci-dessous."
 
 #: .\travel\templates\travel\default_reviewer\default_reviewer_confirm_delete.html:12
 #: .\travel\templates\travel\default_reviewer\default_reviewer_form.html:18
@@ -1749,8 +1562,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)"
-"s en tant qu'examinateur par défaut \n"
+"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)s "
+"en tant qu'examinateur par défaut \n"
 "            "
 
 #: .\travel\templates\travel\default_reviewer\default_reviewer_form.html:22
@@ -1775,11 +1588,8 @@ msgid "ADM Office"
 msgstr "Bureau du SMA"
 
 #: .\travel\templates\travel\index\_ncr.html:7
-#, fuzzy
-#| msgid "Perform tasks reserved for travel app administrators"
 msgid "Perform tasks reserved for travel app ADM administrators"
-msgstr ""
-"Effectuer des tâches réservées aux administrateurs d'applications de voyage"
+msgstr "Effectuer des tâches réservées aux administrateurs du SMA"
 
 #: .\travel\templates\travel\index\_ncr.html:11
 #: .\travel\templates\travel\index\_regions.html:17
@@ -1795,23 +1605,18 @@ msgid "An Overview of the Travel App"
 msgstr "Un aperçu de l'application de voyage"
 
 #: .\travel\templates\travel\index\_regions.html:5
-#, fuzzy
-#| msgid "Travel App Administrator"
 msgid "Regional Travel Administrators"
-msgstr "Administrateur de l'application de voyage"
+msgstr "Administrateurs régionaux des voyages"
 
 #: .\travel\templates\travel\index\_regions.html:7
-#, fuzzy
-#| msgid "Perform tasks reserved for travel app administrators"
 msgid "Perform tasks reserved for regional travel app administrators"
 msgstr ""
-"Effectuer des tâches réservées aux administrateurs d'applications de voyage"
+"Effectuer des tâches réservées aux administrateurs régionaux de "
+"l'applications de voyage"
 
 #: .\travel\templates\travel\index\_regions.html:11
-#, fuzzy
-#| msgid "Requests Awaiting RDG"
 msgid "Requests Awaiting RDG Approval"
-msgstr "Demandes en cours de traitement par le DGR"
+msgstr "Demandes en attente de l'approbation du DGR"
 
 #: .\travel\templates\travel\index\_reviewer.html:9
 msgid "Your Reviews"
@@ -1840,17 +1645,6 @@ msgid "Contact Us"
 msgstr "Contactez-nous"
 
 #: .\travel\templates\travel\index\_support.html:11
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "      If you have any other questions or suggestions regarding the travel "
-#| "application,\n"
-#| "      do not hesitate to\n"
-#| "      <a href=\"mailto:DFO.ScienceTravel-VoyagesSciences.MPO@dfo-mpo.gc.ca"
-#| "\">contact us</a>\n"
-#| "      and we will get back to you as soon\n"
-#| "      as possible.\n"
-#| "    "
 msgid ""
 "\n"
 "        If you have any other questions or suggestions regarding the travel "
@@ -1863,8 +1657,8 @@ msgid ""
 "      "
 msgstr ""
 "\n"
-"      Si vous avez d’autres questions ou suggestions concernant le système "
-"de demande de voyage,\n"
+"      Si vous avez d’autres questions ou suggestions concernant le système de "
+"demande de voyage,\n"
 "      n’hésitez pas à\n"
 "      <a href=\"mailto:DFO.ScienceTravel-VoyagesSciences.MPO@dfo-mpo.gc.ca"
 "\">nous contacter</a>\n"
@@ -1912,10 +1706,8 @@ msgid "Overview"
 msgstr "Aperçu"
 
 #: .\travel\templates\travel\index\main.html:68
-#, fuzzy
-#| msgid "Regional Coordinators"
 msgid "Regional Travel Admins"
-msgstr "Coordonnateurs régionaux"
+msgstr "Administrateurs régionaux des voyages"
 
 #: .\travel\templates\travel\index\main.html:96
 msgid "Support"
@@ -1928,14 +1720,12 @@ msgid ""
 "${request.trip.location}</span>\n"
 "        "
 msgstr ""
+"\n"
+"          Demande de voyage <span v-if=\"request.id\">pour ${request.trip."
+"tname}, ${request.trip.location}</span>\n"
+"        "
 
 #: .\travel\templates\travel\request_detail.html:36
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "            This trip was eligible for review by the ADM office %(time)"
-#| "s.\n"
-#| "          "
 msgid ""
 "\n"
 "            This trip was eligible for review by the ADM office ${ request."
@@ -1943,17 +1733,11 @@ msgid ""
 "          "
 msgstr ""
 "\n"
-"                    Ce voyage était éligible pour une révision par le bureau "
-"du SMA %(time)s.\n"
-"                "
+"            Ce voyage était éligible à l'examen par le bureau du SMA "
+"${ request.trip.time_until_eligible_for_adm_review }.\n"
+"          "
 
 #: .\travel\templates\travel\request_detail.html:41
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "            This trip will be eligible for review by the ADM office in %"
-#| "(time)s.\n"
-#| "          "
 msgid ""
 "\n"
 "            This trip will be eligible for review by the ADM office in "
@@ -1961,9 +1745,9 @@ msgid ""
 "          "
 msgstr ""
 "\n"
-"                                Ce voyage pourra être examiné par le bureau "
-"du SMA en %(time)s.\n"
-"                            "
+"            Ce voyage sera éligible à l'examen par le bureau du SMA en "
+"${ request.trip.time_until_eligible_for_adm_review }.\n"
+"          "
 
 #: .\travel\templates\travel\request_detail.html:51
 #: .\travel\templates\travel\request_detail.html:58
@@ -1991,8 +1775,7 @@ msgstr "Ce voyage a déjà été examiné par la RCN."
 #: .\travel\templates\travel\request_detail.html:89
 #: .\travel\templates\travel\scratch\trip_request_detail.html:109
 msgid "This is only an option to you as a system admin"
-msgstr ""
-"Ceci n'est qu'une option pour vous en tant qu'administrateur du système"
+msgstr "Ceci n'est qu'une option pour vous en tant qu'administrateur du système"
 
 #: .\travel\templates\travel\request_detail.html:91
 #: .\travel\templates\travel\scratch\trip_request_detail.html:107
@@ -2027,7 +1810,7 @@ msgstr "Demande de voyage et formulaire d'approbation (DVFA)"
 
 #: .\travel\templates\travel\request_detail.html:131
 msgid "Print TRAF"
-msgstr ""
+msgstr "Imprimer DVFA"
 
 #: .\travel\templates\travel\request_form.html:46
 #: .\travel\templates\travel\scratch\_trip_request_form_layout.html:53
@@ -2040,18 +1823,6 @@ msgid "The submission deadline for this trip has already passed. "
 msgstr "La date limite de soumission pour ce voyage est déjà passé. "
 
 #: .\travel\templates\travel\request_form.html:55
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "              Understanding that not all potential trips can be "
-#| "predicted, unforeseen requests can be submitted via the Conference and\n"
-#| "              Travel Management System for consideration.\n"
-#| "              <br><br>\n"
-#| "              These requests must have a very strong rationale outlining "
-#| "the necessity of the trip and clearly articulate the reason for the\n"
-#| "              late request; requests of this nature will only be approved "
-#| "in exceptional circumstances.\n"
-#| "            "
 msgid ""
 "\n"
 "                  Understanding that not all potential trips can be "
@@ -2060,8 +1831,8 @@ msgid ""
 "                  <br><br>\n"
 "                  These requests must have a very strong rationale outlining "
 "the necessity of the trip and clearly articulate the reason for the\n"
-"                  late request; requests of this nature will only be "
-"approved in exceptional circumstances.\n"
+"                  late request; requests of this nature will only be approved "
+"in exceptional circumstances.\n"
 "                "
 msgstr ""
 "\n"
@@ -2090,8 +1861,6 @@ msgid "Next"
 msgstr "Suivant"
 
 #: .\travel\templates\travel\request_list\_console.html:32
-#, fuzzy
-#| msgid "Request status"
 msgid "Request Status"
 msgstr "Statut de la demande"
 
@@ -2106,43 +1875,35 @@ msgstr "Statut de la demande"
 #: .\travel\templates\travel\trip_list\_console.html:67
 #: .\travel\templates\travel\trip_list\_console.html:84
 msgid "all"
-msgstr ""
+msgstr "tout"
 
 #: .\travel\templates\travel\request_list\_console.html:47
 #: .\travel\templates\travel\trip_list\_console.html:35
 msgid "Year"
-msgstr ""
+msgstr "Année"
 
 #: .\travel\templates\travel\request_list\_console.html:98
 #: .\travel\templates\travel\trip_list\_console.html:92
-#, fuzzy
-#| msgid "Clear empty lines"
 msgid "Clear filters"
-msgstr "Effacer les lignes vides"
+msgstr "Effacer les filtres"
 
 #: .\travel\templates\travel\request_list\main.html:26
-#, fuzzy
-#| msgid "New Trip Request"
 msgid "New Request"
-msgstr "Nouvelle demande de voyage"
+msgstr "Nouvelle demande"
 
 #: .\travel\templates\travel\request_list\main.html:44
 #: .\travel\templates\travel\trip_list\main.html:55
-#, fuzzy
-#| msgid "status date"
 msgid "status_display"
-msgstr "date du statut"
+msgstr "statut_affichage"
 
 #: .\travel\templates\travel\request_list\main.html:77
 #: .\travel\templates\travel\trip_list\main.html:109
 msgid "Load more results..."
-msgstr ""
+msgstr "Charger plus de résultats..."
 
 #: .\travel\templates\travel\request_reviewer_list.html:14
-#, fuzzy
-#| msgid "Requests Awaiting RDG"
 msgid "Requests Awaiting RDG-level Approval"
-msgstr "Demandes en cours de traitement par le DGR"
+msgstr "Demandes en attente d'approbation au niveau du DGR"
 
 #: .\travel\templates\travel\request_reviewer_list.html:15
 msgid "Requests Awaiting Your Review"
@@ -2159,17 +1920,15 @@ msgstr "Bravo ! Vous avez terminé"
 #: .\travel\templates\travel\request_reviewer_list.html:31
 #: .\travel\templates\travel\request_reviewer_list.html:67
 msgid "${count} results loaded"
-msgstr ""
+msgstr "${count} résultats chargés"
 
 #: .\travel\templates\travel\request_reviewer_list.html:38
 msgid "For which RDG"
-msgstr ""
+msgstr "Pour quel DGR"
 
 #: .\travel\templates\travel\request_reviewer_list.html:42
-#, fuzzy
-#| msgid "Processing time"
 msgid "Current processing time"
-msgstr "Temps de traitement"
+msgstr "Temps de traitement actuel"
 
 #: .\travel\templates\travel\request_reviewer_update.html:25
 #: .\travel\templates\travel\scratch\reviewer_approval_form.html:50
@@ -2208,6 +1967,10 @@ msgid ""
 "carefully reviewed prior to submission.\n"
 "          "
 msgstr ""
+"\n"
+"            Toutes les informations présentées dans cette demande ont été "
+"soigneusement examinées avant d'être soumises.\n"
+"          "
 
 #: .\travel\templates\travel\request_submit.html:27
 msgid ""
@@ -2219,6 +1982,13 @@ msgid ""
 "this request.\n"
 "          "
 msgstr ""
+"\n"
+"            J'ai fait preuve de diligence raisonnable pour m'assurer que les "
+"examinateurs régionaux dans la queue d'approbation sont sélectionnés de "
+"manière appropriée, sont disponibles pour évaluer et\n"
+"            ont l'autorité nécessaire pour approuver tous les voyageurs qui "
+"font partie de cette demande.\n"
+"          "
 
 #: .\travel\templates\travel\request_submit.html:36
 msgid ""
@@ -2226,6 +1996,9 @@ msgid ""
 "            All costs have been entered in Canadian dollars.\n"
 "          "
 msgstr ""
+"\n"
+"            Tous les coûts ont été inscrits en dollars canadiens.\n"
+"          "
 
 #: .\travel\templates\travel\scratch\_basic_detail.html:46
 msgid "Total travellers (excluding BTA)"
@@ -2244,8 +2017,8 @@ msgid ""
 "\n"
 "            Per diem rates for breakfast, lunch, supper and incidentals "
 "should follow the\n"
-"            <a href=\"https://www.njc-cnm.gc.ca/\">National Joint Council</"
-"a> Travel Directive.\n"
+"            <a href=\"https://www.njc-cnm.gc.ca/\">National Joint Council</a> "
+"Travel Directive.\n"
 "            For travel within Canada and\n"
 "            USA, please refer to <a href=\"https://www.njc-cnm.gc.ca/"
 "directive/d10/v238/s659/en\">Appendix C</a>\n"
@@ -2257,8 +2030,8 @@ msgid ""
 "          "
 msgstr ""
 "\n"
-"Les taux journaliers pour le petit déjeuner, le dîner, le souper et les "
-"frais accessoires doivent suivre la\n"
+"Les taux journaliers pour le petit déjeuner, le dîner, le souper et les frais "
+"accessoires doivent suivre la\n"
 "<a href=\"https://www.njc-cnm.gc.ca/\" target=\"_blank\">Directive sur les "
 "voyages du Conseil national mixte</a>.\n"
 "Pour les voyages au Canada et\n"
@@ -2359,8 +2132,7 @@ msgstr "Rapport SCVE pour le voyage"
 msgid "Unsure"
 msgstr "Incertain"
 
-#: .\travel\templates\travel\scratch\_trip_detail.html:67
-#: .\travel\views.py:1386
+#: .\travel\templates\travel\scratch\_trip_detail.html:67 .\travel\views.py:1386
 msgid "Connected requests"
 msgstr "Demandes liées"
 
@@ -2377,8 +2149,6 @@ msgid "(across all submitted requests; includes BTA travellers)"
 msgstr "(pour toutes les demandes soumises ; inclut les voyageurs de la BTA)"
 
 #: .\travel\templates\travel\scratch\_trip_detail.html:103
-#, fuzzy
-#| msgid "Comparision of costs"
 msgid "Comparison of costs"
 msgstr "Comparaison des coûts"
 
@@ -2491,15 +2261,14 @@ msgstr "Commentaires sur l’approbation"
 #: .\travel\templates\travel\scratch\_trip_reviewers.html:28
 msgid "You cannot reset the reviewers while a trip is under review."
 msgstr ""
-"Vous ne pouvez pas réinitialiser les examinateurs pendant qu'un voyage est "
-"en cours d'examen."
+"Vous ne pouvez pas réinitialiser les examinateurs pendant qu'un voyage est en "
+"cours d'examen."
 
 #: .\travel\templates\travel\scratch\_trip_reviewers.html:31
-msgid ""
-"You cannot reset the reviewers on a trip that has already been reviewed."
+msgid "You cannot reset the reviewers on a trip that has already been reviewed."
 msgstr ""
-"Vous ne pouvez pas réinitialiser les examinateurs lors d'un voyage qui a "
-"déjà été examiné."
+"Vous ne pouvez pas réinitialiser les examinateurs lors d'un voyage qui a déjà "
+"été examiné."
 
 #: .\travel\templates\travel\scratch\_trip_reviewers.html:84
 msgid "No reviewers, recommenders or approvers have been added to this trip."
@@ -2516,8 +2285,8 @@ msgstr "(AGV)"
 
 #: .\travel\templates\travel\scratch\_trip_traveller_history.html:30
 msgid ""
-"no additional information about this traveller can be provided since they "
-"are travelling on BTA"
+"no additional information about this traveller can be provided since they are "
+"travelling on BTA"
 msgstr ""
 "aucune information supplémentaire sur ce voyageur ne peut être fournie "
 "puisqu'il voyage sur un AGV"
@@ -2614,8 +2383,8 @@ msgid ""
 "              "
 msgstr ""
 "\n"
-"                Voyages qui sont exigés à l'appui de la prestation directe "
-"du mandat de base de Pêches et Océans Canada et/ou de la Garde côtière\n"
+"                Voyages qui sont exigés à l'appui de la prestation directe du "
+"mandat de base de Pêches et Océans Canada et/ou de la Garde côtière\n"
 "                canadienne ou d'obligations législatives ou juridiques.\n"
 "              "
 
@@ -2641,8 +2410,7 @@ msgstr ""
 "clés à l'égard du renouvellement ou de l'élaboration d'un règlement, d'une "
 "politique,\n"
 "                d'un programme ou d'autres questions qui soutiennent les "
-"relations de travail et les opérations continues de Pêches et Océans "
-"Canada \n"
+"relations de travail et les opérations continues de Pêches et Océans Canada \n"
 "              et/ou de la Garde côtière canadienne avec ces communautés."
 
 #: .\travel\templates\travel\scratch\group_travel_plan.html:222
@@ -2654,9 +2422,8 @@ msgstr "Gouvernance interne"
 #: .\travel\templates\travel\scratch\travel_plan.html:246
 msgid ""
 "\n"
-"                Travel that is necessary to support sound internal "
-"governance of the Department of Fisheries and Oceans and/or the Canadian "
-"Coast Guard\n"
+"                Travel that is necessary to support sound internal governance "
+"of the Department of Fisheries and Oceans and/or the Canadian Coast Guard\n"
 "                including management meetings and Departmental Audit "
 "Committee meetings, or that is necessary for the recruitment or hiring of "
 "employees.\n"
@@ -2925,8 +2692,8 @@ msgid ""
 "                                        USA, please refer to\n"
 "                                        <a href=\"https://www.njc-cnm.gc.ca/"
 "directive/d10/v238/s659/en\" target=\"_blank\">Appendix C</a>\n"
-"                                        and for all other travel please "
-"refer to\n"
+"                                        and for all other travel please refer "
+"to\n"
 "                                        <a href=\"https://www.njc-cnm.gc.ca/"
 "directive/app_d.php?lang=en\" target=\"_blank\">Appendix D</a>.\n"
 "                                        <span class=\"red-font\">Please note "
@@ -2991,8 +2758,8 @@ msgid ""
 "          If \"Other\" is chosen as trip purpose, provide detailed "
 "explanation and provide specific trip objective and justification for not "
 "using telepresence or\n"
-"          other alternative to travel. Provide justification if agenda is "
-"not available.\n"
+"          other alternative to travel. Provide justification if agenda is not "
+"available.\n"
 "        "
 msgstr ""
 "\n"
@@ -3104,8 +2871,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"            This trip will be eligible for review by the ADM office in %"
-"(time)s.\n"
+"            This trip will be eligible for review by the ADM office in "
+"%(time)s.\n"
 "          "
 msgstr ""
 "\n"
@@ -3187,8 +2954,8 @@ msgstr "Justificaiton du voyage"
 
 #: .\travel\templates\travel\scratch\trip_reviewer_approval_form.html:59
 msgid ""
-"By proceeding, you will be returning this review to the first reviewer in "
-"the queue: "
+"By proceeding, you will be returning this review to the first reviewer in the "
+"queue: "
 msgstr ""
 "En procédant, vous retournerez cet examen au premier examinateur dans la "
 "queue: "
@@ -3298,14 +3065,14 @@ msgstr "Autres options"
 #: .\travel\templates\travel\trip_verification_form.html:166
 msgid ""
 "\n"
-"                            There is no trip purpose. You will not be "
-"allowed to submit this form without selecting a\n"
+"                            There is no trip purpose. You will not be allowed "
+"to submit this form without selecting a\n"
 "                            trip purpose!\n"
 "                        "
 msgstr ""
 "\n"
-"                            There is no trip purpose. You will not be "
-"allowed to submit this form without selecting a\n"
+"                            There is no trip purpose. You will not be allowed "
+"to submit this form without selecting a\n"
 "                            trip purpose!\n"
 "                        "
 
@@ -3372,13 +3139,11 @@ msgstr "Coordonnateur national"
 
 #: .\travel\templates\travel\trip_detail.html:21
 msgid "You are viewing this trip as an admin user."
-msgstr ""
+msgstr "Vous voyez ce voyage en tant qu'utilisateur administratif."
 
 #: .\travel\templates\travel\trip_detail.html:70
-#, fuzzy
-#| msgid "Start a Review"
 msgid "Start a Request"
-msgstr "Commencer un examen"
+msgstr "Lancer une demande"
 
 #: .\travel\templates\travel\trip_form.html:19
 #: .\travel\templates\travel\trip_form_popout.html:33
@@ -3391,8 +3156,8 @@ msgid ""
 "With exception of words like DFO and ICES, please do not use undefined "
 "acronyms in trip titles!!!"
 msgstr ""
-"À l'exception de mots comme MPO et CIEM, veuillez ne pas utiliser "
-"d'acronymes indéfinis dans les titres de voyage !!!"
+"À l'exception de mots comme MPO et CIEM, veuillez ne pas utiliser d'acronymes "
+"indéfinis dans les titres de voyage !!!"
 
 #: .\travel\templates\travel\trip_form_popout.html:17
 #, python-format
@@ -3410,44 +3175,32 @@ msgid "Add a New Trip"
 msgstr "Ajouter un nouveau voyage"
 
 #: .\travel\templates\travel\trip_list\_console.html:23
-#, fuzzy
-#| msgid "Regional lead"
 msgid "Regional Lead"
-msgstr "Responsable régional"
+msgstr "Région responsable"
 
 #: .\travel\templates\travel\trip_list\_console.html:47
-#, fuzzy
-#| msgid "trip status"
 msgid "Trip Status"
-msgstr "statut du voyage"
+msgstr "Statut du voyage"
 
 #: .\travel\templates\travel\trip_list\_console.html:61
-#, fuzzy
-#| msgid "Trip Purpose"
 msgid "Purpose"
 msgstr "But du voyage"
 
 #: .\travel\templates\travel\trip_list\_console.html:85
-#, fuzzy
-#| msgid "Yes"
 msgid "yes"
-msgstr "Oui"
+msgstr "oui"
 
 #: .\travel\templates\travel\trip_list\main.html:14
 msgid "All Trips"
 msgstr "Tous les voyages"
 
 #: .\travel\templates\travel\trip_list\main.html:15
-#, fuzzy
-#| msgid "Trips Awaiting Verification"
 msgid "Regional Trips Awaiting Verification"
-msgstr "Voyages en attente de vérification"
+msgstr "Voyages régionaux en attente de vérification"
 
 #: .\travel\templates\travel\trip_list\main.html:16
-#, fuzzy
-#| msgid "Trips Awaiting Verification"
 msgid "ADM Trips Awaiting Verification"
-msgstr "Voyages en attente de vérification"
+msgstr "Voyages pour SMA en attente de vérification"
 
 #: .\travel\templates\travel\trip_list\main.html:17
 msgid "Trips Eligible for ADM Review"
@@ -3458,73 +3211,58 @@ msgid "Upcoming Trips"
 msgstr "Voyages à venir"
 
 #: .\travel\templates\travel\trip_list\main.html:20
-#, fuzzy
-#| msgid "i.e., Trips which are fair game for ADMO review to begin"
 msgid "(i.e., Trips which are fair game for ADMO review to begin)"
 msgstr ""
-"c'est-à-dire des voyages qui sont équitables pour que l'examen du SMA "
-"commence"
+"(c.-à-d. des voyages qui sont équitables pour que l'examen du SMA commence)"
 
 #: .\travel\templates\travel\trip_list\main.html:39
-#, fuzzy
-#| msgid "Add a New Trip"
 msgid "New Trip"
-msgstr "Ajouter un nouveau voyage"
+msgstr "Nouveau voyage"
 
 #: .\travel\templates\travel\trip_list\main.html:57
-#, fuzzy
-#| msgid "Regional lead"
 msgid "Region lead"
-msgstr "Responsable régional"
+msgstr "Région responsable"
 
 #: .\travel\templates\travel\trip_list\main.html:67
 msgid "ADM decision deadline"
 msgstr "Date limite de décision du SMA"
 
 #: .\travel\utils.py:65
-#, fuzzy
-#| msgid "You are able to edit this record because you are "
 msgid ""
 "You can edit this record because you are in the NCR National Coordinator "
 "Group."
-msgstr "Vous pouvez modifier cet enregistrement car vous êtes "
+msgstr ""
+"Vous pouvez modifier cette fiche parce que vous êtes dans le groupe des "
+"coordinateurs nationaux de la RCN."
 
 #: .\travel\utils.py:69
-#, fuzzy
-#| msgid "You are able to edit this record because you are "
 msgid ""
 "You can edit this record because you are in the Regional Administrator Group."
-msgstr "Vous pouvez modifier cet enregistrement car vous êtes "
+msgstr ""
+"Vous pouvez modifier cette fiche parce que vous êtes dans le groupe des "
+"administrateurs régionaux."
 
 #: .\travel\utils.py:74
-#, fuzzy
-#| msgid "You are able to edit this record because you are "
 msgid ""
-"You can edit this record because you are the active reviewer for this "
-"request."
-msgstr "Vous pouvez modifier cet enregistrement car vous êtes "
+"You can edit this record because you are the active reviewer for this request."
+msgstr ""
+"Vous pouvez modifier cette fiche car vous êtes l'examinateur actif de cette "
+"demande."
 
 #: .\travel\utils.py:80
-#, fuzzy
-#| msgid "You are able to edit this record because you are "
 msgid "You can edit this record because you are the request owner."
-msgstr "Vous pouvez modifier cet enregistrement car vous êtes "
+msgstr ""
+"Vous pouvez modifier cette fiche car vous êtes le propriétaire de la demande."
 
 #: .\travel\utils.py:83
-#, fuzzy
-#| msgid "You are able to edit this record because you are "
 msgid "You can edit this record because you are a traveller on this request."
-msgstr "Vous pouvez modifier cet enregistrement car vous êtes "
+msgstr ""
+"Vous pouvez modifier cette fiche car vous êtes un voyageur sur cette demande."
 
 #: .\travel\utils.py:87
-#, fuzzy
-#| msgid ""
-#| "You cannot reinitialize the review process since you are the first "
-#| "reviewer."
 msgid "You can un-submit this request because you are the request owner."
 msgstr ""
-"Vous ne pouvez pas réinitialiser le processus d'examen puisque vous êtes le "
-"premier examinateur."
+"Vous pouvez annuler cette demande car vous êtes le propriétaire de la demande."
 
 #: .\travel\utils.py:460
 msgid ""
@@ -3539,8 +3277,8 @@ msgid ""
 "NJC rates for lunch missing from database. Please let your system "
 "administrator know."
 msgstr ""
-"Les tarifs du CNM pour le dîner manquant dans la base de données. Veuillez "
-"en informer votre administrateur système."
+"Les tarifs du CNM pour le dîner manquant dans la base de données. Veuillez en "
+"informer votre administrateur système."
 
 #: .\travel\utils.py:474
 msgid ""
@@ -3559,16 +3297,12 @@ msgstr ""
 "Veuillez en informer votre administrateur système."
 
 #: .\travel\utils.py:691
-#, fuzzy
-#| msgid "Group Travellers Associated with this Request"
 msgid "number of travellers (this request)"
-msgstr "Groupe de voyageurs associé à cette demande"
+msgstr "nombre de voyageurs (cette demande)"
 
 #: .\travel\utils.py:693
-#, fuzzy
-#| msgid "section"
 msgid "DFO section"
-msgstr "section"
+msgstr "Section MPO"
 
 #: .\travel\utils.py:697
 msgid "Total costs"
@@ -3584,33 +3318,27 @@ msgstr "Montant total des financements du MPO (CAD)"
 
 #: .\travel\utils.py:706
 msgid "metadata"
-msgstr ""
+msgstr "métadonnées"
 
 #: .\travel\utils.py:716
-#, fuzzy
-#| msgid "Is the traveller a research scientist (RES)?"
 msgid "Is research scientist?"
-msgstr "Le voyageur est-il un chercheur(se) scientifique (RES) ?"
+msgstr "Est-il un chercheur(se) scientifique ?"
 
 #: .\travel\utils.py:717
-#, fuzzy
-#| msgid "end date of travel"
 msgid "Dates of travel"
-msgstr "la date de fin du voyage"
+msgstr "Dates de voyage"
 
 #: .\travel\utils.py:722
 msgid "Non-DFO costs:"
-msgstr ""
+msgstr "Coûts non liés au MPO :"
 
 #: .\travel\utils.py:723
 msgid "Cost breakdown:"
-msgstr ""
+msgstr "Répartition des coûts :"
 
 #: .\travel\utils.py:752
-#, fuzzy
-#| msgid "Total cost"
 msgid "Total"
-msgstr "Coût total"
+msgstr "Total"
 
 #: .\travel\views.py:133
 msgid "Total DFO cost (excluding BTA)"
@@ -3625,10 +3353,8 @@ msgid "Trip Requests"
 msgstr "Demandes de voyage"
 
 #: .\travel\views.py:161
-#, fuzzy
-#| msgid "Traveller"
 msgid "travellers"
-msgstr "Voyageur"
+msgstr "voyageurs"
 
 #: .\travel\views.py:194
 msgid "Edit Trip Request"
@@ -3651,8 +3377,8 @@ msgid ""
 "sorry, cannot clone this trip because there is another trip request with the "
 "same user in the system"
 msgstr ""
-"désolé, ne peut pas reproduire ce voyage parce qu'il y a une autre demande "
-"de voyage avec le même utilisateur dans le système"
+"désolé, ne peut pas reproduire ce voyage parce qu'il y a une autre demande de "
+"voyage avec le même utilisateur dans le système"
 
 #: .\travel\views.py:370 .\travel\views.py:376 .\travel\views.py:483
 #: .\travel\views.py:1141 .\travel\views.py:1271
@@ -3708,19 +3434,12 @@ msgid "Please note that this action cannot be undone!!"
 msgstr "Veuillez noter que cette action ne peut être annulée !"
 
 #: .\travel\views.py:512
-#, fuzzy
-#| msgid ""
-#| "Sorry, it is currently not possible to cancel your cancellation request"
 msgid "Sorry, it is currently not possible to cancel your cancellation "
-msgstr ""
-"Désolé, il n'est actuellement pas possible d'annuler votre demande "
-"d'annulation"
+msgstr "Désolé, il n'est actuellement pas possible d'annuler votre annulation"
 
 #: .\travel\views.py:549
-#, fuzzy
-#| msgid "Trip Request Reviewers"
 msgid "Request reviews"
-msgstr "Examinateurs des demandes de voyage"
+msgstr "Demande d'examen"
 
 #: .\travel\views.py:572
 msgid "Do you wish to approve on behalf of {user} ({role})"
@@ -3758,15 +3477,12 @@ msgstr ""
 "encore à l'état de brouillon."
 
 #: .\travel\views.py:872 .\travel\views.py:884
-#, fuzzy
-#| msgid ""
-#| "Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"
 msgid ""
 "Sorry, you cannot delete a reviewer who's status is set to {my_obj."
 "get_status_display()}"
 msgstr ""
-"Désolé, vous ne pouvez pas supprimer un examinateur dont le statut est fixé "
-"à {mon_obj.status}"
+"Désolé, vous ne pouvez pas supprimer un examinateur dont le statut est fixé à "
+"{my_obj.get_status_display()}"
 
 #: .\travel\views.py:907 .\travel\views.py:945
 msgid "The reviewer list has been successfully updated"
@@ -3785,20 +3501,16 @@ msgstr ""
 "cours de révision."
 
 #: .\travel\views.py:980
-#, fuzzy
-#| msgid "Trip title"
 msgid "title"
-msgstr "Titre du voyage"
+msgstr "titre"
 
 #: .\travel\views.py:981 .\travel\views.py:1381
 msgid "location"
 msgstr "location"
 
 #: .\travel\views.py:982
-#, fuzzy
-#| msgid "Region"
 msgid "region"
-msgstr "Région"
+msgstr "région"
 
 #: .\travel\views.py:983
 msgid "abstract deadline"
@@ -3856,8 +3568,7 @@ msgid "Please select a trip to re-assign:"
 msgstr "Veuillez sélectionner un voyage à réassigner :"
 
 #: .\travel\views.py:1270
-msgid ""
-"(You will have a chance to review this action before it is carried out.)"
+msgid "(You will have a chance to review this action before it is carried out.)"
 msgstr ""
 "(Vous aurez la possibilité d'examiner cette action avant qu'elle ne soit "
 "réalisée.)"
@@ -3951,15 +3662,12 @@ msgid "Reference Materials"
 msgstr "Documents de référence"
 
 #: .\travel\views.py:2011
-#, fuzzy
-#| msgid "Set Default Reviewers"
 msgid "Optional / Special Reviewers"
-msgstr "Définir les examinateurs par défaut"
+msgstr "Facultatif / Examinateurs spéciaux"
 
 #: .\travel\views.py:2012
 msgid ""
-"Use this module to set the default reviewers that get added to a trip "
-"request."
+"Use this module to set the default reviewers that get added to a trip request."
 msgstr ""
 "Utilisez ce module pour définir les examinateurs par défaut qui sont ajoutés "
 "à une demande de voyage."
@@ -4054,12 +3762,11 @@ msgstr "Tous les frais vides ont été supprimés."
 #~ msgstr "Demandes en cours de traitement par la SMA"
 
 #~ msgid ""
-#~ "Select NEXT to go to the Group Traveller’s table where you will be able "
-#~ "to enter details for each traveller associated with this group request."
+#~ "Select NEXT to go to the Group Traveller’s table where you will be able to "
+#~ "enter details for each traveller associated with this group request."
 #~ msgstr ""
 #~ "Sélectionnez SUIVANT pour passer au tableau des voyageurs en groupe où "
-#~ "vous pourrez entrer les détails de chaque voyageur associé à cette "
-#~ "demande."
+#~ "vous pourrez entrer les détails de chaque voyageur associé à cette demande."
 
 #~ msgid "Requester Information"
 #~ msgstr "Informations sur le requérant"
@@ -4086,11 +3793,11 @@ msgstr "Tous les frais vides ont été supprimés."
 #~ "intervention!!"
 
 #~ msgid ""
-#~ "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
-#~ "{pluralization} requiring attention!!"
+#~ "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
+#~ "trip{pluralization} requiring attention!!"
 #~ msgstr ""
-#~ "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
-#~ "{pluralization} requiring attention!!"
+#~ "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
+#~ "trip{pluralization} requiring attention!!"
 
 #~ msgid "Traveller information"
 #~ msgstr "Information du voyageur"
@@ -4155,8 +3862,8 @@ msgstr "Tous les frais vides ont été supprimés."
 
 #~ msgid ""
 #~ "\n"
-#~ "            Travel requests can be submitted up to <b>180 calendar days "
-#~ "in advance of any potential trip</b>, regardless of the purpose\n"
+#~ "            Travel requests can be submitted up to <b>180 calendar days in "
+#~ "advance of any potential trip</b>, regardless of the purpose\n"
 #~ "            and across fiscal years.\n"
 #~ "          "
 #~ msgstr ""
@@ -4266,9 +3973,9 @@ msgstr "Tous les frais vides ont été supprimés."
 #~ "                    Une demande de voyage peut avoir plusieurs voyageurs "
 #~ "de divers secteurs (par exemple, publique, universitaire, privé), mais "
 #~ "seulement\n"
-#~ "                    un employé de Pêches et Océans disposant d'une "
-#~ "adresse électronique valide du Gouvernement du Canada peut initier et "
-#~ "soumettre une demande de voyage.\n"
+#~ "                    un employé de Pêches et Océans disposant d'une adresse "
+#~ "électronique valide du Gouvernement du Canada peut initier et soumettre "
+#~ "une demande de voyage.\n"
 #~ "                    En outre, la demande doit déjà avoir confirmé ou "
 #~ "anticipé les fonds disponibles pour financer le voyage.\n"
 #~ "                "
@@ -4277,8 +3984,8 @@ msgstr "Tous les frais vides ont été supprimés."
 #~ "\n"
 #~ "          Please ensure your request is properly completed and submitted "
 #~ "on time to allow for efficient and appropriate\n"
-#~ "          review. Incomplete requests will not be evaluated. You can "
-#~ "check the status of your request by going to the\n"
+#~ "          review. Incomplete requests will not be evaluated. You can check "
+#~ "the status of your request by going to the\n"
 #~ "          home page and selecting “view your request”.\n"
 #~ "        "
 #~ msgstr ""
