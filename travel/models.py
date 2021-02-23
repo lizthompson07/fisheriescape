@@ -1099,6 +1099,10 @@ class TripRequest1(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     @property
+    def travellers_from_other_requests(self):
+        return Traveller.objects.filter(request__trip=self.trip).filter(~Q(request=self)).order_by("request__status")
+
+    @property
     def region(self):
         return self.section.division.branch.region
 

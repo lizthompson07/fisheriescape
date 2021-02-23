@@ -335,6 +335,10 @@ class TripRequestSerializer(serializers.ModelSerializer):
     trip_display = serializers.SerializerMethodField()
     original_submission_date = serializers.SerializerMethodField()
     cost_comparison = serializers.SerializerMethodField()
+    travellers_from_other_requests = serializers.SerializerMethodField()
+
+    def get_travellers_from_other_requests(self, instance):
+        return TravellerSerializer(instance.travellers_from_other_requests, many=True, read_only=True).data
 
     def get_cost_comparison(self, instance):
         return get_cost_comparison(instance.travellers.all())
