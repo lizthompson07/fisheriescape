@@ -10,7 +10,5 @@
 </p>
 <p class="med-font">
   {% trans "The full details of this request can be viewed at the following URL:" %} <br>
-  {% language '' %}
   <span class="hyperlink">{{ SITE_FULL_URL }}{% url 'travel:request_detail' parent.uuid %}</span>
-  {% endlanguage %}
 </p>

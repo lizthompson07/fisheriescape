@@ -1654,8 +1654,8 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(TravelAdminRequiredMixin, FormView):
-    template_name = 'travel/report_search.html'
+class ReportFormView(TravelAdminRequiredMixin, FormView):
+    template_name = 'travel/reports.html'
     form_class = forms.ReportSearchForm
 
     def get_context_data(self, **kwargs):
@@ -1704,7 +1704,7 @@ class ReportSearchFormView(TravelAdminRequiredMixin, FormView):
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("travel:report_search"))
+            return HttpResponseRedirect(reverse("travel:reports"))
 
 
 @login_required()

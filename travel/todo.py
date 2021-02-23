@@ -1,4 +1,3 @@
-todo TRAF
 # CFTS
 # reports
 # TODO: request reviewer needs to see all travellers!!
