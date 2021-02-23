@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.template import loader
-from django.utils.translation import activate
+from django.utils.translation import activate, get_language
 
 from dm_apps.context_processor import my_envr
 
@@ -11,11 +11,8 @@ from_email = settings.SITE_FROM_EMAIL
 request_field_list = [
     'fiscal_year',
     'section',
-    'user',
+    'created_by',
     'trip',
-    'destination',
-    'start_date',
-    'end_date',
 ]
 
 trip_field_list = [
@@ -130,7 +127,7 @@ class ChangesRequestedEmail:
         self.subject = 'Changes to your trip request are required - des modifications à votre demande de voyage sont nécessaires'
         self.message = self.load_html_template(trip_request_object)
         self.from_email = from_email
-        self.to_list = [trip_request_object.user.email, ]
+        self.to_list = [trip_request_object.created_by.email, ]
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
@@ -149,10 +146,12 @@ class ChangesRequestedEmail:
 class StatusUpdateEmail:
     def __init__(self, trip_request_object, request):
         self.request = request
+        lang = get_language()
         activate('en')
         self.subject = 'Your trip request has been ' + str(trip_request_object.get_status_display())
         activate('fr')
         self.subject += " - Votre demande de voyage a été " + str(trip_request_object.get_status_display())
+        activate(lang)
         self.message = self.load_html_template(trip_request_object)
         self.from_email = from_email
         self.to_list = [trip_request_object.created_by.email, ]

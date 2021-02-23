@@ -1,5 +1,6 @@
 todo TRAF
-CFTS
+# CFTS
+# reports
 # TODO: request reviewer needs to see all travellers!!
 # TODO: add total non dfo cost to trip
 # TODO: Trip Detail

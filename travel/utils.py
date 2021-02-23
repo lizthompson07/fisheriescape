@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.db import IntegrityError
 from django.db.models import Q
-from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from msrestazure.azure_active_directory import MSIAuthentication

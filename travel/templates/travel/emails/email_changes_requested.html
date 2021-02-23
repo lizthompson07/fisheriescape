@@ -18,7 +18,7 @@
 <br><br>
 
 <p>
-    {{ triprequest.user.first_name }},
+    {{ triprequest.created_by.first_name }},
     <br><br>
     The following changes are being requested from {{ triprequest.current_reviewer.user }}:
     <div class="comments">
@@ -38,8 +38,9 @@
     ********************************************************************
 </p>
 
+{% language 'fr' %}
 <p>
-    {{ triprequest.user.first_name }},
+    {{ triprequest.created_by.first_name }},
     <br><br>
     Les modifications suivantes sont demandées par {{ triprequest.current_reviewer.user }}:
     <div class="comments">
@@ -49,14 +50,13 @@
     Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la demande.
     Voici les détails du voyage:
 </p>
-{% language 'fr' %}
+{% endlanguage %}
 
 <table>
     {% for field in field_list %}
         {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
-{% endlanguage %}
 
 
 

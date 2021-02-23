@@ -380,8 +380,9 @@ h1 {
             <td class="text-right very-wide-cell w40p">{% trans "Signature" %}</td>
             {% if parent.rdg.status == 2 %}
               <td colspan="3" class="data">
-                <span class="large-font">{% trans "Approved on" %} {{ parent.rdg.status_date }}</span>
-                <br> ({% trans "This is not an official copy." %})
+                <span class="large-font">{% trans "Digitally Approved on" %} {{ parent.rdg.status_date }}</span>
+                <br> {% trans "This is not a digital signature however the approved request can be viewed at the following URL:" %}
+              https://sci-zone.dfo-mpo.gc.ca{% url 'travel:request_detail' parent.id "my"  %}
               </td>
             {% else %}
               <td class="data wide-cell w40p"> &nbsp;</td>

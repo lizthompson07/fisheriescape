@@ -257,12 +257,13 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
         if form.cleaned_data.get("is_traveller", None):
             # just make sure they are not already on another trip!!
             if not models.Traveller.objects.filter(request__trip=my_object.trip, user=self.request.user).exists():
-                models.Traveller.objects.create(
+                t = models.Traveller.objects.create(
                     request=my_object,
                     user=self.request.user,
                     start_date=my_object.trip.start_date,
                     end_date=my_object.trip.end_date,
                 )
+                utils.populate_traveller_costs(self.request, t)
 
         # add reviewers
         utils.get_request_reviewers(my_object)
