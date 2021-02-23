@@ -290,8 +290,12 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
         "end_date",
         "number_of_days|Number of days",
         "travellers|Travellers (region)",
-        "non_res_total_cost|Total trip cost (excluding RES)",
-        "total_cost|Total trip cost (DFO)",
+
+        "total_cost|Total trip cost",
+        "total_non_dfo_cost|Total non-DFO funding",
+        "total_non_dfo_funding_sources|Non-DFO funding sources",
+        "total_dfo_cost|Total DFO cost",
+        "non_res_total_cost|Total DFO cost (non RES)",
     ]
 
     # get_cost_comparison_dict

@@ -1654,9 +1654,11 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 # REPORTS #
 ###########
 
-class ReportFormView(TravelAdminRequiredMixin, FormView):
+class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
     template_name = 'travel/reports.html'
     form_class = forms.ReportSearchForm
+    h1 = gettext_lazy("Reports")
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

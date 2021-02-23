@@ -1,13 +1,11 @@
 # CFTS
 # reports
 # TODO: request reviewer needs to see all travellers!!
-# TODO: add total non dfo cost to trip
 # TODO: Trip Detail
 # TODO: trip reassign and delete
 # TODO: admo process
 
 # TODO: bring back admin warnings
-# TODO: reports
 # todo: api view validation
 
 
