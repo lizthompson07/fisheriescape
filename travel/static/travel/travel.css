@@ -76,7 +76,8 @@ table, td {
 }
 
 .pending-recommendation {
-    background-color: #e197f7;
+    background-color: #cc4aec;
+    color: white;
 }
 
 .pending-adm-approval {
@@ -96,7 +97,8 @@ table, td {
 }
 
 .skipped {
-    background-color: #f58c84;
+    background-color: #fa574c;
+    color: white;
 }
 
 .clickable {
@@ -162,15 +164,15 @@ table, td {
     display: none;
 }
 
-.text-sm{
+.text-sm {
     font-size: small;
 }
 
-.mdi-help-circle-outline{
+.mdi-help-circle-outline {
     color: blue;
 }
 
 
-.blue{
+.blue {
     color: blue;
 }

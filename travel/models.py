@@ -13,7 +13,6 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import nz, currency
-from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
 from shared_models.models import Lookup, SimpleLookup
 from shared_models.utils import get_metadata_string
@@ -538,6 +537,27 @@ class Conference(models.Model):
             status_str += " {} {}".format(_("by"), self.current_reviewer.user)
         return status_str
 
+    @property
+    def trip_review_ready(self):
+        """ this will ensure that all requests associated with this trip are either in draft mode or are sitting with ADM.
+        basically, if there are no trips with the following statuses, we should not proceed:
+            (11, _("Approved")),
+            (12, _("Pending Recommendation")),
+            (15, _("Pending RDG Approval")),
+            (16, _("Changes Requested")),
+            (17, _("Pending Review")),
+        """
+        if not self.requests.filter(status=14).exists():
+            can_proceed = False
+            reason = _("There are no requests ready for ADM approval.")
+        elif self.requests.filter(status__in=[11, 12, 15, 16, 17, ]).exists():
+            can_proceed = False
+            reason = _("Some requests are not ready for ADM review.")
+        else:
+            can_proceed = True
+            reason = _("All active requests are ready for ADM review.")
+        return dict(can_proceed=can_proceed, reason=reason)
+
 
 class TripRequest1(models.Model):
     status_choices = (
@@ -571,7 +591,8 @@ class TripRequest1(models.Model):
                                     blank=True, null=True, related_name="requests", editable=False)
 
     # metadata
-    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False, verbose_name=_("created by"))
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False,
+                                   verbose_name=_("created by"))
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_updated_by", blank=True, null=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)

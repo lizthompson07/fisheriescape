@@ -397,12 +397,12 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
             if my_object.is_late_request:
                 # if the user is submitting a late request, we have to tag NCR Travel Coordinator as the first reviewer
                 ## get the NCR travel coordinator; reviewer_role = 3
-                ncr_coord = models.DefaultReviewer.objects.filter(reviewer_roles=3).distinct().order_by("order").first()
+                ncr_coord = models.DefaultReviewer.objects.filter(special_role=3).distinct().order_by("order")
                 ## in the case that there is not an ncr travel coordinator, we cannot do this!
-                if ncr_coord:
+                if ncr_coord.exists():
                     reviewer, created = models.Reviewer.objects.get_or_create(
                         request=my_object,
-                        user=ncr_coord.user,
+                        user=ncr_coord.first().user,
                         role=3,
                     )
                     reviewer.order = -1000000

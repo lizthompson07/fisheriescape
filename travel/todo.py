@@ -9,7 +9,7 @@
 # todo:  email for when ppl are deleted from a request
 # todo: make sure emails are sent when requests are denied
 # TODO: revamp verification form
-# TODO: delete unneeded tables
+
 # TODO: fix up unit tests
     # TODO: test new model choices!!
 # TODO: sort all methods and attrs on serializers
@@ -22,7 +22,6 @@
 # todo: TR Cost SHOULD BE RENAMED TO TRAVELLER COST
 # todo: TR1 SHOULD BE RENAMED TO TR
 # todo: rename conference to something trip
-# TODO: change role other:specify --> other
 
 # TODO: phone number dashes
 

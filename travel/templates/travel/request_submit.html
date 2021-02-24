@@ -38,6 +38,14 @@
           {% endblocktrans %}
         </label>
       </div>
+      <div class="mb-5" v-if="request && !request.total_request_cost">
+        <span class="red-font blink-me h4">
+        {% blocktrans %}
+          WARNING: you are about to submit a trip request that has no costs!!
+        {% endblocktrans %}
+        </span>
+      </div>
+
     </div>
 
     <div class="mb-5">

@@ -93,6 +93,37 @@ class TripSerializerLITE(serializers.ModelSerializer):
         return instance.travellers.count()
 
 
+class RequestReviewerSerializerLITE(serializers.ModelSerializer):
+    class Meta:
+        model = models.Reviewer
+        fields = "__all__"
+
+    role_display = serializers.SerializerMethodField()
+    status_date = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    user_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+    comments_html = serializers.SerializerMethodField()
+
+    def get_comments_html(self, instance):
+        return instance.comments_html
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
+
+    def get_role_display(self, instance):
+        return instance.get_role_display()
+
+    def get_status_date(self, instance):
+        return date(instance.status_date)
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_user_display(self, instance):
+        return instance.user.get_full_name() if instance.user else None
+
+
 class TripRequestSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.TripRequest1
@@ -109,6 +140,10 @@ class TripRequestSerializerLITE(serializers.ModelSerializer):
     trip = TripSerializerLITE(read_only=True)
     section = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
+    reviewer_history = serializers.SerializerMethodField()
+
+    def get_reviewer_history(self, instance):
+        return RequestReviewerSerializerLITE(instance.reviewers.filter(~Q(status__in=[4, 20, 1])), many=True, read_only=True).data
 
     def get_display(self, instance):
         return str(instance)
@@ -156,7 +191,7 @@ class FileSerializer(serializers.ModelSerializer):
 class RequestReviewerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Reviewer
-        exclude = ["trip_request", ]
+        fields = "__all__"
 
     role_display = serializers.SerializerMethodField()
     status_date = serializers.SerializerMethodField()
@@ -470,6 +505,10 @@ class TripSerializer(serializers.ModelSerializer):
     total_dfo_cost = serializers.SerializerMethodField()
     total_non_dfo_funding_sources = serializers.SerializerMethodField()
     reviewers = TripReviewerSerializer(many=True, read_only=True)
+    trip_review_ready = serializers.SerializerMethodField()
+
+    def get_trip_review_ready(self, instance):
+        return instance.trip_review_ready
 
     def get_total_non_dfo_funding_sources(self, instance):
         return instance.total_non_dfo_funding_sources
