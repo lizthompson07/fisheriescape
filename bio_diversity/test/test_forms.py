@@ -534,29 +534,6 @@ class TestSireForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
 
-@tag("Spwn", 'forms')
-class TestSpwnForm(CommonTest):
-
-    def setUp(self):
-        super().setUp()  # used to import fixtures
-        self.data = BioFactoryFloor.SpwnFactory.build_valid_data()
-        self.Form = forms.SpwnForm
-
-    def test_valid_data(self):
-        # get valid data
-        self.assert_form_valid(self.Form, data=self.data)
-
-    def test_invalid_pair(self):
-        # cannot use invalid pair code
-        invalid_data = self.data
-        non_valid_pair = BioFactoryFloor.PairFactory(valid=False)
-        invalid_data['pair_id'] = non_valid_pair.pk
-        try:
-            self.assert_form_invalid(self.Form, data=invalid_data)
-        except Pairing.DoesNotExist:
-            pass
-
-
 @tag("Spwnd", 'forms')
 class TestSpwndForm(CommonTest):
 

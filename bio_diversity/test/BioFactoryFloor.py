@@ -1541,6 +1541,7 @@ class LocFactory(factory.django.DjangoModelFactory):
             'loc_lat': obj.loc_lat,
             'loc_lon': obj.loc_lon,
             'start_date': obj.loc_date.date(),
+            'loc_date': obj.loc_date.date(),
             'start_time': obj.loc_date.time().strftime("%H:%M"),
             'comments': obj.comments,
             'created_by': obj.created_by,
@@ -1643,8 +1644,8 @@ class PairFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Pairing
 
-    # needs an inst id
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
+    prio_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PrioFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
     valid = True
@@ -1656,11 +1657,13 @@ class PairFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         indv = IndvFactory()
+        prio = PrioFactory()
         obj = PairFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'indv_id': indv.pk,
+            'prio_id': prio.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
             'valid': True,

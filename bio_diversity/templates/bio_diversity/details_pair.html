@@ -49,7 +49,7 @@
                 </thead>
                 <tbody>
                     {% for obj in object.spawning_details.all %}
-                        <tr href="{% url 'bio_diversity:details_spwnd' 'evnt' object.id obj.id %}">
+                        <tr href="{% url 'bio_diversity:details_spwnd' 'pair' object.id obj.id %}">
                         {% for field in spwnd_field_list %}
                             <td>
                                 {% get_field_value obj field %}

@@ -2,6 +2,7 @@
 
 # Create your models here.
 import datetime
+import decimal
 import os
 from collections import Counter
 
@@ -30,11 +31,7 @@ class BioModel(models.Model):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
-
-        try:
-            self.clean_fields()
-        except ValidationError:
-            return
+        self.clean_fields()
 
         uniqueness_constraints = [constraint for constraint in self._meta.constraints
                                   if isinstance(constraint, models.UniqueConstraint)]
@@ -76,7 +73,6 @@ class BioContainerDet(BioModel):
 
     def clean(self):
         super(BioContainerDet, self).clean()
-
         if self.det_value > self.contdc_id.max_val or self.det_value < self.contdc_id.min_val:
             raise ValidationError({
                 "det_value": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_value,
