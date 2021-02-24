@@ -1,11 +1,10 @@
 # TODO: admo process
 # TODO: trip reassign and delete
-
 # todo: api view validation
 # TODO: traveller filter not working on request -- use vue js dropdown
-
 # TODO: api for tracking view
 
+# TODO: for a late request when you go back to edit, text disappears
 
 # At a later date
 # todo:  email for when ppl are deleted from a request
@@ -14,12 +13,10 @@
 # TODO: delete unneeded tables
 # TODO: fix up unit tests
     # TODO: test new model choices!!
-
 # TODO: sort all methods and attrs on serializers
 
 # todo: it would be nice for the trips to have the same flow as requests. right now they are opening in new widows all the time!
 # TODO: seek and destroy print statements
-
 
 # after we are deployed
 # TODO: delete trip_request on cost, traveller,
@@ -28,5 +25,4 @@
 # todo: rename conference to something trip
 # TODO: change role other:specify --> other
 
-
-# TODO: uuid
+# TODO: phone number dashes

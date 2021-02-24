@@ -17,7 +17,7 @@
     </div>
     <span v-if="!travellerToEdit">{% trans "Travellers Associated with this Request" %}</span>
     <span v-else-if="travellerToEdit.id">{% trans "Editing Traveller: " %} ${travellerToEdit.smart_name}</span>
-    <span v-else>{% trans "New Travller" %}</span>
+    <span v-else>{% trans "New Traveller" %}</span>
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
           data-trigger="hover" title="{% trans "Travellers" %}"
           :data-content="helpText.travellers_header"></span>

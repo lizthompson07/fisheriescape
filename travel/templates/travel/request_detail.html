@@ -20,7 +20,7 @@
         {% endblocktrans %}
       </h2>
     </div>
-    <div v-if="canModify" class="alert alert-primary no-print py-2" role="alert" style="width: 60%">
+    <div v-if="canModify" class="alert alert-primary no-print py-2" role="alert" style="width: 80%">
       <p class="mb-0">
         <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
       </p>
@@ -29,7 +29,7 @@
       <div
         v-if="request.trip.is_adm_approval_required && !request.submitted"
         :class="{'alert py-2': true, 'alert-success':request.trip.days_until_eligible_for_adm_review > 45, 'alert-warning':request.trip.days_until_eligible_for_adm_review >= 15, 'alert-danger':request.trip.days_until_eligible_for_adm_review < 15}"
-        role="alert">
+        role="alert" style="width: 80%">
         <p class="mb-0">
           <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
           <span class="h6" v-if="request.trip.days_until_eligible_for_adm_review < 0">
@@ -45,14 +45,14 @@
         </p>
       </div>
 
-      <div v-if="request.is_late_request && !request.submitted && !request.late_justification" class="alert alert-danger py-2" role="alert">
+      <div v-if="request.is_late_request && !request.submitted && !request.late_justification" class="alert alert-danger py-2" role="alert" style="width: 80%">
         <p class="mb-0">
           <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
           <span class="h6 red-font"><u>{% trans "WARNING" %}</u></span>
           <span class="h6">{% trans "In order to submit this request, you will need to provide a justification for the late submission." %}</span>
         </p>
       </div>
-      <div v-if="request.trip.status === 43" class="alert alert-danger py-2" role="alert">
+      <div v-if="request.trip.status === 43" class="alert alert-danger py-2" role="alert" style="width: 80%">
         <p class="mb-0">
           <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
           <span class="h6 red-font"><u>{% trans "WARNING" %}</u></span>

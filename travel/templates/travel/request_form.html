@@ -62,11 +62,11 @@
               </p>
 
             </div>
-            <label class="h5 red-font px-2" for="id_late_jsutification">{% trans "Please provide your late justification here" %}</label>
+            <label class="h5 red-font px-2" for="id_late_justification">{% trans "Please provide your late justification here" %}</label>
             <span class="mdi mdi-help-circle-outline h6" data-toggle="popover"
                   data-trigger="hover"
                   title="{{ form.late_justification.label }}"
-                  data-content="{{ help_text.late_justification }}"></span>
+                  data-content="{{ help_text_dict.late_justification }}"></span>
             {% bootstrap_field form.late_justification placeholder="" show_label=False %}
 
           </div>
@@ -146,11 +146,12 @@
     $div = $("#late_justification_div");
     if (!myTrip || !myTrip.is_late_request) {
       $div.addClass("gone");
-      $input.val("");
       $input.prop("required", false);
+      $input.prop("disabled", true);
     } else {
       $div.removeClass("gone");
       $input.prop("required", true);
+      $input.prop("disabled", false);
     }
   }
 
