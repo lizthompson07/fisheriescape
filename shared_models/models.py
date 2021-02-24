@@ -150,7 +150,7 @@ class Region(SimpleLookupWithUUID):
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("RDG / ADM"),
                              related_name="shared_models_regions")
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("admin"),
-                             related_name="shared_models_admin_regions")
+                              related_name="shared_models_admin_regions")
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
@@ -744,19 +744,19 @@ class Organization(SimpleLookup):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True)
     is_dfo = models.BooleanField(default=True, verbose_name=_("Is this a DFO location?"))
 
+    # calc
+    full_address = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_and_address = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        self.full_address = self.get_full_address()
+        self.full_name_and_address = self.get_full_name_and_address()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.full_name_and_address
 
-    @property
-    def full_name_and_address(self):
-        mystr = self.tname
-        if self.abbrev:
-            mystr += f", ({self.abbrev})"
-        mystr += f" - {self.full_address}"
-        return mystr
-
-    @property
-    def full_address(self):
+    def get_full_address(self):
         # initial my_str with either address or None
         if self.address:
             my_str = self.address
@@ -782,8 +782,7 @@ class Organization(SimpleLookup):
             my_str += self.postal_code
         return my_str
 
-    @property
-    def full_name_and_address(self):
+    def get_full_name_and_address(self):
         return self.tname + f", {self.full_address}"
 
 

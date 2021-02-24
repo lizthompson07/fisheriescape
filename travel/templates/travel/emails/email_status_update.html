@@ -13,7 +13,7 @@ table, th, td {
 <br><br>
 
 <p>
-  {{ triprequest.user.first_name }},
+  {{ triprequest.created_by.first_name }},
   <br><br>
   Your trip request has been
   {% if triprequest.status != 11 %}
@@ -25,7 +25,7 @@ table, th, td {
     </u>
   {% endif %}
   <br><br>
-  You can click <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">HERE</a> to access
+  You can click <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access
   the request. Here are the
   details:
   <br><br>
@@ -43,7 +43,7 @@ table, th, td {
 
 {% language 'fr' %}
   <p>
-    {{ triprequest.user.first_name }},
+    {{ triprequest.created_by.first_name }},
     <br><br>
     Votre demande de voyage a été
     {% if triprequest.status != 11 %}
@@ -55,7 +55,7 @@ table, th, td {
       </u>
     {% endif %}
     <br><br>
-    Vous pouvez cliquer <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">ICI</a> pour
+    Vous pouvez cliquer <a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour
     accéder la voyage.
     Voici les détails du voyage:
   </p>
@@ -65,7 +65,9 @@ table, th, td {
       {% verbose_td_display triprequest field %}
     {% endfor %}
   </table>
+
 {% endlanguage %}
+
 <style media="screen">
 table, td {
     border: solid 1px black;

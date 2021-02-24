@@ -1,0 +1,67 @@
+{% extends "travel/form.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load custom_tags %}
+{% block pre_form_div %}
+    <div class="mt-5">
+        {% include "travel/_trip_reviewers.html" %}
+        {% include "travel/_trip_detail.html" %}
+        {% if object.role == 5 %}
+            {% include "travel/_trip_request_approvals.html" %}
+        {% endif %}
+    </div>
+
+
+{% endblock %}
+
+{% block post_form_div %}
+    <style>
+        .plainjane {
+            background-color: #f5efe6;
+            border: black solid 1px;
+        }
+
+        .admin_notes {
+            padding: 10px;
+            background-color: #efee7e;
+            font-weight: bold;
+        }
+    </style>
+    <div class="mb-3 mt-5">
+        <hr>
+        {% if trip.admin_notes %}
+            <strong>
+                {% trans "ADMINISTRATIVE NOTES" %}
+            </strong>
+            <div class="mb-3 card admin_notes">
+                {{ trip.admin_notes_html|safe }}
+            </div>
+
+        {% endif %}
+
+
+    </div>
+{% endblock %}
+
+{% block body_js %}
+
+    <script type="application/javascript">
+
+        $("#save").click(function () {
+            $("#id_stay_on_page").val(1);
+            $("form").submit();
+        });
+
+        $("#reset").click(function () {
+            var input = confirm("");
+            $("#id_reset").val(1);
+            $("form").submit();
+        });
+
+
+    </script>
+
+{% endblock %}
