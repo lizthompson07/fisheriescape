@@ -375,7 +375,7 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-                    first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d")
+                    first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d").replace(tzinfo=timezone.get_current_timezone())
                     enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish")
 
                     enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
@@ -537,7 +537,7 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-                    first_row_date = datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d")
+                    first_row_date = datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d").replace(tzinfo=timezone.get_current_timezone())
                     enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish" )
 
                     enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
@@ -584,7 +584,7 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     year, coll = year_coll_splitter(row["Group"])
-                    row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date()
+                    row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date().replace(tzinfo=timezone.get_current_timezone())
                     indv = models.Individual(grp_id_id=grp_id,
                                              spec_id_id=1,
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
@@ -875,7 +875,6 @@ class DataForm(CreatePrams):
                         break
 
                     row_date = row["date"].date()
-
                     anix_female = enter_anix(cleaned_data, indv_pk=indv_female.pk)
                     anix_male = enter_anix(cleaned_data, indv_pk=indv_male.pk)
 
@@ -939,7 +938,182 @@ class DataForm(CreatePrams):
 
                     fecu_est = models.SpawnDet(pair_id=pair,
                                                spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
-                                               det_val=row["Exp. #"],
+                                               det_val=int(row["Exp. #"]),
+                                               qual_id=models.QualCode.objects.filter(name="Calculated").get(),
+                                               created_by=cleaned_data["created_by"],
+                                               created_date=cleaned_data["created_date"],
+                                               )
+                    try:
+                        fecu_est.clean()
+                        fecu_est.save()
+                        row_entered = True
+                    except ValidationError:
+                        pass
+
+                    # grp
+                    anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
+                                                                      grp_id__isnull=False,
+                                                                      pair_id=pair,
+                                                                      indv_id__isnull=True,
+                                                                      contx_id__isnull=True,
+                                                                      indvt_id__isnull=True,
+                                                                      loc_id__isnull=True,
+                                                                      )
+                    if anix_grp_qs.count() == 0:
+
+                        grp = models.Group(spec_id=indv_female.spec_id,
+                                           stok_id=indv_female.stok_id,
+                                           coll_id=models.Collection.objects.filter(name="F1").get(),
+                                           grp_year=row_date.year,
+                                           grp_valid=False,
+                                           created_by=cleaned_data["created_by"],
+                                           created_date=cleaned_data["created_date"],
+                                           )
+                        try:
+                            grp.clean()
+                            grp.save()
+                            anix_grp = enter_anix(cleaned_data, grp_pk=grp.pk)
+                            anix_grp = enter_anix(cleaned_data, grp_pk=grp.pk, pair_pk=pair.pk)
+                            grp.grp_valid = True
+                            grp.save()
+                        except ValidationError:
+                            # recovering the group is only doable through the anix with both grp and pair.
+                            # no way to find it here, so only make the group valid after anix's created.
+                            pass
+
+                    elif anix_grp_qs.count() == 1:
+                        anix_grp = anix_grp_qs.get()
+                        grp = anix_grp.grp_id
+
+
+                except IntegrityError as err: # except Exception as err:
+                    parsed = False
+                    self.request.session["load_success"] = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
+
+            # matp
+            indv_qs = models.Individual.objects.filter(pit_tag=data["Pit or carlin"][0])
+            if len(indv_qs) == 1:
+                indv_female = indv_qs.get()
+                matp = models.MatingPlan(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                         stok_id=indv_female.stok_id,
+                                         matp_xls=cleaned_data["data_csv"],
+                                         created_by=cleaned_data["created_by"],
+                                         created_date=cleaned_data["created_date"],
+                                         )
+                try:
+                    matp.clean()
+                    matp.save()
+                except (ValidationError, IntegrityError):
+                    pass
+
+            if not parsed:
+                self.request.session["load_success"] = False
+
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+        # ---------------------------COLDBROOK SPAWNING DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Coldbrook":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], header=5, sheet_name="Recording")
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                raise Exception("File format not valid: {}".format(err.__str__()))
+            parsed = True
+            self.request.session["load_success"] = True
+
+            for row in data_dict:
+                row_parsed = True
+                row_entered = False
+                try:
+                    indv_qs = models.Individual.objects.filter(pit_tag=row["Pit tag"])
+                    indv_qs_male = models.Individual.objects.filter(pit_tag=row["Pit tag.1"])
+                    if len(indv_qs) == 1 and len(indv_qs_male) == 1:
+                        indv_female = indv_qs.get()
+                        indv_male = indv_qs_male.get()
+                    else:
+                        row_entered = False
+                        row_parsed = False
+                        indv = False
+                        log_data += "Error parsing row: \n"
+                        log_data += str(row)
+                        log_data += "\nFish with PIT {} or PIT {} not found in db\n".format(row["Pit tag"], row["Pit tag.1"])
+                        break
+
+                    row_date = row["date"].date()
+                    anix_female = enter_anix(cleaned_data, indv_pk=indv_female.pk)
+                    anix_male = enter_anix(cleaned_data, indv_pk=indv_male.pk)
+
+                    if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Wt"], "Weight", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Ln.1"], "Length", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Wt.1"], "Weight", None):
+                        row_entered = True
+
+                    # pair
+                    prio_dict = {"H": "High", "M": "Normal", "P": "Low"}
+                    pair = models.Pairing(start_date=row_date,
+                                          prio_id=models.PriorityCode.objects.filter(
+                                              name__iexact=prio_dict[row["Pri..1"]]).get(),
+                                          valid=True,
+                                          indv_id=indv_female,
+                                          comments=row["Comment"],
+                                          created_by=cleaned_data["created_by"],
+                                          created_date=cleaned_data["created_date"],
+                                          )
+                    try:
+                        pair.clean()
+                        pair.save()
+                        row_entered = True
+                    except (ValidationError, IntegrityError):
+                        pair = models.Pairing.objects.filter(start_date=row_date, indv_id=indv_female).get()
+
+                    # sire
+                    sire = models.Sire(prio_id=models.PriorityCode.objects.filter(name__iexact=prio_dict[row["Pri..1"]]).get(),
+                                       pair_id=pair,
+                                       indv_id=indv_male,
+                                       choice=row["Choice"],
+                                       comments=row["Comment.1"],
+                                       created_by=cleaned_data["created_by"],
+                                       created_date=cleaned_data["created_date"],
+                                       )
+                    try:
+                        sire.clean()
+                        sire.save()
+                        row_entered = True
+                    except (ValidationError, IntegrityError):
+                        pass
+
+                    anix_pair = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                     pair_id=pair,
+                                                     created_by=cleaned_data["created_by"],
+                                                     created_date=cleaned_data["created_date"],
+                                                     )
+                    try:
+                        anix_pair.clean()
+                        anix_pair.save()
+                        row_entered = True
+                    except ValidationError:
+                        pass
+
+                    fecu_est = models.SpawnDet(pair_id=pair,
+                                               spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
+                                               det_val=int(row["Exp. #"]),
                                                qual_id=models.QualCode.objects.filter(name="Calculated").get(),
                                                created_by=cleaned_data["created_by"],
                                                created_date=cleaned_data["created_date"],
