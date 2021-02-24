@@ -12,6 +12,7 @@
 *.xlsx
 !acrdp_template.xlsx
 !csrf_regional_submissions_template.xlsx
+!sar_workplan_template.xlsx
 !/bio_diversity/static/data_templates/*.xlsx
 *.docx
 !acrdp_template.docx

@@ -1,5 +1,7 @@
 import json
 import os
+import csv
+
 from copy import deepcopy
 
 from django.contrib import messages
@@ -23,7 +25,7 @@ from . import filters, forms, models, reports
 from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
-    get_review_score_rubric, get_status_report_field_list, get_review_field_list, in_projects_admin_group
+    get_review_score_rubric, get_status_report_field_list, get_review_field_list, in_projects_admin_group, get_user_fte_breakdown
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -1103,6 +1105,8 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
         elif report == 5:
             return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
+        elif report == 6:
+            return HttpResponseRedirect(reverse("projects2:export_rsa") + f'?year={year};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1257,16 +1261,49 @@ def export_project_list(request):
 def export_sar_workplan(request):
     year = request.GET.get("year")
     region = request.GET.get("region")
+    region_name = None
     # Create the HttpResponse object with the appropriate CSV header.
-    print("Region: " + str(region))
+    if region and region != "None":
+        region_name = shared_models.Region.objects.get(pk=region)
+
     file_url = reports.generate_sar_workplan(year, region)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = f'inline; filename="({year}) {region} - SAR Science workingplan.xls"'
+            if region_name:
+                response['Content-Disposition'] = f'inline; filename="({year}) {region_name} - SAR Science workingplan.xls"'
+            else:
+                response['Content-Disposition'] = f'inline; filename="({year}) - SAR Science workingplan.xls"'
+
             return response
     raise Http404
+
+@login_required()
+def export_regional_staff_allocation(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    # Create the HttpResponse object with the appropriate CSV header.
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}_region_({}).csv"'.format(region_name, year)
+
+    writer = csv.writer(response)
+    writer.writerow(['Staff_Member', 'Fiscal_Year', 'Draft', 'Submitted_Unapproved', 'Approved'])
+
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section__division__branch__region_id=region).values('pk')
+    users = User.objects.filter(staff_instances2__project_year_id__in=project_years).distinct().order_by("last_name")
+
+    for u in users:
+        my_dict = get_user_fte_breakdown(u, fiscal_year_id=year)
+        writer.writerow([my_dict["name"], my_dict["fiscal_year"], my_dict["draft"], my_dict["submitted_unapproved"],
+                         my_dict["approved"]])
+
+    return response
 
 # ADMIN USERS
 
