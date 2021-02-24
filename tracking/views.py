@@ -206,9 +206,6 @@ def summarize_data(context, user=None, app=None):
                 "user").distinct().annotate(dsum=Sum('page_visits'))
             if User.objects.filter(pk=my_user).exists():
                 user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
-            else:
-                User.objects.create(pk=my_user, username="test" + str(timezone.now()))
-                user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
 
         for key, value in sorted(user_dict.items(), key=lambda item: item[1], reverse=True):
             final_user_dict[key] = value
@@ -277,7 +274,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
         tools="pan,box_zoom,wheel_zoom,reset,save",
         x_axis_label='Date',
         y_axis_label='Pageviews',
-        plot_width=1000, plot_height=700,
+        plot_width=800, plot_height=500,
         x_axis_type="datetime",
         toolbar_location="above",
     )
