@@ -244,7 +244,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_i
     if env_start:
         env_datetime = datetime.datetime.combine(env_date, env_start).replace(tzinfo=timezone.get_current_timezone())
     else:
-        env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time())
+        env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time()).replace(tzinfo=timezone.get_current_timezone())
     if envsc_str:
         env = models.EnvCondition(contx_id=contx,
                                   loc_id=loc_id,

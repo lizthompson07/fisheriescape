@@ -366,7 +366,8 @@ class DataForm(CreatePrams):
                             grp.clean()
                             grp.save()
                         except ValidationError:
-                            grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
+                            grp = models.Group.objects.filter(spec_id=grp.spec_id,
+                                                              stok_id=grp.stok_id,
                                                               coll_id=grp.coll_id).get()
 
                         anix_grp = enter_anix(cleaned_data, grp_pk=grp.pk)
@@ -400,7 +401,7 @@ class DataForm(CreatePrams):
             for row in data_dict:
                 row_parsed = True
                 row_entered = False
-                row_date = datetime.strptime(str(row["Year"])+str(row["Month"])+str(row["Day"]), "%Y%b%d")
+                row_date = datetime.strptime(str(row["Year"])+str(row["Month"])+str(row["Day"]), "%Y%b%d").replace(tzinfo=timezone.get_current_timezone())
                 try:
                     loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                                           locc_id_id=1,
