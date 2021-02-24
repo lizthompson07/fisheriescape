@@ -42,7 +42,7 @@
             <div>
               <div class="text-center">
                 <p class="font-italic font-weight-bold">
-                  ${trips.length} of ${count} loaded
+                  {% trans "${trips.length} of ${count} loaded" %}
                   <button @click="clearTrips();getTrips(null)" class="btn"><span class="mdi mdi-refresh h5"></span></button>
                 </p>
               </div>
@@ -106,7 +106,7 @@
             </div>
             <div v-else>
               <div class="text-center">
-                <p class="font-italic font-weight-bold">${trips.length} of ${count} loaded</p>
+                <p class="font-italic font-weight-bold">{% trans "${trips.length} of ${count} loaded" %}</p>
                 <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
                   {% trans "Load more results..." %}
                 </button>

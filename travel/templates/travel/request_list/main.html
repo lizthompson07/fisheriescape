@@ -28,7 +28,7 @@
 
             <div>
               <div class="text-center">
-                <p class="font-italic font-weight-bold">${requests.length} of ${count} loaded</p>
+                <p class="font-italic font-weight-bold">{% trans "${requests.length} of ${count} loaded" %}</p>
               </div>
             </div>
             <table class="table table-sm table-hover">
@@ -72,7 +72,7 @@
             </div>
             <div v-else>
               <div class="text-center">
-                <p class="font-italic font-weight-bold">${requests.length} of ${count} loaded</p>
+                <p class="font-italic font-weight-bold">{% trans "${requests.length} of ${count} loaded" %}</p>
                 <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
                   {% trans "Load more results..." %}
                 </button>
