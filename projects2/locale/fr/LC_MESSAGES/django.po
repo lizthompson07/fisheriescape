@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-23 10:54-0400\n"
+"POT-Creation-Date: 2021-02-23 23:37-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -143,25 +143,25 @@ msgstr "Commencer un examen"
 msgid "send an email update to project leads"
 msgstr "Date de fin du projet"
 
-#: .\projects2\forms.py:833
+#: .\projects2\forms.py:834
 #: .\projects2\templates\projects2\manage_projects\_console.html:75
 #: .\projects2\templates\projects2\project_detail\_submit.html:12
 msgid "Fiscal Year"
 msgstr "Exercice fiscal"
 
-#: .\projects2\forms.py:834
+#: .\projects2\forms.py:835
 #, fuzzy
 #| msgid "Region"
 msgid "DFO Region"
 msgstr "Région"
 
-#: .\projects2\forms.py:835
+#: .\projects2\forms.py:836
 #, fuzzy
 #| msgid "Section"
 msgid "DFO Section"
 msgstr "Section"
 
-#: .\projects2\forms.py:870
+#: .\projects2\forms.py:871
 msgid "Enter new publication name here"
 msgstr ""
 
@@ -650,8 +650,8 @@ msgid "Other"
 msgstr "Autre"
 
 #: .\projects2\models.py:675 .\projects2\models.py:1042
-#: .\projects2\utils.py:150 .\projects2\utils.py:476 .\projects2\views.py:169
-#: .\projects2\views.py:170 .\projects2\views.py:830
+#: .\projects2\utils.py:150 .\projects2\utils.py:476 .\projects2\views.py:170
+#: .\projects2\views.py:171 .\projects2\views.py:831
 msgid "name"
 msgstr "nom"
 
@@ -1153,12 +1153,12 @@ msgid "French"
 msgstr ""
 
 #: .\projects2\templates\projects2\base\_app_title.html:2
-#: .\projects2\views.py:66 .\projects2\views.py:90
+#: .\projects2\views.py:67 .\projects2\views.py:91
 msgid "Projects"
 msgstr "Projets"
 
 #: .\projects2\templates\projects2\base\_nav_left_auth.html:4
-#: .\projects2\views.py:33
+#: .\projects2\views.py:34
 msgid "Home"
 msgstr "Accueil"
 
@@ -1370,7 +1370,7 @@ msgstr ""
 msgid "Markdown syntax is supported in this field"
 msgstr ""
 
-#: .\projects2\templates\projects2\index.html:20 .\projects2\views.py:32
+#: .\projects2\templates\projects2\index.html:20 .\projects2\views.py:33
 #, fuzzy
 msgid "DFO Science Project Planning"
 msgstr "Planification de projets (Science)"
@@ -1385,7 +1385,7 @@ msgstr "Date de début du projet"
 msgid "Your Projects"
 msgstr "Projets"
 
-#: .\projects2\templates\projects2\index.html:35 .\projects2\views.py:70
+#: .\projects2\templates\projects2\index.html:35 .\projects2\views.py:71
 #, fuzzy
 msgid "Explore Projects"
 msgstr "Cloner le projet"
@@ -1395,7 +1395,7 @@ msgstr "Cloner le projet"
 msgid "Manager Menu"
 msgstr "Gérer les étiquettes"
 
-#: .\projects2\templates\projects2\index.html:45 .\projects2\views.py:94
+#: .\projects2\templates\projects2\index.html:45 .\projects2\views.py:95
 #, fuzzy
 msgid "Manage Projects"
 msgstr "Mes projets"
@@ -2645,110 +2645,110 @@ msgstr ""
 msgid "Bioregional data layers, e.g. remote sensing, RV Survey."
 msgstr ""
 
-#: .\projects2\views.py:121
+#: .\projects2\views.py:122
 #, fuzzy
 msgid "My Projects"
 msgstr "Mes projets"
 
-#: .\projects2\views.py:132
+#: .\projects2\views.py:133
 #, fuzzy
 msgid "fiscal years"
 msgstr "exercice fiscal"
 
-#: .\projects2\views.py:134
+#: .\projects2\views.py:135
 msgid "hidden?"
 msgstr ""
 
-#: .\projects2\views.py:192
+#: .\projects2\views.py:193
 msgid ""
 "<span class='h4'>Your new project was created successfully! To get started, "
 "<b class='highlight'>add a new project year</b>.</span>"
 msgstr ""
 
-#: .\projects2\views.py:291 .\projects2\views.py:487
+#: .\projects2\views.py:292 .\projects2\views.py:488
 #, fuzzy
 msgid "Cloning: "
 msgstr "Financement"
 
-#: .\projects2\views.py:384 .\projects2\views.py:385
+#: .\projects2\views.py:385 .\projects2\views.py:386
 #, fuzzy
 msgid "Project References"
 msgstr "Chef de projet"
 
-#: .\projects2\views.py:445
+#: .\projects2\views.py:446
 #, fuzzy
 msgid "Edit "
 msgstr "Modifier"
 
-#: .\projects2\views.py:593 .\projects2\views.py:603
+#: .\projects2\views.py:594 .\projects2\views.py:604
 #, fuzzy
 msgid "Functional Groups"
 msgstr "Gérer les source de financement"
 
-#: .\projects2\views.py:832
+#: .\projects2\views.py:833
 #, fuzzy
 msgid "File attachment (EN)"
 msgstr "pièce jointe"
 
-#: .\projects2\views.py:833
+#: .\projects2\views.py:834
 #, fuzzy
 msgid "File attachment (FR)"
 msgstr "pièce jointe"
 
-#: .\projects2\views.py:840 .\projects2\views.py:848 .\projects2\views.py:861
-#: .\projects2\views.py:871 .\projects2\views.py:1029
+#: .\projects2\views.py:841 .\projects2\views.py:849 .\projects2\views.py:862
+#: .\projects2\views.py:872 .\projects2\views.py:1030
 #, fuzzy
 msgid "Reference Materials"
 msgstr "Référence"
 
-#: .\projects2\views.py:885
+#: .\projects2\views.py:886
 #, fuzzy
 msgid "Non-DMApps Staff List"
 msgstr "Section"
 
-#: .\projects2\views.py:887
+#: .\projects2\views.py:888
 msgid ""
 "The purpose of this list view is to check if any DFO staff were listed on "
 "projects, but were not connected to their dmapps user accounts"
 msgstr ""
 
-#: .\projects2\views.py:913
+#: .\projects2\views.py:914
 #, fuzzy
 #| msgid "Editing Staff Member:"
 msgid "Edit Non-DMApps Staff Member"
 msgstr "Modification au personnel:"
 
-#: .\projects2\views.py:914
+#: .\projects2\views.py:915
 msgid "Non-registered Staff List"
 msgstr ""
 
-#: .\projects2\views.py:1053
+#: .\projects2\views.py:1054
 msgid "Please provide review comments"
 msgstr ""
 
-#: .\projects2\views.py:1089
+#: .\projects2\views.py:1090
 #, fuzzy
 msgid "Project Planning Reports"
 msgstr "Planification de projets (Science)"
 
-#: .\projects2\views.py:1136 .\projects2\views.py:1177
-#: .\projects2\views.py:1205
+#: .\projects2\views.py:1139 .\projects2\views.py:1180
+#: .\projects2\views.py:1208
 msgid "Warning: There are no lead staff on this project!!"
 msgstr ""
 
-#: .\projects2\views.py:1139 .\projects2\views.py:1158
+#: .\projects2\views.py:1142 .\projects2\views.py:1161
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (position "
 "title)"
 msgstr ""
 
-#: .\projects2\views.py:1141 .\projects2\views.py:1160
+#: .\projects2\views.py:1144 .\projects2\views.py:1163
 msgid ""
 "Warning: project lead's profile information is missing in DM Apps (phone "
 "number)"
 msgstr ""
 
-#: .\projects2\views.py:1292
+#: .\projects2\views.py:1324
 msgid "Last login to DM Apps"
 msgstr ""
 
