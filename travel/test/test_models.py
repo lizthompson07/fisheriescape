@@ -87,7 +87,7 @@ class TestTravelModels(CommonTest):
     def test_trip_request_model(self):
         # a reviewer associated with a trip request can be accessed by the reverse name called `reviewers`
         reviewer = FactoryFloor.ReviewerFactory()
-        tr = reviewer.trip_request
+        tr = reviewer.request
         self.assertIn(reviewer, tr.reviewers.all())
 
         # a file associated with a trip request can be accessed by the reverse name called `files`
@@ -136,7 +136,7 @@ class TestTravelModels(CommonTest):
         # if you save a reviewer while a request is in NON DRAFT (!=8) and the reviewer is in draft status (=4), there is a problem. the status should
         # be queued (=20)
         reviewer = FactoryFloor.ReviewerFactory()
-        tr = reviewer.trip_request
+        tr = reviewer.request
 
         reviewer.status = 4  # draft
         reviewer.save()

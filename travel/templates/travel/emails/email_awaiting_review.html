@@ -19,7 +19,7 @@ table, td, th, tr {
   <br><br>
   A  {% if triprequest.is_late_request %} <b><u>LATE</u></b>{% endif %} trip request is awaiting your review as the role
   of {{ reviewer.get_role_display|upper }} in the DM Apps - Travel Management System.
-  Please click <a href="{{ SITE_FULL_URL }}{% url 'travel:request_review_list' 'awaiting' %}">HERE</a> to review the request. Here are the trip request details:
+  Please click <a href="{{ SITE_FULL_URL }}{% url 'travel:request_reviewer_list' %}">HERE</a> to review the request. Here are the trip request details:
 </p>
 
 <table>
@@ -38,7 +38,7 @@ table, td, th, tr {
     <br><br>
     Une demande de voyage {% if triprequest.is_late_request %} <b><u>TARDIVE</u></b>{% endif %} attend votre examen en tant que rôle
     de {{ reviewer.get_role_display|upper }} dans l'application DM Apps - Système de gestion de voyage de Science du SEO.
-    Veuillez cliquer <a href="{{ SITE_FULL_URL }}{% url 'travel:request_review_list' 'awaiting' %}">ICI</a> pour examiner la demande.
+    Veuillez cliquer <a href="{{ SITE_FULL_URL }}{% url 'travel:request_reviewer_list' %}">ICI</a> pour examiner la demande.
     Voici les détails du voyage:
   </p>
 

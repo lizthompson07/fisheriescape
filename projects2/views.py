@@ -56,7 +56,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
         project_count = models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title").count()
         orphen_count = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user).count()
-        context["my_project_count"] =project_count+ orphen_count
+        context["my_project_count"] = project_count + orphen_count
         return context
 
 
@@ -1103,11 +1103,11 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
         elif report == 2:
-            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list") + f'?year={year};region={region}')
         elif report == 3:
-            return HttpResponseRedirect(reverse("projects2:export_project_status_summary")+f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_project_status_summary") + f'?year={year};region={region}')
         elif report == 4:
-            return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_project_list") + f'?year={year};section={section};region={region}')
         elif report == 5:
             return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
         elif report == 6:
@@ -1200,8 +1200,6 @@ def csrf_application(request, pk):
     raise Http404
 
 
-
-
 @login_required()
 def sara_application(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
@@ -1223,7 +1221,6 @@ def sara_application(request, pk):
             response['Content-Disposition'] = f'inline; filename="{filename}"'
             return response
     raise Http404
-
 
 
 @login_required()
@@ -1289,6 +1286,7 @@ def export_regional_staff_allocation(request):
     year = request.GET.get("year")
     region = request.GET.get("region")
     # Create the HttpResponse object with the appropriate CSV header.
+    region_name = None
     if region:
         region_name = shared_models.Region.objects.get(pk=region)
 

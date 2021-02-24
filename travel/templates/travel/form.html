@@ -1,4 +1,4 @@
-{% extends "shared_models/generic_form.html" %}
+{% extends "shared_models/generic_form_with_help_text.html" %}
 
 {% block jquery_import %}
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -27,5 +27,14 @@
 {% endblock left_auth %}
 
 {% block body_js %}
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>
+
+  {% if DEBUG %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  {% else %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  {% endif %}
+
+  <script src="https://unpkg.com/vue-select@3.11.2"></script>
+  <link rel="stylesheet" href="https://unpkg.com/vue-select@3.11.2/dist/vue-select.css">
+
 {% endblock %}

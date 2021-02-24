@@ -19,8 +19,8 @@ faker = Faker()
 class TestReportSearchFormView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('travel:report_search')
-        self.expected_template = 'travel/report_search.html'
+        self.test_url = reverse_lazy('travel:reports')
+        self.expected_template = 'travel/reports.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("travel", 'report', "view")
