@@ -1092,7 +1092,7 @@ class TripRequest1(models.Model):
                                     blank=True, null=True, related_name="requests", editable=False)
 
     # metadata
-    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False)
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False, verbose_name=_("created by"))
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_updated_by", blank=True, null=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
