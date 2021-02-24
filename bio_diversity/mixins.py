@@ -488,13 +488,6 @@ class SireMixin:
     title = _("Sire")
     admin_only = False
 
-class SpwnMixin:
-    key = 'spwn'
-    model = models.Spawning
-    form_class = forms.SpwnForm
-    title = _("Spawning")
-    admin_only = False
-
 class SpwndMixin:
     key = 'spwnd'
     model = models.SpawnDet

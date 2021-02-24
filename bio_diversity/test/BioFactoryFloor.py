@@ -56,7 +56,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
     indvt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtFactory")
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
-    spwn_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwnFactory")
+    pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
 
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -69,7 +69,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
         loc = LocFactory()
         indvt = IndvtFactory()
         indv = IndvFactory()
-        spwn = SpwnFactory()
+        pair = PairFactory()
         grp = GrpFactory()
         obj = AnixFactory.build(**kwargs)
 
@@ -81,7 +81,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
             'loc_id': loc.pk,
             'indvt_id': indvt.pk,
             'indv_id': indv.pk,
-            'spwn_id': spwn.pk,
+            'pair_id': pair.pk,
             'grp_id': grp.pk,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -833,6 +833,7 @@ class FecuFactory(factory.django.DjangoModelFactory):
     # needs an inst id
     stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
     coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
+    evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
     alpha = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
@@ -847,6 +848,7 @@ class FecuFactory(factory.django.DjangoModelFactory):
 
         stok = StokFactory()
         coll = CollFactory()
+        evnt = EvntFactory()
 
         obj = FecuFactory.build(**kwargs)
 
@@ -854,6 +856,7 @@ class FecuFactory(factory.django.DjangoModelFactory):
         data = {
             'stok_id': stok.pk,
             'coll_id': coll.pk,
+            'evnt_id': evnt.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
             'alpha': obj.alpha,
@@ -2162,40 +2165,11 @@ class SireFactory(factory.django.DjangoModelFactory):
         return data
 
 
-class SpwnFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.Spawning
-
-    pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
-    spwn_date = factory.lazy_attribute(lambda o: faker.date())
-    est_fecu = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
-    comments = factory.lazy_attribute(lambda o: faker.text())
-    created_by = factory.lazy_attribute(lambda o: faker.name())
-    created_date = factory.lazy_attribute(lambda o: faker.date())
-
-    @staticmethod
-    def build_valid_data(**kwargs):
-        pair = PairFactory()
-        obj = SpwnFactory.build(**kwargs)
-
-        # Convert the data to a dictionary to be used in testing
-        data = {
-            'pair_id': pair.pk,
-            'spwn_date': obj.spwn_date,
-            'est_fecu': obj.est_fecu,
-            'comments': obj.comments,
-            'created_by': obj.created_by,
-            'created_date': obj.created_date,
-        }
-
-        return data
-
-
 class SpwndFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SpawnDet
 
-    spwn_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwnFactory")
+    pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
     spwndc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwndcFactory")
     spwnsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwnscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
@@ -2206,7 +2180,7 @@ class SpwndFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
-        spwn = SpwnFactory()
+        pair = PairFactory()
         spwnsc = SpwnscFactory()
         qual = QualFactory()
         obj = SpwndFactory.build(**kwargs)
@@ -2214,7 +2188,7 @@ class SpwndFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'spwn_id': spwn.pk,
+            'pair_id': pair.pk,
             'spwndc_id': spwndc.pk,
             'spwnsc_id': spwnsc.pk,
             'qual_id': qual.pk,

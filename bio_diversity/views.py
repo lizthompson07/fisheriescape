@@ -526,19 +526,6 @@ class SireCreate(mixins.SireMixin, CommonCreate):
         return initial
 
 
-class SpwnCreate(mixins.SpwnMixin, CommonCreate):
-    def form_valid(self, form):
-        """If the form is valid, save the associated model and add an X ref object."""
-        self.object = form.save()
-        if 'evnt' in self.kwargs:
-            anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(), 
-                                             spwn_id=self.object, created_by=self.object.created_by, 
-                                             created_date=self.object.created_date)
-            anix_link.clean()
-            anix_link.save()
-        return super().form_valid(form)
-
-
 class SpwndCreate(mixins.SpwndMixin, CommonCreate):
     pass
 
@@ -680,7 +667,7 @@ class AnidcDetails(mixins.AnidcMixin, CommonDetails):
 
 
 class AnixDetails(mixins.AnixMixin, CommonDetails):
-    fields = ["evnt_id", "contx_id", "loc_id", "indvt_id", "indv_id", "spwn_id", "grp_id", "created_by",
+    fields = ["evnt_id", "contx_id", "loc_id", "indvt_id", "indv_id", "pair_id", "grp_id", "created_by",
               "created_date", ]
 
 
@@ -814,7 +801,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "name",
         ]
         anix_set = self.object.animal_details.filter(indv_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
-                                                     loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
+                                                     loc_id__isnull=True, indvt_id__isnull=True, pair_id__isnull=True)
         context["indv_list"] = list(dict.fromkeys([anix.indv_id for anix in anix_set]))
         context["indv_object"] = models.Individual.objects.first()
         context["indv_field_list"] = [
@@ -824,7 +811,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
 
         ]
         anix_set = self.object.animal_details.filter(grp_id__isnull=False, indv_id__isnull=True, contx_id__isnull=True,
-                                                     loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
+                                                     loc_id__isnull=True, indvt_id__isnull=True, pair_id__isnull=True)
         context["grp_list"] = list(dict.fromkeys([anix.grp_id for anix in anix_set]))  # get unique values
         context["grp_object"] = models.Group.objects.first()
         context["grp_field_list"] = [
@@ -841,14 +828,13 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "end_date",
         ]
 
-        anix_set = self.object.animal_details.filter(spwn_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
+        anix_set = self.object.animal_details.filter(pair_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
                                                      loc_id__isnull=True, indvt_id__isnull=True, indv_id__isnull=True)
-        context["spwn_list"] = list(dict.fromkeys([anix.spwn_id for anix in anix_set]))
-        context["spwn_object"] = models.Spawning.objects.first()
-        context["spwn_field_list"] = [
-            "pair_id",
-            "est_fecu",
-            "spwn_date",
+        context["pair_list"] = list(dict.fromkeys([anix.pair_id for anix in anix_set]))
+        context["pair_object"] = models.Pairing.objects.first()
+        context["pair_field_list"] = [
+            "start_date",
+            "indv_id",
         ]
 
         context["matp_object"] = models.MatingPlan.objects.first()
@@ -857,7 +843,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "stok_id",
         ]
 
-        context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "spwn", "matp"]
+        context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "pair", "matp"]
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
             context["table_list"] = ["data", "loc", "grp", "tank"]
@@ -870,7 +856,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         elif evnt_code == "Water Quality Record":
             context["table_list"] = ["data", "tank"]
         elif evnt_code == "Spawning":
-            context["table_list"] = ["data", "indv", "spwn", "grp", "matp"]
+            context["table_list"] = ["data", "indv", "pair", "grp", "matp"]
 
         return context
 
@@ -884,8 +870,8 @@ class FacicDetails(mixins.FacicMixin, CommonDetails):
 
 
 class FecuDetails(mixins.FecuMixin, CommonDetails):
-    fields = ["stok_id", "coll_id", "description_en", "start_date", "end_date", "alpha", "beta", "valid", "comments",
-              "created_by", "created_date", ]
+    fields = ["stok_id", "coll_id", "evnt_id", "description_en", "start_date", "end_date", "alpha", "beta", "valid",
+              "comments", "created_by", "created_date", ]
 
 
 class FeedDetails(mixins.FeedMixin, CommonDetails):
@@ -909,7 +895,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
 
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, indv_id__isnull=True, spwn_id__isnull=True)
+                                                     indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True)
         context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
@@ -931,7 +917,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         ]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+                                                          indvt_id__isnull=True, pair_id__isnull=True)
 
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
@@ -984,17 +970,16 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
         context["title"] = "Individual: {}".format(self.object.__str__())
 
-        anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
-        context["spwn_list"] = list(dict.fromkeys([anix.spwn_id for anix in anix_set]))
-        context["spwn_object"] = models.Spawning.objects.first()
-        context["spwn_field_list"] = [
-            "spwn_date",
-            "pair_id",
-            "est_fecu",
+        anix_set = self.object.animal_details.filter(pair_id__isnull=False)
+        context["pair_list"] = list(dict.fromkeys([anix.pair_id for anix in anix_set]))
+        context["pair_object"] = models.Pairing.objects.first()
+        context["pair_field_list"] = [
+            "start_date",
+            "indv_id",
         ]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+                                                          indvt_id__isnull=True, pair_id__isnull=True)
         context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
@@ -1026,7 +1011,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         ]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+                                                          indvt_id__isnull=True, pair_id__isnull=True)
 
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
@@ -1218,12 +1203,8 @@ class SireDetails(mixins.SireMixin, CommonDetails):
     fields = ["prio_id", "pair_id",  "indv_id", "choice", "comments", "created_by", "created_date", ]
 
 
-class SpwnDetails(mixins.SpwnMixin, CommonDetails):
-    fields = ["pair_id", "spwn_date", "est_fecu", "comments", "created_by", "created_date", ]
-
-
 class SpwndDetails(mixins.SpwndMixin, CommonDetails):
-    fields = ["spwn_id", "spwndc_id", "det_val", "spwnsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["pair_id", "spwndc_id", "det_val", "spwnsc_id", "qual_id", "comments", "created_by", "created_date", ]
 
 
 class SpwndcDetails(mixins.SpwndcMixin, CommonDetails):
@@ -1715,14 +1696,9 @@ class SireList(mixins.SireMixin, CommonList):
     fields = ["prio_id", "pair_id", ]
 
 
-class SpwnList(mixins.SpwnMixin, CommonList):
-    filterset_class = filters.SpwnFilter
-    fields = ["pair_id", "spwn_date", ]
-
-
 class SpwndList(mixins.SpwndMixin, CommonList):
     filterset_class = filters.SpwndFilter
-    fields = ["spwn_id", "spwndc_id", ]
+    fields = ["pair_id", "spwndc_id", ]
 
 
 class SpwndcList(mixins.SpwndcMixin, CommonList):
@@ -2109,10 +2085,6 @@ class SampdUpdate(mixins.SampdMixin, CommonUpdate):
 
 
 class SireUpdate(mixins.SireMixin, CommonUpdate):
-    pass
-
-
-class SpwnUpdate(mixins.SpwnMixin, CommonUpdate):
     pass
 
 

@@ -6,19 +6,19 @@
 {% bootstrap_css %}
 
 {% block detail_tables %}
-    {% if spwn_list %}
-        <div class="card border border-dark my-1" name="spwn-details">
-            <h5 class="card-header">{% trans "Individual Spawning" %}</h5>
+    {% if pair_list %}
+        <div class="card border border-dark my-1" name="pair-details">
+            <h5 class="card-header">{% trans "Individual Pairing" %}</h5>
             <table class="table table-sm sortable table-hover">
                 <thead>
-                    {% for field in spwn_field_list %}
-                        <th>{% get_verbose_label spwn_object field %}</th>
+                    {% for field in pair_field_list %}
+                        <th>{% get_verbose_label pair_object field %}</th>
                     {% endfor %}
                 </thead>
                 <tbody>
-                    {% for obj in spwn_list %}
-                        <tr href="{% url 'bio_diversity:details_spwn' 'indv' object.id obj.id %}">
-                        {% for field in spwn_field_list %}
+                    {% for obj in pair_list %}
+                        <tr href="{% url 'bio_diversity:details_pair' 'indv' object.id obj.id %}">
+                        {% for field in pair_field_list %}
                             <td>
                                 {% get_field_value obj field %}
                             </td>

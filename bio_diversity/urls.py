@@ -269,6 +269,7 @@ urlpatterns = [
 
     path('create/pair/', views.PairCreate.as_view(), name="create_pair"),
     path('create/pair/<str:pop>/', views.PairCreate.as_view(), name="create_pair"),
+    path('create/pair/<int:evnt>/<str:pop>/', views.PairCreate.as_view(), name="create_pair"),
     path('details/pair/<int:pk>/', views.PairDetails.as_view(), name="details_pair"),
     path('details/pair/<str:back>/<int:back_id>/<int:pk>/', views.PairDetails.as_view(), name="details_pair"),
     path('list/pair/', views.PairList.as_view(), name="list_pair"),
@@ -355,13 +356,6 @@ urlpatterns = [
     path('list/sire/', views.SireList.as_view(), name="list_sire"),
     path('update/sire/<int:pk>/', views.SireUpdate.as_view(), name="update_sire"),
 
-    path('create/spwn/', views.SpwnCreate.as_view(), name="create_spwn"),
-    path('create/spwn/<int:evnt>/<str:pop>/', views.SpwnCreate.as_view(), name="create_spwn"),
-    path('details/spwn/<int:pk>/', views.SpwnDetails.as_view(), name="details_spwn"),
-    path('details/spwn/<str:back>/<int:back_id>/<int:pk>/', views.SpwnDetails.as_view(), name="details_spwn"),
-    path('list/spwn/', views.SpwnList.as_view(), name="list_spwn"),
-    path('update/spwn/<int:pk>/', views.SpwnUpdate.as_view(), name="update_spwn"),
-    
     path('create/spwnd/', views.SpwndCreate.as_view(), name="create_spwnd"),
     path('details/spwnd/<int:pk>/', views.SpwndDetails.as_view(), name="details_spwnd"),
     path('list/spwnd/', views.SpwndList.as_view(), name="list_spwnd"),

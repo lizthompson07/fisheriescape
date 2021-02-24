@@ -234,20 +234,20 @@ class AniDetailXref(BioModel):
                                  verbose_name=_("Individual Treatment"))
     indv_id = models.ForeignKey("Individual", on_delete=models.CASCADE, null=True, blank=True,
                                 related_name="animal_details", verbose_name=_("Individual"))
-    spwn_id = models.ForeignKey("Spawning", on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Spawning"))
+    pair_id = models.ForeignKey("Pairing", on_delete=models.CASCADE, null=True, blank=True,
+                                verbose_name=_("Pairing"))
     grp_id = models.ForeignKey("Group", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Group"),
                                related_name="animal_details")
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indvt_id', 'indv_id', 'spwn_id',
+            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indvt_id', 'indv_id', 'pair_id',
                                             'grp_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
         ]
 
     def clean(self):
         super(AniDetailXref, self).clean()
-        if not (self.contx_id or self.loc_id or self.indvt_id or self.indv_id or self.spwn_id or self.grp_id):
+        if not (self.contx_id or self.loc_id or self.indvt_id or self.indv_id or self.pair_id or self.grp_id):
             raise ValidationError("You must specify at least one item to reference to the event")
 
     def __str__(self):
@@ -611,6 +611,7 @@ class FacilityCode(BioLookup):
 class Fecundity(BioDateModel):
     # fecu tag
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
+    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"))
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Collection"))
     alpha = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("A"))
@@ -618,7 +619,7 @@ class Fecundity(BioDateModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date'], name='Fecundity_Uniqueness')
+            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date', 'evnt_id'], name='Fecundity_Uniqueness')
         ]
 
     def __str__(self):
@@ -1354,37 +1355,20 @@ class Sire(BioModel):
         ]
 
 
-class Spawning(BioModel):
-    # spwn tag
-    pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, verbose_name=_("Pairing"),
-                                limit_choices_to={'valid': True})
-    spwn_date = models.DateField(verbose_name=_("Date of spawning"))
-    est_fecu = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Estimated Fecundity"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-
-    def __str__(self):
-        return "{}-{}".format(self.pair_id.indv_id.__str__(), self.spwn_date)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['pair_id', 'spwn_date'], name='Spawning_Uniqueness')
-        ]
-
-
 class SpawnDet(BioDet):
     # spwnd tag
-    spwn_id = models.ForeignKey('Spawning', on_delete=models.CASCADE, verbose_name=_("Spawning"))
+    pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, verbose_name=_("Pairing"))
     spwndc_id = models.ForeignKey('SpawnDetCode', on_delete=models.CASCADE, verbose_name=_("Spawning Detail Code"))
     spwnsc_id = models.ForeignKey('SpawnDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
                                   verbose_name=_("Spawning Detail Subjective Code"))
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['spwn_id', 'spwndc_id', 'spwnsc_id'], name='Spawning_Detail_Uniqueness')
+            models.UniqueConstraint(fields=['pair_id', 'spwndc_id', 'spwnsc_id'], name='Spawning_Detail_Uniqueness')
         ]
 
     def __str__(self):
-        return "{} - {}".format(self.spwn_id.__str__(), self.spwndc_id.__str__())
+        return "{} - {}".format(self.pair_id.__str__(), self.spwndc_id.__str__())
 
     def clean(self):
         super(SpawnDet, self).clean()

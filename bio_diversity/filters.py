@@ -428,18 +428,11 @@ class SireFilter(django_filters.FilterSet):
         fields = ["prio_id", "pair_id", ]
 
 
-class SpwnFilter(django_filters.FilterSet):
-
-    class Meta:
-        model = models.Spawning
-        fields = ["pair_id", "spwn_date", ]
-
-
 class SpwndFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.SpawnDet
-        fields = ["spwndc_id", "spwn_id", ]
+        fields = ["spwndc_id", "pair_id", ]
 
 
 class SpwndcFilter(django_filters.FilterSet):

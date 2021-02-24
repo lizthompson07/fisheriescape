@@ -548,7 +548,7 @@ class DataForm(CreatePrams):
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
+        elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
                                      converters={'to tank': str})
@@ -652,7 +652,7 @@ class DataForm(CreatePrams):
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
             # ---------------------------TAGGING MACTAQUAC DATA ENTRY----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Tagging" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+        elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
                                      converters={'to tank': str, "PIT": str})
@@ -942,29 +942,14 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         pass
 
-                    # spwn
-                    spwn = models.Spawning(pair_id=pair,
-                                           spwn_date=row_date,
-                                           est_fecu=row["Exp. #"],
-                                           comments=row["Comments"],
-                                           created_by=cleaned_data["created_by"],
-                                           created_date=cleaned_data["created_date"],
-                                           )
-                    try:
-                        spwn.clean()
-                        spwn.save()
-                        row_entered = True
-                    except (ValidationError, IntegrityError):
-                        spwn = models.Spawning.objects.filter(pair_id=pair).get()
-
-                    anix_spwn = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                     spwn_id=spwn,
+                    anix_pair = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                     pair_id=pair,
                                                      created_by=cleaned_data["created_by"],
                                                      created_date=cleaned_data["created_date"],
                                                      )
                     try:
-                        anix_spwn.clean()
-                        anix_spwn.save()
+                        anix_pair.clean()
+                        anix_pair.save()
                         row_entered = True
                     except ValidationError:
                         pass
@@ -1425,20 +1410,6 @@ class SireForm(CreatePrams):
         widgets = {
             "indv_id": forms.Select(attrs={"class": "chosen-select-contains"}),
         }
-
-
-class SpwnForm(CreatePrams):
-    class Meta:
-        model = models.Spawning
-        exclude = []
-        widgets = {
-            'spwn_date': forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['pair_id'].create_url = 'bio_diversity:create_pair'
 
 
 class SpwndForm(CreatePrams):
