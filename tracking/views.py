@@ -142,7 +142,7 @@ def app_history(request, app):
 
 def summarize_data(context, user=None, app=None):
     # start by chucking all the unsummarized data
-    utils.chunk_pageviews()
+    # utils.chunk_pageviews()
 
     # now build the context variable to pass in
     if not app:
@@ -344,19 +344,19 @@ def generate_page_visit_report(app_list, user=None, app=None):
         },
     ))
 
-    if calc_total:
-        total_count = []
-        for date in date_list:
-            # create a new file containing data
-            if not user:
-                result = VisitSummary.objects.filter(date=date).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
-            else:
-                result = VisitSummary.objects.filter(date=date, user=user).values('date').order_by("date").distinct().annotate(
-                    dsum=Sum('page_visits'))
-            total_count.append(result[0]["dsum"])
-
-        p.line(date_list, total_count, legend_label="total", line_color='black', line_width=1, line_dash=[6, 3])
-        p.circle(date_list, total_count, legend_label="total", fill_color='black', line_color="black", size=1)
-        p.legend.location = "top_left"
+    # if calc_total:
+    #     total_count = []
+    #     for date in date_list:
+    #         # create a new file containing data
+    #         if not user:
+    #             result = VisitSummary.objects.filter(date=date).values('date').order_by("date").distinct().annotate(dsum=Sum('page_visits'))
+    #         else:
+    #             result = VisitSummary.objects.filter(date=date, user=user).values('date').order_by("date").distinct().annotate(
+    #                 dsum=Sum('page_visits'))
+    #         total_count.append(result[0]["dsum"])
+    #
+    #     p.line(date_list, total_count, legend_label="total", line_color='black', line_width=1, line_dash=[6, 3])
+    #     p.circle(date_list, total_count, legend_label="total", fill_color='black', line_color="black", size=1)
+    #     p.legend.location = "top_left"
 
     save(p)
