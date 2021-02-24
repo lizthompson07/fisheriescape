@@ -69,8 +69,8 @@ def dashboard(request):
 
     # get the last 100 page visits
     page_visits = Pageview.objects.all().order_by("-view_time")
-    if len(page_visits) > 1001:
-        page_visits = page_visits[:1000]
+    if len(page_visits) > 101:
+        page_visits = page_visits[:100]
 
     context = {
         'form': form,
