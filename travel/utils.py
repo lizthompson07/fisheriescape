@@ -218,6 +218,11 @@ def get_request_reviewers(trip_request):
         for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.order_by("order"):
             models.Reviewer.objects.get_or_create(request=trip_request, user=default_reviewer.user, role=1)
 
+        # rds admin
+        ###############
+        if trip_request.section.division.branch.admin:
+            models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.admin, role=1)
+
         # RDS
         #####
         if trip_request.section.division.branch.head and trip_request.section.division.branch.head not in [t.user for t in travellers]:

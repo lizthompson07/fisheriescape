@@ -567,7 +567,7 @@ var app = new Vue({
       return myArray
     },
     submitTip() {
-      if (this.request) {
+      if (this.request.id) {
         if (this.request.is_late_request && !this.request.late_justification) return lateJustificationTip;
         else if (!this.request.travellers.length) return noTravellersTip;
       }
