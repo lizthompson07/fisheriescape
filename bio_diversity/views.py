@@ -1113,7 +1113,12 @@ class PairDetails(mixins.PairMixin, CommonDetails):
             "prio_id",
             "choice",
         ]
-
+        context["spwnd_object"] = models.SpawnDet.objects.first()
+        context["spwnd_field_list"] = [
+            "spwndc_id",
+            "det_val",
+            "qual_id",
+        ]
         return context
 
 

@@ -351,7 +351,7 @@ class DataForm(CreatePrams):
                                                                       contx_id__isnull=True,
                                                                       indvt_id__isnull=True,
                                                                       loc_id__isnull=True,
-                                                                      spwn_id__isnull=True)
+                                                                      pair_id__isnull=True)
                     if anix_grp_qs.count() == 0:
 
                         grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
@@ -514,7 +514,7 @@ class DataForm(CreatePrams):
                                                                       contx_id__isnull=True,
                                                                       indvt_id__isnull=True,
                                                                       loc_id__isnull=True,
-                                                                      spwn_id__isnull=True)
+                                                                      pair_id__isnull=True)
 
                     if anix_grp_qs.count() == 0:
                         grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
@@ -953,7 +953,23 @@ class DataForm(CreatePrams):
                         row_entered = True
                     except ValidationError:
                         pass
+
+                    fecu_est = models.SpawnDet(pair_id=pair,
+                                               spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
+                                               det_val=row["Exp. #"],
+                                               qual_id=models.QualCode.objects.filter(name="Calculated").get(),
+                                               created_by=cleaned_data["created_by"],
+                                               created_date=cleaned_data["created_date"],
+                                               )
+                    try:
+                        fecu_est.clean()
+                        fecu_est.save()
+                        row_entered = True
+                    except ValidationError:
+                        pass
+
                     # grp
+
 
 
 

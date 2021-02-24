@@ -1357,7 +1357,7 @@ class Sire(BioModel):
 
 class SpawnDet(BioDet):
     # spwnd tag
-    pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, verbose_name=_("Pairing"))
+    pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, related_name="spawning_details", verbose_name=_("Pairing"))
     spwndc_id = models.ForeignKey('SpawnDetCode', on_delete=models.CASCADE, verbose_name=_("Spawning Detail Code"))
     spwnsc_id = models.ForeignKey('SpawnDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
                                   verbose_name=_("Spawning Detail Subjective Code"))

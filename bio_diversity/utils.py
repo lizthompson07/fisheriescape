@@ -295,7 +295,7 @@ def enter_anix_indv(indv_pk, cleaned_data):
                                                             indv_id=anix_indv.indv_id,
                                                             contx_id__isnull=True,
                                                             loc_id__isnull=True,
-                                                            spwn_id__isnull=True,
+                                                            pair_id__isnull=True,
                                                             grp_id__isnull=True,
                                                             indvt_id__isnull=True,
                                                             ).get()
@@ -318,7 +318,7 @@ def enter_anix_grp(grp_pk, cleaned_data):
                                                            grp_id=anix_grp.grp_id,
                                                            contx_id__isnull=True,
                                                            loc_id__isnull=True,
-                                                           spwn_id__isnull=True,
+                                                           pair_id__isnull=True,
                                                            indv_id__isnull=True,
                                                            indvt_id__isnull=True,
                                                            ).get()
@@ -355,7 +355,7 @@ def enter_anix_contx(tank, cleaned_data):
                                                              contx_id=anix_contx.contx_id,
                                                              indv_id__isnull=True,
                                                              loc_id__isnull=True,
-                                                             spwn_id__isnull=True,
+                                                             pair_id__isnull=True,
                                                              grp_id__isnull=True,
                                                              indvt_id__isnull=True,
                                                              ).get()

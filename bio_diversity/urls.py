@@ -358,6 +358,7 @@ urlpatterns = [
 
     path('create/spwnd/', views.SpwndCreate.as_view(), name="create_spwnd"),
     path('details/spwnd/<int:pk>/', views.SpwndDetails.as_view(), name="details_spwnd"),
+    path('details/spwnd/<str:back>/<int:back_id>/<int:pk>/', views.SpwndDetails.as_view(), name="details_spwnd"),
     path('list/spwnd/', views.SpwndList.as_view(), name="list_spwnd"),
     path('update/spwnd/<int:pk>/', views.SpwndUpdate.as_view(), name="update_spwnd"),
     
