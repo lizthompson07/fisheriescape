@@ -133,30 +133,12 @@ def get_trip_reviewers(trip):
     # This section only matters for ADM trips
 
     if trip.is_adm_approval_required:
+        # NCR travel coordinator(3), ADM Recommender(4), ADM (5)
+        roles = [3, 4, 5]
+        for role in roles:
+            for default_reviewer in models.DefaultReviewer.objects.filter(special_role=role).order_by("order"):
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=role)
 
-        # NCR travel coordinator
-        try:
-            # add each default NCR coordinator to the queue
-            for default_reviewer in models.ReviewerRole.objects.get(pk=3).travel_default_reviewers.order_by("id"):
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=3)
-        except (IntegrityError, KeyError):
-            pass
-
-        # ADM Approver
-        try:
-            # add each default ADM approver to the queue
-            for default_reviewer in models.ReviewerRole.objects.get(pk=4).travel_default_reviewers.order_by("id"):
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=4)
-        except (IntegrityError, KeyError):
-            pass
-
-        # ADM Approver
-        try:
-            # add ADM to the queue
-            for default_reviewer in models.ReviewerRole.objects.get(pk=5).travel_default_reviewers.all():
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=5)
-        except (IntegrityError, KeyError):
-            pass
     else:
         trip.reviewers.all().delete()
     trip.save()
@@ -195,9 +177,8 @@ def get_request_reviewers(trip_request):
         ##############
         # if the division head is the one creating the request, the section head should be skipped as a recommender AND
         # if the section head is the one creating the request, they should be skipped as a recommender
-        if trip_request.section.head and trip_request.section.head not in [t.user for t in travellers] and trip_request.section.division.head not in [t.user for
-                                                                                                                                                      t in
-                                                                                                                                                      travellers]:
+        if trip_request.section.head and trip_request.section.head not in [t.user for t in travellers] and \
+                trip_request.section.division.head not in [t.user for t in travellers]:
             models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.head, role=2)
 
         # SPECIAL OPTIONAL INSERTS --> pre-division
@@ -244,7 +225,13 @@ def get_request_reviewers(trip_request):
         #####
         if trip_request.section.division.branch.region.head and trip_request.section.division.branch.region.head not in [t.user for t in travellers]:
             models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=6)
-    trip_request.save()
+
+        # ensure the process order makes sense
+        count = 1
+        for r in trip_request.reviewers.order_by('id'):  # sort by id since this will correspond to order of creation
+            r.order = count
+            r.save()
+            count += 1
 
 
 def start_request_review_process(trip_request):

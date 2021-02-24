@@ -2,6 +2,7 @@ from gettext import gettext as _
 
 from django.db.models import Q
 from django.template.defaultfilters import date, pluralize
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
@@ -247,7 +248,11 @@ class TravellerViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         my_request = instance.request
+        # we never want this to be used to delete a traveller from an approved trip
+        if my_request.status == 11:
+            raise ValidationError("Sorry, we cannot delete a traveller from an approved trip.")
         super().perform_destroy(instance)
+        # if the trip is NOT in draft mode, need to provide annotation in the admin notes.
         if my_request.status != 8:
             my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
 
@@ -547,31 +552,35 @@ class AdminWarningsAPIView(APIView):
 
     def get(self, request):
         msgs = list()
+        anchor_txt = _("Verify now")
         if utils.is_admin(request.user):
+            btn = f' &rarr; <a href="{reverse("travel:trip_list")}?regional-verification=true">{anchor_txt}</a>'
+
             for region in Region.objects.all():
                 qs = models.Conference.objects.filter(status=30, is_adm_approval_required=False, lead=region)
                 if qs.exists():
                     msgs.append(
                         # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
                         _("<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
-                            region=region, unverified_trips=qs.count(), pluralization=pluralize(qs.count())))
+                            region=region, unverified_trips=qs.count(), pluralization=pluralize(qs.count())) + btn)
 
             qs = models.Conference.objects.filter(status=30, is_adm_approval_required=False, lead__isnull=True)
             if qs.exists():
                 if qs.count() == 1:
                     msg = _("<b>ADMIN WARNING:</b> There is {unverified_trips} unverified trip requiring attention with <u>no regional lead</u>!!".format(
-                        unverified_trips=qs.count()))
+                        unverified_trips=qs.count())) + btn
                 else:
                     msg = _("<b>ADMIN WARNING:</b> There are {unverified_trips} unverified trips requiring attention with <u>no regional lead</u>".format(
-                        unverified_trips=qs.count()))
+                        unverified_trips=qs.count())) + btn
                 msgs.append(msg)
 
         if utils.in_adm_admin_group(request.user):
             qs = models.Conference.objects.filter(status=30, is_adm_approval_required=True)
             if qs.exists():
+                btn = f' &rarr; <a href="{reverse("travel:trip_list")}?adm-verification=true">{anchor_txt}</a>'
                 msgs.append(
                     # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
                     _("<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralization} requiring attention!!".format(
                         unverified_trips=qs.count(), pluralization=pluralize(qs.count())
-                    )))
+                    )) + btn)
         return Response(msgs, status=status.HTTP_200_OK)

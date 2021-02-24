@@ -37,12 +37,13 @@
                 <div class="card-body">
                   <div class="float-right">
                     <button v-if="!isReview && canModify && !trip && !t.show_me" @click="editTraveller(t)"><span class="mdi mdi-pencil h4"
-                                                                                                   data-toggle="tooltip"
-                                                                                                   title="{% trans "Edit" %}"></span></button>
+                                                                                                                 data-toggle="tooltip"
+                                                                                                                 title="{% trans "Edit" %}"></span></button>
                     <button v-if="!isReview && canModify && !trip && !t.show_me" @click="addTraveller(t)"><span class="mdi mdi-content-copy h4"
-                                                                                                  data-toggle="tooltip" title="{% trans "Clone" %}"></span></button>
+                                                                                                                data-toggle="tooltip"
+                                                                                                                title="{% trans "Clone" %}"></span></button>
                     <button v-if="canModify && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4" data-toggle="tooltip"
-                                                                               title="{% trans "Remove" %}"></span></button>
+                                                                                             title="{% trans "Remove" %}"></span></button>
                     &nbsp; &nbsp; &nbsp;
                     <button @click="toggleShowMe(t)"
                             data-toggle="tooltip" title="{% trans "collapse" %}">
@@ -60,29 +61,55 @@
                       <hr>
                       <h4>{% trans "Request Level" %}</h4>
                       <p>
-                        <b>{% trans "Associated trip request" %}</b>
+                        <b>{% trans "Associated trip request:" %}</b>
                         <a :href="`/travel-plans/requests/${t.request_obj.id}/view/`" target="_blank">${t.request_obj.display}</a>
                       </p>
+                      {#                      <p>#}
+                      {#                        <b>${requestLabels.status}</b>#}
+                      {#                        <span><span :class="t.request_obj.status_class + ' px-1 py-1'">${t.request_obj.status_display}</span></span>#}
+                      {#                      </p>#}
                       <p>
-                        <b>${requestLabels.status}</b>
-                        <span><span :class="t.request_obj.status_class + ' px-1 py-1'">${t.request_obj.status_display}</span></span>
-                      </p>
-                      <p>
-                        <b>{% trans "DFO region" %}</b>
+                        <b>{% trans "DFO region:" %}</b>
                         <span>${t.request_obj.region}</span>
                       </p>
                       <p>
-                        <b>{% trans "Objective of trip" %}</b>
+                        <b>{% trans "Objective of trip:" %}</b>
                         <span>${t.request_obj.objective_of_event | nz}</span>
                       </p>
                       <p>
-                        <b>{% trans "Benefits to DFO" %}</b>
+                        <b>{% trans "Benefits to DFO:" %}</b>
                         <span>${t.request_obj.benefit_to_dfo | nz}</span>
                       </p>
                       <p v-if="t.request_obj.late_justification">
-                        <b>${requestLabels.late_justification}</b>
+                        <b>${requestLabels.late_justification}:</b>
                         <span>${t.request_obj.late_justification}</span>
                       </p>
+                      <div v-if="t.request_obj.reviewer_history.length">
+                        <p>
+                          <b>
+                            {% trans "Regional reviews and recommendations:" as trans_txt %}
+                            {{ trans_txt|upper }}
+                          </b>
+                        <table class="table table-sm" style="width: auto;">
+                          <tbody>
+                          <tr>
+                            <th>${ reviewerLabels.user}</th>
+                            <th>${ reviewerLabels.role}</th>
+                            <th>${ reviewerLabels.status}</th>
+                            <th style="width: 45%">${ reviewerLabels.comments}</th>
+                          </tr>
+                          <tr v-for="(reviewer, index) in t.request_obj.reviewer_history">
+                            <td>${reviewer.user_display}</td>
+                            <td>${reviewer.role_display}</td>
+                            <td><span :class="reviewer.status_class + ' px-1 py-1'">${reviewer.status_display}</span></td>
+                            <td v-html="reviewer.comments_html"></td>
+                          </tr>
+                          </tbody>
+                        </table>
+                        </p>
+                      </div>
+
+
                     </div>
 
                     <hr>

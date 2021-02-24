@@ -38,28 +38,33 @@
 
 {% block form_buttons %}
 
-    <div class="float-right">
-        <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.trip.id %}" target="_blank">
-            {% trans "Go to Trip Page" %}
-        </a>
-    </div>
+  <div class="float-right">
+    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.trip.id %}" target="_blank">
+      {% trans "Go to Trip Page" %}
+    </a>
+  </div>
 
-    <div class="mt-3 mb-3">
-        <input type="submit" class="btn btn-danger" value="{{ submit_text }}">
+  <div class="mt-3 mb-3">
+    <span data-toggle="tooltip" title="{{ object.trip.trip_review_ready.reason }}">
+    <input type="submit" class="btn btn-danger {% if not object.trip.trip_review_ready.can_proceed %}disabled{% endif %}"
+           {% if not object.trip.trip_review_ready.can_proceed %}disabled{% endif %} value="{{ submit_text }}">
+    </span>
 
-        {# reinitiate #}
-        <button type="button" class="btn btn-warning" id="reset">
-            {% trans "Modifications Required" %}
-        </button>
+    {# reinitiate #}
+    {% if object.trip.current_reviewer != object.trip.reviewers.first %}
+      <button type="button" class="btn btn-warning" id="reset">
+        {% trans "Modifications Required" %}
+      </button>
+    {% endif %}
 
-        <button type="button" class="btn btn-primary" id="save">
-            {% trans "Save comments" %}
-        </button>
+    <button type="button" class="btn btn-primary" id="save">
+      {% trans "Save comments" %}
+    </button>
 
-        <a class="btn btn-secondary" href="{{ back_url }}">
-            {% trans "Cancel" %}
-        </a>
-    </div>
+    <a class="btn btn-secondary" href="{{ back_url }}">
+      {% trans "Cancel" %}
+    </a>
+  </div>
 {% endblock %}
 
 

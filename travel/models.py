@@ -13,7 +13,6 @@ from django.utils.translation import gettext_lazy as _, gettext
 
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import nz, currency
-from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
 from shared_models.models import Lookup, SimpleLookup
 from shared_models.utils import get_metadata_string
@@ -48,6 +47,11 @@ class HelpText(models.Model):
 
 
 class DefaultReviewer(models.Model):
+    role_choices = (
+        (3, _("NCR Travel Coordinators")),
+        (4, _("ADM Recommender")),
+        (5, _("ADM")),
+    )
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
                                 verbose_name=_("DM Apps user"))
     sections = models.ManyToManyField(shared_models.Section, verbose_name=_("To be added in front of which sections"),
@@ -59,10 +63,7 @@ class DefaultReviewer(models.Model):
     branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("To be added in front of which branches"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
-    reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"),
-                                            blank=True,
-                                            related_name="travel_default_reviewers",
-                                            limit_choices_to={"id__in": [3, 4, 5]})
+    special_role = models.IntegerField(choices=role_choices, verbose_name=_("Do they have a special role?"), blank=True, null=True)
     order = models.IntegerField(blank=True, null=True,
                                 verbose_name=_("What order should they be in (only applicable when there is multiple reviewers at the same level)?"))
 
@@ -196,36 +197,6 @@ class TripSubcategory(Lookup):
         ordering = ["trip_category", _("name")]
 
 
-class Reason(SimpleLookup):
-    pass
-
-
-# DELETE ME!!
-class Status(SimpleLookup):
-    # choices for used_for
-    TR_REVIEWERS = 1
-    TRIP_REVIEWERS = 3
-    TRIP_REQUESTS = 2
-    TRIPS = 4
-    USED_FOR_CHOICES = (
-        (TR_REVIEWERS, "Request Reviewer status"),
-        (TRIP_REQUESTS, "Trip Request status"),
-        (TRIP_REVIEWERS, "Trip Reviewer status"),
-        (TRIPS, "Trip status"),
-    )
-    name = models.CharField(max_length=255)  # overflowing this since we DO NOT want it to be unique=True
-    used_for = models.IntegerField(choices=USED_FOR_CHOICES)
-    order = models.IntegerField(blank=True, null=True)
-    color = models.CharField(max_length=10, blank=True, null=True)
-
-    class Meta:
-        ordering = ['used_for', 'order', 'name', ]
-
-    @property
-    def status_colored_span(self):
-        return mark_safe(f'<span style="background-color:{self.color}">{self.tname}</span>')
-
-
 class Conference(models.Model):
     status_choices = (
         (30, _("Unverified")),
@@ -292,11 +263,6 @@ class Conference(models.Model):
 
         self.fiscal_year = shared_models.FiscalYear.objects.get(
             pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
-
-        # TESTED
-        # go through all the associated requests and update dates if applicable
-        for tr in self.trip_requests.all():
-            tr.save()
 
         # ensure the process order makes sense
         count = 1
@@ -571,493 +537,26 @@ class Conference(models.Model):
             status_str += " {} {}".format(_("by"), self.current_reviewer.user)
         return status_str
 
-
-class TripRequest(models.Model):
-    status_choices = (
-        (8, _("Draft")),
-        (10, _("Denied")),
-        (11, _("Approved")),
-        (12, _("Pending Recommendation")),
-        (14, _("Pending ADM Approval")),
-        (15, _("Pending RDG Approval")),
-        (16, _("Changes Requested")),
-        (17, _("Pending Review")),
-        (22, _("Cancelled")),
-    )
-
-    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING,
-                                    verbose_name=_("fiscal year"),
-                                    default=fiscal_year(sap_style=True), blank=True, null=True,
-                                    related_name="trip_requests")
-    # traveller info
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True,
-                             related_name="user_trip_requests",
-                             verbose_name=_("DM Apps user"))
-    is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES,
-                                            verbose_name=_("Is the traveller a public servant?"))
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
-                               verbose_name=_("Traveller belongs to which DFO region?"),
-                               related_name="trip_requests",
-                               null=True, blank=True)
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
-                                verbose_name=_("under which section is this request being made?"),
-                                related_name="trip_requests")
-    is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
-                                                verbose_name=_("Is the traveller a research scientist (RES)?"))
-    first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
-    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    address = models.CharField(max_length=1000, verbose_name=_("address"),
-                               blank=True, null=True)
-    phone = models.CharField(max_length=1000, verbose_name=_("phone (xxx-xxx-xxxx)"), blank=True, null=True)
-    email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
-    company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
-
-    # Trip Details
-    is_group_request = models.BooleanField(default=False,
-                                           verbose_name=_(
-                                               "Is this a group request (i.e., a request for multiple individuals)?"))
-    # purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
-    trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"),
-                             related_name="trip_requests")
-
-    departure_location = models.CharField(max_length=1000,
-                                          verbose_name=_("departure location (city, province, country)"), blank=True,
-                                          null=True)
-    destination = models.CharField(max_length=1000, verbose_name=_("destination location (city, province, country)"),
-                                   blank=True,
-                                   null=True)
-    start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True, blank=True)
-    end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True, blank=True)
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True,
-                             verbose_name=_("role of traveller"))
-
-    # purpose
-    role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
-    learning_plan = models.BooleanField(default=False, verbose_name=_("is this request included on your learning plan?"))
-    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("what is the objective of this meeting or conference?"))
-    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("what are the benefits to DFO?"))
-    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
-    # multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
-    #     "rationale for multiple travelers"))
-    late_justification = models.TextField(blank=True, null=True, verbose_name=_("justification for late submissions"))
-    funding_source = models.TextField(blank=True, null=True, verbose_name=_("what is the funding source?"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("notes (optional)"))
-    # total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
-    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("amount of non-DFO funding (CAD)"))
-    non_dfo_org = models.CharField(max_length=1000,
-                                   verbose_name=_("give the full name(s) of the of the organization(s) providing non-DFO funding"),
-                                   blank=True,
-                                   null=True)
-
-    submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
-    original_submission_date = models.DateTimeField(verbose_name=_("original submission date"), blank=True, null=True)
-    status = models.IntegerField(verbose_name=_("trip request status"), default=8, choices=status_choices)
-    parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests",
-                                       blank=True, null=True)
-    admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
-    exclude_from_travel_plan = models.BooleanField(default=False,
-                                                   verbose_name=_("Exclude this traveller from the travel plan?"))
-
-    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True,
-                                   related_name="trip_requests_created_by",
-                                   verbose_name=_("created by"))
-
     @property
-    def dates(self):
-        my_str = date(self.start_date)
-        if self.end_date:
-            my_str += f" &rarr; {date(self.end_date)}"
-        return mark_safe(my_str)
-
-    @property
-    def to_from(self):
-        my_str = f"{self.departure_location} &rarr; {self.smart_destination}"
-        return mark_safe(my_str)
-
-    @property
-    def long_role(self):
-        mystr = str(self.role)
-        if self.role_of_participant:
-            mystr += f" &mdash; {self.role_of_participant}"
-        return mark_safe(mystr)
-
-    @property
-    def admin_notes_html(self):
-        return textile.textile(self.admin_notes)
-
-    @property
-    def request_title(self):
-        group_status = " - {}".format(gettext("Group Request")) if self.is_group_request else ""
-
-        my_str = "{} {}{}".format(
-            self.first_name,
-            self.last_name,
-            group_status,
-        )
-        if self.trip:
-            my_str += " - {}".format(self.trip.tname)
-        if self.destination:
-            my_str += " - {}".format(self.destination)
-        return my_str
-
-    def __str__(self):
-        return "{}".format(self.request_title)
-
-    class Meta:
-        ordering = ["-start_date", "last_name"]
-        unique_together = [("user", "parent_request"), ("user", "trip"), ]
-        verbose_name = _("trip request")
-
-    # def get_absolute_url(self):
-    #     return reverse('travel:request_detail', kwargs={'pk': self.id})
-
-    def save(self, *args, **kwargs):
-        # if the start and end dates are null, but there is a trip, use those.. to populate
-        ## but also, if this is a group request, the start date should always be populated from the trip
-        # TESTED
-        if (self.trip and not self.start_date) or self.is_group_request:
-            self.start_date = self.trip.start_date
-
-        if self.trip and not self.end_date:
-            self.end_date = self.trip.end_date
-
-        if self.start_date:
-            self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
-
-        # If this is a group request, the parent record should not have any costs
-        if self.is_group_request:
-            self.trip_request_costs.all().delete()
-
-        # If this is a child request, it should not have any assigned reviewers -> unless it is an ADM reviewer
-        if self.parent_request:
-            self.reviewers.filter(~Q(role=5)).delete()
-
-        # ensure the process order makes sense
-        count = 1
-        for reviewer in self.reviewers.all():  # use the default sorting
-            reviewer.order = count
-            reviewer.save()
-            count += 1
-
-        return super().save(*args, **kwargs)
-
-    @property
-    def reviewer_order_message(self):
-        last_reviewer = None
-        for reviewer in self.reviewers.all():
-            # basically, each subsequent reviewer should have a role that is further down in order than the previous
-            warning_msg = _("WARNING: The roles of the reviewers are out of order!")
-            if last_reviewer:
-                if last_reviewer.role == 4:
-                    if reviewer.role <= 4:
-                        return warning_msg
-                if last_reviewer.role == 5:
-                    if reviewer.role <= 5:
-                        return warning_msg
-                if last_reviewer.role == 6:
-                    if reviewer.role <= 6:
-                        return warning_msg
-            last_reviewer = reviewer
-
-    @property
-    def cost_breakdown(self):
-        """used for CFTS and travel plan"""
-        my_str = ""
-        for tr_cost in self.trip_request_costs.filter(amount_cad__isnull=False, amount_cad__gt=0):
-            if tr_cost.rate_cad:
-                my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
-                    tr_cost.cost,
-                    nz(tr_cost.rate_cad, 0),
-                    nz(tr_cost.number_of_days, 0),
-                    nz(tr_cost.amount_cad, 0),
-                )
-            else:
-                my_str += "{}: ${:,.2f}; ".format(tr_cost.cost, tr_cost.amount_cad)
-
-        if nz(self.non_dfo_costs, 0) > 0:
-            my_str += str(_('NOTE: This trip request contains non-DFO funding sources from {}. '
-                            'Total DFO funding: ${:,.2f} | Total non-DFO funding: ${:,.2f}'.format(
-                self.non_dfo_org,
-                self.total_dfo_funding,
-                self.total_non_dfo_funding,
-            )))
-
-        return my_str
-
-    @property
-    def cost_breakdown_html(self):
-        """used for display on group traveller detail page"""
-        my_str = ""
-        for tr_cost in self.trip_request_costs.all():
-            if tr_cost.amount_cad:
-                if tr_cost.rate_cad:
-                    my_str += "<b>{}</b>: ${:,.2f}  ({} x {:,.2f})<br>".format(
-                        tr_cost.cost,
-                        nz(tr_cost.amount_cad, 0),
-                        nz(tr_cost.number_of_days, 0),
-                        nz(tr_cost.rate_cad, 0),
-                    )
-                else:
-                    my_str += "<b>{}</b>: ${:,.2f}<br> ".format(tr_cost.cost, tr_cost.amount_cad)
-        return my_str
-
-    @property
-    def cost_table(self):
-        cost_list = [
-            "air",
-            "rail",
-            "rental_motor_vehicle",
-            "personal_motor_vehicle",
-            "taxi",
-            "other_transport",
-            "accommodations",
-            "breakfasts",
-            "lunches",
-            "suppers",
-            "incidentals",
-            "registration",
-            "other",
-        ]
-
-        # style #1 - costs as headers
-        # my_str = "<table class='table table-sm table-bordered plainjane'><tr>"
-        # for cost in cost_list:
-        #     my_str += "<th class='plainjane'>{}</th>".format(get_verbose_label(self, cost))
-        # my_str += "</tr><tr>"
-        # for cost in cost_list:
-        #     my_str += "<td class='plainjane'>{}</td>".format(nz(currency(getattr(self, cost)),"---"))
-        # my_str += "</tr></table>"
-
-        # style # 2 - 2 columns
-        my_str = "<table class='plainjane' style='width: 40%'>"
-        my_str += "<tr class='plainjane'><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
-            _("Cost category"), _("Amount (CAD)"))
-        for cost in cost_list:
-            if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
-                my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{} ({} &times; {})</td></tr>".format(
-                    get_verbose_label(self, cost),
-                    nz(currency(getattr(self, cost)), "---"),
-                    nz(getattr(self, "no_" + cost), "---"),
-                    nz(currency(getattr(self, cost + "_rate")), "---"),
-                )
-            else:
-                my_str += "<tr><td class='plainjane'>{}</td><td class='plainjane'>{}</td></tr>".format(
-                    get_verbose_label(self, cost), nz(currency(getattr(self, cost)), "---"))
-
-        my_str += "<tr><th class='plainjane'>{}</th><th class='plainjane'>{}</td></tr>".format(
-            _("TOTAL"), nz(currency(self.total_request_cost), "---"))
-        my_str += "</table>"
-        return mark_safe(my_str)
-
-    @property
-    def total_cost(self):
-        """ this is the total cost for the request. Does not include any children"""
-        object_list = self.trip_request_costs.all()
-        return nz(object_list.values("amount_cad").order_by("amount_cad").aggregate(dsum=Sum("amount_cad"))['dsum'], 0)
-
-    @property
-    def total_request_cost(self):
-        """ this is the total cost for the request; including any children"""
-        if self.is_group_request:
-            object_list = self.children_requests.all()
-            summed_costs = sum([item.total_cost for item in object_list])
-        else:
-            summed_costs = self.total_cost
-        return summed_costs
-
-    @property
-    def total_non_dfo_funding(self):
+    def trip_review_ready(self):
+        """ this will ensure that all requests associated with this trip are either in draft mode or are sitting with ADM.
+        basically, if there are no trips with the following statuses, we should not proceed:
+            (11, _("Approved")),
+            (12, _("Pending Recommendation")),
+            (15, _("Pending RDG Approval")),
+            (16, _("Changes Requested")),
+            (17, _("Pending Review")),
         """
-        this is the total non dfo funding. for individual requests, it is simply the non_dfo_costs field.
-        for group request, it is this summed over all children requests
-        """
-        if self.is_group_request:
-            object_list = self.children_requests.all()
-            return sum([nz(item.non_dfo_costs, 0) for item in object_list])
+        if not self.requests.filter(status=14).exists():
+            can_proceed = False
+            reason = _("There are no requests ready for ADM approval.")
+        elif self.requests.filter(status__in=[11, 12, 15, 16, 17, ]).exists():
+            can_proceed = False
+            reason = _("Some requests are not ready for ADM review.")
         else:
-            return nz(self.non_dfo_costs, 0)
-
-    @property
-    def total_dfo_funding(self):
-        """
-        this will return the portion of funding to be paid by DFO.
-        The amount will be whatever is leftover when you subtract non-dfo funding from total costs
-        """
-        return nz(self.total_request_cost, 0) - nz(self.total_non_dfo_funding, 0)
-
-    @property
-    def total_non_dfo_funding_sources(self):
-        """
-        this is a comprehensive list of the non-dfo funding sources
-        """
-        if self.is_group_request:
-            object_list = self.children_requests.all()
-            return listrify(set([item.non_dfo_org for item in object_list]))
-        else:
-            return nz(self.non_dfo_org, "----")
-
-    @property
-    def travellers(self):
-        if self.is_group_request:
-            return [tr.user for tr in self.children_requests.all()]
-        else:
-            return [self.user]
-
-    @property
-    def traveller_names(self):
-        if self.is_group_request:
-            return [tr.requester_name for tr in self.children_requests.all()]
-        else:
-            return [self.requester_name]
-
-    @property
-    def purpose_long(self):
-        my_str = ""
-        if self.role_of_participant:
-            my_str += "<em>Role of Participant:</em> {}".format(self.role_of_participant)
-        if self.objective_of_event:
-            my_str += "<br><em>Objective of Event:</em> {}".format(self.objective_of_event)
-        if self.benefit_to_dfo:
-            my_str += "<br><em>Benefit to DFO:</em> {}".format(self.benefit_to_dfo)
-        if self.funding_source:
-            my_str += "<br><em>Funding source:</em> {}".format(self.funding_source)
-
-        return my_str
-
-    @property
-    def purpose_long_text(self):
-        """
-        For CFTS report
-        """
-        my_str = "{}: {}".format("ROLE OF PARTICIPANT", nz(self.role_of_participant, "No description provided"))
-
-        my_str += "\n\n{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
-
-        my_str += "\n\n{}: {}".format("BENEFIT TO DFO", nz(self.benefit_to_dfo, "n/a"))
-
-        return my_str
-
-    @property
-    def current_reviewer(self):
-        """Send back the first reviewer whose status is 'pending' """
-        return self.reviewers.filter(status=1).first()
-
-    @property
-    def status_string(self):
-        if self.parent_request:
-            my_status = self.parent_request.status
-            #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
-            status_str = "{}".format(self.parent_request.get_status_display())
-            if my_status not in [11, 8, ] and self.parent_request.current_reviewer:
-                status_str += " {} {}".format(_("by"), self.parent_request.current_reviewer.user)
-        else:
-            my_status = self.status
-            #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
-            status_str = self.get_status_display()
-            if my_status not in [11, 8, ] and self.current_reviewer:
-                status_str += " {} {}".format(_("by"), self.current_reviewer.user)
-        return status_str
-
-    @property
-    def adm(self):
-        return self.reviewers.filter(role=5).first()
-
-    @property
-    def rdg(self):
-        return self.reviewers.filter(role=6).first()
-
-    @property
-    def recommenders(self):
-        return self.reviewers.filter(role=2)
-
-    @property
-    def processing_time(self):
-        # if draft
-        if self.status == 8 or not self.original_submission_date:
-            my_var = "---"
-        # if approved, denied
-        elif self.status in [10, 11]:
-            my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.original_submission_date
-            my_var = "{} {}{}".format(my_var.days, _('day'), pluralize(my_var.days))
-        else:
-            my_var = timezone.now() - self.original_submission_date
-            my_var = "{} {}{}".format(my_var.days, _('day'), pluralize(my_var.days))
-        return my_var
-
-    @property
-    def requester_name(self):
-        if self.user:
-            return str(self.user)
-        else:
-            return f'{self.first_name} {self.last_name}'
-
-    @property
-    def requester_info(self):
-        company = nz(self.company_name, "<span class='red-font'>{}</span>".format(gettext('missing company name')))
-        address = nz(self.address, "<span class='red-font'>{}</span>".format(_('missing address')))
-        phone = nz(self.phone, "<span class='red-font'>{}</span>".format(_('missing phone number')))
-        email = nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
-                   "<span class='red-font'>{}</span>".format(_('missing email address')))
-
-        mystr = ""
-        if not self.is_public_servant:
-            mystr += "<u>{}</u>: {}<br>".format(gettext("Company"), company)
-        mystr += "<u>{}</u>: {}<br>".format(gettext("Address"), address)
-        mystr += "<u>{}</u>: {}<br>".format(gettext("Phone"), phone)
-        mystr += "<u>{}</u>: {}<br>".format(gettext("Email"), email)
-        return mark_safe(mystr)
-
-    @property
-    def smart_status(self):
-        return self.parent_request.get_status_display() if self.parent_request else self.get_status_display()
-
-    @property
-    def smart_trip(self):
-        return self.parent_request.trip if self.parent_request else self.trip
-
-    @property
-    def smart_objective_of_event(self):
-        return self.parent_request.objective_of_event if self.parent_request else self.objective_of_event
-
-    @property
-    def smart_benefit_to_dfo(self):
-        return self.parent_request.benefit_to_dfo if self.parent_request else self.benefit_to_dfo
-
-    @property
-    def smart_funding_source(self):
-        return self.parent_request.funding_source if self.parent_request else self.funding_source
-
-    @property
-    def smart_section(self):
-        return self.parent_request.section if self.parent_request else self.section
-
-    @property
-    def smart_reviewers(self):
-        return self.parent_request.reviewers if self.parent_request else self.reviewers
-
-    @property
-    def smart_destination(self):
-        return self.parent_request.destination if self.parent_request else self.destination
-
-    @property
-    def smart_recommendation_notes(self):
-        my_str = ""
-        reviewers = self.smart_reviewers
-        for r in reviewers.filter(role=2):
-            if r.status == 2 and r.comments:
-                my_str += f'<u>{r.user}</u>: {r.comments}<br>'
-        return mark_safe(my_str)
-
-    @property
-    def is_late_request(self):
-        # this only applies to trips requiring adm approval
-        if self.trip and self.trip.is_adm_approval_required:
-            # if not submitted, we compare against current datetime
-            if not self.submitted:
-                return self.trip.date_eligible_for_adm_review and timezone.now() > self.trip.date_eligible_for_adm_review
-            # otherwise we compare against submission datetime
-            else:
-                return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
+            can_proceed = True
+            reason = _("All active requests are ready for ADM review.")
+        return dict(can_proceed=can_proceed, reason=reason)
 
 
 class TripRequest1(models.Model):
@@ -1092,7 +591,8 @@ class TripRequest1(models.Model):
                                     blank=True, null=True, related_name="requests", editable=False)
 
     # metadata
-    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False, verbose_name=_("created by"))
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False,
+                                   verbose_name=_("created by"))
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_updated_by", blank=True, null=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -1146,13 +646,6 @@ class TripRequest1(models.Model):
             self.uuid = uuid.uuid1()
 
         self.fiscal_year = self.trip.fiscal_year
-
-        # ensure the process order makes sense
-        count = 1
-        for r in self.reviewers.all():  # use the default sorting
-            r.order = count
-            r.save()
-            count += 1
 
         return super().save(*args, **kwargs)
 
@@ -1462,11 +955,6 @@ class Traveller(models.Model):
 # SHOULD BE RENAMED TO TRAVELLER COST
 class TripRequestCost(models.Model):
     traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"), blank=True, null=True)
-
-    # DELETE
-    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs", verbose_name=_("trip request"), blank=True,
-                                     null=True, editable=False)
-
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)
     number_of_days = models.FloatField(verbose_name=_("number of days"), blank=True, null=True)
@@ -1476,7 +964,7 @@ class TripRequestCost(models.Model):
         return f'{self.cost} - {self.amount_cad}'
 
     class Meta:
-        unique_together = (("trip_request", "cost"), ("traveller", "cost"),)
+        unique_together = (("traveller", "cost"),)
         verbose_name = _("cost")
 
     def save(self, *args, **kwargs):
@@ -1486,14 +974,6 @@ class TripRequestCost(models.Model):
         if (self.rate_cad and self.rate_cad != 0) and (self.number_of_days and self.number_of_days != 0):
             self.amount_cad = self.rate_cad * self.number_of_days
         super().save(*args, **kwargs)
-
-
-# CAN BE DELETED!
-class ReviewerRole(SimpleLookup):
-    order = models.IntegerField()
-
-    class Meta:
-        ordering = ["order", "id"]
 
 
 class Reviewer(models.Model):
@@ -1515,10 +995,8 @@ class Reviewer(models.Model):
         (6, _("RDG")),
     )
     request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)  # todo remove the non-null!!!!
-    trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)
     order = models.IntegerField(null=True, verbose_name=_("process order"))
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers",
-                             verbose_name=_("DM Apps user"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.IntegerField(verbose_name=_("role"), choices=role_choices)
     status = models.IntegerField(verbose_name=_("review status"), default=4, choices=status_choices)
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
@@ -1537,8 +1015,8 @@ class Reviewer(models.Model):
         return gettext("Reviewer") + f' - {self.user}'
 
     class Meta:
-        unique_together = ['trip_request', 'user', 'role', ]
-        ordering = ['trip_request', 'order', ]
+        # unique_together = ['trip_request', 'user', 'role', ]
+        ordering = ['request', 'order']
         verbose_name = _("reviewer")
 
     @property
@@ -1643,13 +1121,12 @@ def file_directory_path(instance, filename):
 
 class File(models.Model):
     request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="files", blank=True, null=True)
-    trip_request = models.ForeignKey(TripRequest, related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("attachment"))
     date_created = models.DateTimeField(auto_now=True, verbose_name=_("date created"), editable=False)
 
     class Meta:
-        ordering = ['trip_request', 'date_created']
+        ordering = ['request', 'date_created']
         # Translators: This is a 'file' as in something you attach to an email
         verbose_name = _("file")
 
