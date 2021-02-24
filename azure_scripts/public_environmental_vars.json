@@ -83,8 +83,6 @@
   },
   "DOCKER_REPOSITORY": "dmapps_img",
   "EMAIL_HOST": "email-smtp.ca-central-1.amazonaws.com",
-  "EMAIL_HOST_PASSWORD": "BGcRyPa47NdWrVqbbPXtDO5+T6ZA2G5l/ADLtkrgrrIs",
-  "EMAIL_HOST_USER": "AKIA4DJHEGSUOGSUREZ6",
   "EMAIL_PORT": 587,
   "EMAIL_USE_TLS": "True",
   "SHOW_TICKETING_APP": {
