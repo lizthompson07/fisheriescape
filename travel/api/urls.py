@@ -16,6 +16,7 @@ urlpatterns = [
     path("travel/", include(router.urls)),
     path("travel/user/", views.CurrentTravelUserAPIView.as_view(), name="travel-current-user"),
     path("travel/help-text/", views.HelpTextAPIView.as_view(), name="travel-current-user"),
+    path("travel/admin-warnings/", views.AdminWarningsAPIView.as_view(), name="travel-current-user"),
 
 
     # lookups

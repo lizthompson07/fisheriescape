@@ -43,7 +43,7 @@
               <div class="text-center">
                 <p class="font-italic font-weight-bold">
                   ${trips.length} of ${count} loaded
-                  <button @click="clearTrips();getTrips(null)"><span class="mdi mdi-refresh h5"></span></button>
+                  <button @click="clearTrips();getTrips(null)" class="btn"><span class="mdi mdi-refresh h5"></span></button>
                 </p>
               </div>
             </div>
@@ -100,7 +100,7 @@
             </table>
 
             <div v-if="trips_loading" class="loading mb-3 mt-3 text-center mt-5">
-              <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+              <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
                 <span class="sr-only"></span>
               </div>
             </div>

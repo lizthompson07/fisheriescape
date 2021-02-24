@@ -452,13 +452,12 @@ class Conference(models.Model):
             ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
         return nz(amt, 0)
 
-
     @property
     def total_dfo_cost(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
         total = self.total_cost
         non_dfo = self.total_non_dfo_cost
-        return total-non_dfo
+        return total - non_dfo
 
     @property
     def non_res_total_cost(self):
@@ -1100,7 +1099,9 @@ class TripRequest1(models.Model):
 
     @property
     def travellers_from_other_requests(self):
-        return Traveller.objects.filter(request__trip=self.trip).filter(~Q(request=self)).order_by("request__status")
+        """ get traveller from other requests, but limited to the same region as this request"""
+        return Traveller.objects.filter(request__trip=self.trip, request__section__division__branch__region=self.section.division.branch.region
+                                        ).filter(~Q(request=self)).order_by("request__status", "first_name", "last_name")
 
     @property
     def region(self):

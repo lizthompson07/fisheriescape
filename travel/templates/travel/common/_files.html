@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load custom_filters %}
 
-<div class="card mb-2">
+<div class="card mb-2" v-if="!travellerToEdit">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right" v-if="canModify && !isReview && !inFileEditMode">
       <button @click="addAttachment" class="btn btn-sm btn-primary">
@@ -16,7 +16,7 @@
   <div class="card-body">
     <div class="card-text">
       <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
-        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
           <span class="sr-only"></span>
         </div>
       </div>

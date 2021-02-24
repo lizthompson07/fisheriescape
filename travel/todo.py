@@ -3,9 +3,8 @@
 
 # TODO: bring back admin warnings
 # todo: api view validation
-# TODO: submit button to be disabled unless there are travellers
 # TODO: traveller filter not working on request
-# TODO: show me all travellers from the section of this request, not all travellers to the trip.
+
 
 # At a later date
 # todo:  email for when ppl are deleted from a request

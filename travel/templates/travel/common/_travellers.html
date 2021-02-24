@@ -7,15 +7,17 @@
 
 <div class="card mb-2">
   <h3 class="card-header bg-outline-dark">
-    <div class="float-right">
-      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down"></span></button>
+    <div class="float-right" v-if="!travellerToEdit">
+      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down h3"></span></button>
       <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>
       <button v-if="!isReview && canModify && !travellerToEdit" @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}"
               class="btn btn-sm btn-primary ml-2">
         <span class="mdi mdi-plus text-light"></span> {% trans "Add traveller" %}
       </button>
     </div>
-    {% trans "Travellers Associated with this Request" %}
+    <span v-if="!travellerToEdit">{% trans "Travellers Associated with this Request" %}</span>
+    <span v-else-if="travellerToEdit.id">{% trans "Editing Traveller: " %} ${travellerToEdit.smart_name}</span>
+    <span v-else>{% trans "New Travller" %}</span>
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
           data-trigger="hover" title="{% trans "Travellers" %}"
           :data-content="helpText.travellers_header"></span>
@@ -23,7 +25,7 @@
   <div class="card-body">
     <div class="card-text">
       <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
-        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+        <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
           <span class="sr-only"></span>
         </div>
       </div>
