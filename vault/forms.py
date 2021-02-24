@@ -27,17 +27,17 @@ ObservationPlatformFormset = modelformset_factory(
 )
 
 
-class ObservationPlatformTypeForm(forms.ModelForm):
-    class Meta:
-        model = models.ObservationPlatformType
-        fields = "__all__"
-
-
-ObservationPlatformTypeFormset = modelformset_factory(
-    model=models.ObservationPlatformType,
-    form=ObservationPlatformTypeForm,
-    extra=1,
-)
+# class ObservationPlatformTypeForm(forms.ModelForm):
+#     class Meta:
+#         model = models.ObservationPlatformType
+#         fields = "__all__"
+#
+#
+# ObservationPlatformTypeFormset = modelformset_factory(
+#     model=models.ObservationPlatformType,
+#     form=ObservationPlatformTypeForm,
+#     extra=1,
+# )
 
 
 class InstrumentForm(forms.ModelForm):
@@ -97,6 +97,10 @@ class ObservationForm(forms.ModelForm):
     class Meta:
         model = models.Observation
         fields = "__all__"
+        widgets = {
+            "datetime": forms.TextInput(attrs=attr_fp_date_time),
+            "metadata": forms.SelectMultiple(attrs=chosen_js),
+        }
 
 
 class OrganisationForm(forms.ModelForm):

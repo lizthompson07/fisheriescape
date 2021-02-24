@@ -31,17 +31,17 @@ class Species(models.Model):
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    ROLE_CHOICES = (
+        (1, _("Data Manager")),
+        (2, _("Data Entry")),
+        (3, _("Marine Mammal Observer (MMO)")),
+        (4, _("Verification")),
+    )
+
+    name = models.IntegerField(choices=ROLE_CHOICES, verbose_name=_("name"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+        return self.get_name_display()
 
     class Meta:
         ordering = ['name', ]
@@ -73,7 +73,7 @@ class Person(models.Model):
     roles = models.ManyToManyField(Role, verbose_name=_("Roles"))
 
     def __str__(self):
-        return self.first_name
+        return "{} {}".format(self.first_name, self.last_name)
 
     def get_absolute_url(self):
         return reverse("vault:person_detail", kwargs={"pk": self.id})
@@ -125,8 +125,18 @@ class MetadataFieldCategory(models.Model):
 
 
 class InstrumentType(models.Model):
-    mode = models.CharField(max_length=255, verbose_name=_("Mode"))
-    type = models.CharField(max_length=255, verbose_name=_("Mode type"))
+    MODE_CHOICES = (
+        (1, _("Optical")),
+        (2, _("Acoustic")),
+    )
+
+    TYPE_CHOICES = (
+        (1, _("Digital")),
+        (2, _("Analog")),
+    )
+
+    mode = models.IntegerField(choices=MODE_CHOICES, verbose_name=_("mode"))
+    type = models.IntegerField(choices=TYPE_CHOICES, verbose_name=_("mode type"))
     name = models.CharField(max_length=255, verbose_name=_("English name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
 
@@ -169,27 +179,37 @@ class InstrumentMetadatum(models.Model):
 
 
 # CHOICES = plane, boat, drone, mooring, glider, land, space
-class ObservationPlatformType(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['id', ]
+# class ObservationPlatformType(models.Model):
+#     name = models.CharField(max_length=255)
+#     nom = models.CharField(max_length=255, blank=True, null=True)
+#
+#     def __str__(self):
+#         # check to see if a french value is given
+#         if getattr(self, str(_("name"))):
+#
+#             return "{}".format(getattr(self, str(_("name"))))
+#         # if there is no translated term, just pull from the english field
+#         else:
+#             return "{}".format(self.name)
+#
+#     class Meta:
+#         ordering = ['id', ]
 
 
 class ObservationPlatform(models.Model):
-    observation_platform_type = models.ForeignKey(ObservationPlatformType, on_delete=models.DO_NOTHING,
-                                                  related_name="platforms",
-                                                  verbose_name=_("Type of observation platform"))
+    PLATFORM_TYPE_CHOICES = (
+        (1, _("Plane")),
+        (2, _("Boat")),
+        (3, _("Drone")),
+        (4, _("Underwater Glider")),
+        (5, _("Land")),
+        (6, _("Mooring")),
+        (7, _("Space")),
+        (8, _("Remotely Piloted Aircraft Systems (RPAS)")),
+
+    )
+
+    observation_platform_type = models.IntegerField(choices=PLATFORM_TYPE_CHOICES, verbose_name=_("Type of observation platform"))
     authority = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_authorities",
                                   verbose_name=_("authority"), null=True, blank=True)
     owner = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_owners",
@@ -273,17 +293,16 @@ class Outing(models.Model):
 
 
 class Observation(models.Model):
-    outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Outing"))
-    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="sightings",
-                                   verbose_name=_("Instrument"))
-    datetime = models.DateTimeField(null=True, blank=True, help_text="Format YYYY-MM-DD 00:00:00",
-                                    verbose_name=_("Date and Time"))
-    longitude = models.FloatField(null=True, blank=True, verbose_name=_("Longitude"))
-    latitude = models.FloatField(null=True, blank=True, verbose_name=_("Latitude"))
-    observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings",
-                                 verbose_name=_("Observer"), null=True, blank=True)
+    outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="observations", verbose_name=_("outing"))
+    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="observations",
+                                   verbose_name=_("instrument"))
+    datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("date and time"))
+    longitude = models.FloatField(null=True, blank=True, verbose_name=_("longitude"))
+    latitude = models.FloatField(null=True, blank=True, verbose_name=_("latitude"))
+    observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="observations",
+                                 verbose_name=_("observer"), null=True, blank=True)
     metadata = models.ManyToManyField(MetadataField, through="ObservationMetadatum")
-    opportunistic = models.BooleanField(default=False)
+    opportunistic = models.BooleanField(default=False, verbose_name="opportunistic?")
 
     def __str__(self):
         return self.outing.identifier_string
@@ -292,6 +311,7 @@ class Observation(models.Model):
         return reverse("vault:observation_detail", kwargs={"pk": self.id})
 
 
+#TODO I don't really know what this model was for
 class ObservationMetadatum(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata",
                                     verbose_name=_("Observation"))
@@ -301,59 +321,66 @@ class ObservationMetadatum(models.Model):
 
 
 class Certainty(models.Model):
-    code = models.IntegerField(blank=True, null=True, verbose_name=_("code"))
+    CERTAINTY_CHOICES = (
+        (1, _("Unsure")),
+        (2, _("Probable")),
+        (3, _("Certain")),
+    )
+    code = models.IntegerField(blank=True, null=True, choices=CERTAINTY_CHOICES, verbose_name=_("code"))
     english_certainty_description = models.CharField(max_length=250, blank=True, null=True,
                                                      verbose_name=_("description"))
     french_certainty_description = models.CharField(max_length=250, blank=True, null=True,
                                                     verbose_name=_("description"))
 
+    def __str__(self):
+        return self.get_code_display()
+
 
 class Sex(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    SEX_CHOICES = (
+        (1, _("Unknown")),
+        (2, _("Female")),
+        (3, _("Male")),
+    )
+    name = models.IntegerField(blank=True, null=True, choices=SEX_CHOICES, verbose_name=_("name"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+        return self.get_name_display()
 
     class Meta:
         ordering = ['name', ]
 
 
 class LifeStage(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    LIFESTAGE_CHOICES = (
+        (1, _("Unknown")),
+        (2, _("Calf")),
+        (3, _("Juvenile")),
+        (3, _("Adult")),
+    )
+    name = models.IntegerField(blank=True, null=True, choices=LIFESTAGE_CHOICES, verbose_name=_("name"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+        return self.get_name_display()
 
     class Meta:
         ordering = ['name', ]
 
 
 class HealthStatus(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    HEALTH_CHOICES = (
+        (1, _("Unknown")),
+        (2, _("Healthy")),
+        (3, _("All Points Bulletin (APB)")),
+        (4, _("New Injury")),
+        (5, _("Entangled")),
+        (6, _("Distressed")),
+        (7, _("Dead")),
+    )
+    name = models.IntegerField(blank=True, null=True, choices=HEALTH_CHOICES, verbose_name=_("name"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+        return self.get_name_display()
 
     class Meta:
         ordering = ['name', ]
