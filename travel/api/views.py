@@ -252,11 +252,9 @@ class TravellerViewSet(viewsets.ModelViewSet):
             my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
 
     def create(self, request, *args, **kwargs):
-        print(request.data)
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        print(request.data)
         return super().update(request, *args, **kwargs)
 
 
@@ -316,7 +314,6 @@ class ReviewerViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             qs = utils.get_related_request_reviewers(request.user)
-            print(qs)
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
 
@@ -404,7 +401,6 @@ class CostViewSet(viewsets.ModelViewSet):
         serializer.save()
 
     def perform_update(self, serializer):
-        print(self.request.data)
         serializer.save()
 
 

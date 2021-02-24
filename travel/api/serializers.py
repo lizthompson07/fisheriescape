@@ -318,13 +318,16 @@ class TripRequestSerializer(serializers.ModelSerializer):
 
     admin_notes_html = serializers.SerializerMethodField()
     bta_attendees = serializers.SerializerMethodField()
+    cost_comparison = serializers.SerializerMethodField()
     created_by = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
     files = FileSerializer(many=True, read_only=True)
     fiscal_year = serializers.StringRelatedField()
     is_late_request = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()
+    original_submission_date = serializers.SerializerMethodField()
     processing_time = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
     reviewer_order_message = serializers.SerializerMethodField()
     reviewers = RequestReviewerSerializer(many=True, read_only=True)
     section = serializers.SerializerMethodField()
@@ -335,11 +338,12 @@ class TripRequestSerializer(serializers.ModelSerializer):
     total_non_dfo_funding_sources = serializers.SerializerMethodField()
     total_request_cost = serializers.SerializerMethodField()
     travellers = TravellerSerializer(many=True, read_only=True)
+    travellers_from_other_requests = serializers.SerializerMethodField()
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
-    original_submission_date = serializers.SerializerMethodField()
-    cost_comparison = serializers.SerializerMethodField()
-    travellers_from_other_requests = serializers.SerializerMethodField()
+
+    def get_region(self, instance):
+        return instance.region.tname
 
     def get_travellers_from_other_requests(self, instance):
         return TravellerSerializer(instance.travellers_from_other_requests, many=True, read_only=True).data
