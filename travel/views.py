@@ -151,7 +151,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
     home_url_name = "travel:index"
     container_class = "container-fluid"
     row_object_url_name = "travel:request_detail"
-    h1 = _("Trip Requests")
+    h1 = gettext_lazy("Trip Requests")
 
     field_list = [
         'fiscal_year',
