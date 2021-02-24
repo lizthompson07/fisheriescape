@@ -1,9 +1,9 @@
 # TODO: admo process
 # TODO: trip reassign and delete
 
-# TODO: bring back admin warnings
 # todo: api view validation
-# TODO: traveller filter not working on request
+# TODO: traveller filter not working on request -- use vue js dropdown
+
 
 
 # At a later date
