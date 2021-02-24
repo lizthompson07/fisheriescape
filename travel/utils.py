@@ -177,9 +177,8 @@ def get_request_reviewers(trip_request):
         ##############
         # if the division head is the one creating the request, the section head should be skipped as a recommender AND
         # if the section head is the one creating the request, they should be skipped as a recommender
-        if trip_request.section.head and trip_request.section.head not in [t.user for t in travellers] and trip_request.section.division.head not in [t.user for
-                                                                                                                                                      t in
-                                                                                                                                                      travellers]:
+        if trip_request.section.head and trip_request.section.head not in [t.user for t in travellers] and \
+                trip_request.section.division.head not in [t.user for t in travellers]:
             models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.head, role=2)
 
         # SPECIAL OPTIONAL INSERTS --> pre-division
