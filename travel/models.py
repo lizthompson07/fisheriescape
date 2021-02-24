@@ -1003,8 +1003,7 @@ class Reviewer(models.Model):
     )
     request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)  # todo remove the non-null!!!!
     order = models.IntegerField(null=True, verbose_name=_("process order"))
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers",
-                             verbose_name=_("DM Apps user"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.IntegerField(verbose_name=_("role"), choices=role_choices)
     status = models.IntegerField(verbose_name=_("review status"), default=4, choices=status_choices)
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
@@ -1024,7 +1023,7 @@ class Reviewer(models.Model):
 
     class Meta:
         # unique_together = ['trip_request', 'user', 'role', ]
-        ordering = ['request', 'order', ]
+        ordering = ['request', 'order', 'id']
         verbose_name = _("reviewer")
 
     @property
