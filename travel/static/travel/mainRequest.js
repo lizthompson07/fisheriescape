@@ -356,8 +356,8 @@ var app = new Vue({
       this.errorMsgCost = null;
       let endpoint;
       let method;
-      if(cost.rate_cad === "") cost.rate_cad = null;
-      if(cost.number_of_days === "") cost.number_of_days = null;
+      if (cost.rate_cad === "") cost.rate_cad = null;
+      if (cost.number_of_days === "") cost.number_of_days = null;
       if (!cost.id) {
         endpoint = `/api/travel/costs/`;
         method = "POST";
@@ -566,6 +566,12 @@ var app = new Vue({
       }
       return myArray
     },
+    submitTip() {
+      if (this.request) {
+        if (this.request.is_late_request && !this.request.late_justification) return lateJustificationTip;
+        else if (!this.request.travellers.length) return noTravellersTip;
+      }
+    }
   },
   created() {
     this.getRequest();

@@ -2,29 +2,26 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
-    // loading flags
-    loading_user: false,
+    admHitCount: 0,
+    adminWarnings: [],
+    admVerificationCount: 0,
+    currentUser: {},
     loading_adm_hit_list: false,
     loading_adm_verification_list: false,
-    loading_regional_verification_list: false,
     loading_rdg_approval_list: false,
-
-    // tabs
-    showOverview: true,
-    showTraveller: false,
-    showReviewer: false,
-    showRegions: false,
-    showNCR: false,
-    showSupport: false,
-
-    currentUser: {},
-    userRequests: [],
-    userTripReviews: [],
-    userTripRequestReviews: [],
-    admVerificationCount: 0,
-    admHitCount: 0,
-    regionalVerificationCount: 0,
+    loading_regional_verification_list: false,
+    loading_user: false,
     regionalRDGApprovalCount: 0,
+    regionalVerificationCount: 0,
+    showNCR: false,
+    showOverview: true,
+    showRegions: false,
+    showReviewer: false,
+    showSupport: false,
+    showTraveller: false,
+    userRequests: [],
+    userTripRequestReviews: [],
+    userTripReviews: [],
 
     // vuetify
     alignTop: false,
@@ -48,8 +45,18 @@ var app = new Vue({
           .then(response => {
             this.loading_user = false;
             this.currentUser = response;
+            this.getAdminWarnings();
             if (this.currentUser.is_ncr_admin) this.getADMTrips();
             if (this.currentUser.is_regional_admin) this.getRegionalAdminStuff();
+          })
+    },
+    getAdminWarnings() {
+      let endpoint = `/api/travel/admin-warnings/`;
+      apiService(endpoint)
+          .then(response => {
+            if (response.length) {
+              this.adminWarnings = response;
+            }
           })
     },
     getADMTrips() {
@@ -72,7 +79,6 @@ var app = new Vue({
       apiService(`/api/travel/trips/?regional-verification=true`)
           .then(response => {
             this.loading_regional_verification_list = false;
-            console.log(response)
             this.regionalVerificationCount = response.count;
           })
       apiService(`/api/travel/request-reviewers/?rdg=true`)
@@ -90,11 +96,6 @@ var app = new Vue({
       this.showSupport = false;
       this[tabFlag] = true;
     }
-
-    // openCostPopout(costId) {
-    //   popitup(`/travel-plans/trip-request-cost/${costId}/edit/`)
-    // }
-
 
   },
   filters: {

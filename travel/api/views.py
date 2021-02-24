@@ -1,7 +1,7 @@
 from gettext import gettext as _
 
 from django.db.models import Q
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date, pluralize
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
@@ -540,3 +540,38 @@ class HelpTextAPIView(APIView):
         for obj in models.HelpText.objects.all():
             data[obj.field_name] = str(obj)
         return Response(data)
+
+
+class AdminWarningsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        msgs = list()
+        if utils.is_admin(request.user):
+            for region in Region.objects.all():
+                qs = models.Conference.objects.filter(status=30, is_adm_approval_required=False, lead=region)
+                if qs.exists():
+                    msgs.append(
+                        # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                        _("<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
+                            region=region, unverified_trips=qs.count(), pluralization=pluralize(qs.count())))
+
+            qs = models.Conference.objects.filter(status=30, is_adm_approval_required=False, lead__isnull=True)
+            if qs.exists():
+                if qs.count() == 1:
+                    msg = _("<b>ADMIN WARNING:</b> There is {unverified_trips} unverified trip requiring attention with <u>no regional lead</u>!!".format(
+                        unverified_trips=qs.count()))
+                else:
+                    msg = _("<b>ADMIN WARNING:</b> There are {unverified_trips} unverified trips requiring attention with <u>no regional lead</u>".format(
+                        unverified_trips=qs.count()))
+                msgs.append(msg)
+
+        if utils.in_adm_admin_group(request.user):
+            qs = models.Conference.objects.filter(status=30, is_adm_approval_required=True)
+            if qs.exists():
+                msgs.append(
+                    # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                    _("<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralization} requiring attention!!".format(
+                        unverified_trips=qs.count(), pluralization=pluralize(qs.count())
+                    )))
+        return Response(msgs, status=status.HTTP_200_OK)

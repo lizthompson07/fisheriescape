@@ -3,7 +3,6 @@
 
 # TODO: bring back admin warnings
 # todo: api view validation
-# TODO: submit button to be disabled unless there are travellers
 # TODO: traveller filter not working on request
 
 

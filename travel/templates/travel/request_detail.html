@@ -95,11 +95,8 @@
 
     <div v-if="!showAdminNotesForm && !travellerToEdit" class="btns mb-3">
       {# SUBMIT BUTTON #}
-      {% trans "You must provide a late justification in order to submit this trip." as submit_tip_text %}
-      {% trans "You cannot submit a trip request that has no associated travellers." as no_traveller_text %}
-      <span data-toggle="tooltip"
-            :title="{'{{ submit_tip_text }}': (request.is_late_request && !request.late_justification), '{{ no_traveller_text }}':!request.travellers.length}"
-      >
+
+      <span data-toggle="tooltip" :title="submitTip">
       <a
         :class="{btn:true, 'btn-secondary': request.submitted, 'btn-success': !request.submitted, 'disabled': (request.is_late_request && !request.late_justification) || !request.travellers.length}"
         v-if="(canModify || isOwner) && request.status !== 11 && request.status !== 22"
