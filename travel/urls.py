@@ -11,7 +11,6 @@ urlpatterns = [
     path('util/conf_details', views.get_conf_details, name='conf_details'),  # this should be moved to the API section
     path('', views.IndexTemplateView.as_view(), name="index"),
 
-
     # Requests
     ##########
     path('requests/', views.TripRequestListView.as_view(), name="request_list"),
@@ -40,18 +39,15 @@ urlpatterns = [
     path('trips/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
     path('trips/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
 
-
     # verification
     path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
     path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
          name="trip_reassign_confirm"),
 
-
     # Request reviews
     ##################
     path('request-reviewers/', views.RequestReviewerListView.as_view(), name="request_reviewer_list"),
     path('request-reviewers/<int:pk>/review/', views.RequestReviewerUpdateView.as_view(), name="request_reviewer_update"),
-
 
     # Trip reviews
     ##################
@@ -61,35 +57,6 @@ urlpatterns = [
 
     ############################################################################################################
 
-    # Trip reviewers
-    ##################
-    # path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
-    # path('adm-review/<int:pk>/<int:approve>/', views.TripRequestReviewerADMUpdateView.as_view(), name="tr_review_adm_update"),
-    # path('trip/<int:trip>/reset-reviewers/from/<str:type>/', views.reset_trip_reviewers, name="reset_trip_reviewers"),
-    # path('trip/<int:trip>/manage-reviewers/from/<str:type>/', views.manage_reviewers, name="manage_trip_reviewers"),
-    # path('trip-reviewer/<int:pk>/delete/', views.TripReviewerHardDeleteView.as_view(), name="delete_trip_reviewer"),
-
-    # REVIEWER APPROVAL
-    # path('trips-for-your-review/<str:which_ones>/', views.TripReviewListView.as_view(), name="trip_review_list"),
-    # path('tagged-trips/', views.TripReviewListView.as_view(), name="trip_review_list"),
-    # path('trip-reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_reviewer_update"),
-    # path('trip/<int:pk>/skip/', views.SkipTripReviewerUpdateView.as_view(), name="trip_skip"),
-
-    # TRIP #
-    ########
-    # path('trips/', views.TripListView.as_view(), name="trip_list"),
-    # path('trips/<str:type>/', views.TripListView.as_view(), name="trip_list"),
-
-
-    # verification / other admin views
-    # path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
-    # path('trip/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
-    # path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.TripVerificationListView.as_view(),
-    #      name="admin_trip_verification_list"),
-    # path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
-    # path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
-    # path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
-    #      name="trip_reassign_confirm"),
 
     # SETTINGS #
     ############
@@ -100,13 +67,9 @@ urlpatterns = [
     path('settings/costs/', views.CostFormsetView.as_view(), name="manage_costs"),
     path('settings/cost/<int:pk>/delete/', views.CostHardDeleteView.as_view(), name="delete_cost"),
     path('settings/njc-rates/', views.NJCRatesFormsetView.as_view(), name="manage_njc_rates"),
-    # path('settings/njc-rate/<int:pk>/delete/', views.NJCRatesHardDeleteView.as_view(), name="delete_njc_rate"),
     path('settings/trip-categories/', views.TripCategoryFormsetView.as_view(), name="manage_trip_categories"),
-    # path('settings/trip-category/<int:pk>/delete/', views.TripCategoryHardDeleteView.as_view(), name="delete_trip_category"),
     path('settings/trip-subcategories/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
     path('settings/trip-subcategory/<int:pk>/delete/', views.TripSubcategoryHardDeleteView.as_view(), name="delete_trip_subcategory"),
-    # path('settings/trip-reasons/', views.ReasonFormsetView.as_view(), name="manage_reasons"),
-    # path('settings/trip-reasons/<int:pk>/delete/', views.ReasonHardDeleteView.as_view(), name="delete_reason"),
 
     path('settings/roles/', views.RoleFormsetView.as_view(), name="manage_roles"),
     path('settings/role/<int:pk>/delete/', views.RoleHardDeleteView.as_view(), name="delete_role"),

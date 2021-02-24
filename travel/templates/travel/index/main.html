@@ -11,7 +11,7 @@
   <div id="app">
     <div class="container" v-cloak>
 
-      <div class="py-3 mx-0">
+      <div class="py-3 mx-5">
         <div class="mb-5">
           <h1 class="three-em center-col">
             {% trans "EOS Conference and Travel Management System" %}
@@ -22,11 +22,11 @@
         </div>
 
         {# Warnings #}
-        <div class="mb-3" v-for="(w, index) in adminWarnings">
-          <div class="alert alert-danger py-2" role="alert" style="width: 80%">
+        <div class="mb-0" v-for="(w, index) in adminWarnings">
+          <div class="alert alert-danger py-1" role="alert" style="width: 75%">
             <p class="mb-0">
-              <span class="h5 mdi mdi-alert-decagram-outline mr-3"></span>
-              <span class="h6" v-html="w"></span>
+              <span class="h6 mdi mdi-alert-decagram-outline mr-3"></span>
+              <span class="" v-html="w"></span>
             </p>
           </div>
 
