@@ -39,7 +39,6 @@ def export_fixtures():
         models.CostCategory,
         models.Cost,
         models.Role,
-        models.Reason,
         models.Purpose,
         models.Status,
         models.TripCategory,

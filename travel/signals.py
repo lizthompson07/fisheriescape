@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from travel.models import File, TripRequest, Conference
+from travel.models import File
 
 
 @receiver(models.signals.post_delete, sender=File)

@@ -23,7 +23,7 @@ urlpatterns = [
     path('requests/<int:pk>/delete/', views.TripRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/clone/', views.TripRequestCloneUpdateView.as_view(), name="request_clone"),
     path('requests/<int:pk>/TRAF/', views.TravelPlanPDF.as_view(), name="request_print"),
-    path('requests/<int:pk>/reset-reviewers/', views.reset_request_reviewers, name="reset_request_reviewers"),
+    path('requests/<int:pk>/reset-reviewers/', views.reset_request_reviewers, name="reset_request_reviewers"), # this is called by request update form with reviewers need to be reset
 
     # Trips
     #######

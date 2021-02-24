@@ -4,7 +4,6 @@
 # TODO: traveller filter not working on request -- use vue js dropdown
 # TODO: api for tracking view
 
-# TODO: for a late request when you go back to edit, text disappears
 
 # At a later date
 # todo:  email for when ppl are deleted from a request
@@ -26,3 +25,5 @@
 # TODO: change role other:specify --> other
 
 # TODO: phone number dashes
+
+# TODO: clean up model props

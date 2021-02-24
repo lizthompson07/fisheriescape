@@ -133,30 +133,12 @@ def get_trip_reviewers(trip):
     # This section only matters for ADM trips
 
     if trip.is_adm_approval_required:
+        # NCR travel coordinator(3), ADM Recommender(4), ADM (5)
+        roles = [3, 4, 5]
+        for role in roles:
+            for default_reviewer in models.DefaultReviewer.objects.filter(special_role=role).order_by("order"):
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=role)
 
-        # NCR travel coordinator
-        try:
-            # add each default NCR coordinator to the queue
-            for default_reviewer in models.ReviewerRole.objects.get(pk=3).travel_default_reviewers.order_by("id"):
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=3)
-        except (IntegrityError, KeyError):
-            pass
-
-        # ADM Approver
-        try:
-            # add each default ADM approver to the queue
-            for default_reviewer in models.ReviewerRole.objects.get(pk=4).travel_default_reviewers.order_by("id"):
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=4)
-        except (IntegrityError, KeyError):
-            pass
-
-        # ADM Approver
-        try:
-            # add ADM to the queue
-            for default_reviewer in models.ReviewerRole.objects.get(pk=5).travel_default_reviewers.all():
-                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role=5)
-        except (IntegrityError, KeyError):
-            pass
     else:
         trip.reviewers.all().delete()
     trip.save()
