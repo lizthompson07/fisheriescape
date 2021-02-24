@@ -1132,6 +1132,7 @@ class Pairing(BioDateModel):
     # pair tag
     indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"),
                                 limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings")
+    prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority"))
 
     def __str__(self):
         return "Pair: {}-{}".format(self.indv_id.__str__(), self.start_date)

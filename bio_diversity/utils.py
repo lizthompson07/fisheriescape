@@ -186,9 +186,9 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
 
         new_cleaned_data["evnt_id"] = movement_evnt
         if indv_pk:
-            enter_anix_indv(indv_pk, new_cleaned_data)
+            enter_anix(new_cleaned_data, indv_pk=indv_pk)
         if grp_pk:
-            enter_anix_grp(grp_pk, new_cleaned_data)
+            enter_anix(new_cleaned_data, grp_pk=grp_pk)
         if enter_tank_contx(origin, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk):
             row_entered = True
         if enter_tank_contx(destination, new_cleaned_data, True, indv_pk=indv_pk, grp_pk=grp_pk):
@@ -279,50 +279,32 @@ def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_i
     return row_entered
 
 
-def enter_anix_indv(indv_pk, cleaned_data):
-    if indv_pk:
-        anix_indv = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                         indv_id_id=indv_pk,
-                                         created_by=cleaned_data["created_by"],
-                                         created_date=cleaned_data["created_date"],
-                                         )
+def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None):
+    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk]):
+        anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                    indv_id_id=indv_pk,
+                                    contx_id_id=contx_pk,
+                                    loc_id_id=loc_pk,
+                                    pair_id_id=pair_pk,
+                                    grp_id_id=grp_pk,
+                                    indvt_id_id=indvt_pk,
+                                    created_by=cleaned_data["created_by"],
+                                    created_date=cleaned_data["created_date"],
+                                    )
         try:
-            anix_indv.clean()
-            anix_indv.save()
-            return anix_indv
+            anix.clean()
+            anix.save()
+            return anix
         except ValidationError:
-            anix_indv = models.AniDetailXref.objects.filter(evnt_id=anix_indv.evnt_id,
-                                                            indv_id=anix_indv.indv_id,
-                                                            contx_id__isnull=True,
-                                                            loc_id__isnull=True,
-                                                            pair_id__isnull=True,
-                                                            grp_id__isnull=True,
-                                                            indvt_id__isnull=True,
-                                                            ).get()
-            return anix_indv
-
-
-def enter_anix_grp(grp_pk, cleaned_data):
-    if grp_pk:
-        anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                        grp_id_id=grp_pk,
-                                        created_by=cleaned_data["created_by"],
-                                        created_date=cleaned_data["created_date"],
-                                        )
-        try:
-            anix_grp.clean()
-            anix_grp.save()
-            return anix_grp
-        except ValidationError:
-            anix_grp = models.AniDetailXref.objects.filter(evnt_id=anix_grp.evnt_id,
-                                                           grp_id=anix_grp.grp_id,
-                                                           contx_id__isnull=True,
-                                                           loc_id__isnull=True,
-                                                           pair_id__isnull=True,
-                                                           indv_id__isnull=True,
-                                                           indvt_id__isnull=True,
-                                                           ).get()
-            return anix_grp
+            anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
+                                                       indv_id=anix.indv_id,
+                                                       contx_id=anix.contx_id,
+                                                       loc_id=anix.loc_id,
+                                                       pair_id=anix.pair_id,
+                                                       grp_id=anix.grp_id,
+                                                       indvt_id=anix.indvt_id,
+                                                       ).get()
+            return anix
 
 
 def enter_anix_contx(tank, cleaned_data):

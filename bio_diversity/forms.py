@@ -13,7 +13,7 @@ import pandas as pd
 
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
-    enter_anix_indv, create_movement_evnt, enter_anix_grp, enter_grpd
+    create_movement_evnt, enter_grpd, enter_anix
 
 
 class CreatePrams(forms.ModelForm):
@@ -369,15 +369,15 @@ class DataForm(CreatePrams):
                             grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
                                                               coll_id=grp.coll_id).get()
 
-                        anix_grp = enter_anix_grp(grp.pk, cleaned_data)
+                        anix_grp = enter_anix(cleaned_data, grp_pk=grp.pk)
                     elif anix_grp_qs.count() == 1:
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-                        first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d")
-                        enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish")
+                    first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d")
+                    enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish")
 
-                        enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
+                    enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
 
                 except Exception as err:
                     log_data += "Error parsing common data: \n"
@@ -531,14 +531,15 @@ class DataForm(CreatePrams):
                         except ValidationError:
                             grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
                                                               grp_year=grp.grp_year, coll_id=grp.coll_id).get()
-                        anix_grp = enter_anix_grp(grp.pk, cleaned_data)
+                        anix_grp = enter_anix(cleaned_data, grp_pk=grp.pk)
                     elif anix_grp_qs.count() == 1:
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
-                        first_row_date = datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d")
-                        enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish" )
 
-                        enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
+                    first_row_date = datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d")
+                    enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish" )
+
+                    enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
 
                 except Exception as err:
                     log_data += "Error parsing common data: \n"
@@ -575,7 +576,7 @@ class DataForm(CreatePrams):
                 log_data += "Error: {}\n\n".format(err.__str__())
                 self.request.session["load_success"] = False
 
-            enter_anix_grp(grp_id, cleaned_data)
+            enter_anix(cleaned_data, grp_pk=grp_id)
 
             for row in data_dict:
                 row_parsed = True
@@ -605,20 +606,10 @@ class DataForm(CreatePrams):
                     if create_movement_evnt(row["from Tank"], row["to tank"], cleaned_data, row_date, indv_pk=indv.pk):
                         row_entered = True
 
-                    anix_indv = enter_anix_indv(indv.pk, cleaned_data)
+                    anix_indv = enter_anix(cleaned_data, indv_pk=indv.pk)
 
-                    anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                    indv_id_id=indv.pk,
-                                                    grp_id_id=grp_id,
-                                                    created_by=cleaned_data["created_by"],
-                                                    created_date=cleaned_data["created_date"],
-                                                    )
-                    try:
-                        anix_grp.clean()
-                        anix_grp.save()
-                        row_entered = True
-                    except ValidationError:
-                        pass
+                    anix_grp = enter_anix(cleaned_data, indv_pk=indv.pk, grp_pk=grp_id)
+
                     if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                         row_entered = True
 
@@ -681,7 +672,7 @@ class DataForm(CreatePrams):
                 log_data += "Error: {}\n\n".format(err.__str__())
                 self.request.session["load_success"] = False
 
-            anix_grp = enter_anix_grp(grp_id, cleaned_data)
+            anix_grp = enter_anix(cleaned_data, grp_pk=grp_id)
 
             for row in data_dict:
                 row_parsed = True
@@ -710,20 +701,9 @@ class DataForm(CreatePrams):
                     if create_movement_evnt(row["Origin Pond"], row["Destination Pond"], cleaned_data, row_date, indv_pk=indv.pk):
                         row_entered = True
 
-                    anix_indv = enter_anix_indv(indv.pk, cleaned_data)
+                    anix_indv = enter_anix(cleaned_data, indv_pk=indv.pk)
 
-                    anix_grp = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                                    indv_id_id=indv.pk,
-                                                    grp_id_id=grp_id,
-                                                    created_by=cleaned_data["created_by"],
-                                                    created_date=cleaned_data["created_date"],
-                                                    )
-                    try:
-                        anix_grp.clean()
-                        anix_grp.save()
-                        row_entered = True
-                    except ValidationError:
-                        pass
+                    anix_grp = enter_anix(cleaned_data, indv_pk=indv.pk, grp_pk=grp_id)
 
                     if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                         row_entered = True
@@ -787,7 +767,7 @@ class DataForm(CreatePrams):
                         log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
 
                     if indv:
-                        anix_indv = enter_anix_indv(indv.pk, cleaned_data)
+                        anix_indv = enter_anix(cleaned_data, indv_pk=indv.pk)
 
                         row_date = row["DATE SORTED (ddmmmyr)"].date()
                         if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
@@ -895,8 +875,8 @@ class DataForm(CreatePrams):
 
                     row_date = row["date"].date()
 
-                    anix_female = enter_anix_indv(indv_female.pk, cleaned_data)
-                    anix_male = enter_anix_indv(indv_male.pk, cleaned_data)
+                    anix_female = enter_anix(cleaned_data, indv_pk=indv_female.pk)
+                    anix_male = enter_anix(cleaned_data, indv_pk=indv_male.pk)
 
                     if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
                         row_entered = True
@@ -911,7 +891,10 @@ class DataForm(CreatePrams):
                         row_entered = True
 
                     # pair
+                    prio_dict = {"H": "High", "M": "Normal", "P": "Low"}
                     pair = models.Pairing(start_date=row_date,
+                                          prio_id=models.PriorityCode.objects.filter(
+                                              name__iexact=prio_dict[row["Pri..1"]]).get(),
                                           valid=True,
                                           indv_id=indv_female,
                                           comments=row["Comment"],
@@ -926,7 +909,6 @@ class DataForm(CreatePrams):
                         pair = models.Pairing.objects.filter(start_date=row_date, indv_id=indv_female).get()
 
                     # sire
-                    prio_dict = {"H": "High", "M": "Normal", "P": "Low"}
                     sire = models.Sire(prio_id=models.PriorityCode.objects.filter(name__iexact=prio_dict[row["Pri..1"]]).get(),
                                        pair_id=pair,
                                        indv_id=indv_male,
@@ -969,11 +951,42 @@ class DataForm(CreatePrams):
                         pass
 
                     # grp
+                    anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
+                                                                      grp_id__isnull=False,
+                                                                      pair_id=pair,
+                                                                      indv_id__isnull=True,
+                                                                      contx_id__isnull=True,
+                                                                      indvt_id__isnull=True,
+                                                                      loc_id__isnull=True,
+                                                                      )
+                    if anix_grp_qs.count() == 0:
+
+                        grp = models.Group(spec_id=indv_female.spec_id,
+                                           stok_id=indv_female.stok_id,
+                                           coll_id=models.Collection.objects.filter(name="F1").get(),
+                                           grp_year=row_date.year,
+                                           grp_valid=False,
+                                           created_by=cleaned_data["created_by"],
+                                           created_date=cleaned_data["created_date"],
+                                           )
+                        try:
+                            grp.clean()
+                            grp.save()
+                            anix_grp = enter_anix(cleaned_data, grp_pk=grp.pk)
+                            anix_grp = enter_anix(cleaned_data, grp_pk=grp.pk, pair_pk=pair.pk)
+                            grp.grp_valid = True
+                            grp.save()
+                        except ValidationError:
+                            # recovering the group is only doable through the anix with both grp and pair.
+                            # no way to find it here, so only make the group valid after anix's created.
+                            pass
+
+                    elif anix_grp_qs.count() == 1:
+                        anix_grp = anix_grp_qs.get()
+                        grp = anix_grp.grp_id
 
 
-
-
-                except Exception as err:
+                except IntegrityError as err: # except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
                     log_data += "Error parsing row: \n"

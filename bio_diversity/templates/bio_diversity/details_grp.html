@@ -56,7 +56,7 @@
     </div>
     {% if cont_evnt_list %}
         <div class="card border border-dark my-1" name="container-details">
-            <h5 class="card-header">{% trans "Individual Container History" %}</h5>
+            <h5 class="card-header">{% trans "Group Container History" %}</h5>
             <table class="table table-sm sortable table-hover">
                 <thead>
                     {% for field in cont_evnt_field_list %}
@@ -69,6 +69,29 @@
                         {% for field in obj %}
                             <td>
                                 {{ field }}
+                            </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    {% if pair_list %}
+        <div class="card border border-dark my-1" name="pairing-details">
+            <h5 class="card-header">{% trans "Group Pairing" %}</h5>
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                    {% for field in pair_field_list %}
+                         <th>{% get_verbose_label pair_object field %}</th>
+                    {% endfor %}
+                </thead>
+                <tbody>
+                    {% for obj in pair_list %}
+                        <tr>
+                        {% for field in pair_field_list %}
+                            <td>
+                                {% get_field_value obj field %}
                             </td>
                         {% endfor %}
                         </tr>

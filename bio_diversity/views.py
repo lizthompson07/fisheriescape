@@ -927,6 +927,16 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
             "Container",
         ]
 
+        anix_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
+                                                      indvt_id__isnull=True, pair_id__isnull=False)
+        context["pair_list"] = [anix.pair_id for anix in anix_set]
+        context["pair_object"] = models.Pairing.objects.first()
+        context["pair_field_list"] = [
+            "indv_id",
+            "start_date",
+            "prio_id",
+        ]
+
         return context
 
 
