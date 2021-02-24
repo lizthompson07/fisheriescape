@@ -1,7 +1,6 @@
+import csv
 import json
 import os
-import csv
-
 from copy import deepcopy
 
 from django.contrib import messages
@@ -1281,6 +1280,7 @@ def export_sar_workplan(request):
             return response
     raise Http404
 
+
 @login_required()
 def export_regional_staff_allocation(request):
     year = request.GET.get("year")
@@ -1307,6 +1307,7 @@ def export_regional_staff_allocation(request):
                          my_dict["approved"]])
 
     return response
+
 
 # ADMIN USERS
 
