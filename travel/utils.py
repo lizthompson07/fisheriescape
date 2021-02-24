@@ -225,8 +225,13 @@ def get_request_reviewers(trip_request):
         #####
         if trip_request.section.division.branch.region.head and trip_request.section.division.branch.region.head not in [t.user for t in travellers]:
             models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=6)
-    # use the triprequest save method to set the order
-    trip_request.save()
+
+        # ensure the process order makes sense
+        count = 1
+        for r in trip_request.reviewers.order_by('id'):  # sort by id since this will correspond to order of creation
+            r.order = count
+            r.save()
+            count += 1
 
 
 def start_request_review_process(trip_request):

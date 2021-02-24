@@ -647,13 +647,6 @@ class TripRequest1(models.Model):
 
         self.fiscal_year = self.trip.fiscal_year
 
-        # ensure the process order makes sense
-        count = 1
-        for r in self.reviewers.all():  # use the default sorting
-            r.order = count
-            r.save()
-            count += 1
-
         return super().save(*args, **kwargs)
 
     @property
@@ -1023,7 +1016,7 @@ class Reviewer(models.Model):
 
     class Meta:
         # unique_together = ['trip_request', 'user', 'role', ]
-        ordering = ['request', 'order', 'id']
+        ordering = ['request', 'order']
         verbose_name = _("reviewer")
 
     @property
