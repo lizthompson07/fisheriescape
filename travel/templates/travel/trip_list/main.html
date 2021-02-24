@@ -56,14 +56,14 @@
                 <th style="" @click="sort('location')" class="clickable">{% trans "Location" %}</th>
                 <th style="" @click="sort('lead')" class="clickable">{% trans "Region lead" %}</th>
                 <th style="" @click="sort('travellers')" class="clickable">{% trans "Travellers" %}</th>
-                <th style="width: 225px" @click="sort('dates')" class="clickable">{% trans "Dates" %}</th>
+                <th style="width: 200px" @click="sort('dates')" class="clickable">{% trans "Dates" %}</th>
                 <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
-                <th v-if="pageType !== 'upcoming'" style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>
-                <th style="width: 140px" @click="sort('registration_deadline')" class="clickable">${tripLabels.registration_deadline}</th>
+{#                <th v-if="pageType !== 'upcoming'" style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>#}
+                <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('registration_deadline')" class="clickable">${tripLabels.registration_deadline}</th>
                 <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('abstract_deadline')" class="clickable">${tripLabels.abstract_deadline}
                 </th>
                 <th style="width: 140px" @click="sort('date_eligible_for_adm_review')" class="clickable">${tripLabels.date_eligible_for_adm_review}</th>
-                <th v-if="pageType === 'adm-hit-list'" style="width: 140px" @click="sort('adm_review_deadline')"
+                <th style="width: 200px" v-if="pageType === 'adm-hit-list'" @click="sort('adm_review_deadline')"
                     class="clickable">{% trans "ADM decision deadline" %}</th>
               </tr>
               </thead>
@@ -81,8 +81,8 @@
                 <td>${t.traveller_count}</td>
                 <td v-html="t.dates"></td>
                 <td>${t.is_adm_approval_required |yesNo }</td>
-                <td v-if="pageType !== 'upcoming'">${t.trip_subcategory }</td>
-                <td>${t.registration_deadline |nz}</td>
+{#                <td v-if="pageType !== 'upcoming'">${t.trip_subcategory }</td>#}
+                <td v-if="pageType === 'upcoming'">${t.registration_deadline |nz}</td>
                 <td v-if="pageType === 'upcoming'">${t.abstract_deadline |nz}</td>
                 <td>
                   <span v-if="!t.is_adm_approval_required"> --- </span>
@@ -91,7 +91,9 @@
                 <td v-if="pageType === 'adm-hit-list'">
                   <span :class="getDeadlineClass(t.days_until_adm_review_deadline)">
                     ${t.adm_review_deadline |nz}
-                  </span>
+                  </span> <br>
+                  (${t.time_until_adm_review_deadline})
+
                 </td>
               </tr>
               </tbody>

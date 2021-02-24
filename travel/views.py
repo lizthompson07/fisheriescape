@@ -802,6 +802,7 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 
         if not stay_on_page:
             if reset:
+                print(123)
                 utils.reset_trip_review_process(my_reviewer.trip)
             else:
                 # if it was approved, then we change the reviewer status to 'approved'
@@ -815,7 +816,7 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 
         else:
             my_kwargs = {"pk": my_reviewer.id}
-            return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs=my_kwargs))
+            return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs=my_kwargs)+"#id_comments")
 
 
 

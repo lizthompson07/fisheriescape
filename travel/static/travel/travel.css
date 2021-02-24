@@ -103,6 +103,7 @@ table, td {
     cursor: pointer;
     color: blue;
     text-decoration: underline;
+    font-weight: normal;
 }
 
 .pointy {

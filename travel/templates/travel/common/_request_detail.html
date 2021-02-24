@@ -23,10 +23,6 @@
       <div v-else>
         <table class="table table-sm mb-5" style="width: auto">
           <tr>
-            <th style="width: 25%">${requestLabels.uuid}</th>
-            <td>${request.uuid}</td>
-          </tr>
-          <tr>
             <th style="width: 25%">${requestLabels.fiscal_year}</th>
             <td>${request.fiscal_year}</td>
           </tr>
@@ -62,6 +58,10 @@
             <th style="width: 25%">{% trans "Objective of trip" %}</th>
             <td>${request.objective_of_event | nz}</td>
           </tr>
+          <tr v-if="request.late_justification">
+            <th style="width: 25%">${requestLabels.late_justification}</th>
+            <td>${request.late_justification}</td>
+          </tr>
           <tr>
             <th style="width: 25%">{% trans "Benefits to DFO" %}</th>
             <td>${request.benefit_to_dfo | nz}</td>
@@ -71,7 +71,11 @@
             <td>${request.bta_attendees | nz}</td>
           </tr>
           <tr>
-            <th style="width: 25%">{% trans "Total cost" %}</th>
+            <th style="width: 25%">{% trans "Notes" %}</th>
+            <td>${request.notes}</td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "Total cost (CAD)" %}</th>
             <td>${request.total_request_cost | floatformat}</td>
           </tr>
           <tr>
@@ -98,13 +102,9 @@
             <th style="width: 25%">{% trans "Processing time" %}</th>
             <td>${request.processing_time}</td>
           </tr>
-          <tr v-if="request.late_justification">
-            <th style="width: 25%">${requestLabels.late_justification}</th>
-            <td>${request.late_justification}</td>
-          </tr>
           <tr>
-            <th style="width: 25%">{% trans "Notes" %}</th>
-            <td>${request.notes}</td>
+            <th style="width: 25%">${requestLabels.uuid}</th>
+            <td>${request.uuid}</td>
           </tr>
           <tr>
             <th style="width: 25%">{% trans "Metadata" %}</th>
@@ -124,7 +124,7 @@
           </table>
         </div>
         <div v-if="isReview" class="mb-5">
-          <p class="h5" >{% trans "Other Travellers to ${request.trip.tname}:" %}</p>
+          <p class="h5" >{% trans "Other Travellers to ${request.trip.tname} from ${request.region}:" %}</p>
           <ul>
             <li v-for="(t, i) in request.travellers_from_other_requests" :key="t.id">
               ${t.smart_name} &mdash; ${t.request_obj.section} &rarr;  <span :class="t.request_obj.status_class">${t.request_obj.status_display}</span>
