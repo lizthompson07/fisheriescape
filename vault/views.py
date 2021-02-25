@@ -430,6 +430,22 @@ class OutingDetailView(VaultAdminAccessRequired, CommonDetailView):
     home_url_name = "vault:index"
     parent_crumb = {"title": gettext_lazy("Outing List"), "url": reverse_lazy("vault:outing_list")}
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # contexts for _observation.html file
+        context["random_observation"] = models.Observation.objects.first()
+        context["observation_field_list"] = [
+            'instrument',
+            'datetime',
+            'longitude',
+            'latitude',
+            'observer',
+            'opportunistic',
+        ]
+
+        return context
+
 
 class OutingUpdateView(VaultAdminAccessRequired, CommonUpdateView):
     model = models.Outing
@@ -541,6 +557,31 @@ class ObservationDetailView(VaultAdminAccessRequired, CommonDetailView):
     home_url_name = "vault:index"
     parent_crumb = {"title": gettext_lazy("Observation List"), "url": reverse_lazy("vault:observation_list")}
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # contexts for _obsighting.html file
+        context["random_obsighting"] = models.ObservationSighting.objects.first()
+        context["obsighting_field_list"] = [
+            'species',
+            'certainty',
+            'sex',
+            'life_stage',
+            'health_status',
+            'verified',
+            'known_individual',
+        ]
+
+        # contexts for _media.html file
+        context["random_media"] = models.OriginalMediafile.objects.first()
+        context["media_field_list"] = [
+            'filename',
+            'file_path',
+            'metadata',
+
+        ]
+
+        return context
 
 class ObservationUpdateView(VaultAdminAccessRequired, CommonUpdateView):
     model = models.Observation
