@@ -167,8 +167,8 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
                                      facic_id=cleaned_data["evnt_id"].facic_id,
                                      perc_id=cleaned_data["evnt_id"].perc_id,
                                      prog_id=cleaned_data["evnt_id"].prog_id,
-                                     evnt_start=movement_date,
-                                     evnt_end=movement_date,
+                                     start_datetime=movement_date,
+                                     end_datetime=movement_date,
                                      created_by=new_cleaned_data["created_by"],
                                      created_date=new_cleaned_data["created_date"],
                                      )
@@ -180,8 +180,8 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
             movement_evnt = models.Event.objects.filter(evntc_id=movement_evnt.evntc_id,
                                                         facic_id=movement_evnt.facic_id,
                                                         prog_id=movement_evnt.prog_id,
-                                                        evnt_start=movement_evnt.evnt_start,
-                                                        evnt_end=movement_evnt.evnt_end,
+                                                        start_datetime=movement_evnt.start_datetime,
+                                                        end_datetime=movement_evnt.end_datetime,
                                                         ).get()
 
         new_cleaned_data["evnt_id"] = movement_evnt

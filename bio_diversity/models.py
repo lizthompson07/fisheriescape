@@ -535,7 +535,7 @@ class EnvTreatment(BioModel):
         ]
 
 
-class Event(BioModel):
+class Event(BioTimeModel):
     # evnt tag
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility Code"))
     evntc_id = models.ForeignKey('EventCode', on_delete=models.CASCADE, verbose_name=_("Event Code"))
@@ -546,34 +546,6 @@ class Event(BioModel):
     team_id = models.ForeignKey('Team', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Team"))
 
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-
-    evnt_start = models.DateTimeField(verbose_name=_("Start date"))
-    evnt_end = models.DateTimeField(null=True, blank=True, verbose_name=_("End date"))
-
-    @property
-    def start_date(self):
-        return self.evnt_start.date()
-
-    @property
-    def start_time(self):
-        if self.evnt_start.time() == datetime.datetime.min.time():
-            return None
-        return self.evnt_start.time().strftime("%H:%M")
-
-    @property
-    def end_date(self):
-        if self.evnt_end:
-            return self.evnt_end.date()
-        else:
-            return None
-
-    @property
-    def end_time(self):
-        if self.evnt_end:
-            if self.evnt_end.time() == datetime.datetime.min.time():
-                return None
-            return self.evnt_end.time().strftime("%H:%M")
-        return None
 
     @property
     def is_current(self):
@@ -589,7 +561,7 @@ class Event(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'evnt_start', 'evnt_end'],
+            models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'start_datetime', 'end_datetime'],
                                     name='Event_Uniqueness')
         ]
 
@@ -666,9 +638,9 @@ class Group(BioModel):
     def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         cont = []
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True,evnt_id__evnt_start__lte=at_date)
+        anix_in_set = self.animal_details.filter(final_contx_flag=True,evnt_id__start_datetime__lte=at_date)
         tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
-        anix_out_set = self.animal_details.filter(final_contx_flag=False,evnt_id__evnt_start__lte=at_date)
+        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date)
         tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
 
         for tank, in_count in tank_in_set:
@@ -892,9 +864,9 @@ class Individual(BioModel):
     def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         cont = []
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__evnt_start__lte=at_date)
+        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)
         tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
-        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__evnt_start__lte=at_date)
+        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date)
         tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
 
         for tank, in_count in tank_in_set:

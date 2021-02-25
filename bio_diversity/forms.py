@@ -1245,7 +1245,7 @@ class EnvtcForm(CreatePrams):
         exclude = []
 
 
-class EvntForm(CreatePrams):
+class EvntForm(CreateTimePrams):
     class Meta:
         model = models.Event
         exclude = []
@@ -1254,54 +1254,6 @@ class EvntForm(CreatePrams):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['team_id'].create_url = 'bio_diversity:create_team'
-        self.fields['created_date'].widget = forms.HiddenInput()
-        self.fields['created_by'].widget = forms.HiddenInput()
-        self.fields['evnt_start'].widget = forms.HiddenInput()
-        self.fields['evnt_start'].required = False
-        self.fields['evnt_end'].widget = forms.HiddenInput()
-        self.fields['evnt_end'].required = False
-        self.fields['start_date'] = forms.DateField(widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
-        self.fields['end_date'] = forms.DateField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}))
-        self.fields['start_time'] = forms.CharField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a time...", "class": "fp-time"}))
-        self.fields['end_time'] = forms.CharField(required=False, widget=forms.DateInput(attrs={"placeholder": "Click to select a time...", "class": "fp-time"}))
-
-    def clean(self):
-        cleaned_data = super().clean()
-        #
-        if not self.is_valid():
-            raise ValidationError("Please fill out missing fields.")
-        # we have to make sure
-        # the end datetime is after the start datetime
-        # and set the datetime values
-        if cleaned_data["start_time"]:
-            start_time = datetime.strptime(cleaned_data["start_time"],
-                                           '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
-        else:
-            start_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
-        cleaned_data["evnt_start"] = datetime.combine(cleaned_data["start_date"], start_time)
-        if cleaned_data["end_date"]:
-            if cleaned_data["end_time"]:
-                end_time = datetime.strptime(cleaned_data["end_time"],
-                                             '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
-            else:
-                end_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
-            cleaned_data["evnt_end"] = datetime.combine(cleaned_data["end_date"], end_time)
-
-        end_date = cleaned_data.get("end_date")
-        end_time = cleaned_data.get("end_time")
-        start_time = cleaned_data.get("start_time")
-        if end_date:
-            start_date = cleaned_data.get("start_date")
-            if end_date and start_date and end_date < start_date:
-                self.add_error('end_date', gettext(
-                    "The end date must be after the start date!"
-                ))
-            elif end_date and start_date and end_date == start_date:
-                if end_time and start_time and end_time < start_time:
-                    self.add_error('end_time', gettext(
-                        "The end date must be after the start date!"
-                    ))
-        return self.cleaned_data
 
 
 class EvntcForm(CreatePrams):

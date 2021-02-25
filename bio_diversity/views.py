@@ -902,7 +902,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
             "evntc_id",
             "facic_id",
             "prog_id",
-            "evnt_start",
+            "start_datetime",
         ]
 
         context["grpd_list"] = list(dict.fromkeys([models.GroupDet.objects.filter(anix_id=anix.pk).get()
@@ -996,7 +996,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "evntc_id",
             "facic_id",
             "prog_id",
-            "evnt_start",
+            "start_datetime",
         ]
         indvd_set = list(dict.fromkeys([anix.individual_details.all() for anix in anix_evnt_set]))
         context["indvd_list"] = list(dict.fromkeys([indvd for qs in indvd_set for indvd in qs]))

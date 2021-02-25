@@ -732,9 +732,9 @@ class EvntFactory(factory.django.DjangoModelFactory):
     perc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PercFactory")
     prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
     team_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TeamFactory")
-    evnt_start = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
+    start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
                                                                           tzinfo=timezone.get_current_timezone()))
-    evnt_end = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
+    end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
                                                                         tzinfo=timezone.get_current_timezone()))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -756,10 +756,10 @@ class EvntFactory(factory.django.DjangoModelFactory):
             'perc_id': perc.pk,
             'prog_id': prog.pk,
             'team_id': team.pk,
-            'start_date': obj.evnt_start.date(),
-            'start_time': obj.evnt_start.time().strftime("%H:%M"),
-            'end_date': obj.evnt_end.date(),
-            'end_time': obj.evnt_end.time().strftime("%H:%M"),
+            'start_date': obj.start_datetime.date(),
+            'start_time': obj.start_datetime.time().strftime("%H:%M"),
+            'end_date': obj.end_datetime.date(),
+            'end_time': obj.end_datetime.time().strftime("%H:%M"),
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
