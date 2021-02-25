@@ -53,7 +53,7 @@ def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict
     :return: dict or bool
     """
     if user.id:
-        my_request = models.TripRequest1.objects.get(pk=trip_request_id)
+        my_request = models.TripRequest.objects.get(pk=trip_request_id)
 
         reason = None
         result = False
@@ -63,7 +63,7 @@ def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict
             result = True
             reason = _("You can edit this record because you are the request owner.")
 
-        elif not my_request.submitted and my_request in models.TripRequest1.objects.filter(travellers__user=user):
+        elif not my_request.submitted and my_request in models.TripRequest.objects.filter(travellers__user=user):
             result = True
             reason = _("You can edit this record because you are a traveller on this request.")
 
@@ -444,7 +444,7 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
 
 def populate_traveller_costs(request, traveller):
     for obj in models.Cost.objects.all():
-        new_item, created = models.TripRequestCost.objects.get_or_create(traveller=traveller, cost=obj)
+        new_item, created = models.TravellerCost.objects.get_or_create(traveller=traveller, cost=obj)
         if created:
             # breakfast
             if new_item.cost_id == 9:
@@ -480,7 +480,7 @@ def populate_traveller_costs(request, traveller):
 
 def clear_empty_traveller_costs(traveller):
     for obj in models.Cost.objects.all():
-        for cost in models.TripRequestCost.objects.filter(traveller=traveller, cost=obj):
+        for cost in models.TravellerCost.objects.filter(traveller=traveller, cost=obj):
             if (cost.amount_cad is None or cost.amount_cad == 0):
                 cost.delete()
 
@@ -601,7 +601,7 @@ def get_related_trips(user):
 def get_related_requests(user):
     """give me a user and I'll send back a queryset with all related trip requests, i.e.
      they are a traveller || they are the request.created_by"""
-    qs = models.TripRequest1.objects.filter(Q(created_by=user) | Q(travellers__user=user)).distinct()
+    qs = models.TripRequest.objects.filter(Q(created_by=user) | Q(travellers__user=user)).distinct()
     return qs
 
 
@@ -622,7 +622,7 @@ def get_related_trip_reviewers(user):
 def get_adm_eligible_trips():
     """returns a qs of trips that are ready for adm review"""
     # start with trips that need adm approval that have not already been reviewed or those that have been cancelled
-    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status__in=[32, 43, 31]))
+    trips = models.Trip.objects.filter(is_adm_approval_required=True).filter(~Q(status__in=[32, 43, 31]))
 
     keepers = list()
     for t in trips:
@@ -631,7 +631,7 @@ def get_adm_eligible_trips():
             # only get trips that are within three months from the closest date
             if t.date_eligible_for_adm_review and t.date_eligible_for_adm_review <= timezone.now():
                 keepers.append(t.id)
-    return models.Conference.objects.filter(id__in=keepers).order_by("adm_review_deadline")
+    return models.Trip.objects.filter(id__in=keepers).order_by("adm_review_deadline")
 
 
 user_attr_list = [
@@ -657,7 +657,7 @@ def is_manager_or_assistant_or_admin(user):
 
 
 def get_requests_with_managerial_access(user):
-    queryset = models.TripRequest1.objects.all()
+    queryset = models.TripRequest.objects.all()
     if in_travel_admin_group(user) or in_adm_admin_group(user):
         return queryset
     else:
@@ -740,7 +740,7 @@ def get_cost_comparison(travellers):
     """
     This method is used to return a dictionary of trip requests and will compare cost across all of them.
     """
-    costs = models.TripRequestCost.objects.filter(traveller__in=travellers, amount_cad__gt=0).values("cost").order_by("cost").distinct()
+    costs = models.TravellerCost.objects.filter(traveller__in=travellers, amount_cad__gt=0).values("cost").order_by("cost").distinct()
     header = [models.Cost.objects.get(pk=c["cost"]).tname for c in costs]
     cost_totals = OrderedDict()
     for c in costs:
@@ -758,7 +758,7 @@ def get_cost_comparison(travellers):
         traveller_total = 0
         for cost in costs:
             try:
-                c = models.TripRequestCost.objects.get(traveller=t, cost_id=cost['cost'])
+                c = models.TravellerCost.objects.get(traveller=t, cost_id=cost['cost'])
                 val = c.amount_cad
                 cost_totals[c.cost.id] += c.amount_cad
                 traveller_total += c.amount_cad

@@ -39,7 +39,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
         data["requests_awaiting_changes"] = requests.filter(status=16).exists()
 
         if request.query_params.get("request"):
-            my_trip_request = get_object_or_404(models.TripRequest1, pk=request.query_params.get("request"))
+            my_trip_request = get_object_or_404(models.TripRequest, pk=request.query_params.get("request"))
             data.update(utils.can_modify_request(request.user, trip_request_id=request.query_params.get("request"), as_dict=True))
             data.update(dict(is_owner=request.user.id == my_trip_request.created_by))
 
@@ -47,14 +47,14 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
 
 
 class TripViewSet(viewsets.ModelViewSet):
-    queryset = models.Conference.objects.all()
+    queryset = models.Trip.objects.all()
     serializer_class = serializers.TripSerializer
     permission_classes = [TravelAdminOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
     def post(self, request, pk):
         qp = request.query_params
-        obj = get_object_or_404(models.Conference, pk=pk)
+        obj = get_object_or_404(models.Trip, pk=pk)
         if qp.get("reset_reviewers"):
             if utils.in_adm_admin_group(request.user):
                 # This function should only ever be run if the trip is unreviewed (30 = unverified, unreviewer; 41 = verified, reviewed)
@@ -71,9 +71,9 @@ class TripViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.kwargs.get("pk"):
-            return models.Conference.objects.filter(pk=self.kwargs.get("pk"))  # anybody can ask to see a trip.
+            return models.Trip.objects.filter(pk=self.kwargs.get("pk"))  # anybody can ask to see a trip.
         else:
-            qs = models.Conference.objects.all()
+            qs = models.Trip.objects.all()
             qp = self.request.query_params
             if qp.get("adm-verification") and utils.in_adm_admin_group(self.request.user):
                 qs = qs.filter(is_adm_approval_required=True, status=30)
@@ -82,7 +82,7 @@ class TripViewSet(viewsets.ModelViewSet):
             elif qp.get("regional-verification") and utils.is_admin(self.request.user):
                 qs = qs.filter(is_adm_approval_required=False, status=30)
             elif qp.get("all") and utils.is_admin(self.request.user):  # we cannot really restrict this otherwise certain views will not work!!
-                qs = qs.order_by("-updated_at")
+                qs = qs
             else:
                 qs = qs.filter(start_date__gte=timezone.now())
 
@@ -136,14 +136,14 @@ class TripViewSet(viewsets.ModelViewSet):
 
 
 class RequestViewSet(viewsets.ModelViewSet):
-    queryset = models.TripRequest1.objects.all()
+    queryset = models.TripRequest.objects.all()
     serializer_class = serializers.TripRequestSerializer
     permission_classes = [CanModifyOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
     def post(self, request, pk):
         qp = request.query_params
-        obj = get_object_or_404(models.TripRequest1, pk=pk)
+        obj = get_object_or_404(models.TripRequest, pk=pk)
         if qp.get("reset_reviewers"):
             if utils.can_modify_request(request.user, obj.id):
                 # This function should only ever be run if the TR is a draft
@@ -164,13 +164,13 @@ class RequestViewSet(viewsets.ModelViewSet):
             related_ids = [r.id for r in utils.get_related_requests(self.request.user)]
             can_proceed = utils.can_modify_request(self.request.user, self.kwargs.get("pk")) or int(self.kwargs.get("pk")) in related_ids
             if can_proceed:
-                return models.TripRequest1.objects.filter(pk=self.kwargs.get("pk"))
+                return models.TripRequest.objects.filter(pk=self.kwargs.get("pk"))
         else:
             qp = self.request.query_params
             if qp.get("all") and utils.is_admin(self.request.user):
-                qs = models.TripRequest1.objects.all()
+                qs = models.TripRequest.objects.order_by("-updated_at")
             else:
-                qs = utils.get_related_requests(self.request.user)
+                qs = utils.get_related_requests(self.request.user).order_by("-updated_at")
 
             filter_list = [
                 "trip_title",
@@ -387,7 +387,7 @@ class FileViewSet(viewsets.ModelViewSet):
 class CostViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CostSerializer
     permission_classes = [CanModifyOrReadOnly]
-    queryset = models.TripRequestCost.objects.all()
+    queryset = models.TravellerCost.objects.all()
     pagination_class = StandardResultsSetPagination
 
     def list(self, request, *args, **kwargs):
@@ -460,7 +460,7 @@ def _get_labels(model):
 
 class RequestModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    model = models.TripRequest1
+    model = models.TripRequest
 
     def get(self, request):
         data = dict()
@@ -470,7 +470,7 @@ class RequestModelMetaAPIView(APIView):
 
 class TripModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    model = models.Conference
+    model = models.Trip
 
     def get(self, request):
         data = dict()
@@ -524,7 +524,7 @@ class FileModelMetaAPIView(APIView):
 
 class CostModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    model = models.TripRequestCost
+    model = models.TravellerCost
 
     def get(self, request):
         data = dict()
@@ -554,14 +554,14 @@ class AdminWarningsAPIView(APIView):
             btn = f' &rarr; <a href="{reverse("travel:trip_list")}?regional-verification=true">{anchor_txt}</a>'
 
             for region in Region.objects.all():
-                qs = models.Conference.objects.filter(status=30, is_adm_approval_required=False, lead=region)
+                qs = models.Trip.objects.filter(status=30, is_adm_approval_required=False, lead=region)
                 if qs.exists():
                     msgs.append(
                         # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
                         _("<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
                             region=region, unverified_trips=qs.count(), pluralization=pluralize(qs.count())) + btn)
 
-            qs = models.Conference.objects.filter(status=30, is_adm_approval_required=False, lead__isnull=True)
+            qs = models.Trip.objects.filter(status=30, is_adm_approval_required=False, lead__isnull=True)
             if qs.exists():
                 if qs.count() == 1:
                     msg = _("<b>ADMIN WARNING:</b> There is {unverified_trips} unverified trip requiring attention with <u>no regional lead</u>!!".format(
@@ -572,7 +572,7 @@ class AdminWarningsAPIView(APIView):
                 msgs.append(msg)
 
         if utils.in_adm_admin_group(request.user):
-            qs = models.Conference.objects.filter(status=30, is_adm_approval_required=True)
+            qs = models.Trip.objects.filter(status=30, is_adm_approval_required=True)
             if qs.exists():
                 btn = f' &rarr; <a href="{reverse("travel:trip_list")}?adm-verification=true">{anchor_txt}</a>'
                 msgs.append(
