@@ -269,14 +269,12 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
 
     if from_date:
         my_date = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
-        print(my_date)
         trip_list = trip_list.filter(
             start_date__gte=my_date,
         )
 
     if to_date:
         my_date = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
-        print(my_date)
         trip_list = trip_list.filter(
             start_date__lt=my_date,
         )

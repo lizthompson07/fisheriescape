@@ -1,4 +1,4 @@
-# TODO: update DFO org chart
+# TODO: update DFO org chart !!!
 # todo:  email for when ppl are deleted from a request
 
 # TODO: trip reassign and delete
@@ -11,8 +11,6 @@
 # TODO: fix up unit tests
     # TODO: test new model choices!!
 
-# todo: it would be nice for the trips to have the same flow as requests. right now they are opening in new widows all the time!
-# TODO: seek and destroy print statements
 
 # after we are deployed
 # TODO: delete trip_request on cost, traveller,

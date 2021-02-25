@@ -98,21 +98,21 @@ class RequestReviewerSerializerLITE(serializers.ModelSerializer):
         model = models.Reviewer
         fields = "__all__"
 
+    comments_html = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
     status_date = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
-    status_class = serializers.SerializerMethodField()
-    comments_html = serializers.SerializerMethodField()
 
     def get_comments_html(self, instance):
         return instance.comments_html
 
-    def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
-
     def get_role_display(self, instance):
         return instance.get_role_display()
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
 
     def get_status_date(self, instance):
         return date(instance.status_date)
@@ -130,33 +130,24 @@ class TripRequestSerializerLITE(serializers.ModelSerializer):
         fields = "__all__"
 
     created_by = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
     is_late_request = serializers.SerializerMethodField()
     processing_time = serializers.SerializerMethodField()
     region = serializers.SerializerMethodField()
+    reviewer_history = serializers.SerializerMethodField()
+    section = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
-    trip_display = serializers.SerializerMethodField()
     traveller_count = serializers.SerializerMethodField()
     trip = TripSerializerLITE(read_only=True)
-    section = serializers.SerializerMethodField()
-    display = serializers.SerializerMethodField()
-    reviewer_history = serializers.SerializerMethodField()
-
-    def get_reviewer_history(self, instance):
-        return RequestReviewerSerializerLITE(instance.reviewers.filter(~Q(status__in=[4, 20, 1])), many=True, read_only=True).data
-
-    def get_display(self, instance):
-        return str(instance)
-
-    def get_section(self, instance):
-        return instance.section.shortish_name
-
-    def get_traveller_count(self, instance):
-        return instance.travellers.count()
+    trip_display = serializers.SerializerMethodField()
 
     def get_created_by(self, instance):
         if instance.created_by:
             return instance.created_by.get_full_name()
+
+    def get_display(self, instance):
+        return str(instance)
 
     def get_is_late_request(self, instance):
         return instance.is_late_request
@@ -167,11 +158,20 @@ class TripRequestSerializerLITE(serializers.ModelSerializer):
     def get_region(self, instance):
         return instance.section.division.branch.region.tname
 
+    def get_reviewer_history(self, instance):
+        return RequestReviewerSerializerLITE(instance.reviewers.filter(~Q(status__in=[4, 20, 1])), many=True, read_only=True).data
+
+    def get_section(self, instance):
+        return instance.section.shortish_name
+
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
 
     def get_status_display(self, instance):
         return instance.get_status_display()
+
+    def get_traveller_count(self, instance):
+        return instance.travellers.count()
 
     def get_trip_display(self, instance):
         return str(instance.trip)
@@ -193,26 +193,26 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
         model = models.Reviewer
         fields = "__all__"
 
+    comments_html = serializers.SerializerMethodField()
+    request_obj = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
     status_date = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     user_display = serializers.SerializerMethodField()
-    status_class = serializers.SerializerMethodField()
-    comments_html = serializers.SerializerMethodField()
-    request_obj = serializers.SerializerMethodField()
+
+    def get_comments_html(self, instance):
+        return instance.comments_html
 
     def get_request_obj(self, instance):
         if instance.request:
             return TripRequestSerializerLITE(instance.request, read_only=True).data
 
-    def get_comments_html(self, instance):
-        return instance.comments_html
+    def get_role_display(self, instance):
+        return instance.get_role_display()
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
-
-    def get_role_display(self, instance):
-        return instance.get_role_display()
 
     def get_status_date(self, instance):
         return date(instance.status_date)
@@ -244,15 +244,15 @@ class TravellerSerializer(serializers.ModelSerializer):
         model = models.Traveller
         fields = "__all__"
 
+    adm_travel_history = serializers.SerializerMethodField()
     cost_breakdown_html = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     long_role = serializers.SerializerMethodField()
     non_dfo_costs_html = serializers.SerializerMethodField()
+    request_obj = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
     smart_name = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
-    request_obj = serializers.SerializerMethodField()
-    adm_travel_history = serializers.SerializerMethodField()
 
     def get_adm_travel_history(self, instance):
         if instance.user:
@@ -260,12 +260,6 @@ class TravellerSerializer(serializers.ModelSerializer):
                 travellers__user=instance.user, trip__is_adm_approval_required=True, status=11).order_by("trip__start_date").distinct()
             return TripRequestSerializerLITE(qs, many=True, read_only=True).data
         return list()
-
-    def get_role_display(self, instance):
-        return str(instance.role)
-
-    def get_request_obj(self, instance):
-        return TripRequestSerializerLITE(instance.request).data
 
     def get_cost_breakdown_html(self, instance):
         return instance.cost_breakdown_html
@@ -278,6 +272,12 @@ class TravellerSerializer(serializers.ModelSerializer):
 
     def get_non_dfo_costs_html(self, instance):
         return instance.non_dfo_costs_html
+
+    def get_request_obj(self, instance):
+        return TripRequestSerializerLITE(instance.request).data
+
+    def get_role_display(self, instance):
+        return str(instance.role)
 
     def get_smart_name(self, instance):
         return instance.smart_name
@@ -377,23 +377,14 @@ class TripRequestSerializer(serializers.ModelSerializer):
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
 
-    def get_region(self, instance):
-        return instance.region.tname
-
-    def get_travellers_from_other_requests(self, instance):
-        return TravellerSerializer(instance.travellers_from_other_requests, many=True, read_only=True).data
-
-    def get_cost_comparison(self, instance):
-        return get_cost_comparison(instance.travellers.all())
-
-    def get_original_submission_date(self, instance):
-        return date(instance.original_submission_date)
-
     def get_admin_notes_html(self, instance):
         return instance.admin_notes_html
 
     def get_bta_attendees(self, instance):
         return listrify(instance.bta_attendees.all())
+
+    def get_cost_comparison(self, instance):
+        return get_cost_comparison(instance.travellers.all())
 
     def get_created_by(self, instance):
         if instance.created_by:
@@ -408,8 +399,14 @@ class TripRequestSerializer(serializers.ModelSerializer):
     def get_metadata(self, instance):
         return instance.metadata
 
+    def get_original_submission_date(self, instance):
+        return date(instance.original_submission_date)
+
     def get_processing_time(self, instance):
         return instance.processing_time
+
+    def get_region(self, instance):
+        return instance.region.tname
 
     def get_reviewer_order_message(self, instance):
         return instance.reviewer_order_message
@@ -435,6 +432,9 @@ class TripRequestSerializer(serializers.ModelSerializer):
     def get_total_request_cost(self, instance):
         return instance.total_request_cost
 
+    def get_travellers_from_other_requests(self, instance):
+        return TravellerSerializer(instance.travellers_from_other_requests, many=True, read_only=True).data
+
     def get_trip_display(self, instance):
         return instance.trip.tname
 
@@ -444,32 +444,32 @@ class TripReviewerSerializer(serializers.ModelSerializer):
         model = models.TripReviewer
         fields = "__all__"
 
+    comments_html = serializers.SerializerMethodField()
     role_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
     status_date = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
-    user_display = serializers.SerializerMethodField()
-    status_class = serializers.SerializerMethodField()
-    comments_html = serializers.SerializerMethodField()
     trip_obj = serializers.SerializerMethodField()
-
-    def get_trip_obj(self, instance):
-        if instance.trip:
-            return TripSerializerLITE(instance.trip, read_only=True).data
+    user_display = serializers.SerializerMethodField()
 
     def get_comments_html(self, instance):
         return instance.comments_html
 
-    def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
-
     def get_role_display(self, instance):
         return instance.get_role_display()
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
 
     def get_status_date(self, instance):
         return date(instance.status_date)
 
     def get_status_display(self, instance):
         return instance.get_status_display()
+
+    def get_trip_obj(self, instance):
+        if instance.trip:
+            return TripSerializerLITE(instance.trip, read_only=True).data
 
     def get_user_display(self, instance):
         return instance.user.get_full_name() if instance.user else None
@@ -481,64 +481,37 @@ class TripSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     abstract_deadline = serializers.SerializerMethodField()
+    adm_review_deadline = serializers.SerializerMethodField()
     admin_notes_html = serializers.SerializerMethodField()
     cost_comparison = serializers.SerializerMethodField()
     date_eligible_for_adm_review = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
+    days_until_adm_review_deadline = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
     fiscal_year = serializers.StringRelatedField()
     lead = serializers.StringRelatedField()
-    registration_deadline = serializers.SerializerMethodField()
-    status_class = serializers.SerializerMethodField()
-    status_display = serializers.SerializerMethodField()
-    tname = serializers.SerializerMethodField()
-    travellers = serializers.SerializerMethodField()
-    trip_subcategory = serializers.StringRelatedField()
-    adm_review_deadline = serializers.SerializerMethodField()
-    time_until_adm_review_deadline = serializers.SerializerMethodField()
-    days_until_adm_review_deadline = serializers.SerializerMethodField()
-    requests = TripRequestSerializerLITE(many=True, read_only=True)
     metadata = serializers.SerializerMethodField()
     non_res_total_cost = serializers.SerializerMethodField()
-    total_cost = serializers.SerializerMethodField()
-    total_non_dfo_cost = serializers.SerializerMethodField()
-    total_dfo_cost = serializers.SerializerMethodField()
-    total_non_dfo_funding_sources = serializers.SerializerMethodField()
+    registration_deadline = serializers.SerializerMethodField()
+    requests = TripRequestSerializerLITE(many=True, read_only=True)
     reviewers = TripReviewerSerializer(many=True, read_only=True)
+    status_class = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    time_until_adm_review_deadline = serializers.SerializerMethodField()
+    tname = serializers.SerializerMethodField()
+    total_cost = serializers.SerializerMethodField()
+    total_dfo_cost = serializers.SerializerMethodField()
+    total_non_dfo_cost = serializers.SerializerMethodField()
+    total_non_dfo_funding_sources = serializers.SerializerMethodField()
+    travellers = serializers.SerializerMethodField()
     trip_review_ready = serializers.SerializerMethodField()
-
-    def get_trip_review_ready(self, instance):
-        return instance.trip_review_ready
-
-    def get_total_non_dfo_funding_sources(self, instance):
-        return instance.total_non_dfo_funding_sources
-
-    def get_total_non_dfo_cost(self, instance):
-        return instance.total_non_dfo_cost
-
-    def get_total_dfo_cost(self, instance):
-        return instance.total_dfo_cost
-
-    def get_total_cost(self, instance):
-        return instance.total_cost
-
-    def get_non_res_total_cost(self, instance):
-        return instance.non_res_total_cost
-
-    def get_metadata(self, instance):
-        return instance.metadata
-
-    def get_days_until_adm_review_deadline(self, instance):
-        return instance.days_until_adm_review_deadline
-
-    def get_time_until_adm_review_deadline(self, instance):
-        return naturaltime(instance.adm_review_deadline)
-
-    def get_adm_review_deadline(self, instance):
-        return date(instance.adm_review_deadline)
+    trip_subcategory = serializers.StringRelatedField()
 
     def get_abstract_deadline(self, instance):
         return date(instance.abstract_deadline)
+
+    def get_adm_review_deadline(self, instance):
+        return date(instance.adm_review_deadline)
 
     def get_admin_notes_html(self, instance):
         return instance.admin_notes_html
@@ -552,8 +525,17 @@ class TripSerializer(serializers.ModelSerializer):
     def get_dates(self, instance):
         return instance.dates
 
+    def get_days_until_adm_review_deadline(self, instance):
+        return instance.days_until_adm_review_deadline
+
     def get_display(self, instance):
         return str(instance)
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_non_res_total_cost(self, instance):
+        return instance.non_res_total_cost
 
     def get_registration_deadline(self, instance):
         return date(instance.registration_deadline)
@@ -564,8 +546,27 @@ class TripSerializer(serializers.ModelSerializer):
     def get_status_display(self, instance):
         return instance.get_status_display()
 
+    def get_time_until_adm_review_deadline(self, instance):
+        return naturaltime(instance.adm_review_deadline)
+
     def get_tname(self, instance):
         return instance.tname
 
+    def get_total_cost(self, instance):
+        return instance.total_cost
+
+    def get_total_dfo_cost(self, instance):
+        return instance.total_dfo_cost
+
+    def get_total_non_dfo_cost(self, instance):
+        return instance.total_non_dfo_cost
+
+    def get_total_non_dfo_funding_sources(self, instance):
+        return instance.total_non_dfo_funding_sources
+
     def get_travellers(self, instance):
         return TravellerSerializer(instance.travellers, many=True, read_only=True).data
+
+    def get_trip_review_ready(self, instance):
+        return instance.trip_review_ready
+

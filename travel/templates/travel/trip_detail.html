@@ -42,13 +42,13 @@
 
       {# all admins can modify trip detail #}
 
-      <a v-if="canModify" class="btn btn-admin" href="{% url 'travel:trip_edit' object.id %}">
+      <a v-if="canModify" class="btn btn-admin" href="{% url 'travel:trip_edit' object.id %}{{ view.get_query_string }}">
         {% trans "Edit" %}
       </a>
-      <a v-if="canModify" class="btn btn-admin" href="{% url 'travel:trip_clone' object.id %}">
+      <a v-if="canModify" class="btn btn-admin" href="{% url 'travel:trip_clone' object.id %}{{ view.get_query_string }}">
         {% trans "Clone" %}
       </a>
-      <a v-if="canModify && trip.status === 30" class="btn btn-admin" href="{% url 'travel:trip_verify' object.id %}">
+      <a v-if="canModify && trip.status === 30" class="btn btn-admin" href="{% url 'travel:trip_verify' object.id %}{{ view.get_query_string }}">
         {% trans "Verify" %}
       </a>
 
@@ -60,13 +60,13 @@
         <span v-else>{% trans "Terminate the review process" %}</span>
       </a>
 
-      <a v-if="canModify && trip.status !== 43" class="btn btn-admin" href="{% url 'travel:trip_cancel' object.id %}">
+      <a v-if="canModify && trip.status !== 43" class="btn btn-admin" href="{% url 'travel:trip_cancel' object.id %}{{ view.get_query_string }}">
         {% trans "Cancel this Trip" %}
       </a>
-      <a v-if="canModify && trip.requests.length === 0" class="btn btn-danger" href="{% url 'travel:trip_delete' object.id %}">
+      <a v-if="canModify && trip.requests.length === 0" class="btn btn-danger" href="{% url 'travel:trip_delete' object.id %}{{ view.get_query_string }}">
         {% trans "Delete" %}
       </a>
-      <a class="btn btn-success" href="{% url 'travel:request_new' %}?trip={{ object.id }}">
+      <a class="btn btn-success" href="{% url 'travel:request_new' %}?trip={{ object.id }}{{ view.get_query_string }}">
         {% trans "Start a Request" %}
       </a>
     </div>

@@ -109,16 +109,16 @@
 
       {# EDIT BUTTON #}
       <a v-if="canModify"
-         class="btn btn-warning" href="{% url 'travel:request_edit' object.id %}?{{ request.META.QUERY_STRING }}">
+         class="btn btn-warning" href="{% url 'travel:request_edit' object.id %}{{ view.get_query_string }}">
         {% trans "Edit" %}
       </a>
       {# DELETE BUTTON #}
       <a v-if="canModify && !request.submitted"
-         class="btn btn-danger" href="{% url 'travel:request_delete' object.id %}?{{ request.META.QUERY_STRING }}">
+         class="btn btn-danger" href="{% url 'travel:request_delete' object.id %}{{ view.get_query_string }}">
         {% trans "Delete" %}
       </a>
       {# CLONE BUTTON #}
-      <a class="btn btn-primary " href="{% url 'travel:request_clone' object.id %}?{{ request.META.QUERY_STRING }}">
+      <a class="btn btn-primary " href="{% url 'travel:request_clone' object.id %}{{ view.get_query_string }}">
         {% trans "Clone Me" %}
       </a>
 

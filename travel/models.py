@@ -842,7 +842,7 @@ class Traveller(models.Model):
     class Meta:
         ordering = ["first_name", "last_name"]
         unique_together = [("user", "request"), ]
-        verbose_name = _("trip request")
+        verbose_name = _("traveller")
 
     def save(self, *args, **kwargs):
         if self.user:

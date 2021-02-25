@@ -231,7 +231,7 @@
                 <ul>
                     {% for triprequest in object.requests.all %}
                         <li>
-                            <a href="{% url 'travel:request_detail' triprequest.id %}"
+                            <a href="{% url 'travel:request_detail' triprequest.id %}{{ view.get_query_string }}"
                                target="_blank">{{ triprequest }}</a>
                             by {{ triprequest.created_by }}
                             ({% trans "STATUS" %}: <span

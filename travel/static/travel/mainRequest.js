@@ -334,7 +334,6 @@ var app = new Vue({
       userInput = prompt(skipReviewerMsg);
       if (userInput) {
         reviewer.comments = userInput;
-        console.log(reviewer)
         let endpoint = `/api/travel/request-reviewers/${reviewer.id}/?skip=true`;
         apiService(endpoint, "PUT", reviewer)
             .then(response => {
