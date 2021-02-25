@@ -59,13 +59,13 @@ def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict
         result = False
 
         # if the request is unsubmitted, the owner can edit
-        if not my_request.submitted:
-            if my_request in user.travel_requests_created_by.all():
-                result = True
-                reason = _("You can edit this record because you are the request owner.")
-            elif my_request in models.TripRequest1.objects.filter(travellers__user=user):
-                result = True
-                reason = _("You can edit this record because you are a traveller on this request.")
+        if not my_request.submitted and my_request in user.travel_requests_created_by.all():
+            result = True
+            reason = _("You can edit this record because you are the request owner.")
+
+        elif not my_request.submitted and my_request in models.TripRequest1.objects.filter(travellers__user=user):
+            result = True
+            reason = _("You can edit this record because you are a traveller on this request.")
 
         elif request_to_unsubmit and my_request in user.travel_requests_created_by.all():
             result = True

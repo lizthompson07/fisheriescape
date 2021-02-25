@@ -651,7 +651,6 @@ class TripRequest1(models.Model):
         for t in self.travellers.all():
             self.name_search += f', {t.smart_name}'
         super().save(*args, **kwargs)
-        print("save me!", self.name_search)
 
     @property
     def reviewer_order_message(self):
