@@ -55,7 +55,7 @@ def run_import_feb_25_2021():
                                 blank_spots_are_literal=True,
                                 create=False,
                                 update=True,
-                                commit=False
+                                commit=True
                                 )
     foo.digest()
 
