@@ -94,6 +94,8 @@ db_connections = get_db_connection_dict()
 if not db_connection_values_exist(db_connections):
     USE_LOCAL_DB = True
     print("DB connection values are not specified. Can not connect to the database. Connecting to local db instead.")
+else:
+    print(f" *** Connecting to database '{db_connections['DB_NAME'].upper()}' on host '{db_connections['DB_HOST'].upper()}' ***")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if USE_LOCAL_DB:

@@ -53,9 +53,9 @@ def export_fixtures():
 def run_import_feb_25_2021():
     foo = ImportFromSpreadsheet("org_list_import_2021_02_24.csv",
                                 blank_spots_are_literal=True,
-                                commit=False,
                                 create=False,
-                                update=False
+                                update=True,
+                                commit=False
                                 )
     foo.digest()
 
@@ -94,48 +94,51 @@ class ImportFromSpreadsheet:
                         name=row[f"{level} name"],
                         nom=row[f"{level} nom"],
                     )
-                    # head
-                    self.__db_user_to_spreadsheet(
-                        obj=obj,
-                        target_email=row[f"{level} head email"],
-                        user_type="head",
-                    )
-                    # admin
-                    self.__db_user_to_spreadsheet(
-                        obj=obj,
-                        target_email=row[f"{level} admin email"],
-                        user_type="admin",
-                    )
-                    # set memory and make sure org objects are linked appropriately
-                    if level == 'region':
-                        region = obj
-                    elif level == 'branch':
-                        branch = obj
-                        if obj.region != region:
-                            print(f'*** Updating Region for Branch {obj}: {obj.region} to {region}')
-                            if self.commit:
-                                obj.region = region
-                                obj.save()
-                    elif level == 'division':
-                        division = obj
-                        if obj.branch != branch:
-                            print(f'*** Updating Branch for Division {obj}: {obj.branch} to {branch}')
-                            if self.commit:
-                                obj.branch = branch
-                                obj.save()
-                    elif level == 'section':
-                        if obj.division != division:
-                            print(f'*** Updating Division for Section {obj}: {obj.division} to {division}')
-                            if self.commit:
-                                obj.division = division
-                                obj.save()
+                    if obj:
+                        # head
+                        self.__db_user_to_spreadsheet(
+                            obj=obj,
+                            target_email=row[f"{level} head email"],
+                            user_type="head",
+                        )
+                        # admin
+                        self.__db_user_to_spreadsheet(
+                            obj=obj,
+                            target_email=row[f"{level} admin email"],
+                            user_type="admin",
+                        )
+
+                        # set memory and make sure org objects are linked appropriately
+                        if level == 'region':
+                            region = obj
+                        elif level == 'branch':
+                            branch = obj
+                            if obj.region != region:
+                                print(f'*** Updating Region for Branch {obj}: {obj.region} to {region}')
+                                if self.commit:
+                                    obj.region = region
+                                    obj.save()
+                        elif level == 'division':
+                            division = obj
+                            if obj.branch != branch:
+                                print(f'*** Updating Branch for Division {obj}: {obj.branch} to {branch}')
+                                if self.commit:
+                                    obj.branch = branch
+                                    obj.save()
+                        elif level == 'section':
+                            if obj.division != division:
+                                print(f'*** Updating Division for Section {obj}: {obj.division} to {division}')
+                                if self.commit:
+                                    obj.division = division
+                                    obj.save()
 
     def __db_user_to_spreadsheet(self, obj, target_email, user_type):
         db_user = getattr(obj, user_type)  # e.g. region.head
         # if there is no email and we are meant to take this literally, we should clear the user in db table, if any
+        faked_msg = "  **FAKED**" if not self.commit else ""
         if not target_email:  # doing this in two steps do create a deadend
             if self.blank_spots_are_literal and db_user:
-                print(f"clearing user {db_user} from db.")
+                print(f"clearing user {db_user} ({user_type.upper()}) from {obj}." + faked_msg)
                 setattr(obj, user_type, None)
             elif db_user:
                 print(f"no email for {obj} listed on spreadsheet, but not taking action since blank spots are not to be taken literally. {db_user} is spared.")
@@ -156,25 +159,26 @@ class ImportFromSpreadsheet:
 
             # now that we have a user, we can make our final assessment in one go:
             if target_user != db_user:
-                print(f"{target_user} is replacing {db_user} in {obj}.")
+                print(f"{target_user} is replacing {db_user} in {obj}." + faked_msg)
                 setattr(obj, user_type, target_user)
-            # else:
-            #     print(f"{target_user} is already in place for {obj} :)")
 
         if self.commit:
             obj.save()
 
     def __get_create_object_from_uuid(self, my_model, uuid, name, nom):
+        faked_msg = "  **FAKED**" if self.commit else ""
         qs = my_model.objects.filter(uuid=uuid)
         if qs.exists():
             obj = qs.first()
             if self.update:
-                # print(f'{my_model._meta.verbose_name} {obj.name} is being updated.')
-                obj.name = name
-                obj.nom = nom
-                obj.save()
-            # else:
-            # print(f'{my_model._meta.verbose_name} with uuid {uuid} found: {obj.name}.')
+                if obj.name != name or obj.nom != nom:
+                    print(f'{my_model._meta.verbose_name} {obj.name} is being updated.' + faked_msg)
+                    obj.name = name
+                    obj.nom = nom
+
+                    if self.commit:
+                        obj.save()
+
             return obj
         else:
             if self.create:
@@ -182,4 +186,4 @@ class ImportFromSpreadsheet:
                 print(f'{my_model._meta.verbose_name} called {obj} was created')
                 return obj
             else:
-                print(f'{my_model._meta.verbose_name} with uuid {uuid} NOT found')
+                print(f'{my_model._meta.verbose_name} with uuid {uuid} NOT found: name = {name} / nom = {nom}')
