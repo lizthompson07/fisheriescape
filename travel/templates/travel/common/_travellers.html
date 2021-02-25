@@ -5,15 +5,15 @@
 {% load travel_tags %}
 {% load verbose_names %}
 
-<div class="card mb-2">
+<div class="card mb-4">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right" v-if="!travellerToEdit">
-      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down h3"></span></button>
-      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>
       <button v-if="!isReview && canModify && !travellerToEdit" @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}"
               class="btn btn-sm btn-primary ml-2">
         <span class="mdi mdi-plus text-light"></span> {% trans "Add traveller" %}
       </button>
+      {#      <button @click="expandTravellers" data-toggle="tooltip" title="{% trans "Expand all" %}"><span class="mdi mdi-arrow-collapse-down h3"></span></button>#}
+      {#      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>#}
     </div>
     <span v-if="!travellerToEdit">{% trans "Travellers Associated with this Request" %}</span>
     <span v-else-if="travellerToEdit.id">{% trans "Editing Traveller: " %} ${travellerToEdit.smart_name}</span>
@@ -32,10 +32,14 @@
       <div v-else>
         <div v-if="travellers.length">
           <div v-if="!travellerToEdit">
+            <div class="float-right btn-group" v-if="!travellerToEdit">
+              {% include "travel/common/_expand_collapse_buttons.html" %}
+            </div>
             <div v-for="(t,index) in travellers" class="mx-1" :key="t.id">
               <div :class="{'card traveller-card mx-1':true, 'closed-traveller':!t.show_me}">
                 <div class="card-body">
                   <div class="float-right">
+                    <span v-if="trip && !t.show_me" :class="t.request_obj.status_class + ' px-1 py-1 mr-3'">${t.request_obj.status_display}</span>
                     <button v-if="!isReview && canModify && !trip && !t.show_me" @click="editTraveller(t)"><span class="mdi mdi-pencil h4"
                                                                                                                  data-toggle="tooltip"
                                                                                                                  title="{% trans "Edit" %}"></span></button>
@@ -44,142 +48,54 @@
                                                                                                                 title="{% trans "Clone" %}"></span></button>
                     <button v-if="canModify && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4" data-toggle="tooltip"
                                                                                              title="{% trans "Remove" %}"></span></button>
-                    &nbsp; &nbsp; &nbsp;
-                    <button @click="toggleShowMe(t)"
-                            data-toggle="tooltip" title="{% trans "collapse" %}">
-                      <span v-if="t.show_me" class="mdi mdi-arrow-collapse-up h4"></span>
-                      <span v-else class="mdi mdi-arrow-collapse-down h4"></span>
+                    <button v-if="!t.show_me" @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Expand" %}">
+                      <span class="mdi mdi-arrow-collapse-down h4"></span>
+                    </button>
+                    <button v-else @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Collapse" %}" class="ml-3">
+                      <span class="mdi mdi-arrow-collapse-up h4"></span>
                     </button>
                   </div>
-                  <h5 class="card-title">
+                  <h5 class="card-title" v-if="!t.show_me">
                     ${index+1}. ${t.smart_name} <span v-if="t.role"> (${t.role_display})</span>
                     <span v-if="t.is_research_scientist"> &mdash; {% trans "Research Scientist" %}</span>
                     <span v-else-if="!t.is_public_servant"> &mdash; {% trans "EXTERNAL" %}</span>
+
                   </h5>
                   <div v-if="t.show_me" class="card-text">
+                    <h4 class="mb-3">
+                      ${t.smart_name}
+                      <span v-if="t.is_research_scientist"> &mdash; {% trans "Research Scientist" %}</span>
+                      <span v-else-if="!t.is_public_servant"> &mdash; {% trans "EXTERNAL" %}</span>
+                    </h4>
+                    <hr>
+                    {% include "travel/common/_traveller_detail.html" %}
+
                     <div v-if="trip">
                       <hr>
-                      <h4>{% trans "Request Level" %}</h4>
-                      <p>
-                        <b>{% trans "Associated trip request:" %}</b>
-                        <a :href="`/travel-plans/requests/${t.request_obj.id}/view/`" target="_blank">${t.request_obj.display}</a>
-                      </p>
-                      {#                      <p>#}
-                      {#                        <b>${requestLabels.status}</b>#}
-                      {#                        <span><span :class="t.request_obj.status_class + ' px-1 py-1'">${t.request_obj.status_display}</span></span>#}
-                      {#                      </p>#}
-                      <p>
-                        <b>{% trans "DFO region:" %}</b>
-                        <span>${t.request_obj.region}</span>
-                      </p>
-                      <p>
-                        <b>{% trans "Objective of trip:" %}</b>
-                        <span>${t.request_obj.objective_of_event | nz}</span>
-                      </p>
-                      <p>
-                        <b>{% trans "Benefits to DFO:" %}</b>
-                        <span>${t.request_obj.benefit_to_dfo | nz}</span>
-                      </p>
-                      <p v-if="t.request_obj.late_justification">
-                        <b>${requestLabels.late_justification}:</b>
-                        <span>${t.request_obj.late_justification}</span>
-                      </p>
-                      <div v-if="t.request_obj.reviewer_history.length">
-                        <p>
-                          <b>
-                            {% trans "Regional reviews and recommendations:" as trans_txt %}
-                            {{ trans_txt|upper }}
-                          </b>
-                        <table class="table table-sm" style="width: auto;">
-                          <tbody>
-                          <tr>
-                            <th>${ reviewerLabels.user}</th>
-                            <th>${ reviewerLabels.role}</th>
-                            <th>${ reviewerLabels.status}</th>
-                            <th style="width: 45%">${ reviewerLabels.comments}</th>
-                          </tr>
-                          <tr v-for="(reviewer, index) in t.request_obj.reviewer_history">
-                            <td>${reviewer.user_display}</td>
-                            <td>${reviewer.role_display}</td>
-                            <td><span :class="reviewer.status_class + ' px-1 py-1'">${reviewer.status_display}</span></td>
-                            <td v-html="reviewer.comments_html"></td>
-                          </tr>
-                          </tbody>
-                        </table>
-                        </p>
-                      </div>
-
-
-                    </div>
-
-                    <hr>
-                    <h4 v-if="trip">{% trans "Traveller Level" %}</h4>
-
-                    <p v-if="!t.is_public_servant">
-                      <b>{% trans "Company / Organization:" %}</b>
-                      <span v-if="t.company_name" class="ml-1">${t.company_name}</span>
-                      <span v-else class="ml-1 red-font">{% trans "missing!" %}</span>
-                    </p>
-
-                    <p>
-                      <b>{% trans "Address:" %}</b>
-                      <span v-if="t.address" class="ml-1">${t.address}</span>
-                      <span v-else class="ml-1 red-font">{% trans "missing!" %}</span>
-                    </p>
-
-                    <p>
-                      <b>{% trans "Phone:" %}</b>
-                      <span v-if="t.phone" class="ml-1">${t.phone}</span>
-                      <span v-else class="ml-1 red-font">{% trans "missing!" %}</span>
-                    </p>
-
-                    <p>
-                      <b>{% trans "E-mail:" %}</b>
-                      <a v-if="t.email" class="ml-1" :href="t.email">${t.email}</a>
-                      <span v-else class="ml-1 red-font">{% trans "missing!" %}</span>
-                    </p>
-
-
-                    <p><b>{% trans "Public servant:" %}</b><span class="ml-1">${t.is_public_servant|yesNo}</span></p>
-                    <p><b>{% trans "Research scientist:" %}</b><span class="ml-1">${t.is_research_scientist|yesNo}</span></p>
-                    <p><b>{% trans "Travel dates:" %}</b><span class="ml-1" v-html="t.dates"></span></p>
-                    <p><b>{% trans "Departure location:" %}</b><span class="ml-1" v-html="t.departure_location"></span></p>
-                    <p><b>${travellerLabels.role}</b><span class="ml-1" v-html="t.long_role"></span></p>
-                    <p><b>{% trans "Part of learning plan:" %}</b><span class="ml-1">${t.learning_plan|yesNo}</span></p>
-                    <p><b>{% trans "Non-DFO funding:" %}</b><span class="ml-1" v-html="t.non_dfo_costs_html"></span></p>
-
-                    <div v-if="trip && t.is_public_servant">
-                      <p><b>{% trans "Travel History (ADM approved only):" %}</b></p>
-                      <ul class="">
-                        <li v-for="(r,i) in t.adm_travel_history" :key="r.id">
-                          <a :href="`/travel-plans/requests/${r.id}/view/`" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
-                            <span class="mdi mdi-arrow-top-right text-primary table-bordered"></span> ${r.display}
-                          </a>
-                          <span :class="r.status_class + ' px-1 py-0'">${r.status_display}</span>
-                        </li>
-                        <li v-if="!t.adm_travel_history.length">
-                          <em>{% trans "This traveller has no ADM approved requests on file." %}</em>
-                        </li>
-                      </ul>
+                      <h4 class="mb-3">{% trans "Request Information:" %}</h4>
+                      {% include "travel/common/_traveller_request_detail.html" %}
                     </div>
 
 
-                    <div v-if="canModify && !isReview && !trip">
-                      {% include "travel/common/_costs.html" %}
-                    </div>
-                    <div v-else>
-                      <b>{% trans "Cost Breakdown:" %}</b>
-                      <span class="ml-1" v-html="t.cost_breakdown_html"></span>
-                    </div>
-
+                    <a v-if="trip || isReview" class="btn btn-sm btn-primary" :href="`/travel-plans/requests/${t.request_obj.id}/view/`" target="_blank">
+                      {% trans "Open Request in Separate Window" %}
+                    </a>
                     <div class="float-right">
                       <button v-if="!isReview && canModify && !trip" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
                       <button v-if="!isReview && canModify && !trip" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
                       <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
+
+                      <button v-if="t.show_me" @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Collapse" %}" class="ml-3">
+                        <span class="mdi mdi-arrow-collapse-up h4"></span>
+                      </button>
+
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="float-right btn-group" v-if="!travellerToEdit">
+              {% include "travel/common/_expand_collapse_buttons.html" %}
             </div>
           </div>
 

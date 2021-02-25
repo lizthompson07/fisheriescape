@@ -13,6 +13,9 @@
   <div id="app" v-cloak>
     {% include "travel/common/_request_detail.html" %}
     {% include "travel/common/_travellers.html" %}
+    <div v-if="isReview">
+      {% include "travel/common/_other_travellers.html" %}
+    </div>
   </div>
 {% endblock %}
 

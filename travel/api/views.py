@@ -42,6 +42,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
             my_trip_request = get_object_or_404(models.TripRequest1, pk=request.query_params.get("request"))
             data.update(utils.can_modify_request(request.user, trip_request_id=request.query_params.get("request"), as_dict=True))
             data.update(dict(is_owner=request.user.id == my_trip_request.created_by))
+            data.update(dict(is_rds=request.user.id == my_trip_request.section.division.branch.head))
 
         return Response(data, status=status.HTTP_200_OK)
 

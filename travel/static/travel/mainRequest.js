@@ -540,22 +540,16 @@ var app = new Vue({
       if (this.request) return this.request.reviewers;
     },
     canModify() {
-      if (this.currentUser && this.currentUser.can_modify) {
-        return this.currentUser.can_modify;
-      }
-      return false;
+      return this.currentUser && this.currentUser.can_modify;
     },
     isOwner() {
-      if (this.currentUser && this.currentUser.is_owner) {
-        return this.currentUser.is_owner;
-      }
-      return false;
+      return this.currentUser && this.currentUser.is_owner;
+    },
+    isRDS() {
+      return this.currentUser && this.currentUser.is_rds;
     },
     isAdmin() {
-      if (this.currentUser && this.currentUser.is_admin) {
-        return this.currentUser.is_admin;
-      }
-      return false;
+      return this.currentUser && this.currentUser.is_admin;
     },
     editableReviewers() {
       myArray = []

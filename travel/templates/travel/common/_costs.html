@@ -3,7 +3,7 @@
 {% load verbose_names %}
 {% load custom_filters %}
 
-<b>{% trans "Costs" %}</b>
+<span class="h6 font-weight-bold">{% trans "Costs" %}</span>
 <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
       data-trigger="hover" title="{% trans "Trip Request Costs" %}"
       :data-content="helpText.costs_header"></span>

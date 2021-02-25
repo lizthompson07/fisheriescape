@@ -98,23 +98,23 @@
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Total trip cost" %}</th>
-            <td>$ ${trip.total_cost|floatformat}</td>
+            <td>${trip.total_cost|floatformat}</td>
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Total non-DFO funding" %}</th>
-            <td>$ ${trip.total_non_dfo_cost|floatformat}</td>
+            <td>${trip.total_non_dfo_cost|floatformat}</td>
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Non-DFO funding sources" %}</th>
-            <td>${trip.total_non_dfo_funding_sources}</td>
+            <td>${trip.total_non_dfo_funding_sources | nz}</td>
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Total DFO cost" %}</th>
-            <td class="font-weight-bold">$ ${trip.total_dfo_cost|floatformat}</td>
+            <td class="font-weight-bold">${trip.total_dfo_cost|floatformat}</td>
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Total DFO cost (excluding research scientists)" %}</th>
-            <td>$ ${trip.non_res_total_cost|floatformat}  ({% trans "excluding any non-DFO funding" %})</td>
+            <td>${trip.non_res_total_cost|floatformat}  <span v-if="trip.non_res_total_cost">({% trans "excluding any non-DFO funding" %})</span></td>
           </tr>
           <tr>
             <th style="width: 40%">${tripLabels.notes |nz}</th>

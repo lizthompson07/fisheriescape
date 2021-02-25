@@ -146,10 +146,14 @@ table, td {
     /*background-color: #eeeeee;*/
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     transition: 0.3s;
-    width: 75%;
+    width: 85%;
     margin: 10px;
     /*background-color: rgba(255, 255, 255, 0.85);*/
     border-radius: 10px;
+}
+
+.other-traveller {
+    background-color: #faf3cf;
 }
 
 .closed-traveller {

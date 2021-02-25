@@ -14,6 +14,17 @@
     {% include "travel/common/_trip_detail.html" %}
     {% include "travel/common/_travellers.html" %}
     {% include "travel/common/_reviewers.html" %}
+
+    <div v-if="!trip.trip_review_ready.can_proceed">
+      <div class="alert alert-warning mt-5" role="alert" style="width: 50%">
+        <p class="alert-heading">
+          <span class="mdi mdi-alarm-light h3 mr-3"></span>
+          <span class="h4">{% trans "This review cannot be submitted because..." %}</span>
+        </p>
+        <p class="h6"> ${trip.trip_review_ready.reason}</p>
+      </div>
+    </div>
+
   </div>
 {% endblock %}
 
@@ -39,7 +50,7 @@
 {% block form_buttons %}
 
   <div class="float-right">
-    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.trip.id %}" target="_blank">
+    <a class="btn btn-outline-dark" href="{% url 'travel:trip_detail' object.trip.id %}" target="_blank">
       {% trans "Go to Trip Page" %}
     </a>
   </div>
