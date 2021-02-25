@@ -1,28 +1,28 @@
 {% load i18n %}
-<p class="h6 mb-3">
+<p class="mb-3">
   <b>{% trans "Request Type:" %}</b><br>
-  <span v-if="t.request_obj.traveller_count > 1">{% trans "Group" %}</span>
+  <span class="h6" v-if="t.request_obj.traveller_count > 1">{% trans "Group" %}</span>
   <span v-else>{% trans "Individual" %}</span>
 </p>
-<p class="h6 mb-3">
+<p class="mb-3">
   <b>{% trans "Status:" %}</b><br>
-  <span :class="t.request_obj.status_class">${t.request_obj.status_display}</span>
+  <span :class="t.request_obj.status_class +' h6'">${t.request_obj.status_display}</span>
 </p>
-<p class="h6 mb-3">
+<p class="mb-3">
   <b>{% trans "DFO Section" %}</b><br>
-  <span>${t.request_obj.section}</span>
+  <span class="h6">${t.request_obj.section}</span>
 </p>
-<p class="h6 mb-3">
+<p class="mb-3">
   <b>{% trans "Objective of Trip:" %}</b><br>
-  <span>${t.request_obj.objective_of_event | nz}</span>
+  <span class="h6">${t.request_obj.objective_of_event | nz}</span>
 </p>
-<p class="h6 mb-3">
+<p class="mb-3">
   <b>{% trans "Benefits to DFO:" %}</b><br>
-  <span>${t.request_obj.benefit_to_dfo | nz}</span>
+  <span class="h6">${t.request_obj.benefit_to_dfo | nz}</span>
 </p>
-<p v-if="t.request_obj.late_justification" class="h6 mb-3">
+<p v-if="t.request_obj.late_justification" class="mb-3">
   <b>${requestLabels.late_justification}:</b><br>
-  <span>${t.request_obj.late_justification}</span>
+  <span class="h6">${t.request_obj.late_justification}</span>
 </p>
 <div v-if="t.request_obj.reviewer_history.length">
   <p>
@@ -38,7 +38,7 @@
     </tr>
     <tr v-for="(reviewer, index) in t.request_obj.reviewer_history">
       <td>${reviewer.user_display} (${reviewer.role_display})</td>
-      <td><span :class="reviewer.status_class + ' px-1 py-1'">${reviewer.status_display}</span></td>
+      <td>${reviewer.status_display}</td>
       <td v-html="reviewer.comments_html"></td>
     </tr>
     </tbody>

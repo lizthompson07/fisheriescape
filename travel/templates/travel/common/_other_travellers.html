@@ -25,7 +25,7 @@
               <div :class="{'card traveller-card mx-1':true, 'other-traveller':!t.show_me}">
                 <div class="card-body">
                   <div class="float-right">
-                    <span v-if='!t.show_me' :class="t.request_obj.status_class + ' px-1 py-1 mr-3 h5'">${t.request_obj.status_display}</span>
+                    <span v-if='!t.show_me' :class="t.request_obj.status_class + ' px-1 py-1 mr-3 h6'">${t.request_obj.status_display}</span>
                     <button v-if="(isAdmin || isRDS) && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4" data-toggle="tooltip"
                                                                                              title="{% trans "Remove" %}"></span></button>
                     <button @click="toggleShowMe(t)"

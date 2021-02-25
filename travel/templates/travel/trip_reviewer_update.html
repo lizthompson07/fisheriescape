@@ -15,7 +15,7 @@
     {% include "travel/common/_travellers.html" %}
     {% include "travel/common/_reviewers.html" %}
 
-    <div v-if="!trip.trip_review_ready.can_proceed">
+    <div v-if="trip.id && !trip.trip_review_ready.can_proceed">
       <div class="alert alert-warning mt-5" role="alert" style="width: 50%">
         <p class="alert-heading">
           <span class="mdi mdi-alarm-light h3 mr-3"></span>

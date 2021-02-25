@@ -39,7 +39,7 @@
               <div :class="{'card traveller-card mx-1':true, 'closed-traveller':!t.show_me}">
                 <div class="card-body">
                   <div class="float-right">
-                    <span v-if="trip && !t.show_me" :class="t.request_obj.status_class + ' px-1 py-1 mr-3'">${t.request_obj.status_display}</span>
+                    <span v-if="trip && !t.show_me" :class="t.request_obj.status_class + ' px-1 py-1 mr-3 h6'">${t.request_obj.status_display}</span>
                     <button v-if="!isReview && canModify && !trip && !t.show_me" @click="editTraveller(t)"><span class="mdi mdi-pencil h4"
                                                                                                                  data-toggle="tooltip"
                                                                                                                  title="{% trans "Edit" %}"></span></button>
@@ -80,10 +80,10 @@
                     <a v-if="trip || isReview" class="btn btn-sm btn-primary" :href="`/travel-plans/requests/${t.request_obj.id}/view/`" target="_blank">
                       {% trans "Open Request in Separate Window" %}
                     </a>
+                    <button v-if="!isReview && canModify && !trip" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
+                    <button v-if="!isReview && canModify && !trip" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
+                    <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
                     <div class="float-right">
-                      <button v-if="!isReview && canModify && !trip" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
-                      <button v-if="!isReview && canModify && !trip" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
-                      <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
 
                       <button v-if="t.show_me" @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Collapse" %}" class="ml-3">
                         <span class="mdi mdi-arrow-collapse-up h4"></span>
