@@ -44,6 +44,12 @@ def year_coll_splitter(full_str):
     return year, coll.strip()
 
 
+def val_unit_splitter(full_str):
+    unit_str = full_str.lstrip(' 0123456789.')
+    val = float(full_str[:len(full_str) - len(unit_str)])
+    return val, unit_str.strip()
+
+
 def get_cont_evnt(contx_tuple):
     # input should be in the form (contx, bool/null)
     contx = contx_tuple[0]
@@ -212,21 +218,32 @@ def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None, 
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         tank_id=contx.tank_id).get()
+        enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
+        if return_contx:
+            return contx
+        else:
+            return row_entered
+    else:
+        return False
 
-        anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                    indv_id_id=indv_pk,
-                                    grp_id_id=grp_pk,
-                                    contx_id_id=contx.pk,
-                                    final_contx_flag=final_flag,
-                                    created_by=cleaned_data["created_by"],
-                                    created_date=cleaned_data["created_date"],
-                                    )
+
+def enter_trof_contx(trof, cleaned_data, final_flag, indv_pk=None, grp_pk=None, return_contx=False):
+    row_entered = False
+    if not trof == "nan":
+        contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                     tro_id=models.Trough.objects.filter(name=trof, facic_id=cleaned_data["facic_id"]).get(),
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
         try:
-            anix.clean()
-            anix.save()
+            contx.clean()
+            contx.save()
             row_entered = True
-        except (ValidationError, IntegrityError):
-            pass
+        except ValidationError:
+            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
+                                                        trof_id=contx.trof_id).get()
+
+        enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
 
         if return_contx:
             return contx
@@ -279,7 +296,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_i
     return row_entered
 
 
-def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None):
+def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, final_flag=None):
     if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk]):
         anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                     indv_id_id=indv_pk,
@@ -288,6 +305,7 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
                                     pair_id_id=pair_pk,
                                     grp_id_id=grp_pk,
                                     indvt_id_id=indvt_pk,
+                                    final_contx_flag=final_flag,
                                     created_by=cleaned_data["created_by"],
                                     created_date=cleaned_data["created_date"],
                                     )
@@ -323,22 +341,5 @@ def enter_anix_contx(tank, cleaned_data):
                                                         tank=contx.tank_id,
                                                         ).get()
 
-        anix_contx = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                          contx_id=contx,
-                                          created_by=cleaned_data["created_by"],
-                                          created_date=cleaned_data["created_date"],
-                                          )
-        try:
-            anix_contx.clean()
-            anix_contx.save()
-            return anix_contx
-        except ValidationError:
-            anix_contx = models.AniDetailXref.objects.filter(evnt_id=anix_contx.evnt_id,
-                                                             contx_id=anix_contx.contx_id,
-                                                             indv_id__isnull=True,
-                                                             loc_id__isnull=True,
-                                                             pair_id__isnull=True,
-                                                             grp_id__isnull=True,
-                                                             indvt_id__isnull=True,
-                                                             ).get()
-            return anix_contx
+        anix_contx = enter_anix(cleaned_data, contx_pk=contx.pk)
+        return anix_contx

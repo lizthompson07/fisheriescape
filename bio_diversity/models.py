@@ -516,7 +516,7 @@ class EnvTreatCode(BioLookup):
 
 class EnvTreatment(BioModel):
     # envt tag
-    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE,
+    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, related_name="env_treatment",
                                  verbose_name=_("Container Cross Reference"))
     envtc_id = models.ForeignKey('EnvTreatCode', on_delete=models.CASCADE,
                                  verbose_name=_("Environment Treatment Code"))

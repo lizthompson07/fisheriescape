@@ -33,6 +33,30 @@
             </table>
         {% endif %}
     </div>
+    <div class="card border border-dark my-1" name="envt-details">
+        <h5 class="card-header">{% trans "Container Treatments" %}
+        </h5>
+        {% if envt_list %}
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                    {% for field in envt_field_list %}
+                        <th>{% get_verbose_label envt_object field %}</th>
+                    {% endfor %}
+                </thead>
+                <tbody>
+                    {% for obj in envt_list %}
+                        <tr href="{% url 'bio_diversity:details_envt' cont_key object.id obj.id %}">
+                        {% for field in envt_field_list %}
+                            <td>
+                                {% get_field_value obj field %}
+                            </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div> 
     <div class="card border border-dark my-1" name="indv-details">
         <h5 class="card-header">{% trans "Individuals in Container" %}
         </h5>

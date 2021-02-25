@@ -667,7 +667,7 @@ class AnidcDetails(mixins.AnidcMixin, CommonDetails):
 
 
 class AnixDetails(mixins.AnixMixin, CommonDetails):
-    fields = ["evnt_id", "contx_id", "loc_id", "indvt_id", "indv_id", "pair_id", "grp_id", "created_by",
+    fields = ["evnt_id", "loc_id", "indvt_id", "indv_id", "pair_id", "grp_id", "created_by",
               "created_date", ]
 
 
@@ -677,7 +677,7 @@ class AdscDetails(mixins.AdscMixin, CommonDetails):
 
 class CntDetails(mixins.CntMixin, CommonDetails):
     template_name = 'bio_diversity/details_cnt.html'
-    fields = ["loc_id", "contx_id", "cntc_id", "spec_id", "cnt", "est", "comments", "created_by", "created_date", ]
+    fields = ["loc_id", "cntc_id", "spec_id", "cnt", "est", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -732,7 +732,7 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
     template_name = 'bio_diversity/details_env.html'
-    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "start_date", "start_time",
+    fields = ["loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "start_date", "start_time",
               "end_date", "end_time", "env_avg", "qual_id", "comments", "created_by", "created_date"]
 
     def get_context_data(self, **kwargs):
@@ -761,7 +761,7 @@ class EnvscDetails(mixins.EnvscMixin, CommonDetails):
 
 
 class EnvtDetails(mixins.EnvtMixin, CommonDetails):
-    fields = ["contx_id", "envtc_id", "lot_num", "amt", "unit_id", "duration", "comments", "created_by",
+    fields = [ "envtc_id", "lot_num", "amt", "unit_id", "duration", "comments", "created_by",
               "created_date", ]
 
 
@@ -847,7 +847,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
             context["table_list"] = ["data", "loc", "grp", "tank"]
-        elif evnt_code == "Tagging":
+        elif evnt_code == "PIT Tagging":
             context["table_list"] = ["data", "indv", "grp", "tank"]
         elif evnt_code == "Egg Development":
             context["table_list"] = ["data", "grp", "trof"]
@@ -857,6 +857,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             context["table_list"] = ["data", "tank"]
         elif evnt_code == "Spawning":
             context["table_list"] = ["data", "indv", "pair", "grp", "matp"]
+        elif evnt_code == "Treatment":
+            context["table_list"] = ["data", "tank", "trof",]
 
         return context
 
@@ -875,7 +877,7 @@ class FecuDetails(mixins.FecuMixin, CommonDetails):
 
 
 class FeedDetails(mixins.FeedMixin, CommonDetails):
-    fields = ["contx_id", "feedm_id", "feedc_id", "lot_num", "amt", "unit_id", "freq", "comments", "created_by",
+    fields = ["feedm_id", "feedc_id", "lot_num", "amt", "unit_id", "freq", "comments", "created_by",
               "created_date", ]
 
 
@@ -1259,6 +1261,15 @@ class TankDetails(mixins.TankMixin, CommonDetails):
             "start_datetime",
             "env_val",
         ]
+        envt_set = [envt for contx in self.object.contxs.all() for envt in contx.env_treatment.all()]
+        context["envt_list"] = envt_set
+        context["envt_object"] = models.EnvTreatment.objects.first()
+        context["envt_field_list"] = [
+            "envtc_id",
+            "amt",
+            "unit_id",
+            "duration",
+        ]
 
         context["indv_list"], context["grp_list"] = self.object.fish_in_cont()
         context["indv_object"] = models.Individual.objects.first()
@@ -1427,7 +1438,7 @@ class AdscList(mixins.AdscMixin, CommonList):
 
 class CntList(mixins.CntMixin, CommonList):
     filterset_class = filters.CntFilter
-    fields = ["loc_id", "contx_id", "spec_id", ]
+    fields = ["loc_id", "spec_id", ]
 
 
 class CntcList(mixins.CntcMixin, CommonList):
@@ -1477,7 +1488,7 @@ class DrawList(mixins.DrawMixin, CommonList):
 
 class EnvList(mixins.EnvMixin, CommonList):
     filterset_class = filters.EnvFilter
-    fields = ["contx_id", "loc_id", "inst_id", "envc_id", ]
+    fields = ["loc_id", "inst_id", "envc_id", ]
 
 
 class EnvcList(mixins.EnvcMixin, CommonList):
@@ -1497,7 +1508,7 @@ class EnvscList(mixins.EnvscMixin, CommonList):
 
 class EnvtList(mixins.EnvtMixin, CommonList):
     filterset_class = filters.EnvtFilter
-    fields = ["contx_id", "envtc_id", "lot_num", ]
+    fields = ["envtc_id", "lot_num", ]
 
 
 class EnvtcList(mixins.EnvtcMixin, CommonList):
@@ -1527,7 +1538,7 @@ class FecuList(mixins.FecuMixin, CommonList):
 
 class FeedList(mixins.FeedMixin, CommonList):
     filterset_class = filters.FeedFilter
-    fields = ["contx_id", "feedm_id", "feedc_id", ]
+    fields = ["feedm_id", "feedc_id", ]
 
 
 class FeedcList(mixins.FeedcMixin, CommonList):

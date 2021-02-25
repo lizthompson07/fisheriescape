@@ -13,7 +13,7 @@ import pandas as pd
 
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
-    create_movement_evnt, enter_grpd, enter_anix
+    create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter
 
 
 class CreatePrams(forms.ModelForm):
@@ -985,8 +985,7 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-
-                except IntegrityError as err: # except Exception as err:
+                except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
                     log_data += "Error parsing row: \n"
@@ -1161,7 +1160,7 @@ class DataForm(CreatePrams):
                         grp = anix_grp.grp_id
 
 
-                except IntegrityError as err: # except Exception as err:
+                except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
                     log_data += "Error parsing row: \n"
@@ -1189,6 +1188,64 @@ class DataForm(CreatePrams):
                     matp.save()
                 except (ValidationError, IntegrityError):
                     pass
+
+            if not parsed:
+                self.request.session["load_success"] = False
+
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+        # ---------------------------MACTAQUAC TREATMENT DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Treatment" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Ponds")
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                raise Exception("File format not valid: {}".format(err.__str__()))
+            parsed = True
+            self.request.session["load_success"] = True
+
+            for row in data_dict:
+                row_parsed = True
+                row_entered = False
+                try:
+                    row_date = row["Date"].date()
+
+                    contx = enter_tank_contx(row["Pond / Trough"], cleaned_data, None, return_contx=True)
+                    val, unit_str = val_unit_splitter(row["Amount"])
+                    duration, time_unit = val_unit_splitter(row["Duration"])
+                    envt = models.EnvTreatment(contx_id=contx,
+                                               envtc_id=models.EnvTreatCode.objects.filter(name__icontains=row["Treatment Type"]).get(),
+                                               lot_num=1,
+                                               amt=val,
+                                               unit_id=models.UnitCode.objects.filter(name__icontains=unit_str).get(),
+                                               duration=60*duration,
+                                               comments=row["Concentration"],
+                                               created_by=cleaned_data["created_by"],
+                                               created_date=cleaned_data["created_date"],
+                                               )
+
+                    try:
+                        envt.clean()
+                        envt.save()
+                    except (ValidationError, IntegrityError):
+                        pass
+
+                    water_level, height_unit = val_unit_splitter(row["Pond Level During Treatment"])
+                    enter_env(water_level, row_date, cleaned_data, "Water Level", contx=contx)
+
+                except Exception as err:
+                    parsed = False
+                    self.request.session["load_success"] = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
 
             if not parsed:
                 self.request.session["load_success"] = False

@@ -117,6 +117,7 @@ urlpatterns = [
     
     path('create/envt/', views.EnvtCreate.as_view(), name="create_envt"),
     path('details/envt/<int:pk>/', views.EnvtDetails.as_view(), name="details_envt"),
+    path('details/envt/<str:back>/<int:back_id>/<int:pk>/', views.EnvtDetails.as_view(), name="details_envt"),
     path('list/envt/', views.EnvtList.as_view(), name="list_envt"),
     path('update/envt/<int:pk>/', views.EnvtUpdate.as_view(), name="update_envt"),  
     
