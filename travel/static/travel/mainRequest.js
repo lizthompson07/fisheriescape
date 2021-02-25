@@ -8,25 +8,25 @@ var app = new Vue({
     costLabels: {},
     currentUser: {},
     dmAppsUsers: [],
+    errorMsgCost: null,
     errorMsgReviewer: null,
     errorMsgTraveller: null,
-    errorMsgCost: null,
     fileLabels: {},
     fileToUpload: null,
-    inFileEditMode: false,
+    helpText: {},
     inCostEditMode: false,
+    inFileEditMode: false,
     isReview: isReview,  // declared in template SCRIPT tag
     loading: true,
+    loading_costs: false,
     loading_reviewers: false,
     loading_user: false,
-    loading_costs: false,
     loadingDMAppsUsers: false,
     orgChoices: [],
     request: {},
-    reviewerEditMode: false,
     requestLabels: {},
+    reviewerEditMode: false,
     reviewerLabels: {},
-    helpText: {},
     roleChoices: [],
     showAdminNotesForm: false,
     travellerLabels: {},
@@ -334,7 +334,6 @@ var app = new Vue({
       userInput = prompt(skipReviewerMsg);
       if (userInput) {
         reviewer.comments = userInput;
-        console.log(reviewer)
         let endpoint = `/api/travel/request-reviewers/${reviewer.id}/?skip=true`;
         apiService(endpoint, "PUT", reviewer)
             .then(response => {
@@ -494,57 +493,9 @@ var app = new Vue({
       })
     },
   },
-  filters: {
-    floatformat: function (value, precision = 2) {
-      if (!value) return '---';
-      value = value.toLocaleString(undefined, {
-        minimumFractionDigits: precision,
-        maximumFractionDigits: precision
-      });
-      return value
-    },
-    zero2NullMark: function (value) {
-      if (!value || value === "0.00" || value == 0) return '---';
-      return value
-    },
-    nz: function (value, arg = "---") {
-      if (value === null || value === "") return arg;
-      return value
-    },
-    yesNo: function (value) {
-      if (value == null || value == false || value == 0) return 'No';
-      return "Yes"
-    },
-    percentage: function (value, decimals) {
-      // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
-      if (!value) {
-        value = 0;
-      }
-
-      if (!decimals) {
-        decimals = 0;
-      }
-      value = value * 100;
-      value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
-      value = value + '%';
-      return value;
-    }
-  },
   computed: {
-    travellers() {
-      if (this.request) return this.request.travellers;
-    },
-    reviewers() {
-      if (this.request) return this.request.reviewers;
-    },
     canModify() {
       return this.currentUser && this.currentUser.can_modify;
-    },
-    isOwner() {
-      return this.currentUser && this.currentUser.is_owner;
-    },
-    isAdmin() {
-      return this.currentUser && this.currentUser.is_admin;
     },
     editableReviewers() {
       myArray = []
@@ -555,11 +506,27 @@ var app = new Vue({
       }
       return myArray
     },
+    isAdmin() {
+      return this.currentUser && this.currentUser.is_admin;
+    },
+    isOwner() {
+      return this.currentUser && this.currentUser.is_owner;
+    },
+    reviewers() {
+      if (this.request) return this.request.reviewers;
+    },
     submitTip() {
       if (this.request.id) {
         if (this.request.is_late_request && !this.request.late_justification) return lateJustificationTip;
         else if (!this.request.travellers.length) return noTravellersTip;
       }
+    },
+    travellerColClass() {
+      if (this.canModify && !this.isReview && !this.trip) return 'col-4';
+      else return 'col';
+    },
+    travellers() {
+      if (this.request) return this.request.travellers;
     }
   },
   created() {

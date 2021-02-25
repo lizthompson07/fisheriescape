@@ -6,19 +6,19 @@ var app = new Vue({
     currentUser: {},
     dmAppsUsers: [],
     errorMsgReviewer: null,
+    helpText: {},
     isReview: isReview,  // declared in template SCRIPT tag
     loading: true,
     loading_user: false,
     loadingDMAppsUsers: false,
-    trip: {},
+    requestLabels: {},
     reviewerEditMode: false,
-    tripLabels: {},
     reviewerLabels: {},
-    helpText: {},
     roleChoices: [],
     showAdminNotesForm: false,
     travellerLabels: {},
-    requestLabels: {},
+    trip: {},
+    tripLabels: {},
     yesNoChoices: yesNoChoices,
 
     // these are just being added for the sake of compatibility
@@ -31,17 +31,6 @@ var app = new Vue({
 
   },
   methods: {
-    getDeadlineClass(days) {
-      let myStr = 'px-1 py-1 ';
-      if (days) {
-        if (days > 45) myStr += 'bg-success text-light';
-        else if (days >= 15) myStr +=  'bg-warning';
-        else myStr += 'bg-danger text-light';
-      }
-      return myStr;
-    },
-    addTraveller() {
-    }, // being added for the sake of compatibility,
     addReviewer() {
       this.trip.reviewers.push({
         trip: this.trip.id,
@@ -50,6 +39,8 @@ var app = new Vue({
         status: 23,  // this will be updated by the model save method. setting status == 4 just allows to show in list
       })
     },
+    addTraveller() {
+    }, // being added for the sake of compatibility,
     closeReviewerForm() {
       this.getTrip();
       this.reviewerEditMode = false;
@@ -109,10 +100,40 @@ var app = new Vue({
             this.currentUser = response;
           })
     },
+    getDeadlineClass(days) {
+      let myStr = 'px-1 py-1 ';
+      if (days) {
+        if (days > 45) myStr += 'bg-success text-light';
+        else if (days >= 15) myStr += 'bg-warning';
+        else myStr += 'bg-danger text-light';
+      }
+      return myStr;
+    },
     getHelpText() {
       let endpoint = `/api/travel/help-text/`;
       apiService(endpoint).then(data => {
         this.helpText = data;
+      });
+    },
+    getRequestMetadata() {
+      let endpoint = `/api/travel/meta/models/request/`;
+      apiService(endpoint).then(data => {
+        this.requestLabels = data.labels;
+      });
+    },
+    getReviewerMetadata() {
+      let endpoint = `/api/travel/meta/models/trip-reviewer/`;
+      apiService(endpoint).then(data => {
+        this.reviewerLabels = data.labels;
+        this.roleChoices = data.role_choices;
+      });
+    },
+    getTravellerMetadata() {
+      let endpoint = `/api/travel/meta/models/traveller/`;
+      apiService(endpoint).then(data => {
+        this.travellerLabels = data.labels;
+        this.travellerRoleChoices = data.role_choices;
+        this.orgChoices = data.org_choices;
       });
     },
     getTrip() {
@@ -133,31 +154,10 @@ var app = new Vue({
             })
           })
     },
-    getRequestMetadata() {
-      let endpoint = `/api/travel/meta/models/request/`;
-      apiService(endpoint).then(data => {
-        this.requestLabels = data.labels;
-      });
-    },
     getTripMetadata() {
       let endpoint = `/api/travel/meta/models/trip/`;
       apiService(endpoint).then(data => {
         this.tripLabels = data.labels;
-      });
-    },
-    getReviewerMetadata() {
-      let endpoint = `/api/travel/meta/models/trip-reviewer/`;
-      apiService(endpoint).then(data => {
-        this.reviewerLabels = data.labels;
-        this.roleChoices = data.role_choices;
-      });
-    },
-    getTravellerMetadata() {
-      let endpoint = `/api/travel/meta/models/traveller/`;
-      apiService(endpoint).then(data => {
-        this.travellerLabels = data.labels;
-        this.travellerRoleChoices = data.role_choices;
-        this.orgChoices = data.org_choices;
       });
     },
     goRequestDetail(request) {
@@ -197,7 +197,6 @@ var app = new Vue({
       userInput = prompt(skipReviewerMsg);
       if (userInput) {
         reviewer.comments = userInput;
-        console.log(reviewer)
         let endpoint = `/api/travel/trip-reviewers/${reviewer.id}/?skip=true`;
         apiService(endpoint, "PUT", reviewer)
             .then(response => {
@@ -213,16 +212,6 @@ var app = new Vue({
     toggleShowMe(obj) {
       obj.show_me = !obj.show_me;
       this.$forceUpdate();
-    },
-    updateTripAdminNotes() {
-      if (this.canModify) {
-        let endpoint = `/api/travel/trips/${tripId}/`;
-        apiService(endpoint, "PATCH", {admin_notes: this.trip.admin_notes})
-            .then(response => {
-              this.getTrip()
-              this.showAdminNotesForm = false;
-            })
-      }
     },
     updateReviewer(reviewer) {
       this.errorMsgReviewer = null;
@@ -254,49 +243,20 @@ var app = new Vue({
             })
       }
     },
-  },
-  filters: {
-    floatformat: function (value, precision = 2) {
-      if (!value) return '---';
-      value = value.toLocaleString(undefined, {
-        minimumFractionDigits: precision,
-        maximumFractionDigits: precision
-      });
-      return value
-    },
-    zero2NullMark: function (value) {
-      if (!value || value === "0.00" || value == 0) return '---';
-      return value
-    },
-    nz: function (value, arg = "---") {
-      if (value === null || value === "") return arg;
-      return value
-    },
-    yesNo: function (value) {
-      if (value == null || value == false || value == 0) return 'No';
-      return "Yes"
-    },
-    percentage: function (value, decimals) {
-      // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
-      if (!value) {
-        value = 0;
+    updateTripAdminNotes() {
+      if (this.canModify) {
+        let endpoint = `/api/travel/trips/${tripId}/`;
+        apiService(endpoint, "PATCH", {admin_notes: this.trip.admin_notes})
+            .then(response => {
+              this.getTrip()
+              this.showAdminNotesForm = false;
+            })
       }
-
-      if (!decimals) {
-        decimals = 0;
-      }
-      value = value * 100;
-      value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
-      value = value + '%';
-      return value;
-    }
+    },
   },
   computed: {
-    travellers() {
-      if (this.trip) return this.trip.travellers;
-    },
-    reviewers() {
-      if (this.trip) return this.trip.reviewers;
+    canModify() {
+      return this.isNCRAdmin || (this.isRegionalAdmin && !this.trip.is_adm_approval_required)
     },
     editableReviewers() {
       myArray = []
@@ -308,9 +268,12 @@ var app = new Vue({
       return myArray
     },
 
-    canModify() {
-      if (this.currentUser && this.currentUser.can_modify) {
-        return this.currentUser.can_modify;
+    isAdmin() {
+      return this.isNCRAdmin; // being adding in for compatibility with reviewer form
+    },
+    isNCRAdmin() {
+      if (this.currentUser) {
+        return this.currentUser.is_ncr_admin;
       }
       return false;
     },
@@ -326,17 +289,15 @@ var app = new Vue({
       }
       return false;
     },
-    isNCRAdmin() {
-      if (this.currentUser) {
-        return this.currentUser.is_ncr_admin;
-      }
-      return false;
+    reviewers() {
+      if (this.trip) return this.trip.reviewers;
     },
-    isAdmin() {
-      return this.isNCRAdmin; // being adding in for compatibility with reviewer form
+    travellerColClass() {
+      if (this.canModify && !this.isReview && !this.trip) return 'col-4';
+      else return 'col';
     },
-    canModify() {
-      return this.isNCRAdmin || (this.isRegionalAdmin && !this.trip.is_adm_approval_required)
+    travellers() {
+      if (this.trip) return this.trip.travellers;
     },
   },
   created() {

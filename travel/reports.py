@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import yesno
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from lib.functions.custom_functions import nz, listrify
 from lib.templatetags.custom_filters import currency
@@ -141,7 +142,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 notes += "\n\nJUSTIFICATION FOR LATE SUBMISSION: " + t.request.late_justification
 
             if t.request.funding_source:
-                    notes += "\n\nFUNDING SOURCE: {}".format(t.request.funding_source)
+                notes += "\n\nFUNDING SOURCE: {}".format(t.request.funding_source)
 
             # Request status
             my_status = str(t.request.get_status_display())
@@ -269,14 +270,12 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
 
     if from_date:
         my_date = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
-        print(my_date)
         trip_list = trip_list.filter(
             start_date__gte=my_date,
         )
 
     if to_date:
         my_date = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
-        print(my_date)
         trip_list = trip_list.filter(
             start_date__lt=my_date,
         )
@@ -357,6 +356,104 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
                 my_ws.write(i, j, my_val, currency_format)
             else:
                 my_val = get_field_value(trip, field)
+                my_ws.write(i, j, my_val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(my_val)) > col_max[j]:
+                if len(str(my_val)) < 75:
+                    col_max[j] = len(str(my_val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        utils.upload_to_azure_blob(target_file_path, f'temp/{target_file}')
+    return target_url
+
+
+def generate_upcoming_trip_list(site_url):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path, {'remove_timezone': True})
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+
+    # get the trip list
+    trip_list = models.Conference.objects.filter(start_date__gte=timezone.now())
+
+    field_list = [
+        "fiscal_year",
+        "name",
+        "status",
+        "location",
+        "lead",
+        "travellers",
+        "date_eligible_for_adm_review",
+        "start_date",
+        "end_date",
+        "is_adm_approval_required",
+        "registration_deadline",
+        "abstract_deadline",
+    ]
+
+    # define the header
+    header = [get_verbose_label(trip_list.first(), field) for field in field_list]
+    # header.append('Number of projects tagged')
+    title = gettext("Upcoming Conferences and Meetings")
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="list")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write_row(2, 0, header, header_format)
+
+    i = 3
+    for trip in trip_list.order_by("date_eligible_for_adm_review"):
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+        data_row = list()
+        j = 0
+        for field in field_list:
+            if "travellers" in field:
+                my_val = get_field_value(trip, field).count()
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "fiscal_year" in field:
+                my_val = str(get_field_value(trip, field))
+                my_ws.write(i, j, my_val, normal_format)
+            elif "date" in field or "deadline" in field:
+                my_val = getattr(trip, field)
+                if my_val:
+                    my_ws.write_datetime(i, j, my_val, date_format)
+                else:
+                    my_ws.write(i, j, my_val, normal_format)
+            elif field == "name":
+                my_val = str(get_field_value(trip, field))
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("travel:trip_detail", args=[trip.id])}',
+                                string=my_val)
+            else:
+                my_val = str(get_field_value(trip, field))
                 my_ws.write(i, j, my_val, normal_format)
 
             # adjust the width of the columns based on the max string length in each col

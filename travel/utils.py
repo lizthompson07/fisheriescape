@@ -631,7 +631,7 @@ def get_adm_eligible_trips():
             # only get trips that are within three months from the closest date
             if t.date_eligible_for_adm_review and t.date_eligible_for_adm_review <= timezone.now():
                 keepers.append(t.id)
-    return models.Conference.objects.filter(id__in=keepers)
+    return models.Conference.objects.filter(id__in=keepers).order_by("adm_review_deadline")
 
 
 user_attr_list = [

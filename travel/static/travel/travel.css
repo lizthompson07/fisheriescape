@@ -1,4 +1,56 @@
 
+.admin-notes {
+    background-color: #f8f8c6;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+.approved {
+    background-color: #a8ffb8;
+}
+
+.blue {
+    color: blue;
+}
+.btn-admin {
+    background-color: #5b80b2;
+    color: white;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+}
+
+.cancelled {
+    background-color: #a6aba2;
+}
+
+
+.changes-requested {
+    background-color: #fcc1a2;
+}
+
+.clickable {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+    font-weight: normal;
+}
+
+.closed-traveller {
+    background-color: #edf0fa;
+}
+
+.complete {
+    background-color: #a8ffb8;
+}
+
+.container {
+    max-width: 1300px;
+}
+
+
 .container-fluid, .container {
     border-radius: 25px;
     margin-top: 15px;
@@ -9,60 +61,6 @@
 
 }
 
-.btn-admin {
-    background-color: #5b80b2;
-    color: white;
-    padding-top: 5px;
-    padding-bottom: 5px;
-
-}
-
-.label {
-    font-weight: bold;
-}
-
-table, td {
-    font-size: small;
-}
-
-.container {
-    max-width: 1300px;
-}
-
-
-.unverified {
-    background-color: #fff396;
-}
-
-.verified {
-    background-color: #a8ffb8;
-}
-
-.under-review {
-    background-color: #e197f7;
-}
-
-.reviewed {
-    background-color: #99ccff;
-}
-
-.cancelled {
-    background-color: #a6aba2;
-}
-
-
-.approved {
-    background-color: #a8ffb8;
-}
-
-.changes-requested {
-    background-color: #fcc1a2;
-}
-
-.complete {
-    background-color: #a8ffb8;
-}
-
 .denied {
     background-color: #f79eb3;
 }
@@ -71,13 +69,25 @@ table, td {
     background-color: #fff396;
 }
 
-.pending {
-    background-color: #fcc1a2;
+.label {
+    font-weight: bold;
 }
 
-.pending-recommendation {
-    background-color: #cc4aec;
-    color: white;
+.lightgrey {
+    background-color: #e5e2e2;
+}
+
+.mdi-help-circle-outline {
+    color: blue;
+}
+
+
+.other-traveller {
+    background-color: #faf3cf;
+}
+
+.pending {
+    background-color: #fcc1a2;
 }
 
 .pending-adm-approval {
@@ -88,32 +98,25 @@ table, td {
     background-color: #d0dcf5;
 }
 
-.pending-review {
-    background-color: #ffcce1;
-}
-
-.queued {
-    background-color: #d0dcf5;
-}
-
-.skipped {
-    background-color: #fa574c;
+.pending-recommendation {
+    background-color: #cc4aec;
     color: white;
 }
 
-.clickable {
-    cursor: pointer;
-    color: blue;
-    text-decoration: underline;
-    font-weight: normal;
+.pending-review {
+    background-color: #ffcce1;
 }
 
 .pointy {
     cursor: pointer;
 }
 
-.lightgrey {
-    background-color: #e5e2e2;
+.queued {
+    background-color: #d0dcf5;
+}
+
+.reviewed {
+    background-color: #99ccff;
 }
 
 .simple-table tbody tr td {
@@ -141,6 +144,15 @@ table, td {
 }
 
 
+.skipped {
+    background-color: #fa574c;
+    color: white;
+}
+
+.text-sm {
+    font-size: small;
+}
+
 .traveller-card {
     /*cursor: pointer;*/
     /*background-color: #eeeeee;*/
@@ -152,31 +164,19 @@ table, td {
     border-radius: 10px;
 }
 
-.other-traveller {
-    background-color: #faf3cf;
+.under-review {
+    background-color: #e197f7;
 }
 
-.closed-traveller {
-    background-color: #edf0fa;
+.unverified {
+    background-color: #fff396;
 }
 
-.admin-notes {
-    background-color: #f8f8c6;
+.verified {
+    background-color: #a8ffb8;
 }
 
-[v-cloak] {
-    display: none;
-}
-
-.text-sm {
+table, td {
     font-size: small;
 }
 
-.mdi-help-circle-outline {
-    color: blue;
-}
-
-
-.blue {
-    color: blue;
-}
