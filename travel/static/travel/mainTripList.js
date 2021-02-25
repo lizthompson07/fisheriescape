@@ -2,17 +2,15 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
-    currentUser: {},
-    hover: false,
-
+    count: 0,
     currentSort: 'name',
     currentSortDir: 'asc',
-
-    trips_loading: true,
-    trips: [],
+    currentUser: {},
+    hover: false,
     next: null,
     previous: null,
-    count: 0,
+    trips: [],
+    trips_loading: true,
 
     // filters
     filter_fiscal_year: "",
@@ -32,6 +30,20 @@ var app = new Vue({
 
   },
   methods: {
+    clearFilters() {
+      this.filter_fiscal_year = "";
+      this.filter_trip_title = null;
+      this.filter_regional_lead = null;
+      this.filter_adm_approval = "";
+      this.filter_status = "";
+      this.filter_subcategory = "";
+      this.updateResults()
+    },
+    clearTrips() {
+      this.trips = []
+      this.next = null
+      this.count = 0
+    },
     getCurrentUser() {
       let endpoint = `/api/travel/user/`;
       apiService(endpoint)
@@ -39,19 +51,24 @@ var app = new Vue({
             this.currentUser = response;
           })
     },
-    goRow(trip) {
-      let win;
-      if (this.pageType.search("verification") > -1) {
-        url = `/travel-plans/trips/${trip.id}/verify/?${this.pageType}=true`;
-        win = window.open(url, '_blank');
-      } else {
-        url = `/travel-plans/trips/${trip.id}/view/?${window.location.search.substring(1)}`;
-        window.location.href = url;
+    getDeadlineClass(days) {
+      let myStr = 'px-1 py-1 ';
+      if (days) {
+        if (days > 45) myStr += 'bg-success text-light';
+        else if (days >= 15) myStr +=  'bg-warning';
+        else myStr += 'bg-danger text-light';
       }
+      return myStr;
     },
     getFilterData() {
       apiService(`/api/travel/fiscal-years/`).then(response => this.fiscalYears = response)
       apiService(`/api/travel/regions/`).then(response => this.regions = response)
+    },
+    getTripMetadata() {
+      let endpoint = `/api/travel/meta/models/trip/`;
+      apiService(endpoint).then(data => {
+        this.tripLabels = data.labels;
+      });
     },
     getTrips(endpoint) {
       this.trips_loading = true;
@@ -82,29 +99,20 @@ var app = new Vue({
             }
           })
     },
-    clearTrips() {
-      this.trips = []
-      this.next = null
-      this.count = 0
+    goRow(trip) {
+      let win;
+      if (this.pageType.search("verification") > -1) {
+        url = `/travel-plans/trips/${trip.id}/verify/?${this.pageType}=true`;
+        win = window.open(url, '_blank');
+      } else {
+        url = `/travel-plans/trips/${trip.id}/view/?${window.location.search.substring(1)}`;
+        window.location.href = url;
+      }
     },
     loadMoreResults() {
       if (this.next) {
         this.getTrips(this.next)
       }
-    },
-    clearFilters() {
-      this.filter_fiscal_year = "";
-      this.filter_trip_title = null;
-      this.filter_regional_lead = null;
-      this.filter_adm_approval = "";
-      this.filter_status = "";
-      this.filter_subcategory = "";
-      this.updateResults()
-    },
-    updateResults() {
-      this.clearTrips();
-      this.getTrips();
-      this.getFilterData();
     },
     sort(s) {
       // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
@@ -114,60 +122,11 @@ var app = new Vue({
       }
       this.currentSort = s;
     },
-    getTripMetadata() {
-      let endpoint = `/api/travel/meta/models/trip/`;
-      apiService(endpoint).then(data => {
-        this.tripLabels = data.labels;
-      });
+    updateResults() {
+      this.clearTrips();
+      this.getTrips();
+      this.getFilterData();
     },
-    getDeadlineClass(days) {
-      let myStr = 'px-1 py-1 ';
-      if (days) {
-        if (days > 45) myStr += 'bg-success text-light';
-        else if (days >= 15) myStr +=  'bg-warning';
-        else myStr += 'bg-danger text-light';
-      }
-      return myStr;
-    },
-  },
-  filters: {
-    floatformat: function (value, precision = 2) {
-      if (value == null) return '';
-      value = Number(value).toFixed(precision).toLocaleString("en");
-      return value
-    },
-    currencyFormat: function (value, precision = 2) {
-      if (value == null) return '';
-      value = accounting.formatNumber(value, precision);
-      return value
-    },
-    zero2NullMark: function (value) {
-      if (!value || value === "0.00" || value == 0) return '---';
-      return value
-    },
-    nz: function (value, arg = "---") {
-      if (value == null || value === "None") return arg;
-      return value
-    },
-    yesNo: function (value) {
-      if (value == null || value == false || value == 0) return 'No';
-      return "Yes"
-    },
-    percentage: function (value, decimals) {
-      // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
-      if (!value) {
-        value = 0;
-      }
-
-      if (!decimals) {
-        decimals = 0;
-      }
-
-      value = value * 100;
-      value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
-      value = value + '%';
-      return value;
-    }
   },
   computed: {
     sortedTrips() {
