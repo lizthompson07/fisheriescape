@@ -533,10 +533,15 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
         return {"title": _("Requests Awaiting Review"), "url": reverse("travel:request_reviewer_list") + self.get_query_string()}
 
     def test_func(self):
-        my_trip_request = self.get_object().request
+        reviewer = self.get_object()
+        my_trip_request = reviewer.request
         my_user = self.request.user
-        if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
-            return True
+        # if this is an rdg approval, then we make sure it is a travel admin
+        if self.request.GET.get("rdg"):
+            return in_travel_admin_group(my_user) and reviewer.role == 6
+        # otherwise we make sure that this person is the current reviewer
+        else:
+            return is_approver(my_user, my_trip_request)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -640,7 +645,7 @@ class TripListView(TravelAccessRequiredMixin, CommonTemplateView):
         return context
 
     def get_new_object_url(self):
-        return reverse("travel:trip_new")+self.get_query_string()
+        return reverse("travel:trip_new") + self.get_query_string()
 
 
 class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
@@ -663,7 +668,7 @@ class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     home_url_name = "travel:index"
 
     def get_parent_crumb(self):
-        return {"title": str(self.get_object()), "url": reverse("travel:trip_detail", kwargs=self.kwargs)+self.get_query_string()}
+        return {"title": str(self.get_object()), "url": reverse("travel:trip_detail", kwargs=self.kwargs) + self.get_query_string()}
 
     def get_template_names(self):
         return 'travel/trip_form_popout.html' if self.request.GET.get("pop") else 'travel/trip_form.html'
@@ -681,7 +686,7 @@ class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         if self.request.GET.get("pop"):
             return HttpResponseRedirect(reverse("shared_models:close_me"))
         else:
-            return HttpResponseRedirect(reverse('travel:trip_detail', kwargs=self.kwargs)+self.get_query_string())
+            return HttpResponseRedirect(reverse('travel:trip_detail', kwargs=self.kwargs) + self.get_query_string())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -716,7 +721,7 @@ class TripCloneView(TripUpdateView):
         new_obj.verified_by = self.request.user
         new_obj.created_by = self.request.user
         new_obj.save()
-        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", args=[new_obj.id])+self.get_query_string())
+        return HttpResponseRedirect(reverse_lazy("travel:trip_detail", args=[new_obj.id]) + self.get_query_string())
 
 
 class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
@@ -751,7 +756,7 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
             messages.success(self.request, _("The trip has been added to the database!"))
             return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
         else:
-            return HttpResponseRedirect(reverse("travel:trip_detail", args=[my_object.id])+self.get_query_string())
+            return HttpResponseRedirect(reverse("travel:trip_detail", args=[my_object.id]) + self.get_query_string())
 
 
 class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
