@@ -18,6 +18,11 @@ from . import utils
 #
 
 
+def resave_requests():
+    for obj in models.TripRequest1.objects.all():
+        obj.save()
+
+
 def reset_trip_reviewers():
     for trip in models.Conference.objects.filter(is_adm_approval_required=True):
         if trip.reviewers.count() == 0:

@@ -589,6 +589,7 @@ class TripRequest1(models.Model):
     status = models.IntegerField(verbose_name=_("trip request status"), default=8, choices=status_choices, editable=False)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"), default=fiscal_year(sap_style=True),
                                     blank=True, null=True, related_name="requests", editable=False)
+    name_search = models.CharField(max_length=1000, blank=True, null=True, editable=False)
 
     # metadata
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False,
@@ -646,8 +647,11 @@ class TripRequest1(models.Model):
             self.uuid = uuid.uuid1()
 
         self.fiscal_year = self.trip.fiscal_year
-
-        return super().save(*args, **kwargs)
+        self.name_search = self.created_by.get_full_name()
+        for t in self.travellers.all():
+            self.name_search += f', {t.smart_name}'
+        super().save(*args, **kwargs)
+        print("save me!", self.name_search)
 
     @property
     def reviewer_order_message(self):

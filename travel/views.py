@@ -1142,7 +1142,7 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 
     def get_submit_text(self):
         if self.get_object().role == 5:  # if ADM
-            submit_text = _("Close the trip and approve all travel")
+            submit_text = _("Complete the review and approve all travel")
         else:
             submit_text = _("Submit your review")
         return submit_text

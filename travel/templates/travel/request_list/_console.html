@@ -20,7 +20,7 @@
         </div>
         {# traveller #}
         <div class="col">
-          <label class="filter" for="filter_traveller">{% trans "Traveller" %}</label>
+          <label class="filter" for="filter_traveller">{% trans "Traveller / Owner" %}</label>
           <input
             v-model="filter_traveller"
             @change="updateResults"
@@ -29,7 +29,7 @@
 
         {# status #}
         <div class="col">
-          <label class="filter" for="filter_status">{% trans "Request Status" %}</label>
+          <label class="filter" for="filter_status">{% trans "Status" %}</label>
           <select
             v-model="filter_status"
             @change="updateResults"

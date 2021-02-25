@@ -195,8 +195,8 @@ class RequestViewSet(viewsets.ModelViewSet):
                         qs = qs.filter(status=input)
                     elif filter == "trip_title":
                         qs = qs.filter(Q(trip__name__icontains=input) | Q(trip__nom__icontains=input))
-                    # elif filter == "traveller":
-                    #     qs = qs.filter(project__travellers__icontains=input)
+                    elif filter == "traveller":
+                        qs = qs.filter(name_search__icontains=input)
                     elif filter == "fiscal_year":
                         qs = qs.filter(fiscal_year_id=input)
                     elif filter == "region":
