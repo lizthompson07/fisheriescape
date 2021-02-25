@@ -1251,6 +1251,23 @@ def export_trip_list(request):
 
 
 @login_required()
+def export_upcoming_trips(request):
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_upcoming_trip_list(site_url)
+    export_file_name = '{} {}.xlsx'.format(_("upcoming trips"), timezone.now().strftime("%Y-%m-%d"))
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        return HttpResponseRedirect(reverse("travel:get_file", args=[file_url.replace("/", "||")]) + f'?blob_name=true;export_file_name={export_file_name}')
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="{export_file_name}"'
+            return response
+    raise Http404
+
+
+@login_required()
 def export_request_cfts(request, trip=None, trip_request=None):
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'

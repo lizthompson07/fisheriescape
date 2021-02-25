@@ -34,11 +34,12 @@
             <div>
               {% include "travel/trip_list/_console.html" %}
             </div>
-
-            <div class="float-right" v-if="currentUser.is_admin && pageType == 'all'">
-              <a class="mb-3 btn btn-sm btn-primary" href="{% url 'travel:trip_new' %}">{% trans "New Trip" %}</a>
+            <div class="float-right" >
+              <a v-if="currentUser.is_admin && pageType == 'all'" class="mb-3 btn btn-sm btn-primary" href="{% url 'travel:trip_new' %}">{% trans "New Trip" %}</a>
+              <a v-else-if="pageType == 'upcoming'" class="btn btn-sm btn-dark" href="{% url 'travel:export_upcoming_trips' %}">
+                {% trans "Export to Spreadsheet" %} <span class="ml-2 text-light mdi mdi-file-excel"></span>
+              </a>
             </div>
-
             <div>
               <div class="text-center">
                 <p class="font-italic font-weight-bold">
@@ -58,8 +59,10 @@
                 <th style="" @click="sort('travellers')" class="clickable">{% trans "Travellers" %}</th>
                 <th style="width: 200px" @click="sort('dates')" class="clickable">{% trans "Dates" %}</th>
                 <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
-{#                <th v-if="pageType !== 'upcoming'" style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>#}
-                <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('registration_deadline')" class="clickable">${tripLabels.registration_deadline}</th>
+                {#                <th v-if="pageType !== 'upcoming'" style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>#}
+                <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('registration_deadline')" class="clickable">
+                  ${tripLabels.registration_deadline}
+                </th>
                 <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('abstract_deadline')" class="clickable">${tripLabels.abstract_deadline}
                 </th>
                 <th style="width: 140px" @click="sort('date_eligible_for_adm_review')" class="clickable">${tripLabels.date_eligible_for_adm_review}</th>
@@ -81,7 +84,7 @@
                 <td>${t.traveller_count}</td>
                 <td v-html="t.dates"></td>
                 <td>${t.is_adm_approval_required |yesNo }</td>
-{#                <td v-if="pageType !== 'upcoming'">${t.trip_subcategory }</td>#}
+                {#                <td v-if="pageType !== 'upcoming'">${t.trip_subcategory }</td>#}
                 <td v-if="pageType === 'upcoming'">${t.registration_deadline |nz}</td>
                 <td v-if="pageType === 'upcoming'">${t.abstract_deadline |nz}</td>
                 <td>

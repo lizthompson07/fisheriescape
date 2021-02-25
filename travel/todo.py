@@ -1,5 +1,3 @@
-# TODO: I should not be allowed to go to someone's review page!!!
-
 # todo:  email for when ppl are deleted from a request
 # TODO: trip reassign and delete
 # TODO: revamp verification form
