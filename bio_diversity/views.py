@@ -889,7 +889,7 @@ class FeedmDetails(mixins.FeedmMixin, CommonDetails):
 
 class GrpDetails(mixins.GrpMixin, CommonDetails):
     template_name = "bio_diversity/details_grp.html"
-    fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_year", "grp_valid", "comments", "created_by", "created_date", ]
+    fields = ["spec_id", "stok_id", "coll_id", "grp_year", "grp_valid", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

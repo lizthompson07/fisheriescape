@@ -975,7 +975,6 @@ class GrpFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Group
 
-    # frm_grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
     coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
@@ -988,8 +987,6 @@ class GrpFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
 
-        # recursive...
-        # frm_grp = GrpFactory()
         spec = SpecFactory()
         stok = StokFactory()
         coll = CollFactory()
@@ -998,7 +995,6 @@ class GrpFactory(factory.django.DjangoModelFactory):
         # Convert the data to a dictionary to be used in testing
         data = {
 
-            # 'frm_grp_id':frm_grp.pk,
             'spec_id': spec.pk,
             'stok_id': stok.pk,
             'grp_year': obj.grp_year,

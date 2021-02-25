@@ -2897,7 +2897,6 @@ class TestGrpDetailView(CommonTest):
 
     def test_context(self):
         context_vars = [
-            # "frm_grp_id",
             "spec_id",
             "stok_id",
             "coll_id",

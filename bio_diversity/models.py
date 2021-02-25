@@ -622,8 +622,6 @@ class FeedMethod(BioLookup):
 
 class Group(BioModel):
     # grp tag
-    frm_grp_id = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True,
-                                   verbose_name=_("From Parent Group"))
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"))
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
     grp_year = models.IntegerField(verbose_name=_("Collection year"), default=2000,
@@ -653,6 +651,8 @@ class Group(BioModel):
 
 class GroupDet(BioDet):
     # grpd tag
+    frm_grp_id = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True,
+                                   verbose_name=_("From Parent Group"))
     det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
     grpd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
     detail_date = models.DateField(verbose_name=_("Date detail was recorded"))
@@ -664,7 +664,7 @@ class GroupDet(BioDet):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'], name='Group_Detail_Uniqueness')
+            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id', 'frm_grp_id'], name='Group_Detail_Uniqueness')
         ]
 
     def __str__(self):
