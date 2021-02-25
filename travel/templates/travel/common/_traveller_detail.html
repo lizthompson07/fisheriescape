@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="row">
-  <div :class="{'col-6':!canModify || isReview, 'col-4':canModify && !isReview}">
+  <div :class="travellerColClass">
 
     <p class="mb-3">
       <b>{% trans "Organization:" %}</b><br>

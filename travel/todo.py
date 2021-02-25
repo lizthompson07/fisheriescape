@@ -4,8 +4,6 @@
 # TODO: trip reassign and delete
 # TODO: revamp verification form
 
-# TODO: sort all methods and attrs on serializers
-
 # At a later date
 
 # TODO: fix up unit tests

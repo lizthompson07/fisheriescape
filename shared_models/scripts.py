@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.core import serializers
 from django.core.files import File
 
+from lib.templatetags.custom_filters import nz
 from . import models
 
 
@@ -83,12 +84,55 @@ def export_fixtures():
 #         block_blob_service.create_blob_from_path(container_name,files,os.path.join(local_path,files))
 
 
-def import_users_from_org_sheet():
+def __db_user_to_spreadsheet(obj, target_email, user_type, blank_spots_are_literal=False, commit=False):
+    db_user = getattr(obj, user_type)  # e.g. region.head
+    # if there is no email and we are meant to take this literally, we should clear the user in db table, if any
+    if not target_email:  # doing this in two steps do create a deadend
+        if blank_spots_are_literal and db_user:
+            print(f"clearing user {db_user} from db.")
+            setattr(obj, user_type, None)
+        else:
+            print(f"no email for {obj} listed on spreadsheet, but not taking action since blank spots are not to be taken literally. {db_user} is spared.")
+
+    # there is an email from spreadsheet
+    else:
+        qs = User.objects.filter(email__iexact=target_email)
+        # the user's email DOES NOT exists in the db
+        if not qs.exists():
+            first_name = target_email.split("@")[0].split(".")[0].title()
+            last_name = target_email.split("@")[0].split(".")[1].title()
+            target_user = User.objects.create(first_name=first_name, last_name=last_name, email=target_email, username=target_email, is_active=True)
+        else:
+            target_user = qs.first()
+
+        # now that we have a user, we can make our final assessment in one go:
+        if target_user != db_user:
+            print(f"{target_user} is replacing {db_user} in {obj}.")
+            setattr(obj, user_type, target_user)
+        else:
+            print(f"{target_user} is already in place for {obj} :)")
+
+        if commit:
+            obj.save()
+
+
+def __get_create_object_from_uuid(my_model, uuid, name, nom, create=False, update=False):
+    qs = my_model.objects.filter(uuid=uuid)
+
+    if qs.exists():
+        print(f'{my_model._meta.verbose_name} with uuid {uuid} found: {qs.first().name}')
+        obj = qs.first()
+    else:
+        print(f'{my_model._meta.verbose_name} with uuid {uuid} NOT found: {qs.first().name}')
+        if create:
+            my_model.objects.create(uuid=uuid)
+
+
+
+def import_users_from_org_sheet(blank_spots_are_literal=False, commit=False):
     import unidecode
 
-    DO_NOT_CREATE = True
-    BLANK_SPOTS_ONLY = True
-    my_target_data_file = os.path.join(settings.BASE_DIR, 'shared_models', 'script_data', 'org_list_import_2021_02_15.csv')
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'shared_models', 'script_data', 'org_list_import_2021_02_24.csv')
 
     with open(my_target_data_file, 'r') as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
@@ -99,25 +143,10 @@ def import_users_from_org_sheet():
             region.name = row["region name"]
             region.nom = row["region nom"]
             region.save()
+
             # get the head and admin user from sheet
             ## head:
-            if row["region head"]:
-                last_name = row["region head"].split(" ")[-1]
-                first_name = row["region head"].replace(last_name, "").strip()
-                # this will be used to determine if the user is already in the system
-                qs = User.objects.filter(first_name__icontains=first_name, last_name__icontains=last_name)
-                # if the spreadsheet has no user assigned...
-                if not region.head:
-                    if qs.exists():
-                        region.head = qs.first()
-                    else:
-                        email = f'{unidecode.unidecode(first_name)}.{unidecode.unidecode(last_name)}@dfo-mpo.gc.ca'
-                        print("creating user:", first_name, last_name, email)
-                        new_user = User.objects.create(first_name=first_name, last_name=last_name,
-                                                       email=email, username=email,
-                                                       is_active=True)
-                        region.head = new_user
-                    region.save()
+            email = nz(row["region head email"])  # old email, old user? ||  new email, old user? || new email, new user?
 
             if row["region admin"]:
                 last_name = row["region admin"].split(" ")[-1]

@@ -39,7 +39,8 @@ var app = new Vue({
         status: 23,  // this will be updated by the model save method. setting status == 4 just allows to show in list
       })
     },
-    addTraveller() {}, // being added for the sake of compatibility,
+    addTraveller() {
+    }, // being added for the sake of compatibility,
     closeReviewerForm() {
       this.getTrip();
       this.reviewerEditMode = false;
@@ -103,7 +104,7 @@ var app = new Vue({
       let myStr = 'px-1 py-1 ';
       if (days) {
         if (days > 45) myStr += 'bg-success text-light';
-        else if (days >= 15) myStr +=  'bg-warning';
+        else if (days >= 15) myStr += 'bg-warning';
         else myStr += 'bg-danger text-light';
       }
       return myStr;
@@ -255,12 +256,6 @@ var app = new Vue({
   },
   computed: {
     canModify() {
-      if (this.currentUser && this.currentUser.can_modify) {
-        return this.currentUser.can_modify;
-      }
-      return false;
-    },
-    canModify() {
       return this.isNCRAdmin || (this.isRegionalAdmin && !this.trip.is_adm_approval_required)
     },
     editableReviewers() {
@@ -296,6 +291,10 @@ var app = new Vue({
     },
     reviewers() {
       if (this.trip) return this.trip.reviewers;
+    },
+    travellerColClass() {
+      if (this.canModify && !this.isReview && !this.trip) return 'col-4';
+      else return 'col';
     },
     travellers() {
       if (this.trip) return this.trip.travellers;

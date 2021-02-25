@@ -521,6 +521,10 @@ var app = new Vue({
         else if (!this.request.travellers.length) return noTravellersTip;
       }
     },
+    travellerColClass() {
+      if (this.canModify && !this.isReview && !this.trip) return 'col-4';
+      else return 'col';
+    },
     travellers() {
       if (this.request) return this.request.travellers;
     }
