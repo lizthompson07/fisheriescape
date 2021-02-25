@@ -32,7 +32,6 @@ var app = new Vue({
     travellerLabels: {},
     travellerRoleChoices: [],
     travellerToEdit: null,
-    useCustomAddress: false,
     yesNoChoices: yesNoChoices,
 
     // these are just being added for the sake of compatibility
@@ -466,7 +465,6 @@ var app = new Vue({
       }
       apiService(endpoint, method, this.travellerToEdit).then(response => {
         if (response.id) {
-          console.log(123)
           this.getRequest();
           if (this.cloningTraveller) {
             // start by removing all costs
@@ -544,9 +542,6 @@ var app = new Vue({
     },
     isOwner() {
       return this.currentUser && this.currentUser.is_owner;
-    },
-    isRDS() {
-      return this.currentUser && this.currentUser.is_rds;
     },
     isAdmin() {
       return this.currentUser && this.currentUser.is_admin;

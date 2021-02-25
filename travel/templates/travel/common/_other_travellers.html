@@ -7,7 +7,7 @@
 
 <div class="card mb-4" v-if="isReview">
   <h3 class="card-header bg-outline-dark">
-    <span>{% trans "Travellers from ${request.region} Region from Other Requests" %}</span>
+    <span>{% trans "Other Travellers from ${request.region} Region" %}</span>
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
           data-trigger="hover" title="{% trans "Travellers" %}"
           :data-content="helpText.other_travellers_header"></span>
@@ -26,7 +26,7 @@
                 <div class="card-body">
                   <div class="float-right">
                     <span v-if='!t.show_me' :class="t.request_obj.status_class + ' px-1 py-1 mr-3 h6'">${t.request_obj.status_display}</span>
-                    <button v-if="(isAdmin || isRDS) && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4" data-toggle="tooltip"
+                    <button v-if="canModify && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4" data-toggle="tooltip"
                                                                                              title="{% trans "Remove" %}"></span></button>
                     <button @click="toggleShowMe(t)"
                             data-toggle="tooltip" title="{% trans "collapse" %}">
@@ -58,7 +58,7 @@
                       {% trans "Open Request in Separate Window" %}
                     </a>
                     <div class="float-right">
-                      <button v-if="(isAdmin || isRDS)" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
+                      <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
                     </div>
                   </div>
                 </div>

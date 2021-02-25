@@ -58,22 +58,8 @@ def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict
         reason = None
         result = False
 
-        # check to see if a travel_admin or ADM admin
-        if in_adm_admin_group(user):
-            result = True
-            reason = _("You can edit this record because you are in the NCR National Coordinator Group.")
-
-        elif in_travel_admin_group(user):
-            result = True
-            reason = _("You can edit this record because you are in the Regional Administrator Group.")
-
-        # check to see if they are the active reviewer
-        elif get_related_request_reviewers(user).filter(request_id=trip_request_id).exists():
-            result = True
-            reason = _("You can edit this record because you are the active reviewer for this request.")
-
         # if the request is unsubmitted, the owner can edit
-        elif not my_request.submitted:
+        if not my_request.submitted:
             if my_request in user.travel_requests_created_by.all():
                 result = True
                 reason = _("You can edit this record because you are the request owner.")
@@ -84,6 +70,25 @@ def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict
         elif request_to_unsubmit and my_request in user.travel_requests_created_by.all():
             result = True
             reason = _("You can un-submit this request because you are the request owner.")
+
+        # check to see if they are the active reviewer
+        elif get_related_request_reviewers(user).filter(request_id=trip_request_id).exists():
+            result = True
+            reason = _("You can edit this record because you are the active reviewer for this request.")
+
+        # check to see if they are the RDS
+        elif user == my_request.section.division.branch.head:
+            result = True
+            reason = _("You can edit this record because you are the Regional director / NCR Director General.")
+
+        # check to see if a travel_admin or ADM admin
+        elif in_adm_admin_group(user):
+            result = True
+            reason = _("You can edit this record because you are in the NCR National Coordinator Group.")
+
+        elif in_travel_admin_group(user):
+            result = True
+            reason = _("You can edit this record because you are in the Regional Administrator Group.")
 
         if as_dict:
             return dict(can_modify=result, reason=reason)

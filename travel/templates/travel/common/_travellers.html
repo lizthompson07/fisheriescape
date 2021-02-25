@@ -174,18 +174,11 @@
                         :data-content="helpText.address"></span>
                 </label>
 
-                <select v-if="!useCustomAddress" v-model="travellerToEdit.address" class="form-control form-control-sm">
-                  <option :value="null"> ------</option>
-                  <option v-for="(obj, index) in orgChoices" :value="obj.value">${obj.text}</option>
-                </select>
-                <input v-else type="text" v-model="travellerToEdit.address" class="form-control form-control-sm"
-                       placeholder="{% trans "Please enter address" %}">
-
-                <button v-if="!travellerToEdit.address" type="button" @click="useCustomAddress = !useCustomAddress"
-                        class="btn btn-sm btn-dark text-light px-1 py-0 mt-1">
-                  <span v-if="!useCustomAddress"><span class="mdi mdi-keyboard text-light mr-3"></span>{% trans "Enter manually" %}</span>
-                  <span v-else><span class="mdi mdi-form-dropdown text-light mr-3"></span>{% trans "Use a Predefined Address" %}</span>
-                </button>
+                <input type="text" v-model="travellerToEdit.address" class="form-control form-control-sm"
+                       placeholder="{% trans "Please enter address" %}" list="orgList">
+                <datalist id="orgList">
+                  <option v-for="(obj, index) in orgChoices" :value="obj.value"></option>
+                </datalist>
               </div>
               <div class="form-group">
                 <label for="">
@@ -194,7 +187,7 @@
                         data-trigger="hover" :title="travellerLabels.phone"
                         :data-content="helpText.phone"></span>
                 </label>
-                <input type="text" v-model="travellerToEdit.phone" class="form-control form-control-sm">
+                <input type="tel" v-model="travellerToEdit.phone" class="form-control form-control-sm" placeholder="xxx-xxx-xxxx" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
               </div>
               <div class="form-group" v-if="!travellerToEdit.user">
                 <label for="">

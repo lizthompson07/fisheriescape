@@ -42,7 +42,6 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
             my_trip_request = get_object_or_404(models.TripRequest1, pk=request.query_params.get("request"))
             data.update(utils.can_modify_request(request.user, trip_request_id=request.query_params.get("request"), as_dict=True))
             data.update(dict(is_owner=request.user.id == my_trip_request.created_by))
-            data.update(dict(is_rds=request.user.id == my_trip_request.section.division.branch.head))
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -249,9 +248,6 @@ class TravellerViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         my_request = instance.request
-        # we never want this to be used to delete a traveller from an approved trip
-        if my_request.status == 11:
-            raise ValidationError("Sorry, we cannot delete a traveller from an approved trip.")
         super().perform_destroy(instance)
         # if the trip is NOT in draft mode, need to provide annotation in the admin notes.
         if my_request.status != 8:

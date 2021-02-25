@@ -550,9 +550,9 @@ class Conference(models.Model):
         if not self.requests.filter(status=14).exists():
             can_proceed = False
             reason = _("There are no requests ready for ADM approval.")
-        elif self.requests.filter(status__in=[11, 12, 15, 16, 17, ]).exists():
+        elif self.requests.filter(status__in=[12, 16, 17, ]).exists():
             can_proceed = False
-            reason = _("Some requests are not ready for ADM review.")
+            reason = _("Some requests are still in the review / recommendation phase.")
         else:
             can_proceed = True
             reason = _("All active requests are ready for ADM review.")
@@ -800,7 +800,7 @@ class Traveller(models.Model):
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     address = models.CharField(max_length=1000, verbose_name=_("address"), blank=True, null=True)
-    phone = models.CharField(max_length=1000, verbose_name=_("phone (xxx-xxx-xxxx)"), blank=True, null=True)
+    phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True, null=True)
@@ -1032,10 +1032,10 @@ class Reviewer(models.Model):
             self.status = 20
 
         # if the reviewer is in draft, there is no status date. Otherwise populate with current dt upon save
-        if self.status == 4 or self.status == 20:  # draft or queued
-            self.status_date = None
-        else:
-            self.status_date = timezone.now()
+        # if self.status == 4 or self.status == 20:  # draft or queued
+        #     self.status_date = None
+        # else:
+        #     self.status_date = timezone.now()
         return super().save(*args, **kwargs)
 
     @property
