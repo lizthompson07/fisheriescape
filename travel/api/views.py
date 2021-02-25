@@ -82,7 +82,7 @@ class TripViewSet(viewsets.ModelViewSet):
             elif qp.get("regional-verification") and utils.is_admin(self.request.user):
                 qs = qs.filter(is_adm_approval_required=False, status=30)
             elif qp.get("all") and utils.is_admin(self.request.user):  # we cannot really restrict this otherwise certain views will not work!!
-                qs = qs
+                qs = qs.order_by("-updated_at")
             else:
                 qs = qs.filter(start_date__gte=timezone.now())
 
