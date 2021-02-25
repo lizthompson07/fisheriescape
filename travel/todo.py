@@ -1,4 +1,3 @@
-# TODO: admo process
 # TODO: trip reassign and delete
 # todo: api view validation
 # TODO: traveller filter not working on request -- use vue js dropdown
@@ -26,3 +25,6 @@
 # TODO: phone number dashes
 
 # TODO: clean up model props
+# TODO: should not be able to submit a trip without any recommenders or reviewers
+# TODO: for ADM approval, we can check against the special role table
+# TODO: for RDG, we can check against the org chart

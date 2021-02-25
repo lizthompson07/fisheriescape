@@ -550,9 +550,9 @@ class Conference(models.Model):
         if not self.requests.filter(status=14).exists():
             can_proceed = False
             reason = _("There are no requests ready for ADM approval.")
-        elif self.requests.filter(status__in=[11, 12, 15, 16, 17, ]).exists():
+        elif self.requests.filter(status__in=[12, 16, 17, ]).exists():
             can_proceed = False
-            reason = _("Some requests are not ready for ADM review.")
+            reason = _("Some requests are still in the review / recommendation phase.")
         else:
             can_proceed = True
             reason = _("All active requests are ready for ADM review.")
@@ -589,6 +589,7 @@ class TripRequest1(models.Model):
     status = models.IntegerField(verbose_name=_("trip request status"), default=8, choices=status_choices, editable=False)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"), default=fiscal_year(sap_style=True),
                                     blank=True, null=True, related_name="requests", editable=False)
+    name_search = models.CharField(max_length=1000, blank=True, null=True, editable=False)
 
     # metadata
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False,
@@ -646,8 +647,11 @@ class TripRequest1(models.Model):
             self.uuid = uuid.uuid1()
 
         self.fiscal_year = self.trip.fiscal_year
-
-        return super().save(*args, **kwargs)
+        self.name_search = self.created_by.get_full_name()
+        for t in self.travellers.all():
+            self.name_search += f', {t.smart_name}'
+        super().save(*args, **kwargs)
+        print("save me!", self.name_search)
 
     @property
     def reviewer_order_message(self):
@@ -800,7 +804,7 @@ class Traveller(models.Model):
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     address = models.CharField(max_length=1000, verbose_name=_("address"), blank=True, null=True)
-    phone = models.CharField(max_length=1000, verbose_name=_("phone (xxx-xxx-xxxx)"), blank=True, null=True)
+    phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True, null=True)
@@ -875,7 +879,7 @@ class Traveller(models.Model):
     @property
     def cost_breakdown_html(self):
         """used for display on group traveller detail page"""
-        my_str = "<table class='mt-3 table table-sm table-bordered' style='width: auto'><tbody>"
+        my_str = "<table class='mt-3 table table-sm table-bordered'><tbody>"
         my_str += "<tr><th>{}</th><th>{}</th></tr>".format(_("Cost"), _("Amount"))
         for tr_cost in self.costs.all():
             if tr_cost.amount_cad:
@@ -1032,10 +1036,10 @@ class Reviewer(models.Model):
             self.status = 20
 
         # if the reviewer is in draft, there is no status date. Otherwise populate with current dt upon save
-        if self.status == 4 or self.status == 20:  # draft or queued
-            self.status_date = None
-        else:
-            self.status_date = timezone.now()
+        # if self.status == 4 or self.status == 20:  # draft or queued
+        #     self.status_date = None
+        # else:
+        #     self.status_date = timezone.now()
         return super().save(*args, **kwargs)
 
     @property

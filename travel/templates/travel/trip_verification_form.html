@@ -229,11 +229,11 @@
             </th>
             <td>
                 <ul>
-                    {% for triprequest in object.trip_requests.all %}
+                    {% for triprequest in object.requests.all %}
                         <li>
                             <a href="{% url 'travel:request_detail' triprequest.id %}"
                                target="_blank">{{ triprequest }}</a>
-                            by {{ triprequest.user }}
+                            by {{ triprequest.created_by }}
                             ({% trans "STATUS" %}: <span
                                 class="{{ triprequest.get_status_display|slugify }}">{{ triprequest.get_status_display }}</span>)
 

@@ -32,7 +32,6 @@ var app = new Vue({
     travellerLabels: {},
     travellerRoleChoices: [],
     travellerToEdit: null,
-    useCustomAddress: false,
     yesNoChoices: yesNoChoices,
 
     // these are just being added for the sake of compatibility
@@ -466,7 +465,6 @@ var app = new Vue({
       }
       apiService(endpoint, method, this.travellerToEdit).then(response => {
         if (response.id) {
-          console.log(123)
           this.getRequest();
           if (this.cloningTraveller) {
             // start by removing all costs
@@ -540,22 +538,13 @@ var app = new Vue({
       if (this.request) return this.request.reviewers;
     },
     canModify() {
-      if (this.currentUser && this.currentUser.can_modify) {
-        return this.currentUser.can_modify;
-      }
-      return false;
+      return this.currentUser && this.currentUser.can_modify;
     },
     isOwner() {
-      if (this.currentUser && this.currentUser.is_owner) {
-        return this.currentUser.is_owner;
-      }
-      return false;
+      return this.currentUser && this.currentUser.is_owner;
     },
     isAdmin() {
-      if (this.currentUser && this.currentUser.is_admin) {
-        return this.currentUser.is_admin;
-      }
-      return false;
+      return this.currentUser && this.currentUser.is_admin;
     },
     editableReviewers() {
       myArray = []
