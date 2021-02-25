@@ -11,7 +11,7 @@ faker = Faker()
 
 class TripFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.Conference
+        model = models.Trip
         # django_get_or_create = ('name',)
 
     # name = faker.catch_phrase()
@@ -144,9 +144,9 @@ class FileFactory(factory.django.DjangoModelFactory):
     name = factory.lazy_attribute(lambda o: faker.word())
 
 
-class TripRequestCostDayXRateFactory(factory.django.DjangoModelFactory):
+class TravellerCostDayXRateFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.TripRequestCost
+        model = models.TravellerCost
 
     trip_request = factory.SubFactory(IndividualTripRequestFactory)
     cost = factory.lazy_attribute(lambda o: models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)])
@@ -155,9 +155,9 @@ class TripRequestCostDayXRateFactory(factory.django.DjangoModelFactory):
     number_of_days = factory.lazy_attribute(lambda o: faker.random_int(1, 10))
 
 
-class TripRequestCostTotalFactory(factory.django.DjangoModelFactory):
+class TravellerCostTotalFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.TripRequestCost
+        model = models.TravellerCost
 
     trip_request = factory.SubFactory(IndividualTripRequestFactory)
     cost = factory.lazy_attribute(lambda o: models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)])

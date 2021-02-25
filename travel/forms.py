@@ -63,7 +63,7 @@ class TripReviewerApprovalForm(forms.ModelForm):
 
 class TripRequestTimestampUpdateForm(forms.ModelForm):
     class Meta:
-        model = models.TripRequest1
+        model = models.TripRequest
         fields = [
             "notes",
         ]
@@ -74,7 +74,7 @@ class TripRequestTimestampUpdateForm(forms.ModelForm):
 
 class TripTimestampUpdateForm(forms.ModelForm):
     class Meta:
-        model = models.Conference
+        model = models.Trip
         fields = [
             "notes",
         ]
@@ -90,7 +90,7 @@ class TripRequestForm(forms.ModelForm):
                                       label=gettext_lazy("Are you a traveller on this request?"), required=False)
 
     class Meta:
-        model = models.TripRequest1
+        model = models.TripRequest
         exclude = ["admin_notes"]
         labels = {
             'bta_attendees': gettext_lazy("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
@@ -115,7 +115,7 @@ class TripRequestForm(forms.ModelForm):
                                                                         "division__branch",
                                                                         "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
-        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
+        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Trip.objects.filter(start_date__gte=timezone.now())]
         trip_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -198,7 +198,7 @@ class TripRequestForm(forms.ModelForm):
 
 class TripRequestAdminNotesForm(forms.ModelForm):
     class Meta:
-        model = models.TripRequest1
+        model = models.TripRequest
         fields = [
             "admin_notes",
         ]
@@ -206,7 +206,7 @@ class TripRequestAdminNotesForm(forms.ModelForm):
 
 class TripAdminNotesForm(forms.ModelForm):
     class Meta:
-        model = models.Conference
+        model = models.Trip
         fields = [
             "admin_notes",
         ]
@@ -214,7 +214,7 @@ class TripAdminNotesForm(forms.ModelForm):
 
 class TripForm(forms.ModelForm):
     class Meta:
-        model = models.Conference
+        model = models.Trip
         exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes", "review_start_date",
                    "adm_review_deadline", "date_eligible_for_adm_review"]
         widgets = {
@@ -284,7 +284,7 @@ class ReportSearchForm(forms.Form):
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.filter(travellers__isnull=False).order_by("last_name", "first_name").distinct()]
         user_choices.insert(0, tuple((None, "---")))
-        trip_choices = [(trip.id, f"{trip}") for trip in models.Conference.objects.all()]
+        trip_choices = [(trip.id, f"{trip}") for trip in models.Trip.objects.all()]
         trip_choices.insert(0, tuple((None, "---")))
 
         region_choices = get_region_choices()
@@ -432,9 +432,9 @@ TripCategoryFormset = modelformset_factory(
 )
 
 
-class TripRequestCostForm(forms.ModelForm):
+class TravellerCostForm(forms.ModelForm):
     class Meta:
-        model = models.TripRequestCost
+        model = models.TravellerCost
         fields = "__all__"
         widgets = {
             'trip_request': forms.HiddenInput(),
@@ -469,7 +469,7 @@ class TripSelectForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Conference.objects.all()]
+        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Trip.objects.all()]
         trip_choices.insert(0, tuple((None, "---")))
 
         self.fields["trip"].choices = trip_choices

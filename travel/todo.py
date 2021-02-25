@@ -1,9 +1,4 @@
 # traveller list
-# TODO: delete trip_request on cost, traveller,
-# todo: TR Cost SHOULD BE RENAMED TO TRAVELLER COST
-# todo: TR1 SHOULD BE RENAMED TO TR
-# todo: rename conference to something trip
-
 
 # TODO: clean up model props
 
