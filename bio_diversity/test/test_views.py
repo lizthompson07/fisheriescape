@@ -201,7 +201,6 @@ class TestAnixDetailView(CommonTest):
     def test_context(self):
         context_vars = [
             "evnt_id",
-            "contx_id",
             "loc_id",
             "indvt_id",
             "indv_id",
@@ -413,7 +412,6 @@ class TestCntDetailView(CommonTest):
     def test_context(self):
         context_vars = [
             "loc_id",
-            "contx_id",
             "cntc_id",
             "spec_id",
             "cnt",
@@ -1513,7 +1511,6 @@ class TestEnvDetailView(CommonTest):
 
     def test_context(self):
         context_vars = [
-            "contx_id",
             "loc_id",
             "inst_id",
             "envc_id",
@@ -1940,8 +1937,7 @@ class TestEnvtDetailView(CommonTest):
 
     def test_context(self):
         context_vars = [
-            "contx_id", 
-            "envtc_id", 
+            "envtc_id",
             "lot_num", 
             "amt", 
             "unit_id", 
@@ -2579,7 +2575,6 @@ class TestFeedDetailView(CommonTest):
 
     def test_context(self):
         context_vars = [
-            "contx_id",
             "feedm_id",
             "feedc_id",
             "lot_num",
