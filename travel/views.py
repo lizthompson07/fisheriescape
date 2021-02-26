@@ -318,6 +318,7 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
 
         try:
             new_obj.save()
+            utils.get_request_reviewers(new_obj)
         except IntegrityError:
             messages.error(self.request, _("sorry, cannot clone this trip because there is another trip request with the same user in the system"))
         return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": new_obj.id}) + self.get_query_string())

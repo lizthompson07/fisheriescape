@@ -1,4 +1,6 @@
-# traveller list
+# adm should not be able to submit the review until there are no more pending ADMs in the trip
+
+
 # TODO: filter traveller display in trip detail (active only)
 # TODO: clean up model props
 

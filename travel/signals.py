@@ -50,6 +50,6 @@ def update_request_on_traveller_delete(sender, instance, **kwargs):
     instance.request.save()
 
 
-@receiver(models.signals.pre_save, sender=Traveller)
+@receiver(models.signals.post_save, sender=Traveller)
 def update_request_on_traveller_change_or_create(sender, instance, **kwargs):
     instance.request.save()

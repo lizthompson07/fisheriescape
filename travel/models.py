@@ -402,7 +402,7 @@ class Trip(models.Model):
     #
     @property
     def travellers(self):
-        return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 22]))  # exclude any travellers from inactive requests
+        return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 10, 22]))  # exclude any travellers from inactive requests
 
     @property
     def total_cost(self):

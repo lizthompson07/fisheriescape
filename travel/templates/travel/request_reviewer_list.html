@@ -39,6 +39,7 @@
                 <th v-html="requestLabels.created_by"></th>
                 <th v-html="requestLabels.status"></th>
                 <th style="width: 350px" v-html="requestLabels.trip"></th>
+                <th style="width: 350px">{% trans "Travellers" %}</th>
                 <th>{% trans "Current processing time" %}</th>
               </tr>
               </thead>
@@ -52,6 +53,7 @@
                 <td>${item.request_obj.created_by }</td>
                 <td :class="item.request_obj.status_class">${item.request_obj.status_display }</td>
                 <td>${item.request_obj.trip_display }</td>
+                <td>${item.request_obj.name_search }</td>
                 <td>${item.request_obj.processing_time }</td>
               </tr>
               </tbody>

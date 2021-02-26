@@ -4,7 +4,6 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
-from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -32,6 +31,17 @@ def is_admin(user):
 
 def is_approver(user, trip_request):
     return get_related_request_reviewers(user).filter(request_id=trip_request.id).exists()
+
+
+def is_adm(user):
+    try:
+        if hasattr(user, "travel_default_reviewers") and user.travel_default_reviewers.special_role == 5:
+            return True
+        national_branch = shared_models.Region.objects.get(name__icontains="national")
+        if user == national_branch.head:
+            return True
+    except:
+        print("Cannot find branch named: 'national'")
 
 
 def is_trip_approver(user, trip):
@@ -224,7 +234,9 @@ def get_request_reviewers(trip_request):
                 if national_branch.head:
                     models.Reviewer.objects.get_or_create(request=trip_request, user=national_branch.head, role=5)
             else:
-                print("Cannot find branch named: 'national'")
+                adm_special_reviewer = models.DefaultReviewer.objects.filter(special_role=5).first()
+                if adm_special_reviewer:
+                    models.Reviewer.objects.get_or_create(request=trip_request, user=adm_special_reviewer.user, role=5)
 
         # RDG
         #####
@@ -774,3 +786,51 @@ def get_cost_comparison(travellers):
     total_row.append(total)
     list1.append(total_row)
     return list1
+
+
+def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
+    """this is a special function that is to be used by the ADM only.
+    It is for when the ADM wants to approve a single traveller while not approving the entire delegation.
+    Validation will be handled by views"""
+    trip_request = traveller.request
+    # scenario 1: this is a single person request (yayy!!)
+    if trip_request.travellers.count() == 1:
+        reviewer = trip_request.current_reviewer
+        reviewer.user = request.user
+        reviewer.comments = comment
+        reviewer.status = 2
+        reviewer.status_date = timezone.now()
+        reviewer.save()
+        approval_seeker(trip_request, False, request)
+    else:
+        # scenario 2: they are being cherry picked out of a group request
+        # make a copy of the original request (include a copy of the reviewers)
+        new_obj = form.save(commit=False)
+        old_obj = models.TripRequest.objects.get(pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.status = 8
+        new_obj.submitted = None
+        new_obj.original_submission_date = None
+        new_obj.created_by = self.request.user
+        new_obj.admin_notes = None
+
+
+        print(trip_request.current_reviewer)
+
+
+    """
+        my_reviewer.status = 26
+        my_reviewer.status_date = timezone.now()
+        my_reviewer.save()
+
+        # if this was the ADM and the trip has been approved, we need to approve all travellers who are have status 14 ("Pending ADM Approval")
+        if my_reviewer.role == 5 and my_reviewer.status == 26:
+            qs = models.Reviewer.objects.filter(request__trip=my_reviewer.trip, request__status=14, role=5)
+            for r in qs:
+                r.user = self.request.user
+                r.comments = "approved / approuvé"
+                r.status = 2
+                r.status_date = timezone.now()
+                r.save()
+                utils.approval_seeker(r.request, False, self.request)
+                """
