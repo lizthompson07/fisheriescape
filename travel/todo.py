@@ -1,5 +1,5 @@
 # traveller list
-
+# TODO: filter traveller display in trip detail (active only)
 # TODO: clean up model props
 
 # todo:  email for when ppl are deleted from a request

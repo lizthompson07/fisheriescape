@@ -174,7 +174,8 @@ class RequestViewSet(viewsets.ModelViewSet):
 
             filter_list = [
                 "trip_title",
-                'traveller',  # needs work
+                'creator',
+                'traveller',
                 'fiscal_year',
                 'region',
                 'division',
@@ -195,6 +196,8 @@ class RequestViewSet(viewsets.ModelViewSet):
                         qs = qs.filter(status=input)
                     elif filter == "trip_title":
                         qs = qs.filter(Q(trip__name__icontains=input) | Q(trip__nom__icontains=input))
+                    elif filter == "creator":
+                        qs = qs.filter(Q(created_by__first_name__icontains=input)|Q(created_by__last_name__icontains=input))
                     elif filter == "traveller":
                         qs = qs.filter(name_search__icontains=input)
                     elif filter == "fiscal_year":

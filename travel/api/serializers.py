@@ -373,6 +373,7 @@ class TripRequestSerializer(serializers.ModelSerializer):
     total_non_dfo_funding_sources = serializers.SerializerMethodField()
     total_request_cost = serializers.SerializerMethodField()
     travellers = TravellerSerializer(many=True, read_only=True)
+    travellers_from_other_regions = serializers.SerializerMethodField()
     travellers_from_other_requests = serializers.SerializerMethodField()
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
@@ -431,6 +432,9 @@ class TripRequestSerializer(serializers.ModelSerializer):
 
     def get_total_request_cost(self, instance):
         return instance.total_request_cost
+
+    def get_travellers_from_other_regions(self, instance):
+        return TravellerSerializer(instance.travellers_from_other_regions, many=True, read_only=True).data
 
     def get_travellers_from_other_requests(self, instance):
         return TravellerSerializer(instance.travellers_from_other_requests, many=True, read_only=True).data

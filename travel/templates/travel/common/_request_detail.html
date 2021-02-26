@@ -123,6 +123,14 @@
             </tr>
           </table>
         </div>
+        <div v-if="isReview" class="mb-5">
+          <p class="h5">{% trans "Travellers to ${request.trip.tname} from Other Regions:" %}</p>
+          <ul>
+            <li v-for="(t, i) in request.travellers_from_other_regions" :key="t.id">
+              ${t.smart_name} (${t.request_obj.region}) &rarr; <span :class="t.request_obj.status_class">${t.request_obj.status_display}</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

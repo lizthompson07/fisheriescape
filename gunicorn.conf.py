@@ -1,5 +1,4 @@
 forwarded_allow_ips = '*'
-workers = 5
+workers = 3
 threads = 2
-# Whether to send Django output to the error log
-capture_output = True
+capture_output = True  # Whether to send Django output to the error log

@@ -6,8 +6,8 @@
   <div v-if="!requests_loading" class="filters">
     {# Regular filters #}
 
-    <div class="mb-5 mt-5">
-      <div class="row table-bordered">
+    <div class="mb-5 ">
+      <div class="row table-bordered py-2">
         {# Title #}
         <div class="col">
           <div class="form-group">
@@ -18,9 +18,19 @@
               type="text" class="form-control form-control-sm" id="filter_trip_title" placeholder="">
           </div>
         </div>
+
+        {# Creator #}
+        <div class="col">
+          <label class="filter" for="filter_creator">{% trans "Creator" %}</label>
+          <input
+            v-model="filter_creator"
+            @change="updateResults"
+            type="text" class="form-control form-control-sm" id="filter_creator" placeholder="">
+        </div>
+
         {# traveller #}
         <div class="col">
-          <label class="filter" for="filter_traveller">{% trans "Traveller / Owner" %}</label>
+          <label class="filter" for="filter_traveller">{% trans "Traveller" %}</label>
           <input
             v-model="filter_traveller"
             @change="updateResults"

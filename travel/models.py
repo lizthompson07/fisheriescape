@@ -605,6 +605,12 @@ class TripRequest(models.Model):
                                         ).filter(~Q(request=self)).order_by("request__status", "first_name", "last_name")
 
     @property
+    def travellers_from_other_regions(self):
+        """ get traveller from other regions"""
+        return Traveller.objects.filter(request__trip=self.trip).filter(~Q(request__section__division__branch__region=self.section.division.branch.region
+                                                                           )).order_by("request__status", "first_name", "last_name")
+
+    @property
     def region(self):
         return self.section.division.branch.region
 
@@ -647,9 +653,10 @@ class TripRequest(models.Model):
             self.uuid = uuid.uuid1()
 
         self.fiscal_year = self.trip.fiscal_year
-        self.name_search = self.created_by.get_full_name()
+        self.name_search = ''
         for t in self.travellers.all():
-            self.name_search += f', {t.smart_name}'
+            self.name_search += f'{t.smart_name}, '
+        self.name_search = self.name_search[:-2]
         super().save(*args, **kwargs)
 
     @property
