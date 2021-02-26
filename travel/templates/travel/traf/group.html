@@ -275,7 +275,7 @@
                 <td rowspan="1" class="data wide-cell">
                   {{ r.user }}
                   {% if r.status == 2 %}
-                    ({% trans "digitally reviewed" %} on {{ r.status_date }})
+                    ({% trans "digitally reviewed" %} on {{ r.status_date }} {{ r.status_date|date:'e' }})
                   {% else %}
                     ({% trans "NOT RECOMMENDED" %})
                   {% endif %}
@@ -287,7 +287,7 @@
             <tr>
               <td class="text-right wide-cell">{% trans "Approved by" %}</td>
               <td rowspan="1" class="data wide-cell">
-                {{ parent.adm.user }} on {{ parent.adm.status_date }}
+                {{ parent.adm.user }} on {{ parent.adm.status_date }} {{ parent.adm.status_date|date:'e' }}
               </td>
             </tr>
           {% endif %}
