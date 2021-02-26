@@ -242,8 +242,10 @@ def get_request_reviewers(trip_request):
 
         # RDG
         #####
-        if trip_request.section.division.branch.region.head and trip_request.section.division.branch.region.head not in [t.user for t in travellers]:
-            models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=6)
+        # only do this if the trip is NOT virtual!
+        if not trip_request.trip.is_virtual:
+            if trip_request.section.division.branch.region.head and trip_request.section.division.branch.region.head not in [t.user for t in travellers]:
+                models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=6)
 
         # ensure the process order makes sense
         count = 1

@@ -23,6 +23,11 @@ def resave_requests():
         obj.save()
 
 
+def find_and_save_virtual_trips():
+    for obj in models.Trip.objects.filter(location__icontains="virtu"):
+        obj.is_virtual = True
+        obj.save()
+
 def reset_trip_reviewers():
     for trip in models.Trip.objects.filter(is_adm_approval_required=True):
         if trip.reviewers.count() == 0:

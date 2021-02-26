@@ -5,7 +5,7 @@ import textile
 from django.contrib.auth.models import User as AuthUser
 from django.db import models
 from django.db.models import Q, Sum
-from django.template.defaultfilters import pluralize, date, slugify
+from django.template.defaultfilters import pluralize, date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -214,6 +214,7 @@ class Trip(models.Model):
         "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=False, null=True,
                                 verbose_name=_("location (city, province, country)"))
+    is_virtual = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Is this a virtual event?"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
                              verbose_name=_("Which region is the lead on this trip?"),
                              related_name="meeting_leads", blank=False, null=True)
@@ -282,6 +283,9 @@ class Trip(models.Model):
             self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(
                 days=self.trip_subcategory.trip_category.days_when_eligible_for_review)
 
+        if self.is_virtual:
+            self.location = 'Virtual / Virtuel'
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -291,8 +295,11 @@ class Trip(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             my_str = "{}".format(self.name)
-        return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"),
-                                          self.end_date.strftime("%d-%b-%Y"))
+        if self.is_virtual:
+            my_str += " ({})".format(_("virtual"))
+        else:
+            my_str += f", {self.location}"
+        return "{} ({} {} {})".format(my_str, self.start_date.strftime("%d-%b-%Y"), _("to"), self.end_date.strftime("%d-%b-%Y"))
 
     @property
     def closest_date(self):
@@ -926,7 +933,6 @@ class Reviewer(models.Model):
         # else:
         #     self.status_date = timezone.now()
         return super().save(*args, **kwargs)
-
 
 
 class TripReviewer(models.Model):

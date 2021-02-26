@@ -170,6 +170,26 @@ class StatusUpdateEmail:
         return rendered
 
 
+class RemovedTravellerEmail:
+    def __init__(self, traveller, request):
+        self.request = request
+        self.subject = "You have been removed from a request - Vous avez été retiré d'une demande"
+        self.message = self.load_html_template(traveller)
+        self.from_email = from_email
+        self.to_list = [traveller.email, ]
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
+    def load_html_template(self, traveller):
+        t = loader.get_template('travel/emails/email_traveller_removed.html')
+        field_list = request_field_list
+        context = {'traveller': traveller, 'field_list': field_list}
+        context.update(my_envr(self.request))
+        rendered = t.render(context)
+        return rendered
+
+
 class TripCostWarningEmail:
 
     def __init__(self, trip, request):

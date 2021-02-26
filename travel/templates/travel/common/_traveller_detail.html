@@ -27,7 +27,7 @@
       <b>{% trans "Travel Dates:" %}</b><br>
       <span class="h6" v-html="t.dates"></span>
     </p>
-    <p class="mb-3">
+    <p class="mb-3" v-if="(request && !request.trip.is_virtual) || (trip && !trip.is_virtual)">
       <b>{% trans "Departure Location:" %}</b><br>
       <span class="h6" v-html="t.departure_location"></span>
     </p>
