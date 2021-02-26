@@ -694,62 +694,6 @@ def upload_to_azure_blob(target_file_path, target_file):
     blobService.create_blob_from_path('media', target_file, target_file_path)
 
 
-def get_request_field_list(tr=None, user=None):
-    my_list = [
-        'fiscal_year',
-        'created_by',
-        'trip',
-        'traveller_count|{}'.format(_("number of travellers (this request)")),
-        'status_string|{}'.format(_("Request status")),
-        'section|{}'.format(_("DFO section")),
-        'objective_of_event',
-        'benefit_to_dfo',
-        'bta_attendees',
-        'total_request_cost|{}'.format(_("Total costs")),
-        'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding (CAD)")),
-        'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
-        'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
-        'funding_source',
-        'original_submission_date',
-        'processing_time|{}'.format(_("Processing time")),
-        'notes',
-        'late_justification' if not tr or (tr and tr.is_late_request) else None,
-        'metadata|{}'.format(_("metadata")),
-    ]
-
-    while None in my_list: my_list.remove(None)
-    return my_list
-
-
-def get_traveller_field_list():
-    my_list = [
-        'is_public_servant',
-        'is_research_scientist|{}'.format(_("Is research scientist?")),
-        'dates|{}'.format(_("Dates of travel")),
-        'departure_location',
-        'role',
-        'role_of_participant',
-        'learning_plan',
-        'non_dfo_costs_html|{}'.format(_("Non-DFO costs:")),
-        'cost_breakdown_html|{}'.format(_("Cost breakdown:")),
-    ]
-    while None in my_list: my_list.remove(None)
-    return my_list
-
-
-def get_request_reviewer_field_list():
-    my_list = [
-        'order',
-        'user',
-        'role',
-        'status',
-        'status_date',
-        'comments_html|{}'.format(_("Comments")),
-    ]
-    while None in my_list: my_list.remove(None)
-    return my_list
-
-
 def get_cost_comparison(travellers):
     """
     This method is used to return a dictionary of trip requests and will compare cost across all of them.

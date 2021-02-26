@@ -1,19 +1,11 @@
-# adm should not be able to submit the review until there are no more pending ADMs in the trip
-
-
-# TODO: filter traveller display in trip detail (active only)
 # TODO: clean up model props
 
 # todo:  email for when ppl are deleted from a request
 # TODO: trip reassign and delete
 # TODO: revamp verification form
 
-
-
 # TODO: fix up unit tests
     # TODO: test new model choices!!
-
-
 
 
 # TODO: should not be able to submit a trip without any REGISTERED reviewers (either admins or special reviewers)

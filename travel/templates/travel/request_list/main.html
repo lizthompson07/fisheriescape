@@ -56,7 +56,7 @@
                 <td>${r.created_by }</td>
                 <td>${r.trip.tname }</td>
                 <td>${r.trip.location }</td>
-                <td>${r.section }</td>
+                <td>${r.section.shortish_name }</td>
                 <td>${r.name_search }</td>
                 <td :class="r.status_class">${r.status_display }</td>
                 <td>${r.trip.is_adm_approval_required |yesNo }</td>

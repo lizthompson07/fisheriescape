@@ -355,36 +355,9 @@ class Trip(models.Model):
         # Translators: This is for a header
         verbose_name_plural = _("trips")
 
-    # def get_absolute_url(self):
-    #     return reverse('travel:trip_detail', kwargs={'pk': self.id, "type":""})
-
-    @property
-    def bta_traveller_list(self):
-        # create a list of all TMS users going
-        legit_traveller_list = self.traveller_list
-        bta_travellers = []
-        # exclude reqeusts that are denied (id=10), cancelled (id=22), draft (id=8)
-        for trip_request in self.trip_requests.filter(~Q(status__in=[10, 22, 8])):
-            # lets look at the list of BTA travels and add them all
-            for bta_user in trip_request.bta_attendees.all():
-                # if this user for some reason turns up to be a real traveller on this trip
-                # (i.e. the assertion that they are a BTA traveller is wrong, they should not be added)
-                if bta_user not in legit_traveller_list:
-                    bta_travellers.append(bta_user)
-        # return a set of all users
-        return list(set(bta_travellers))
-
-    @property
-    def traveller_list(self):
-        trip_requests = self.get_connected_active_requests()  # a list of individual and child requests connected to this trip
-        my_list = [tr.user for tr in trip_requests if tr.user]
-        # now those without names...
-        blurb = _("not a DM Apps user")
-        my_list.extend([f"{tr.requester_name} ({blurb})" for tr in trip_requests if not tr.user])
-        return set(my_list)
-
     @property
     def number_of_days(self):
+        """ used in reports.py """
         return (self.end_date - self.start_date).days
 
     @property
@@ -394,12 +367,6 @@ class Trip(models.Model):
             my_str += f" &rarr; {date(self.end_date)}"
         return mark_safe(my_str)
 
-    # @property
-    # def total_traveller_list(self):
-    #     travellers = self.bta_traveller_list
-    #     travellers.extend(self.traveller_list)
-    #     return list(set(travellers))
-    #
     @property
     def travellers(self):
         return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 10, 22]))  # exclude any travellers from inactive requests
@@ -460,82 +427,9 @@ class Trip(models.Model):
         return self.requests.filter(status__in=[10, 22, 8])
 
     @property
-    def get_summary_dict(self):
-        """
-        This method is used to return a dictionary of users attending a trip, as well as the number of
-        trips or international meetings they have attended.
-
-        UPDATE: this will also be a way to get to a trip request from a traveller
-        """
-        my_dict = {}
-
-        for traveller in self.total_traveller_list:
-            my_dict[traveller] = {}
-            total_list = []
-
-            # if this is not a real User instance, there is nothing to do.
-            try:
-                # there are two things we have to do to get this list...
-                # 1) get all non group travel
-                qs = traveller.user_trip_requests.filter(trip__is_adm_approval_required=True).filter(
-                    is_group_request=False)
-                total_list.extend([trip.id for trip in qs])
-
-                # 2) get all group travel - the trick part is that we have to grab the parent trip
-                qs = traveller.user_trip_requests.filter(parent_request__trip__is_adm_approval_required=True)
-                total_list.extend([trip_request.parent_request.id for trip_request in qs])
-
-                my_dict[traveller]["total_list"] = TripRequest.objects.filter(id__in=total_list).order_by("-start_date")
-
-            except AttributeError:
-                # This is the easy part
-                my_dict[traveller]["total_list"] = "---"
-
-            # also, let's get the trip request for the traveller. if group request, we will want the child record
-            for tr in self.requests.all():
-                if traveller in tr.travellers:
-                    my_dict[traveller.smart_name]["trip_request"] = tr
-        return my_dict
-
-    @property
-    def get_cost_comparison_dict(self):
-        """
-        This method is used to return a dictionary of trip requests and will compare cost across all of them.
-        """
-        my_dict = dict()
-        trip_requests = self.get_connected_active_requests()
-        tr_costs = TravellerCost.objects.filter(trip_request_id__in=[tr.id for tr in trip_requests], amount_cad__gt=0)
-        costs = Cost.objects.filter(id__in=[tr_cost.cost_id for tr_cost in tr_costs])
-        my_dict["trip_requests"] = dict()
-        my_dict["costs"] = dict()
-        for cost in costs:
-            my_dict["costs"][cost] = 0
-            my_dict["costs"]["total"] = 0
-
-        for tr in trip_requests:
-            my_dict["trip_requests"][tr] = dict()
-            my_dict["trip_requests"][tr]["total"] = 0
-            for cost in costs:
-                if tr.trip_request_costs.filter(cost=cost, amount_cad__gt=0).count() > 0:
-                    my_dict["trip_requests"][tr][cost] = tr.trip_request_costs.get(cost=cost).amount_cad
-                    my_dict["trip_requests"][tr]["total"] += my_dict["trip_requests"][tr][cost]
-                    my_dict["costs"][cost] += my_dict["trip_requests"][tr][cost]
-                    my_dict["costs"]["total"] += my_dict["trip_requests"][tr][cost]
-
-        return my_dict
-
-    @property
     def current_reviewer(self):
         """Send back the first reviewer whose status is 'pending' """
         return self.reviewers.filter(status=25).first()
-
-    @property
-    def status_string(self):
-        #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
-        status_str = self.get_status_display()
-        if self.status == 31 and self.current_reviewer:
-            status_str += " {} {}".format(_("by"), self.current_reviewer.user)
-        return status_str
 
     @property
     def trip_review_ready(self):
@@ -641,20 +535,20 @@ class TripRequest(models.Model):
 
     @property
     def request_title(self):
-        if not self.travellers.exists():
-            my_str = gettext("EMPTY REQUEST")
-        elif self.travellers.count() == 1:
-            my_str = f"{self.travellers.first().smart_name}"
-        else:
-            my_str = gettext("Group Request")
-        my_str += f" - {self.trip.tname} - {self.trip.location}"
+        my_str = f"{self.section.division.branch.region} - {self.section.tname} - {self.trip.tname}, {self.trip.location}"
+        count = self.travellers.count()
+        my_str += " ({} {}{})".format(
+            count,
+            gettext("traveller"),
+            pluralize(count)
+        )
         return my_str
 
     def __str__(self):
         return self.request_title
 
     class Meta:
-        ordering = ["-trip__start_date"]
+        ordering = ["-trip__start_date", "section"]
         verbose_name = _("trip request")
 
     def save(self, *args, **kwargs):
@@ -744,11 +638,6 @@ class TripRequest(models.Model):
             return listrify(set([item.non_dfo_org for item in qs]))
 
     @property
-    def traveller_names(self):
-        if self.travellers.exists():
-            return listrify(set([item.smart_name for item in self.travellers.all()]))
-
-    @property
     def traveller_count(self):
         return self.travellers.count()
 
@@ -756,14 +645,6 @@ class TripRequest(models.Model):
     def current_reviewer(self):
         """Send back the first reviewer whose status is 'pending' """
         return self.reviewers.filter(status=1).first()
-
-    @property
-    def status_string(self):
-        my_str = self.get_status_display()
-        #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
-        if self.status not in [11, 8, ] and self.current_reviewer:
-            my_str += " {} {}".format(_("by"), self.current_reviewer.user)
-        return mark_safe(f"<span class='px-1 py-1 {slugify(self.get_status_display())}'>{my_str}</span>")
 
     @property
     def adm(self):
@@ -790,14 +671,6 @@ class TripRequest(models.Model):
             my_var = timezone.now() - self.original_submission_date
             my_var = "{} {}{}".format(my_var.days, _('day'), pluralize(my_var.days))
         return my_var
-
-    @property
-    def recommendation_notes(self):
-        my_str = ""
-        for r in self.reviewers.filter(role=2):
-            if r.status == 2 and r.comments:
-                my_str += f'<u>{r.user}</u>: {r.comments}<br>'
-        return mark_safe(my_str)
 
     @property
     def is_late_request(self):
@@ -839,11 +712,6 @@ class Traveller(models.Model):
         my_str = date(self.start_date)
         if self.end_date:
             my_str += f" &rarr; {date(self.end_date)}"
-        return mark_safe(my_str)
-
-    @property
-    def to_from(self):
-        my_str = f"{self.departure_location} &rarr; {self.request.trip.location}"
         return mark_safe(my_str)
 
     @property
@@ -1056,19 +924,6 @@ class Reviewer(models.Model):
         #     self.status_date = timezone.now()
         return super().save(*args, **kwargs)
 
-    @property
-    def status_string(self):
-
-        if self.status in [1, 4, 5]:
-            status = self.get_status_display()
-        else:
-            status = "{} {} {}".format(
-                self.get_status_display(),
-                _("on"),
-                self.status_date.strftime("%Y-%m-%d"),
-            )
-        my_str = f"<span class='{slugify(self.get_status_display())}'>{self.user} ({status})</span>"
-        return mark_safe(my_str)
 
 
 class TripReviewer(models.Model):
@@ -1116,20 +971,6 @@ class TripReviewer(models.Model):
             return textile.textile(self.comments)
         else:
             return "---"
-
-    @property
-    def status_string(self):
-
-        if self.status in [1, 4, 5]:
-            status = self.get_status_display()
-        else:
-            status = "{} {} {}".format(
-                self.get_status_display(),
-                _("on"),
-                self.status_date.strftime("%Y-%m-%d"),
-            )
-        my_str = f"<span class='{self.get_status_display()}'>{self.user} ({status})</span>"
-        return mark_safe(my_str)
 
 
 def file_directory_path(instance, filename):

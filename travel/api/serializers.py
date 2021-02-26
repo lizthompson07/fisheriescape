@@ -8,6 +8,7 @@ from rest_framework.exceptions import ValidationError
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
+from shared_models.api.serializers import SectionSerializer
 from .. import models
 # from ..utils import can_modify_project
 from ..utils import get_cost_comparison
@@ -135,7 +136,7 @@ class TripRequestSerializerLITE(serializers.ModelSerializer):
     processing_time = serializers.SerializerMethodField()
     region = serializers.SerializerMethodField()
     reviewer_history = serializers.SerializerMethodField()
-    section = serializers.SerializerMethodField()
+    section = SectionSerializer()
     status_class = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     traveller_count = serializers.SerializerMethodField()
@@ -365,7 +366,7 @@ class TripRequestSerializer(serializers.ModelSerializer):
     region = serializers.SerializerMethodField()
     reviewer_order_message = serializers.SerializerMethodField()
     reviewers = RequestReviewerSerializer(many=True, read_only=True)
-    section = serializers.SerializerMethodField()
+    section = SectionSerializer()
     status_class = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     total_dfo_funding = serializers.SerializerMethodField()
