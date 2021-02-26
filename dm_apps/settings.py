@@ -38,7 +38,7 @@ DEBUG = config("DEBUG", cast=bool, default=True)
 # should vuejs be vued in debug mode?
 VUEJS_DEBUG = config("VUEJS_DEBUG", cast=bool, default=False)
 # Where do you want to set the bar for logging? {DEBUG, INFO, WARNING, ERROR, CRITICAL}
-LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
+LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="INFO")
 # What is the path to the log file?
 LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR, 'error.log'))
 # the default 'from' email address used for system emails
@@ -321,7 +321,20 @@ if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
     }
 elif not DEBUG:
     if not os.path.exists(LOG_FILE_PATH):
-        print(f"Cannot use file logs since the log filepath provided does not exist: {LOG_FILE_PATH}")
+        print(f"All logs at the {LOGGING_LEVEL} level and above will be outputted to console via StreamHandler.")
+        LOGGING = {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'handlers': {
+                'console': {
+                    'class': 'logging.StreamHandler',
+                },
+            },
+            'root': {
+                'handlers': ['console'],
+                'level': LOGGING_LEVEL,
+            },
+        }
     else:
         print(f"All logs at the {LOGGING_LEVEL} level and above will be saved to the following location: {LOG_FILE_PATH}")
         LOGGING = {
