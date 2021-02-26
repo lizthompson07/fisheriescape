@@ -3,8 +3,6 @@
 
 
 # todo:  email for when ppl are deleted from a request
-# TODO: trip reassign and delete
-# TODO: revamp verification form
 
 # TODO: fix up unit tests
     # TODO: test new model choices!!

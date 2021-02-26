@@ -154,7 +154,9 @@ class StatusUpdateEmail:
         activate(lang)
         self.message = self.load_html_template(trip_request_object)
         self.from_email = from_email
-        self.to_list = [trip_request_object.created_by.email, ]
+        to_list = [trip_request_object.created_by.email, ]
+        to_list.extend([t.email for t in trip_request_object.travellers.all()])
+        self.to_list = to_list
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
