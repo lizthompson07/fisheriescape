@@ -1121,13 +1121,6 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
         if is_trip_approver(my_user, my_trip):
             return True
 
-    def get_submit_text(self):
-        if self.get_object().role == 5:  # if ADM
-            submit_text = _("Complete the review and approve all travel")
-        else:
-            submit_text = _("Submit your review")
-        return submit_text
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["trip"] = self.get_object().trip
@@ -1148,7 +1141,7 @@ class TripReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
                 my_reviewer.save()
 
                 # if this was the ADM and the trip has been approved, we need to approve all travellers who are have status 14 ("Pending ADM Approval")
-                if my_reviewer.role == 5 and my_reviewer.status == 26:
+                if my_reviewer.role == 5 and my_reviewer.status == 26 and utils.is_adm(self.request.user):
                     qs = models.Reviewer.objects.filter(request__trip=my_reviewer.trip, request__status=14, role=5)
                     for r in qs:
                         r.user = self.request.user

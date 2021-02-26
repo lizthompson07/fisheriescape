@@ -268,6 +268,15 @@ var app = new Vue({
     canCherryPick(traveller) {
       // if their request status is 14 &&  they are ADM && they are the active reviewer
       return this.isADM && this.isCurrentReviewer && traveller.request_obj.status == 14;
+    },
+    reviewSubmit() {
+      let userInput = false;
+      if (!this.isADM) userInput = true;
+      else userInput = prompt(approveAllTravellersMsg);
+
+      if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
+        $("#my_form").submit()
+      }
     }
   },
   computed: {
@@ -287,19 +296,19 @@ var app = new Vue({
       return this.isNCRAdmin; // being adding in for compatibility with reviewer form
     },
     isNCRAdmin() {
-        return this.currentUser && this.currentUser.is_ncr_admin;
+      return this.currentUser && this.currentUser.is_ncr_admin;
     },
     isOwner() {
-        return this.currentUser && this.currentUser.is_owner;
+      return this.currentUser && this.currentUser.is_owner;
     },
     isCurrentReviewer() {
-        return this.currentUser && this.currentUser.is_current_reviewer;
+      return this.currentUser && this.currentUser.is_current_reviewer;
     },
     isADM() {
-        return this.currentUser && this.currentUser.is_adm;
+      return this.currentUser && this.currentUser.is_adm;
     },
     isRegionalAdmin() {
-        return this.currentUser && this.currentUser.is_regional_admin;
+      return this.currentUser && this.currentUser.is_regional_admin;
     },
     reviewers() {
       if (this.trip) return this.trip.reviewers;

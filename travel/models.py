@@ -547,15 +547,24 @@ class Trip(models.Model):
             (16, _("Changes Requested")),
             (17, _("Pending Review")),
         """
-        if not self.requests.filter(status=14).exists():
+        if self.requests.filter(status__in=[12, 16, 17, ]).exists():
             can_proceed = False
-            reason = _("There are no requests ready for ADM approval.")
-        elif self.requests.filter(status__in=[12, 16, 17, ]).exists():
+            reason = _("some requests are still in the review / recommendation phase.")
+        elif self.current_reviewer and self.current_reviewer.role == 5:  # There are different criteria for ADM
+            adm_ready_travellers = Traveller.objects.filter(request__trip=self, request__status=14)
+            if adm_ready_travellers.exists():
+                can_proceed = True
+                reason = _("By approving this trip, the following travellers will be automatically approved: ") + \
+                         f'<ul class="mt-3">{listrify([f"<li>{t.smart_name}</li>" for t in adm_ready_travellers.all()], "")}</ul>'
+            else:
+                can_proceed = True
+                reason = _("All actionable requests have been actioned.")
+        elif not self.requests.filter(status=14).exists():
             can_proceed = False
-            reason = _("Some requests are still in the review / recommendation phase.")
+            reason = _("there are no requests ready for ADM approval.")
         else:
             can_proceed = True
-            reason = _("All active requests are ready for ADM review.")
+            reason = _("all active requests are ready for ADM review.")
         return dict(can_proceed=can_proceed, reason=reason)
 
 
