@@ -492,6 +492,10 @@ var app = new Vue({
         }
       })
     },
+    cherryPickTraveller() {}, // for compatibility
+    canCherryPick() {
+      return false;
+    }
   },
   computed: {
     canModify() {
@@ -527,7 +531,7 @@ var app = new Vue({
     },
     travellers() {
       if (this.request) return this.request.travellers;
-    }
+    },
   },
   created() {
     this.getRequest();

@@ -267,7 +267,7 @@ var app = new Vue({
     },
     canCherryPick(traveller) {
       // if their request status is 14 &&  they are ADM && they are the active reviewer
-      return this.isADM && this.isCurrentReviewer && traveller.request_obj.status == 14
+      return this.isADM && this.isCurrentReviewer && traveller.request_obj.status == 14;
     }
   },
   computed: {

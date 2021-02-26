@@ -1,10 +1,12 @@
 from collections import OrderedDict
+from copy import deepcopy
 
 from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
+from django.template.defaultfilters import date
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from msrestazure.azure_active_directory import MSIAuthentication
@@ -805,32 +807,31 @@ def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
     else:
         # scenario 2: they are being cherry picked out of a group request
         # make a copy of the original request (include a copy of the reviewers)
-        new_obj = form.save(commit=False)
-        old_obj = models.TripRequest.objects.get(pk=new_obj.pk)
+        old_obj = trip_request
+        new_obj = deepcopy(old_obj)
         new_obj.pk = None
-        new_obj.status = 8
-        new_obj.submitted = None
-        new_obj.original_submission_date = None
-        new_obj.created_by = self.request.user
-        new_obj.admin_notes = None
+        new_obj.save()
+
+        # copy over the reviewers
+        for old_rel_obj in old_obj.reviewers.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.request = new_obj
+            new_rel_obj.save()
+
+        # move traveller over to the new request
+        traveller.request = new_obj
+        traveller.save()
+        old_obj.add_admin_note = f"{date(timezone.now())} - {traveller.smart_name} was automatically transferred to a separate request during" \
+                                 f" the course of the ADM-level review."
+
+        # finally, we approved the new request at the level of the active reviewer
+        reviewer = new_obj.current_reviewer
+        reviewer.user = request.user
+        reviewer.comments = comment
+        reviewer.status = 2
+        reviewer.status_date = timezone.now()
+        reviewer.save()
+        approval_seeker(new_obj, False, request)
 
 
-        print(trip_request.current_reviewer)
-
-
-    """
-        my_reviewer.status = 26
-        my_reviewer.status_date = timezone.now()
-        my_reviewer.save()
-
-        # if this was the ADM and the trip has been approved, we need to approve all travellers who are have status 14 ("Pending ADM Approval")
-        if my_reviewer.role == 5 and my_reviewer.status == 26:
-            qs = models.Reviewer.objects.filter(request__trip=my_reviewer.trip, request__status=14, role=5)
-            for r in qs:
-                r.user = self.request.user
-                r.comments = "approved / approuvé"
-                r.status = 2
-                r.status_date = timezone.now()
-                r.save()
-                utils.approval_seeker(r.request, False, self.request)
-                """
