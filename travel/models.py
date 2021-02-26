@@ -197,7 +197,7 @@ class TripSubcategory(Lookup):
         ordering = ["trip_category", _("name")]
 
 
-class Conference(models.Model):
+class Trip(models.Model):
     status_choices = (
         (30, _("Unverified")),
         (31, _("Under review")),
@@ -402,12 +402,12 @@ class Conference(models.Model):
     #
     @property
     def travellers(self):
-        return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 22]))  # exclude any travellers from inactive requests
+        return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[8, 10, 22]))  # exclude any travellers from inactive requests
 
     @property
     def total_cost(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
-        amt = TripRequestCost.objects.filter(traveller__request__trip=self).filter(
+        amt = TravellerCost.objects.filter(traveller__request__trip=self).filter(
             ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
         return nz(amt, 0)
 
@@ -428,7 +428,7 @@ class Conference(models.Model):
     @property
     def non_res_total_cost(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
-        dfo = TripRequestCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
+        dfo = TravellerCost.objects.filter(traveller__request__trip=self, traveller__is_research_scientist=False).filter(
             ~Q(traveller__request__status__in=[10, 22, 8])).aggregate(dsum=Sum("amount_cad"))["dsum"]
         non_dfo = Traveller.objects.filter(request__trip=self, is_research_scientist=False).filter(
             ~Q(request__status__in=[10, 22, 8])).aggregate(dsum=Sum("non_dfo_costs"))["dsum"]
@@ -504,7 +504,7 @@ class Conference(models.Model):
         """
         my_dict = dict()
         trip_requests = self.get_connected_active_requests()
-        tr_costs = TripRequestCost.objects.filter(trip_request_id__in=[tr.id for tr in trip_requests], amount_cad__gt=0)
+        tr_costs = TravellerCost.objects.filter(trip_request_id__in=[tr.id for tr in trip_requests], amount_cad__gt=0)
         costs = Cost.objects.filter(id__in=[tr_cost.cost_id for tr_cost in tr_costs])
         my_dict["trip_requests"] = dict()
         my_dict["costs"] = dict()
@@ -559,7 +559,7 @@ class Conference(models.Model):
         return dict(can_proceed=can_proceed, reason=reason)
 
 
-class TripRequest1(models.Model):
+class TripRequest(models.Model):
     status_choices = (
         (8, _("Draft")),
         (10, _("Denied")),
@@ -574,7 +574,7 @@ class TripRequest1(models.Model):
     uuid = models.UUIDField(blank=True, null=True, verbose_name="unique identifier", editable=False)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
                                 verbose_name=_("under which section is this request being made?"), related_name="requests")
-    trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, verbose_name=_("trip"), related_name="requests")
+    trip = models.ForeignKey(Trip, on_delete=models.DO_NOTHING, verbose_name=_("trip"), related_name="requests")
     objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("what is the objective of this meeting or conference?"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("what are the benefits to DFO?"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
@@ -603,6 +603,12 @@ class TripRequest1(models.Model):
         """ get traveller from other requests, but limited to the same region as this request"""
         return Traveller.objects.filter(request__trip=self.trip, request__section__division__branch__region=self.section.division.branch.region
                                         ).filter(~Q(request=self)).order_by("request__status", "first_name", "last_name")
+
+    @property
+    def travellers_from_other_regions(self):
+        """ get traveller from other regions"""
+        return Traveller.objects.filter(request__trip=self.trip).filter(~Q(request__section__division__branch__region=self.section.division.branch.region
+                                                                           )).order_by("request__status", "first_name", "last_name")
 
     @property
     def region(self):
@@ -647,9 +653,10 @@ class TripRequest1(models.Model):
             self.uuid = uuid.uuid1()
 
         self.fiscal_year = self.trip.fiscal_year
-        self.name_search = self.created_by.get_full_name()
+        self.name_search = ''
         for t in self.travellers.all():
-            self.name_search += f', {t.smart_name}'
+            self.name_search += f'{t.smart_name}, '
+        self.name_search = self.name_search[:-2]
         super().save(*args, **kwargs)
 
     @property
@@ -698,7 +705,7 @@ class TripRequest1(models.Model):
     @property
     def total_request_cost(self):
         """ this is the total cost for the request. Does not include any children"""
-        object_list = TripRequestCost.objects.filter(traveller__request=self)
+        object_list = TravellerCost.objects.filter(traveller__request=self)
         return nz(object_list.values("amount_cad").order_by("amount_cad").aggregate(dsum=Sum("amount_cad"))['dsum'], 0)
 
     @property
@@ -796,7 +803,7 @@ class TripRequest1(models.Model):
 
 
 class Traveller(models.Model):
-    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="travellers")
+    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="travellers")
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("DM Apps user"), related_name="travellers")
     is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a research scientist (RES)?"))
@@ -955,8 +962,7 @@ class Traveller(models.Model):
             return f'{self.first_name} {self.last_name}'
 
 
-# SHOULD BE RENAMED TO TRAVELLER COST
-class TripRequestCost(models.Model):
+class TravellerCost(models.Model):
     traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"), blank=True, null=True)
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)
@@ -997,7 +1003,7 @@ class Reviewer(models.Model):
         (5, _("ADM")),
         (6, _("RDG")),
     )
-    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)  # todo remove the non-null!!!!
+    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)  # todo remove the non-null!!!!
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.IntegerField(verbose_name=_("role"), choices=role_choices)
@@ -1073,7 +1079,7 @@ class TripReviewer(models.Model):
         (5, _("ADM")),
         (6, _("RDG")),
     )
-    trip = models.ForeignKey(Conference, on_delete=models.CASCADE, related_name="reviewers")
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers", verbose_name=_("DM Apps user"))
     role = models.IntegerField(verbose_name=_("role"), choices=role_choices)
@@ -1123,7 +1129,7 @@ def file_directory_path(instance, filename):
 
 
 class File(models.Model):
-    request = models.ForeignKey(TripRequest1, on_delete=models.CASCADE, related_name="files", blank=True, null=True)
+    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="files", blank=True, null=True)
     name = models.CharField(max_length=255, verbose_name=_("caption"))
     file = models.FileField(upload_to=file_directory_path, null=True, verbose_name=_("attachment"))
     date_created = models.DateTimeField(auto_now=True, verbose_name=_("date created"), editable=False)

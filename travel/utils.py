@@ -4,7 +4,6 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
-from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -34,6 +33,17 @@ def is_approver(user, trip_request):
     return get_related_request_reviewers(user).filter(request_id=trip_request.id).exists()
 
 
+def is_adm(user):
+    try:
+        if hasattr(user, "travel_default_reviewers") and user.travel_default_reviewers.special_role == 5:
+            return True
+        national_branch = shared_models.Region.objects.get(name__icontains="national")
+        if user == national_branch.head:
+            return True
+    except:
+        print("Cannot find branch named: 'national'")
+
+
 def is_trip_approver(user, trip):
     if trip.current_reviewer and user == trip.current_reviewer.user:
         return True
@@ -53,7 +63,7 @@ def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict
     :return: dict or bool
     """
     if user.id:
-        my_request = models.TripRequest1.objects.get(pk=trip_request_id)
+        my_request = models.TripRequest.objects.get(pk=trip_request_id)
 
         reason = None
         result = False
@@ -63,7 +73,7 @@ def can_modify_request(user, trip_request_id, request_to_unsubmit=False, as_dict
             result = True
             reason = _("You can edit this record because you are the request owner.")
 
-        elif not my_request.submitted and my_request in models.TripRequest1.objects.filter(travellers__user=user):
+        elif not my_request.submitted and my_request in models.TripRequest.objects.filter(travellers__user=user):
             result = True
             reason = _("You can edit this record because you are a traveller on this request.")
 
@@ -224,7 +234,9 @@ def get_request_reviewers(trip_request):
                 if national_branch.head:
                     models.Reviewer.objects.get_or_create(request=trip_request, user=national_branch.head, role=5)
             else:
-                print("Cannot find branch named: 'national'")
+                adm_special_reviewer = models.DefaultReviewer.objects.filter(special_role=5).first()
+                if adm_special_reviewer:
+                    models.Reviewer.objects.get_or_create(request=trip_request, user=adm_special_reviewer.user, role=5)
 
         # RDG
         #####
@@ -444,7 +456,7 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
 
 def populate_traveller_costs(request, traveller):
     for obj in models.Cost.objects.all():
-        new_item, created = models.TripRequestCost.objects.get_or_create(traveller=traveller, cost=obj)
+        new_item, created = models.TravellerCost.objects.get_or_create(traveller=traveller, cost=obj)
         if created:
             # breakfast
             if new_item.cost_id == 9:
@@ -480,7 +492,7 @@ def populate_traveller_costs(request, traveller):
 
 def clear_empty_traveller_costs(traveller):
     for obj in models.Cost.objects.all():
-        for cost in models.TripRequestCost.objects.filter(traveller=traveller, cost=obj):
+        for cost in models.TravellerCost.objects.filter(traveller=traveller, cost=obj):
             if (cost.amount_cad is None or cost.amount_cad == 0):
                 cost.delete()
 
@@ -601,7 +613,7 @@ def get_related_trips(user):
 def get_related_requests(user):
     """give me a user and I'll send back a queryset with all related trip requests, i.e.
      they are a traveller || they are the request.created_by"""
-    qs = models.TripRequest1.objects.filter(Q(created_by=user) | Q(travellers__user=user)).distinct()
+    qs = models.TripRequest.objects.filter(Q(created_by=user) | Q(travellers__user=user)).distinct()
     return qs
 
 
@@ -622,7 +634,7 @@ def get_related_trip_reviewers(user):
 def get_adm_eligible_trips():
     """returns a qs of trips that are ready for adm review"""
     # start with trips that need adm approval that have not already been reviewed or those that have been cancelled
-    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status__in=[32, 43, 31]))
+    trips = models.Trip.objects.filter(is_adm_approval_required=True).filter(~Q(status__in=[32, 43, 31]))
 
     keepers = list()
     for t in trips:
@@ -631,7 +643,7 @@ def get_adm_eligible_trips():
             # only get trips that are within three months from the closest date
             if t.date_eligible_for_adm_review and t.date_eligible_for_adm_review <= timezone.now():
                 keepers.append(t.id)
-    return models.Conference.objects.filter(id__in=keepers).order_by("adm_review_deadline")
+    return models.Trip.objects.filter(id__in=keepers).order_by("adm_review_deadline")
 
 
 user_attr_list = [
@@ -657,7 +669,7 @@ def is_manager_or_assistant_or_admin(user):
 
 
 def get_requests_with_managerial_access(user):
-    queryset = models.TripRequest1.objects.all()
+    queryset = models.TripRequest.objects.all()
     if in_travel_admin_group(user) or in_adm_admin_group(user):
         return queryset
     else:
@@ -740,7 +752,7 @@ def get_cost_comparison(travellers):
     """
     This method is used to return a dictionary of trip requests and will compare cost across all of them.
     """
-    costs = models.TripRequestCost.objects.filter(traveller__in=travellers, amount_cad__gt=0).values("cost").order_by("cost").distinct()
+    costs = models.TravellerCost.objects.filter(traveller__in=travellers, amount_cad__gt=0).values("cost").order_by("cost").distinct()
     header = [models.Cost.objects.get(pk=c["cost"]).tname for c in costs]
     cost_totals = OrderedDict()
     for c in costs:
@@ -758,7 +770,7 @@ def get_cost_comparison(travellers):
         traveller_total = 0
         for cost in costs:
             try:
-                c = models.TripRequestCost.objects.get(traveller=t, cost_id=cost['cost'])
+                c = models.TravellerCost.objects.get(traveller=t, cost_id=cost['cost'])
                 val = c.amount_cad
                 cost_totals[c.cost.id] += c.amount_cad
                 traveller_total += c.amount_cad
@@ -774,3 +786,51 @@ def get_cost_comparison(travellers):
     total_row.append(total)
     list1.append(total_row)
     return list1
+
+
+def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
+    """this is a special function that is to be used by the ADM only.
+    It is for when the ADM wants to approve a single traveller while not approving the entire delegation.
+    Validation will be handled by views"""
+    trip_request = traveller.request
+    # scenario 1: this is a single person request (yayy!!)
+    if trip_request.travellers.count() == 1:
+        reviewer = trip_request.current_reviewer
+        reviewer.user = request.user
+        reviewer.comments = comment
+        reviewer.status = 2
+        reviewer.status_date = timezone.now()
+        reviewer.save()
+        approval_seeker(trip_request, False, request)
+    else:
+        # scenario 2: they are being cherry picked out of a group request
+        # make a copy of the original request (include a copy of the reviewers)
+        new_obj = form.save(commit=False)
+        old_obj = models.TripRequest.objects.get(pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.status = 8
+        new_obj.submitted = None
+        new_obj.original_submission_date = None
+        new_obj.created_by = self.request.user
+        new_obj.admin_notes = None
+
+
+        print(trip_request.current_reviewer)
+
+
+    """
+        my_reviewer.status = 26
+        my_reviewer.status_date = timezone.now()
+        my_reviewer.save()
+
+        # if this was the ADM and the trip has been approved, we need to approve all travellers who are have status 14 ("Pending ADM Approval")
+        if my_reviewer.role == 5 and my_reviewer.status == 26:
+            qs = models.Reviewer.objects.filter(request__trip=my_reviewer.trip, request__status=14, role=5)
+            for r in qs:
+                r.user = self.request.user
+                r.comments = "approved / approuvé"
+                r.status = 2
+                r.status_date = timezone.now()
+                r.save()
+                utils.approval_seeker(r.request, False, self.request)
+                """

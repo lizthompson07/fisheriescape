@@ -75,6 +75,18 @@ var app = new Vue({
             })
       }
     },
+    cherryPickTraveller(traveller) {
+      var userInput = false;
+      userInput = prompt(travellerCherryPickMsg);
+      if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
+        let endpoint = `/api/travel/travellers/${traveller.id}/?cherry_pick_approval=true`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              console.log(response);
+              this.getTrip();
+            })
+      }
+    },
     enablePopovers() {
       $('[data-toggle="popover"]').popover({html: true});
     },
@@ -253,10 +265,14 @@ var app = new Vue({
             })
       }
     },
+    canCherryPick(traveller) {
+      // if their request status is 14 &&  they are ADM && they are the active reviewer
+      return this.isADM && this.isCurrentReviewer && traveller.request_obj.status == 14
+    }
   },
   computed: {
     canModify() {
-      return this.isNCRAdmin || (this.isRegionalAdmin && !this.trip.is_adm_approval_required)
+      return this.isNCRAdmin || (this.isRegionalAdmin && !this.trip.is_adm_approval_required) || this.isCurrentReviewer
     },
     editableReviewers() {
       myArray = []
@@ -267,27 +283,23 @@ var app = new Vue({
       }
       return myArray
     },
-
     isAdmin() {
       return this.isNCRAdmin; // being adding in for compatibility with reviewer form
     },
     isNCRAdmin() {
-      if (this.currentUser) {
-        return this.currentUser.is_ncr_admin;
-      }
-      return false;
+        return this.currentUser && this.currentUser.is_ncr_admin;
     },
     isOwner() {
-      if (this.currentUser && this.currentUser.is_owner) {
-        return this.currentUser.is_owner;
-      }
-      return false;
+        return this.currentUser && this.currentUser.is_owner;
+    },
+    isCurrentReviewer() {
+        return this.currentUser && this.currentUser.is_current_reviewer;
+    },
+    isADM() {
+        return this.currentUser && this.currentUser.is_adm;
     },
     isRegionalAdmin() {
-      if (this.currentUser) {
-        return this.currentUser.is_regional_admin;
-      }
-      return false;
+        return this.currentUser && this.currentUser.is_regional_admin;
     },
     reviewers() {
       if (this.trip) return this.trip.reviewers;

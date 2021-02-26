@@ -21,7 +21,7 @@ class UserDisplaySerializer(serializers.ModelSerializer):
 
 class TripSerializerLITE(serializers.ModelSerializer):
     class Meta:
-        model = models.Conference
+        model = models.Trip
         fields = "__all__"
 
     abstract_deadline = serializers.SerializerMethodField()
@@ -126,7 +126,7 @@ class RequestReviewerSerializerLITE(serializers.ModelSerializer):
 
 class TripRequestSerializerLITE(serializers.ModelSerializer):
     class Meta:
-        model = models.TripRequest1
+        model = models.TripRequest
         fields = "__all__"
 
     created_by = serializers.SerializerMethodField()
@@ -226,7 +226,7 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
 
 class CostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.TripRequestCost
+        model = models.TravellerCost
         fields = "__all__"
 
     cost_display = serializers.SerializerMethodField()
@@ -256,7 +256,7 @@ class TravellerSerializer(serializers.ModelSerializer):
 
     def get_adm_travel_history(self, instance):
         if instance.user:
-            qs = models.TripRequest1.objects.filter(
+            qs = models.TripRequest.objects.filter(
                 travellers__user=instance.user, trip__is_adm_approval_required=True, status=11).order_by("trip__start_date").distinct()
             return TripRequestSerializerLITE(qs, many=True, read_only=True).data
         return list()
@@ -348,7 +348,7 @@ class TravellerSerializer(serializers.ModelSerializer):
 
 class TripRequestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.TripRequest1
+        model = models.TripRequest
         fields = "__all__"
 
     admin_notes_html = serializers.SerializerMethodField()
@@ -373,6 +373,7 @@ class TripRequestSerializer(serializers.ModelSerializer):
     total_non_dfo_funding_sources = serializers.SerializerMethodField()
     total_request_cost = serializers.SerializerMethodField()
     travellers = TravellerSerializer(many=True, read_only=True)
+    travellers_from_other_regions = serializers.SerializerMethodField()
     travellers_from_other_requests = serializers.SerializerMethodField()
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
@@ -432,6 +433,9 @@ class TripRequestSerializer(serializers.ModelSerializer):
     def get_total_request_cost(self, instance):
         return instance.total_request_cost
 
+    def get_travellers_from_other_regions(self, instance):
+        return TravellerSerializer(instance.travellers_from_other_regions, many=True, read_only=True).data
+
     def get_travellers_from_other_requests(self, instance):
         return TravellerSerializer(instance.travellers_from_other_requests, many=True, read_only=True).data
 
@@ -477,7 +481,7 @@ class TripReviewerSerializer(serializers.ModelSerializer):
 
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Conference
+        model = models.Trip
         fields = "__all__"
 
     abstract_deadline = serializers.SerializerMethodField()

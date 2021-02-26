@@ -35,12 +35,12 @@
               <thead>
               <tr>
 
-                <th style="width: 100px" @click="sort('fiscal_year')" class="clickable">${requestLabels.fiscal_year}</th>
+                <th style="width: 75px" @click="sort('fiscal_year')" class="clickable">${requestLabels.fiscal_year}</th>
                 <th style="" @click="sort('created_by')" class="clickable">${requestLabels.created_by}</th>
-                <th style="width: 300px" @click="sort('trip')" class="clickable">${requestLabels.trip}</th>
+                <th style="width: 200px" @click="sort('trip')" class="clickable">${requestLabels.trip}</th>
                 <th style="" @click="sort('location')" class="clickable">{% trans "Destination" %}</th>
                 <th style="" @click="sort('section')" class="clickable">{% trans "Section" %}</th>
-                <th style="" @click="sort('traveller_count')" class="clickable">{% trans "Travellers" %}</th>
+                <th style="" @click="sort('name_search')" class="clickable">{% trans "Travellers" %}</th>
                 <th style="width: 150px" @click="sort('status_display')" class="clickable">{% trans "Trip status" %}</th>
                 <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
                 <th style="" @click="sort('processing_time')" class="clickable">{% trans "Processing time" %}</th>
@@ -57,7 +57,7 @@
                 <td>${r.trip.tname }</td>
                 <td>${r.trip.location }</td>
                 <td>${r.section }</td>
-                <td>${r.traveller_count }</td>
+                <td>${r.name_search }</td>
                 <td :class="r.status_class">${r.status_display }</td>
                 <td>${r.trip.is_adm_approval_required |yesNo }</td>
                 <td>${r.processing_time }</td>
@@ -93,7 +93,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainRequestList.js' %}?version=0.8" type="application/javascript"></script>
+  <script src="{% static '/travel/mainRequestList.js' %}?version=0.9" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>

@@ -320,10 +320,10 @@ class TestTripDeleteView(CommonTest):
         self.assert_success_url(self.test_url3, user=my_user)
 
         # for delete views...
-        self.assertEqual(models.Conference.objects.filter(pk=self.instance0.pk).count(), 0)
-        self.assertEqual(models.Conference.objects.filter(pk=self.instance1.pk).count(), 0)
-        self.assertEqual(models.Conference.objects.filter(pk=self.instance2.pk).count(), 0)
-        self.assertEqual(models.Conference.objects.filter(pk=self.instance3.pk).count(), 0)
+        self.assertEqual(models.Trip.objects.filter(pk=self.instance0.pk).count(), 0)
+        self.assertEqual(models.Trip.objects.filter(pk=self.instance1.pk).count(), 0)
+        self.assertEqual(models.Trip.objects.filter(pk=self.instance2.pk).count(), 0)
+        self.assertEqual(models.Trip.objects.filter(pk=self.instance3.pk).count(), 0)
 
 
 class TestTripDetailView(CommonTest):
@@ -707,14 +707,14 @@ class TestTripReviewProcessUpdateView(CommonTest):
         self.assert_success_url(self.test_url, user=self.user)
 
         # after submitting the form, there should now be a review start date and the status should be updated
-        self.instance = models.Conference.objects.get(pk=self.instance.pk)
+        self.instance = models.Trip.objects.get(pk=self.instance.pk)
 
         self.assertIsNotNone(self.instance.review_start_date)
         self.assertEqual(self.instance.status, 31)
         # run it a second time and now it should be unsubmitted, but the original submission date should still be there
         # the trick here is to ensure there is a reviewer on the request.
         self.assert_success_url(self.test_url, user=self.user)
-        self.instance = models.Conference.objects.get(pk=self.instance.pk)
+        self.instance = models.Trip.objects.get(pk=self.instance.pk)
         self.assertIsNotNone(self.instance.review_start_date)
         self.assertEqual(self.instance.status, 41)
 
@@ -740,7 +740,7 @@ class TestTripReviewProcessUpdateView(CommonTest):
         # run it a second time and now the trip review process should be reset. The trip should still be under review and only the reviewer
         # statuses should be affected
         self.assert_success_url(self.test_url, user=self.user)
-        self.instance = models.Conference.objects.get(pk=self.instance.pk)
+        self.instance = models.Trip.objects.get(pk=self.instance.pk)
         self.assertEqual(self.instance.status, 31)
 
         reviewer_ids = [r1.id, r2.id, r3.id]
@@ -855,7 +855,7 @@ class TestTripVerifyUpdateView(CommonTest):
         data = FactoryFloor.TripFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
         # check the trip status!! should be equal to 41 after form.save()
-        self.instance = models.Conference.objects.get(id=self.instance.id)
+        self.instance = models.Trip.objects.get(id=self.instance.id)
         self.assertIs(self.instance.status, 41)
 
 

@@ -16,6 +16,7 @@ var app = new Vue({
     filter_fiscal_year: "",
     filter_trip_title: "",
     filter_status: "",
+    filter_creator: "",
     filter_traveller: "",
     filter_region: "",
     filter_division: "",
@@ -33,6 +34,7 @@ var app = new Vue({
     clearFilters() {
       this.filter_trip_title = null;
       this.filter_traveller = null;
+      this.filter_creator = null;
       this.filter_fiscal_year = "";
       this.filter_status = "";
       this.filter_region = "";
@@ -82,6 +84,7 @@ var app = new Vue({
         }
         // apply filters
         endpoint += `trip_title=${this.filter_trip_title};` +
+            `creator=${this.filter_creator};` +
             `traveller=${this.filter_traveller};` +
             `status=${this.filter_status};` +
             `fiscal_year=${this.filter_fiscal_year};` +

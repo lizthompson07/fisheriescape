@@ -74,7 +74,7 @@ def get_file(request, file):
 def get_conf_details(request):
     """ used exclusively for the request_form but should be phased out with REST Api"""
     conf_dict = {}
-    qs = models.Conference.objects.filter(start_date__gte=timezone.now())
+    qs = models.Trip.objects.filter(start_date__gte=timezone.now())
     for conf in qs:
         conf_dict[conf.id] = {}
         conf_dict[conf.id]['location'] = conf.location
@@ -163,8 +163,8 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["random_object"] = models.TripRequest1.objects.first()
-        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.TripRequest1.status_choices]
+        context["random_object"] = models.TripRequest.objects.first()
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.TripRequest.status_choices]
 
         return context
 
@@ -173,7 +173,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
 
 
 class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
-    model = models.TripRequest1
+    model = models.TripRequest
     template_name = 'travel/request_detail.html'
     home_url_name = "travel:index"
 
@@ -192,7 +192,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
 
 
 class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
-    model = models.TripRequest1
+    model = models.TripRequest
     home_url_name = "travel:index"
     h1 = gettext_lazy("Edit Trip Request")
     template_name = 'travel/request_form.html'
@@ -229,7 +229,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
 
 
 class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
-    model = models.TripRequest1
+    model = models.TripRequest
     home_url_name = "travel:index"
     h1 = gettext_lazy("New Trip Request")
     form_class = forms.TripRequestForm
@@ -267,7 +267,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
 
 
 class TripRequestDeleteView(CanModifyMixin, CommonDeleteView):
-    model = models.TripRequest1
+    model = models.TripRequest
     delete_protection = False
     home_url_name = "travel:index"
     template_name = 'travel/confirm_delete.html'
@@ -294,7 +294,7 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
             return True
 
     def get_initial(self):
-        my_object = models.TripRequest1.objects.get(pk=self.kwargs["pk"])
+        my_object = models.TripRequest.objects.get(pk=self.kwargs["pk"])
         init = super().get_initial()
         init["year"] = fiscal_year(sap_style=True, next=True)
         init["user"] = self.request.user
@@ -308,7 +308,7 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
 
     def form_valid(self, form):
         new_obj = form.save(commit=False)
-        old_obj = models.TripRequest1.objects.get(pk=new_obj.pk)
+        old_obj = models.TripRequest.objects.get(pk=new_obj.pk)
         new_obj.pk = None
         new_obj.status = 8
         new_obj.submitted = None
@@ -318,13 +318,14 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
 
         try:
             new_obj.save()
+            utils.get_request_reviewers(new_obj)
         except IntegrityError:
             messages.error(self.request, _("sorry, cannot clone this trip because there is another trip request with the same user in the system"))
         return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": new_obj.id}) + self.get_query_string())
 
 
 class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
-    model = models.TripRequest1
+    model = models.TripRequest
     form_class = forms.TripRequestTimestampUpdateForm
     template_name = 'travel/request_submit.html'
     submit_text = gettext_lazy("Proceed")
@@ -434,7 +435,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
 
 
 class TripRequestCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
-    model = models.TripRequest1
+    model = models.TripRequest
     form_class = forms.TripRequestAdminNotesForm
     template_name = 'travel/form.html'
     h1 = gettext_lazy("Do you wish to cancel the following trip request?")
@@ -598,7 +599,7 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def reset_request_reviewers(request, pk):
     """this function will reset the reviewers on either a trip request"""
-    my_obj = models.TripRequest1.objects.get(pk=pk)
+    my_obj = models.TripRequest.objects.get(pk=pk)
     if can_modify_request(request.user, pk):
         # This function should only ever be run if the TR is a draft
         if my_obj.status == 8:
@@ -639,8 +640,8 @@ class TripListView(TravelAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["random_object"] = models.Conference.objects.first()
-        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.Conference.status_choices]
+        context["random_object"] = models.Trip.objects.first()
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.Trip.status_choices]
         context["subcategory_choices"] = [dict(label=item.tname, value=item.id) for item in models.TripSubcategory.objects.all()]
         return context
 
@@ -649,7 +650,7 @@ class TripListView(TravelAccessRequiredMixin, CommonTemplateView):
 
 
 class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
-    model = models.Conference
+    model = models.Trip
     template_name = 'travel/trip_detail.html'
     home_url_name = "travel:index"
 
@@ -663,7 +664,7 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
 
 
 class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
-    model = models.Conference
+    model = models.Trip
     form_class = forms.TripForm
     home_url_name = "travel:index"
 
@@ -703,7 +704,7 @@ class TripCloneView(TripUpdateView):
             return True
 
     def get_initial(self):
-        my_object = models.Conference.objects.get(pk=self.kwargs["pk"])
+        my_object = models.Trip.objects.get(pk=self.kwargs["pk"])
         init = super().get_initial()
         init["name"] = "CLONE OF: " + my_object.name
         # init["created_by"] = self.request.user
@@ -716,7 +717,7 @@ class TripCloneView(TripUpdateView):
 
     def form_valid(self, form):
         new_obj = form.save(commit=False)
-        old_obj = models.Conference.objects.get(pk=new_obj.pk)
+        old_obj = models.Trip.objects.get(pk=new_obj.pk)
         new_obj.pk = None
         new_obj.verified_by = self.request.user
         new_obj.created_by = self.request.user
@@ -725,7 +726,7 @@ class TripCloneView(TripUpdateView):
 
 
 class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
-    model = models.Conference
+    model = models.Trip
     form_class = forms.TripForm
     home_url_name = "travel:index"
 
@@ -761,7 +762,7 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
 
 class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
     template_name = 'travel/confirm_delete.html'
-    model = models.Conference
+    model = models.Trip
     success_message = 'The trip was deleted successfully!'
     delete_protection = False
 
@@ -770,7 +771,7 @@ class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
 
 
 class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
-    model = models.Conference
+    model = models.Trip
     form_class = forms.TripTimestampUpdateForm
     template_name = 'travel/form.html'
     submit_text = gettext_lazy("Proceed")
@@ -842,13 +843,13 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
 
 class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
     template_name = 'travel/trip_verification_form.html'
-    model = models.Conference
+    model = models.Trip
     form_class = forms.TripTimestampUpdateForm
     home_url_name = "travel:index"
     h1 = gettext_lazy("Verify Trip")
 
     def test_func(self):
-        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         if my_trip.is_adm_approval_required:
             return in_adm_admin_group(self.request.user)
         else:
@@ -863,12 +864,12 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         context["object"] = my_trip
         context["conf_field_list"] = conf_field_list
         context["trip_subcategories"] = models.TripSubcategory.objects.all()
 
-        base_qs = models.Conference.objects.filter(~Q(id=my_trip.id)).filter(fiscal_year=my_trip.fiscal_year)
+        base_qs = models.Trip.objects.filter(~Q(id=my_trip.id)).filter(fiscal_year=my_trip.fiscal_year)
 
         context["same_day_trips"] = base_qs.filter(Q(start_date=my_trip.start_date) | Q(end_date=my_trip.end_date))
         context["same_location_trips"] = base_qs.filter(
@@ -887,7 +888,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         return context
 
     def form_valid(self, form):
-        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         my_trip.status = 41
         my_trip.verified_by = self.request.user
         my_trip.save()
@@ -904,7 +905,7 @@ class TripSelectFormView(TravelAdminRequiredMixin, CommonPopoutFormView):
     submit_text = gettext_lazy("Proceed")
 
     def test_func(self):
-        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         if my_trip.is_adm_approval_required:
             return in_adm_admin_group(self.request.user)
         else:
@@ -945,7 +946,7 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
     ]
 
     def test_func(self):
-        my_trip = models.Conference.objects.get(pk=self.kwargs.get("trip_a"))
+        my_trip = models.Trip.objects.get(pk=self.kwargs.get("trip_a"))
         if my_trip.is_adm_approval_required:
             return in_adm_admin_group(self.request.user)
         else:
@@ -960,8 +961,8 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        trip_a = models.Conference.objects.get(pk=self.kwargs.get("trip_a"))
-        trip_b = models.Conference.objects.get(pk=self.kwargs.get("trip_b"))
+        trip_a = models.Trip.objects.get(pk=self.kwargs.get("trip_a"))
+        trip_b = models.Trip.objects.get(pk=self.kwargs.get("trip_b"))
 
         context["trip_a"] = trip_a
         context["trip_b"] = trip_b
@@ -993,8 +994,8 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            trip_a = models.Conference.objects.get(pk=self.kwargs.get("trip_a"))
-            trip_b = models.Conference.objects.get(pk=self.kwargs.get("trip_b"))
+            trip_a = models.Trip.objects.get(pk=self.kwargs.get("trip_a"))
+            trip_b = models.Trip.objects.get(pk=self.kwargs.get("trip_b"))
 
             for tr in trip_a.trip_requests.all():
                 tr.trip = trip_b
@@ -1009,7 +1010,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     # TODO: cancel related trip requests and email clients
     # TODO: email travellers the change in their statuses
 
-    model = models.Conference
+    model = models.Trip
     form_class = forms.TripAdminNotesForm
     template_name = 'travel/form.html'
     submit_text = _("Cancel the trip")
@@ -1286,7 +1287,7 @@ def export_request_cfts(request, trip=None, trip_request=None):
 
 class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     def get_template_names(self):
-        my_object = models.TripRequest1.objects.get(id=self.kwargs['pk'])
+        my_object = models.TripRequest.objects.get(id=self.kwargs['pk'])
         if my_object.travellers.count() > 1:
             template_name = "travel/traf/group.html"
         else:
@@ -1295,7 +1296,7 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_object = models.TripRequest1.objects.get(id=self.kwargs['pk'])
+        my_object = models.TripRequest.objects.get(id=self.kwargs['pk'])
         context["parent"] = my_object
         context["SITE_FULL_URL"] = my_envr(self.request)["SITE_FULL_URL"]
         context["trip_category_list"] = models.TripCategory.objects.all()

@@ -48,6 +48,9 @@
                                                                                                                 title="{% trans "Clone" %}"></span></button>
                     <button v-if="canModify && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4" data-toggle="tooltip"
                                                                                              title="{% trans "Remove" %}"></span></button>
+                    <button v-if="canCherryPick(t) && !t.show_me" @click="cherryPickTraveller(t)"><span class="mdi mdi-check-circle text-success h4" data-toggle="tooltip"
+                                                                                             title="{% trans "Cherry Pick" %}"></span></button>
+
                     <button v-if="!t.show_me" @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Expand" %}">
                       <span class="mdi mdi-arrow-collapse-down h4"></span>
                     </button>
@@ -88,6 +91,7 @@
                       <button v-if="!isReview && canModify && !trip" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
                       <button v-if="!isReview && canModify && !trip" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
                       <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
+                      <button v-if="canCherryPick(t)" @click="cherryPickTraveller(t)" class="btn btn-sm btn-success">{% trans "Cherry Pick Approval" %}</button>
                     </div>
                   </div>
                 </div>

@@ -78,9 +78,9 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 start_date__lt=my_date)
 
     elif trip_request:
-        travellers = get_object_or_404(models.TripRequest1, pk=trip_request).travellers.all()
+        travellers = get_object_or_404(models.TripRequest, pk=trip_request).travellers.all()
     elif trip:
-        travellers = get_object_or_404(models.Conference, pk=trip).travellers.all()
+        travellers = get_object_or_404(models.Trip, pk=trip).travellers.all()
     else:
         travellers = None
 
@@ -124,7 +124,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
     if user:
         title += f" ({User.objects.get(pk=user)})"
     if trip:
-        title += f" ({models.Conference.objects.get(pk=trip).tname})"
+        title += f" ({models.Trip.objects.get(pk=trip).tname})"
 
     ws.write(0, 0, title, title_format)
     ws.write_row(2, 0, header, header_format)
@@ -242,7 +242,7 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
         fiscal_year = None  # should not filter on both criteria
 
     # get the trip list
-    trip_list = models.Conference.objects.all()
+    trip_list = models.Trip.objects.all()
 
     if fiscal_year:
         trip_list = trip_list.filter(fiscal_year=fiscal_year)
@@ -398,7 +398,7 @@ def generate_upcoming_trip_list(site_url):
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
 
     # get the trip list
-    trip_list = models.Conference.objects.filter(start_date__gte=timezone.now())
+    trip_list = models.Trip.objects.filter(start_date__gte=timezone.now())
 
     field_list = [
         "fiscal_year",
@@ -418,7 +418,7 @@ def generate_upcoming_trip_list(site_url):
     # define the header
     header = [get_verbose_label(trip_list.first(), field) for field in field_list]
     # header.append('Number of projects tagged')
-    title = gettext("Upcoming Conferences and Meetings")
+    title = gettext("Upcoming Trips and Meetings")
 
     # define a worksheet
     my_ws = workbook.add_worksheet(name="list")

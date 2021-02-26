@@ -96,21 +96,21 @@ class TestTravelModels(CommonTest):
         self.assertIn(file, tr.files.all())
 
         # a file associated with a trip request can be accessed by the reverse name called `files`
-        tr_cost = FactoryFloor.TripRequestCostTotalFactory()
+        tr_cost = FactoryFloor.TravellerCostTotalFactory()
         tr = tr_cost.trip_request
         self.assertIn(tr_cost, tr.trip_request_costs.all())
 
     @tag('models', 'trip_request_cost')
     def test_trip_request_cost_model(self):
         # if you save a tr cost with a rate and days, it should provide a total equal to the product of the two
-        tr_cost_1 = FactoryFloor.TripRequestCostDayXRateFactory()
+        tr_cost_1 = FactoryFloor.TravellerCostDayXRateFactory()
         rate = tr_cost_1.rate_cad
         days = tr_cost_1.number_of_days
         tr_cost_1.save()
         self.assertEqual(rate * days, tr_cost_1.amount_cad)
 
         # if a tr_cost has only an amount, the save method should not override if there is a zero value in either rate or days
-        tr_cost_2 = FactoryFloor.TripRequestCostTotalFactory()
+        tr_cost_2 = FactoryFloor.TravellerCostTotalFactory()
         amount = tr_cost_2.amount_cad
         tr_cost_2.save()
         self.assertEqual(amount, tr_cost_2.amount_cad)

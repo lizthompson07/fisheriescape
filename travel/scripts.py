@@ -12,26 +12,26 @@ from . import utils
 
 
 # def remove_empty_trips():
-#     for trip in models.Conference.objects.all():
+#     for trip in models.Trip.objects.all():
 #         if trip.trip_requests.count() == 0:
 #             trip.delete()
 #
 
 
 def resave_requests():
-    for obj in models.TripRequest1.objects.all():
+    for obj in models.TripRequest.objects.all():
         obj.save()
 
 
 def reset_trip_reviewers():
-    for trip in models.Conference.objects.filter(is_adm_approval_required=True):
+    for trip in models.Trip.objects.filter(is_adm_approval_required=True):
         if trip.reviewers.count() == 0:
             utils.get_trip_reviewers(trip)
 
 
 def check_trip_purposes():
     print(f"trip id; trip name; purposes")
-    for trip in models.Conference.objects.all():
+    for trip in models.Trip.objects.all():
         if trip.trip_requests.count():
             print(f"{trip.id}; {trip.name}; {listrify([tr.purpose.name for tr in trip.trip_requests.all() if tr.purpose])}")
 
@@ -69,7 +69,7 @@ def export_fixtures():
 
 
 def update_conf_status():
-    conf_list = models.Conference.objects.all()
+    conf_list = models.Trip.objects.all()
     for obj in conf_list:
         if obj.is_verified:
             obj.status = 41
@@ -80,7 +80,7 @@ def update_conf_status():
 
 
 def set_old_trips_to_reviewed():
-    conf_list = models.Conference.objects.filter(is_adm_approval_required=True)
+    conf_list = models.Trip.objects.filter(is_adm_approval_required=True)
     for obj in conf_list:
         if obj.start_date <= timezone.now():
             obj.status = 32
@@ -109,7 +109,7 @@ def update_participant_role():
 
 #
 # def resave_all():
-#     conf_list = models.Conference.objects.all()
+#     conf_list = models.Trip.objects.all()
 #     for obj in conf_list:
 #         obj.save()
 #
@@ -124,7 +124,7 @@ def update_participant_role():
 #     for tr in models.TripRequest.objects.filter():
 #
 #         if tr.air and tr.air != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="air fare"),
 #             )
@@ -132,7 +132,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.rail and tr.rail != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="rail"),
 #             )
@@ -140,7 +140,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.rental_motor_vehicle and tr.rental_motor_vehicle != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="rental motor vehicle"),
 #             )
@@ -148,7 +148,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.personal_motor_vehicle and tr.personal_motor_vehicle != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="personal motor vehicle"),
 #             )
@@ -156,7 +156,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.taxi and tr.taxi != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="taxi"),
 #             )
@@ -164,7 +164,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.other_transport and tr.other_transport != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="other"),
 #             )
@@ -174,7 +174,7 @@ def update_participant_role():
 #
 #
 #         if tr.accommodations and tr.accommodations != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="accommodation"),
 #             )
@@ -182,7 +182,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.breakfasts and tr.breakfasts != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="breakfasts"),
 #             )
@@ -193,7 +193,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.lunches and tr.lunches != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="lunches"),
 #             )
@@ -203,7 +203,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.suppers and tr.suppers != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="suppers"),
 #             )
@@ -213,7 +213,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.incidentals and tr.incidentals != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="incidentals"),
 #             )
@@ -223,7 +223,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.registration and tr.registration != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="other"),
 #             )
@@ -231,7 +231,7 @@ def update_participant_role():
 #             my_tr_cost.save()
 #
 #         if tr.other and tr.other != 0:
-#             my_tr_cost, created = models.TripRequestCost.objects.get_or_create(
+#             my_tr_cost, created = models.TravellerCost.objects.get_or_create(
 #                 trip_request=tr,
 #                 cost = models.Cost.objects.get(name__iexact="other"),
 #             )
@@ -253,7 +253,7 @@ def copy_old_tables_to_new():
 
     # loop through all requests, except for child requests
 
-    bad_trip, created = models.Conference.objects.get_or_create(
+    bad_trip, created = models.Trip.objects.get_or_create(
         name="NOT A REAL TRIP",
         location="TestVille",
         start_date=timezone.datetime(year=2020, month=1, day=1),
@@ -272,11 +272,11 @@ def copy_old_tables_to_new():
             print("assigning to Amelie")
             lead = User.objects.get(id=385)
 
-        qs = models.TripRequest1.objects.filter(id=old_request.id)
+        qs = models.TripRequest.objects.filter(id=old_request.id)
         if qs.exists():
             new_request = qs.first()
         else:
-            new_request = models.TripRequest1.objects.create(
+            new_request = models.TripRequest.objects.create(
                 id=old_request.id,
                 trip=old_request.trip if old_request.trip else bad_trip,
             )

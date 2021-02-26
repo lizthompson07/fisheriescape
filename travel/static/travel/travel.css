@@ -95,7 +95,8 @@
 }
 
 .pending-rdg-approval {
-    background-color: #d0dcf5;
+    background-color: #0f135d;
+    color: white;
 }
 
 .pending-recommendation {
