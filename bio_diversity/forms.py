@@ -868,9 +868,6 @@ class DataForm(CreatePrams):
                         indv_female = indv_qs.get()
                         indv_male = indv_qs_male.get()
                     else:
-                        row_entered = False
-                        row_parsed = False
-                        indv = False
                         log_data += "Error parsing row: \n"
                         log_data += str(row)
                         log_data += "\nFish with PIT {} or PIT {} not found in db\n".format(row["Pit or carlin"], row["Pit or carlin.1"])
@@ -880,10 +877,16 @@ class DataForm(CreatePrams):
                     anix_female = enter_anix(cleaned_data, indv_pk=indv_female.pk)
                     anix_male = enter_anix(cleaned_data, indv_pk=indv_male.pk)
 
+                    if enter_indvd(anix_female.pk, cleaned_data, row_date, None, "Gender", "Female"):
+                        row_entered = True
+
                     if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
                         row_entered = True
 
                     if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Wt"], "Weight", None):
+                        row_entered = True
+
+                    if enter_indvd(anix_male.pk, cleaned_data, row_date, None, "Gender", "Male"):
                         row_entered = True
 
                     if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Ln.1"], "Length", None):
