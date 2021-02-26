@@ -1,7 +1,7 @@
-# TODO: virtual tag on request -- fix approval
-# TODO: email goes to travellers + owner
 
-
+# TODO: email Class with send method etc
+# TODO: test traveller delete email
+# TODO: test changes requested email
 # todo:  email for when ppl are deleted from a request
 
 # TODO: fix up unit tests

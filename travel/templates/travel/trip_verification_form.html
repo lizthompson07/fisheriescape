@@ -232,12 +232,15 @@
     <div class="center-col mt-4">
       <div class="mb-5">
         <div v-if="allConfirmed">
-          <button type="submit" class="btn btn-success" {% if not object.trip_subcategory %}disabled{% endif %}>
-            {% trans "Trip looks good!" %}
-          </button>
-          <a href="#" pop-href="{% url 'travel:trip_edit' object.id %}?pop=true" class="btn btn-info">
-            {% trans "Make some changes" %}
-          </a>
+          <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">
+              {% trans "Trip looks good!" %}
+            </button>
+            <a href="#" pop-href="{% url 'travel:trip_edit' object.id %}?pop=true" class="btn btn-info">
+              {% trans "Make some changes" %}
+            </a>
+          </form>
         </div>
         <button v-else @click='confirmCurrentQuestion' type="button" class="btn btn-primary" {% if not object.trip_subcategory %}disabled{% endif %}>
           {% trans "Next Question!" %}
