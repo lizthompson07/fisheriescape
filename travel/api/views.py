@@ -45,7 +45,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
             data.update(dict(is_owner=request.user.id == my_trip_request.created_by))
         elif request.query_params.get("trip"):
             my_trip = get_object_or_404(models.Trip, pk=request.query_params.get("trip"))
-            data.update(dict(is_current_reviewer=request.user == my_trip.current_reviewer.user))
+            data.update(dict(is_current_reviewer=my_trip.current_reviewer and (request.user == my_trip.current_reviewer.user)))
 
         return Response(data, status=status.HTTP_200_OK)
 

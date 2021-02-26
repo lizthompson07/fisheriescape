@@ -123,7 +123,7 @@
             </tr>
           </table>
         </div>
-        <div v-if="isReview" class="mb-5">
+        <div v-if="isReview && request.travellers_from_other_regions.length" class="mb-5">
           <p class="h5">{% trans "Travellers to ${request.trip.tname} from Other Regions:" %}</p>
           <ul>
             <li v-for="(t, i) in request.travellers_from_other_regions" :key="t.id">
