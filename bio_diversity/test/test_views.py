@@ -2473,7 +2473,6 @@ class TestFecuDetailView(CommonTest):
         context_vars = [
             "stok_id",
             "coll_id",
-            "evnt_id",
             "start_date",
             "end_date",
             "alpha",

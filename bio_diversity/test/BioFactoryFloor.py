@@ -1,5 +1,6 @@
 
 import factory
+import pytz
 from django.utils import timezone
 from faker import Factory
 
@@ -511,9 +512,9 @@ class EnvFactory(factory.django.DjangoModelFactory):
     env_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     envsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvscFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                              tzinfo=timezone.get_current_timezone()))
+                                                                              tzinfo=pytz.UTC))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                            tzinfo=timezone.get_current_timezone()))
+                                                                            tzinfo=pytz.UTC))
     env_avg = factory.lazy_attribute(lambda o: faker.boolean())
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -733,9 +734,9 @@ class EvntFactory(factory.django.DjangoModelFactory):
     prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
     team_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TeamFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                          tzinfo=timezone.get_current_timezone()))
+                                                                          tzinfo=pytz.UTC))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                        tzinfo=timezone.get_current_timezone()))
+                                                                        tzinfo=pytz.UTC))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -833,7 +834,6 @@ class FecuFactory(factory.django.DjangoModelFactory):
     # needs an inst id
     stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
     coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
-    evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
     alpha = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
@@ -848,7 +848,6 @@ class FecuFactory(factory.django.DjangoModelFactory):
 
         stok = StokFactory()
         coll = CollFactory()
-        evnt = EvntFactory()
 
         obj = FecuFactory.build(**kwargs)
 
@@ -856,7 +855,6 @@ class FecuFactory(factory.django.DjangoModelFactory):
         data = {
             'stok_id': stok.pk,
             'coll_id': coll.pk,
-            'evnt_id': evnt.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
             'alpha': obj.alpha,
@@ -1274,9 +1272,9 @@ class IndvtFactory(factory.django.DjangoModelFactory):
     dose = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                              tzinfo=timezone.get_current_timezone()))
+                                                                              tzinfo=pytz.UTC))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                            tzinfo=timezone.get_current_timezone()))
+                                                                            tzinfo=pytz.UTC))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -1511,7 +1509,7 @@ class LocFactory(factory.django.DjangoModelFactory):
     relc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RelcFactory")
     loc_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
     loc_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
-    loc_date = factory.lazy_attribute(lambda o: faker.date_time(tzinfo=timezone.get_current_timezone()))
+    loc_date = factory.lazy_attribute(lambda o: faker.date_time(tzinfo=pytz.UTC))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())

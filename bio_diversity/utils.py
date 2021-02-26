@@ -1,6 +1,7 @@
 import datetime
 import math
 
+import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.utils import timezone
@@ -259,9 +260,9 @@ def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_i
         if math.isnan(env_value):
             return False
     if env_start:
-        env_datetime = datetime.datetime.combine(env_date, env_start).replace(tzinfo=timezone.get_current_timezone())
+        env_datetime = datetime.datetime.combine(env_date, env_start).replace(tzinfo=pytz.UTC)
     else:
-        env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time()).replace(tzinfo=timezone.get_current_timezone())
+        env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
     if envsc_str:
         env = models.EnvCondition(contx_id=contx,
                                   loc_id=loc_id,

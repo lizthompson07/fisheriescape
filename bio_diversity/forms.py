@@ -2,11 +2,11 @@ import inspect
 import math
 from datetime import date, datetime
 
+import pytz
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.forms import modelformset_factory
-from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext
 import pandas as pd
@@ -84,16 +84,16 @@ class CreateTimePrams(forms.ModelForm):
         # and set the datetime values
         if cleaned_data["start_time"]:
             start_time = datetime.strptime(cleaned_data["start_time"],
-                                           '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
+                                           '%H:%M').time().replace(tzinfo=pytz.UTC)
         else:
-            start_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
+            start_time = datetime.min.time().replace(tzinfo=pytz.UTC)
         cleaned_data["start_datetime"] = datetime.combine(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
                 end_time = datetime.strptime(cleaned_data["end_time"],
-                                             '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
+                                             '%H:%M').time().replace(tzinfo=pytz.UTC)
             else:
-                end_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
+                end_time = datetime.min.time().replace(tzinfo=pytz.UTC)
             cleaned_data["end_datetime"] = datetime.combine(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
@@ -245,7 +245,7 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                          locc_id_id=1,
+                                          locc_id_id=models.LocCode.objects.first(),
                                           rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
                                           subr_id=models.SubRiverCode.objects.filter(name__iexact=row["Branch"]).get(),
                                           relc_id=models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
@@ -284,22 +284,21 @@ class DataForm(CreatePrams):
                             cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id, cnt=cnt.cnt).get()
 
                     elif not math.isnan(row["# of salmon observed"]):
-                            cnt = models.Count(loc_id_id=loc.pk,
-                                               spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                               cntc_id=models.CountCode.objects.filter(
-                                                   name__iexact="Fish Observed").get(),
-                                               cnt=row["# of salmon observed"],
-                                               est=False,
-                                               created_by=cleaned_data["created_by"],
-                                               created_date=cleaned_data["created_date"],
-                                               )
-                            try:
-                                cnt.clean()
-                                cnt.save()
-                                row_entered = True
-                            except ValidationError:
-                                cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id,
-                                                                  cnt=cnt.cnt).get()
+                        cnt = models.Count(loc_id_id=loc.pk,
+                                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                           cntc_id=models.CountCode.objects.filter(
+                                               name__iexact="Fish Observed").get(),
+                                           cnt=row["# of salmon observed"],
+                                           est=False,
+                                           created_by=cleaned_data["created_by"],
+                                           created_date=cleaned_data["created_date"],
+                                           )
+                        try:
+                            cnt.clean()
+                            cnt.save()
+                            row_entered = True
+                        except ValidationError:
+                            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id, cnt=cnt.cnt).get()
                     if cnt:
                         if not math.isnan(row["fishing seconds"]):
                             cntd = models.CountDet(cnt_id=cnt,
@@ -375,7 +374,7 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-                    first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d").replace(tzinfo=timezone.get_current_timezone())
+                    first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
                     enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish")
 
                     enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
@@ -401,10 +400,10 @@ class DataForm(CreatePrams):
             for row in data_dict:
                 row_parsed = True
                 row_entered = False
-                row_date = datetime.strptime(str(row["Year"])+str(row["Month"])+str(row["Day"]), "%Y%b%d").replace(tzinfo=timezone.get_current_timezone())
+                row_date = datetime.strptime(str(row["Year"])+str(row["Month"])+str(row["Day"]), "%Y%b%d").replace(tzinfo=pytz.UTC)
                 try:
                     loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                          locc_id_id=1,
+                                          locc_id=models.LocCode.objects.first(),
                                           relc_id=models.ReleaseSiteCode.objects.filter(
                                               name__iexact=row["Location Name"]).get(),
                                           loc_date=row_date,
@@ -537,8 +536,8 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-                    first_row_date = datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d").replace(tzinfo=timezone.get_current_timezone())
-                    enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish" )
+                    first_row_date = datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d").replace(tzinfo=pytz.UTC)
+                    enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish")
 
                     enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
 
@@ -584,11 +583,12 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     year, coll = year_coll_splitter(row["Group"])
-                    row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date().replace(tzinfo=timezone.get_current_timezone())
+                    row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date()
+                    row_datetime = datetime.combine(row_date, datetime.min.time()).replace(tzinfo=pytz.UTC)
                     indv = models.Individual(grp_id_id=grp_id,
-                                             spec_id_id=1,
+                                             spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
-                                             coll_id=models.Collection.objects.filter(name__iexact=coll).get(),
+                                             coll_id=models.Collection.objects.filter(name__icontains=coll).get(),
                                              indv_year=year,
                                              ufid=row["Universal Fish ID"],
                                              pit_tag=row["PIT tag"],
@@ -604,7 +604,7 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                    if create_movement_evnt(row["from Tank"], row["to tank"], cleaned_data, row_date, indv_pk=indv.pk):
+                    if create_movement_evnt(row["from Tank"], row["to tank"], cleaned_data, row_datetime, indv_pk=indv.pk):
                         row_entered = True
 
                     anix_indv = enter_anix(cleaned_data, indv_pk=indv.pk)
@@ -658,7 +658,7 @@ class DataForm(CreatePrams):
 
                 year, coll = year_coll_splitter(data["Collection"][0])
                 grp_qs = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
-                                                     coll_id__name__iexact=coll,
+                                                     coll_id__name__icontains=coll,
                                                      grp_year=year)
                 if len(grp_qs) == 1:
                     grp_id = grp_qs.get().pk
@@ -681,10 +681,11 @@ class DataForm(CreatePrams):
                 try:
                     year, coll = year_coll_splitter(row["Collection"])
                     row_date = row["Date"].date()
+                    row_datetime = datetime.combine(row_date, datetime.min.time()).replace(tzinfo=pytz.UTC)
                     indv = models.Individual(grp_id_id=grp_id,
-                                             spec_id_id=1,
+                                             spec_id=models.SpeciesCode.objects.filter(name__icontains="Salmon").get(),
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
-                                             coll_id=models.Collection.objects.filter(name__iexact=coll).get(),
+                                             coll_id=models.Collection.objects.filter(name__icontains=coll).get(),
                                              indv_year=year,
                                              pit_tag=row["PIT"],
                                              indv_valid=True,
@@ -697,9 +698,9 @@ class DataForm(CreatePrams):
                         indv.save()
                         row_entered = True
                     except (ValidationError, IntegrityError):
-                        indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
+                        indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
-                    if create_movement_evnt(row["Origin Pond"], row["Destination Pond"], cleaned_data, row_date, indv_pk=indv.pk):
+                    if create_movement_evnt(row["Origin Pond"], row["Destination Pond"], cleaned_data, row_datetime, indv_pk=indv.pk):
                         row_entered = True
 
                     anix_indv = enter_anix(cleaned_data, indv_pk=indv.pk)
@@ -771,10 +772,11 @@ class DataForm(CreatePrams):
                         anix_indv = enter_anix(cleaned_data, indv_pk=indv.pk)
 
                         row_date = row["DATE SORTED (ddmmmyr)"].date()
+                        row_datetime = datetime.combine(row_date, datetime.min.time()).replace(tzinfo=pytz.UTC)
                         if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
                             row_entered = True
 
-                        if create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_date,
+                        if create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_datetime,
                                                 indv_pk=indv.pk):
                             row_entered = True
 
@@ -1040,9 +1042,6 @@ class DataForm(CreatePrams):
                         indv_female = indv_qs.get()
                         indv_male = indv_qs_male.get()
                     else:
-                        row_entered = False
-                        row_parsed = False
-                        indv = False
                         log_data += "Error parsing row: \n"
                         log_data += str(row)
                         log_data += "\nFish with PIT {} or PIT {} not found in db\n".format(row["Pit tag"], row["Pit tag.1"])
@@ -1159,7 +1158,6 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
@@ -1216,7 +1214,7 @@ class DataForm(CreatePrams):
                     duration, time_unit = val_unit_splitter(row["Duration"])
                     envt = models.EnvTreatment(contx_id=contx,
                                                envtc_id=models.EnvTreatCode.objects.filter(name__icontains=row["Treatment Type"]).get(),
-                                               lot_num=1,
+                                               lot_num=None,
                                                amt=val,
                                                unit_id=models.UnitCode.objects.filter(name__icontains=unit_str).get(),
                                                duration=60*duration,
@@ -1492,9 +1490,9 @@ class LocForm(CreatePrams):
         obj = super().save(commit=False)  # here the object is not commited in db
         if self.cleaned_data["start_time"]:
             start_time = datetime.strptime(self.cleaned_data["start_time"],
-                                           '%H:%M').time().replace(tzinfo=timezone.get_current_timezone())
+                                           '%H:%M').time().replace(tzinfo=pytz.UTC)
         else:
-            start_time = datetime.min.time().replace(tzinfo=timezone.get_current_timezone())
+            start_time = datetime.min.time().replace(tzinfo=pytz.UTC)
         obj.loc_date = datetime.combine(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj

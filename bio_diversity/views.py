@@ -872,7 +872,7 @@ class FacicDetails(mixins.FacicMixin, CommonDetails):
 
 
 class FecuDetails(mixins.FecuMixin, CommonDetails):
-    fields = ["stok_id", "coll_id", "evnt_id", "description_en", "start_date", "end_date", "alpha", "beta", "valid",
+    fields = ["stok_id", "coll_id", "description_en", "start_date", "end_date", "alpha", "beta", "valid",
               "comments", "created_by", "created_date", ]
 
 

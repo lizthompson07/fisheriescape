@@ -510,7 +510,7 @@ class EnvSubjCode(BioLookup):
 
 class EnvTreatCode(BioLookup):
     # envtc tag
-    rec_dose = models.CharField(max_length=400, verbose_name=_("Recommended Dosage"))
+    rec_dose = models.CharField(max_length=400, blank=True, null=True, verbose_name=_("Recommended Dosage"))
     manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"))
 
 
@@ -520,7 +520,7 @@ class EnvTreatment(BioModel):
                                  verbose_name=_("Container Cross Reference"))
     envtc_id = models.ForeignKey('EnvTreatCode', on_delete=models.CASCADE,
                                  verbose_name=_("Environment Treatment Code"))
-    lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"))
+    lot_num = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Lot Number"))
     amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"))
     unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"))
     duration = models.DecimalField(max_digits=5, decimal_places=0, verbose_name=_("Duration (minutes)"))
@@ -579,7 +579,6 @@ class FacilityCode(BioLookup):
 class Fecundity(BioDateModel):
     # fecu tag
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
-    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"))
     coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Collection"))
     alpha = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("A"))
@@ -587,7 +586,7 @@ class Fecundity(BioDateModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date', 'evnt_id'], name='Fecundity_Uniqueness')
+            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date'], name='Fecundity_Uniqueness')
         ]
 
     def __str__(self):

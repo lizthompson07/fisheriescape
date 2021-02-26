@@ -149,7 +149,7 @@ class TestEnvForm(CommonTest):
     def test_null_unique(self):
         instance = BioFactoryFloor.EnvFactory()
         instance.contx_id = None
-        instance.start_datetime = datetime.strptime(instance.start_datetime.strftime("%Y%m%d%H%M"), "%Y%m%d%H%M").replace(tzinfo=timezone.get_current_timezone())
+        instance.start_datetime = datetime.strptime(instance.start_datetime.strftime("%Y%m%d%H%M"), "%Y%m%d%H%M").replace(tzinfo=pytz.UTC)
         instance.save()
         invalid_data = model_to_dict(instance)
         invalid_data["start_date"] = invalid_data["start_datetime"].date()
