@@ -4,7 +4,8 @@ from django.db.models import Q
 from django.template.defaultfilters import date, pluralize
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework import status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets, filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -55,6 +56,9 @@ class TripViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TripSerializer
     permission_classes = [TravelAdminOrReadOnly]
     pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['name', 'nom', 'location']
+    filterset_fields = ['fiscal_year', 'status', 'lead', "is_adm_approval_required", "trip_subcategory"]
 
     def post(self, request, pk):
         qp = request.query_params
@@ -90,36 +94,6 @@ class TripViewSet(viewsets.ModelViewSet):
             else:
                 qs = qs.filter(start_date__gte=timezone.now())
 
-            filter_list = [
-                'fiscal_year',
-                "trip_title",
-                'regional_lead',
-                'adm_approval',
-                'status',
-                'subcategory',
-            ]
-            for filter in filter_list:
-                input = qp.get(filter)
-                if input == "true":
-                    input = True
-                elif input == "false":
-                    input = False
-                elif input == "null" or input == "":
-                    input = None
-
-                if input is not None:
-                    if filter == "status":
-                        qs = qs.filter(status=input)
-                    elif filter == "trip_title":
-                        qs = qs.filter(Q(name__icontains=input) | Q(nom__icontains=input) | Q(location__icontains=input))
-                    elif filter == "fiscal_year":
-                        qs = qs.filter(fiscal_year_id=input)
-                    elif filter == "regional_lead":
-                        qs = qs.filter(lead_id=input)
-                    elif filter == "adm_approval":
-                        qs = qs.filter(is_adm_approval_required=input)
-                    elif filter == "subcategory":
-                        qs = qs.filter(trip_subcategory=input)
             return qs
 
     def list(self, request, *args, **kwargs):
@@ -144,6 +118,10 @@ class RequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TripRequestSerializer
     permission_classes = [CanModifyOrReadOnly]
     pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['name_search', 'creator_search', 'trip__name', 'trip__nom', 'trip__location']
+    filterset_fields = ['fiscal_year', 'status', 'section', "section__division", "section__division__branch__region"]
+
 
     def post(self, request, pk):
         qp = request.query_params
@@ -171,47 +149,10 @@ class RequestViewSet(viewsets.ModelViewSet):
                 return models.TripRequest.objects.filter(pk=self.kwargs.get("pk"))
         else:
             qp = self.request.query_params
-            if qp.get("all") and utils.is_admin(self.request.user):
-                qs = models.TripRequest.objects.order_by("-updated_at")
+            if qp.get("all") and utils.is_manager_or_assistant_or_admin(self.request.user):
+                qs = utils.get_requests_with_managerial_access(self.request.user).order_by("-updated_at")
             else:
                 qs = utils.get_related_requests(self.request.user).order_by("-updated_at")
-
-            filter_list = [
-                "trip_title",
-                'creator',
-                'traveller',
-                'fiscal_year',
-                'region',
-                'division',
-                'section',
-                'status',
-            ]
-            for filter in filter_list:
-                input = qp.get(filter)
-                if input == "true":
-                    input = True
-                elif input == "false":
-                    input = False
-                elif input == "null" or input == "":
-                    input = None
-
-                if input:
-                    if filter == "status":
-                        qs = qs.filter(status=input)
-                    elif filter == "trip_title":
-                        qs = qs.filter(Q(trip__name__icontains=input) | Q(trip__nom__icontains=input))
-                    elif filter == "creator":
-                        qs = qs.filter(Q(created_by__first_name__icontains=input)|Q(created_by__last_name__icontains=input))
-                    elif filter == "traveller":
-                        qs = qs.filter(name_search__icontains=input)
-                    elif filter == "fiscal_year":
-                        qs = qs.filter(fiscal_year_id=input)
-                    elif filter == "region":
-                        qs = qs.filter(section__division__branch__region_id=input)
-                    elif filter == "division":
-                        qs = qs.filter(section__division_id=input)
-                    elif filter == "section":
-                        qs = qs.filter(section_id=input)
             return qs
 
     def perform_create(self, serializer):

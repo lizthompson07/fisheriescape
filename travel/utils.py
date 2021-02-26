@@ -672,13 +672,14 @@ def is_manager_or_assistant_or_admin(user):
 
 def get_requests_with_managerial_access(user):
     queryset = models.TripRequest.objects.all()
-    if in_travel_admin_group(user) or in_adm_admin_group(user):
+    if is_admin(user):
         return queryset
     else:
-        return queryset.filter(Q(section__admin=user) | Q(section__head=user)
-                               | Q(section__division__admin=user) | Q(section__division__head=user)
-                               | Q(section__division__branch__admin=user) | Q(section__division__branch__head=user)
-                               | Q(section__division__branch__region__admin=user) | Q(section__division__branch__region__head=user))
+        qs = queryset.filter(Q(section__admin=user) | Q(section__head=user)
+                        | Q(section__division__admin=user) | Q(section__division__head=user)
+                        | Q(section__division__branch__admin=user) | Q(section__division__branch__head=user)
+                        | Q(section__division__branch__region__admin=user) | Q(section__division__branch__region__head=user))
+        return qs
 
 
 def upload_to_azure_blob(target_file_path, target_file):
@@ -692,62 +693,6 @@ def upload_to_azure_blob(target_file_path, target_file):
         token_credential = None
     blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential, account_key=account_key)
     blobService.create_blob_from_path('media', target_file, target_file_path)
-
-
-def get_request_field_list(tr=None, user=None):
-    my_list = [
-        'fiscal_year',
-        'created_by',
-        'trip',
-        'traveller_count|{}'.format(_("number of travellers (this request)")),
-        'status_string|{}'.format(_("Request status")),
-        'section|{}'.format(_("DFO section")),
-        'objective_of_event',
-        'benefit_to_dfo',
-        'bta_attendees',
-        'total_request_cost|{}'.format(_("Total costs")),
-        'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding (CAD)")),
-        'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
-        'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
-        'funding_source',
-        'original_submission_date',
-        'processing_time|{}'.format(_("Processing time")),
-        'notes',
-        'late_justification' if not tr or (tr and tr.is_late_request) else None,
-        'metadata|{}'.format(_("metadata")),
-    ]
-
-    while None in my_list: my_list.remove(None)
-    return my_list
-
-
-def get_traveller_field_list():
-    my_list = [
-        'is_public_servant',
-        'is_research_scientist|{}'.format(_("Is research scientist?")),
-        'dates|{}'.format(_("Dates of travel")),
-        'departure_location',
-        'role',
-        'role_of_participant',
-        'learning_plan',
-        'non_dfo_costs_html|{}'.format(_("Non-DFO costs:")),
-        'cost_breakdown_html|{}'.format(_("Cost breakdown:")),
-    ]
-    while None in my_list: my_list.remove(None)
-    return my_list
-
-
-def get_request_reviewer_field_list():
-    my_list = [
-        'order',
-        'user',
-        'role',
-        'status',
-        'status_date',
-        'comments_html|{}'.format(_("Comments")),
-    ]
-    while None in my_list: my_list.remove(None)
-    return my_list
 
 
 def get_cost_comparison(travellers):

@@ -13,8 +13,8 @@ var app = new Vue({
     trips_loading: true,
 
     // filters
+    filter_search: "",
     filter_fiscal_year: "",
-    filter_trip_title: "",
     filter_regional_lead: "",
     filter_adm_approval: "",
     filter_status: "",
@@ -31,8 +31,8 @@ var app = new Vue({
   },
   methods: {
     clearFilters() {
+      this.filter_search = null;
       this.filter_fiscal_year = "";
-      this.filter_trip_title = null;
       this.filter_regional_lead = null;
       this.filter_adm_approval = "";
       this.filter_status = "";
@@ -80,12 +80,12 @@ var app = new Vue({
         else if (this.pageType === 'regional-verification') endpoint += 'regional-verification=true;'
 
         // apply filters
-        endpoint += `trip_title=${this.filter_trip_title};` +
-            `regional_lead=${this.filter_regional_lead};` +
+        endpoint += `search=${this.filter_search};` +
+            `lead=${this.filter_regional_lead};` +
             `status=${this.filter_status};` +
             `fiscal_year=${this.filter_fiscal_year};` +
-            `adm_approval=${this.filter_adm_approval};` +
-            `subcategory=${this.filter_subcategory};`
+            `is_adm_approval_required=${this.filter_adm_approval};` +
+            `trip_subcategory=${this.filter_subcategory};`
       }
 
       apiService(endpoint)

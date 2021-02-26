@@ -110,26 +110,6 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         return context
 
 
-conf_field_list = [
-    'tname|{}'.format(gettext_lazy("Name")),
-    'location',
-    'trip_subcategory',
-    'lead',
-    'has_event_template',
-    'number',
-    'start_date',
-    'end_date',
-    'meeting_url',
-    'abstract_deadline',
-    'registration_deadline',
-    'is_adm_approval_required',
-    'notes',
-    'status_string|{}'.format("status"),
-    'date_eligible_for_adm_review',
-    'adm_review_deadline',
-    'total_cost|{}'.format(gettext_lazy("Total DFO cost (excluding BTA)")),
-    'non_res_total_cost|{}'.format(gettext_lazy("Total DFO cost from non-RES travellers (excluding BTA)")),
-]
 
 
 def get_help_text_dict():
@@ -802,14 +782,9 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
     def get_subtitle(self):
         return _("Start a Review") if self.get_object().status in [30, 41] else _("End a Review")
 
-    # def get_parent_crumb(self):
-    #     return {"title":str(self.get_object()), "url": reverse("travel:trip_detail", kwargs=self.kwargs)}
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["trip"] = self.get_object()
-        context["conf_field_list"] = conf_field_list
-        context['help_text_dict'] = get_help_text_dict()
         return context
 
     def form_valid(self, form):
@@ -866,7 +841,6 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         context = super().get_context_data(**kwargs)
         my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
         context["object"] = my_trip
-        context["conf_field_list"] = conf_field_list
         context["trip_subcategories"] = models.TripSubcategory.objects.all()
 
         base_qs = models.Trip.objects.filter(~Q(id=my_trip.id)).filter(fiscal_year=my_trip.fiscal_year)
