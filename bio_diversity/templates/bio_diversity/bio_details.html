@@ -49,30 +49,6 @@
             </h5>
         </div>
     {% endif %}
-    {% if "loc" in table_list %}
-            {% include "bio_diversity/details_table_block.html" with context_dict=loc_context_dict %}
-    {% endif %}
-    {% if "indv" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=indv_context_dict %}
-    {% endif %}
-    {% if "grp" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=grp_context_dict %}
-    {% endif %}
-    {% if "tank" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=tank_context_dict %}
-    {% endif %}
-    {% if "trof" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=trof_context_dict %}
-    {% endif %}
-    {% if "prot" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=prot_context_dict %}
-    {% endif %}
-    {% if "pair" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=pair_context_dict %}
-    {% endif %}
-    {% if "matp" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=matp_context_dict %}
-    {% endif %}
     {% if "cnt" in table_list %}
         {% include "bio_diversity/details_table_block.html" with context_dict=cnt_context_dict %}
     {% endif %}
@@ -85,8 +61,11 @@
     {% if "envt" in table_list %}
         {% include "bio_diversity/details_table_block.html" with context_dict=envt_context_dict %}
     {% endif %}
-    {% if "indv_cont" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=indv_context_dict %}
+    {% if "evnt" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=evnt_context_dict %}
+    {% endif %}
+    {% if "grp" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=grp_context_dict %}
     {% endif %}
     {% if "grp_cont" in table_list %}
         {% include "bio_diversity/details_table_block.html" with context_dict=grp_context_dict %}
@@ -94,8 +73,26 @@
     {% if "grpd" in table_list %}
         {% include "bio_diversity/details_table_block.html" with context_dict=grpd_context_dict %}
     {% endif %}
+    {% if "indv" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=indv_context_dict %}
+    {% endif %}
+     {% if "indv_cont" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=indv_context_dict %}
+    {% endif %}
     {% if "indvd" in table_list %}
         {% include "bio_diversity/details_table_block.html" with context_dict=indvd_context_dict %}
+    {% endif %}
+    {% if "loc" in table_list %}
+            {% include "bio_diversity/details_table_block.html" with context_dict=loc_context_dict %}
+    {% endif %}
+    {% if "pair" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=pair_context_dict %}
+    {% endif %}
+    {% if "prot" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=prot_context_dict %}
+    {% endif %}
+    {% if "matp" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=matp_context_dict %}
     {% endif %}
     {% if "sire" in table_list %}
         {% include "bio_diversity/details_table_block.html" with context_dict=sire_context_dict %}
@@ -103,9 +100,13 @@
     {% if "spwnd" in table_list %}
         {% include "bio_diversity/details_table_block.html" with context_dict=spwnd_context_dict %}
     {% endif %}
-    {% if "evnt" in table_list %}
-        {% include "bio_diversity/details_table_block.html" with context_dict=evnt_context_dict %}
+    {% if "tank" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=tank_context_dict %}
     {% endif %}
+    {% if "trof" in table_list %}
+        {% include "bio_diversity/details_table_block.html" with context_dict=trof_context_dict %}
+    {% endif %}
+
     {% if "cont" in table_list %}
         {% if cont_evnt_list %}
         <div class="card border border-dark my-1" name="container-details">
@@ -131,12 +132,6 @@
         </div>
         {% endif %}
     {% endif %}
-
-
-
-
-
-
     {% endblock %}
 </div>
 {% endblock %}
