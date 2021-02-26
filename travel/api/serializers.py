@@ -142,6 +142,7 @@ class TripRequestSerializerLITE(serializers.ModelSerializer):
     traveller_count = serializers.SerializerMethodField()
     trip = TripSerializerLITE(read_only=True)
     trip_display = serializers.SerializerMethodField()
+    fiscal_year = serializers.StringRelatedField()
 
     def get_created_by(self, instance):
         if instance.created_by:

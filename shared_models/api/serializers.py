@@ -72,6 +72,10 @@ class SectionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     full_name = serializers.SerializerMethodField()
+    tname = serializers.SerializerMethodField()
+
+    def get_tname(self, instance):
+        return instance.tname
 
     def get_full_name(self, instance):
         return instance.full_name

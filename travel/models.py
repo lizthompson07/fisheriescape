@@ -493,6 +493,7 @@ class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"), default=fiscal_year(sap_style=True),
                                     blank=True, null=True, related_name="requests", editable=False)
     name_search = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    creator_search = models.CharField(max_length=1000, blank=True, null=True, editable=False)
 
     # metadata
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_created_by", blank=True, null=True, editable=False,
@@ -560,6 +561,8 @@ class TripRequest(models.Model):
         for t in self.travellers.all():
             self.name_search += f'{t.smart_name}, '
         self.name_search = self.name_search[:-2]
+        if self.created_by:
+            self.creator_search = self.created_by.get_full_name()
         super().save(*args, **kwargs)
 
     @property

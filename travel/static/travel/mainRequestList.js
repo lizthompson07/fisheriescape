@@ -13,11 +13,9 @@ var app = new Vue({
     requests_loading: true,
 
     // filters
+    filter_search: "",
     filter_fiscal_year: "",
-    filter_trip_title: "",
     filter_status: "",
-    filter_creator: "",
-    filter_traveller: "",
     filter_region: "",
     filter_division: "",
     filter_section: "",
@@ -32,9 +30,7 @@ var app = new Vue({
   },
   methods: {
     clearFilters() {
-      this.filter_trip_title = null;
-      this.filter_traveller = null;
-      this.filter_creator = null;
+      this.filter_search = '';
       this.filter_fiscal_year = "";
       this.filter_status = "";
       this.filter_region = "";
@@ -83,13 +79,11 @@ var app = new Vue({
           endpoint += 'all=true;'
         }
         // apply filters
-        endpoint += `trip_title=${this.filter_trip_title};` +
-            `creator=${this.filter_creator};` +
-            `traveller=${this.filter_traveller};` +
+        endpoint += `search=${this.filter_search};` +
             `status=${this.filter_status};` +
             `fiscal_year=${this.filter_fiscal_year};` +
-            `region=${this.filter_region};` +
-            `division=${this.filter_division};` +
+            `section__division__branch__region=${this.filter_region};` +
+            `section__division=${this.filter_division};` +
             `section=${this.filter_section};` +
             `status=${this.filter_status};`
       }

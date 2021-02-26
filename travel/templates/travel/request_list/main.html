@@ -36,10 +36,11 @@
               <tr>
 
                 <th style="width: 75px" @click="sort('fiscal_year')" class="clickable">${requestLabels.fiscal_year}</th>
-                <th style="" @click="sort('created_by')" class="clickable">${requestLabels.created_by}</th>
                 <th style="width: 300px" @click="sort('trip')" class="clickable">${requestLabels.trip}</th>
                 <th style="" @click="sort('location')" class="clickable">{% trans "Destination" %}</th>
+                <th style="width: 100px" @click="sort('section')" class="clickable">{% trans "Region" %}</th>
                 <th style="width: 175px" @click="sort('section')" class="clickable">{% trans "Section" %}</th>
+                <th style="width: 100px" @click="sort('created_by')" class="clickable">${requestLabels.created_by}</th>
                 <th style="" @click="sort('name_search')" class="clickable">{% trans "Travellers" %}</th>
                 <th style="width: 150px" @click="sort('status_display')" class="clickable">{% trans "Trip status" %}</th>
                 <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
@@ -53,10 +54,11 @@
                 class="pointy"
               >
                 <td>${r.fiscal_year }</td>
-                <td>${r.created_by }</td>
                 <td>${r.trip.tname }</td>
                 <td>${r.trip.location }</td>
-                <td>${r.section.shortish_name }</td>
+                <td>${r.region }</td>
+                <td>${r.section.tname }</td>
+                <td>${r.created_by }</td>
                 <td>${r.name_search }</td>
                 <td :class="r.status_class">${r.status_display }</td>
                 <td>${r.trip.is_adm_approval_required |yesNo }</td>
@@ -93,7 +95,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainRequestList.js' %}?version=0.9" type="application/javascript"></script>
+  <script src="{% static '/travel/mainRequestList.js' %}?version=1.0" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>
