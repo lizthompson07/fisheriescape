@@ -35,11 +35,12 @@ urlpatterns = [
     path('trips/<int:pk>/clone/', views.TripCloneView.as_view(), name="trip_clone"),
     path('trips/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
     path('trips/<int:pk>/cancel/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
-
-    path('trips/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
     path('trips/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
 
+
     # verification
+    path('trips/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
+
     path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
     path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
          name="trip_reassign_confirm"),

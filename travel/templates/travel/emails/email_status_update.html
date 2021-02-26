@@ -11,6 +11,7 @@ table, th, td {
   *** un message français suivra
 </em>
 <br><br>
+{% language 'en' %}
 
 <p>
   {{ triprequest.created_by.first_name }},
@@ -19,7 +20,7 @@ table, th, td {
   {% if triprequest.status != 11 %}
     {{ triprequest.get_status_display }}.
   {% else %}
-    {{ triprequest.get_status_display }} by the RDG.
+    {{ triprequest.get_status_display }}.
     <u style="color: red">
       You may now create your travel request in HRG in order to have travel authority.
     </u>
@@ -36,6 +37,7 @@ table, th, td {
     {% verbose_td_display triprequest field %}
   {% endfor %}
 </table>
+{% endlanguage %}
 
 <p>
   ********************************************************************
@@ -49,7 +51,7 @@ table, th, td {
     {% if triprequest.status != 11 %}
       {{ triprequest.get_status_display }}.
     {% else %}
-      {{ triprequest.get_status_display }} par le DGR.
+      {{ triprequest.get_status_display }}.
       <u style="color: red">
         Tu peux maintenant faire ta demande de voyage dans HRG pour te donner l’autorité de voyager.
       </u>

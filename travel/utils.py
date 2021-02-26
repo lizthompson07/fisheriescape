@@ -676,9 +676,9 @@ def get_requests_with_managerial_access(user):
         return queryset
     else:
         qs = queryset.filter(Q(section__admin=user) | Q(section__head=user)
-                        | Q(section__division__admin=user) | Q(section__division__head=user)
-                        | Q(section__division__branch__admin=user) | Q(section__division__branch__head=user)
-                        | Q(section__division__branch__region__admin=user) | Q(section__division__branch__region__head=user))
+                             | Q(section__division__admin=user) | Q(section__division__head=user)
+                             | Q(section__division__branch__admin=user) | Q(section__division__branch__head=user)
+                             | Q(section__division__branch__region__admin=user) | Q(section__division__branch__region__head=user))
         return qs
 
 
@@ -780,3 +780,22 @@ def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
         approval_seeker(new_obj, False, request)
 
 
+def get_trip_field_list(trip=None):
+    my_list = [
+        'tname|{}'.format(_("Name")),
+        'location',
+        'trip_subcategory',
+        'lead',
+        'has_event_template',
+        'number',
+        'start_date',
+        'end_date',
+        'meeting_url',
+        'abstract_deadline',
+        'registration_deadline',
+        'is_adm_approval_required',
+        'notes',
+    ]
+
+    while None in my_list: my_list.remove(None)
+    return my_list

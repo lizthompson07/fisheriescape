@@ -8,15 +8,12 @@
 
 {% block subcontent %}
   <div id="app" v-cloak>
-
     <h1 v-if="pageType=== 'all'">
       <span v-if="isAdmin">{% trans "All Trip Requests" %}</span>
       <span v-else>{% trans "Trip Requests Under Your Purview" %}</span>
     </h1>
     <h1 v-else>{% trans "Your Associated Requests" %}</h1>
-
     <div>
-
       <div class="row container-fluid bg-light curvy">
         <div class="col">
           <div>
@@ -48,7 +45,6 @@
               <div class="float-right">
                 <a class="mb-3 btn btn-sm btn-success" href="{% url 'travel:request_new' %}">{% trans "New Request" %}</a>
               </div>
-
               <div>
                 <div class="text-center">
                   <p class="font-italic font-weight-bold">{% trans "${requests.length} of ${count} loaded" %}</p>
@@ -57,7 +53,6 @@
               <table class="table table-sm table-hover">
                 <thead>
                 <tr>
-
                   <th style="width: 75px" @click="sort('fiscal_year')" class="clickable">${requestLabels.fiscal_year}</th>
                   <th style="width: 300px" @click="sort('trip')" class="clickable">${requestLabels.trip}</th>
                   <th style="" @click="sort('location')" class="clickable">{% trans "Destination" %}</th>
@@ -103,14 +98,11 @@
                 </button>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   </div>
-
 
 {% endblock %}
 
