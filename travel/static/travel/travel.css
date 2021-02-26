@@ -181,3 +181,10 @@ table, td {
     font-size: small;
 }
 
+.btn-success{
+    background-color: darkgreen;
+}
+
+.btn-primary{
+    background-color: darkblue;
+}

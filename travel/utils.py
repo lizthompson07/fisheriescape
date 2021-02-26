@@ -672,13 +672,14 @@ def is_manager_or_assistant_or_admin(user):
 
 def get_requests_with_managerial_access(user):
     queryset = models.TripRequest.objects.all()
-    if in_travel_admin_group(user) or in_adm_admin_group(user):
+    if is_admin(user):
         return queryset
     else:
-        return queryset.filter(Q(section__admin=user) | Q(section__head=user)
-                               | Q(section__division__admin=user) | Q(section__division__head=user)
-                               | Q(section__division__branch__admin=user) | Q(section__division__branch__head=user)
-                               | Q(section__division__branch__region__admin=user) | Q(section__division__branch__region__head=user))
+        qs = queryset.filter(Q(section__admin=user) | Q(section__head=user)
+                        | Q(section__division__admin=user) | Q(section__division__head=user)
+                        | Q(section__division__branch__admin=user) | Q(section__division__branch__head=user)
+                        | Q(section__division__branch__region__admin=user) | Q(section__division__branch__region__head=user))
+        return qs
 
 
 def upload_to_azure_blob(target_file_path, target_file):

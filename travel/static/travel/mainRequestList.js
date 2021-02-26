@@ -10,7 +10,8 @@ var app = new Vue({
     next: null,
     previous: null,
     requests: [],
-    requests_loading: true,
+    requests_loading: false,
+    showSearchLanding: false,
 
     // filters
     filter_search: "",
@@ -69,6 +70,7 @@ var app = new Vue({
       });
     },
     getRequests(endpoint) {
+      this.showSearchLanding = false;
       this.requests_loading = true;
       if (!endpoint) {
         endpoint = `/api/travel/requests/?`;
@@ -145,10 +147,23 @@ var app = new Vue({
         return 0;
       });
     },
+    pageType() {
+      let uri = window.location.search.substring(1);
+      let params = new URLSearchParams(uri);
+      params.get("all");
+      if (params.get("all")) return 'all';
+      else return "personal";
+    },
+    isAdmin() {
+      return this.currentUser && this.currentUser.is_admin;
+    },
   },
   created() {
     this.getCurrentUser()
-    this.getRequests()
+
+    if (this.pageType !== 'all') this.getRequests();
+    else this.showSearchLanding = true;
+
     this.getFilterData()
     this.getRequestMetadata()
 

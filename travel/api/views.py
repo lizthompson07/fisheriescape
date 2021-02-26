@@ -149,8 +149,8 @@ class RequestViewSet(viewsets.ModelViewSet):
                 return models.TripRequest.objects.filter(pk=self.kwargs.get("pk"))
         else:
             qp = self.request.query_params
-            if qp.get("all") and utils.is_admin(self.request.user):
-                qs = models.TripRequest.objects.order_by("-updated_at")
+            if qp.get("all") and utils.is_manager_or_assistant_or_admin(self.request.user):
+                qs = utils.get_requests_with_managerial_access(self.request.user).order_by("-updated_at")
             else:
                 qs = utils.get_related_requests(self.request.user).order_by("-updated_at")
             return qs
