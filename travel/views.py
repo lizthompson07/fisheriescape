@@ -110,8 +110,6 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         return context
 
 
-
-
 def get_help_text_dict():
     my_dict = {}
     for obj in models.HelpText.objects.all():
@@ -839,12 +837,11 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = get_object_or_404(models.Trip, pk=self.kwargs.get("pk"))
         context["object"] = my_trip
+        context["trip_field_list"] = utils.get_trip_field_list()
         context["trip_subcategories"] = models.TripSubcategory.objects.all()
-
         base_qs = models.Trip.objects.filter(~Q(id=my_trip.id)).filter(fiscal_year=my_trip.fiscal_year)
-
         context["same_day_trips"] = base_qs.filter(Q(start_date=my_trip.start_date) | Q(end_date=my_trip.end_date))
         context["same_location_trips"] = base_qs.filter(
             id__in=[trip.id for trip in base_qs if trip.location and my_trip.location and
@@ -866,13 +863,16 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         my_trip.status = 41
         my_trip.verified_by = self.request.user
         my_trip.save()
+
+        # DJF - there is potentially a problem here with the logic
         if self.get_query_string() == "":  # means they are coming from the trip detail page
             return HttpResponseRedirect(reverse("travel:trip_detail", args=[my_trip.id]))
         else:
             return HttpResponseRedirect(reverse("travel:trip_list") + self.get_query_string())
 
 
-class TripSelectFormView(TravelAdminRequiredMixin, CommonPopoutFormView):
+class TripSelectFormView(TravelAdminRequiredMixin, CommonFormView):
+    template_name = 'travel/form.html'
     form_class = forms.TripSelectForm
     h1 = gettext_lazy("Please select a trip to re-assign:")
     h3 = gettext_lazy("(You will have a chance to review this action before it is carried out.)")
@@ -914,7 +914,7 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
         'end_date',
         'meeting_url',
         'is_adm_approval_required',
-        'status_string|{}'.format("status"),
+        'status',
         'traveller_list|{}'.format("travellers"),
         'requests|{}'.format("linked trip requests"),
     ]
@@ -945,22 +945,12 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
         # start out optimistic
         duplicate_ppl = list()
         # we have to sift through each tr that will be transferred to the new trip and ensure that there is no overlap with the new travellers
-        request_users_from_trip_b = [tr.user for tr in trip_b.trip_requests.all() if
-                                     tr.user]  # this will be only individual requests and parent group requests
-        travellers_from_trip_b = trip_b.traveller_list
-        for tr in trip_a.trip_requests.all():
-            # if
-            if tr.user and tr.user in request_users_from_trip_b:
-                duplicate_ppl.append(tr.user)
+        traveller_users_from_trip_a = User.objects.filter(travellers__request__trip=trip_b).distinct()
+        traveller_users_from_trip_b = User.objects.filter(travellers__request__trip=trip_a).distinct()
 
-            # now, depending on whether this request is a group request, our method will change.
-            # if TR is a group request, we have to make sure there is no overlap in the travellers
-            # but because of the traveller() method, we can just use one approach
-
-            else:
-                for traveller in tr.travellers:
-                    if traveller in travellers_from_trip_b:
-                        duplicate_ppl.append(traveller)
+        for user in traveller_users_from_trip_a:
+            if user in traveller_users_from_trip_b:
+                duplicate_ppl.append(user)
 
         context["duplicate_ppl"] = duplicate_ppl
         return context
@@ -971,12 +961,12 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
             trip_a = models.Trip.objects.get(pk=self.kwargs.get("trip_a"))
             trip_b = models.Trip.objects.get(pk=self.kwargs.get("trip_b"))
 
-            for tr in trip_a.trip_requests.all():
+            for tr in trip_a.requests.all():
                 tr.trip = trip_b
                 tr.save()
-
-            # trip_a.delete()
-            return HttpResponseRedirect(reverse("shared_models:close_me"))
+            messages.success(request,
+                             _("All trips from {trip_a} have been reassigned to {trip_b}. You may now delete this trip.").format(trip_a=trip_a, trip_b=trip_b))
+            return HttpResponseRedirect(reverse("travel:trip_verify", args=[trip_a.id]))
 
 
 class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):

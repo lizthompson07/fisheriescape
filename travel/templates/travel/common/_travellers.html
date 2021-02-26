@@ -211,7 +211,7 @@
                 </label>
                 <input type="text" v-model="travellerToEdit.company_name" class="form-control form-control-sm" required>
               </div>
-              <div class="form-group">
+              <div class="form-group" v-if="request.id && !request.trip.is_virtual">
                 <label for="">
                   ${travellerLabels.departure_location}
                   <span v-if="helpText.departure_location" @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
