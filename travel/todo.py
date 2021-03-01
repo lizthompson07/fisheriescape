@@ -1,12 +1,10 @@
-
 # TODO: email Class with send method etc
 # TODO: test traveller delete email
 # TODO: test changes requested email
 # todo:  email for when ppl are deleted from a request
 
 # TODO: fix up unit tests
-    # TODO: test new model choices!!
-
+# TODO: test new model choices!!
 
 # TODO: should not be able to submit a trip without any REGISTERED reviewers (either admins or special reviewers)
 # TODO: for ADM approval, we can check against the special role table --> check with Amelie if we want to tighten this up
