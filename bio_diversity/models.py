@@ -711,7 +711,7 @@ class GroupDet(BioDet):
                     old_grpd.grpd_valid = False
                     old_grpd.save()
 
-            current_grpd_set = [anix.groupd_details.filter(detail_date__gt=self.detail_date) for anix in anix_set]
+            current_grpd_set = [anix.group_details.filter(detail_date__gt=self.detail_date) for anix in anix_set]
             for current_grpd in current_grpd_set:
                 if current_grpd:
                     self.grpd_valid = False
