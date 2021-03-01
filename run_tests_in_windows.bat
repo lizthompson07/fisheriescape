@@ -33,3 +33,6 @@ python manage.py test --exclude-tag=Functional -b bio_diversity.test --keepdb
 
 :: run tests for scuba
 python manage.py test -b scuba.test --keepdb
+
+:: run tests for scuba
+python manage.py test -b publications.test --keepdb

@@ -50,6 +50,10 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns.append(
         path('api/', include('bio_diversity.api.urls')),
     )
+if settings.INSTALLED_APPS.count("publications"):
+    urlpatterns.append(
+        path('api/', include('publications.api.urls')),
+    )
 
 if settings.INSTALLED_APPS.count("events"):
     urlpatterns.extend([
