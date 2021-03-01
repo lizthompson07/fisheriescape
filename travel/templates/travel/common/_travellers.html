@@ -5,7 +5,7 @@
 {% load travel_tags %}
 {% load verbose_names %}
 
-<div class="card mb-4">
+<div class="card mb-4" id="travellers_head">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right" v-if="!travellerToEdit">
       <button v-if="!isReview && canModify && !travellerToEdit" @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}"
@@ -48,8 +48,9 @@
                                                                                                                 title="{% trans "Clone" %}"></span></button>
                     <button v-if="canModify && !t.show_me" @click="deleteTraveller(t)"><span class="mdi mdi-delete h4" data-toggle="tooltip"
                                                                                              title="{% trans "Remove" %}"></span></button>
-                    <button v-if="canCherryPick(t) && !t.show_me" @click="cherryPickTraveller(t)"><span class="mdi mdi-check-circle text-success h4" data-toggle="tooltip"
-                                                                                             title="{% trans "Cherry Pick" %}"></span></button>
+                    <button v-if="canCherryPick(t) && !t.show_me" @click="cherryPickTraveller(t)"><span class="mdi mdi-check-circle text-success h4"
+                                                                                                        data-toggle="tooltip"
+                                                                                                        title="{% trans "Cherry Pick" %}"></span></button>
 
                     <button v-if="!t.show_me" @click="toggleShowMe(t)" data-toggle="tooltip" title="{% trans "Expand" %}">
                       <span class="mdi mdi-arrow-collapse-down h4"></span>
@@ -313,7 +314,18 @@
         </div>
         <div v-else>
           <em v-if="trip">{% trans "There are no travellers associated with this trip" %}</em>
-          <em v-else>{% trans "There are no travellers associated with this request" %}</em>
+          <div v-else>
+            <span class="mdi mdi-account-multiple h1 mr-3"></span>
+            <em
+              class="lead draw-attention py-1 px-1">{% trans "There are no travellers associated with this request" %}</em>
+            <div class="text-center mt-3" v-if="!isReview && canModify && !travellerToEdit">
+              <button @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}"
+                      class="btn btn-lg btn-warning">
+                {% trans "Click here to add your first traveller!" %}
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
