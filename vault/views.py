@@ -564,10 +564,10 @@ class ObservationDetailView(VaultAdminAccessRequired, CommonDetailView):
         context["random_obsighting"] = models.ObservationSighting.objects.first()
         context["obsighting_field_list"] = [
             'species',
+            'quantity',
             'certainty',
-            'sex',
-            'life_stage',
             'health_status',
+            'calf',
             'verified',
             'known_individual',
         ]
