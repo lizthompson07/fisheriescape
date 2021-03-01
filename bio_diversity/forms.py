@@ -1309,7 +1309,10 @@ class EvntForm(CreateTimePrams):
     class Meta:
         model = models.Event
         exclude = []
-        widgets = {}
+        widgets = {
+            "evntc_id": forms.Select(attrs={"class": "chosen-select-contains"}),
+            "perc_id": forms.Select(attrs={"class": "chosen-select-contains"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1558,6 +1561,10 @@ class ProtForm(CreateDatePrams):
     class Meta:
         model = models.Protocol
         exclude = []
+        widgets = {
+            "evntc_id": forms.Select(attrs={"class": "chosen-select-contains"}),
+            "protc_id": forms.Select(attrs={"class": "chosen-select-contains"}),
+        }
 
 
 class ProtcForm(CreatePrams):

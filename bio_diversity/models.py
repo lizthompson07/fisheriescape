@@ -373,6 +373,7 @@ class Cup(BioCont):
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='cup_uniqueness')
         ]
+        ordering = ['facic_id', 'name']
 
 
 class CupDet(BioContainerDet):
@@ -734,6 +735,8 @@ class HeathUnit(BioCont):
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='heat_uniqueness')
         ]
+        ordering = ['facic_id', 'name']
+
 
 
 class HeathUnitDet(BioContainerDet):
@@ -1399,6 +1402,8 @@ class Tank(BioCont):
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='tank_uniqueness')
         ]
+        ordering = ['facic_id', 'name']
+
 
 
 class TankDet(BioContainerDet):
@@ -1432,6 +1437,7 @@ class Tray(BioCont):
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='tray_uniqueness')
         ]
+        ordering = ['facic_id', 'name']
 
 
 class TrayDet(BioContainerDet):
@@ -1458,6 +1464,7 @@ class Trough(BioCont):
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='trof_uniqueness')
         ]
+        ordering = ['facic_id', 'name']
 
 
 class TroughDet(BioContainerDet):
