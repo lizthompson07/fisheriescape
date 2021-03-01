@@ -44,7 +44,7 @@
             <td><span :class="item.status_class + ' px-1 py-1'">${item.status_display }</span></td>
             <td>${item.status_date |nz }</td>
             <td v-html="item.comments_html"></td>
-            <td v-if="!isReview && isAdmin && item.status === 1 && (item.role !== 5 && item.role !== 6)" style="width: 75px">
+            <td v-if="!isReview && isAdmin && item.status === 1" style="width: 75px">
               <button
                 @click="skipReviewer(item)"
                 class="btn btn-sm btn-danger py-0 px-1" data-toggle="tooltip" title="{% trans "Skip" %}">

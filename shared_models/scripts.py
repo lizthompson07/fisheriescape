@@ -14,6 +14,10 @@ def resave_sections():
     for s in models.Section.objects.all():
         s.save()
 
+def resave_organizations():
+    for obj in models.Organization.objects.all():
+        obj.save()
+
 
 def save_and_add_uuid():
     model_list = [models.Region, models.Branch, models.Division, models.Section, models.Province]
