@@ -818,10 +818,10 @@ class DataForm(CreatePrams):
                 try:
                     contx = enter_tank_contx(row["Pond"], cleaned_data, None, return_contx=True)
                     row_date = row["Date"].date()
-                    if row["Time (24HR)"]:
-                        row_time = make_aware(row["Time (24HR)"])
-                    else:
-                        row_time = None
+
+                    if not math.isnan(row["Time (24HR)"]):
+                        row_time = row["Time (24HR)"].replace(tzinfo=pytz.UTC)
+
                     if enter_env(row["Temp °C"], row_date, cleaned_data, "Temperature", contx=contx, env_start=row_time):
                         row_entered = True
                     if enter_env(row["DO%"], row_date, cleaned_data, "Oxygen Level", contx=contx, env_start=row_time):
@@ -851,7 +851,7 @@ class DataForm(CreatePrams):
         # ---------------------------MACTAQUAC SPAWNING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=5, sheet_name="RECORDED matings" )
+                data = pd.read_excel(cleaned_data["data_csv"], header=5, sheet_name="RECORDED matings")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 raise Exception("File format not valid: {}".format(err.__str__()))
@@ -1544,11 +1544,6 @@ class ProgForm(CreateDatePrams):
     class Meta:
         model = models.Program
         exclude = []
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['orga_id'].create_url = 'bio_diversity:create_orga'
 
 
 class ProgaForm(CreatePrams):

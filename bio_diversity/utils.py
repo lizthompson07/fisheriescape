@@ -162,6 +162,9 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=N
 def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, indv_pk=None, grp_pk=None):
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
+    if origin == destination:
+        row_entered = False
+        return row_entered
 
     if enter_tank_contx(origin, cleaned_data, None):
         row_entered = True

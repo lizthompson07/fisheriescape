@@ -883,6 +883,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             context["table_list"] = ["data", "indv", "pair", "grp", "matp", "prot"]
         elif evnt_code == "Treatment":
             context["table_list"] = ["data", "tank", "trof", "prot"]
+        elif evnt_code == "Movement":
+            context["table_list"] = ["indv", "grp", "tank", "trof", "prot"]
 
         return context
 
