@@ -767,7 +767,7 @@ class EnvscDetails(mixins.EnvscMixin, CommonDetails):
 
 
 class EnvtDetails(mixins.EnvtMixin, CommonDetails):
-    fields = ["envtc_id", "lot_num", "amt", "unit_id", "duration", "comments", "created_by",
+    fields = ["envtc_id", "lot_num", "amt", "unit_id", "concentration_str", "duration", "comments", "created_by",
               "created_date", ]
 
 
@@ -1299,7 +1299,7 @@ class TankDetails(mixins.TankMixin, CommonDetails):
                                        "single_object": obj_mixin.model.objects.first()}
 
         envt_list = [envt for contx in self.object.contxs.all() for envt in contx.env_treatment.all()]
-        envt_field_list = ["envtc_id", "amt", "unit_id", "duration", ]
+        envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str", "duration", ]
         obj_mixin = mixins.EnvtMixin
         context["envt_context_dict"] = {"div_title": "Container Treatments",
                                         "sub_model_key": obj_mixin.key,

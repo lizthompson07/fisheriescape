@@ -10,10 +10,11 @@ from django.forms import modelformset_factory
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext
 import pandas as pd
+from decimal import Decimal
 
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
-    create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter
+    create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration
 
 
 class CreatePrams(forms.ModelForm):
@@ -1215,13 +1216,14 @@ class DataForm(CreatePrams):
                     contx = enter_tank_contx(row["Pond / Trough"], cleaned_data, None, return_contx=True)
                     val, unit_str = val_unit_splitter(row["Amount"])
                     duration, time_unit = val_unit_splitter(row["Duration"])
+                    row_concentration = parse_concentration(row["Concentration"])
                     envt = models.EnvTreatment(contx_id=contx,
                                                envtc_id=models.EnvTreatCode.objects.filter(name__icontains=row["Treatment Type"]).get(),
                                                lot_num=None,
                                                amt=val,
                                                unit_id=models.UnitCode.objects.filter(name__icontains=unit_str).get(),
                                                duration=60*duration,
-                                               comments=row["Concentration"],
+                                               concentration=row_concentration.quantize(Decimal("0.000001")),
                                                created_by=cleaned_data["created_by"],
                                                created_date=cleaned_data["created_date"],
                                                )

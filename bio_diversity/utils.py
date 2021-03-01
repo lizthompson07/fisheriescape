@@ -5,7 +5,7 @@ import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.utils import timezone
-
+from decimal import Decimal
 from bio_diversity import models
 
 
@@ -49,6 +49,17 @@ def val_unit_splitter(full_str):
     unit_str = full_str.lstrip(' 0123456789.')
     val = float(full_str[:len(full_str) - len(unit_str)])
     return val, unit_str.strip()
+
+
+def parse_concentration(concentration_str):
+    if "%" in concentration_str:
+        return Decimal(float(concentration_str.rstrip("%"))/100)
+    elif ":" in concentration_str:
+        concentration_str = concentration_str.replace(" ", "")
+        concentration_str = concentration_str.replace("1:", "", 1)
+        return Decimal(1.0/float(concentration_str))
+    else:
+        return None
 
 
 def get_cont_evnt(contx_tuple):

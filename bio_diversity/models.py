@@ -522,6 +522,8 @@ class EnvTreatment(BioModel):
                                  verbose_name=_("Environment Treatment Code"))
     lot_num = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Lot Number"))
     amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"))
+    concentration = models.DecimalField(max_digits=8, decimal_places=7, null=True, blank=True,
+                                        verbose_name=_("Concentration"))
     unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"))
     duration = models.DecimalField(max_digits=5, decimal_places=0, verbose_name=_("Duration (minutes)"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
@@ -533,6 +535,14 @@ class EnvTreatment(BioModel):
         constraints = [
             models.UniqueConstraint(fields=['contx_id', 'envtc_id'], name='Environment_Treatment_Uniqueness')
         ]
+
+    @property
+    def concentration_str(self):
+        if self.concentration:
+            return "1:{}  |  {:.3}%".format(int(1/self.concentration), 100 * self.concentration)
+        else:
+            return None
+    concentration_str.fget.short_description = "Concentration"
 
 
 class Event(BioTimeModel):
