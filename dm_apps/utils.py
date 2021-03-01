@@ -6,6 +6,8 @@ from python_http_client import BadRequestsError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, Personalization
 
+from lib.templatetags.custom_filters import nz
+
 
 def get_azure_connection_dict():
     key_list = [
@@ -83,7 +85,7 @@ def get_db_connection_dict():
     return my_dict
 
 
-def custom_send_mail(subject, html_message, from_email, recipient_list):
+def custom_send_mail(subject, html_message, from_email, recipient_list, text_message=None):
     """
     The role of this function is to handle the sending of an email message based on the configuration of the project setting.py file.
     - If settings.USE_SENDGRID = True, the mail will be sent with the python sendgrid package using the sendgrid REST api
@@ -107,7 +109,8 @@ def custom_send_mail(subject, html_message, from_email, recipient_list):
             from_email=from_email,
             to_emails=None,
             subject=subject,
-            html_content=html_message
+            html_content=html_message,
+            plain_text_content=text_message
         )
         mail.add_personalization(to_list)
         try:
@@ -117,8 +120,8 @@ def custom_send_mail(subject, html_message, from_email, recipient_list):
 
     elif settings.USE_SMTP_EMAIL:
         django_send_mail(
-            message='',
             subject=subject,
+            message=nz(text_message, ''),
             html_message=html_message,
             from_email=from_email,
             recipient_list=recipient_list,
