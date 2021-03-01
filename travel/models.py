@@ -16,6 +16,7 @@ from lib.templatetags.custom_filters import nz, currency
 from shared_models import models as shared_models
 from shared_models.models import Lookup, SimpleLookup
 from shared_models.utils import get_metadata_string
+from travel import utils
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -508,6 +509,13 @@ class TripRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_updated_by", blank=True, null=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    def unsubmit(self):
+        self.submitted = None
+        self.status = 8
+        self.save()
+        # reset all the reviewer statuses
+        utils.end_request_review_process(self)
 
     @property
     def travellers_from_other_requests(self):

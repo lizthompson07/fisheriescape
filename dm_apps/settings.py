@@ -38,7 +38,7 @@ DEBUG = config("DEBUG", cast=bool, default=True)
 # should vuejs be vued in debug mode?
 VUEJS_DEBUG = config("VUEJS_DEBUG", cast=bool, default=False)
 # Where do you want to set the bar for logging? {DEBUG, INFO, WARNING, ERROR, CRITICAL}
-LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="INFO")
+LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
 # What is the path to the log file?
 LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR, 'error.log'))
 # the default 'from' email address used for system emails

@@ -39,9 +39,7 @@
 
       {% include "travel/common/_trip_admin_notes_button.html" %}
 
-
       {# all admins can modify trip detail #}
-
       <a v-if="canModify" class="btn btn-admin" href="{% url 'travel:trip_edit' object.id %}{{ view.get_query_string }}">
         {% trans "Edit" %}
       </a>
@@ -78,10 +76,11 @@
         <p class="card-text" v-html="trip.admin_notes_html"></p>
       </div>
     </div>
-
     {% include "travel/common/_trip_detail.html" %}
-    {% include "travel/common/_travellers.html" %}
-    <div v-if="trip.is_adm_approval_required">
+    <div v-if="isNCRAdmin || (!trip.is_adm_approval_required && isAdmin)">
+      {% include "travel/common/_travellers.html" %}
+    </div>
+    <div v-if="trip.is_adm_approval_required && isNCRAdmin">
       {% include "travel/common/_reviewers.html" %}
     </div>
   </div>

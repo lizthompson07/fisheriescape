@@ -21,6 +21,7 @@
         </div>
       </div>
       <div v-else>
+        <p class="lead" style="text-decoration: underline">{% trans "Details" %}</p>
         <table class="table table-sm mb-5" style="width: auto">
           <tr>
             <th style="width: 25%">${requestLabels.fiscal_year}</th>
@@ -75,26 +76,6 @@
             <td>${request.notes}</td>
           </tr>
           <tr>
-            <th style="width: 25%">{% trans "Total cost (CAD)" %}</th>
-            <td>${request.total_request_cost | floatformat}</td>
-          </tr>
-          <tr>
-            <th style="width: 25%">{% trans "Total non-DFO funding (CAD)" %}</th>
-            <td>${request.total_non_dfo_funding| floatformat}</td>
-          </tr>
-          <tr>
-            <th style="width: 25%">{% trans "Total DFO funding (CAD)" %}</th>
-            <td>${request.total_dfo_funding| floatformat }</td>
-          </tr>
-          <tr>
-            <th style="width: 25%">{% trans "Non-DFO funding sources" %}</th>
-            <td>${request.total_non_dfo_funding_sources |nz}</td>
-          </tr>
-          <tr>
-            <th style="width: 25%">{% trans "DFO funding source" %}</th>
-            <td>${request.funding_source |nz}</td>
-          </tr>
-          <tr>
             <th style="width: 25%">${requestLabels.original_submission_date}</th>
             <td>${request.original_submission_date}</td>
           </tr>
@@ -110,6 +91,44 @@
             <th style="width: 25%">{% trans "Metadata" %}</th>
             <td v-html="request.metadata"></td>
           </tr>
+        </table>
+
+        <p class="lead"  style="text-decoration: underline">{% trans "Costs" %}</p>
+        <table class="table table-sm table-bordered" style="width: auto;">
+          <thead>
+          <tr>
+            <th></th>
+            <th>{% trans "Amount (CAD)" %}</th>
+            <th>{% trans "Funding source(s)" %}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td style="width: 25%">{% trans "DFO" %}</td>
+            <td>
+              ${request.total_dfo_funding| floatformat }
+            </td>
+            <td>
+              ${request.funding_source |nz}
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 25%">{% trans "Non-DFO" %}</td>
+            <td>
+              ${request.total_non_dfo_funding| floatformat }
+            </td>
+            <td>
+              ${request.total_non_dfo_funding_sources |nz}
+            </td>
+          </tr>
+          <tr>
+            <th style="width: 25%">{% trans "TOTAL" %}</th>
+            <th>
+              ${request.total_request_cost| floatformat }
+            </th>
+          </tr>
+
+          </tbody>
         </table>
 
         <div v-if="isReview" class="mb-5">
