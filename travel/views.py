@@ -198,7 +198,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
         if form.cleaned_data.get("stay_on_page"):
             return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs=self.kwargs) + self.get_query_string())
         else:
-            return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
+            return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + self.get_query_string() + "#travellers_head")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -236,7 +236,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
 
         # add reviewers
         utils.get_request_reviewers(my_object)
-        return HttpResponseRedirect(reverse_lazy("travel:request_detail", args=[my_object.id]) + self.get_query_string())
+        return HttpResponseRedirect(reverse_lazy("travel:request_detail", args=[my_object.id]) + self.get_query_string() + "#travellers_head")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -365,11 +365,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
         if is_submitted:
             #  UNSUBMIT REQUEST
             if in_travel_admin_group(self.request.user) or my_object.user == self.request.user:
-                my_object.submitted = None
-                my_object.status = 8
-                my_object.save()
-                # reset all the reviewer statuses
-                utils.end_request_review_process(my_object)
+                my_object.unsubmit()
             else:
                 messages.error(self.request, "sorry, only admins or owners can un-submit requests")
         else:

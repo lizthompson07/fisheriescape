@@ -28,7 +28,6 @@ from . import emails
 def index_router(request):
     # if the user is a staff user, then go to my_tickets
     if request.user.id:
-        print("there is a user")
         if request.user.is_staff:
             # go to assigned tickets
             return HttpResponseRedirect(reverse("tickets:my_assigned_list"))

@@ -123,7 +123,6 @@ class RequestViewSet(viewsets.ModelViewSet):
     search_fields = ['name_search', 'creator_search', 'trip__name', 'trip__nom', 'trip__location']
     filterset_fields = ['fiscal_year', 'status', 'section', "section__division", "section__division__branch__region"]
 
-
     def post(self, request, pk):
         qp = request.query_params
         obj = get_object_or_404(models.TripRequest, pk=pk)
@@ -144,8 +143,17 @@ class RequestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # if someone is looking for a specific object...
         if self.kwargs.get("pk"):
+            my_request = get_object_or_404(models.TripRequest, pk=self.kwargs.get("pk"))
             related_ids = [r.id for r in utils.get_related_requests(self.request.user)]
-            can_proceed = utils.can_modify_request(self.request.user, self.kwargs.get("pk")) or int(self.kwargs.get("pk")) in related_ids
+
+            can_proceed = False
+            if utils.can_modify_request(self.request.user, self.kwargs.get("pk")):
+                can_proceed = True
+            elif int(self.kwargs.get("pk")) in related_ids:
+                can_proceed = True
+            elif my_request in utils.get_requests_with_managerial_access(self.request.user):
+                can_proceed = True
+
             if can_proceed:
                 return models.TripRequest.objects.filter(pk=self.kwargs.get("pk"))
         else:
@@ -221,6 +229,10 @@ class TravellerViewSet(viewsets.ModelViewSet):
                 from_email=email.from_email,
                 recipient_list=email.to_list
             )
+
+        # if after deleting this traveller, there are no more travellers, we should unsubmit this trip.
+        if not my_request.travellers.exists():
+            my_request.unsubmit()
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)

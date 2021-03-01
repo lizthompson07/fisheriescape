@@ -522,7 +522,7 @@ var app = new Vue({
     submitTip() {
       if (this.request.id) {
         if (this.request.is_late_request && !this.request.late_justification) return lateJustificationTip;
-        else if (!this.request.travellers.length) return noTravellersTip;
+        else if (!this.request.submitted && !this.request.travellers.length) return noTravellersTip;
       }
     },
     travellerColClass() {
