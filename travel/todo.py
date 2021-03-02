@@ -1,3 +1,9 @@
+# TODO: when trip is in draft mode, travller cards should not collapse
+# TODO: when a creator is also a traveller, the submitting the create form should result in the traveller form being opened on the detail page
+# TODO: submit button should say re-submit when changes are requested
+
+
+
 # TODO: email Class with send method etc
 # TODO: test traveller delete email
 # TODO: test changes requested email

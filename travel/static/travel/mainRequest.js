@@ -516,6 +516,9 @@ var app = new Vue({
     isOwner() {
       return this.currentUser && this.currentUser.is_owner;
     },
+    isTraveller() {
+      return this.currentUser && this.currentUser.is_traveller;
+    },
     reviewers() {
       if (this.request) return this.request.reviewers;
     },

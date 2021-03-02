@@ -142,7 +142,9 @@ class TicketDetailView(LoginRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
-        context['email'] = emails.TicketResolvedEmail(self.object, self.request)
+        email = emails.TicketResolvedEmail(self.request, self.object)
+
+        context['email'] = email.as_table()
         context["field_group_1"] = [
             "primary_contact",
             "dm_assigned",
@@ -268,14 +270,9 @@ class TicketCreateView(LoginRequiredMixin, CommonCreateView):
                 self.object.dm_assigned.add(u)
 
         # create a new email object
-        email = emails.NewTicketEmail(self.object, self.request)
+        email = emails.NewTicketEmail(self.request, self.object)
         # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
+        email.send()
         messages.success(self.request, "The new ticket has been logged and a confirmation email has been sent!")
 
         # check to see if a generic file should be appended
@@ -321,14 +318,9 @@ class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
                 obj.dm_assigned.add(u)
 
         # create a new email object
-        email = emails.NewTicketEmail(obj, self.request)
+        email = emails.NewTicketEmail(self.request, obj)
         # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
+        email.send()
         return HttpResponseRedirect(reverse_lazy('tickets:confirm'))
 
 
@@ -360,18 +352,7 @@ class FileCreateView(LoginRequiredMixin, CommonPopoutCreateView):
         return {'ticket': ticket}
 
     def form_valid(self, form):
-        self.object = form.save()
-
-        # create a new email object
-        email = emails.NewFileAddedEmail(self.object, self.request)
-        # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
-
+        form.save()
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
@@ -449,28 +430,22 @@ class FollowUpCreateView(LoginRequiredMixin, CommonPopoutCreateView):
         }
 
     def form_valid(self, form):
-        self.object = form.save()
+        obj = form.save()
 
         # create a new email object
-        email = emails.NewFollowUpEmail(self.object, self.request)
-        # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
+        email = emails.NewFollowUpEmail(self.request, obj)
+        email.send()
 
         # github
-        if self.object.ticket.github_issue_number:
+        if obj.ticket.github_issue_number:
             # If a github issue number exists, create this follow up as a comment
             my_comment = create_or_edit_comment(
-                self.object.created_by_id,
-                self.object.message,
-                self.object.ticket.github_issue_number,
+                obj.created_by_id,
+                obj.message,
+                obj.ticket.github_issue_number,
             )
-            self.object.github_id = my_comment.id
-            self.object.save()
+            obj.github_id = my_comment.id
+            obj.save()
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 

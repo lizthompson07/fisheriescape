@@ -5,6 +5,7 @@ from django.template import loader
 from django.utils.translation import activate, get_language
 
 from dm_apps.context_processor import my_envr
+from dm_apps.emails import Email
 
 from_email = settings.SITE_FROM_EMAIL
 
@@ -75,30 +76,28 @@ class RDGReviewAwaitingEmail:
         return rendered
 
 
-class ReviewAwaitingEmail:
-    def __init__(self, trip_request_object, reviewer_object, request):
+class ReviewAwaitingEmail(Email):
+    email_template_path = 'travel/emails/email_awaiting_review.html'
+
+    def get_subject_en(self):
+        return 'A LATE trip request is awaiting your review' if self.instance.is_late_request else 'A trip request is awaiting your review'
+
+    def get_subject_fr(self):
+        return 'Une demande de voyage TARDIVE attend votre examen' if self.instance.is_late_request else 'Une demande de voyage attend votre examenw'
+
+    def get_recipient_list(self):
+        return [self.reviewer.user.email, ]
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context.update({'reviewer': self.reviewer, 'triprequest': self.instance, 'field_list': request_field_list})
+        return context
+
+    def __init__(self, request, instance=None, reviewer=None):
+        super().__init__(request)
         self.request = request
-        if trip_request_object.is_late_request:
-            self.subject = 'A LATE trip request is awaiting your review - Une demande de voyage TARDIVE attend votre examen'
-        else:
-            self.subject = 'A trip request is awaiting your review - Une demande de voyage attend votre examen'
-
-        self.message = self.load_html_template(trip_request_object, reviewer_object)
-        self.from_email = from_email
-        self.to_list = [reviewer_object.user.email, ]
-
-    def __str__(self):
-        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
-
-    def load_html_template(self, trip_request_object, reviewer_object):
-        t = loader.get_template('travel/emails/email_awaiting_review.html')
-
-        field_list = request_field_list
-
-        context = {'reviewer': reviewer_object, 'triprequest': trip_request_object, 'field_list': field_list}
-        context.update(my_envr(self.request))
-        rendered = t.render(context)
-        return rendered
+        self.instance = instance
+        self.reviewer = reviewer
 
 
 class TripReviewAwaitingEmail:

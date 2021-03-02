@@ -364,7 +364,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
         # if submitted, then unsumbit but only if admin or owner
         if is_submitted:
             #  UNSUBMIT REQUEST
-            if in_travel_admin_group(self.request.user) or my_object.user == self.request.user:
+            if in_travel_admin_group(self.request.user) or my_object.created_by == self.request.user:
                 my_object.unsubmit()
             else:
                 messages.error(self.request, "sorry, only admins or owners can un-submit requests")

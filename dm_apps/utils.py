@@ -85,7 +85,7 @@ def get_db_connection_dict():
     return my_dict
 
 
-def custom_send_mail(subject, html_message, from_email, recipient_list, text_message=None):
+def custom_send_mail(subject=None, html_message=None, from_email=None, recipient_list=None, text_message=None, email_instance=None):
     """
     The role of this function is to handle the sending of an email message based on the configuration of the project setting.py file.
     - If settings.USE_SENDGRID = True, the mail will be sent with the python sendgrid package using the sendgrid REST api
@@ -98,6 +98,12 @@ def custom_send_mail(subject, html_message, from_email, recipient_list, text_mes
     :param recipient_list:
     :return:
     """
+    if email_instance:
+        subject = email_instance.get_subject()
+        text_message = email_instance.get_text_message()
+        html_message = email_instance.get_html_message()
+        from_email = email_instance.get_from_email()
+        recipient_list = email_instance.get_recipient_list()
 
     if settings.USE_SENDGRID:
         sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
@@ -130,7 +136,10 @@ def custom_send_mail(subject, html_message, from_email, recipient_list, text_mes
 
     else:
         print('No email configuration present in application...')
-        print("FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(from_email, recipient_list, subject, html_message))
+        if email_instance:
+            print(email_instance)
+        else:
+            print("FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(from_email, recipient_list, subject, html_message))
 
 
 def compare_strings(str1, str2):

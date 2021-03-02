@@ -100,7 +100,7 @@
       <span data-toggle="tooltip" :title="submitTip">
       <a
         :class="{btn:true, 'btn-secondary': request.submitted, 'btn-success': !request.submitted, 'disabled': (request.is_late_request && !request.late_justification) || (!request.submitted && !request.travellers.length)}"
-        v-if="(canModify || isOwner) && request.status !== 11 && request.status !== 22"
+        v-if="(canModify || isOwner || isTraveller) && request.status !== 11 && request.status !== 22"
         href="{% url 'travel:request_submit' object.id %}">
         <span v-if="!request.submitted">{% trans "Submit" %}</span>
         <span v-else-if="request.status === 16">{% trans "Re-submit" %}</span>
