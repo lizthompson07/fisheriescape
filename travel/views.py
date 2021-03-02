@@ -198,7 +198,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
         if form.cleaned_data.get("stay_on_page"):
             return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs=self.kwargs) + self.get_query_string())
         else:
-            return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + self.get_query_string() + "#travellers_head")
+            return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -364,7 +364,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
         # if submitted, then unsumbit but only if admin or owner
         if is_submitted:
             #  UNSUBMIT REQUEST
-            if in_travel_admin_group(self.request.user) or my_object.user == self.request.user:
+            if in_travel_admin_group(self.request.user) or my_object.created_by == self.request.user:
                 my_object.unsubmit()
             else:
                 messages.error(self.request, "sorry, only admins or owners can un-submit requests")
@@ -720,15 +720,9 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
         utils.get_trip_reviewers(my_object)
         if self.request.GET.get("pop"):
             # create a new email object
-            email = emails.NewTripEmail(my_object, self.request)
+            email = emails.NewTripEmail(self.request, my_object)
             # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
-            messages.success(self.request, _("The trip has been added to the database!"))
+            email.send()
             return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
         else:
             return HttpResponseRedirect(reverse("travel:trip_detail", args=[my_object.id]) + self.get_query_string())
@@ -1524,7 +1518,7 @@ class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
 class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
     template_name = "travel/user_list.html"
     filterset_class = filters.UserFilter
-    home_url_name = "index"
+    home_url_name = "travel:index"
     paginate_by = 25
     h1 = "Travel App User List"
     field_list = [

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django import forms
 from django.contrib.auth.models import User as AuthUser
 from django.forms import modelformset_factory
@@ -115,7 +117,7 @@ class TripRequestForm(forms.ModelForm):
                                                                         "division__branch",
                                                                         "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
-        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Trip.objects.filter(start_date__gte=timezone.now())]
+        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Trip.objects.filter(start_date__gte=timezone.now()-timedelta(days=14))]
         trip_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)

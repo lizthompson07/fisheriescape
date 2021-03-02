@@ -440,19 +440,14 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
             # now, depending on the role of this reviewer, perhaps we want to send an email.
             # if they are a recommender, rev...
             if next_reviewer.role in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
-                email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
+                email = emails.ReviewAwaitingEmail(request, trip_request, next_reviewer)
 
             elif next_reviewer.role in [6, ] and request:  # if we are going for RDG signature...
-                email = emails.RDGReviewAwaitingEmail(trip_request, next_reviewer, request)
+                email = emails.RDGReviewAwaitingEmail(request, trip_request, next_reviewer)
 
             if email and not suppress_email:
                 # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
+                email.send()
 
             # Then, lets set the trip_request status again to account for the fact that something happened
             __set_request_status__(trip_request, request)

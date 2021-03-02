@@ -1,4 +1,9 @@
-# TODO: email Class with send method etc
+# TODO: request list: requests should open in new windows if from the all view
+# TODO: file attachments
+
+
+# TODO: switch over all email to new email class
+
 # TODO: test traveller delete email
 # TODO: test changes requested email
 # todo:  email for when ppl are deleted from a request

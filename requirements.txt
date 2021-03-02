@@ -1,9 +1,11 @@
+-e git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 adal==1.2.4
 arabic-reshaper==2.1.0
 asgiref==3.2.10
 azure-common==1.1.25
 beautifulsoup4==4.9.3
 bokeh==2.2.3
+boto3==1.17.18
 cachetools==4.1.1
 cairocffi==1.1.0
 CairoSVG==2.5.1
@@ -17,7 +19,6 @@ defusedxml==0.6.0
 Deprecated==1.2.10
 django-bootstrap4==2.3.1
 django-debug-toolbar==3.1.1
--e git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 django-el-pagination==3.3.0
 django-filter==2.4.0
 django-phonenumber-field==5.0.0

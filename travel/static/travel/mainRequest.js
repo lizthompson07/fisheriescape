@@ -3,6 +3,7 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
+    clean: true,
     cloningTraveller: false,
     costChoices: [],
     costLabels: {},
@@ -13,6 +14,7 @@ var app = new Vue({
     errorMsgTraveller: null,
     fileLabels: {},
     fileToUpload: null,
+    firstTravellerMsg: null,
     helpText: {},
     inCostEditMode: false,
     inFileEditMode: false,
@@ -107,6 +109,7 @@ var app = new Vue({
       this.getRequest();
       this.travellerToEdit = null;
       this.cloningTraveller = false;
+      this.firstTravellerMsg = null;
     },
 
     clearEmptyCosts(traveller) {
@@ -256,8 +259,21 @@ var app = new Vue({
             // if there is one traveller, we should have that traveller on display
             if (this.request.travellers.length === 1) {
               this.request.travellers[0].show_me = true;
+            } else if (this.request.status === 8) {
+              for (var i = 0; i < this.request.travellers.length; i++) {
+                this.request.travellers[i].show_me = true;
+              }
             }
             this.getCurrentUser(response);
+
+            // if this is being opened from the create form, AND there is a SINGLE traveller, we should be helpful and open up in edit mode
+            // this will be singaled by there being a hash in the window location called "travellers_head"
+            if (this.clean && window.location.hash === "#travellers_head" && this.request.travellers.length === 1) {
+              this.travellerToEdit = this.request.travellers[0];
+              this.firstTravellerMsg = firstTravellerMsg;
+              this.clean = false;
+            }
+
             this.$nextTick(() => {
               // enable popovers everywhere
               $('[data-toggle="popover"]').popover({html: true});
@@ -464,6 +480,7 @@ var app = new Vue({
       }
       apiService(endpoint, method, this.travellerToEdit).then(response => {
         if (response.id) {
+          this.firstTravellerMsg = null;
           this.getRequest();
           if (this.cloningTraveller) {
             // start by removing all costs
@@ -492,7 +509,8 @@ var app = new Vue({
         }
       })
     },
-    cherryPickTraveller() {}, // for compatibility
+    cherryPickTraveller() {
+    }, // for compatibility
     canCherryPick() {
       return false;
     }
@@ -515,6 +533,9 @@ var app = new Vue({
     },
     isOwner() {
       return this.currentUser && this.currentUser.is_owner;
+    },
+    isTraveller() {
+      return this.currentUser && this.currentUser.is_traveller;
     },
     reviewers() {
       if (this.request) return this.request.reviewers;
