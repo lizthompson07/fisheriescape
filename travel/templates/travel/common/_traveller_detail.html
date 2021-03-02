@@ -44,6 +44,10 @@
       <b>{% trans "Non-DFO Funding:" %}</b><br>
       <span class="h6" v-html="t.non_dfo_costs_html"></span>
     </p>
+    <p v-if="t.notes" class="mb-3">
+      <b>{% trans "Notes:" %}</b><br>
+      <span class="h6" v-html="t.notes"></span>
+    </p>
 
   </div>
   <div class="col">
