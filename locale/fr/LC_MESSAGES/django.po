@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-01 14:28-0400\n"
+"POT-Creation-Date: 2021-03-02 13:59-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1544,11 +1544,11 @@ msgstr "période de temps"
 msgid "Instruments"
 msgstr "Instruments"
 
-#: .\dm_apps\my_conf.py:398 .\dm_apps\settings.py:263
+#: .\dm_apps\my_conf.py:373 .\dm_apps\settings.py:267
 msgid "English"
 msgstr "Anglais"
 
-#: .\dm_apps\my_conf.py:399 .\dm_apps\settings.py:264
+#: .\dm_apps\my_conf.py:374 .\dm_apps\settings.py:268
 msgid "French"
 msgstr "Français"
 
@@ -1560,7 +1560,7 @@ msgstr "Inventaire de métadonnées"
 msgid "Tool for organizing and managing regional data resources."
 msgstr "Outil pour organiser et gérer les ressources de données régionales."
 
-#: .\dm_apps\views.py:43 .\tickets\views.py:51
+#: .\dm_apps\views.py:43 .\tickets\views.py:55
 #, fuzzy
 msgid "DM Apps Tickets"
 msgstr "Utilisateur de Applis GD"
@@ -2735,7 +2735,7 @@ msgid "Date last modified"
 msgstr "Date de la dernière modification"
 
 #: .\publications\models.py:220 .\shared_models\models.py:472
-#: .\tickets\forms.py:100
+#: .\tickets\forms.py:85
 msgid "Description"
 msgstr "Description"
 
@@ -4006,15 +4006,15 @@ msgstr "développement"
 msgid "Region Specific Applications"
 msgstr ""
 
-#: .\tickets\forms.py:36 .\tickets\forms.py:99
+#: .\tickets\forms.py:37 .\tickets\forms.py:84
 msgid "Application name (if applicable)"
 msgstr "Nom de l'application (le cas échéant)"
 
-#: .\tickets\forms.py:37 .\tickets\forms.py:102
+#: .\tickets\forms.py:38 .\tickets\forms.py:87
 msgid "Assign ticket to"
 msgstr ""
 
-#: .\tickets\forms.py:101
+#: .\tickets\forms.py:86
 msgid "Subject"
 msgstr "Sujet"
 
@@ -4034,7 +4034,7 @@ msgstr "nom de l'application"
 msgid "ticket assigned to"
 msgstr ""
 
-#: .\tickets\models.py:163
+#: .\tickets\models.py:164
 msgid "follow up message"
 msgstr ""
 
