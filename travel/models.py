@@ -781,18 +781,20 @@ class Traveller(models.Model):
     def cost_breakdown_html(self):
         """used for display on group traveller detail page"""
         my_str = "<table class='mt-3 table table-sm table-bordered'><tbody>"
-        my_str += "<tr><th>{}</th><th>{}</th></tr>".format(_("Cost"), _("Amount"))
+        my_str += "<tr><th>{}</th><th>{}</th></tr>".format(_("Cost"), _("Amount (CAD)"))
         for tr_cost in self.costs.all():
             if tr_cost.amount_cad:
                 if tr_cost.rate_cad:
-                    my_str += "<tr><td>{}</td> <td> ${:,.2f}  ({} x {:,.2f})</td></tr>".format(
+                    my_str += "<tr><td>{}</td> <td> {:,.2f}  ({} {}{} x {:,.2f})</td></tr>".format(
                         tr_cost.cost,
                         nz(tr_cost.amount_cad, 0),
                         nz(tr_cost.number_of_days, 0),
+                        _("day"),
+                        pluralize(nz(tr_cost.number_of_days, 0)),
                         nz(tr_cost.rate_cad, 0),
                     )
                 else:
-                    my_str += "<tr><td>{}</td> <td> ${:,.2f}</td><tr> ".format(tr_cost.cost, tr_cost.amount_cad)
+                    my_str += "<tr><td>{}</td> <td> {:,.2f}</td><tr> ".format(tr_cost.cost, tr_cost.amount_cad)
 
         my_str += "<tr><th>{}</th><th> ${:,.2f}</td></tr>".format(_("TOTAL"), self.total_cost)
         my_str += "</tbody></table>"
