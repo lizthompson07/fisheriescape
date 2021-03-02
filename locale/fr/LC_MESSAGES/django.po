@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-02 13:59-0400\n"
+"POT-Creation-Date: 2021-03-02 14:57-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -154,15 +154,15 @@ msgstr "S'inscrire"
 msgid "Sign Up"
 msgstr "S'inscrire"
 
-#: .\accounts\views.py:86
+#: .\accounts\views.py:89
 msgid "Request access"
 msgstr "Demande d'accès"
 
-#: .\accounts\views.py:88
+#: .\accounts\views.py:91
 msgid "Sorry, you are not authorized to view this page."
 msgstr "Désolé, vous n'êtes pas autorisé à consulter cette page."
 
-#: .\accounts\views.py:111
+#: .\accounts\views.py:114
 msgid "Successfully updated!"
 msgstr ""
 
