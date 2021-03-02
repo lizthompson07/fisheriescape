@@ -16,7 +16,7 @@
       {#      <button @click="collapseTravellers" data-toggle="tooltip" title="{% trans "Collapse all" %}"><span class="mdi mdi-arrow-collapse-up"></span></button>#}
     </div>
     <span v-if="!travellerToEdit">{% trans "Travellers Associated with this Request" %}</span>
-    <span v-else-if="travellerToEdit.id">{% trans "Editing Traveller: " %} ${travellerToEdit.smart_name}</span>
+    <span v-else-if="travellerToEdit.id">{% trans "Traveller: " %} ${travellerToEdit.smart_name}</span>
     <span v-else>{% trans "New Traveller" %}</span>
     <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
           data-trigger="hover" title="{% trans "Travellers" %}"

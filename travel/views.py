@@ -198,7 +198,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
         if form.cleaned_data.get("stay_on_page"):
             return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs=self.kwargs) + self.get_query_string())
         else:
-            return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + self.get_query_string() + "#travellers_head")
+            return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -723,7 +723,6 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
             email = emails.NewTripEmail(self.request, my_object)
             # send the email object
             email.send()
-            messages.success(self.request, _("The trip has been added to the database!"))
             return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
         else:
             return HttpResponseRedirect(reverse("travel:trip_detail", args=[my_object.id]) + self.get_query_string())

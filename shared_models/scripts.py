@@ -2,6 +2,9 @@ import csv
 import os
 import uuid
 
+import boto3
+from botocore.config import Config
+from botocore.exceptions import ClientError
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import serializers
@@ -191,3 +194,36 @@ class ImportFromSpreadsheet:
                 return obj
             else:
                 print(f'{my_model._meta.verbose_name} with uuid {uuid} NOT found: name = {name} / nom = {nom}')
+
+
+def test_email():
+    CHARSET = "UTF-8"
+    # Create a new SES resource and specify a region.
+    client = boto3.client('ses', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY, region_name="ca-central-1")
+    # Try to send the email.
+    try:
+        # Provide the contents of the email.
+        response = client.send_email(
+            Destination={
+                'ToAddresses': ["david.fishman@dfo-mpo.gc.ca"]
+            },
+            Message={
+                'Body': {
+                    'Text': {
+                        'Charset': CHARSET,
+                        'Data': "test",
+                    },
+                },
+                'Subject': {
+                    'Charset': CHARSET,
+                    'Data': "test",
+                },
+            },
+            Source=settings.SITE_FROM_EMAIL,
+        )
+    # Display an error if something goes wrong.
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+    else:
+        print("Email sent! Message ID:"),
+        print(response['MessageId'])

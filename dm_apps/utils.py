@@ -1,4 +1,7 @@
+import boto3
 from Levenshtein._levenshtein import distance
+from botocore.config import Config
+from botocore.exceptions import ClientError
 from decouple import config
 from django.conf import settings
 from django.core.mail import send_mail as django_send_mail
@@ -123,6 +126,52 @@ def custom_send_mail(subject=None, html_message=None, from_email=None, recipient
             sg.send(mail)
         except BadRequestsError:
             print("bad request. email not sent")
+
+    elif settings.USE_AWS_SES:
+        my_config = Config(
+            region_name='ca-central-1',
+            signature_version='v4',
+            retries={
+                'max_attempts': 10,
+                'mode': 'standard'
+            }
+        )
+        # from https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-using-sdk-python.html
+        # The character encoding for the email.
+        CHARSET = "UTF-8"
+        # Create a new SES resource and specify a region.
+        client = boto3.client('ses', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY, config=my_config)
+        # Try to send the email.
+        try:
+            # Provide the contents of the email.
+            response = client.send_email(
+                Destination={
+                    'ToAddresses': recipient_list
+                },
+                Message={
+                    'Body': {
+                        'Html': {
+                            'Charset': CHARSET,
+                            'Data': nz(html_message, ''),
+                        },
+                        'Text': {
+                            'Charset': CHARSET,
+                            'Data': nz(text_message, ''),
+                        },
+                    },
+                    'Subject': {
+                        'Charset': CHARSET,
+                        'Data': subject,
+                    },
+                },
+                Source=from_email,
+            )
+        # Display an error if something goes wrong.
+        except ClientError as e:
+            print(e.response['Error']['Message'])
+        else:
+            print("Email sent! Message ID:"),
+            print(response['MessageId'])
 
     elif settings.USE_SMTP_EMAIL:
         django_send_mail(
