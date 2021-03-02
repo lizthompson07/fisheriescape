@@ -69,7 +69,10 @@ def callback(request):
         my_profile.position_eng = my_job
         my_profile.position_fre = my_job
         my_profile.phone = my_phone
-        my_profile.save()
+        try:
+            my_profile.save()
+        except:
+            print("there was an error in trying to copy over the user's profile data from AAD")
 
     login(request, my_user)
     return HttpResponseRedirect(reverse('index'))

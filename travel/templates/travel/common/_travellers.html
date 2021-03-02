@@ -4,8 +4,8 @@
 {% load travel_filters %}
 {% load travel_tags %}
 {% load verbose_names %}
-
-<div class="card mb-4" id="travellers_head">
+<span id="travellers_head" ref="travellers_head" tabindex="0"></span>
+<div class="card mb-4">
   <h3 class="card-header bg-outline-dark">
     <div class="float-right" v-if="!travellerToEdit">
       <button v-if="!isReview && canModify && !travellerToEdit" @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}"

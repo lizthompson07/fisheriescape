@@ -272,6 +272,7 @@ var app = new Vue({
               this.travellerToEdit = this.request.travellers[0];
               this.firstTravellerMsg = firstTravellerMsg;
               this.clean = false;
+              this.$nextTick(()=>{this.$refs["travellers_head"].focus()})
             }
 
             this.$nextTick(() => {
