@@ -37,8 +37,10 @@
   function hideAll() {
     $(".year_div").addClass("gone");
     $(".region_div").addClass("gone");
+    $(".section_div").addClass("gone");
     $("#id_year").prop("required", false);
     $("#id_region").prop("required", false);
+    $("#id_section").prop("required", false);
   }
 
   function configureForm() {
@@ -55,6 +57,24 @@
       $(".region_div").removeClass("gone");
       $("#id_year").prop("required", true);
 
+    }
+    else if (reportChoice === "4") {
+      $(".year_div").removeClass("gone");
+      $(".region_div").removeClass("gone");
+      $(".section_div").removeClass("gone");
+      $("#id_year").prop("required", true);
+
+    }
+    else if (reportChoice === "5") {
+      $(".year_div").removeClass("gone");
+      $(".region_div").removeClass("gone");
+      $("#id_year").prop("required", true);
+    }
+    else if (reportChoice === "6") {
+      $(".year_div").removeClass("gone");
+      $(".region_div").removeClass("gone");
+      $("#id_year").prop("required", true);
+      $("#id_region").prop("required", true);
     }
   }
 

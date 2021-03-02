@@ -19,34 +19,39 @@ class OrganizationFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search name",
                                             lookup_expr='icontains', widget=forms.TextInput())
     province = django_filters.ModelMultipleChoiceFilter(field_name='province', lookup_expr='exact', queryset=shared_models.Province.objects.all())
-    grouping = django_filters.ModelMultipleChoiceFilter(field_name='grouping', lookup_expr='exact', queryset=ml_models.Grouping.objects.all())
-    regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())  #queryset=shared_models.Region.objects.filter(Q(id=1)|Q(id=2))
+    #grouping = django_filters.ModelMultipleChoiceFilter(field_name='grouping', lookup_expr='exact', queryset=ml_models.Grouping.objects.all())
+    #regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())  #queryset=shared_models.Region.objects.filter(Q(id=1)|Q(id=2))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
 class PersonFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Search",
-                                            lookup_expr='icontains', widget=forms.TextInput())
-    membership = django_filters.ModelMultipleChoiceFilter(field_name='organizations', lookup_expr='exact', queryset=ml_models.Organization.objects.all())
+    search_term = django_filters.CharFilter(field_name='search_term', label="Search", lookup_expr='icontains', widget=forms.TextInput())
+    #membership = django_filters.ModelMultipleChoiceFilter(field_name='organizations', lookup_expr='exact', queryset=ml_models.Organization.objects.all())
 
 
 class ProjectFilter(django_filters.FilterSet):
 
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
-    organization = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact')
-    fiscal = django_filters.ModelChoiceFilter(field_name='start_year', lookup_expr='exact', queryset=shared_models.FiscalYear.objects.all())
-    status = django_filters.ModelChoiceFilter(field_name='status', lookup_expr='exact', queryset=models.Status.objects.all())
-    program = django_filters.ModelChoiceFilter(field_name='program', lookup_expr='exact', queryset=models.Program.objects.all())
-    watersheds = django_filters.ModelMultipleChoiceFilter(field_name='watersheds', lookup_expr='exact', queryset=models.Watershed.objects.all())
-    regions = django_filters.ModelMultipleChoiceFilter(field_name='regions', lookup_expr='exact', queryset=shared_models.Region.objects.all())
-    spp = django_filters.ModelMultipleChoiceFilter(field_name='spp', lookup_expr='exact', queryset=sar_models.Species.objects.all())
+
+    species = django_filters.ModelChoiceFilter(field_name='species', lookup_expr='exact', queryset=models.Species.objects.all())
+    regions = django_filters.ModelChoiceFilter(field_name='region', lookup_expr='exact', queryset=models.Region.objects.all())
+    cu = django_filters.ModelChoiceFilter(field_name='cu', lookup_expr='exact', queryset=models.CUName.objects.all())
+    smu = django_filters.ModelChoiceFilter(field_name='smu', lookup_expr='exact', queryset=models.SMUCode.objects.all())
+    project_development_phase = django_filters.ModelChoiceFilter(field_name='project development phase', lookup_expr='exact', queryset=models.ProjectStage.objects.all())
+    project_scale = django_filters.ModelChoiceFilter(field_name='project scale', lookup_expr='exact', queryset=models.ProjectScale.objects.all())
+    project_type = django_filters.ModelChoiceFilter(field_name='project type', lookup_expr='exact', queryset=models.ProjectType.objects.all())
+    project_sub_type = django_filters.ModelChoiceFilter(field_name='spp', lookup_expr='exact', queryset=models.ProjectSubType.objects.all())
+    monitoring_approach = django_filters.ModelChoiceFilter(field_name='monitoring approach', lookup_expr='exact', queryset=models.MonitoringApproach.objects.all())
+    project_theme = django_filters.ModelChoiceFilter(field_name='project theme', lookup_expr='exact', queryset=models.ProjectTheme.objects.all())
+    core_component = django_filters.ModelChoiceFilter(field_name='research stream core component', lookup_expr='exact', queryset=models.CoreComponent.objects.all())
+    supportive_component = django_filters.ModelChoiceFilter(field_name='research stream supportive component', lookup_expr='exact', queryset=models.SupportComponent.objects.all())
+    government_programs = django_filters.ModelChoiceFilter(field_name='linked government programs', lookup_expr='exact', queryset=models.LinkedGovernmentOrganizations.objects.all())
+    dfo_programs = django_filters.ModelChoiceFilter(field_name='linked dfo programs', lookup_expr='exact', queryset=models.DFOLink.objects.all())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        org_choices = [(o.id, str(o)) for o in ml_models.Organization.objects.all() if o.projects.count() > 0]
-        self.filters["organization"] = django_filters.ChoiceFilter(field_name='organization', lookup_expr='exact', choices=org_choices)
 
 
 class ObjectiveFilter(django_filters.FilterSet):

@@ -8,6 +8,7 @@ from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
 # Choices for YesNo
 from shared_models.models import SimpleLookup
+from shared_models.utils import get_metadata_string
 
 YESNO_CHOICES = (
     (True, "Yes"),
@@ -97,14 +98,24 @@ class Organization(models.Model):
     reserves = models.ManyToManyField(Reserve, verbose_name=_("Associated reserves"), blank=True)
     audio_file = models.FileField(upload_to=audio_file_directory_path, verbose_name=_("audio file"), blank=True, null=True)
 
+    # Calculated
+    locked_by_ihub = models.BooleanField(default=False, editable=False)
+
     # metadata
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), editable=False)
     old_id = models.IntegerField(blank=True, null=True)
 
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
+    @property
+    def is_indigenous(self):
+        return self.grouping.filter(is_indigenous=True).exists()
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     def __str__(self):
         return "{}".format(self.name_eng)
@@ -173,19 +184,24 @@ class Person(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     email_block = models.TextField(blank=True, null=True, verbose_name=_("email block"))
     organizations = models.ManyToManyField(Organization, through="OrganizationMember", verbose_name=_("membership"), blank=True)
+
+    # Calculated
+    locked_by_ihub = models.BooleanField(default=False, editable=False)
+
     # metadata
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    date_last_modified = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
-                                         related_name="masterlist_person_last_modified_by")
+                                         related_name="masterlist_person_last_modified_by", editable=False)
 
     old_id = models.IntegerField(blank=True, null=True)
     connected_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="ml_persons")
 
-    # is_consultation_contact = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Consultation contact?"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     def __str__(self):
         return "{}, {}".format(self.last_name, self.first_name)
@@ -204,6 +220,10 @@ class Person(models.Model):
     @property
     def full_name(self):
         return "{} {}".format(self.first_name, self.last_name)
+
+    @property
+    def full_name_and_email(self):
+        return f"{self.full_name} ({self.email_1})"
 
     @property
     def full_name_with_title(self):
@@ -259,13 +279,19 @@ class OrganizationMember(models.Model):
     role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
     notes = models.TextField(blank=True, null=True)
 
-    # metadata
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    # Calculated
+    locked_by_ihub = models.BooleanField(default=False, editable=False)
 
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
+    # metadata
+    date_last_modified = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), editable=False)
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     class Meta:
         ordering = ["organization", "person"]
@@ -302,6 +328,13 @@ class ConsultationRole(models.Model):
     # metadata
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -349,6 +382,13 @@ class ConsultationInstruction(models.Model):
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            updated_at=self.date_last_modified,
+            last_modified_by=self.last_modified_by,
+        )
 
     def get_absolute_url(self):
         return reverse('ihub:org_detail', kwargs={'pk': self.organization.pk})

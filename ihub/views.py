@@ -101,9 +101,11 @@ class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
     queryset = ml_models.Person.objects.annotate(
         search_term=Concat('first_name', 'last_name', 'designation', output_field=TextField()))
     field_list = [
-        {"name": 'full_name_with_title|Full name', "class": "", "width": ""},
+        {"name": 'full_name_with_title|{}'.format(gettext_lazy("full name")), "class": "", "width": ""},
         {"name": 'phone_1', "class": "", "width": ""},
-        {"name": 'phone_2', "class": "", "width": ""},
+        # {"name": 'phone_2', "class": "", "width": ""},
+        {"name": 'email_1', "class": "", "width": ""},
+        {"name": 'last_updated|{}'.format(gettext_lazy("last updated")), "class": "", "width": ""},
     ]
     new_object_url_name = "ihub:person_new"
     row_object_url_name = "ihub:person_detail"
@@ -128,10 +130,10 @@ class PersonDetailView(SiteLoginRequiredMixin, CommonDetailView):
         "fax",
         "language",
         "notes",
-        "last_modified_by",
+        "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Contacts"), "url": reverse_lazy("ihub:person_list")}
+    parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("ihub:person_list")}
 
 
 class PersonUpdateView(iHubEditRequiredMixin, CommonUpdateView):
@@ -139,25 +141,30 @@ class PersonUpdateView(iHubEditRequiredMixin, CommonUpdateView):
     template_name = 'ihub/form.html'
     form_class = forms.PersonForm
     home_url_name = "ihub:index"
-    grandparent_crumb = {"title": _("Contacts"), "url": reverse_lazy("ihub:person_list")}
+    grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("ihub:person_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("ihub:person_detail", args=[self.get_object().id])}
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        object.save()
+        return super().form_valid(form)
 
+    
 
 class PersonUpdateViewPopout(iHubEditRequiredMixin, CommonPopoutUpdateView):
     model = ml_models.Person
     form_class = forms.PersonForm
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        object.save()
+        return super().form_valid(form)
 
 
 class PersonCreateView(iHubEditRequiredMixin, CommonCreateView):
@@ -165,22 +172,28 @@ class PersonCreateView(iHubEditRequiredMixin, CommonCreateView):
     template_name = 'ihub/form.html'
     form_class = forms.PersonForm
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Contacts"), "url": reverse_lazy("ihub:person_list")}
+    parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("ihub:person_list")}
+    h1 = gettext_lazy("New Contact")
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        object.save()
+        return super().form_valid(form)
 
 
 class PersonCreateViewPopout(iHubEditRequiredMixin, CommonPopoutCreateView):
     model = ml_models.Person
     form_class = forms.PersonForm
+    h1 = gettext_lazy("New Contact")
 
-    def get_initial(self):
-        return {
-            'last_modified_by': self.request.user,
-        }
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        object.save()
+        return super().form_valid(form)
 
 
 class PersonDeleteView(iHubAdminRequiredMixin, CommonDeleteView):
@@ -188,7 +201,7 @@ class PersonDeleteView(iHubAdminRequiredMixin, CommonDeleteView):
     template_name = 'ihub/confirm_delete.html'
     success_url = reverse_lazy('ihub:person_list')
     home_url_name = "ihub:index"
-    grandparent_crumb = {"title": _("Contacts"), "url": reverse_lazy("ihub:person_list")}
+    grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("ihub:person_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("ihub:person_detail", args=[self.get_object().id])}
@@ -217,8 +230,8 @@ class OrganizationListView(SiteLoginRequiredMixin, CommonFilterView):
         {"name": 'abbrev', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
         {"name": 'grouping', "class": "", "width": "200px"},
-        {"name": 'full_address|' + _("Full address"), "class": "", "width": "300px"},
-        {"name": 'Audio recording', "class": "", "width": ""},
+        {"name": 'full_address|' + str(gettext_lazy("Full address")), "class": "", "width": "300px"},
+        {"name": 'Audio recording|{}'.format(gettext_lazy("Audio recording")), "class": "", "width": ""},
     ]
     home_url_name = "ihub:index"
     new_object_url_name = "ihub:org_new"
@@ -242,6 +255,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
         'phone',
         'fax',
         'notes',
+        'grouping',
         'regions',
         'sectors',
         'dfo_contact_instructions',
@@ -260,9 +274,10 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
         'processing_plant',
         'wharf',
         'reserves',
+        "metadata|{}".format(gettext_lazy("metadata")),
     ]
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Organizations"), "url": reverse_lazy("ihub:org_list")}
+    parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("ihub:org_list")}
     container_class = "container-fluid"
 
 
@@ -271,11 +286,18 @@ class OrganizationUpdateView(iHubEditRequiredMixin, CommonUpdateView):
     template_name = 'ihub/form.html'
     form_class = forms.OrganizationForm
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Organizations"), "url": reverse_lazy("ihub:org_list")}
+    parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("ihub:org_list")}
     is_multipart_form_data = True
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("ihub:org_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        super().form_valid(form)
+        return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 
 class OrganizationCreateView(iHubEditRequiredMixin, CommonCreateView):
@@ -283,11 +305,15 @@ class OrganizationCreateView(iHubEditRequiredMixin, CommonCreateView):
     template_name = 'ihub/form.html'
     form_class = forms.OrganizationForm
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Organizations"), "url": reverse_lazy("ihub:org_list")}
+    parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("ihub:org_list")}
     is_multipart_form_data = True
+    h1 = gettext_lazy("New Organization")
 
     def form_valid(self, form):
-        object = form.save()
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_ihub = True
+        super().form_valid(form)
         return HttpResponseRedirect(reverse_lazy('ihub:org_detail', kwargs={'pk': object.id}))
 
 
@@ -296,7 +322,7 @@ class OrganizationDeleteView(iHubAdminRequiredMixin, CommonDeleteView):
     template_name = 'ihub/confirm_delete.html'
     success_url = reverse_lazy('ihub:org_list')
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Organizations"), "url": reverse_lazy("ihub:org_list")}
+    parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("ihub:org_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("ihub:org_detail", args=[self.get_object().id])}
@@ -311,6 +337,7 @@ class MemberCreateView(iHubEditRequiredMixin, CommonPopoutCreateView):
     form_class = forms.MemberForm
     width = 1000
     height = 700
+    h1 = gettext_lazy("New Organization Member")
 
     def get_initial(self):
         org = ml_models.Organization.objects.get(pk=self.kwargs['org'])
@@ -367,7 +394,7 @@ class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
 class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
     model = models.Entry
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Entries"), "url": reverse_lazy("ihub:entry_list")}
+    parent_crumb = {"title": gettext_lazy("Entries"), "url": reverse_lazy("ihub:entry_list")}
     container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
@@ -383,9 +410,7 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
             'initial_date',
             'anticipated_end_date',
             'regions',
-            'date_last_modified',
-            'last_modified_by',
-            'created_by',
+            "metadata|{}".format(gettext_lazy("metadata")),
         ]
         context["field_list_1"] = [
             'fiscal_year',
@@ -405,7 +430,7 @@ class EntryUpdateView(iHubEditRequiredMixin, CommonUpdateView):
     model = models.Entry
     form_class = forms.EntryForm
     home_url_name = "ihub:index"
-    grandparent_crumb = {"title": _("Entries"), "url": reverse_lazy("ihub:entry_list")}
+    grandparent_crumb = {"title": gettext_lazy("Entries"), "url": reverse_lazy("ihub:entry_list")}
     template_name = "ihub/form.html"
 
     def get_parent_crumb(self):
@@ -419,8 +444,9 @@ class EntryCreateView(iHubEditRequiredMixin, CommonCreateView):
     model = models.Entry
     form_class = forms.EntryCreateForm
     home_url_name = "ihub:index"
-    parent_crumb = {"title": _("Entries"), "url": reverse_lazy("ihub:entry_list")}
+    parent_crumb = {"title": gettext_lazy("Entries"), "url": reverse_lazy("ihub:entry_list")}
     template_name = "ihub/form.html"
+    h1 = gettext_lazy("New Entry")
 
     def form_valid(self, form):
         object = form.save()
@@ -451,7 +477,7 @@ class EntryDeleteView(iHubAdminRequiredMixin, CommonDeleteView):
     model = models.Entry
     success_url = reverse_lazy('ihub:entry_list')
     home_url_name = "ihub:index"
-    grandparent_crumb = {"title": _("Entries"), "url": reverse_lazy("ihub:entry_list")}
+    grandparent_crumb = {"title": gettext_lazy("Entries"), "url": reverse_lazy("ihub:entry_list")}
     template_name = "ihub/confirm_delete.html"
     delete_protection = False
 
@@ -499,6 +525,7 @@ class EntryPersonCreateView(iHubEditRequiredMixin, CommonPopoutCreateView):
     model = models.EntryPerson
     template_name = 'ihub/entry_person_form_popout.html'
     form_class = forms.EntryPersonForm
+    h1= gettext_lazy("New Entry Person")
 
     def get_initial(self):
         entry = models.Entry.objects.get(pk=self.kwargs['entry'])

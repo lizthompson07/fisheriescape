@@ -2,8 +2,7 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
-{% block header %}
-{% endblock %}
+{% load i18n %}
 {% block content %}
 
     <style>
@@ -31,11 +30,14 @@
 
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'spot:person_edit' object.id %}">
-                Edit
+                {% trans "Edit" %}
             </a>
             <a class="btn btn-danger " href="{% url 'spot:person_delete' object.id %}">
-                Delete
+                {% trans "Delete" %}
             </a>
+{#            <a class="btn btn-success" href="{% url 'spot:report_q' object.id %}">#}
+{#                {% trans "Cue Card" %}#}
+{#            </a>#}
 
         </div>
         <br><br>
@@ -43,7 +45,7 @@
         <div class="row">
             <div class="col-3">
                 <h3>
-                    Person Detail:
+                    Detail:
                 </h3>
 
                 {% for field in field_list %}
@@ -52,24 +54,7 @@
                 <br>
 
             </div>
-            <div class="col-9">
-                <h3>Membership:</h3>
-                <ul>
-                    {% for member in object.memberships.all %}
-                        <li>
-                            <a href="{% url 'spot:org_detail'  member.organization.id %}">{{ member.organization }} </a>
-                            - {{ member.role }}
-                        </li>
-                    {% empty %}
-                        <em>person is not part of any organizations</em>
-                    {% endfor %}
-
-                </ul>
-
-            </div>
-
         </div>
 
     </div>
-
 {% endblock content %}

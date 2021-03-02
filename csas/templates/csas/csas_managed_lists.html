@@ -1,0 +1,59 @@
+{% extends "shared_models/generic_formset.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block bug_create %}
+    {% url 'tickets:bug_create' 'csas' %}
+{% endblock bug_create %}
+
+{% block title %}
+    {{ title }}
+    {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block delete_link %}
+  {% if delete_url_name %}
+  <td>
+    <a class="delete-btn red-font" href="#" delete_url="{% url delete_url_name key form.instance.id %}"
+       object-name="{{ form.instance }}">
+      ({% trans "delete" %})
+    </a>
+  </td>
+  {% endif %}
+{% endblock delete_link %}
+
+{% block header %}
+    {{ block.super }}
+<style>
+    {% include "csas/csas_css.css" %}
+
+    .container-fluid, .container {
+        border-radius: 25px;
+        margin-top: 15px;
+        padding: 15px;
+        background-color: white;
+        background-color: rgba(255, 255, 255, 0.7);
+        font-size: small;
+    }
+
+    .label {
+        font-weight: bold;
+    }
+
+    table, td {
+        font-size: small;
+    }
+    .btn-std {
+      width: 300px;
+  }
+
+</style>
+{% endblock %}
+
+{% block body %}
+    {{ block.super }}
+{% endblock body %}
+
+{% block left_auth %}
+    {% include "csas/csas_nav.html" %}
+{% endblock left_auth %}

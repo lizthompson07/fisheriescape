@@ -2,7 +2,7 @@ import django_filters
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 
 from masterlist import models as ml_models
 from . import models
@@ -12,7 +12,7 @@ chosen_js = {"class": "chosen-select-contains"}
 
 
 class OrganizationFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search organizations (name, province, etc...)"),
+    search_term = django_filters.CharFilter(field_name='search_term', label=gettext_lazy("Search organizations (name, province, etc...)"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
@@ -68,6 +68,7 @@ class EntryFilter(django_filters.FilterSet):
         self.filters['people__user'].queryset = User.objects.filter(ihub_entry_people__isnull=False).order_by("first_name", "last_name").distinct()
         self.filters['created_by'].queryset = User.objects.filter(user_entries__isnull=False).order_by("first_name", "last_name").distinct()
         self.filters['people__user'].label = _("Entry Contact")
+        self.filters['title__icontains'].label = _("title contains")
 
         self.filters['organizations'].field.widget.attrs = chosen_js
         self.filters['sectors'].field.widget.attrs = chosen_js

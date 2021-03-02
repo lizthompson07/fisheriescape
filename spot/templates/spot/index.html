@@ -18,14 +18,10 @@
         <br>
         <div class="container">
             <div class="jumbotron">
-                <h1 class="three-em">
-                    {% trans "Welcome to Spot" %}
+                <h1 class="three-em" align="center">
+                    {% trans "G&C Salmon Science Project Dashboard" %}
                 </h1>
                 <hr>
-                <h3>
-                    {% trans "G&C Salmon Science Project Dashboard" %}
-                </h3>
-                <br><br>
                 <div align="center">
 
                     <h4>
@@ -46,6 +42,15 @@
                         </a>
                         <a href="{% url 'spot:data_list' %}" class="btn btn-dark">
                             {% trans "Databases" %}
+                        </a>
+                        <a href="{% url 'spot:meetings_list' %}" class="btn btn-dark">
+                            {% trans "Meetings" %}
+                        </a>
+                        <a href="{% url 'spot:reports_list' %}" class="btn btn-dark">
+                            {% trans "Reports" %}
+                        </a>
+                        <a href="{% url 'spot:feedback_list' %}" class="btn btn-dark">
+                            {% trans "Feedback" %}
                         </a>
                     </h4>
                 </div>

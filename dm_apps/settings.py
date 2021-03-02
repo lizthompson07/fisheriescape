@@ -35,6 +35,8 @@ LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
 # should debug mode be turned on or off? default = False
 DEBUG = config("DEBUG", cast=bool, default=True)
+# should vuejs be vued in debug mode?
+VUEJS_DEBUG = config("VUEJS_DEBUG", cast=bool, default=False)
 # Where do you want to set the bar for logging? {DEBUG, INFO, WARNING, ERROR, CRITICAL}
 LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
 # What is the path to the log file?
@@ -107,8 +109,7 @@ ALLOWED_HOSTS = [
     'dmapps.ent.dfo-mpo.ca',
     'dmapps-dev-docker.azurewebsites.net',
     'dmapps-test-docker.azurewebsites.net',
-    'dmapps-prod-web.azurewebsites.net',
-    'dmapps-prod-web-staging.azurewebsites.net',
+    'https://dmapps-web.dfo-prod-ase01.appserviceenvironment.net',
     'sci-zone.azure.cloud.dfo-mpo.gc.ca',
     'sci-zone.dfo-mpo.gc.ca',
 ]
@@ -145,6 +146,7 @@ INSTALLED_APPS = [
                      'bootstrap4',
                      'el_pagination',
                      'debug_toolbar',
+                     'webpack_loader',
                      'easy_pdf',
                      'tracking',
                      'accounts',
@@ -266,6 +268,7 @@ LANGUAGES = [
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'events', 'frontend', 'dist'),
 ]
 
 AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")
@@ -363,4 +366,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',  # best used with a web client; that is why we will keep both
         # 'rest_framework.authentication.TokenAuthentication',
     )
+}
+
+WEBPACK_LOADER = {
+    'EVENTS': {
+        'BUNDLE_DIR_NAME': 'dist/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'events', 'frontend', 'webpack-stats.json')
+    }
 }

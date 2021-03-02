@@ -88,7 +88,7 @@ class UpcomingDate(models.Model):
                                verbose_name=_("region"))
     description_en = models.TextField(verbose_name=_("description (en)"))
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("description (fr)"))
-    date = models.DateField()
+    date = models.DateTimeField()
     is_deadline = models.BooleanField(default=False)
 
     class Meta:
@@ -184,14 +184,17 @@ class Project(models.Model):
 
     # CSRF fields
     client_information = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                            verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
+                                           verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
     second_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                            verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
+                                        verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
 
     objectives = models.TextField(blank=True, null=True, verbose_name=_("project objectives (CSRF)"))
-    # objectives_methods = models.TextField(blank=True, null=True, verbose_name=_("methods applied to achieve objectives (CSRF)"))
     innovation = models.TextField(blank=True, null=True, verbose_name=_("innovation (CSRF)"))
-    other_funding = models.TextField(blank=True, null=True, verbose_name=_("other sources of funding (CSRF)"))
+    other_funding = models.TextField(blank=True, null=True, verbose_name=_("other sources of funding (CSRF)"))  # SARA
+
+    # SARA Fields
+    reporting_mechanism = models.TextField(blank=True, null=True, verbose_name=_("quarterly reporting mechanisms (SARA)"))  # SARA
+    future_funding_needs = models.TextField(blank=True, null=True, verbose_name=_("description of future funding needs, if any (SARA)"))  # SARA
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
@@ -328,6 +331,11 @@ class Project(models.Model):
     @property
     def is_csrf(self):
         if self.default_funding_source and "csrf" in self.default_funding_source.name.lower():
+            return True
+
+    @property
+    def is_sara(self):
+        if self.default_funding_source and "sara" in self.default_funding_source.name.lower():
             return True
 
     @property
@@ -623,12 +631,8 @@ class Staff(GenericCost):
     role = models.TextField(blank=True, null=True, verbose_name=_("role in the project"))  # CSRF
     expertise = models.TextField(blank=True, null=True, verbose_name=_("key expertise"))  # CSRF
 
-
     def __str__(self):
-        if self.user:
-            return "{} {}".format(self.user.first_name, self.user.last_name)
-        else:
-            return "{}".format(self.name)
+        return self.smart_name
 
     class Meta:
         ordering = ['employee_type', 'level']
@@ -638,6 +642,8 @@ class Staff(GenericCost):
     def smart_name(self):
         if self.user or self.name:
             return self.user.get_full_name() if self.user else self.name
+        else:
+            return "---"
 
     def save(self, *args, **kwargs):
         if self.user:
@@ -701,6 +707,7 @@ class CapitalCost(GenericCost):
         ordering = ['category', ]
 
 
+# TODO: delete me
 class GCCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="gc_costs", verbose_name=_("project year"))
     recipient_org = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Recipient organization"))
@@ -746,6 +753,7 @@ class Collaboration(models.Model):
         return mystr
 
 
+# TODO: delete me
 class Collaborator(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project year"))
     name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)
@@ -759,6 +767,7 @@ class Collaborator(models.Model):
         return "{}".format(self.name)
 
 
+# TODO: delete me
 class CollaborativeAgreement(models.Model):
     new_or_existing_choices = [
         (1, _("New")),
@@ -1001,14 +1010,6 @@ class Review(models.Model):
     def scale_score_html(self):
         return self.score_html_template("scale")
 
-    # strategic_score_html
-
-
-# operational_score_html
-# ecological_score_html
-# scale_score_html
-# total_score
-
 
 class Activity(models.Model):
     type_choices = (
@@ -1091,29 +1092,6 @@ class ActivityUpdate(models.Model):
     def notes_html(self):
         if self.notes:
             return mark_safe(markdown(self.notes))
-
-
-#
-# class Note(models.Model):
-#     # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
-#     section = models.ForeignKey(shared_models.Section, related_name="notes2", on_delete=models.CASCADE, blank=True, null=True)
-#     funding_source = models.ForeignKey(FundingSource, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
-#     functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
-#     summary = models.TextField(blank=True, null=True, verbose_name=_("executive summary"))
-#     pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
-#
-#     class Meta:
-#         unique_together = (("section", "functional_group"), ("funding_source", "functional_group"))
-#
-#     @property
-#     def pressures_html(self):
-#         if self.pressures:
-#             return textile(self.pressures)
-#
-#     @property
-#     def summary_html(self):
-#         if self.summary:
-#             return textile(self.summary)
 
 
 def ref_mat_directory_path(instance, filename):

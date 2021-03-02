@@ -17,8 +17,8 @@ class AnidcFactory(factory.django.DjangoModelFactory):
     nom = factory.lazy_attribute(lambda o: faker.word())
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
-    min_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
-    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000, 2000))
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(1, 10))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(20, 30))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     ani_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -52,6 +52,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
     evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
     contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    final_contx_flag = factory.lazy_attribute(lambda o: faker.boolean())
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
     indvt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtFactory")
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
@@ -74,9 +75,9 @@ class AnixFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-
             'evnt_id': evnt.pk,
             'contx_id': contx.pk,
+            'final_contx_flag': obj.final_contx_flag,
             'loc_id': loc.pk,
             'indvt_id': indvt.pk,
             'indv_id': indv.pk,
@@ -109,7 +110,7 @@ class AdscFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'unit_id': anidc_id.pk,
+            'anidc_id': anidc_id.pk,
             'name': obj.name,
             'nom': obj.nom,
             'description_en': obj.description_en,
@@ -129,7 +130,7 @@ class CntFactory(factory.django.DjangoModelFactory):
     contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
     cntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CntcFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
-    cnt = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    cnt = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     est = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -196,7 +197,7 @@ class CntdFactory(factory.django.DjangoModelFactory):
     cnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CntFactory")
     anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
     adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
-    det_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -208,9 +209,8 @@ class CntdFactory(factory.django.DjangoModelFactory):
         cnt = CntFactory()
         adsc = AdscFactory()
         qual = QualFactory()
-
+        anidc = AnidcFactory()
         obj = CntdFactory.build(**kwargs)
-        anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -265,8 +265,8 @@ class ContdcFactory(factory.django.DjangoModelFactory):
     nom = factory.lazy_attribute(lambda o: faker.word())
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
-    min_val = factory.lazy_attribute(lambda o: faker.random_int(-5, 0))
-    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000, 2000))
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(0, 10))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(20, 30))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     cont_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -403,7 +403,7 @@ class CupdFactory(factory.django.DjangoModelFactory):
     contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
     cup_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CupFactory")
 
-    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_value = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
@@ -418,7 +418,7 @@ class CupdFactory(factory.django.DjangoModelFactory):
         cup = CupFactory()
         cdsc = CdscFactory()
         obj = CupdFactory.build(**kwargs)
-        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
+        contdc = ContdcFactory()
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -502,12 +502,12 @@ class EnvFactory(factory.django.DjangoModelFactory):
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
     inst_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstFactory")
     envc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvcFactory")
-    env_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    env_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     envsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvscFactory")
-    env_start = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
-                                                                         tzinfo=timezone.get_current_timezone()))
-    env_end = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
-                                                                       tzinfo=timezone.get_current_timezone()))
+    start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
+                                                                              tzinfo=timezone.get_current_timezone()))
+    end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
+                                                                            tzinfo=timezone.get_current_timezone()))
     env_avg = factory.lazy_attribute(lambda o: faker.boolean())
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -522,7 +522,7 @@ class EnvFactory(factory.django.DjangoModelFactory):
         envsc = EnvscFactory()
         qual = QualFactory()
         obj = EnvFactory.build(**kwargs)
-        envc = EnvcFactory(min_val=obj.env_val-10, max_val=obj.env_val+10)
+        envc = EnvcFactory()
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -532,8 +532,10 @@ class EnvFactory(factory.django.DjangoModelFactory):
             'envc_id': envc.pk,
             'env_val': obj.env_val,
             'envsc_id': envsc.pk,
-            'env_start': obj.env_start,
-            'env_end': obj.env_end,
+            'start_date': obj.start_datetime.date(),
+            'start_time': obj.start_datetime.time().strftime("%H:%M"),
+            'end_date': obj.end_datetime.date(),
+            'end_time': obj.end_datetime.time().strftime("%H:%M"),
             'env_avg': obj.env_avg,
             'qual_id': qual.pk,
             'comments': obj.comments,
@@ -553,8 +555,8 @@ class EnvcFactory(factory.django.DjangoModelFactory):
     nom = factory.lazy_attribute(lambda o: faker.word())
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
-    min_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
-    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000, 2000))
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(0, 10))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(20, 30))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     env_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -748,8 +750,10 @@ class EvntFactory(factory.django.DjangoModelFactory):
             'perc_id': perc.pk,
             'prog_id': prog.pk,
             'team_id': team.pk,
-            'evnt_start': obj.evnt_start,
-            'evnt_end': obj.evnt_end,
+            'start_date': obj.evnt_start.date(),
+            'start_time': obj.evnt_start.time().strftime("%H:%M"),
+            'end_date': obj.evnt_end.date(),
+            'end_time': obj.evnt_end.time().strftime("%H:%M"),
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -865,7 +869,7 @@ class FeedFactory(factory.django.DjangoModelFactory):
     feedm_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FeedmFactory")
     feedc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FeedcFactory")
     lot_num = factory.lazy_attribute(lambda o: faker.word())
-    amt = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    amt = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     freq = factory.lazy_attribute(lambda o: faker.word())
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -1003,7 +1007,7 @@ class GrpdFactory(factory.django.DjangoModelFactory):
 
     anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
-    det_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -1016,8 +1020,8 @@ class GrpdFactory(factory.django.DjangoModelFactory):
         anix = AnixFactory()
         adsc = AdscFactory()
         qual = QualFactory()
+        anidc = AnidcFactory()
         obj = GrpdFactory.build(**kwargs)
-        anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -1075,7 +1079,7 @@ class HeatdFactory(factory.django.DjangoModelFactory):
 
     contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
     heat_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.HeatFactory")
-    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_value = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
@@ -1090,7 +1094,7 @@ class HeatdFactory(factory.django.DjangoModelFactory):
         heat = HeatFactory()
         cdsc = CdscFactory()
         obj = HeatdFactory.build(**kwargs)
-        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
+        contdc = ContdcFactory()
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -1170,13 +1174,12 @@ class ImgcFactory(factory.django.DjangoModelFactory):
 class IndvFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Individual
-        django_get_or_create = ('ufid', 'pit_tag',)
+        django_get_or_create = ('pit_tag',)
 
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
     coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
-    ufid = factory.lazy_attribute(lambda o: faker.word())
     pit_tag = factory.lazy_attribute(lambda o: faker.word())
     indv_valid = True
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -1199,7 +1202,6 @@ class IndvFactory(factory.django.DjangoModelFactory):
             'spec_id': spec.pk,
             'stok_id': stok.pk,
             'coll_id': coll.pk,
-            'ufid': obj.ufid,
             'pit_tag': obj.pit_tag,
             'indv_valid': True,
             'comments': obj.comments,
@@ -1216,7 +1218,7 @@ class IndvdFactory(factory.django.DjangoModelFactory):
 
     anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
-    det_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -1229,8 +1231,8 @@ class IndvdFactory(factory.django.DjangoModelFactory):
         anix = AnixFactory()
         adsc = AdscFactory()
         qual = QualFactory()
+        anidc = AnidcFactory()
         obj = IndvdFactory.build(**kwargs)
-        anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -1253,7 +1255,7 @@ class IndvtFactory(factory.django.DjangoModelFactory):
 
     indvtc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtcFactory")
     lot_num = factory.lazy_attribute(lambda o: faker.word())
-    dose = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    dose = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
                                                                               tzinfo=timezone.get_current_timezone()))
@@ -1277,8 +1279,10 @@ class IndvtFactory(factory.django.DjangoModelFactory):
             'lot_num': obj.lot_num,
             'dose': obj.dose,
             'unit_id': unit.pk,
-            'start_datetime': obj.start_datetime,
-            'end_datetime': obj.end_datetime,
+            'start_date': obj.start_datetime.date(),
+            'start_time': obj.start_datetime.time().strftime("%H:%M"),
+            'end_date': obj.end_datetime.date(),
+            'end_time': obj.end_datetime.time().strftime("%H:%M"),
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1403,7 +1407,7 @@ class InstdFactory(factory.django.DjangoModelFactory):
     # needs an inst id
     inst_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstFactory")
     instdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstdcFactory")
-    det_value = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    det_value = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
     valid = True
@@ -1489,8 +1493,8 @@ class LocFactory(factory.django.DjangoModelFactory):
     trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
     subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
     relc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RelcFactory")
-    loc_lat = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
-    loc_lon = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
+    loc_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
+    loc_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
     loc_date = factory.lazy_attribute(lambda o: faker.date_time(tzinfo=timezone.get_current_timezone()))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1516,7 +1520,8 @@ class LocFactory(factory.django.DjangoModelFactory):
             'relc_id': relc.pk,
             'loc_lat': obj.loc_lat,
             'loc_lon': obj.loc_lon,
-            'loc_date': obj.loc_date,
+            'start_date': obj.loc_date.date(),
+            'start_time': obj.loc_date.time().strftime("%H:%M"),
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1878,10 +1883,10 @@ class RelcFactory(factory.django.DjangoModelFactory):
     rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
     trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
     subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
-    min_lat = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
-    max_lat = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
-    min_lon = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
-    max_lon = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
+    min_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
+    max_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
+    min_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
+    max_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
 
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -1978,7 +1983,7 @@ class SampFactory(factory.django.DjangoModelFactory):
         model = models.Sample
 
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
-    samp_num = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    samp_num = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
     sampc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SampcFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -2044,7 +2049,7 @@ class SampdFactory(factory.django.DjangoModelFactory):
 
     samp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SampFactory")
     anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
-    det_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
@@ -2057,8 +2062,8 @@ class SampdFactory(factory.django.DjangoModelFactory):
         samp = SampFactory()
         adsc = AdscFactory()
         qual = QualFactory()
+        anidc = AnidcFactory()
         obj = SampdFactory.build(**kwargs)
-        anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -2114,7 +2119,7 @@ class SpwnFactory(factory.django.DjangoModelFactory):
 
     pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
     spwn_date = factory.lazy_attribute(lambda o: faker.date())
-    est_fecu = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    est_fecu = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -2145,7 +2150,7 @@ class SpwndFactory(factory.django.DjangoModelFactory):
     spwndc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwndcFactory")
     spwnsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwnscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
-    det_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -2156,7 +2161,7 @@ class SpwndFactory(factory.django.DjangoModelFactory):
         spwnsc = SpwnscFactory()
         qual = QualFactory()
         obj = SpwndFactory.build(**kwargs)
-        spwndc = SpwndcFactory(min_val=obj.det_val-1, max_val=obj.det_val+1)
+        spwndc = SpwndcFactory()
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -2182,8 +2187,8 @@ class SpwndcFactory(factory.django.DjangoModelFactory):
     nom = factory.lazy_attribute(lambda o: faker.word())
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
-    min_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
-    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000, 2000))
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(0, 10))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(20, 30))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     spwn_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -2248,7 +2253,7 @@ class SpecFactory(factory.django.DjangoModelFactory):
         model = models.SpeciesCode
         django_get_or_create = ('name',)
 
-    name = factory.lazy_attribute(lambda o: faker.word())
+    name = factory.lazy_attribute(lambda o: faker.text(max_nb_chars=10))
     species = factory.lazy_attribute(lambda o: faker.word())
     com_name = factory.lazy_attribute(lambda o: faker.word())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -2372,7 +2377,7 @@ class TankdFactory(factory.django.DjangoModelFactory):
     contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
     tank_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TankFactory")
 
-    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_value = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
@@ -2385,8 +2390,8 @@ class TankdFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
         tank = TankFactory()
         cdsc = CdscFactory()
+        contdc = ContdcFactory()
         obj = TankdFactory.build(**kwargs)
-        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -2468,7 +2473,7 @@ class TraydFactory(factory.django.DjangoModelFactory):
     contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
     tray_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TrayFactory")
 
-    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_value = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
@@ -2481,8 +2486,8 @@ class TraydFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
         tray = TrayFactory()
         cdsc = CdscFactory()
+        contdc = ContdcFactory()
         obj = TraydFactory.build(**kwargs)
-        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -2570,7 +2575,7 @@ class TrofdFactory(factory.django.DjangoModelFactory):
     contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
     trof_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TrofFactory")
 
-    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    det_value = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
@@ -2583,8 +2588,8 @@ class TrofdFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
         trof = TrofFactory()
         cdsc = CdscFactory()
+        contdc = ContdcFactory()
         obj = TrofdFactory.build(**kwargs)
-        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {

@@ -38,7 +38,7 @@
 
     <li class="nav-item">
         <a class="nav-link" href="{% url 'spot:project_list' %}">
-            {% trans "Project Tracking" %}
+            {% trans "Projects" %}
         </a>
     </li>
     <li class="nav-item">
@@ -56,32 +56,6 @@
             {% trans "Database" %}
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:report_search' %}">
-            {% trans "Reports" %}
-        </a>
-    </li>
-
-    {% for group in user.groups.all %}
-        {% if group.name == "spot_admin" %}
-
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">
-                    Settings
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="{% url 'spot:manage_activities' %}">Manage Activities</a>
-                    <a class="dropdown-item" href="{% url 'spot:manage_basins' %}">Manage Drainage Basins</a>
-                    <a class="dropdown-item" href="{% url 'spot:manage_watersheds' %}">Manage Watersheds</a>
-                    <a class="dropdown-item" href="{% url 'sar_search:species_list' %}" target="_blank">Manage Species (via SAR Search App)</a>
-                </div>
-            </li>
-
-        {% endif %}
-
-    {% endfor %}
-
 
 {% endblock left_auth %}
 {% block left_admin %}

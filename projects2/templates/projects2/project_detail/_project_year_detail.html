@@ -2,7 +2,7 @@
 {% load project_filters %}
 {% load i18n %}
 
-<div v-if="canModify" class="float-right">
+<div v-if="canModify" class="mb-3">
   <button class="no-print"
           @click="goProjectYearEdit(projectYear.id)">
     <span class="mdi mdi-pencil"></span>
@@ -24,7 +24,7 @@
 
 {# OVERVIEW #}
 <div class="mb-5">
-  <h2>${projectYear.display_name}</h2>
+{#  <h2>Project Year: ${projectYear.display_name}</h2>#}
   <table class="table table-sm">
     {% for field in project_year_field_list %}
 

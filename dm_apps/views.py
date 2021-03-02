@@ -379,6 +379,19 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["events"] = {
+            "title": _("Events Planner"),
+            "description": _("Tool for the planning and organization of events"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('events:index'),
+            "icon_path": 'img/icons/calendar.png',
+            "region": "all",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["projects"] = {
             "title": _("Project Planning (ARCHIVE ONLY)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),

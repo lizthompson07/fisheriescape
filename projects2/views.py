@@ -1,5 +1,7 @@
 import json
 import os
+import csv
+
 from copy import deepcopy
 
 from django.contrib import messages
@@ -8,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -23,7 +25,7 @@ from . import filters, forms, models, reports
 from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
-    get_review_score_rubric, get_status_report_field_list, get_review_field_list, in_projects_admin_group
+    get_review_score_rubric, get_status_report_field_list, get_review_field_list, in_projects_admin_group, get_user_fte_breakdown
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -872,7 +874,7 @@ class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
 # ADMIN
 
 
-class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
+class AdminStaffListView(AdminRequiredMixin, CommonFilterView):
     template_name = 'projects2/admin_staff_list.html'
 
     filterset_class = filters.StaffFilter
@@ -900,7 +902,7 @@ class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
         return qs
 
 
-class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, CommonUpdateView):
+class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateView):
     '''This is really just for the admin view'''
     model = models.Staff
     template_name = 'projects2/admin_staff_form.html'
@@ -1091,6 +1093,7 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         report = int(form.cleaned_data["report"])
         year = nz(form.cleaned_data["year"], "None")
         region = nz(form.cleaned_data["region"], "None")
+        section = nz(form.cleaned_data["section"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
@@ -1098,6 +1101,12 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year};region={region}')
         elif report == 3:
             return HttpResponseRedirect(reverse("projects2:export_project_status_summary")+f'?year={year};region={region}')
+        elif report == 4:
+            return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
+        elif report == 5:
+            return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
+        elif report == 6:
+            return HttpResponseRedirect(reverse("projects2:export_rsa") + f'?year={year};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1186,6 +1195,32 @@ def csrf_application(request, pk):
     raise Http404
 
 
+
+
+@login_required()
+def sara_application(request, pk):
+    project = get_object_or_404(models.Project, pk=pk)
+
+    # check if the project lead's profile is up-to-date
+    if not project.lead_staff.exists():
+        messages.error(request, _("Warning: There are no lead staff on this project!!"))
+    lang = get_language()
+    file_url = reports.generate_sara_application(project, lang)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
+            if lang == "fr":
+                filename = f'demande de SARA (no. projet {project.id}).docx'
+            else:
+                filename = f'SARA application (Project ID {project.id}).docx'
+
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
+    raise Http404
+
+
+
 @login_required()
 def export_csrf_submission_list(request):
     year = request.GET.get("year")
@@ -1201,9 +1236,6 @@ def export_csrf_submission_list(request):
     raise Http404
 
 
-
-
-
 @login_required()
 def project_status_summary(request):
     year = request.GET.get("year")
@@ -1211,6 +1243,66 @@ def project_status_summary(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = reports.generate_project_status_summary(year, region)
     response['Content-Disposition'] = f'attachment; filename="project status summary ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+    return response
+
+
+@login_required()
+def export_project_list(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    section = request.GET.get("section")
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = reports.generate_project_list(request.user, year, region, section)
+    response['Content-Disposition'] = f'attachment; filename="project list ({timezone.now().strftime("%Y_%m_%d")}).csv"'
+    return response
+
+
+@login_required()
+def export_sar_workplan(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    region_name = None
+    # Create the HttpResponse object with the appropriate CSV header.
+    if region and region != "None":
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    file_url = reports.generate_sar_workplan(year, region)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            if region_name:
+                response['Content-Disposition'] = f'inline; filename="({year}) {region_name} - SAR Science workingplan.xls"'
+            else:
+                response['Content-Disposition'] = f'inline; filename="({year}) - SAR Science workingplan.xls"'
+
+            return response
+    raise Http404
+
+@login_required()
+def export_regional_staff_allocation(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    # Create the HttpResponse object with the appropriate CSV header.
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}_region_({}).csv"'.format(region_name, year)
+
+    writer = csv.writer(response)
+    writer.writerow(['Staff_Member', 'Fiscal_Year', 'Draft', 'Submitted_Unapproved', 'Approved'])
+
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section__division__branch__region_id=region).values('pk')
+    users = User.objects.filter(staff_instances2__project_year_id__in=project_years).distinct().order_by("last_name")
+
+    for u in users:
+        my_dict = get_user_fte_breakdown(u, fiscal_year_id=year)
+        writer.writerow([my_dict["name"], my_dict["fiscal_year"], my_dict["draft"], my_dict["submitted_unapproved"],
+                         my_dict["approved"]])
+
     return response
 
 # ADMIN USERS
@@ -1247,14 +1339,16 @@ class UserListView(AdminRequiredMixin, CommonFilterView):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
 def toggle_user(request, pk, type):
-    my_user = User.objects.get(pk=pk)
-    admin_group = Group.objects.get(name="projects_admin")
-    if type == "admin":
-        # if the user is in the admin group, remove them
-        if admin_group in my_user.groups.all():
-            my_user.groups.remove(admin_group)
-        # otherwise add them
-        else:
-            my_user.groups.add(admin_group)
-    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-
+    if in_projects_admin_group(request.user):
+        my_user = User.objects.get(pk=pk)
+        admin_group = Group.objects.get(name="projects_admin")
+        if type == "admin":
+            # if the user is in the admin group, remove them
+            if admin_group in my_user.groups.all():
+                my_user.groups.remove(admin_group)
+            # otherwise add them
+            else:
+                my_user.groups.add(admin_group)
+        return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+    else:
+        return HttpResponseForbidden("sorry, not authorized")

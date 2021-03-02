@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 
 from lib.functions.custom_functions import fiscal_year
@@ -115,7 +116,7 @@ class ProjectForm(forms.ModelForm):
 
         # if not acrdp project, we should remove certain fields
         if kwargs.get("instance"):
-            if not kwargs.get("instance").is_acrdp and not kwargs.get("instance").is_csrf:
+            if not kwargs.get("instance").is_acrdp and not kwargs.get("instance").is_csrf and not kwargs.get("instance").is_sara:
                 specialized_fields = [
                     # ACRDP
                     'organization',
@@ -127,9 +128,11 @@ class ProjectForm(forms.ModelForm):
                     'client_information',
                     'second_priority',
                     'objectives',
-                    # 'objectives_methods',
                     'innovation',
                     'other_funding',
+                    # SARA
+                    'reporting_mechanism',
+                    'future_funding_needs',
                 ]
                 for field in specialized_fields:
                     del self.fields[field]
@@ -140,9 +143,11 @@ class ProjectForm(forms.ModelForm):
                     'client_information',
                     'second_priority',
                     'objectives',
-                    # 'objectives_methods',
                     'innovation',
                     'other_funding',
+                    # SARA
+                    'reporting_mechanism',
+                    'future_funding_needs',
                 ]
                 for field in specialized_fields:
                     del self.fields[field]
@@ -150,11 +155,15 @@ class ProjectForm(forms.ModelForm):
                 self.fields["overview"].label += str(_(" /  ACRDP objectives"))
             elif kwargs.get("instance").is_csrf:
                 specialized_fields = [
+                    # ACRDP
                     'organization',
                     'species_involved',
                     'team_description',
                     'rationale',
                     'experimental_protocol',
+                    # SARA
+                    'reporting_mechanism',
+                    'future_funding_needs',
                 ]
                 for field in specialized_fields:
                     del self.fields[field]
@@ -168,6 +177,29 @@ class ProjectForm(forms.ModelForm):
                     _("Provide any additional information on the other sources of funding relevant to the project (e.g. type of in-kind contribution) (CSRF)"))
                 self.fields["client_information"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
                 self.fields["second_priority"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
+            elif kwargs.get("instance").is_sara:
+                specialized_fields = [
+                    # CSRF
+                    'client_information',
+                    'second_priority',
+                    'objectives',
+                    'innovation',
+                    'other_funding',
+                    # ACRDP
+                    'organization',
+                    'species_involved',
+                    'team_description',
+                    'rationale',
+                    'experimental_protocol',
+                ]
+                for field in specialized_fields:
+                    del self.fields[field]
+
+                self.fields["overview"].label = mark_safe(_(
+                    "Overview:<br>"
+                    "a) What SARA process step does this work support?<br>"
+                    "b) What recovery or conservation measures does this work support? (if applicable) (SARA)"))
+                self.fields["tags"].label = _("Tags / species (single or multi-species), threat or area of focus (SARA)")
 
 
 class ProjectYearForm(forms.ModelForm):
@@ -241,6 +273,12 @@ class ProjectYearForm(forms.ModelForm):
                     _(
                         "Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan FOR THIS PROJECT YEAR ONLY (CSRF)"))
                 self.fields["data_products"].label += " " + str(_("And what is the plan for the publication of these products (CSRF)?"))
+            elif kwargs.get("instance").project.is_sara:
+                self.fields["priorities"].label = mark_safe(str(
+                    _("Priorities:<br>"
+                      "a) Objectives – what will be achieved by completing this work?<br>"
+                      "b) Methods – how will this work be completed (broadly)?")))
+
 
     def clean_start_date(self):
         start_date = self.cleaned_data['start_date']
@@ -354,8 +392,8 @@ class StaffForm(forms.ModelForm):
         funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
-        self.fields["role"].widget.attrs = {"v-model": "activity.role", "rows": "4", ":disabled": "!isCSRF"}
-        self.fields["expertise"].widget.attrs = {"v-model": "activity.expertise", "rows": "4", ":disabled": "!isCSRF"}
+        self.fields["role"].widget.attrs = {"v-model": "staff.role", "rows": "4", ":disabled": "!isCSRF"}
+        self.fields["expertise"].widget.attrs = {"v-model": "staff.expertise", "rows": "4", ":disabled": "!isCSRF"}
 
 
 class OMCostForm(forms.ModelForm):
@@ -663,9 +701,9 @@ class UpcomingDateForm(forms.ModelForm):
     class Meta:
         model = models.UpcomingDate
         fields = "__all__"
-        widgets = {
-            "date": forms.DateInput(attrs={"type": "date"})
-        }
+        # widgets = {
+        #     "date": forms.DateTimeInput()
+        # }
 
 
 UpcomingDateFormset = modelformset_factory(
@@ -788,10 +826,14 @@ class ReportSearchForm(forms.Form):
         (1, "Science Culture Committee Report (xlsx)"),
         (2, "CSRF Submission List (xlsx)"),
         (3, "Project Status Summary (csv)"),
+        (4, "Project List (csv)"),
+        (5, "SAR Workplan (xlsx)"),
+        (6, "Regional Staff Allocation (csv)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal Year'))
     region = forms.ChoiceField(required=False, label=gettext_lazy('DFO Region'))
+    section = forms.ChoiceField(required=False, label=gettext_lazy('DFO Section'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -799,9 +841,12 @@ class ReportSearchForm(forms.Form):
         fy_choices.insert(0, (None, "-------"))
         region_choices = [(obj.id, str(obj)) for obj in shared_models.Region.objects.all()]
         region_choices.insert(0, (None, "All"))
+        section_choices = [(obj.id, obj.full_name) for obj in shared_models.Section.objects.filter(projects2__isnull=False).distinct()]
+        section_choices.insert(0, (None, "All"))
         self.fields['year'].choices = fy_choices
         self.fields['region'].choices = region_choices
-
+        self.fields['section'].choices = section_choices
+        self.fields['section'].widget.attrs = chosen_js
 
 
 class CitationForm(forms.ModelForm):

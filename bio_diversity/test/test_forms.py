@@ -31,7 +31,6 @@ class TestAnixForm(CommonTest):
         self.assert_form_valid(self.Form, data=invalid_data)
 
 
-
 @tag("Contx", 'forms')
 class TestContxForm(CommonTest):
 
@@ -77,8 +76,13 @@ class TestCntdForm(CommonTest):
         invalid_data['anidc_id'] = test_anidc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.CntdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.CntdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -136,8 +140,9 @@ class TestEnvForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
     def test_null_unique(self):
-        instance = BioFactoryFloor.EnvFactory(contx_id=None, env_val=1000)
+        instance = BioFactoryFloor.EnvFactory(contx_id=None)
         invalid_data = model_to_dict(instance)
+        invalid_data["start_date"] = invalid_data["start_datetime"].date()
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
         invalid_data["contx_id"] = 1
@@ -219,13 +224,19 @@ class TestGrpdForm(CommonTest):
         invalid_data['anidc_id'] = test_anidc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.GrpdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.GrpdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
         invalid_data["adsc_id"] = 1
         self.assert_form_valid(self.Form, data=invalid_data)
+
 
 @tag("Heatd", 'forms')
 class TestHeatdForm(CommonTest):
@@ -317,8 +328,13 @@ class TestIndvdForm(CommonTest):
         invalid_data['anidc_id'] = test_anidc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.IndvdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.IndvdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -354,6 +370,7 @@ class TestLocForm(CommonTest):
     def test_null_unique(self):
         instance = BioFactoryFloor.LocFactory(subr_id=None)
         invalid_data = model_to_dict(instance)
+        invalid_data["start_date"] = invalid_data["loc_date"].date()
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
         invalid_data["subr_id"] = 1
@@ -382,14 +399,15 @@ class TestPairForm(CommonTest):
         except Individual.DoesNotExist:
             pass
 
-        # cannot use individual code with null ufid
+        # cannot use individual code with null pit_tag
         invalid_data = self.data
-        non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
+        non_valid_indv = BioFactoryFloor.IndvFactory(pit_tag=None)
         invalid_data['indv_id'] = non_valid_indv.pk
         try:
             self.assert_form_invalid(self.Form, data=invalid_data)
         except Individual.DoesNotExist:
             pass
+
 
 @tag("Prot", 'forms')
 class TestProtForm(CommonTest):
@@ -412,6 +430,7 @@ class TestProtForm(CommonTest):
             self.assert_form_invalid(self.Form, data=invalid_data)
         except Program.DoesNotExist:
             pass
+
 
 @tag("Protf", 'forms')
 class TestProtfForm(CommonTest):
@@ -457,8 +476,13 @@ class TestSampdForm(CommonTest):
         invalid_data['anidc_id'] = test_anidc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.SampdFactory(adsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.SampdFactory(adsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -492,9 +516,9 @@ class TestSireForm(CommonTest):
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
-        # cannot use individual code with null ufid
+        # cannot use individual code with null pit tag
         invalid_data = self.data
-        non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
+        non_valid_indv = BioFactoryFloor.IndvFactory(pit_tag=None)
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
@@ -546,8 +570,13 @@ class TestSpwndForm(CommonTest):
         invalid_data['spwndc_id'] = test_spwndc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+    def test_null_val(self):
+        invalid_data = self.data
+        invalid_data["det_val"] = None
+        self.assert_form_valid(self.Form, data=invalid_data)
+
     def test_null_unique(self):
-        instance = BioFactoryFloor.SpwndFactory(spwnsc_id=None, det_val=1000)
+        instance = BioFactoryFloor.SpwndFactory(spwnsc_id=None)
         invalid_data = model_to_dict(instance)
         del invalid_data["id"]
         self.assert_form_invalid(self.Form, data=invalid_data)

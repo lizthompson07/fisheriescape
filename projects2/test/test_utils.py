@@ -27,8 +27,11 @@ class TestUtils(CommonTest):
         branch_head = section.division.branch.head
 
         project = FactoryFloor.ProjectFactory()
-        project_year1 = FactoryFloor.ProjectYearFactory(project=project)
-        project_year2 = FactoryFloor.ProjectYearFactory(project=project)
+        date1 = datetime(year=2019, month=4, day=1, tzinfo=timezone.get_current_timezone())
+        date2 = datetime(year=2020, month=4, day=1, tzinfo=timezone.get_current_timezone())
+
+        project_year1 = FactoryFloor.ProjectYearFactory(project=project, start_date=date1)
+        project_year2 = FactoryFloor.ProjectYearFactory(project=project, start_date=date2)
         staff1a = FactoryFloor.LeadStaffFactory(project_year=project_year1)
         staff1b = FactoryFloor.StaffFactory(project_year=project_year1, is_lead=False)
         staff2a = FactoryFloor.LeadStaffFactory(project_year=project_year2)
@@ -165,8 +168,10 @@ class TestUtils(CommonTest):
     @tag("utils")
     def test_financial_summaries(self):
         project = FactoryFloor.ProjectFactory()
-        project_year1 = FactoryFloor.ProjectYearFactory(project=project)
-        project_year2 = FactoryFloor.ProjectYearFactory(project=project)
+        date1 = datetime(year=2019, month=4, day=1, tzinfo=timezone.get_current_timezone())
+        date2 = datetime(year=2020, month=4, day=1, tzinfo=timezone.get_current_timezone())
+        project_year1 = FactoryFloor.ProjectYearFactory(project=project, start_date=date1)
+        project_year2 = FactoryFloor.ProjectYearFactory(project=project, start_date=date2)
 
         # let's deal with one funding source first
         omcost = FactoryFloor.OMCostFactory(project_year=project_year1, amount=1000)  # om
@@ -184,26 +189,26 @@ class TestUtils(CommonTest):
         self.assertEqual(data[0]["capital"], 2000)
         self.assertEqual(data[0]["total"], 10000)
 
-        # now we add a second funding source
-        omcost = FactoryFloor.OMCostFactory(project_year=project_year1, amount=1000)
-        funding_source2 = omcost.funding_source
-        data = utils.financial_project_year_summary_data(project_year1)
-        self.assertEqual(len(data), 2)
-
-        # now let's do everything again to test out to project-wide function
-
-        # let's deal with one funding source first
+        # now let's test out to project-wide function using multiple years
         FactoryFloor.OMCostFactory(project_year=project_year2, amount=1000, funding_source=funding_source)  # om
         FactoryFloor.CapitalCostFactory(project_year=project_year2, funding_source=funding_source, amount=2000)  # capital
         FactoryFloor.StudentStaffFactory(project_year=project_year2, funding_source=funding_source, amount=3000)  # om
         FactoryFloor.StaffFactory(project_year=project_year2, funding_source=funding_source, amount=4000, employee_type_id=2)  # salary
-        FactoryFloor.OMCostFactory(project_year=project_year2, amount=1000, funding_source=funding_source2)
 
         data = utils.financial_project_summary_data(project)
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), 1)  # there should only be one funding source
         self.assertEqual(data[0]["salary"], 8000)
         self.assertEqual(data[0]["om"], 8000)
         self.assertEqual(data[0]["capital"], 4000)
         self.assertEqual(data[0]["total"], 20000)
 
+        # now we add a second funding source
+        funding_source_2 = FactoryFloor.FundingSourceFactory()
+        # adding a random  cost with a new funding source
+        omcost = FactoryFloor.OMCostFactory(project_year=project_year1, funding_source=funding_source_2, amount=1000)
+        data = utils.financial_project_year_summary_data(project_year1)
+        self.assertEqual(len(data), 2)  # there should be only two funding sources
+        data = utils.financial_project_summary_data(project)
+        self.assertEqual(len(data), 2)  # there should be only two funding sources
 
+        # now let's do everything again to test out to project-wide function

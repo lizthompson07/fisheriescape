@@ -7,6 +7,9 @@ urlpatterns = [
     # for home/index page
     path('', views.IndexTemplateView.as_view(),    name="index"),
     path('admin/index/', views.AdminIndexTemplateView.as_view(),    name="admin_index"),
+    path('prog/index/', views.ProgIndexTemplateView.as_view(),    name="prog_index"),
+    path('codes/index/', views.CodesIndexTemplateView.as_view(),    name="codes_index"),
+    path('facic/index/', views.FacicIndexTemplateView.as_view(),    name="facic_index"),
 
     path('create/anidc/', views.AnidcCreate.as_view(), name="create_anidc"),
     path('details/anidc/<int:pk>/', views.AnidcDetails.as_view(), name="details_anidc"),
@@ -39,6 +42,7 @@ urlpatterns = [
     
     path('create/cntd/', views.CntdCreate.as_view(), name="create_cntd"),
     path('details/cntd/<int:pk>/', views.CntdDetails.as_view(), name="details_cntd"),
+    path('details/cntd/<str:back>/<int:back_id>/<int:pk>/', views.CntdDetails.as_view(), name="details_cntd"),
     path('list/cntd/', views.CntdList.as_view(), name="list_cntd"),
     path('update/cntd/<int:pk>/', views.CntdUpdate.as_view(), name="update_cntd"),
     
@@ -46,6 +50,10 @@ urlpatterns = [
     path('details/coll/<int:pk>/', views.CollDetails.as_view(), name="details_coll"),
     path('list/coll/', views.CollList.as_view(), name="list_coll"),
     path('update/coll/<int:pk>/', views.CollUpdate.as_view(), name="update_coll"),
+
+    path('settings/comment-keywords/', views.CommentKeywordsFormsetView.as_view(), name="manage_comment_keywords"),
+    path('settings/comment-keywords/<int:pk>/delete/', views.CommentKeywordsHardDeleteView.as_view(),
+         name="delete_comment_keywords"),
 
     path('create/contdc/', views.ContdcCreate.as_view(), name="create_contdc"),
     path('details/contdc/<int:pk>/', views.ContdcDetails.as_view(), name="details_contdc"),
@@ -162,7 +170,7 @@ urlpatterns = [
     
     path('create/grpd/', views.GrpdCreate.as_view(), name="create_grpd"),
     path('details/grpd/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
-    path('details/grpd//<str:back>/<int:back_id>/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
+    path('details/grpd/<str:back>/<int:back_id>/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
     path('list/grpd/', views.GrpdList.as_view(), name="list_grpd"),
     path('update/grpd/<int:pk>/', views.GrpdUpdate.as_view(), name="update_grpd"),
     
@@ -396,7 +404,9 @@ urlpatterns = [
     path('update/team/<int:pk>/', views.TeamUpdate.as_view(), name="update_team"),
 
     path('create/tray/', views.TrayCreate.as_view(), name="create_tray"),
+    path('create/tray/<int:evnt>/<str:pop>/', views.TrayCreate.as_view(), name="create_tray"),
     path('details/tray/<int:pk>/', views.TrayDetails.as_view(), name="details_tray"),
+    path('details/tray/<str:back>/<int:back_id>/<int:pk>/', views.TrayDetails.as_view(), name="details_tray"),
     path('list/tray/', views.TrayList.as_view(), name="list_tray"),
     path('update/tray/<int:pk>/', views.TrayUpdate.as_view(), name="update_tray"),
     
@@ -411,7 +421,9 @@ urlpatterns = [
     path('update/trib/<int:pk>/', views.TribUpdate.as_view(), name="update_trib"),
 
     path('create/trof/', views.TrofCreate.as_view(), name="create_trof"),
+    path('create/trof/<int:evnt>/<str:pop>/', views.TrofCreate.as_view(), name="create_trof"),
     path('details/trof/<int:pk>/', views.TrofDetails.as_view(), name="details_trof"),
+    path('details/trof/<str:back>/<int:back_id>/<int:pk>/', views.TrofDetails.as_view(), name="details_trof"),
     path('list/trof/', views.TrofList.as_view(), name="list_trof"),
     path('update/trof/<int:pk>/', views.TrofUpdate.as_view(), name="update_trof"),
     

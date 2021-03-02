@@ -1,0 +1,129 @@
+{% extends "csas/csas_delete.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block field_override %}
+    <h2>{{ object.prj_name }}</h2>
+    <style>
+        .mymdb-masthead {
+            background-color: #EEEEEE;
+        }
+
+        table{
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        {# td, th{                        #}
+        {#     border: 1px solid #dddddd; #}
+        {#     text-align: left;          #}
+        {#     padding: 8px;              #}
+        {# }                              #}
+
+        tr:nth-child(even){
+            background-color: #dddddd;
+        }
+
+        .collapsible {
+            background-color: #971;
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: center;
+            outline: none;
+            font-size: 18px;
+        }
+
+        .active, .collapsible:hover {
+            background-color: #888;
+        }
+
+        .collapsible:after {
+            content: 'Open';    {# \002B is + sign #}
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .active:after {
+            content: 'Close';    {# \2212 is - sign #}
+        }
+
+        .content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            {# background-color: #f1f1f1; #}
+        }
+
+        .outsideDiv {
+            position: relative;
+        }
+    </style>
+
+    <div class="container">
+        {% if key == 'req_CSAS_fr_details' %}
+            <h5>Are you sure you want to delete <em style="color:brown">Request Status for {{ object.request }}</em>
+                from the database?</h5>
+            <p>(You will not be able to delete this object if it is attached to another record.)</p>
+        {% else %}
+            <h5>Are you sure you want to delete <em style="color:brown">{{ object }}</em> from the database?</h5>
+            <p>(You will not be able to delete this object if it is attached to another record.)</p>
+        {% endif %}
+
+        <form method="post" class="form">
+            {#{% csrf_token %}#}
+            {#<button type="submit" class="btn btn-danger">Delete</button>#}
+            {#<a class="btn btn-secondary" href="{% url 'csas:details_con' object.id %}">Cancel</a>#}
+            {#<h1>{% trans key %}</h1>#}
+
+            {% if key == 'con_fr_lists' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_con_fr_lists' object.pk %}">Delete</a>
+            {% elif key == 'con_fr_details' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_con_fr_details' object.pk %}">Delete</a>
+            {% elif key == 'req_fr_lists' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_req_fr_lists' object.pk %}">Delete</a>
+            {% elif key == 'req_fr_details' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_req_fr_details' object.pk %}">Delete</a>
+            {% elif key == 'req_CSAS_fr_details' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_req_CSAS_fr_details' object.pk %}">Delete</a>
+            {% elif key == 'met_fr_lists' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_met_fr_lists' object.pk %}">Delete</a>
+            {% elif key == 'met_fr_details' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_met_fr_details' object.pk %}">Delete</a>
+            {% elif key == 'pub_fr_lists' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_pub_fr_lists' object.pk %}">Delete</a>
+            {% elif key == 'pub_fr_details' %}
+                <a class="btn btn-danger" href="{% url 'csas:delete_pub_fr_details' object.pk %}">Delete</a>
+            {% endif %}
+
+            <a class="btn btn-secondary" type="button" onclick="window.open('', '_self', ''); window.close();">Cancel</a>
+        </form>
+    </div>
+
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight){
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        }
+    </script>
+
+{% endblock field_override %}

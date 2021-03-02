@@ -290,7 +290,7 @@ class LocFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Location
-        fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "loc_date", ]
+        fields = ["evnt_id", "rive_id", "trib_id", "relc_id", ]
 
 
 class LoccFilter(django_filters.FilterSet):
@@ -329,6 +329,8 @@ class PrioFilter(django_filters.FilterSet):
 
 
 class ProgFilter(django_filters.FilterSet):
+
+    prog_name = django_filters.CharFilter(field_name='prog_name', lookup_expr='icontains')
 
     class Meta:
         model = models.Program

@@ -4,6 +4,17 @@ from django.utils.translation import gettext as _
 from . import models
 
 
+def special_capitalize(raw_string):
+    """ Little dance to make sure the first letter is capitalized.
+    Do not want to use the capitalize() method since it makes the remaining portion of str lowercase. This is problematic in
+     cases like: `DFO employee` since that would become `Dfo employee`"""
+    first_letter = raw_string[0].upper()
+    str_list = list(raw_string)
+    str_list[0] = first_letter
+    raw_string = "".join(str_list)
+    return raw_string
+
+
 def get_section_choices(full_name=True, region_filter=None, branch_filter=None, division_filter=None):
     if full_name:
         my_attr = "full_name"
@@ -76,14 +87,20 @@ def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_
         format_str += " %H:%M:%S"
     if with_tz:
         format_str += " %Z"
-
-    my_str = f"<u>Created:</u> {created_at.strftime(format_str)}"
+    my_str = None
+    str_by = _("by")
+    str_created = _("Created:")
+    str_updated = _("Last updated:")
     if created_by:
-        my_str += f" by {created_by}"
+        my_str = f"<u>{str_created}</u> {created_at.strftime(format_str)}"
+        my_str += f" {str_by} {created_by}"
     if updated_at:
-        my_str += f"<br><u>Last updated:</u> {updated_at.strftime(format_str)}"
+        if not my_str:
+            my_str = f"<u>{str_updated}</u> {updated_at.strftime(format_str)}"
+        else:
+            my_str += f"<br><u>{str_updated}</u> {updated_at.strftime(format_str)}"
         if last_modified_by:
-            my_str += f" by {last_modified_by}"
+            my_str += f" {str_by} {last_modified_by}"
 
     return mark_safe(my_str)
 

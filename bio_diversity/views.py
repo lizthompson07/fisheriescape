@@ -6,11 +6,13 @@ from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, Comm
     CommonFormsetView, CommonHardDeleteView
 from django.urls import reverse_lazy
 from django import forms
-from bio_diversity.forms import HelpTextFormset
+from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
 from django.utils.translation import gettext_lazy as _
+
+from .utils import get_cont_evnt
 
 
 class IndexTemplateView(TemplateView):
@@ -27,6 +29,69 @@ class AdminIndexTemplateView(TemplateView):
     home_url_name = "bio_diversity:index"
 
     template_name = 'bio_diversity/admin_index.html'
+
+    def get(self, request, *args, **kwargs):
+        if not utils.bio_diverisity_admin(self.request.user):
+            return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        return context
+
+
+class CodesIndexTemplateView(TemplateView):
+    nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
+    site_css = 'bio_diversity/bio_diversity_css.css'
+    home_url_name = "bio_diversity:index"
+
+    template_name = 'bio_diversity/codes_index.html'
+
+    def get(self, request, *args, **kwargs):
+        if not utils.bio_diverisity_admin(self.request.user):
+            return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        return context
+
+
+class FacicIndexTemplateView(TemplateView):
+    nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
+    site_css = 'bio_diversity/bio_diversity_css.css'
+    home_url_name = "bio_diversity:index"
+
+    template_name = 'bio_diversity/facic_index.html'
+
+    def get(self, request, *args, **kwargs):
+        if not utils.bio_diverisity_admin(self.request.user):
+            return HttpResponseRedirect(reverse_lazy('accounts:login_required'))
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = utils.bio_diverisity_admin(self.request.user)
+        return context
+
+
+class ProgIndexTemplateView(TemplateView):
+    nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
+    site_css = 'bio_diversity/bio_diversity_css.css'
+    home_url_name = "bio_diversity:index"
+
+    template_name = 'bio_diversity/prog_index.html'
 
     def get(self, request, *args, **kwargs):
         if not utils.bio_diverisity_admin(self.request.user):
@@ -75,18 +140,17 @@ class CommonCreate(CommonAuthCreateView):
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
-        context['help_text_dict'] = utils.get_help_text_dict()
-        return context
+        context['help_text_dict'] = utils.get_help_text_dict(self.model)
 
-    # def form_invalid(self, form):
-    #     if form.errors:
-    #         form.add_error(, form.errors['__all__'][0])
-    #     return super().form_invalid(form)
+        return context
 
 
 class AnidcCreate(mixins.AnidcMixin, CommonCreate):
@@ -211,7 +275,7 @@ class DrawCreate(mixins.DrawMixin, CommonCreate):
 class EnvCreate(mixins.EnvMixin, CommonCreate):
     def get_initial(self):
         init = super().get_initial()
-        init["env_start"] = date.today
+        init["start_date"] = date.today()
         if 'loc' in self.kwargs:
             init['loc_id'] = self.kwargs['loc']
         return init
@@ -238,10 +302,14 @@ class EnvtcCreate(mixins.EnvtcMixin, CommonCreate):
 
 
 class EvntCreate(mixins.EvntMixin, CommonCreate):
-    def get_initial(self):
-        init = super().get_initial()
-        init["evnt_start"] = date.today
-        return init
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs = {'pk': self.object.pk})
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
 
 
 class EvntcCreate(mixins.EvntcMixin, CommonCreate):
@@ -330,10 +398,7 @@ class IndvdCreate(mixins.IndvdMixin, CommonCreate):
 
 
 class IndvtCreate(mixins.IndvtMixin, CommonCreate):
-    def get_initial(self):
-        init = super().get_initial()
-        init["start_datetime"] = date.today
-        return init
+    pass
 
 
 class IndvtcCreate(mixins.IndvtcMixin, CommonCreate):
@@ -357,11 +422,7 @@ class InstdcCreate(mixins.InstdcMixin, CommonCreate):
 
 
 class LocCreate(mixins.LocMixin, CommonCreate):
-    def get_initial(self):
-        initial = super().get_initial()
-        if 'evnt' in self.kwargs:
-            initial['evnt_id'] = self.kwargs['evnt']
-        return initial
+    pass
 
 
 class LoccCreate(mixins.LoccMixin, CommonCreate):
@@ -513,7 +574,16 @@ class TeamCreate(mixins.TeamMixin, CommonCreate):
 
 
 class TrayCreate(mixins.TrayMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                              tank_id=self.object, created_by=self.object.created_by,
+                                              created_date=self.object.created_date)
+            contx_link.clean()
+            contx_link.save()
+        return super().form_valid(form)
 
 
 class TraydCreate(mixins.TraydMixin, CommonCreate):
@@ -525,7 +595,16 @@ class TribCreate(mixins.TribMixin, CommonCreate):
 
 
 class TrofCreate(mixins.TrofMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            contx_link = models.ContainerXRef(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
+                                              trof_id=self.object, created_by=self.object.created_by,
+                                              created_date=self.object.created_date)
+            contx_link.clean()
+            contx_link.save()
+        return super().form_valid(form)
 
 
 class TrofdCreate(mixins.TrofdMixin, CommonCreate):
@@ -554,6 +633,12 @@ class CommonDetails(DetailView):
     # By default detail objects are editable, set to false to remove update buttons
     editable = True
 
+    def get_auth(self):
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -572,7 +657,7 @@ class CommonDetails(DetailView):
         context['update_url'] = self.update_url if self.update_url else "bio_diversity:update_{}".format(self.key)
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
+        context['auth'] = self.get_auth()
         context['editable'] = context['auth'] and self.editable
 
         return context
@@ -593,7 +678,20 @@ class AdscDetails(mixins.AdscMixin, CommonDetails):
 
 
 class CntDetails(mixins.CntMixin, CommonDetails):
+    template_name = 'bio_diversity/details_cnt.html'
     fields = ["loc_id", "contx_id", "cntc_id", "spec_id", "cnt", "est", "comments", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        # use this to pass sire fields/sample object to template
+        context = super().get_context_data(**kwargs)
+
+        context["cntd_object"] = models.CountDet.objects.first()
+        context["cntd_field_list"] = [
+            "anidc_id",
+            "det_val",
+        ]
+
+        return context
 
 
 class CntcDetails(mixins.CntcMixin, CommonDetails):
@@ -636,8 +734,8 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
     template_name = 'bio_diversity/details_env.html'
-    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "env_start",
-              "env_end", "env_avg", "qual_id", "comments", "created_by", "created_date"]
+    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "start_date", "start_time",
+              "end_date", "end_time", "env_avg", "qual_id", "comments", "created_by", "created_date"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -676,8 +774,8 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
     template_name = "bio_diversity/details_evnt.html"
-    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_end",
-              "comments", "created_by", "created_date", ]
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "start_date", "start_time", "end_date",
+              "end_time", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -687,7 +785,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "locc_id",
             "rive_id",
             "subr_id",
-            "loc_date",
+            "start_date",
         ]
         context["contx_object"] = models.ContainerXRef.objects.first()
         context["contx_field_list"] = [
@@ -702,6 +800,13 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         context["tank_field_list"] = [
             "name",
         ]
+        contx_set = self.object.containers.filter(tank_id__isnull=True, cup_id__isnull=True, heat_id__isnull=True,
+                                                  trof_id__isnull=False, draw_id__isnull=True)
+        context["trof_list"] = list(dict.fromkeys([contx.trof_id for contx in contx_set]))
+        context["trof_object"] = models.Trough.objects.first()
+        context["trof_field_list"] = [
+            "name",
+        ]
         anix_set = self.object.animal_details.filter(indv_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
                                                      loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
         context["indv_list"] = list(dict.fromkeys([anix.indv_id for anix in anix_set]))
@@ -710,6 +815,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "ufid",
             "pit_tag",
             "grp_id",
+
         ]
         anix_set = self.object.animal_details.filter(grp_id__isnull=False, indv_id__isnull=True, contx_id__isnull=True,
                                                      loc_id__isnull=True, indvt_id__isnull=True, spwn_id__isnull=True)
@@ -739,12 +845,16 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "spwn_date",
         ]
 
-        context["table_list"] = ["loc", "indv", "grp", "tank", "spwn"]
+        context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "spwn"]
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
             context["table_list"] = ["data", "loc", "grp", "tank"]
         elif evnt_code == "Tagging":
             context["table_list"] = ["data", "indv", "grp", "tank"]
+        elif evnt_code == "Egg Development":
+            context["table_list"] = ["data", "grp", "trof"]
+        elif evnt_code == "Maturity Sorting":
+            context["table_list"] = ["data", "indv", "tank"]
 
         return context
 
@@ -800,13 +910,25 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["grpd_field_list"] = [
             "anidc_id",
             "det_val",
+            "grpd_valid",
+        ]
+
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
+        context["cont_evnt_field_list"] = [
+            "Evnt",
+            "Date",
+            "Container",
         ]
 
         return context
 
 
 class GrpdDetails(mixins.GrpdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "grpd_valid", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -854,9 +976,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "est_fecu",
         ]
 
-        anix_evnt_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True,
-                                                          loc_id__isnull=True, indvt_id__isnull=True,
-                                                          indv_id__isnull=False, spwn_id__isnull=True)
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
         context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
@@ -872,6 +993,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "anidc_id",
             "adsc_id",
             "det_val",
+            "indvd_valid",
         ]
 
         context["pair_object"] = models.Pairing.objects.first()
@@ -885,16 +1007,27 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "choice",
         ]
 
+        anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                          indvt_id__isnull=True, spwn_id__isnull=True)
+
+        contx_set = list(dict.fromkeys([anix.contx_id for anix in anix_evnt_set]))
+        context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_set]
+        context["cont_evnt_field_list"] = [
+            "Evnt",
+            "Date",
+            "Container",
+        ]
+
         return context
 
 
 class IndvdDetails(mixins.IndvdMixin, CommonDetails):
-    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "comments", "created_by", "created_date", ]
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):
-    fields = ["indvtc_id", "lot_num", "dose", "unit_id", "start_datetime", "end_datetime", "comments", "created_by",
-              "created_date", ]
+    fields = ["indvtc_id", "lot_num", "dose", "unit_id", "start_date", "start_time", "end_date", "end_time",
+              "comments", "created_by", "created_date", ]
 
 
 class IndvtcDetails(mixins.IndvtcMixin, CommonDetails):
@@ -921,8 +1054,8 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
 
 class LocDetails(mixins.LocMixin, CommonDetails):
     template_name = 'bio_diversity/details_loc.html'
-    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "loc_date",
-              "comments", "created_by", "created_date", ]
+    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "start_date",
+              "start_time", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -1111,7 +1244,24 @@ class TribDetails(mixins.TribMixin, CommonDetails):
 
 
 class TrofDetails(mixins.TrofMixin, CommonDetails):
+    template_name = "bio_diversity/details_trof.html"
+
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        contx_set = models.ContainerXRef.objects.filter(trof_id=self.object)
+        env_sets = [contx.env_condition.all() for contx in contx_set]
+        context["env_list"] = list(dict.fromkeys([env for qs in env_sets for env in qs]))
+        context["env_object"] = models.EnvCondition.objects.first()
+        context["env_field_list"] = [
+            "envc_id",
+            "env_val",
+            "env_start",
+        ]
+
+        return context
 
 
 class TrofdDetails(mixins.TrofdMixin, CommonDetails):
@@ -1170,6 +1320,12 @@ class CommonList(CommonAuthFilterView):
     def get_delete_url(self):
         return self.delete_url if self.delete_url is not None else "bio_diversity:delete_{}".format(self.key)
 
+    def get_auth(self):
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
+
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
@@ -1188,7 +1344,7 @@ class CommonList(CommonAuthFilterView):
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
+        context['auth'] = self.get_auth()
         context['editable'] = context['auth'] and self.editable
 
         if self.creation_form_height:
@@ -1400,7 +1556,7 @@ class InstdcList(mixins.InstdcMixin, CommonList):
 
 class LocList(mixins.LocMixin, CommonList):
     filterset_class = filters.LocFilter
-    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "loc_date", ]
+    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "start_date", ]
 
 
 class LoccList(mixins.LoccMixin, CommonList):
@@ -1599,7 +1755,13 @@ class CommonUpdate(CommonAuthUpdateView):
         init = super().get_initial()
         # can uncomment this to auto update user on any update
         # init["created_by"] = self.request.user.username
-
+        if hasattr(self.model, "start_datetime"):
+            init["start_date"] = self.object.start_date
+            init["start_time"] = self.object.start_time
+        if hasattr(self.model, "end_datetime"):
+            if self.object.end_datetime:
+                init["end_date"] = self.object.end_date
+                init["end_time"] = self.object.end_time
         return init
 
     # this function overrides UserPassesTestMixin.test_func() to determine if
@@ -1607,7 +1769,10 @@ class CommonUpdate(CommonAuthUpdateView):
     # This function could be overridden in extending classes to preform further testing to see if
     # an object is editable
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
 
     # Get context returns elements used on the page. Make sure when extending to call
     # context = super().get_context_data(**kwargs) so that elements created in the parent
@@ -1695,7 +1860,24 @@ class EnvtcUpdate(mixins.EnvtcMixin, CommonUpdate):
 
 
 class EvntUpdate(mixins.EvntMixin, CommonUpdate):
-    pass
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs = {'pk': self.object.pk})
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
+
+    def get_initial(self):
+        init = super().get_initial()
+        # can uncomment this to auto update user on any update
+        # init["created_by"] = self.request.user.username
+        init["start_date"] = self.object.start_date
+        init["start_time"] = self.object.start_time
+        init["end_date"] = self.object.end_date
+        init["end_time"] = self.object.end_time
+        return init
 
 
 class EvntcUpdate(mixins.EvntcMixin, CommonUpdate):
@@ -1779,7 +1961,13 @@ class InstdcUpdate(mixins.InstdcMixin, CommonUpdate):
 
 
 class LocUpdate(mixins.LocMixin, CommonUpdate):
-    pass
+    def get_initial(self):
+        init = super().get_initial()
+        # can uncomment this to auto update user on any update
+        # init["created_by"] = self.request.user.username
+        init["start_date"] = self.object.start_date
+        init["start_time"] = self.object.start_time
+        return init
 
 
 class LoccUpdate(mixins.LoccMixin, CommonUpdate):
@@ -1972,7 +2160,29 @@ class CommonDelete(UserPassesTestMixin, DeleteView):
 
 
 class IndvDelete(mixins.IndvMixin, CommonDelete):
-    pass
+    success_url = reverse_lazy("bio_diversity:list_indv")
+
+
+class CommentKeywordsFormsetView(UserPassesTestMixin, CommonFormsetView):
+    template_name = 'bio_diversity/formset.html'
+    title = _("Bio Diversity Comment Keywords")
+    h1 = _("Manage Comment Keywords")
+    queryset = models.CommentKeywords.objects.all()
+    formset_class = CommentKeywordsFormset
+    success_url_name = "bio_diversity:manage_comment_keywords"
+    home_url_name = "bio_diversity:index"
+    delete_url_name = "bio_diversity:delete_comment_keywords"
+
+    def test_func(self):
+        return utils.bio_diverisity_admin(self.request.user)
+
+
+class CommentKeywordsHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
+    model = models.CommentKeywords
+    success_url = reverse_lazy("bio_diversity:manage_comment_keywords")
+
+    def test_func(self):
+        return utils.bio_diverisity_admin(self.request.user)
 
 
 class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
@@ -1986,7 +2196,7 @@ class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
     delete_url_name = "bio_diversity:delete_help_text"
 
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        return utils.bio_diverisity_admin(self.request.user)
 
 
 class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
@@ -1994,4 +2204,4 @@ class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
     success_url = reverse_lazy("bio_diversity:manage_help_texts")
 
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+        return utils.bio_diverisity_admin(self.request.user)

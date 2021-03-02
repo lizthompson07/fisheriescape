@@ -13,9 +13,10 @@ from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup
-
-
 # This can be delete after the next time migrations are crushed
+from shared_models.utils import get_metadata_string
+
+
 def audio_file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
     return 'ihub/org_{}/{}'.format(instance.id, filename)
@@ -59,7 +60,7 @@ class Entry(models.Model):
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
-                                           limit_choices_to={'grouping__is_indigenous': True})
+                                           limit_choices_to={'grouping__is_indigenous': True}, verbose_name=_("organizations"))
     initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     anticipated_end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
@@ -67,7 +68,7 @@ class Entry(models.Model):
     sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries",
                                    verbose_name=_("Entry Type"))  # title case needed
-    regions = models.ManyToManyField(shared_models.Region, related_name="entries")
+    regions = models.ManyToManyField(shared_models.Region, related_name="entries", verbose_name=_("regions"))
 
     # funding
     funding_program = models.ForeignKey(FundingProgram, on_delete=models.DO_NOTHING, blank=True, null=True,
@@ -90,7 +91,7 @@ class Entry(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"),
                                    related_name="user_entries")
-    old_id = models.IntegerField(blank=True, null=True, editable=False, unique=True) # used for importing new data.
+    old_id = models.IntegerField(blank=True, null=True, editable=False, unique=True)  # used for importing new data.
 
     class Meta:
         ordering = ['-date_created', ]
@@ -126,6 +127,15 @@ class Entry(models.Model):
     def sectors_str(self):
         return listrify([sec for sec in self.sectors.all()])
 
+    @property
+    def metadata(self):
+        return get_metadata_string(
+            self.date_created,
+            self.created_by,
+            self.date_last_modified,
+            self.last_modified_by,
+        )
+
 
 class EntryPerson(models.Model):
     # Choices for role
@@ -134,9 +144,9 @@ class EntryPerson(models.Model):
     CONTACT = 2
     SUPPORT = 3
     ROLE_CHOICES = (
-        (LEAD, 'Lead'),
-        (CONTACT, 'Contact'),
-        (SUPPORT, 'Support'),
+        (LEAD, _('Lead')),
+        (CONTACT, _('Contact')),
+        (SUPPORT, _('Support')),
     )
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="people", blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"), related_name="ihub_entry_people")
@@ -175,11 +185,11 @@ class EntryNote(models.Model):
     FOLLOWUP = 4
     INTERNAL = 5
     TYPE_CHOICES = (
-        (ACTION, 'Action'),
-        (NEXTSTEP, 'Next step'),
-        (COMMENT, 'Comment'),
-        (FOLLOWUP, 'Follow-up (*)'),
-        (INTERNAL, 'Internal'),
+        (ACTION, _('Action')),
+        (NEXTSTEP, _('Next step')),
+        (COMMENT, _('Comment')),
+        (FOLLOWUP, _('Follow-up (*)')),
+        (INTERNAL, _('Internal')),
     )
 
     entry = models.ForeignKey(Entry, related_name='notes', on_delete=models.CASCADE)
