@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from msrestazure.azure_active_directory import MSIAuthentication
 
-from dm_apps.utils import custom_send_mail
 from shared_models import models as shared_models
 from . import emails
 from . import models
@@ -356,14 +355,8 @@ def __set_request_status__(trip_request, request):
             trip_request.status = 10
             trip_request.save()
             # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(trip_request, request)
-            # # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
+            email = emails.StatusUpdateEmail(request, trip_request)
+            email.send()
 
             # don't stick around any longer. save the trip_request and leave exit the function
             return False
@@ -374,14 +367,8 @@ def __set_request_status__(trip_request, request):
             trip_request.status = 11
             trip_request.save()
             # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(trip_request, request)
-            # # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
+            email = emails.StatusUpdateEmail(request, trip_request)
+            email.send()
             # don't stick around any longer. save the trip_request and leave exit the function
             return False
         else:
@@ -522,14 +509,8 @@ def manage_trip_warning(trip, request):
         # if the trip is >= 10K, we simply need to send an email to NCR
         else:
             if not trip.cost_warning_sent:
-                email = emails.TripCostWarningEmail(trip, request)
-                # # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
+                email = emails.TripCostWarningEmail(request, trip)
+                email.send()
                 trip.cost_warning_sent = timezone.now()
                 trip.save()
 
@@ -572,15 +553,9 @@ def trip_approval_seeker(trip, request):
             next_reviewer.status_date = timezone.now()
             next_reviewer.save()
 
-            email = emails.TripReviewAwaitingEmail(trip, next_reviewer, request)
-
+            email = emails.TripReviewAwaitingEmail(request, trip, next_reviewer)
             # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
+            email.send()
 
 
         # if no next reviewer was found, the trip's review is complete...

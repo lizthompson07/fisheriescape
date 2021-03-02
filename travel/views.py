@@ -20,7 +20,7 @@ from easy_pdf.views import PDFTemplateView
 from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.context_processor import my_envr
-from dm_apps.utils import custom_send_mail, compare_strings
+from dm_apps.utils import compare_strings
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -461,14 +461,8 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
                 r.save()
 
             # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(my_trip_request, self.request)
-            # # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
+            email = emails.StatusUpdateEmail(self.request, my_trip_request)
+            email.send()
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
 
 
@@ -539,14 +533,8 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
                 my_reviewer.request.submitted = None
                 my_reviewer.request.save()
                 # send an email to the request owner
-                email = emails.ChangesRequestedEmail(my_reviewer.request, self.request)
-                # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
+                email = emails.ChangesRequestedEmail(self.request, my_reviewer.request)
+                email.send()
                 messages.success(self.request, _("Success! An email has been sent to the trip request owner."))
 
             # if it was approved, then we change the reviewer status to 'approved'
@@ -721,7 +709,6 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
         if self.request.GET.get("pop"):
             # create a new email object
             email = emails.NewTripEmail(self.request, my_object)
-            # send the email object
             email.send()
             return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
         else:
@@ -1025,14 +1012,8 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 
                 # send an email to the trip_request owner, if the user has an email address.
                 if tr.created_by:
-                    email = emails.StatusUpdateEmail(tr, self.request)
-                    # # send the email object
-                    custom_send_mail(
-                        subject=email.subject,
-                        html_message=email.message,
-                        from_email=email.from_email,
-                        recipient_list=email.to_list
-                    )
+                    email = emails.StatusUpdateEmail(self.request, tr)
+                    email.send()
 
             return HttpResponseRedirect(reverse("travel:trip_detail", kwargs=self.kwargs))
         else:
