@@ -720,14 +720,9 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
         utils.get_trip_reviewers(my_object)
         if self.request.GET.get("pop"):
             # create a new email object
-            email = emails.NewTripEmail(my_object, self.request)
+            email = emails.NewTripEmail(self.request, my_object)
             # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
+            email.send()
             messages.success(self.request, _("The trip has been added to the database!"))
             return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
         else:
@@ -1524,7 +1519,7 @@ class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
 class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
     template_name = "travel/user_list.html"
     filterset_class = filters.UserFilter
-    home_url_name = "index"
+    home_url_name = "travel:index"
     paginate_by = 25
     h1 = "Travel App User List"
     field_list = [
