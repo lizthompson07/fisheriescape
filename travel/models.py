@@ -796,7 +796,7 @@ class Traveller(models.Model):
                 else:
                     my_str += "<tr><td>{}</td> <td> {:,.2f}</td><tr> ".format(tr_cost.cost, tr_cost.amount_cad)
 
-        my_str += "<tr><th>{}</th><th> ${:,.2f}</td></tr>".format(_("TOTAL"), self.total_cost)
+        my_str += "<tr><th>{}</th><th> {:,.2f}</td></tr>".format(_("TOTAL"), self.total_cost)
         my_str += "</tbody></table>"
         my_str += "</table>"
         return my_str
