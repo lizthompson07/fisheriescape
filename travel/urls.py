@@ -16,14 +16,15 @@ urlpatterns = [
     path('requests/', views.TripRequestListView.as_view(), name="request_list"),
     path('requests/new/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('requests/<int:pk>/view/', views.TripRequestDetailView.as_view(), name="request_detail"),
-    path('requests/view/<str:mystr>/<slug:uuid>/', views.TripRequestDetailView.as_view(), name="request_detail"), # for display in the TRAF
+    path('requests/view/<str:mystr>/<slug:uuid>/', views.TripRequestDetailView.as_view(), name="request_detail"),  # for display in the TRAF
     path('requests/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
     path('requests/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
     path('requests/<int:pk>/edit/', views.TripRequestUpdateView.as_view(), name="request_edit"),
     path('requests/<int:pk>/delete/', views.TripRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/clone/', views.TripRequestCloneUpdateView.as_view(), name="request_clone"),
     path('requests/<int:pk>/TRAF/', views.TravelPlanPDF.as_view(), name="request_print"),
-    path('requests/<int:pk>/reset-reviewers/', views.reset_request_reviewers, name="reset_request_reviewers"), # this is called by request update form with reviewers need to be reset
+    path('requests/<int:pk>/reset-reviewers/', views.reset_request_reviewers, name="reset_request_reviewers"),
+    # this is called by request update form with reviewers need to be reset
 
     # Trips
     #######
@@ -36,7 +37,6 @@ urlpatterns = [
     path('trips/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
     path('trips/<int:pk>/cancel/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
     path('trips/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
-
 
     # verification
     path('trips/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
@@ -55,34 +55,28 @@ urlpatterns = [
     path('trip-reviewers/', views.TripReviewerListView.as_view(), name="trip_reviewer_list"),
     path('trip-reviewers/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_reviewer_update"),
 
-
     ############################################################################################################
-
 
     # SETTINGS #
     ############
-    path('settings/help-text/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),
-    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
-    path('settings/cost-categories/', views.CostCategoryFormsetView.as_view(), name="manage_cost_categories"),
-    path('settings/cost-category/<int:pk>/delete/', views.CostCategoryHardDeleteView.as_view(), name="delete_cost_category"),
-    path('settings/costs/', views.CostFormsetView.as_view(), name="manage_costs"),
-    path('settings/cost/<int:pk>/delete/', views.CostHardDeleteView.as_view(), name="delete_cost"),
-    path('settings/njc-rates/', views.NJCRatesFormsetView.as_view(), name="manage_njc_rates"),
-    path('settings/trip-categories/', views.TripCategoryFormsetView.as_view(), name="manage_trip_categories"),
-    path('settings/trip-subcategories/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
-    path('settings/trip-subcategory/<int:pk>/delete/', views.TripSubcategoryHardDeleteView.as_view(), name="delete_trip_subcategory"),
-
-    path('settings/roles/', views.RoleFormsetView.as_view(), name="manage_roles"),
-    path('settings/role/<int:pk>/delete/', views.RoleHardDeleteView.as_view(), name="delete_role"),
-
-    path('settings/process-steps/', views.ProcessStepFormsetView.as_view(), name="manage_process_steps"),
-    path('settings/process-step/<int:pk>/delete/', views.ProcessStepHardDeleteView.as_view(), name="delete_process_step"),
-
-    path('settings/faqs/', views.FAQFormsetView.as_view(), name="manage_faqs"),
-    path('settings/faq/<int:pk>/delete/', views.FAQHardDeleteView.as_view(), name="delete_faq"),
-
-    path('settings/organizations/', views.OrganizationFormsetView.as_view(), name="manage_organizations"),
-    path('settings/organization/<int:pk>/delete/', views.OrganizationHardDeleteView.as_view(), name="delete_organization"),
+    path('settings/help-text/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),  # tested
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),  # tested
+    path('settings/cost-categories/', views.CostCategoryFormsetView.as_view(), name="manage_cost_categories"),  # tested
+    path('settings/cost-category/<int:pk>/delete/', views.CostCategoryHardDeleteView.as_view(), name="delete_cost_category"),  # tested
+    path('settings/costs/', views.CostFormsetView.as_view(), name="manage_costs"),  # tested
+    path('settings/cost/<int:pk>/delete/', views.CostHardDeleteView.as_view(), name="delete_cost"),  # tested
+    path('settings/njc-rates/', views.NJCRatesFormsetView.as_view(), name="manage_njc_rates"),  # tested
+    path('settings/trip-categories/', views.TripCategoryFormsetView.as_view(), name="manage_trip_categories"),  # tested
+    path('settings/trip-subcategories/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),  # tested
+    path('settings/trip-subcategory/<int:pk>/delete/', views.TripSubcategoryHardDeleteView.as_view(), name="delete_trip_subcategory"),  # tested
+    path('settings/roles/', views.RoleFormsetView.as_view(), name="manage_roles"),  # tested
+    path('settings/role/<int:pk>/delete/', views.RoleHardDeleteView.as_view(), name="delete_role"),  # tested
+    path('settings/process-steps/', views.ProcessStepFormsetView.as_view(), name="manage_process_steps"),  # tested
+    path('settings/process-step/<int:pk>/delete/', views.ProcessStepHardDeleteView.as_view(), name="delete_process_step"),  # tested
+    path('settings/faqs/', views.FAQFormsetView.as_view(), name="manage_faqs"),  # tested
+    path('settings/faq/<int:pk>/delete/', views.FAQHardDeleteView.as_view(), name="delete_faq"),  # tested
+    path('settings/organizations/', views.OrganizationFormsetView.as_view(), name="manage_organizations"),  # tested
+    path('settings/organization/<int:pk>/delete/', views.OrganizationHardDeleteView.as_view(), name="delete_organization"),  # tested
 
     # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),

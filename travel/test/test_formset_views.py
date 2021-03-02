@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import activate
 from django.views.generic import TemplateView
 
+from shared_models.models import Organization
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
@@ -24,6 +25,9 @@ class TestAllFormsets(CommonTest):
             "manage_trip_subcategories",
             "manage_trip_categories",
             "manage_roles",
+            "manage_process_steps",
+            "manage_faqs",
+            "manage_organizations",
         ]
 
         self.test_urls = [reverse_lazy("travel:" + name) for name in self.test_url_names]
@@ -35,6 +39,9 @@ class TestAllFormsets(CommonTest):
             views.TripSubcategoryFormsetView,
             views.TripCategoryFormsetView,
             views.RoleFormsetView,
+            views.ProcessStepFormsetView,
+            views.FAQFormsetView,
+            views.OrganizationFormsetView,
         ]
         self.expected_template = 'travel/formset.html'
         self.user = self.get_and_login_user(in_group="travel_admin")
@@ -67,6 +74,9 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.CostCategory, "url_name": "delete_cost_category", "view": views.CostCategoryHardDeleteView},
             {"model": models.TripSubcategory, "url_name": "delete_trip_subcategory", "view": views.TripSubcategoryHardDeleteView},
             {"model": models.Role, "url_name": "delete_role", "view": views.RoleHardDeleteView},
+            {"model": models.ProcessStep, "url_name": "delete_process_step", "view": views.ProcessStepHardDeleteView},
+            {"model": models.FAQ, "url_name": "delete_faq", "view": views.FAQHardDeleteView},
+            {"model": Organization, "url_name": "delete_organization", "view": views.OrganizationHardDeleteView},
         ]
         self.test_dicts = list()
 
@@ -82,6 +92,8 @@ class TestAllHardDeleteViews(CommonTest):
             elif m == models.TripSubcategory:
                 tc = models.TripCategory.objects.all()[faker.random_int(0, models.TripCategory.objects.count() - 1)]
                 obj = m.objects.create(name=faker.word(), trip_category=tc)
+            elif m == models.FAQ:
+                obj = m.objects.create(question_en=faker.catch_phrase())
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
