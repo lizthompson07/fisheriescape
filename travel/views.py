@@ -1458,6 +1458,7 @@ class DefaultReviewerListView(TravelADMAdminRequiredMixin, CommonListView):
         {"name": 'sections', "class": "", "width": ""},
         {"name": 'divisions', "class": "", "width": ""},
         {"name": 'branches', "class": "", "width": ""},
+        {"name": 'expenditure_initiation_region', "class": "", "width": ""},
         {"name": 'special_role', "class": "", "width": ""},
     ]
 
@@ -1473,7 +1474,8 @@ class DefaultReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
         if not obj.special_role and \
                 not obj.sections.exists() and \
                 not obj.divisions.exists() and \
-                not obj.branches.exists():
+                not obj.branches.exists() and \
+                not obj.expenditure_initiation_region:
             obj.delete()
         return HttpResponseRedirect(self.get_success_url())
 
