@@ -227,6 +227,9 @@ class DataForm(CreatePrams):
     def clean(self):
         cleaned_data = super().clean()
 
+        if not self.is_valid():
+            return cleaned_data
+
         log_data = "Loading Data Results: \n"
         rows_parsed = 0
         rows_entered = 0
@@ -237,7 +240,9 @@ class DataForm(CreatePrams):
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl')
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
 
             self.request.session["load_success"] = True
@@ -246,9 +251,8 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                          locc_id_id=models.LocCode.objects.first(),
+                                          locc_id=models.LocCode.objects.filter(name__icontains="Electrofishing site").get(),
                                           rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
-                                          subr_id=models.SubRiverCode.objects.filter(name__iexact=row["Branch"]).get(),
                                           relc_id=models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
                                           loc_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
                                           comments=row["Comments"],
@@ -376,7 +380,7 @@ class DataForm(CreatePrams):
                         grp = anix_grp.grp_id
 
                     first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
-                    enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish")
+                    enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# of salmon collected"].sum(), "Number of Fish")
 
                     enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
 
@@ -394,7 +398,9 @@ class DataForm(CreatePrams):
                 data = pd.read_excel(cleaned_data["data_csv"], header=1, engine='openpyxl')
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
 
             self.request.session["load_success"] = True
@@ -556,13 +562,16 @@ class DataForm(CreatePrams):
                                      converters={'to tank': str})
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
             self.request.session["load_success"] = True
+            grp_id = False
             try:
                 year, coll = year_coll_splitter(data["Group"][0])
                 grp_qs = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
-                                                     coll_id__name__iexact=coll,
+                                                     coll_id__name__icontains=coll,
                                                      grp_year=year)
                 if len(grp_qs) == 1:
                     grp_id = grp_qs.get().pk
@@ -577,7 +586,8 @@ class DataForm(CreatePrams):
                 log_data += "Error: {}\n\n".format(err.__str__())
                 self.request.session["load_success"] = False
 
-            enter_anix(cleaned_data, grp_pk=grp_id)
+            if grp_id:
+                enter_anix(cleaned_data, grp_pk=grp_id)
 
             for row in data_dict:
                 row_parsed = True
@@ -586,13 +596,17 @@ class DataForm(CreatePrams):
                     year, coll = year_coll_splitter(row["Group"])
                     row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date()
                     row_datetime = datetime.combine(row_date, datetime.min.time()).replace(tzinfo=pytz.UTC)
+                    if type(row["Universal Fish ID"]) == float:
+                        indv_ufid = None
+                    else:
+                        indv_ufid = row["Universal Fish ID"]
                     indv = models.Individual(grp_id_id=grp_id,
                                              spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
                                              coll_id=models.Collection.objects.filter(name__icontains=coll).get(),
                                              indv_year=year,
-                                             ufid=row["Universal Fish ID"],
                                              pit_tag=row["PIT tag"],
+                                             ufid=indv_ufid,
                                              indv_valid=True,
                                              comments=row["comments"],
                                              created_by=cleaned_data["created_by"],
@@ -603,7 +617,7 @@ class DataForm(CreatePrams):
                         indv.save()
                         row_entered = True
                     except (ValidationError, IntegrityError):
-                        indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
+                        indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
                     if create_movement_evnt(row["from Tank"], row["to tank"], cleaned_data, row_datetime, indv_pk=indv.pk):
                         row_entered = True
@@ -652,9 +666,12 @@ class DataForm(CreatePrams):
                 data["Comments"] = data["Comments"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
             self.request.session["load_success"] = True
+            grp_id = False
             try:
 
                 year, coll = year_coll_splitter(data["Collection"][0])
@@ -674,7 +691,8 @@ class DataForm(CreatePrams):
                 log_data += "Error: {}\n\n".format(err.__str__())
                 self.request.session["load_success"] = False
 
-            anix_grp = enter_anix(cleaned_data, grp_pk=grp_id)
+            if grp_id:
+                anix_grp = enter_anix(cleaned_data, grp_pk=grp_id)
 
             for row in data_dict:
                 row_parsed = True
@@ -748,7 +766,9 @@ class DataForm(CreatePrams):
                 data["COMMENTS"] = data["COMMENTS"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
             self.request.session["load_success"] = True
             sex_dict = {"M": "Male",
@@ -810,7 +830,9 @@ class DataForm(CreatePrams):
                                      converters={'Pond': str})
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
             self.request.session["load_success"] = True
             for row in data_dict:
@@ -855,7 +877,9 @@ class DataForm(CreatePrams):
                 data = pd.read_excel(cleaned_data["data_csv"], header=5, sheet_name="RECORDED matings")
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
             self.request.session["load_success"] = True
 
@@ -1032,7 +1056,9 @@ class DataForm(CreatePrams):
                 data = pd.read_excel(cleaned_data["data_csv"], header=5, sheet_name="Recording")
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
             self.request.session["load_success"] = True
 
@@ -1051,7 +1077,7 @@ class DataForm(CreatePrams):
                         log_data += "\nFish with PIT {} or PIT {} not found in db\n".format(row["Pit tag"], row["Pit tag.1"])
                         break
 
-                    row_date = row["date"].date()
+                    row_date = datetime.strptime(row["date"], "%Y-%b-%d")
                     anix_female = enter_anix(cleaned_data, indv_pk=indv_female.pk)
                     anix_male = enter_anix(cleaned_data, indv_pk=indv_male.pk)
 
@@ -1176,7 +1202,7 @@ class DataForm(CreatePrams):
                     rows_parsed += 1
 
             # matp
-            indv_qs = models.Individual.objects.filter(pit_tag=data["Pit or carlin"][0])
+            indv_qs = models.Individual.objects.filter(pit_tag=data["Pit tag"][0])
             if len(indv_qs) == 1:
                 indv_female = indv_qs.get()
                 matp = models.MatingPlan(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -1203,7 +1229,9 @@ class DataForm(CreatePrams):
                 data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Ponds")
                 data_dict = data.to_dict('records')
             except Exception as err:
-                raise Exception("File format not valid: {}".format(err.__str__()))
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
             parsed = True
             self.request.session["load_success"] = True
 

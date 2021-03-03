@@ -579,7 +579,8 @@ class Event(BioTimeModel):
 
 class EventCode(BioLookup):
     # evntc tag
-    pass
+    class Meta:
+        ordering = ['name']
 
 
 class FacilityCode(BioLookup):
@@ -736,7 +737,6 @@ class HeathUnit(BioCont):
             models.UniqueConstraint(fields=['name', 'facic_id'], name='heat_uniqueness')
         ]
         ordering = ['facic_id', 'name']
-
 
 
 class HeathUnitDet(BioContainerDet):

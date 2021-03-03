@@ -250,11 +250,12 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             evntc = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id
             init['evntc_id'] = evntc
             init['facic_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id
+            self.get_form_class().base_fields["data_csv"].required = True
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
             if evntc.__str__() == "Electrofishing":
-                self.get_form_class().base_fields["tank_id"].widget = forms.Select()
+                self.get_form_class().base_fields["tank_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["tank_id"].required = True
             else:
                 self.get_form_class().base_fields["tank_id"].required = False
@@ -268,6 +269,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
             context["template_url"] = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+            if evnt_code == "spawning":
+                context["template_url"] = 'data_templates/{}-{}.xls'.format(facility_code, evnt_code)
             context["template_name"] = "{}-{}".format(facility_code, evnt_code)
         return context
 
