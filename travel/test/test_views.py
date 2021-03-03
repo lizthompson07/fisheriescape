@@ -412,7 +412,7 @@ class TestIndexTemplateView(CommonTest):
         self.assert_correct_url("travel:index", f"/en/travel-plans/")
 
 
-# REQEUSTS
+# REQUESTS
 
 class TestTripRequestListView(CommonTest):
     def setUp(self):
@@ -562,6 +562,42 @@ class TestTripRequestDeleteView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("travel:request_delete", f"/en/travel-plans/requests/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestTripRequestCloneUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TripRequestFactory()
+        self.test_url = reverse_lazy('travel:request_clone', args=[self.instance.pk])
+        self.expected_template = 'travel/request_form.html'
+        self.user = self.get_and_login_user()
+
+    @tag("TripRequest", "request_clone", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TripRequestCloneUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.TripRequestCloneUpdateView, views.TripRequestUpdateView)
+
+    @tag("TripRequest", "request_clone", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("TripRequest", "request_clone", "context")
+    def test_context(self):
+        context_vars = [
+            "cloned",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("TripRequest", "request_clone", "submit")
+    def test_submit(self):
+        data = FactoryFloor.TripRequestFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("TripRequest", "request_clone", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:request_clone", f"/en/travel-plans/requests/{self.instance.pk}/clone/", [self.instance.pk])
 
 
 # ###########################################################################################
