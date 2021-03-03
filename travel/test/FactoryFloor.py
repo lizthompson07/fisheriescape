@@ -4,7 +4,7 @@ import factory
 from django.utils import timezone
 from faker import Faker
 
-from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory, BranchFactory
+from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory, BranchFactory, RegionFactory
 from .. import models
 
 faker = Faker()
@@ -47,8 +47,10 @@ class TripFactory(factory.django.DjangoModelFactory):
 
     trip_subcategory = factory.lazy_attribute(lambda o: models.TripSubcategory.objects.all()[faker.random_int(0, models.TripSubcategory.objects.count() - 1)])
     name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    location = factory.lazy_attribute(lambda o: faker.catch_phrase())
     start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
+    lead = factory.SubFactory(RegionFactory)
 
     @staticmethod
     def get_valid_data():
@@ -57,8 +59,13 @@ class TripFactory(factory.django.DjangoModelFactory):
         return {
             'trip_subcategory': models.TripSubcategory.objects.all()[faker.random_int(0, models.TripSubcategory.objects.count() - 1)].id,
             'name': faker.catch_phrase(),
+            'location': faker.catch_phrase(),
             "start_date": start_date.strftime("%Y-%m-%d %H:%M"),
             "end_date": end_date.strftime("%Y-%m-%d %H:%M"),
+            'is_virtual': faker.pybool(),
+            'is_adm_approval_required': faker.pybool(),
+            'lead': RegionFactory().id,
+
         }
 
 

@@ -626,6 +626,13 @@ class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     form_class = forms.TripForm
     home_url_name = "travel:index"
 
+    def test_func(self):
+        my_object = self.get_object()
+        # this only user who should be able to modify an adm level trip is the travel_adm_admin
+        if my_object.is_adm_approval_required:
+            return utils.in_adm_admin_group(self.request.user)
+        return utils.is_admin(self.request.user)
+
     def get_parent_crumb(self):
         return {"title": str(self.get_object()), "url": reverse("travel:trip_detail", kwargs=self.kwargs) + self.get_query_string()}
 
@@ -717,6 +724,13 @@ class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
     success_message = 'The trip was deleted successfully!'
     delete_protection = False
 
+    def test_func(self):
+        my_object = self.get_object()
+        # this only user who should be able to modify an adm level trip is the travel_adm_admin
+        if my_object.is_adm_approval_required:
+            return utils.in_adm_admin_group(self.request.user)
+        return utils.is_admin(self.request.user)
+
     def get_success_url(self):
         return reverse("travel:index")
 
@@ -795,11 +809,12 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
     h1 = gettext_lazy("Verify Trip")
 
     def test_func(self):
-        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
-        if my_trip.is_adm_approval_required:
-            return in_adm_admin_group(self.request.user)
-        else:
-            return in_travel_admin_group(self.request.user)
+        my_object = models.Trip.objects.get(pk=self.kwargs.get("pk"))
+        # this only user who should be able to modify an adm level trip is the travel_adm_admin
+        if my_object.is_adm_approval_required:
+            return utils.in_adm_admin_group(self.request.user)
+        return utils.is_admin(self.request.user)
+
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -852,11 +867,11 @@ class TripSelectFormView(TravelAdminRequiredMixin, CommonFormView):
     submit_text = gettext_lazy("Proceed")
 
     def test_func(self):
-        my_trip = models.Trip.objects.get(pk=self.kwargs.get("pk"))
-        if my_trip.is_adm_approval_required:
-            return in_adm_admin_group(self.request.user)
-        else:
-            return in_travel_admin_group(self.request.user)
+        my_object = models.Trip.objects.get(pk=self.kwargs.get("pk"))
+        # this only user who should be able to modify an adm level trip is the travel_adm_admin
+        if my_object.is_adm_approval_required:
+            return utils.in_adm_admin_group(self.request.user)
+        return utils.is_admin(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -895,9 +910,9 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
     def test_func(self):
         my_trip = models.Trip.objects.get(pk=self.kwargs.get("trip_a"))
         if my_trip.is_adm_approval_required:
-            return in_adm_admin_group(self.request.user)
+            return utils.in_adm_admin_group(self.request.user)
         else:
-            return in_travel_admin_group(self.request.user)
+            return utils.is_admin(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -962,6 +977,12 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     active_page_name_crumb = _("Cancel Trip")
 
     # home_url_name = "travel:index"
+    def test_func(self):
+        my_object = self.get_object()
+        # this only user who should be able to modify an adm level trip is the travel_adm_admin
+        if my_object.is_adm_approval_required:
+            return utils.in_adm_admin_group(self.request.user)
+        return utils.is_admin(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1522,8 +1543,8 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["admin_group"] = Group.objects.get(pk=33)
-        context["adm_admin_group"] = Group.objects.get(pk=36)
+        context["admin_group"] = Group.objects.get(name="travel_admin")
+        context["adm_admin_group"] = Group.objects.get(name="travel_adm_admin")
         return context
 
 
