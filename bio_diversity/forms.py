@@ -1587,6 +1587,20 @@ class MortForm(forms.Form):
             evnt = models.AniDetailXref.objects.filter(indv_id_id=cleaned_data["indv_mort"]).last().evnt_id
         else:
             evnt = models.AniDetailXref.objects.filter(grp_id_id=cleaned_data["grp_mort"]).last().evnt_id
+            grp = models.Group.objects.filter(pk=cleaned_data["grp_mort"]).get()
+            indv = models.Individual(grp_id=grp,
+                                     spec_id=grp.spec_id,
+                                     stok_id=grp.stok_id,
+                                     coll_id=grp.coll_id,
+                                     indv_year=grp.grp_year,
+                                     indv_valid=False,
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+            indv.clean()
+            indv.save()
+            cleaned_data["indv_mort"] = indv.pk
+
         mortality_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Mortality").get(),
                                       facic_id=evnt.facic_id,
                                       prog_id=evnt.prog_id,
@@ -1607,7 +1621,11 @@ class MortForm(forms.Form):
                                                          end_datetime=mortality_evnt.end_datetime,
                                                          ).get()
         cleaned_data["evnt_id"] = mortality_evnt
-        anix = enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
+
+        anix = enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"])
+        if cleaned_data["grp_mort"]:
+            anix_grp = enter_anix(cleaned_data, grp_pk=cleaned_data["grp_mort"])
+            anix_both = enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
 
         if cleaned_data["indv_length"]:
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_length"], "Length", None)
@@ -1618,8 +1636,9 @@ class MortForm(forms.Form):
         if cleaned_data["indv_gender"]:
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, "Gender", cleaned_data["indv_gender"])
 
-        for adsc in cleaned_data["observations"]:
-            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.name, adsc.name, None)
+        if cleaned_data["observations"].count() != 0:
+            for adsc in cleaned_data["observations"]:
+                enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.name, adsc.name, None)
 
 
 class OrgaForm(CreatePrams):

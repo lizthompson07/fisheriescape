@@ -10,7 +10,7 @@ from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
-from django.utils.translation import gettext_lazy as _, gettext_lazy
+from django.utils.translation import gettext_lazy as _
 
 from .mixins import IndvMixin
 from .utils import get_cont_evnt
@@ -888,6 +888,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             context["table_list"] = ["data", "tank", "trof", "prot"]
         elif evnt_code == "Movement":
             context["table_list"] = ["indv", "grp", "tank", "trof", "prot"]
+        elif evnt_code == "Mortality":
+            context["table_list"] = ["indv", "grp"]
 
         return context
 
@@ -919,11 +921,12 @@ class FeedmDetails(mixins.FeedmMixin, CommonDetails):
 
 
 class GrpDetails(mixins.GrpMixin, CommonDetails):
+    template_name = 'bio_diversity/details_grp.html'
     fields = ["spec_id", "stok_id", "coll_id", "grp_year", "grp_valid", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["table_list"] = ["evnt", "grpd", "pair", "cont"]
+        context["table_list"] = ["evnt", "indv", "grpd", "pair", "cont"]
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True)
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
@@ -966,6 +969,15 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                         "sub_model_key": obj_mixin.key,
                                         "objects_list": pair_list,
                                         "field_list": pair_field_list,
+                                        "single_object": obj_mixin.model.objects.first()}
+
+        indv_list = models.Individual.objects.filter(grp_id_id=self.object.pk)
+        indv_field_list = ["pit_tag", "indv_valid"]
+        obj_mixin = mixins.IndvMixin
+        context["indv_context_dict"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                        "sub_model_key": obj_mixin.key,
+                                        "objects_list": indv_list,
+                                        "field_list": indv_field_list,
                                         "single_object": obj_mixin.model.objects.first()}
 
         return context
