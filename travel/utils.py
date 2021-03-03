@@ -5,6 +5,7 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
@@ -17,13 +18,17 @@ from . import models
 
 
 def in_travel_admin_group(user):
-    if user.id:
-        return user.groups.filter(name='travel_admin').count() != 0
+    # make sure the following group exist:
+    admin_group, created = Group.objects.get_or_create(name="travel_admin")
+    if user:
+        return admin_group in user.groups.all()
 
 
 def in_adm_admin_group(user):
-    if user.id:
-        return user.groups.filter(name='travel_adm_admin').count() != 0
+    # make sure the following group exist:
+    admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
+    if user:
+        return admin_group in user.groups.all()
 
 
 def is_admin(user):
@@ -239,20 +244,21 @@ def get_request_reviewers(trip_request):
                 if adm_special_reviewer:
                     models.Reviewer.objects.get_or_create(request=trip_request, user=adm_special_reviewer.user, role=5)
 
-        # RDG / Expenditure Initiation
-        #####
+        # RDG / Expenditure Initiation #
+        ################################
+
         # only do this if the trip is NOT virtual!
         if not trip_request.trip.is_virtual:
-
-            # check to see if there is an expenditure initial approver
+            # IF domestic travel ("domestic travel and continental USA travel") AND if there is an expenditure initial approver
+            ## Note: we are using the ADM approval required field as a proxy for domestic travel
             region_expenditure_initiation_qs = trip_request.section.division.branch.region.travel_default_reviewers.all()
-            if region_expenditure_initiation_qs.exists():
+            if not trip_request.trip.is_adm_approval_required and region_expenditure_initiation_qs.exists():
                 r, created = models.Reviewer.objects.get_or_create(request=trip_request, user=region_expenditure_initiation_qs.first().user, role=6)
                 # if at this point, we should check if the trip is adm approval required. If it is not, there is a good change the final approver is showing
                 # up as both recommender and final approver. If so, we should delete this person as a recommender
-                if not trip_request.trip.is_adm_approval_required and trip_request.reviewers.filter(user=r.user, role=2).exists():
+                if trip_request.reviewers.filter(user=r.user, role=2).exists():
                     trip_request.reviewers.filter(user=region_expenditure_initiation_qs.first().user, role=2).first().delete()
-            elif trip_request.section.division.branch.region.head and trip_request.section.division.branch.region.head not in [t.user for t in travellers]:
+            elif trip_request.section.division.branch.region.head:
                 models.Reviewer.objects.get_or_create(request=trip_request, user=trip_request.section.division.branch.region.head, role=7)
 
         # ensure the process order makes sense
