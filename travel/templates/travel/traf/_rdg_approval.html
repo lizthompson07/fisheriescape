@@ -10,5 +10,5 @@
 </p>
 <p class="med-font">
   {% trans "The full details of this request can be viewed at the following URL:" %} <br>
-  <span class="hyperlink">{{ SITE_FULL_URL }}{% url 'travel:request_detail' 'uuid' parent.uuid %}</span>
+  <span class="hyperlink">{{ SITE_FULL_URL }}{% url 'travel:request_detail_by_uuid' parent.uuid %}</span>
 </p>

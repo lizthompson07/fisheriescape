@@ -9,19 +9,20 @@ urlpatterns = [
     path('download/file/<str:file>/', views.get_file, name="get_file"),
 
     path('util/conf_details', views.get_conf_details, name='conf_details'),  # this should be moved to the API section
-    path('', views.IndexTemplateView.as_view(), name="index"),
+    path('', views.IndexTemplateView.as_view(), name="index"), # tested
 
     # Requests
     ##########
     path('requests/', views.TripRequestListView.as_view(), name="request_list"),
     path('requests/new/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('requests/<int:pk>/view/', views.TripRequestDetailView.as_view(), name="request_detail"),
-    path('requests/view/<str:mystr>/<slug:uuid>/', views.TripRequestDetailView.as_view(), name="request_detail"),  # for display in the TRAF
-    path('requests/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
-    path('requests/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
+    path('requests/uuid/<slug:uuid>/', views.TripRequestDetailView.as_view(), name="request_detail_by_uuid"),  # for display in the TRAF
     path('requests/<int:pk>/edit/', views.TripRequestUpdateView.as_view(), name="request_edit"),
     path('requests/<int:pk>/delete/', views.TripRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/clone/', views.TripRequestCloneUpdateView.as_view(), name="request_clone"),
+
+    path('requests/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
+    path('requests/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
     path('requests/<int:pk>/TRAF/', views.TravelPlanPDF.as_view(), name="request_print"),
     path('requests/<int:pk>/reset-reviewers/', views.reset_request_reviewers, name="reset_request_reviewers"),
     # this is called by request update form with reviewers need to be reset
@@ -91,17 +92,15 @@ urlpatterns = [
     path('settings/default-reviewers/<int:pk>/delete/', views.DefaultReviewerDeleteView.as_view(), name="default_reviewer_delete"),  # tested
 
     # Admin Users
-    path('settings/users/', views.UserListView.as_view(), name='user_list'),
-    path('settings/users/travel/<int:travel>/', views.UserListView.as_view(), name='user_list'),
-    path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+    path('settings/users/', views.UserListView.as_view(), name='user_list'), # tested
+    path('settings/users/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'), # tested
 
     # Reports #
     ###########
-    path('reports/search/', views.ReportFormView.as_view(), name="reports"),
-    path('reports/export-cfts-list/', views.export_cfts_list, name="export_cfts_list"),
-    path('reports/trip-list/', views.export_trip_list, name="export_trip_list"),
-    path('reports/upcomming-trips/', views.export_upcoming_trips, name="export_upcoming_trips"),
-
-    path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"),
-    path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),
+    path('reports/search/', views.ReportFormView.as_view(), name="reports"), # tested
+    path('reports/export-cfts-list/', views.export_cfts_list, name="export_cfts_list"), # tested
+    path('reports/trip-list/', views.export_trip_list, name="export_trip_list"), # tested
+    path('reports/upcoming-trips/', views.export_upcoming_trips, name="export_upcoming_trips"), # tested
+    path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"), # tested
+    path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"), # tested
 ]

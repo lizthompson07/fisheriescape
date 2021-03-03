@@ -106,7 +106,6 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
         context["can_see_all_requests"] = is_manager_or_assistant_or_admin(self.request.user)
-
         return context
 
 
@@ -127,7 +126,6 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
     container_class = "container-fluid"
     row_object_url_name = "travel:request_detail"
     h1 = gettext_lazy("Trip Requests")
-
     field_list = [
         'fiscal_year',
         'created_by',
@@ -141,9 +139,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["random_object"] = models.TripRequest.objects.first()
-        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.TripRequest.status_choices]
-
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.TripRequest.status_choices] # when there is time, this should be replaced by api call
         return context
 
     def get_new_object_url(self):
@@ -1133,7 +1129,8 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("travel:reports"))
 
 
-@login_required()
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_cfts_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1156,7 +1153,8 @@ def export_cfts_list(request):
     raise Http404
 
 
-@login_required()
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_trip_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1179,7 +1177,8 @@ def export_trip_list(request):
     raise Http404
 
 
-@login_required()
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_upcoming_trip_list(site_url)
@@ -1196,7 +1195,8 @@ def export_upcoming_trips(request):
     raise Http404
 
 
-@login_required()
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_request_cfts(request, trip=None, trip_request=None):
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
@@ -1514,9 +1514,8 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
         queryset = User.objects.order_by("first_name", "last_name").annotate(
             search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
         )
-        if self.kwargs.get("travel"):
+        if self.request.GET.get("travel_only"):
             queryset = queryset.filter(groups__in=[33, 36]).distinct()
-
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1529,9 +1528,9 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(in_adm_admin_group, login_url='/accounts/denied/')
 def toggle_user(request, pk, type):
-    my_user = User.objects.get(pk=pk)
-    admin_group = Group.objects.get(pk=33)
-    adm_admin_group = Group.objects.get(pk=36)
+    my_user = get_object_or_404(User, pk=pk)
+    admin_group = get_object_or_404(Group, name="travel_admin")
+    adm_admin_group = get_object_or_404(Group, name="travel_adm_admin")
     if type == "admin":
         # if the user is in the admin group, remove them
         if admin_group in my_user.groups.all():
