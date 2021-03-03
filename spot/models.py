@@ -456,8 +456,10 @@ class Project(models.Model):
     end_date = models.DateField(blank=True, null=True, verbose_name=_("end date"))
 
     region = models.ForeignKey(Region, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("region"))
-    watershed = models.ForeignKey(WaterShed, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='watershed', verbose_name=_("watershed"))
-    primary_river = models.ManyToManyField(River, blank=True, related_name='primary_river', verbose_name=_("primary river"))
+    smu_name = models.ForeignKey(SMUName, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='smu_name', verbose_name=_("smu name"))
+    cu_index = models.ForeignKey(CUIndex, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='cu_index', verbose_name=_("cu index"))
+    cu_name = models.ForeignKey(CUName, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='cu_name', verbose_name=_("cu name"))
+    primary_river = models.ForeignKey(River, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='primary_river', verbose_name=_("primary river"))
     secondary_river = models.ManyToManyField(River, blank=True, related_name='secondary_river', verbose_name=_("secondary river"))
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("latitude"))
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("longitude"))
@@ -469,9 +471,10 @@ class Project(models.Model):
     #Project type
     project_type = models.ForeignKey(ProjectType, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_type', verbose_name=_("project type"))
     project_sub_type = models.ForeignKey(ProjectSubType, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_sub_type', verbose_name=_("project sub type"))
-    project_class = models.ForeignKey(ProjectClass, default=None, on_delete=models.CASCADE, blank=True, null=True, related_name='project_class', verbose_name=_("project class"))
-    project_component = models.ForeignKey(ProjectComponent, default=None, on_delete=models.CASCADE, blank=True, null=True, related_name='project_component', verbose_name=_("project component"))
-    project_stage = models.ForeignKey(ProjectStage, default=None, on_delete=models.CASCADE, blank=True, null=True, related_name='project_stage', verbose_name=_("project stage"))
+    project_class = models.ForeignKey(ProjectClass, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_class', verbose_name=_("project class"))
+    project_theme = models.ForeignKey(ProjectTheme, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_theme', verbose_name=_("project theme"))
+    project_component = models.ForeignKey(ProjectComponent, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_component', verbose_name=_("project component"))
+    project_stage = models.ForeignKey(ProjectStage, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_stage', verbose_name=_("project stage"))
     project_scale = models.ForeignKey(ProjectScale, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='project_scale', verbose_name=_("project scale"))
     monitoring_approach = models.ForeignKey(MonitoringApproach, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='monitoring_approach', verbose_name=_("monitoring approach"))
     core_component = models.ForeignKey(CoreComponent, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='core_component', verbose_name=_("core component"))
@@ -511,7 +514,7 @@ class Project(models.Model):
         return super().save(*args, **kwargs)
 
     class Meta:
-        ordering = []
+        ordering = ['agreement_number', 'name', 'region', 'primary_river', 'target_species', 'DFO_project_authority']
 
 
 class Meetings(models.Model):
