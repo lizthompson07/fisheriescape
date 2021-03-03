@@ -77,17 +77,79 @@ class UtilsTest(CommonTest):
 
     @tag("utils", )
     def test_get_request_reviewers(self):
+        # create your cast of people
         section = SectionFactory(head=UserFactory(), admin=UserFactory())
-        division = section.division(head=UserFactory(), admin=UserFactory())
-        branch = division.branch(head=UserFactory(), admin=UserFactory())
-        region = branch.region(head=UserFactory(), admin=UserFactory())
+        division = section.division
+        division.head = UserFactory()
+        division.save()
+        branch = division.branch
+        branch.admin = UserFactory()
+        branch.head = UserFactory()
+        branch.save()
+        region = branch.region
+        region.head = UserFactory()
+        region.save()
+        adm, created = models.DefaultReviewer.objects.get_or_create(user=UserFactory(), special_role=5)
+        presection2, created = models.DefaultReviewer.objects.get_or_create(user=UserFactory(), order=2)
+        presection1, created = models.DefaultReviewer.objects.get_or_create(user=UserFactory(), order=1)
+        presection2.sections.add(section)
+        presection1.sections.add(section)
+        prediv2, created = models.DefaultReviewer.objects.get_or_create(user=UserFactory(), order=2)
+        prediv1, created = models.DefaultReviewer.objects.get_or_create(user=UserFactory(), order=1)
+        prediv2.divisions.add(division)
+        prediv1.divisions.add(division)
+        prebranch2, created = models.DefaultReviewer.objects.get_or_create(user=UserFactory(), order=2)
+        prebranch1, created = models.DefaultReviewer.objects.get_or_create(user=UserFactory(), order=1)
+        prebranch2.branches.add(branch)
+        prebranch1.branches.add(branch)
 
-        trip_request = FactoryFloor.TripRequestFactory(status=17)
+        trip_request = FactoryFloor.TripRequestFactory(status=17, section=section)
+        trip = trip_request.trip
+        trip.is_adm_approval_required = True
+        trip.is_virtual = False
+        trip.save()
+
         self.assertEqual(trip_request.reviewers.count(), 0)
         utils.get_request_reviewers(trip_request)
+        supposed_reviewer_list = [
+            presection1.user,
+            presection2.user,
+            section.admin,
+            section.head,
+            prediv1.user,
+            prediv2.user,
+            division.head,
+            prebranch1.user,
+            prebranch2.user,
+            branch.admin,
+            branch.head,
+            adm.user,
+            region.head
+        ]
+        actual_reviewer_list = [r.user for r in trip_request.reviewers.all()]
+        self.assertEqual(supposed_reviewer_list, actual_reviewer_list)
 
+        # if there is a regional delegate for expenditure initiation, this should take place of RDG
+        ## this only applies to domestic travel... so we will have to remove ADM as well
+        trip.is_adm_approval_required = False
+        trip.save()
+        ei, created = models.DefaultReviewer.objects.get_or_create(user=UserFactory(), expenditure_initiation_region=region)
+        trip_request.reviewers.all().delete()
+        supposed_reviewer_list = supposed_reviewer_list[:-1]
+        supposed_reviewer_list = supposed_reviewer_list[:-1]
+        supposed_reviewer_list.append(ei.user)
+        utils.get_request_reviewers(trip_request)
+        actual_reviewer_list = [r.user for r in trip_request.reviewers.all()]
+        self.assertEqual(supposed_reviewer_list, actual_reviewer_list)
 
-
+        # if the trip is virtual, there would be no expenditure initiation
+        trip.is_virtual = True
+        trip.save()
+        trip_request.reviewers.all().delete()
+        supposed_reviewer_list = supposed_reviewer_list[:-1]
+        utils.get_request_reviewers(trip_request)
+        actual_reviewer_list = [r.user for r in trip_request.reviewers.all()]
+        self.assertEqual(supposed_reviewer_list, actual_reviewer_list)
 
 
     @tag("utils", 'can_modify')
