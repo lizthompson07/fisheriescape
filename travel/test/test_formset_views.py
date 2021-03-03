@@ -44,12 +44,12 @@ class TestAllFormsets(CommonTest):
             views.OrganizationFormsetView,
         ]
         self.expected_template = 'travel/formset.html'
-        self.user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
 
     @tag('formsets', "view")
     def test_view_class(self):
         for v in self.test_views:
-            self.assert_inheritance(v, views.TravelAdminRequiredMixin)
+            self.assert_inheritance(v, views.TravelADMAdminRequiredMixin)
             self.assert_inheritance(v, CommonFormsetView)
 
     @tag('formsets', "access")
@@ -80,7 +80,7 @@ class TestAllHardDeleteViews(CommonTest):
         ]
         self.test_dicts = list()
 
-        self.user = self.get_and_login_user(in_group="travel_admin")
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
@@ -103,7 +103,7 @@ class TestAllHardDeleteViews(CommonTest):
     @tag('hard_delete', "view")
     def test_view_class(self):
         for d in self.test_dicts:
-            self.assert_inheritance(d["view"], views.TravelAdminRequiredMixin)
+            self.assert_inheritance(d["view"], views.TravelADMAdminRequiredMixin)
             self.assert_inheritance(d["view"], CommonHardDeleteView)
 
     @tag('hard_delete', "access")
