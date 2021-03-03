@@ -347,7 +347,6 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_object = self.get_object()
         context["trip_request"] = self.get_object()
         return context
 

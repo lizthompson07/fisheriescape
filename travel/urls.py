@@ -21,25 +21,24 @@ urlpatterns = [
     path('requests/<int:pk>/clone/', views.TripRequestCloneUpdateView.as_view(), name="request_clone"),  # tested
     path('requests/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),  # tested
 
-    path('requests/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
-    path('requests/<int:pk>/TRAF/', views.TravelPlanPDF.as_view(), name="request_print"),
+    path('requests/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),  # tested
+    path('requests/<int:pk>/TRAF/', views.TravelPlanPDF.as_view(), name="request_print"),  # tested
     path('requests/<int:pk>/reset-reviewers/', views.reset_request_reviewers, name="reset_request_reviewers"),
-    # this is called by request update form with reviewers need to be reset
+    # this is called by request update form when reviewers need to be reset
 
     # Trips
     #######
-    path('trips/', views.TripListView.as_view(), name="trip_list"), # tested
-    path('trips/new/', views.TripCreateView.as_view(), name="trip_new"), # tested
-    path('trips/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"), # tested
-    path('trips/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"), # tested
-    path('trips/<int:pk>/clone/', views.TripCloneView.as_view(), name="trip_clone"), # tested
-    path('trips/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"), # tested
-    path('trips/<int:pk>/cancel/', views.TripCancelUpdateView.as_view(), name="trip_cancel"), # tested
-    path('trips/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
+    path('trips/', views.TripListView.as_view(), name="trip_list"),  # tested
+    path('trips/new/', views.TripCreateView.as_view(), name="trip_new"),  # tested
+    path('trips/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),  # tested
+    path('trips/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),  # tested
+    path('trips/<int:pk>/clone/', views.TripCloneView.as_view(), name="trip_clone"),  # tested
+    path('trips/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),  # tested
+    path('trips/<int:pk>/cancel/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),  # tested
+    path('trips/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),  # tested
 
     # verification
-    path('trips/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
-
+    path('trips/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),  # tested
     path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
     path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
          name="trip_reassign_confirm"),

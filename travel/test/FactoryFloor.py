@@ -120,13 +120,22 @@ class TravellerFactory(factory.django.DjangoModelFactory):
 class ReviewerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Reviewer
-        django_get_or_create = ('trip_request', 'user', 'role')
+        django_get_or_create = ('request', 'user', 'role')
 
-    trip_request = factory.SubFactory(TripRequestFactory)
+    request = factory.SubFactory(TripRequestFactory)
     user = factory.SubFactory(UserFactory)
     role = factory.lazy_attribute(lambda o: models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0])
     status = factory.lazy_attribute(lambda o: models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0])
-    status_date = factory.lazy_attribute(lambda o: o.trip_request.start_date + datetime.timedelta(days=faker.random_int(1, 365)))
+    order = factory.lazy_attribute(lambda o: faker.pyint(1,10))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'request': TripRequestFactory().id,
+            'user': UserFactory().id,
+            'role': models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0],
+            'status': models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0],
+        }
 
 
 class TripReviewerFactory(factory.django.DjangoModelFactory):

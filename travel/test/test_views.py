@@ -1,6 +1,10 @@
+from datetime import timedelta
+
 from django.test import tag
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import activate
+from easy_pdf.views import PDFTemplateView
 from faker import Faker
 
 from shared_models.test.SharedModelsFactoryFloor import UserFactory
@@ -505,6 +509,50 @@ class TestTripRequestDetailView(CommonTest):
         self.assert_correct_url("travel:request_detail_by_uuid", f"/en/travel-plans/requests/uuid/{self.instance.uuid}/", [self.instance.uuid])
 
 
+class TestTripRequestTRAFDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        # individual
+        self.instance1 = FactoryFloor.TripRequestFactory()
+        FactoryFloor.TravellerFactory(request=self.instance1)
+        # group
+        self.instance2 = FactoryFloor.TripRequestFactory()
+        FactoryFloor.TravellerFactory(request=self.instance2)
+        FactoryFloor.TravellerFactory(request=self.instance2)
+        self.test_url1 = reverse_lazy('travel:request_print', args=[self.instance1.pk])
+        self.test_url2 = reverse_lazy('travel:request_print', args=[self.instance2.pk])
+        self.expected_template1 = 'travel/traf/single.html'
+        self.expected_template2 = 'travel/traf/group.html'
+        self.user1 = self.get_and_login_user(self.instance1.created_by)
+        self.user2 = self.get_and_login_user(self.instance2.created_by)
+
+    @tag("TripRequestTRAF", "request_print", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TravelPlanPDF, PDFTemplateView)
+
+    @tag("TripRequestTRAF", "request_print", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url1)
+        self.assert_good_response(self.test_url2)
+        self.assert_non_public_view(test_url=self.test_url1, user=self.user1)
+        self.assert_non_public_view(test_url=self.test_url2, user=self.user2)
+
+    @tag("TripRequestTRAF", "request_print", "context")
+    def test_context(self):
+        context_vars = [
+            "parent",
+            "SITE_FULL_URL",
+            "trip_category_list",
+            "my_dict",
+        ]
+        self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.user1)
+
+    @tag("TripRequestTRAF", "request_print", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:request_print", f"/en/travel-plans/requests/{self.instance1.pk}/TRAF/", [self.instance1.pk])
+
+
 class TestTripRequestUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -600,6 +648,82 @@ class TestTripRequestCloneUpdateView(CommonTest):
         self.assert_correct_url("travel:request_clone", f"/en/travel-plans/requests/{self.instance.pk}/clone/", [self.instance.pk])
 
 
+class TestTripRequestSubmitUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TripRequestFactory()
+        FactoryFloor.ReviewerFactory(request=self.instance)
+        self.test_url = reverse_lazy('travel:request_submit', args=[self.instance.pk])
+        self.expected_template = 'travel/request_submit.html'
+        self.user = self.get_and_login_user(self.instance.created_by)
+
+    @tag("TripRequest", "request_submit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TripRequestSubmitUpdateView, CommonUpdateView)
+
+    @tag("TripRequest", "request_submit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("TripRequest", "request_submit", "context")
+    def test_context(self):
+        context_vars = [
+            "trip_request",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("TripRequest", "request_submit", "submit")
+    def test_submit(self):
+        # ensure we are starting off with what we expect: no submission dates
+        self.assertIsNone(self.instance.submitted)
+        self.assertIsNone(self.instance.original_submission_date)
+        self.assert_success_url(self.test_url, user=self.user)
+
+        # after submitting the form, there should now be submission dates
+        self.instance = models.TripRequest.objects.get(pk=self.instance.pk)
+        self.assertIsNotNone(self.instance.submitted)
+        self.assertIsNotNone(self.instance.original_submission_date)
+
+        # run it a second time and now it should be unsubmitted, but the original submission date should still be there
+        # the trick here is to ensure there is a reviewer on the request.
+        self.assert_success_url(self.test_url, user=self.user)
+        self.instance = models.TripRequest.objects.get(pk=self.instance.pk)
+        self.assertIsNone(self.instance.submitted)
+        self.assertIsNotNone(self.instance.original_submission_date)
+
+        # test that you when submitting to a trip that is passed the submission deadline, the NCR Travel coordinator
+        # should be the first reviewer on the request
+
+        ## create the ncr travel coordinator
+        ncr_user = self.get_and_login_user(in_group="travel_adm_admin")
+        dr = models.DefaultReviewer.objects.create(user=ncr_user, special_role=3)
+
+        ## configure trip to be past eligibility deadline
+        my_trip = self.instance.trip
+        my_trip.is_adm_approval_required = True
+        my_trip.date_eligible_for_adm_review = timezone.now() - timedelta(days=2)
+        my_trip.save()
+        self.instance = models.TripRequest.objects.get(pk=self.instance.pk)
+
+        ## make sure the TR is considered as late
+        self.assertTrue(self.instance.is_late_request)
+
+        ## submit the form
+        self.assert_success_url(self.test_url, user=self.user)
+        self.instance = models.TripRequest.objects.get(pk=self.instance.pk)
+
+        ## ensure that it is still labelled at late
+        self.assertTrue(self.instance.is_late_request)
+        self.assertEqual(self.instance.reviewers.order_by("order").first().user, ncr_user)
+
+
+    @tag("TripRequest", "request_submit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:request_submit", f"/en/travel-plans/requests/{self.instance.pk}/submit/", [self.instance.pk])
+
+
 class TestTripRequestCancelUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -630,7 +754,6 @@ class TestTripRequestCancelUpdateView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("travel:request_cancel", f"/en/travel-plans/requests/{self.instance.pk}/cancel/", [self.instance.pk])
-
 
 
 # TRIPS
@@ -744,7 +867,8 @@ class TestTripUpdateView(CommonTest):
     def test_view(self):
         self.assert_good_response(self.test_url1)
         # this is the adm trip
-        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.ncr_admin_user, bad_user_list=[self.regional_admin_user])
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.ncr_admin_user,
+                                    bad_user_list=[self.regional_admin_user])
         # this is the regional trip
         self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template, user=self.regional_admin_user)
 
@@ -867,6 +991,7 @@ class TestTripCancelUpdateView(CommonTest):
         # use the 'en' locale prefix to url
         self.assert_correct_url("travel:trip_cancel", f"/en/travel-plans/trips/{self.instance1.pk}/cancel/", [self.instance1.pk])
 
+
 class TestTripReviewProcessUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -878,7 +1003,7 @@ class TestTripReviewProcessUpdateView(CommonTest):
     @tag("Trip", "trip_review_toggle", "view")
     def test_view_class(self):
         self.assert_inheritance(views.TripReviewProcessUpdateView, CommonUpdateView)
-        self.assert_inheritance(views.TripReviewProcessUpdateView, views.TravelAdminRequiredMixin)
+        self.assert_inheritance(views.TripReviewProcessUpdateView, views.TravelADMAdminRequiredMixin)
 
     @tag("Trip", "trip_review_toggle", "access")
     def test_view(self):
@@ -895,3 +1020,39 @@ class TestTripReviewProcessUpdateView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("travel:trip_review_toggle", f"/en/travel-plans/trips/{self.instance1.pk}/review-process/", [self.instance1.pk])
+
+
+class TestTripVerifyUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance1 = FactoryFloor.TripFactory(is_adm_approval_required=True)
+        self.instance2 = FactoryFloor.TripFactory(is_adm_approval_required=False)
+        self.test_url1 = reverse_lazy('travel:trip_verify', args=[self.instance1.pk])
+        self.test_url2 = reverse_lazy('travel:trip_verify', args=[self.instance2.pk])
+        self.expected_template = 'travel/trip_verification_form.html'
+        self.regional_admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.ncr_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("Trip", "trip_verify", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TripVerifyUpdateView, CommonFormView)
+        self.assert_inheritance(views.TripVerifyUpdateView, views.TravelAdminRequiredMixin)
+
+    @tag("Trip", "trip_verify", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url1)
+        # this is the adm trip
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.ncr_admin_user,
+                                    bad_user_list=[self.regional_admin_user])
+        # this is the regional trip
+        self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template, user=self.regional_admin_user)
+
+    @tag("Trip", "trip_verify", "submit")
+    def test_submit(self):
+        data = FactoryFloor.TripFactory.get_valid_data()
+        self.assert_success_url(self.test_url1, data=data, user=self.ncr_admin_user)
+
+    @tag("Trip", "trip_verify", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:trip_verify", f"/en/travel-plans/trips/{self.instance1.pk}/verify/", [self.instance1.pk])
