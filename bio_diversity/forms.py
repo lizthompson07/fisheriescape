@@ -11,6 +11,8 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext
 import pandas as pd
 from decimal import Decimal
+from django.utils.translation import gettext_lazy as _
+
 
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
@@ -24,8 +26,6 @@ class CreatePrams(forms.ModelForm):
 
         self.fields['created_date'].widget = forms.HiddenInput()
         self.fields['created_by'].widget = forms.HiddenInput()
-        # forms.DateInput(attrs={"placeholder": "Click to select a date..",
-        #                       "class": "fp-date"})
 
 
 class CreateDatePrams(forms.ModelForm):
@@ -1544,6 +1544,79 @@ class MatpForm(CreatePrams):
     class Meta:
         model = models.MatingPlan
         exclude = []
+
+
+class MortForm(forms.Form):
+    class Meta:
+        model = models.MatingPlan
+        exclude = []
+
+    gender_choices = (('Male', 'Male'), ('Female', 'Female'), ('Immature', 'Immature'))
+    mort_date = forms.DateField(required=True, label=_("Date of Mortality"))
+    perc_id = forms.ModelChoiceField(required=True, queryset=models.PersonnelCode.objects.filter(perc_valid=True), label=_("Personel"))
+    created_date = forms.DateField(required=True)
+    created_by = forms.CharField(required=True, max_length=32)
+    indv_length = forms.DecimalField(required=False, max_digits=5, label=_("Individual Length (cm)"))
+    indv_mass = forms.DecimalField(required=False, max_digits=5,  label=_("Individual Mass (g)"))
+    indv_vial = forms.DecimalField(required=False, max_digits=5,  label=_("Individual Vial"))
+    indv_gender = forms.ChoiceField(required=False, choices=gender_choices,  label=_("Individual Gender"))
+    observations = forms.ChoiceField(required=False,  label=_("Observations"))
+    indv_mort = forms.IntegerField(required=False, max_value=10000000)
+    grp_mort = forms.IntegerField(required=False, max_value=10000000)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        self.fields['indv_mort'].widget = forms.HiddenInput()
+        self.fields['grp_mort'].widget = forms.HiddenInput()
+        self.fields['mort_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-date"})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        cleaned_data["mort_date"] = datetime.combine(cleaned_data["mort_date"], datetime.min.time()).replace(tzinfo=pytz.UTC)
+
+        if not self.is_valid():
+            return cleaned_data
+
+        if cleaned_data["indv_mort"]:
+            indv = models.Individual.objects.filter(pk=cleaned_data["indv_mort"]).get()
+            indv.indv_valid = False
+            indv.save()
+            evnt = models.AniDetailXref.objects.filter(indv_id_id=cleaned_data["indv_mort"]).last().evnt_id
+        else:
+            evnt = models.AniDetailXref.objects.filter(grp_id_id=cleaned_data["grp_mort"]).last().evnt_id
+        mortality_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Mortality").get(),
+                                      facic_id=evnt.facic_id,
+                                      prog_id=evnt.prog_id,
+                                      perc_id=cleaned_data["perc_id"],
+                                      start_datetime=cleaned_data["mort_date"],
+                                      end_datetime=cleaned_data["mort_date"],
+                                      created_by=cleaned_data["created_by"],
+                                      created_date=cleaned_data["created_date"],
+                                      )
+        try:
+            mortality_evnt.clean()
+            mortality_evnt.save()
+        except (ValidationError, IntegrityError):
+            mortality_evnt = models.Event.objects.filter(evntc_id=mortality_evnt.evntc_id,
+                                                         facic_id=mortality_evnt.facic_id,
+                                                         prog_id=mortality_evnt.prog_id,
+                                                         start_datetime=mortality_evnt.start_datetime,
+                                                         end_datetime=mortality_evnt.end_datetime,
+                                                         ).get()
+        cleaned_data["evnt_id"] = mortality_evnt
+        anix = enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
+
+        if cleaned_data["indv_length"]:
+            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_length"], "Length", None)
+        if cleaned_data["indv_mass"]:
+            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_mass"], "Weight", None)
+        if cleaned_data["indv_vial"]:
+            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_vial"], "Vial", None)
+        if cleaned_data["indv_gender"]:
+            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, "Gender", cleaned_data["indv_gender"])
 
 
 class OrgaForm(CreatePrams):

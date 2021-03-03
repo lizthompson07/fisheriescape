@@ -3,14 +3,14 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, DetailView, DeleteView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
-    CommonFormsetView, CommonHardDeleteView
+    CommonFormsetView, CommonHardDeleteView, CommonFormView
 from django.urls import reverse_lazy
 from django import forms
 from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext_lazy
 
 from .mixins import IndvMixin
 from .utils import get_cont_evnt
@@ -1001,6 +1001,7 @@ class ImgcDetails(mixins.ImgcMixin, CommonDetails):
 
 
 class IndvDetails(mixins.IndvMixin, CommonDetails):
+    template_name = 'bio_diversity/details_indv.html'
     fields = ["grp_id", "spec_id", "stok_id", "coll_id", "indv_year", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
               "created_date", ]
 
@@ -2343,3 +2344,57 @@ class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
 
     def test_func(self):
         return utils.bio_diverisity_admin(self.request.user)
+
+
+class MortFormView(mixins.MortMixin, UserPassesTestMixin, CommonFormView):
+    template_name = 'shared_models/shared_entry_form.html'
+
+    nav_menu = 'bio_diversity/bio_diversity_nav.html'
+    site_css = 'bio_diversity/bio_diversity.css'
+    home_url_name = "bio_diversity:index"
+
+    def get_initial(self):
+        init = super().get_initial()
+        init["created_by"] = self.request.user.username
+        init["created_date"] = date.today
+        init["mort_date"] = date.today
+        if self.kwargs.get("iorg") == "indv":
+            init["indv_mort"]=self.kwargs.get("pk")
+        elif self.kwargs.get("iorg") == "grp":
+            init["grp_mort"]=self.kwargs.get("pk")
+        return init
+
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return None
+
+        return self.nav_menu
+
+    # Upon success most creation views will be redirected to the Individual List view. To send
+    # a successful creation view somewhere else, override this method
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:list_indv")
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
+
+    # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
+    def test_func(self):
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+
+
+
