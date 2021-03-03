@@ -20,7 +20,7 @@ from easy_pdf.views import PDFTemplateView
 from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.context_processor import my_envr
-from dm_apps.utils import custom_send_mail, compare_strings
+from dm_apps.utils import compare_strings
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -106,7 +106,6 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
         context["can_see_all_requests"] = is_manager_or_assistant_or_admin(self.request.user)
-
         return context
 
 
@@ -127,7 +126,6 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
     container_class = "container-fluid"
     row_object_url_name = "travel:request_detail"
     h1 = gettext_lazy("Trip Requests")
-
     field_list = [
         'fiscal_year',
         'created_by',
@@ -141,9 +139,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["random_object"] = models.TripRequest.objects.first()
-        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.TripRequest.status_choices]
-
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.TripRequest.status_choices] # when there is time, this should be replaced by api call
         return context
 
     def get_new_object_url(self):
@@ -461,14 +457,8 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
                 r.save()
 
             # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(my_trip_request, self.request)
-            # # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
+            email = emails.StatusUpdateEmail(self.request, my_trip_request)
+            email.send()
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
 
 
@@ -539,14 +529,8 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
                 my_reviewer.request.submitted = None
                 my_reviewer.request.save()
                 # send an email to the request owner
-                email = emails.ChangesRequestedEmail(my_reviewer.request, self.request)
-                # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
+                email = emails.ChangesRequestedEmail(self.request, my_reviewer.request)
+                email.send()
                 messages.success(self.request, _("Success! An email has been sent to the trip request owner."))
 
             # if it was approved, then we change the reviewer status to 'approved'
@@ -721,7 +705,6 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
         if self.request.GET.get("pop"):
             # create a new email object
             email = emails.NewTripEmail(self.request, my_object)
-            # send the email object
             email.send()
             return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
         else:
@@ -1025,14 +1008,8 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 
                 # send an email to the trip_request owner, if the user has an email address.
                 if tr.created_by:
-                    email = emails.StatusUpdateEmail(tr, self.request)
-                    # # send the email object
-                    custom_send_mail(
-                        subject=email.subject,
-                        html_message=email.message,
-                        from_email=email.from_email,
-                        recipient_list=email.to_list
-                    )
+                    email = emails.StatusUpdateEmail(self.request, tr)
+                    email.send()
 
             return HttpResponseRedirect(reverse("travel:trip_detail", kwargs=self.kwargs))
         else:
@@ -1152,7 +1129,8 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("travel:reports"))
 
 
-@login_required()
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_cfts_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1175,7 +1153,8 @@ def export_cfts_list(request):
     raise Http404
 
 
-@login_required()
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_trip_list(request):
     fy = request.GET.get("year")
     region = request.GET.get("region")
@@ -1198,7 +1177,8 @@ def export_trip_list(request):
     raise Http404
 
 
-@login_required()
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
     file_url = reports.generate_upcoming_trip_list(site_url)
@@ -1215,7 +1195,8 @@ def export_upcoming_trips(request):
     raise Http404
 
 
-@login_required()
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def export_request_cfts(request, trip=None, trip_request=None):
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     export_file_name = f'CFTS export {timezone.now().strftime("%Y-%m-%d")}.xlsx'
@@ -1270,12 +1251,12 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 ############
 
 
-class HelpTextHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class HelpTextHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
     success_url = reverse_lazy("travel:manage_help_text")
 
 
-class HelpTextFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class HelpTextFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage HelpText"
     queryset = models.HelpText.objects.all()
@@ -1285,12 +1266,12 @@ class HelpTextFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_help_text"
 
 
-class CostCategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class CostCategoryHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.CostCategory
     success_url = reverse_lazy("travel:manage_cost_categories")
 
 
-class CostCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class CostCategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Cost Category"
     queryset = models.CostCategory.objects.all()
@@ -1300,12 +1281,12 @@ class CostCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_cost_category"
 
 
-class CostHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class CostHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.Cost
     success_url = reverse_lazy("travel:manage_costs")
 
 
-class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class CostFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Cost"
     queryset = models.Cost.objects.all()
@@ -1315,7 +1296,7 @@ class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_cost"
 
 
-class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class NJCRatesFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage NJCRates"
     queryset = models.NJCRates.objects.all()
@@ -1324,7 +1305,7 @@ class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     home_url_name = "travel:index"
 
 
-class TripCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class TripCategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Trip Categories"
     queryset = models.TripCategory.objects.all()
@@ -1333,7 +1314,7 @@ class TripCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     home_url_name = "travel:index"
 
 
-class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class TripSubcategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Trip Subcategories"
     queryset = models.TripSubcategory.objects.all()
@@ -1343,12 +1324,12 @@ class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_trip_subcategory"
 
 
-class TripSubcategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class TripSubcategoryHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.TripSubcategory
     success_url = reverse_lazy("travel:manage_trip_subcategories")
 
 
-class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class ProcessStepFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Process Steps"
     queryset = models.ProcessStep.objects.all()
@@ -1359,12 +1340,12 @@ class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     container_class = "container-fluid"
 
 
-class ProcessStepHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class ProcessStepHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.ProcessStep
     success_url = reverse_lazy("travel:manage_process_steps")
 
 
-class FAQFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class FAQFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage FAQs"
     queryset = models.FAQ.objects.all()
@@ -1375,12 +1356,12 @@ class FAQFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     container_class = "container-fluid"
 
 
-class FAQHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class FAQHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.FAQ
     success_url = reverse_lazy("travel:manage_faqs")
 
 
-class OrganizationFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class OrganizationFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Organizations"
     queryset = shared_models.Organization.objects.filter(is_dfo=True)
@@ -1391,12 +1372,12 @@ class OrganizationFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     container_class = "container-fluid"
 
 
-class OrganizationHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class OrganizationHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = shared_models.Organization
     success_url = reverse_lazy("travel:manage_organizations")
 
 
-class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class RoleFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Roles"
     queryset = models.Role.objects.all()
@@ -1406,13 +1387,13 @@ class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_role"
 
 
-class RoleHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class RoleHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.Role
     success_url = reverse_lazy("travel:manage_roles")
 
 
 # Reference Materials
-class ReferenceMaterialListView(TravelAdminRequiredMixin, CommonListView):
+class ReferenceMaterialListView(TravelADMAdminRequiredMixin, CommonListView):
     template_name = "travel/list.html"
     model = models.ReferenceMaterial
     field_list = [
@@ -1429,7 +1410,7 @@ class ReferenceMaterialListView(TravelAdminRequiredMixin, CommonListView):
     container_class = "container bg-light curvy"
 
 
-class ReferenceMaterialUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
+class ReferenceMaterialUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "travel:index"
@@ -1442,7 +1423,7 @@ class ReferenceMaterialUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         return reverse("travel:ref_mat_delete", args=[self.get_object().id])
 
 
-class ReferenceMaterialCreateView(TravelAdminRequiredMixin, CommonCreateView):
+class ReferenceMaterialCreateView(TravelADMAdminRequiredMixin, CommonCreateView):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "travel:index"
@@ -1452,7 +1433,7 @@ class ReferenceMaterialCreateView(TravelAdminRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
 
 
-class ReferenceMaterialDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
+class ReferenceMaterialDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
     model = models.ReferenceMaterial
     success_url = reverse_lazy('travel:ref_mat_list')
     home_url_name = "travel:index"
@@ -1464,7 +1445,7 @@ class ReferenceMaterialDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
 
 # Default Reviewer Settings
 
-class DefaultReviewerListView(TravelAdminRequiredMixin, CommonListView):
+class DefaultReviewerListView(TravelADMAdminRequiredMixin, CommonListView):
     model = models.DefaultReviewer
     template_name = 'travel/default_reviewer/default_reviewer_list.html'
     h1 = gettext_lazy("Optional / Special Reviewers")
@@ -1477,11 +1458,12 @@ class DefaultReviewerListView(TravelAdminRequiredMixin, CommonListView):
         {"name": 'sections', "class": "", "width": ""},
         {"name": 'divisions', "class": "", "width": ""},
         {"name": 'branches', "class": "", "width": ""},
+        {"name": 'expenditure_initiation_region', "class": "", "width": ""},
         {"name": 'special_role', "class": "", "width": ""},
     ]
 
 
-class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
+class DefaultReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
@@ -1492,19 +1474,20 @@ class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
         if not obj.special_role and \
                 not obj.sections.exists() and \
                 not obj.divisions.exists() and \
-                not obj.branches.exists():
+                not obj.branches.exists() and \
+                not obj.expenditure_initiation_region:
             obj.delete()
         return HttpResponseRedirect(self.get_success_url())
 
 
-class DefaultReviewerCreateView(TravelAdminRequiredMixin, CreateView):
+class DefaultReviewerCreateView(TravelADMAdminRequiredMixin, CommonCreateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
     template_name = 'travel/default_reviewer/default_reviewer_form.html'
 
 
-class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
+class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
     model = models.DefaultReviewer
     success_url = reverse_lazy('travel:default_reviewer_list')
     success_message = 'The default reviewer was successfully deleted!'
@@ -1533,9 +1516,8 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
         queryset = User.objects.order_by("first_name", "last_name").annotate(
             search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
         )
-        if self.kwargs.get("travel"):
+        if self.request.GET.get("travel_only"):
             queryset = queryset.filter(groups__in=[33, 36]).distinct()
-
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1548,9 +1530,9 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(in_adm_admin_group, login_url='/accounts/denied/')
 def toggle_user(request, pk, type):
-    my_user = User.objects.get(pk=pk)
-    admin_group = Group.objects.get(pk=33)
-    adm_admin_group = Group.objects.get(pk=36)
+    my_user = get_object_or_404(User, pk=pk)
+    admin_group = get_object_or_404(Group, name="travel_admin")
+    adm_admin_group = get_object_or_404(Group, name="travel_adm_admin")
     if type == "admin":
         # if the user is in the admin group, remove them
         if admin_group in my_user.groups.all():

@@ -1,4 +1,5 @@
 import datetime
+
 import factory
 from django.utils import timezone
 from faker import Faker
@@ -7,6 +8,22 @@ from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFact
 from .. import models
 
 faker = Faker()
+
+
+class ReferenceMaterialFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ReferenceMaterial
+
+    file_en = factory.lazy_attribute(lambda o: faker.url())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'file_en': faker.url(),
+            'name': faker.catch_phrase(),
+
+        }
 
 
 class TripFactory(factory.django.DjangoModelFactory):
@@ -37,56 +54,35 @@ class TripFactory(factory.django.DjangoModelFactory):
         return valid_data
 
 
-class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
+class TripRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TripRequest
-        # django_get_or_create = ('trip','user','is_group_request')
 
     trip = factory.SubFactory(TripFactory)
     section = factory.SubFactory(SectionFactory)
-    user = factory.SubFactory(UserFactory)
-    is_group_request = False
+    created_by = factory.SubFactory(UserFactory)
+    status = 8
 
     @staticmethod
     def get_valid_data():
-        start_date = faker.future_datetime(tzinfo=timezone.get_current_timezone())
-        end_date = start_date + datetime.timedelta(days=faker.random_int(1, 10))
-        trip = TripFactory(
-            start_date=start_date,
-            end_date=end_date,
-        )
         valid_data = {
-            'trip': trip.id,
+            'trip': TripFactory().id,
             "section": SectionFactory().id,
-            "user": UserFactory().id,
-            "is_group_request": False,
-            "is_public_servant": True,
-            "is_research_scientist": True,
-            "start_date": trip.start_date.strftime("%Y-%m-%d %H:%M"),
-            "end_date": trip.end_date.strftime("%Y-%m-%d %H:%M"),
+            "created_by": UserFactory().id,
         }
         return valid_data
 
 
-class ParentTripRequestFactory(factory.django.DjangoModelFactory):
+class TravellerFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.TripRequest
-        django_get_or_create = ('trip', 'user', 'is_group_request')
+        model = models.Traveller
 
-    trip = factory.SubFactory(TripFactory)
-    section = factory.SubFactory(SectionFactory)
+    request = TripRequestFactory()
     user = factory.SubFactory(UserFactory)
-    is_group_request = True
-
-
-class ChildTripRequestFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.TripRequest
-
-    trip = None
-    parent_request = factory.SubFactory(ParentTripRequestFactory)
-    user = factory.SubFactory(UserFactory)
-    is_group_request = False
+    start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
+    is_public_servant = factory.lazy_attribute(lambda o: faker.pybool())
+    is_research_scientist = factory.lazy_attribute(lambda o: faker.pybool())
 
     @staticmethod
     def get_valid_data():
@@ -96,15 +92,16 @@ class ChildTripRequestFactory(factory.django.DjangoModelFactory):
             start_date=start_date,
             end_date=end_date,
         )
-        parent_trip = ParentTripRequestFactory(trip=trip)
-        parent_trip.save()
+        request = TripRequestFactory(trip=trip)
+        request.save()
         valid_data = {
-            'parent_request': parent_trip.id,
+            'request': request.id,
             "user": UserFactory().id,
-            "is_public_servant": True,
-            "is_research_scientist": True,
             "start_date": trip.start_date.strftime("%Y-%m-%d %H:%M"),
             "end_date": trip.end_date.strftime("%Y-%m-%d %H:%M"),
+            'is_public_servant': faker.pybool(),
+            'is_research_scientist': faker.pybool(),
+
         }
         return valid_data
 
@@ -114,7 +111,7 @@ class ReviewerFactory(factory.django.DjangoModelFactory):
         model = models.Reviewer
         django_get_or_create = ('trip_request', 'user', 'role')
 
-    trip_request = factory.SubFactory(IndividualTripRequestFactory)
+    trip_request = factory.SubFactory(TripRequestFactory)
     user = factory.SubFactory(UserFactory)
     role = factory.lazy_attribute(lambda o: models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0])
     status = factory.lazy_attribute(lambda o: models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0])
@@ -140,7 +137,7 @@ class FileFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.File
 
-    trip_request = factory.SubFactory(IndividualTripRequestFactory)
+    trip_request = factory.SubFactory(TripRequestFactory)
     name = factory.lazy_attribute(lambda o: faker.word())
 
 
@@ -148,10 +145,10 @@ class TravellerCostDayXRateFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TravellerCost
 
-    trip_request = factory.SubFactory(IndividualTripRequestFactory)
+    trip_request = factory.SubFactory(TripRequestFactory)
     cost = factory.lazy_attribute(lambda o: models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)])
 
-    rate_cad = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True)+1)
+    rate_cad = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True) + 1)
     number_of_days = factory.lazy_attribute(lambda o: faker.random_int(1, 10))
 
 
@@ -159,7 +156,7 @@ class TravellerCostTotalFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TravellerCost
 
-    trip_request = factory.SubFactory(IndividualTripRequestFactory)
+    trip_request = factory.SubFactory(TripRequestFactory)
     cost = factory.lazy_attribute(lambda o: models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)])
     amount_cad = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
 

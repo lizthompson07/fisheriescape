@@ -12,7 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from dm_apps.utils import custom_send_mail
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section, Organization
@@ -222,14 +221,8 @@ class TravellerViewSet(viewsets.ModelViewSet):
         # if the trip is NOT in draft mode, need to provide annotation in the admin notes.
         if my_request.status != 8:
             my_request.add_admin_note(f"{date(timezone.now())}: {instance.smart_name} was removed from this request by {self.request.user.get_full_name()}")
-            email = emails.RemovedTravellerEmail(traveller=instance, request=self.request)
-            # # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
+            email = emails.RemovedTravellerEmail(self.request, instance)
+            email.send()
 
         # if after deleting this traveller, there are no more travellers, we should unsubmit this trip.
         if not my_request.travellers.exists():
@@ -293,7 +286,7 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         qs = self.get_queryset()
         qp = request.query_params
         if qp.get("rdg") and utils.is_admin(request.user):
-            qs = qs.filter(role=6, status=1).filter(~Q(request__status=16))  # rdg & pending
+            qs = qs.filter(role=7, status=1).filter(~Q(request__status=16))  # rdg & pending
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         else:
