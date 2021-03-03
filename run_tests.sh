@@ -156,4 +156,18 @@ printf "\n"
 printf "#############################################################################################################################"
 printf "\n"
 python3.8 manage.py test -b scuba.test
-echo "FINISHED RUNNING TESTS FOR: bio_diversity"
+echo "FINISHED RUNNING TESTS FOR: scuba"
+
+
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+echo "RUNNING TESTS FOR: publications"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b publications.test
+echo "FINISHED RUNNING TESTS FOR: publications"
