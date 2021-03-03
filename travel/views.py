@@ -1251,12 +1251,12 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 ############
 
 
-class HelpTextHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class HelpTextHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
     success_url = reverse_lazy("travel:manage_help_text")
 
 
-class HelpTextFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class HelpTextFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage HelpText"
     queryset = models.HelpText.objects.all()
@@ -1266,12 +1266,12 @@ class HelpTextFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_help_text"
 
 
-class CostCategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class CostCategoryHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.CostCategory
     success_url = reverse_lazy("travel:manage_cost_categories")
 
 
-class CostCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class CostCategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Cost Category"
     queryset = models.CostCategory.objects.all()
@@ -1281,12 +1281,12 @@ class CostCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_cost_category"
 
 
-class CostHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class CostHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.Cost
     success_url = reverse_lazy("travel:manage_costs")
 
 
-class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class CostFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Cost"
     queryset = models.Cost.objects.all()
@@ -1296,7 +1296,7 @@ class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_cost"
 
 
-class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class NJCRatesFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage NJCRates"
     queryset = models.NJCRates.objects.all()
@@ -1305,7 +1305,7 @@ class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     home_url_name = "travel:index"
 
 
-class TripCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class TripCategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Trip Categories"
     queryset = models.TripCategory.objects.all()
@@ -1314,7 +1314,7 @@ class TripCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     home_url_name = "travel:index"
 
 
-class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class TripSubcategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Trip Subcategories"
     queryset = models.TripSubcategory.objects.all()
@@ -1324,12 +1324,12 @@ class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_trip_subcategory"
 
 
-class TripSubcategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class TripSubcategoryHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.TripSubcategory
     success_url = reverse_lazy("travel:manage_trip_subcategories")
 
 
-class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class ProcessStepFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Process Steps"
     queryset = models.ProcessStep.objects.all()
@@ -1340,12 +1340,12 @@ class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     container_class = "container-fluid"
 
 
-class ProcessStepHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class ProcessStepHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.ProcessStep
     success_url = reverse_lazy("travel:manage_process_steps")
 
 
-class FAQFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class FAQFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage FAQs"
     queryset = models.FAQ.objects.all()
@@ -1356,12 +1356,12 @@ class FAQFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     container_class = "container-fluid"
 
 
-class FAQHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class FAQHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.FAQ
     success_url = reverse_lazy("travel:manage_faqs")
 
 
-class OrganizationFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class OrganizationFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Organizations"
     queryset = shared_models.Organization.objects.filter(is_dfo=True)
@@ -1372,12 +1372,12 @@ class OrganizationFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     container_class = "container-fluid"
 
 
-class OrganizationHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class OrganizationHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = shared_models.Organization
     success_url = reverse_lazy("travel:manage_organizations")
 
 
-class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+class RoleFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Roles"
     queryset = models.Role.objects.all()
@@ -1387,13 +1387,13 @@ class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     delete_url_name = "travel:delete_role"
 
 
-class RoleHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+class RoleHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
     model = models.Role
     success_url = reverse_lazy("travel:manage_roles")
 
 
 # Reference Materials
-class ReferenceMaterialListView(TravelAdminRequiredMixin, CommonListView):
+class ReferenceMaterialListView(TravelADMAdminRequiredMixin, CommonListView):
     template_name = "travel/list.html"
     model = models.ReferenceMaterial
     field_list = [
@@ -1410,7 +1410,7 @@ class ReferenceMaterialListView(TravelAdminRequiredMixin, CommonListView):
     container_class = "container bg-light curvy"
 
 
-class ReferenceMaterialUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
+class ReferenceMaterialUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "travel:index"
@@ -1423,7 +1423,7 @@ class ReferenceMaterialUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         return reverse("travel:ref_mat_delete", args=[self.get_object().id])
 
 
-class ReferenceMaterialCreateView(TravelAdminRequiredMixin, CommonCreateView):
+class ReferenceMaterialCreateView(TravelADMAdminRequiredMixin, CommonCreateView):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "travel:index"
@@ -1433,7 +1433,7 @@ class ReferenceMaterialCreateView(TravelAdminRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
 
 
-class ReferenceMaterialDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
+class ReferenceMaterialDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
     model = models.ReferenceMaterial
     success_url = reverse_lazy('travel:ref_mat_list')
     home_url_name = "travel:index"
@@ -1445,7 +1445,7 @@ class ReferenceMaterialDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
 
 # Default Reviewer Settings
 
-class DefaultReviewerListView(TravelAdminRequiredMixin, CommonListView):
+class DefaultReviewerListView(TravelADMAdminRequiredMixin, CommonListView):
     model = models.DefaultReviewer
     template_name = 'travel/default_reviewer/default_reviewer_list.html'
     h1 = gettext_lazy("Optional / Special Reviewers")
@@ -1462,7 +1462,7 @@ class DefaultReviewerListView(TravelAdminRequiredMixin, CommonListView):
     ]
 
 
-class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
+class DefaultReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
@@ -1478,14 +1478,14 @@ class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class DefaultReviewerCreateView(TravelAdminRequiredMixin, CreateView):
+class DefaultReviewerCreateView(TravelADMAdminRequiredMixin, CommonCreateView):
     model = models.DefaultReviewer
     form_class = forms.DefaultReviewerForm
     success_url = reverse_lazy('travel:default_reviewer_list')
     template_name = 'travel/default_reviewer/default_reviewer_form.html'
 
 
-class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
+class DefaultReviewerDeleteView(TravelADMAdminRequiredMixin, CommonDeleteView):
     model = models.DefaultReviewer
     success_url = reverse_lazy('travel:default_reviewer_list')
     success_message = 'The default reviewer was successfully deleted!'

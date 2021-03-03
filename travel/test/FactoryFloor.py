@@ -9,6 +9,21 @@ from .. import models
 faker = Faker()
 
 
+class ReferenceMaterialFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ReferenceMaterial
+
+    file_en = factory.lazy_attribute(lambda o: faker.url())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'file_en': faker.url(),
+            'name': faker.catch_phrase(),
+
+        }
+
 class TripFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Trip

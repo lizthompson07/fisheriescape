@@ -79,16 +79,16 @@ urlpatterns = [
     path('settings/organization/<int:pk>/delete/', views.OrganizationHardDeleteView.as_view(), name="delete_organization"),  # tested
 
     # full
-    path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),
-    path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),
-    path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),
-    path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
+    path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),  # tested
+    path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),  # tested
+    path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),  # tested
+    path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),  # tested
 
     # default reviewer settings
-    path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),
-    path('default-reviewer/new/', views.DefaultReviewerCreateView.as_view(), name="default_reviewer_new"),
-    path('default-reviewer/<int:pk>/edit/', views.DefaultReviewerUpdateView.as_view(), name="default_reviewer_edit"),
-    path('default-reviewer/<int:pk>/delete/', views.DefaultReviewerDeleteView.as_view(), name="default_reviewer_delete"),
+    path('settings/default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),  # tested
+    path('settings/default-reviewers/new/', views.DefaultReviewerCreateView.as_view(), name="default_reviewer_new"),  # tested
+    path('settings/default-reviewers/<int:pk>/edit/', views.DefaultReviewerUpdateView.as_view(), name="default_reviewer_edit"),  # tested
+    path('settings/default-reviewers/<int:pk>/delete/', views.DefaultReviewerDeleteView.as_view(), name="default_reviewer_delete"),  # tested
 
     # Admin Users
     path('settings/users/', views.UserListView.as_view(), name='user_list'),

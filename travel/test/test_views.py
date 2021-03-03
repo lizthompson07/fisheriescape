@@ -1,24 +1,233 @@
-from datetime import timedelta
-
-from django.contrib.auth.models import Group
 from django.test import tag
 from django.urls import reverse_lazy
-from django.utils import timezone
-from django.utils.translation import activate
-from django.views.generic import FormView, CreateView, UpdateView
 from faker import Faker
 
-from shared_models.test.SharedModelsFactoryFloor import SectionFactory, RegionFactory
-from shared_models.views import CommonFilterView, CommonDetailView, CommonListView, CommonUpdateView, CommonCreateView, CommonDeleteView
+from shared_models.views import CommonListView, CommonUpdateView, CommonCreateView
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
-from .. import views, models, utils
+from .. import views, models
 
 faker = Faker()
 
 
+class TestDefaultReviewerListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.DefaultReviewerFactory()
+        self.test_url = reverse_lazy('travel:default_reviewer_list')
+        self.expected_template = 'travel/default_reviewer/default_reviewer_list.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("DefaultReviewer", "default_reviewer_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.DefaultReviewerListView, CommonListView)
+
+    @tag("DefaultReviewer", "default_reviewer_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("DefaultReviewer", "default_reviewer_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:default_reviewer_list", f"/en/travel-plans/settings/default-reviewers/")
 
 
+class TestDefaultReviewerCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.DefaultReviewerFactory()
+        self.test_url = reverse_lazy('travel:default_reviewer_new')
+        self.expected_template = 'travel/default_reviewer/default_reviewer_form.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("DefaultReviewer", "default_reviewer_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.DefaultReviewerCreateView, CommonCreateView)
+
+    @tag("DefaultReviewer", "default_reviewer_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("DefaultReviewer", "default_reviewer_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.DefaultReviewerFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("DefaultReviewer", "default_reviewer_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:default_reviewer_new", f"/en/travel-plans/settings/default-reviewers/new/")
+
+
+class TestDefaultReviewerUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.DefaultReviewerFactory()
+        self.test_url = reverse_lazy('travel:default_reviewer_edit', args=[self.instance.pk, ])
+        self.expected_template = 'travel/default_reviewer/default_reviewer_form.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("DefaultReviewer", "default_reviewer_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.DefaultReviewerUpdateView, CommonUpdateView)
+
+    @tag("DefaultReviewer", "default_reviewer_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("DefaultReviewer", "default_reviewer_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.DefaultReviewerFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("DefaultReviewer", "default_reviewer_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:default_reviewer_edit", f"/en/travel-plans/settings/default-reviewers/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestDefaultReviewerDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.DefaultReviewerFactory()
+        self.test_url = reverse_lazy('travel:default_reviewer_delete', args=[self.instance.pk, ])
+        self.expected_template = 'travel/default_reviewer/default_reviewer_confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("DefaultReviewer", "default_reviewer_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.DefaultReviewerUpdateView, CommonUpdateView)
+
+    @tag("DefaultReviewer", "default_reviewer_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("DefaultReviewer", "default_reviewer_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.DefaultReviewerFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.DefaultReviewer.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("DefaultReviewer", "default_reviewer_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:default_reviewer_delete", f"/en/travel-plans/settings/default-reviewers/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestReferenceMaterialListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ReferenceMaterialFactory()
+        self.test_url = reverse_lazy('travel:ref_mat_list')
+        self.expected_template = 'travel/list.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("ReferenceMaterial", "ref_mat_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReferenceMaterialListView, CommonListView)
+
+    @tag("ReferenceMaterial", "ref_mat_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:ref_mat_list", f"/en/travel-plans/settings/reference-materials/")
+
+
+class TestReferenceMaterialCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ReferenceMaterialFactory()
+        self.test_url = reverse_lazy('travel:ref_mat_new')
+        self.expected_template = 'travel/form.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("ReferenceMaterial", "ref_mat_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReferenceMaterialCreateView, CommonCreateView)
+
+    @tag("ReferenceMaterial", "ref_mat_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ReferenceMaterialFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:ref_mat_new", f"/en/travel-plans/settings/reference-materials/new/")
+
+
+class TestReferenceMaterialUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ReferenceMaterialFactory()
+        self.test_url = reverse_lazy('travel:ref_mat_edit', args=[self.instance.pk, ])
+        self.expected_template = 'travel/form.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("ReferenceMaterial", "ref_mat_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReferenceMaterialUpdateView, CommonUpdateView)
+
+    @tag("ReferenceMaterial", "ref_mat_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ReferenceMaterialFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:ref_mat_edit", f"/en/travel-plans/settings/reference-materials/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestReferenceMaterialDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ReferenceMaterialFactory()
+        self.test_url = reverse_lazy('travel:ref_mat_delete', args=[self.instance.pk, ])
+        self.expected_template = 'travel/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("ReferenceMaterial", "ref_mat_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReferenceMaterialUpdateView, CommonUpdateView)
+
+    @tag("ReferenceMaterial", "ref_mat_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ReferenceMaterialFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.ReferenceMaterial.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("ReferenceMaterial", "ref_mat_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:ref_mat_delete", f"/en/travel-plans/settings/reference-materials/{self.instance.pk}/delete/", [self.instance.pk])
 
 # ###########################################################################################
 # # Index View is a bit different from most views as it is basically just a landing page
