@@ -6,6 +6,8 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from django.contrib.auth.models import User as AuthUser
 
+from shared_models.models import UnilingualSimpleLookup
+
 
 class Species(models.Model):
     code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Internal code"), unique=True)
@@ -124,7 +126,7 @@ class MetadataFieldCategory(models.Model):
         unique_together = ['metadata_field', 'code']
 
 
-class InstrumentType(models.Model):
+class InstrumentType(UnilingualSimpleLookup):
     MODE_CHOICES = (
         (1, _("Optical")),
         (2, _("Acoustic")),
@@ -137,17 +139,6 @@ class InstrumentType(models.Model):
 
     mode = models.IntegerField(choices=MODE_CHOICES, verbose_name=_("mode"))
     type = models.IntegerField(choices=TYPE_CHOICES, verbose_name=_("mode type"))
-    name = models.CharField(max_length=255, verbose_name=_("English name"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
 
 class Instrument(models.Model):
@@ -275,9 +266,9 @@ class Outing(models.Model):
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("start date and time"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("end date and time"))
     identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("identifier string"))
-    created_by = models.ForeignKey(AuthUser, related_name="outings", on_delete=models.DO_NOTHING)
+    created_by = models.ForeignKey(AuthUser, related_name="outings", on_delete=models.DO_NOTHING, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    verified_by = models.ForeignKey(AuthUser, blank=True, null=True, on_delete=models.DO_NOTHING)
+    verified_by = models.ForeignKey(AuthUser, blank=True, null=True, on_delete=models.DO_NOTHING, editable=False)
     verified_at = models.DateTimeField(blank=True, null=True, editable=False)
 
     def __str__(self):
@@ -290,6 +281,17 @@ class Outing(models.Model):
     def outing_duration(self):
         """Determine the length in hours of the outing from the start and end date fields"""
         return self.end_date - self.start_date
+
+
+    # @property
+    # def quantity_by_species(self):
+    #     """find total number of each species on an outing"""
+    #     species_list = self.observations.observation_sightings.all().values("species").distinct().order_by("species")
+    #     my_dict = dict()
+    #     for s in species_list:
+    #         species = Species.objects.get(pk=s["species"])
+    #         my_dict[species] = pass #todo have to add quantity sum def
+    #     return my_dict
 
 
 #TODO I want to take all observation lat/long and map them on the outing_detail.html as well
