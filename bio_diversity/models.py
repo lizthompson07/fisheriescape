@@ -216,6 +216,9 @@ class AniDetSubjCode(BioLookup):
     # adsc tag
     anidc_id = models.ForeignKey("AnimalDetCode", on_delete=models.CASCADE, verbose_name=_("Type of measurement"))
 
+    class Meta:
+        ordering = ['name', ]
+
 
 class AniDetailXref(BioModel):
     # anix tag

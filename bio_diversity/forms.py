@@ -1551,7 +1551,7 @@ class MortForm(forms.Form):
         model = models.MatingPlan
         exclude = []
 
-    gender_choices = (('Male', 'Male'), ('Female', 'Female'), ('Immature', 'Immature'))
+    gender_choices = ((None, "---------"), ('Male', 'Male'), ('Female', 'Female'), ('Immature', 'Immature'))
     mort_date = forms.DateField(required=True, label=_("Date of Mortality"))
     perc_id = forms.ModelChoiceField(required=True, queryset=models.PersonnelCode.objects.filter(perc_valid=True), label=_("Personel"))
     created_date = forms.DateField(required=True)
@@ -1560,7 +1560,7 @@ class MortForm(forms.Form):
     indv_mass = forms.DecimalField(required=False, max_digits=5,  label=_("Individual Mass (g)"))
     indv_vial = forms.DecimalField(required=False, max_digits=5,  label=_("Individual Vial"))
     indv_gender = forms.ChoiceField(required=False, choices=gender_choices,  label=_("Individual Gender"))
-    observations = forms.ChoiceField(required=False,  label=_("Observations"))
+    observations = forms.ModelMultipleChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Mortality Observation") | models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),  label=_("Observations"))
     indv_mort = forms.IntegerField(required=False, max_value=10000000)
     grp_mort = forms.IntegerField(required=False, max_value=10000000)
 
@@ -1617,6 +1617,9 @@ class MortForm(forms.Form):
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_vial"], "Vial", None)
         if cleaned_data["indv_gender"]:
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, "Gender", cleaned_data["indv_gender"])
+
+        for adsc in cleaned_data["observations"]:
+            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.name, adsc.name, None)
 
 
 class OrgaForm(CreatePrams):
