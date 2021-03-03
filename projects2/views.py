@@ -1107,6 +1107,8 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
         elif report == 6:
             return HttpResponseRedirect(reverse("projects2:export_rsa") + f'?year={year};region={region}')
+        elif report == 7:
+            return HttpResponseRedirect(reverse("projects2:export_ppa") + f'?year={year};section={section};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1304,6 +1306,20 @@ def export_regional_staff_allocation(request):
                          my_dict["approved"]])
 
     return response
+
+@login_required()
+def export_project_position_allocation(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    section = request.GET.get("section")
+
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section__division__branch__region_id=region)
+    if section:
+        project_years = project_years.filter(project__section_id=section)
+
+    # Now filter down the projects to projects that have staff with staff levels, but no staff name.
+
 
 # ADMIN USERS
 
