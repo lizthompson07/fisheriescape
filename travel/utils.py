@@ -36,6 +36,7 @@ def is_admin(user):
 
 
 def is_approver(user, trip_request):
+    """ only for when reviewer status is pending and request status is active"""
     return get_related_request_reviewers(user).filter(request_id=trip_request.id).exists()
 
 
