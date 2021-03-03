@@ -251,7 +251,13 @@
             <td class="text-right wide-cell">{% trans "Expenditure Initiation approved by (Print)" %}</td>
             <td class="data wide-cell" colspan="3">
               {{ parent.expenditure_initiation.user |nz:"n/a" }}
-              {% if parent.expenditure_initiation.user %} | {% trans "Regional Director General" %} | {{ parent.expenditure_initiation.user.shared_models_regions.first }}
+              {% if parent.expenditure_initiation.user %}
+                {% if parent.expenditure_initiation.user.profile.tposition %}
+                  | {{ parent.expenditure_initiation.user.profile.tposition }}
+                {% else %}
+                  | {% trans "Regional Director General" %}
+                {% endif %}
+                | {{ parent.section.division.branch.region }}
               {% endif %}
             </td>
           </tr>
