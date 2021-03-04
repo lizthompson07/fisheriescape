@@ -237,7 +237,8 @@ class DataForm(CreatePrams):
         # --------------------------ELECTROFISHING DATA ENTRY-----------------------------------
         if cleaned_data["evntc_id"].__str__() == "Electrofishing" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl')
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl',
+                                     converters={'Year': str, 'Month': str, 'Day': str})
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -250,11 +251,13 @@ class DataForm(CreatePrams):
                 row_parsed = True
                 row_entered = False
                 try:
+                    row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
+                                                     "%Y%b%d").replace(tzinfo=pytz.UTC)
                     loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                                           locc_id=models.LocCode.objects.filter(name__icontains="Electrofishing site").get(),
                                           rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
                                           relc_id=models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
-                                          loc_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                          loc_date=row_datetime,
                                           comments=row["Comments"],
                                           created_by=cleaned_data["created_by"],
                                           created_date=cleaned_data["created_date"],
@@ -268,7 +271,7 @@ class DataForm(CreatePrams):
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
                                                              relc_id=loc.relc_id, loc_date=loc.loc_date).get()
 
-                    if enter_env(row["temp"], datetime.strptime(row["Date"], "%Y-%b-%d"), cleaned_data, "Temperature", loc_id=loc,):
+                    if enter_env(row["temp"], row_datetime, cleaned_data, "Temperature", loc_id=loc,):
                         row_entered = True
 
                     cnt = False
@@ -361,7 +364,7 @@ class DataForm(CreatePrams):
                         grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                            stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
                                            coll_id=models.Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
-                                           grp_year=datetime.strptime(data["Date"][0], "%Y-%b-%d").year,
+                                           grp_year=data["Year"][0],
                                            grp_valid=True,
                                            created_by=cleaned_data["created_by"],
                                            created_date=cleaned_data["created_date"],
@@ -379,7 +382,8 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-                    first_row_date = datetime.strptime(row["Date"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+                    first_row_date = datetime.strptime(data["Year"][0] + data["Month"][0] + data["Day"][0],
+                                                       "%Y%b%d").replace(tzinfo=pytz.UTC)
                     enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# of salmon collected"].sum(), "Number of Fish")
 
                     enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
@@ -559,7 +563,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'to tank': str})
+                                     converters={'to tank': str, 'Year': str, 'Month': str, 'Day': str})
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -594,8 +598,9 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     year, coll = year_coll_splitter(row["Group"])
-                    row_date = datetime.strptime(row["Date"], "%Y-%b-%d").date()
-                    row_datetime = datetime.combine(row_date, datetime.min.time()).replace(tzinfo=pytz.UTC)
+                    row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
+                                                     "%Y%b%d").replace(tzinfo=pytz.UTC)
+                    row_date =row_datetime.date()
                     if type(row["Universal Fish ID"]) == float:
                         indv_ufid = None
                     else:
@@ -662,7 +667,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'to tank': str, "PIT": str})
+                                     converters={'to tank': str, "PIT": str, 'Year': str, 'Month': str, 'Day': str})
                 data["Comments"] = data["Comments"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
@@ -699,8 +704,8 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     year, coll = year_coll_splitter(row["Collection"])
-                    row_date = row["Date"].date()
-                    row_datetime = datetime.combine(row_date, datetime.min.time()).replace(tzinfo=pytz.UTC)
+                    row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
+                                                 "%Y%b%d").replace(tzinfo=pytz.UTC)
                     indv = models.Individual(grp_id_id=grp_id,
                                              spec_id=models.SpeciesCode.objects.filter(name__icontains="Salmon").get(),
                                              stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
@@ -726,21 +731,21 @@ class DataForm(CreatePrams):
 
                     anix_grp = enter_anix(cleaned_data, indv_pk=indv.pk, grp_pk=grp_id)
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Length (cm)"], "Length", None):
                         row_entered = True
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Weight (g)"], "Weight", None):
                         row_entered = True
 
-                    if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Vial Number"], "Vial", None):
+                    if enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Vial Number"], "Vial", None):
                         row_entered = True
 
                     if row["Precocity (Y/N)"].upper() == "Y":
-                        if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Animal Health", "Precocity"):
+                        if enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), None, "Animal Health", "Precocity"):
                             row_entered = True
 
                     if row["Comments"]:
-                        comment_parser(row["Comments"], anix_indv, det_date=row_date)
+                        comment_parser(row["Comments"], anix_indv, det_date=row_datetime.date())
                 except Exception as err:
                     parsed = False
                     self.request.session["load_success"] = False
@@ -762,7 +767,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'PIT': str})
+                                     converters={'PIT': str, 'Year': str, 'Month': str, 'Day': str})
                 data["COMMENTS"] = data["COMMENTS"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
@@ -792,8 +797,9 @@ class DataForm(CreatePrams):
                     if indv:
                         anix_indv = enter_anix(cleaned_data, indv_pk=indv.pk)
 
-                        row_date = row["DATE SORTED (ddmmmyr)"].date()
-                        row_datetime = datetime.combine(row_date, datetime.min.time()).replace(tzinfo=pytz.UTC)
+                        row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
+                                                         "%Y%b%d").replace(tzinfo=pytz.UTC)
+                        row_date =row_datetime.date()
                         if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
                             row_entered = True
 
@@ -827,7 +833,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Water Quality Record" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'Pond': str})
+                                     converters={'Pond': str, 'Year': str, 'Month': str, 'Day': str})
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -840,10 +846,12 @@ class DataForm(CreatePrams):
                 row_entered = False
                 try:
                     contx = enter_tank_contx(row["Pond"], cleaned_data, None, return_contx=True)
-                    row_date = row["Date"].date()
-
+                    row_date = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
+                                                     "%Y%b%d").replace(tzinfo=pytz.UTC).date()
                     if not math.isnan(row["Time (24HR)"]):
                         row_time = row["Time (24HR)"].replace(tzinfo=pytz.UTC)
+                    else:
+                        row_time = None
 
                     if enter_env(row["Temp °C"], row_date, cleaned_data, "Temperature", contx=contx, env_start=row_time):
                         row_entered = True
