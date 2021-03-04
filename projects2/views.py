@@ -1317,9 +1317,20 @@ def export_project_position_allocation(request):
     region = request.GET.get("region")
     section = request.GET.get("section")
 
+    region_name = None
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    section_name = None
+    if section:
+        section_name = shared_models.Section.objects.get(pk=section)
+
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="test.csv"'.format()
+    if section_name:
+        response['Content-Disposition'] = 'attachment; filename="{}_{}_{}.csv"'.format(year, region_name, section_name)
+    else:
+        response['Content-Disposition'] = 'attachment; filename="{}_{}.csv"'.format(year, region_name)
 
     writer = csv.writer(response)
     writer.writerow(['Project ID', 'Project Name', 'Project Lead', 'Staff Name', 'Staff Level', 'Funding Source'])
