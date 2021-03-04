@@ -1317,12 +1317,29 @@ def export_project_position_allocation(request):
     region = request.GET.get("region")
     section = request.GET.get("section")
 
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="test.csv"'.format()
+
+    writer = csv.writer(response)
+    writer.writerow(['Project ID', 'Project Name', 'Project Lead', 'Staff Name', 'Staff Level', 'Funding Source'])
+
     project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
                                                       project__section__division__branch__region_id=region)
     if section:
         project_years = project_years.filter(project__section_id=section)
 
     # Now filter down the projects to projects that have staff with staff levels, but no staff name.
+    for p in project_years:
+        staff = p.staff_set.filter(user__id=None)
+        if staff:
+            leads = ", ".join(l.smart_name for l in p.staff_set.filter(is_lead=True))
+            project = p.project
+            for s in staff:
+                # sometimes people enter a persons name
+                writer.writerow([project.pk, project.title, '"' + leads + '"', s.smart_name, s.level, s.funding_source])
+
+    return response
 
 
 # ADMIN USERS
