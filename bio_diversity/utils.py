@@ -119,6 +119,9 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Num
             cnt.save()
         except ValidationError:
             cnt = models.Count.objects.filter(loc_id=cnt.loc_id, contx_id=cnt.contx_id, cntc_id=cnt.cntc_id).get()
+            if cnt_code == "Mortality":
+                cnt.cnt += 1
+                cnt.save()
     return cnt
 
 
@@ -258,11 +261,11 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
         return row_entered
 
 
-def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None, return_contx=False):
+def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
     row_entered = False
-    if not tank == "nan":
+    if not tank_name == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                     tank_id=models.Tank.objects.filter(name=tank, facic_id=cleaned_data["facic_id"]).get(),
+                                     tank_id=models.Tank.objects.filter(name=tank_name, facic_id=cleaned_data["facic_id"]).get(),
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
                                      )
@@ -273,7 +276,8 @@ def enter_tank_contx(tank, cleaned_data, final_flag, indv_pk=None, grp_pk=None, 
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         tank_id=contx.tank_id).get()
-        enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
+        if indv_pk or grp_pk:
+            enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
         if return_contx:
             return contx
         else:

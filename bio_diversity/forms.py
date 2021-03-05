@@ -483,7 +483,7 @@ class DataForm(CreatePrams):
                 self.request.session["load_success"] = False
 
             if grp_id:
-                enter_anix(cleaned_data, grp_pk=grp_id)
+                anix_grp = enter_anix(cleaned_data, grp_pk=grp_id)
 
             for row in data_dict:
                 row_parsed = True
@@ -521,7 +521,7 @@ class DataForm(CreatePrams):
 
                     anix_indv = enter_anix(cleaned_data, indv_pk=indv.pk)
 
-                    anix_grp = enter_anix(cleaned_data, indv_pk=indv.pk, grp_pk=grp_id)
+                    enter_anix(cleaned_data, indv_pk=indv.pk, grp_pk=grp_id)
 
                     if enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                         row_entered = True
@@ -550,6 +550,14 @@ class DataForm(CreatePrams):
                     rows_parsed += 1
                 elif row_parsed:
                     rows_parsed += 1
+
+            from_tanks = data["from Tank"].value_counts()
+            for tank_name in from_tanks.keys():
+                fish_tagged_from_tank = int(from_tanks[tank_name])
+                contx = enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
+                if contx:
+                    enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
+
             if not parsed:
                 self.request.session["load_success"] = False
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
@@ -650,6 +658,14 @@ class DataForm(CreatePrams):
                     rows_parsed += 1
                 elif row_parsed:
                     rows_parsed += 1
+
+            from_tanks = data["Origin Pond"].value_counts()
+            for tank_name in from_tanks.keys():
+                fish_tagged_from_tank = int(from_tanks[tank_name])
+                contx = enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
+                if contx:
+                    enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
+
             if not parsed:
                 self.request.session["load_success"] = False
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
@@ -739,7 +755,7 @@ class DataForm(CreatePrams):
                 try:
                     contx = enter_tank_contx(row["Pond"], cleaned_data, None, return_contx=True)
                     row_date = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                                     "%Y%b%d").replace(tzinfo=pytz.UTC).date()
+                                                 "%Y%b%d").replace(tzinfo=pytz.UTC).date()
                     if not math.isnan(row["Time (24HR)"]):
                         row_time = row["Time (24HR)"].replace(tzinfo=pytz.UTC)
                     else:
@@ -1525,11 +1541,15 @@ class MortForm(forms.Form):
                                                          end_datetime=mortality_evnt.end_datetime,
                                                          ).get()
         cleaned_data["evnt_id"] = mortality_evnt
+        cleaned_data["facic_id"] = mortality_evnt.facic_id
 
         anix = enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"])
         if cleaned_data["grp_mort"]:
             anix_grp = enter_anix(cleaned_data, grp_pk=cleaned_data["grp_mort"])
             anix_both = enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
+            tank = grp.current_tank(at_date=cleaned_data["mort_date"])[0]
+            contx = enter_tank_contx(tank.name, cleaned_data, grp_pk=grp.id, return_contx=True)
+            enter_cnt(cleaned_data, cnt_value=1, contx_pk=contx.id, cnt_code="Mortality")
 
         if cleaned_data["indv_length"]:
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_length"], "Length", None)

@@ -650,7 +650,7 @@ class Group(BioModel):
     def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         cont = []
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True,evnt_id__start_datetime__lte=at_date)
+        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)
         tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
         anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date)
         tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
@@ -679,8 +679,6 @@ class Group(BioModel):
                     fish_count -= cnt.cnt
 
         return fish_count
-
-
 
 
 class GroupDet(BioDet):
