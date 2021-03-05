@@ -17,8 +17,13 @@ from travel.utils import can_modify_request, is_admin
 
 
 class CanModifyOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.user.id:
+            return True
+
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in permissions.SAFE_METHODS and request.user.id:
             return True
         if hasattr(obj, "request_id"):
             return can_modify_request(request.user, obj.request_id)
@@ -29,8 +34,14 @@ class CanModifyOrReadOnly(permissions.BasePermission):
 
 
 class TravelAdminOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.user.id:
+            return True
+
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in permissions.SAFE_METHODS and request.user.id:
             return True
         else:
             return is_admin(request.user)
+

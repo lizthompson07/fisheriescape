@@ -75,8 +75,9 @@ class TripViewSet(viewsets.ModelViewSet):
                 else:
                     raise ValidationError(_("This function can only be used with an unreviewed trip."))
             else:
-                raise ValidationError(_("You do not have the permissions to reset the reviewer list"))
+                return Response(_("You do not have the permissions to reset the reviewer list"), status.HTTP_403_FORBIDDEN)
             return Response(None, status.HTTP_204_NO_CONTENT)
+        return Response(_("You do not have the permissions to reset the reviewer list"), status.HTTP_403_FORBIDDEN)
 
     def get_queryset(self):
         if self.kwargs.get("pk"):
@@ -107,11 +108,11 @@ class TripViewSet(viewsets.ModelViewSet):
         serializer = serializers.TripSerializerLITE(queryset, many=True)
         return Response(serializer.data)
 
-    def perform_create(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(last_modified_by=self.request.user)
 
     def perform_update(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
+        serializer.save(updated_by=self.request.user)
 
 
 class RequestViewSet(viewsets.ModelViewSet):
