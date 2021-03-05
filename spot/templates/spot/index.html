@@ -49,9 +49,13 @@
                         <a href="{% url 'spot:reports_list' %}" class="btn btn-dark">
                             {% trans "Reports" %}
                         </a>
-                        <a href="{% url 'spot:feedback_list' %}" class="btn btn-dark">
-                            {% trans "Feedback" %}
-                        </a>
+                       {% for group in user.groups.all %}
+                            {% if group.name == "spot_admin" %}
+                                 <a href="{% url 'spot:feedback_list' %}" class="btn btn-dark">
+                                     {% trans "Feedback" %}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
                     </h4>
                 </div>
             </div>

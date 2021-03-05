@@ -24,39 +24,27 @@
 {% endblock left_all %}
 
 {% block left_auth %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:org_list' %}">
-            {% trans "Organizations" %}
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:person_list' %}">
-            {% trans "People" %}
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:project_list' %}">
-            {% trans "Projects" %}
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:obj_list' %}">
-            {% trans "Objectives" %}
-        </a>
+    <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Navigation
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'spot:org_list' %}">Organizations</a>
+                    <a class="dropdown-item" href="{% url 'spot:person_list' %}">People</a>
+                    <a class="dropdown-item" href="{% url 'spot:project_list' %}">Projects</a>
+                    <a class="dropdown-item" href="{% url 'spot:obj_list' %}">Objectives</a>
+                    <a class="dropdown-item" href="{% url 'spot:meth_list' %}">Methods</a>
+                    <a class="dropdown-item" href="{% url 'spot:data_list' %}">Databases</a>
+                    <a class="dropdown-item" href="{% url 'spot:meetings_list' %}">Meetings</a>
+                    <a class="dropdown-item" href="{% url 'spot:reports_list' %}">Reports</a>
+                </div>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:meth_list' %}">
-            {% trans "Methods" %}
+        <a class="nav-link" href="{% url 'spot:feedback_new' %}">
+            {% trans "Feedback and Suggestions" %}
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'spot:data_list' %}">
-            {% trans "Database" %}
-        </a>
-    </li>
-
 {% endblock left_auth %}
 {% block left_admin %}
 {% endblock left_admin %}

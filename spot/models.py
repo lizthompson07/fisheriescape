@@ -6,10 +6,6 @@ from shared_models import models as shared_models
 from shared_models.models import UnilingualSimpleLookup, Region, River
 
 
-class SalmonLifeCycle(UnilingualSimpleLookup):
-    pass
-
-
 class FundingYear(UnilingualSimpleLookup):
     pass
 
@@ -224,6 +220,7 @@ class ReportClient(UnilingualSimpleLookup):
 
 class Method(models.Model):
 
+    method_section = models.ForeignKey(CoreComponent, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("method section"))
     document_number = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("document number"))
     document_category = models.ForeignKey(DocumentCategory, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='document_category', verbose_name=_("document category"))
     document_topic = models.ForeignKey(DocumentTopic, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='document_topic', verbose_name=_("document topic"))
@@ -262,10 +259,11 @@ class Method(models.Model):
         return "{}".format(self.document_number)
 
     class Meta:
-        ordering = ['document_number']
+        ordering = ['method_section']
 
 
 class DatabasesUsed(models.Model):
+
     database = models.ForeignKey(Database, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='database', verbose_name=_("database"))
     analysis_program = models.ForeignKey(AnalysisProgramUsed, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='databases',  verbose_name=_("analysis program used"))
     models_used = models.ForeignKey(ModelsUsed, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='models_used',  verbose_name=_("models used"))
@@ -342,6 +340,9 @@ class Person(models.Model):
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
+    city = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("city"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("province"))
+    address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("address"))
     organization = models.ForeignKey(Organization, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("organization"))
     role = models.ForeignKey(Role, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role"))
     section = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("section"))
@@ -439,7 +440,6 @@ class Objective(models.Model):
 
 
 class Project(models.Model):
-    #STAR_number = models.IntegerField(blank=True, null=True, verbose_name=_("STAR number")) -  no longer needed?
 
     agreement_number = models.ForeignKey(Objective, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("agreement number"))
     agreement_lineage = models.ForeignKey(AgreementLineage, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='agreement_lineage', verbose_name=_("agreement lineage"))
@@ -465,7 +465,7 @@ class Project(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("longitude"))
     management_area = models.IntegerField(null=True, blank=True, verbose_name=_("management area"))
     target_species = models.ForeignKey(Species, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='target_species', verbose_name=_("target species"))
-    salmon_life_cycle = models.ForeignKey(SalmonLifeCycle, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='salmon_life_cycle', verbose_name=_("salmon life cycle"))
+    salmon_life_cycle = models.ForeignKey(SalmonStage, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='salmon_life_cycle', verbose_name=_("salmon life cycle"))
 
 
     #Project type

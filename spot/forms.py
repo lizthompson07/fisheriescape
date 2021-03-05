@@ -25,6 +25,7 @@ class OrganizationForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
         }
 
 
@@ -34,6 +35,7 @@ class PersonForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
         }
 
 
@@ -43,6 +45,7 @@ class ProjectForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
         }
 
 
@@ -55,6 +58,7 @@ class ObjectiveForm(forms.ModelForm):
             'pst_req': forms.Select(choices=YES_NO_CHOICES),
             'sil_req': forms.Select(choices=YES_NO_CHOICES),
             'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
         }
 
 
@@ -64,6 +68,7 @@ class MethodForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
         }
 
 
@@ -73,6 +78,7 @@ class DatabasesUsedForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
         }
 
 
@@ -82,6 +88,7 @@ class FeedbackForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'sent_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
         }
 
 
@@ -89,9 +96,17 @@ class MeetingsForm(forms.ModelForm):
     class Meta:
         model = models.Meetings
         fields = '__all__'
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
+        }
 
 
 class ReportsForm(forms.ModelForm):
     class Meta:
         model = models.Reports
         fields = '__all__'
+        widgets = {
+            'last_modified_by': forms.HiddenInput(),
+            'date_last_modified': forms.HiddenInput(),
+        }

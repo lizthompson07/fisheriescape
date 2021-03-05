@@ -82,6 +82,8 @@ class OrganizationListView(SpotAccessRequiredMixin, FilterView):
         context["field_list"] = [
             'name',
             'province',
+            'city',
+            'address',
         ]
         return context
 
@@ -158,6 +160,14 @@ class PersonListView(SpotAccessRequiredMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Person.objects.first() #ml_
+        context["field_list"] = [
+            'first_name',
+            'last_name',
+            'email',
+            'province',
+            'city',
+
+        ]
         return context
 
 
@@ -172,6 +182,9 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
             'last_name',
             'phone',
             'email',
+            'city',
+            'province',
+            'address',
             'organization',
             'role',
             'section',
@@ -227,11 +240,18 @@ class ProjectListView(SpotAccessRequiredMixin, FilterView):
     filterset_class = filters.ProjectFilter
     model = models.Project
     queryset = models.Project.objects.annotate(
-        search_term=Concat('id', 'agreement_number', output_field=TextField()))
+        search_term=Concat('id', 'agreement_number', 'name', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Project.objects.first()
+        context["field_list"] = [
+            'agreement_number',
+            'name',
+            'region',
+            'species',
+            'DFO_project_authority',
+        ]
         return context
 
 
@@ -335,7 +355,7 @@ class ProjectDeleteView(SpotAdminRequiredMixin, DeleteView):
 ###############
 class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/objective_list.html'
-    #filterset NEED TO DO
+    filterset_class = filters.ObjectiveFilter
     model = models.Objective
     queryset = models.Objective.objects.annotate()
     search_term = Concat('number', 'id', output_field=TextField())
@@ -439,6 +459,16 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Method.objects.first()
+        context["field_list"] = [
+            'method_section',
+            'method_type',
+            'document_topic',
+            'author',
+            'publication_year',
+            'reference_number',
+            'publisher',
+            'form_link',
+        ]
         return context
 
 

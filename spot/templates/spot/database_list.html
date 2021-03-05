@@ -4,12 +4,9 @@
 {% load verbose_names %}
 {% load el_pagination_tags %}
 {% load i18n %}
-
-
 {% block content %}
 
     <style>
-
 
         table, td, th {
             font-size: small;
@@ -17,24 +14,26 @@
 
         #filter-form {
             font-size: small;
-            width: 75%;
+            width: 100%;
+        }
+        select,option{
+            font-size: x-small;
         }
 
         label {
             font-weight: bold;
         }
     </style>
-
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Database</li>
+            <li class="breadcrumb-item active" aria-current="page">Databases</li>
         </ol>
     </nav>
 
     <div class="container-fluid">
-        <!---
-        <h1 class="big-header">Objectives</h1>
+
+        <h1 class="big-header">Databases</h1>
         <p>TOTAL: {{ object_list.count }}</p>
 
         <form class="form" action="." method="get" id="filter-form">
@@ -44,18 +43,17 @@
                         {% bootstrap_field field placeholder="" size="small" %}
                     </div>
                 {% endfor %}
-                <div class="col-2">
+                <div class="col-1">
                     <br>
                     <input type="submit" value="Filter" class="btn btn-sm btn-warning">
                 </div>
             </div>
         </form>
-        --->
 
         <br>
 
 
-        {% paginate 100 filter.qs as filter_list %}
+        {% paginate 75 filter.qs as filter_list %}
 
 
         <div class="row">
@@ -76,9 +74,12 @@
             <thead>
             <tr>
                 {% for field in field_list %}
-                    <th scope="col">{% get_verbose_label my_object field %}</th>
+                    {% if field == "start_year" %}
+                        <th scope="col" style="width: 100px">{% get_verbose_label my_object field %}</th>
+                    {% else %}
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                    {% endif %}
                 {% endfor %}
-                <th scope="col">Address</th>
             </tr>
             </thead>
             <tbody>
@@ -86,11 +87,12 @@
                 {% url 'spot:data_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
-                        <td>{% get_field_value object field %}</td>
+                        {% if field == "status" %}
+                            <td style="background-color: {{ object.status.color }}">{% get_field_value object field %}</td>
+                        {% else %}
+                            <td>{% get_field_value object field %}</td>
+                        {% endif %}
                     {% endfor %}
-<!---
-                    <td>{{ object.full_address }}</td>
---->
                 </tr>
             {% endfor %}
             </tbody>
@@ -99,6 +101,5 @@
 
 
 
+
 {% endblock content %}
-
-
