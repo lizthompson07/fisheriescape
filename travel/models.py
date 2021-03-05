@@ -867,7 +867,7 @@ class Traveller(models.Model):
 
 
 class TravellerCost(models.Model):
-    traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"), blank=True, null=True)
+    traveller = models.ForeignKey(Traveller, on_delete=models.CASCADE, related_name="costs", verbose_name=_("traveller"))
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)
     number_of_days = models.FloatField(verbose_name=_("number of days"), blank=True, null=True)
@@ -908,7 +908,7 @@ class Reviewer(models.Model):
         (6, _("Expenditure Initiation")),
         (7, _("RDG (Expenditure Initiation)")), # this is temporary until RDG is actually looped into the process
     )
-    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers", blank=True, null=True)  # todo remove the non-null!!!!
+    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")  # todo remove the non-null!!!!
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.IntegerField(verbose_name=_("role"), choices=role_choices)

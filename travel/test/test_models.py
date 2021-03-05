@@ -401,3 +401,405 @@ class TestTripModel(CommonTest):
             'end_date',
         ]
         self.assert_mandatory_fields(models.Trip, fields_to_check)
+
+
+class TestTripRequestModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TripRequestFactory()
+
+    @tag('TripRequest', 'models', 'fields')
+    def test_fields(self):
+        fields_to_check = [
+            'uuid',
+            'section',
+            'trip',
+            'objective_of_event',
+            'benefit_to_dfo',
+            'late_justification',
+            'funding_source',
+            'notes',
+            'admin_notes',
+            'submitted',
+            'original_submission_date',
+            'status',
+            'fiscal_year',
+            'name_search',
+            'creator_search',
+            'created_by',
+            'created_at',
+            'updated_by',
+            'updated_at',
+        ]
+        self.assert_has_fields(models.TripRequest, fields_to_check)
+
+    @tag('TripRequest', 'models', 'props')
+    def test_props(self):
+        self.assert_has_props(models.TripRequest, [
+            'unsubmit',
+            'travellers_from_other_requests',
+            'travellers_from_other_regions',
+            'region',
+            'metadata',
+            'admin_notes_html',
+            'add_admin_note',
+            'request_title',
+            'reviewer_order_message',
+            'cost_breakdown',
+            'total_request_cost',
+            'total_non_dfo_funding',
+            'total_dfo_funding',
+            'total_non_dfo_funding_sources',
+            'traveller_count',
+            'current_reviewer',
+            'adm',
+            'expenditure_initiation',
+            'recommenders',
+            'processing_time',
+            'is_late_request',
+        ])
+
+    @tag('TripRequest', 'models', '12m')
+    def test_12m_trip(self):
+        # a `request` that is attached to a given `trip` should be accessible by the reverse name `requests`
+        trip = FactoryFloor.TripFactory()
+        my_instance = self.instance
+        my_instance.trip = trip
+        my_instance.save()
+        self.assertIn(my_instance, trip.requests.all())
+
+    @tag('TripRequest', 'models', 'm2m')
+    def test_m2m_bta_attendee(self):
+        # a `request` that is attached to a given `bta_attendee` should be accessible by the m2m field name `bta_attendees`
+        bta_attendee = FactoryFloor.UserFactory()
+        self.instance.bta_attendees.add(bta_attendee)
+        self.assertEqual(self.instance.bta_attendees.count(), 1)
+        self.assertIn(bta_attendee, self.instance.bta_attendees.all())
+
+    @tag('TripRequest', 'models', 'choices')
+    def test_choices_status(self):
+        actual_choices = (
+            (8, _("Draft")),
+            (17, _("Pending Review")),
+            (12, _("Pending Recommendation")),
+            (14, _("Pending ADM Approval")),
+            (15, _("Pending Expenditure Initiation")),
+            (16, _("Changes Requested")),
+            (10, _("Denied")),
+            (11, _("Approved")),
+            (22, _("Cancelled")),
+        )
+        expected_choices = [field.choices for field in models.TripRequest._meta.fields if field.name == "status"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('TripRequest', 'models', 'mandatory_fields')
+    def test_mandatory_fields(self):
+        fields_to_check = [
+            'trip',
+        ]
+        self.assert_mandatory_fields(models.TripRequest, fields_to_check)
+
+
+class TestTravellerModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TravellerFactory()
+
+    @tag('Traveller', 'models', 'fields')
+    def test_fields(self):
+        fields_to_check = [
+            'request',
+            'user',
+            'is_public_servant',
+            'is_research_scientist',
+            'first_name',
+            'last_name',
+            'address',
+            'phone',
+            'email',
+            'company_name',
+            'departure_location',
+            'start_date',
+            'end_date',
+            'role',
+            'role_of_participant',
+            'learning_plan',
+            'notes',
+            'non_dfo_costs',
+            'non_dfo_org',
+        ]
+        self.assert_has_fields(models.Traveller, fields_to_check)
+
+    @tag('Traveller', 'models', 'props')
+    def test_props(self):
+        self.assert_has_props(models.Traveller, [
+            'dates',
+            'long_role',
+            'cost_breakdown',
+            'cost_breakdown_html',
+            'non_dfo_costs_html',
+            'total_cost',
+            'total_non_dfo_funding',
+            'total_dfo_funding',
+            'purpose_long',
+            'purpose_long_text',
+            'smart_name',
+        ])
+
+    @tag('Traveller', 'models', '12m')
+    def test_12m_request(self):
+        # a `traveller` that is attached to a given `request` should be accessible by the reverse name `travellers`
+        request = FactoryFloor.TripRequestFactory()
+        my_instance = self.instance
+        my_instance.request = request
+        my_instance.save()
+        self.assertIn(my_instance, request.travellers.all())
+
+    @tag('Traveller', 'models', '12m')
+    def test_12m_user(self):
+        # a `traveller` that is attached to a given `user` should be accessible by the reverse name `travellers`
+        user = FactoryFloor.UserFactory()
+        my_instance = self.instance
+        my_instance.user = user
+        my_instance.save()
+        self.assertIn(my_instance, user.travellers.all())
+
+    @tag('Traveller', 'models', 'unique_together')
+    def test_unique_together(self):
+        expected_unique_together = (('user', 'request'),)
+        actual_unique_together = models.Traveller._meta.unique_together
+        self.assertEqual(expected_unique_together, actual_unique_together)
+
+    @tag('Traveller', 'models', 'mandatory_fields')
+    def test_mandatory_fields(self):
+        fields_to_check = ['request', ]
+        self.assert_mandatory_fields(models.Traveller, fields_to_check)
+
+
+class TestTravellerCostModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TravellerCostFactory()
+
+    @tag('TravellerCost', 'models', 'fields')
+    def test_fields(self):
+        fields_to_check = [
+            'traveller',
+            'cost',
+            'rate_cad',
+            'number_of_days',
+            'amount_cad',
+        ]
+        self.assert_has_fields(models.TravellerCost, fields_to_check)
+
+    @tag('TravellerCost', 'models', '12m')
+    def test_12m_traveller(self):
+        # a `cost` that is attached to a given `traveller` should be accessible by the reverse name `costs`
+        traveller = FactoryFloor.TravellerFactory()
+        my_instance = self.instance
+        my_instance.traveller = traveller
+        my_instance.save()
+        self.assertIn(my_instance, traveller.costs.all())
+
+    @tag('TravellerCost', 'models', '12m')
+    def test_12m_cost(self):
+        # a `cost` that is attached to a given `traveller` should be accessible by the reverse name `costs`
+        cost = models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)]
+        my_instance = self.instance
+        my_instance.cost = cost
+        my_instance.save()
+        self.assertIn(my_instance, cost.trip_request_costs.all())
+
+    @tag('TravellerCost', 'models', 'unique_together')
+    def test_unique_together(self):
+        expected_unique_together = (('traveller', 'cost'),)
+        actual_unique_together = models.TravellerCost._meta.unique_together
+        self.assertEqual(expected_unique_together, actual_unique_together)
+
+    @tag('TravellerCost', 'models', 'mandatory_fields')
+    def test_mandatory_fields(self):
+        fields_to_check = ['traveller', 'cost', ]
+        self.assert_mandatory_fields(models.TravellerCost, fields_to_check)
+
+
+class TestReviewerModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ReviewerFactory()
+
+    @tag('Reviewer', 'models', 'fields')
+    def test_fields(self):
+        fields_to_check = [
+            'request',
+            'order',
+            'user',
+            'role',
+            'status',
+            'status_date',
+            'comments',
+            'created_at',
+            'updated_by',
+            'updated_at',
+        ]
+        self.assert_has_fields(models.Reviewer, fields_to_check)
+
+    @tag('Reviewer', 'models', 'props')
+    def test_props(self):
+        self.assert_has_props(models.Reviewer, [
+            "metadata",
+            "comments_html",
+        ])
+
+    @tag('Reviewer', 'models', '12m')
+    def test_12m_request(self):
+        # a `reviewer` that is attached to a given `request` should be accessible by the reverse name `reviewers`
+        request = FactoryFloor.TripRequestFactory()
+        request = models.TripRequest.objects.all()[faker.random_int(0, models.TripRequest.objects.count() - 1)]
+        my_instance = self.instance
+        my_instance.request = request
+        my_instance.save()
+        self.assertIn(my_instance, request.reviewers.all())
+
+    @tag('Reviewer', 'models', '12m')
+    def test_12m_user(self):
+        # a `reviewer` that is attached to a given `user` should be accessible by the reverse name `reviewers`
+        user = FactoryFloor.UserFactory()
+        my_instance = self.instance
+        my_instance.user = user
+        my_instance.save()
+        self.assertIn(my_instance, user.reviewers.all())
+
+    @tag('Reviewer', 'models', 'choices')
+    def test_choices_status(self):
+        actual_choices = (
+            (4, _("Draft")),
+            (20, _("Queued")),
+            (1, _("Pending")),
+            (2, _("Approved")),
+            (3, _("Denied")),
+            (5, _("Cancelled")),
+            (21, _("Skipped")),
+        )
+        expected_choices = [field.choices for field in models.Reviewer._meta.fields if field.name == "status"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('Reviewer', 'models', 'choices')
+    def test_choices_role(self):
+        actual_choices = (
+            (1, _("Reviewer")),
+            (2, _("Recommender")),
+            (3, _("NCR Travel Coordinators")),
+            (4, _("ADM Recommender")),
+            (5, _("ADM")),
+            (6, _("Expenditure Initiation")),
+            (7, _("RDG (Expenditure Initiation)")),  # this is temporary until RDG is actually looped into the process
+        )
+        expected_choices = [field.choices for field in models.Reviewer._meta.fields if field.name == "role"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('Reviewer', 'models', 'mandatory_fields')
+    def test_mandatory_fields(self):
+        fields_to_check = [
+            'request',
+            'user',
+            'role',
+            'status',
+        ]
+        self.assert_mandatory_fields(models.Reviewer, fields_to_check)
+
+
+class TestTripReviewerModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TripReviewerFactory()
+
+    @tag('TripReviewer', 'models', 'fields')
+    def test_fields(self):
+        fields_to_check = [
+            'trip',
+            'order',
+            'user',
+            'role',
+            'status',
+            'status_date',
+            'comments',
+            'created_at',
+            'updated_by',
+            'updated_at',
+        ]
+        self.assert_has_fields(models.TripReviewer, fields_to_check)
+
+    @tag('TripReviewer', 'models', 'props')
+    def test_props(self):
+        self.assert_has_props(models.TripReviewer, ["comments_html", "metadata", ])
+
+    @tag('TripReviewer', 'models', '12m')
+    def test_12m_trip(self):
+        # a `reviewer` that is attached to a given `trip` should be accessible by the reverse name `reviewers`
+        trip = FactoryFloor.TripFactory()
+        my_instance = self.instance
+        my_instance.trip = trip
+        my_instance.save()
+        self.assertIn(my_instance, trip.reviewers.all())
+
+    @tag('TripReviewer', 'models', 'unique_together')
+    def test_unique_together(self):
+        expected_unique_together = (('trip', 'user', 'role',),)
+        actual_unique_together = models.TripReviewer._meta.unique_together
+        self.assertEqual(expected_unique_together, actual_unique_together)
+
+    @tag('TripReviewer', 'models', 'choices')
+    def test_choices_status(self):
+        actual_choices = (
+            (23, _("Draft")),
+            (24, _("Queued")),
+            (25, _("Pending")),
+            (26, _("Complete")),
+            (42, _("Skipped")),
+            (44, _("Cancelled")),
+        )
+        expected_choices = [field.choices for field in models.TripReviewer._meta.fields if field.name == "status"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('TripReviewer', 'models', 'choices')
+    def test_choices_role(self):
+        actual_choices = (
+            (1, _("Reviewer")),
+            (2, _("Recommender")),
+            (3, _("NCR Travel Coordinators")),
+            (4, _("ADM Recommender")),
+            (5, _("ADM")),
+            (6, _("RDG")),
+        )
+        expected_choices = [field.choices for field in models.TripReviewer._meta.fields if field.name == "role"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('TripReviewer', 'models', 'mandatory_fields')
+    def test_mandatory_fields(self):
+        fields_to_check = ['trip', 'user', 'role', 'status']
+        self.assert_mandatory_fields(models.TripReviewer, fields_to_check)
+
+
+class TestFileModel(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FileFactory()
+
+    @tag('File', 'models', 'fields')
+    def test_fields(self):
+        fields_to_check = [
+            'request',
+            'name',
+            'file',
+            'date_created',
+        ]
+        self.assert_has_fields(models.File, fields_to_check)
+
+    @tag('File', 'models', '12m')
+    def test_12m_request(self):
+        # a `file` that is attached to a given `request` should be accessible by the reverse name `files`
+        request = FactoryFloor.TripRequestFactory()
+        my_instance = self.instance
+        my_instance.request = request
+        my_instance.save()
+        self.assertIn(my_instance, request.files.all())

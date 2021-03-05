@@ -157,7 +157,7 @@ class FileFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.File
 
-    trip_request = factory.SubFactory(TripRequestFactory)
+    request = factory.SubFactory(TripRequestFactory)
     name = factory.lazy_attribute(lambda o: faker.word())
 
 
@@ -205,4 +205,21 @@ class RoleFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'name': faker.catch_phrase(),
+        }
+
+
+class TravellerCostFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TravellerCost
+
+    traveller = factory.SubFactory(TravellerFactory)
+    cost = factory.lazy_attribute(lambda o: models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)])
+    amount_cad = factory.lazy_attribute(lambda o: faker.pyint(1000, 5000))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'traveller': TravellerFactory().id,
+            'cost': models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)].id,
+            'amount_cad': faker.pyint(1000, 5000),
         }
