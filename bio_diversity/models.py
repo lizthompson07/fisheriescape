@@ -321,9 +321,9 @@ class ContainerXRef(BioModel):
 
 class Count(BioModel):
     # cnt tag
-    loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, verbose_name=_("Location"),
+    loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Location"),
                                related_name="counts")
-    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True,
+    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
                                  verbose_name=_("Container Cross Reference"))
     cntc_id = models.ForeignKey("CountCode", on_delete=models.CASCADE, verbose_name=_("Count Code"))
     spec_id = models.ForeignKey("SpeciesCode", on_delete=models.CASCADE, verbose_name=_("Species"))
@@ -661,6 +661,16 @@ class Group(BioModel):
             elif in_count > tank_out_set[tank]:
                 cont.append(tank)
         return cont
+
+    def fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
+        fish_count = 0
+
+        anix_qs = self.animal_details.filter(contx_id__counts__isnull=False)
+        contx_set = [anix.contx_id for anix in anix_qs]
+
+        return fish_count
+
+
 
 
 class GroupDet(BioDet):

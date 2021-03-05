@@ -102,6 +102,46 @@ def comment_parser(comment_str, anix_indv, det_date):
         anix_indv.indv_id.save()
 
 
+def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Number of Fish", est=False):
+    cnt = False
+    if not math.isnan(cnt_value):
+        cnt = models.Count(loc_id_id=loc_pk,
+                           contx_id_id=contx_pk,
+                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                           cntc_id=models.CountCode.objects.filter(name__iexact=cnt_code).get(),
+                           cnt=cnt_value,
+                           est=est,
+                           created_by=cleaned_data["created_by"],
+                           created_date=cleaned_data["created_date"],
+                           )
+        try:
+            cnt.clean()
+            cnt.save()
+        except ValidationError:
+            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, contx_id=cnt.contx_id, cntc_id=cnt.cntc_id).get()
+    return cnt
+
+
+def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, qual="Good"):
+    row_entered = False
+    if not math.isnan(det_val):
+        cntd = models.CountDet(cnt_id_id=cnt_pk,
+                               anidc_id=models.AnimalDetCode.objects.filter(
+                                   name__iexact=det_code).get(),
+                               det_val=det_val,
+                               qual_id=models.QualCode.objects.filter(name=qual).get(),
+                               created_by=cleaned_data["created_by"],
+                               created_date=cleaned_data["created_date"],
+                               )
+        try:
+            cntd.clean()
+            cntd.save()
+            row_entered = True
+        except ValidationError:
+            row_entered = False
+    return row_entered
+
+
 def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str, comments=None):
     row_entered = False
     if isinstance(det_value, float):

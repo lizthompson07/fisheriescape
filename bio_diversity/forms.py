@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
-    create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration
+    create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration, enter_cnt, enter_cnt_det
 
 
 class CreatePrams(forms.ModelForm):
@@ -274,69 +274,19 @@ class DataForm(CreatePrams):
                     if enter_env(row["temp"], row_datetime, cleaned_data, "Temperature", loc_id=loc,):
                         row_entered = True
 
-                    cnt = False
-                    if not math.isnan(row["# of salmon collected"]):
-                        cnt = models.Count(loc_id_id=loc.pk,
-                                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                           cntc_id=models.CountCode.objects.filter(name__iexact="Fish Caught").get(),
-                                           cnt=row["# of salmon collected"],
-                                           est=False,
-                                           created_by=cleaned_data["created_by"],
-                                           created_date=cleaned_data["created_date"],
-                                           )
-                        try:
-                            cnt.clean()
-                            cnt.save()
-                            row_entered = True
-                        except ValidationError:
-                            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id, cnt=cnt.cnt).get()
+                    cnt_caught = enter_cnt(cleaned_data, cnt_value=row["# of salmon collected"], loc_pk=loc.pk, cnt_code="Fish Caught" )
+                    cnt_obs = enter_cnt(cleaned_data, cnt_value=row["# of salmon observed"], loc_pk=loc.pk, cnt_code="Fish Observed" )
 
-                    elif not math.isnan(row["# of salmon observed"]):
-                        cnt = models.Count(loc_id_id=loc.pk,
-                                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                           cntc_id=models.CountCode.objects.filter(
-                                               name__iexact="Fish Observed").get(),
-                                           cnt=row["# of salmon observed"],
-                                           est=False,
-                                           created_by=cleaned_data["created_by"],
-                                           created_date=cleaned_data["created_date"],
-                                           )
-                        try:
-                            cnt.clean()
-                            cnt.save()
+                    if cnt_caught:
+                        if enter_cnt_det(cleaned_data, cnt_caught.pk, row["fishing seconds"], "Electrofishing Seconds"):
                             row_entered = True
-                        except ValidationError:
-                            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id, cnt=cnt.cnt).get()
-                    if cnt:
-                        if not math.isnan(row["fishing seconds"]):
-                            cntd = models.CountDet(cnt_id=cnt,
-                                                   anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Electrofishing Seconds").get(),
-                                                   det_val=row["fishing seconds"],
-                                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                   created_by=cleaned_data["created_by"],
-                                                   created_date=cleaned_data["created_date"],
-                                                   )
-                            try:
-                                cntd.clean()
-                                cntd.save()
-                                row_entered = True
-                            except ValidationError:
-                                pass
-
-                        if not math.isnan(row["Voltage"]):
-                            cntd = models.CountDet(cnt_id=cnt,
-                                                   anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Voltage").get(),
-                                                   det_val=row["Voltage"],
-                                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                   created_by=cleaned_data["created_by"],
-                                                   created_date=cleaned_data["created_date"],
-                                                   )
-                            try:
-                                cntd.clean()
-                                cntd.save()
-                                row_entered = True
-                            except ValidationError:
-                                pass
+                        if enter_cnt_det(cleaned_data, cnt_caught.pk, row["Voltage"], "Voltage"):
+                            row_entered = True
+                    if cnt_obs:
+                        if enter_cnt_det(cleaned_data, cnt_obs.pk, row["fishing seconds"], "Electrofishing Seconds"):
+                            row_entered = True
+                        if enter_cnt_det(cleaned_data, cnt_obs.pk, row["Voltage"], "Voltage"):
+                            row_entered = True
 
                 except Exception as err:
                     parsed = False
@@ -382,11 +332,9 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-                    first_row_date = datetime.strptime(data["Year"][0] + data["Month"][0] + data["Day"][0],
-                                                       "%Y%b%d").replace(tzinfo=pytz.UTC)
-                    enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# of salmon collected"].sum(), "Number of Fish")
+                    contx = enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
-                    enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
+                    enter_cnt(cleaned_data,  data["# of salmon collected"].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
 
                 except Exception as err:
                     log_data += "Error parsing common data: \n"
@@ -434,74 +382,19 @@ class DataForm(CreatePrams):
                     if enter_env(row["Temperature"], row_date, cleaned_data, "Temperature", loc_id=loc,):
                         row_entered = True
 
-                    cnt = False
-                    if not math.isnan(row["# Parr Collected"]):
-                        cnt = models.Count(loc_id_id=loc.pk,
-                                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                           cntc_id=models.CountCode.objects.filter(
-                                               name__iexact="Fish Caught").get(),
-                                           cnt=row["# Parr Collected"],
-                                           est=False,
-                                           created_by=cleaned_data["created_by"],
-                                           created_date=cleaned_data["created_date"],
-                                           )
-                        try:
-                            cnt.clean()
-                            cnt.save()
-                            row_entered = True
-                        except ValidationError:
-                            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id,
-                                                              cnt=cnt.cnt).get()
+                    cnt_caught = enter_cnt(cleaned_data, cnt_value=row["# Parr Collected"], loc_pk=loc.pk, cnt_code="Fish Caught" )
+                    cnt_obs = enter_cnt(cleaned_data, cnt_value=row["# Parr Observed"], loc_pk=loc.pk, cnt_code="Fish Observed" )
 
-                    elif not math.isnan(row["# Parr Observed"]):
-                        cnt = models.Count(loc_id_id=loc.pk,
-                                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                           cntc_id=models.CountCode.objects.filter(
-                                               name__iexact="Fish Observed").get(),
-                                           cnt=row["# Parr Observed"],
-                                           est=False,
-                                           created_by=cleaned_data["created_by"],
-                                           created_date=cleaned_data["created_date"],
-                                           )
-                        try:
-                            cnt.clean()
-                            cnt.save()
+                    if cnt_caught:
+                        if enter_cnt_det(cleaned_data, cnt_caught.pk, row["Fishing seconds"], "Electrofishing Seconds"):
                             row_entered = True
-                        except ValidationError:
-                            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, cntc_id=cnt.cntc_id,
-                                                              cnt=cnt.cnt).get()
-                    if cnt:
-                        if not math.isnan(row["Fishing seconds"]):
-                            cntd = models.CountDet(cnt_id=cnt,
-                                                   anidc_id=models.AnimalDetCode.objects.filter(
-                                                       name__iexact="Electrofishing Seconds").get(),
-                                                   det_val=row["Fishing seconds"],
-                                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                   created_by=cleaned_data["created_by"],
-                                                   created_date=cleaned_data["created_date"],
-                                                   )
-                            try:
-                                cntd.clean()
-                                cntd.save()
-                                row_entered = True
-                            except ValidationError:
-                                pass
-
-                        if not math.isnan(row["Voltage"]):
-                            cntd = models.CountDet(cnt_id=cnt,
-                                                   anidc_id=models.AnimalDetCode.objects.filter(
-                                                       name__iexact="Voltage").get(),
-                                                   det_val=row["Voltage"],
-                                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                   created_by=cleaned_data["created_by"],
-                                                   created_date=cleaned_data["created_date"],
-                                                   )
-                            try:
-                                cntd.clean()
-                                cntd.save()
-                                row_entered = True
-                            except ValidationError:
-                                pass
+                        if enter_cnt_det(cleaned_data, cnt_caught.pk, row["Voltage"], "Voltage"):
+                            row_entered = True
+                    if cnt_obs:
+                        if enter_cnt_det(cleaned_data, cnt_obs.pk, row["Fishing seconds"], "Electrofishing Seconds"):
+                            row_entered = True
+                        if enter_cnt_det(cleaned_data, cnt_obs.pk, row["Voltage"], "Voltage"):
+                            row_entered = True
 
                 except Exception as err:
                     parsed = False
@@ -547,10 +440,9 @@ class DataForm(CreatePrams):
                         anix_grp = anix_grp_qs.get()
                         grp = anix_grp.grp_id
 
-                    first_row_date = datetime.strptime(str(data["Year"][0])+str(data["Month"][0])+str(data["Day"][0]), "%Y%b%d").replace(tzinfo=pytz.UTC)
-                    enter_grpd(anix_grp.pk, cleaned_data, first_row_date, data["# Parr Collected"].sum(), "Number of Fish")
+                    contx = enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
-                    enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, False)
+                    enter_cnt(cleaned_data,  data["# Parr Collected"].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
 
                 except Exception as err:
                     log_data += "Error parsing common data: \n"

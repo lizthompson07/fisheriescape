@@ -666,6 +666,57 @@ class CommonDetails(DetailView):
         return context
 
 
+class CommonContDetails(CommonDetails):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        env_list = [env for contx in self.object.contxs.all() for env in contx.env_condition.all()]
+        env_field_list = ["envc_id", "envsc_id", "start_datetime", "env_val", ]
+        obj_mixin = mixins.EnvMixin
+        context["env_context_dict"] = {"div_title": "Environment Conditions",
+                                       "sub_model_key": obj_mixin.key,
+                                       "objects_list": env_list,
+                                       "field_list": env_field_list,
+                                       "single_object": obj_mixin.model.objects.first()}
+        cnt_list = [cnt for contx in self.object.contxs.all() for cnt in contx.counts.all()]
+        cnt_field_list = ["cntc_id", "cnt", "est"]
+        obj_mixin = mixins.CntMixin
+        context["cnt_context_dict"] = {"div_title": "Counts",
+                                       "sub_model_key": obj_mixin.key,
+                                       "objects_list": cnt_list,
+                                       "field_list": cnt_field_list,
+                                       "single_object": obj_mixin.model.objects.first()}
+
+        envt_list = [envt for contx in self.object.contxs.all() for envt in contx.env_treatment.all()]
+        envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str", "duration", ]
+        obj_mixin = mixins.EnvtMixin
+        context["envt_context_dict"] = {"div_title": "Container Treatments",
+                                        "sub_model_key": obj_mixin.key,
+                                        "objects_list": envt_list,
+                                        "field_list": envt_field_list,
+                                        "single_object": obj_mixin.model.objects.first()}
+
+        indv_list, grp_list = self.object.fish_in_cont()
+        indv_field_list = ["ufid", "pit_tag", "grp_id", ]
+        obj_mixin = mixins.IndvMixin
+        context["indv_context_dict"] = {"div_title": "Individuals in Container",
+                                        "sub_model_key": obj_mixin.key,
+                                        "objects_list": indv_list,
+                                        "field_list": indv_field_list,
+                                        "single_object": obj_mixin.model.objects.first()}
+
+        grp_field_list = ["stok_id", "coll_id", "spec_id", ]
+        obj_mixin = mixins.GrpMixin
+        context["grp_context_dict"] = {"div_title": "Groups in Container",
+                                       "sub_model_key": obj_mixin.key,
+                                       "objects_list": grp_list,
+                                       "field_list": grp_field_list,
+                                       "single_object": obj_mixin.model.objects.first()}
+
+        context["table_list"] = ["grp_cont", "indv_cont", "env", "envt", "cnt"]
+
+        return context
+
+
 class AnidcDetails(mixins.AnidcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "ani_subj_flag",
               "created_by", "created_date", ]
@@ -726,7 +777,7 @@ class CdscDetails(mixins.CdscMixin, CommonDetails):
     fields = ["contdc_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
-class CupDetails(mixins.CupMixin, CommonDetails):
+class CupDetails(mixins.CupMixin, CommonContDetails):
     fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
@@ -735,7 +786,7 @@ class CupdDetails(mixins.CupdMixin, CommonDetails):
               "created_by", "created_date", ]
 
 
-class DrawDetails(mixins.DrawMixin, CommonDetails):
+class DrawDetails(mixins.DrawMixin, CommonContDetails):
     fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
@@ -1300,50 +1351,8 @@ class SubrDetails(mixins.SubrMixin, CommonDetails):
     fields = ["name", "nom", "rive_id", "trib_id", "description_en", "description_fr", "created_by", "created_date", ]
 
 
-class TankDetails(mixins.TankMixin, CommonDetails):
+class TankDetails(mixins.TankMixin, CommonContDetails):
     fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        env_list = [env for contx in self.object.contxs.all() for env in contx.env_condition.all()]
-        env_field_list = ["envc_id", "envsc_id", "start_datetime", "env_val", ]
-        obj_mixin = mixins.EnvMixin
-        context["env_context_dict"] = {"div_title": "Environment Conditions",
-                                       "sub_model_key": obj_mixin.key,
-                                       "objects_list": env_list,
-                                       "field_list": env_field_list,
-                                       "single_object": obj_mixin.model.objects.first()}
-
-        envt_list = [envt for contx in self.object.contxs.all() for envt in contx.env_treatment.all()]
-        envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str", "duration", ]
-        obj_mixin = mixins.EnvtMixin
-        context["envt_context_dict"] = {"div_title": "Container Treatments",
-                                        "sub_model_key": obj_mixin.key,
-                                        "objects_list": envt_list,
-                                        "field_list": envt_field_list,
-                                        "single_object": obj_mixin.model.objects.first()}
-
-        indv_list, grp_list = self.object.fish_in_cont()
-        indv_field_list = ["ufid", "pit_tag", "grp_id", ]
-        obj_mixin = mixins.IndvMixin
-        context["indv_context_dict"] = {"div_title": "Individuals in Container",
-                                        "sub_model_key": obj_mixin.key,
-                                        "objects_list": indv_list,
-                                        "field_list": indv_field_list,
-                                        "single_object": obj_mixin.model.objects.first()}
-
-        grp_field_list = ["stok_id", "coll_id", "spec_id", ]
-        obj_mixin = mixins.GrpMixin
-        context["grp_context_dict"] = {"div_title": "Groups in Container",
-                                       "sub_model_key": obj_mixin.key,
-                                       "objects_list": grp_list,
-                                       "field_list": grp_field_list,
-                                       "single_object": obj_mixin.model.objects.first()}
-
-        context["table_list"] = ["grp_cont", "indv_cont", "env", "envt"]
-
-        return context
-
 
 class TankdDetails(mixins.TankdMixin, CommonDetails):
     fields = ["tank_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
@@ -1367,52 +1376,9 @@ class TribDetails(mixins.TribMixin, CommonDetails):
     fields = ["name", "nom", "rive_id", "description_en", "description_fr", "created_by", "created_date", ]
 
 
-class TrofDetails(mixins.TrofMixin, CommonDetails):
+class TrofDetails(mixins.TrofMixin, CommonContDetails):
 
     fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["table_list"] = ["grp_cont", "indv_cont", "env", "envt"]
-
-        context = super().get_context_data(**kwargs)
-        env_list = [env for contx in self.object.contxs.all() for env in contx.env_condition.all()]
-        env_field_list = ["envc_id", "envsc_id", "start_datetime", "env_val", ]
-        obj_mixin = mixins.EnvMixin
-        context["env_context_dict"] = {"div_title": "Environment Conditions",
-                                       "sub_model_key": obj_mixin.key,
-                                       "objects_list": env_list,
-                                       "field_list": env_field_list,
-                                       "single_object": obj_mixin.model.objects.first()}
-
-        envt_list = [envt for contx in self.object.contxs.all() for envt in contx.env_treatment.all()]
-        envt_field_list = ["envtc_id", "amt", "unit_id", "duration", ]
-        obj_mixin = mixins.EnvtMixin
-        context["envt_context_dict"] = {"div_title": "Container Treatments",
-                                        "sub_model_key": obj_mixin.key,
-                                        "objects_list": envt_list,
-                                        "field_list": envt_field_list,
-                                        "single_object": obj_mixin.model.objects.first()}
-
-        indv_list, grp_list = self.object.fish_in_cont()
-        indv_field_list = ["ufid", "pit_tag", "grp_id", ]
-        obj_mixin = mixins.IndvMixin
-        context["indv_context_dict"] = {"div_title": "Individuals in Container",
-                                        "sub_model_key": obj_mixin.key,
-                                        "objects_list": indv_list,
-                                        "field_list": indv_field_list,
-                                        "single_object": obj_mixin.model.objects.first()}
-
-        grp_field_list = ["stok_id", "coll_id", "spec_id", ]
-        obj_mixin = mixins.GrpMixin
-        context["grp_context_dict"] = {"div_title": "Groups in Container",
-                                       "sub_model_key": obj_mixin.key,
-                                       "objects_list": grp_list,
-                                       "field_list": grp_field_list,
-                                       "single_object": obj_mixin.model.objects.first()}
-
-
-        return context
 
 
 class TrofdDetails(mixins.TrofdMixin, CommonDetails):
