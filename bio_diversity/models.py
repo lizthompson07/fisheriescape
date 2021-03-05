@@ -666,7 +666,17 @@ class Group(BioModel):
         fish_count = 0
 
         anix_qs = self.animal_details.filter(contx_id__counts__isnull=False)
-        contx_set = [anix.contx_id for anix in anix_qs]
+        cnt_qs_list = [anix.contx_id.counts.all() for anix in anix_qs]
+
+        add_codes = ["Fish in Container", ]
+        subtract_codes = ["Mortality", "Pit Tagged"]
+
+        for qs in cnt_qs_list:
+            for cnt in qs:
+                if cnt.cntc_id.name in add_codes:
+                    fish_count += cnt.cnt
+                elif cnt.cntc_id.name in subtract_codes:
+                    fish_count -= cnt.cnt
 
         return fish_count
 
