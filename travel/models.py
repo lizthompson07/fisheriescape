@@ -109,6 +109,10 @@ class FAQ(models.Model):
     question_fr = models.TextField(blank=True, null=True, verbose_name=_("question (fr)"))
     answer_en = models.TextField(blank=True, null=True, verbose_name=_("answer (en)"))
     answer_fr = models.TextField(blank=True, null=True, verbose_name=_("answer (fr)"))
+    order = models.IntegerField(blank=True, null=True, verbose_name=_("display order"))
+
+    class Meta:
+        ordering = ['order', "id"]
 
     @property
     def tquestion(self):
@@ -476,13 +480,13 @@ class Trip(models.Model):
 class TripRequest(models.Model):
     status_choices = (
         (8, _("Draft")),
-        (10, _("Denied")),
-        (11, _("Approved")),
+        (17, _("Pending Review")),
         (12, _("Pending Recommendation")),
         (14, _("Pending ADM Approval")),
         (15, _("Pending Expenditure Initiation")),
         (16, _("Changes Requested")),
-        (17, _("Pending Review")),
+        (10, _("Denied")),
+        (11, _("Approved")),
         (22, _("Cancelled")),
     )
     uuid = models.UUIDField(blank=True, null=True, verbose_name="unique identifier", editable=False)
@@ -887,12 +891,12 @@ class TravellerCost(models.Model):
 
 class Reviewer(models.Model):
     status_choices = (
+        (4, _("Draft")),
+        (20, _("Queued")),
         (1, _("Pending")),
         (2, _("Approved")),
         (3, _("Denied")),
-        (4, _("Draft")),
         (5, _("Cancelled")),
-        (20, _("Queued")),
         (21, _("Skipped")),
     )
     role_choices = (

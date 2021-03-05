@@ -126,7 +126,7 @@ class ReviewerFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     role = factory.lazy_attribute(lambda o: models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0])
     status = factory.lazy_attribute(lambda o: models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0])
-    order = factory.lazy_attribute(lambda o: faker.pyint(1,10))
+    order = factory.lazy_attribute(lambda o: faker.pyint(1, 10))
 
     @staticmethod
     def get_valid_data():
@@ -159,3 +159,50 @@ class FileFactory(factory.django.DjangoModelFactory):
 
     trip_request = factory.SubFactory(TripRequestFactory)
     name = factory.lazy_attribute(lambda o: faker.word())
+
+
+class ProcessStepFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ProcessStep
+
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    stage = factory.lazy_attribute(lambda o: faker.pyint(0, 2))
+    is_visible = factory.lazy_attribute(lambda o: faker.pybool())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.catch_phrase(),
+            'description_en': faker.text(),
+            'stage': faker.pyint(1, 100),
+            'is_visible': faker.pybool(),
+        }
+
+
+class FAQFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.FAQ
+
+    question_en = factory.lazy_attribute(lambda o: faker.text())
+    answer_en = factory.lazy_attribute(lambda o: faker.text())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'question_en': faker.text(),
+            'answer_en': faker.text(),
+        }
+
+
+class RoleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Role
+
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.catch_phrase(),
+        }
