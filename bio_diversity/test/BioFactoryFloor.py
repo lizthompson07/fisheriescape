@@ -1640,6 +1640,7 @@ class PairFactory(factory.django.DjangoModelFactory):
 
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
     prio_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PrioFactory")
+    pair_prio_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PrioFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
     valid = True
@@ -1652,12 +1653,14 @@ class PairFactory(factory.django.DjangoModelFactory):
 
         indv = IndvFactory()
         prio = PrioFactory()
+        pair_prio = PrioFactory()
         obj = PairFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'indv_id': indv.pk,
             'prio_id': prio.pk,
+            'pair_prio_id': pair_prio.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
             'valid': True,

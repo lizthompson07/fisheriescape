@@ -932,7 +932,9 @@ class DataForm(CreatePrams):
                     prio_dict = {"H": "High", "M": "Normal", "P": "Low"}
                     pair = models.Pairing(start_date=row_date,
                                           prio_id=models.PriorityCode.objects.filter(
-                                              name__iexact=prio_dict[row["Pri..1"]]).get(),
+                                              name__iexact=prio_dict[row["Pri."]]).get(),
+                                          pair_prio_id=models.PriorityCode.objects.filter(
+                                              name__iexact=prio_dict[row["Pri..2"]]).get(),
                                           valid=True,
                                           indv_id=indv_female,
                                           comments=row["Comment"],
@@ -1105,7 +1107,9 @@ class DataForm(CreatePrams):
                     prio_dict = {"H": "High", "M": "Normal", "P": "Low"}
                     pair = models.Pairing(start_date=row_date,
                                           prio_id=models.PriorityCode.objects.filter(
-                                              name__iexact=prio_dict[row["Pri..1"]]).get(),
+                                              name__iexact=prio_dict[row["Pri."]]).get(),
+                                          pair_prio_id=models.PriorityCode.objects.filter(
+                                              name__iexact=prio_dict[row["Pri..2"]]).get(),
                                           valid=True,
                                           indv_id=indv_female,
                                           comments=row["Comment"],

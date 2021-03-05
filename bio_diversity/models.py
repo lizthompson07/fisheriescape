@@ -874,7 +874,10 @@ class Individual(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
+        if self.pit_tag:
+            return "{}-{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__(), self.pit_tag)
+        else:
+            return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
     def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         cont = []
@@ -1115,10 +1118,11 @@ class Pairing(BioDateModel):
     # pair tag
     indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"),
                                 limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings")
-    prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority"))
+    prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Female"), related_name="female_priorities")
+    pair_prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Pair"), related_name="pair_priorities")
 
     def __str__(self):
-        return "Pair: {}-{}".format(self.indv_id.__str__(), self.start_date)
+        return "{}".format(self.indv_id.__str__())
 
     class Meta:
         constraints = [
@@ -1325,7 +1329,7 @@ class Sire(BioModel):
     prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority"))
     pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, verbose_name=_("Pairing"), related_name="sires",
                                 limit_choices_to={'valid': True})
-    indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Sire UFID"),
+    indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Sire"),
                                 limit_choices_to={'pit_tag__isnull':  False, 'indv_valid': True}, related_name="sires")
     choice = models.IntegerField(verbose_name=_("Choice"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
