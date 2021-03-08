@@ -524,6 +524,21 @@ class TripRequest(models.Model):
         # reset all the reviewer statuses
         utils.end_request_review_process(self)
 
+    def submit(self):
+        self.submitted = timezone.now()
+        # if there is not an original submission date, add one
+        if not self.original_submission_date:
+            self.original_submission_date = timezone.now()
+        # if the request is being resubmitted, this is a special case...
+        if self.status == 16:
+            self.status = 8  # it doesn't really matter what we set the status to. The approval_seeker func will handle this
+            self.save()
+        else:
+            # set all the reviewer statuses to 'queued'
+            self.save()
+            utils.start_request_review_process(self)
+
+
     @property
     def travellers_from_other_requests(self):
         """ get traveller from other requests, but limited to the same region as this request"""

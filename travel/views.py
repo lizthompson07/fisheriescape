@@ -379,18 +379,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
                     reviewer.save()
 
             #  SUBMIT REQUEST
-            my_object.submitted = timezone.now()
-            # if there is not an original submission date, add one
-            if not my_object.original_submission_date:
-                my_object.original_submission_date = timezone.now()
-            # if the request is being resubmitted, this is a special case...
-            if my_object.status == 16:
-                my_object.status = 8  # it doesn't really matter what we set the status to. The approval_seeker func will handle this
-                my_object.save()
-            else:
-                # set all the reviewer statuses to 'queued'
-                utils.start_request_review_process(my_object)
-                # go and get approvals!!
+            my_object.submit()
 
             # clean up any unused cost categories
             for traveller in my_object.travellers.all():
@@ -398,7 +387,6 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
 
         # No matter what business was done, we will call this function to sort through reviewer and request statuses
         utils.approval_seeker(my_object, False, self.request)
-        my_object.save()
 
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
 
