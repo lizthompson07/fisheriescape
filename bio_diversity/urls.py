@@ -327,6 +327,9 @@ urlpatterns = [
     path('list/relc/', views.RelcList.as_view(), name="list_relc"),
     path('update/relc/<int:pk>/', views.RelcUpdate.as_view(), name="update_relc"),
     
+    path('create/repr/', views.ReportFormView.as_view(), name="create_repr"),
+    path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
+
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
     path('list/rive/', views.RiveList.as_view(), name="list_rive"),

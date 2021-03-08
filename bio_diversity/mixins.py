@@ -450,6 +450,13 @@ class RelcMixin:
     admin_only = True
 
 
+class ReportMixin:
+    key = 'repr'
+    form_class = forms.ReportForm
+    title = _("Reports")
+    admin_only = False
+
+
 class RiveMixin:
     key = 'rive'
     model = models.RiverCode

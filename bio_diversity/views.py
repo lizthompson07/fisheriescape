@@ -1,14 +1,18 @@
+import os
+
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
     CommonFormsetView, CommonHardDeleteView, CommonFormView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django import forms
 from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
 from django.forms.models import model_to_dict
-from . import mixins, filters, utils, models
+from . import mixins, filters, utils, models, reports
 from datetime import date
 from django.utils.translation import gettext_lazy as _
 
@@ -2374,5 +2378,46 @@ class MortFormView(mixins.MortMixin, UserPassesTestMixin, CommonFormView):
         return super().form_valid(form)
 
 
+class ReportFormView(mixins.ReportMixin, UserPassesTestMixin, CommonFormView):
+    template_name = 'shared_models/shared_entry_form.html'
+
+    nav_menu = 'bio_diversity/bio_diversity_nav.html'
+    site_css = 'bio_diversity/bio_diversity.css'
+    home_url_name = "bio_diversity:index"
+    h1 = _("Facility Reports")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        facic_pk = int(form.cleaned_data["facic_id"].pk)
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("projects2:reports"))
+
+    # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
+    def test_func(self):
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
 
 
+@login_required()
+def facility_tank_report(request):
+    facic_pk = request.GET.get("facic_pk")
+    if facic_pk:
+        file_url = reports.generate_facility_tank_report(facic_pk)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps facility tank report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+
+            return response
+    raise Http404

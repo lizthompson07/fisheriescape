@@ -884,19 +884,20 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    fecu_est = models.SpawnDet(pair_id=pair,
-                                               spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
-                                               det_val=int(row["Exp. #"]),
-                                               qual_id=models.QualCode.objects.filter(name="Calculated").get(),
-                                               created_by=cleaned_data["created_by"],
-                                               created_date=cleaned_data["created_date"],
-                                               )
-                    try:
-                        fecu_est.clean()
-                        fecu_est.save()
-                        row_entered = True
-                    except ValidationError:
-                        pass
+                    if int(row["Exp. #"]):
+                        fecu_est = models.SpawnDet(pair_id=pair,
+                                                   spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
+                                                   det_val=int(row["Exp. #"]),
+                                                   qual_id=models.QualCode.objects.filter(name="Calculated").get(),
+                                                   created_by=cleaned_data["created_by"],
+                                                   created_date=cleaned_data["created_date"],
+                                                   )
+                        try:
+                            fecu_est.clean()
+                            fecu_est.save()
+                            row_entered = True
+                        except ValidationError:
+                            pass
 
                     # grp
                     anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
@@ -1636,6 +1637,21 @@ class RelcForm(CreatePrams):
     class Meta:
         model = models.ReleaseSiteCode
         exclude = []
+
+
+class ReportForm(forms.Form):
+    class Meta:
+        model = models.ReleaseSiteCode
+        exclude = []
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "Facility Tanks Report (xlsx)"),
+    )
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    facic_id = forms.ModelChoiceField(required=True,
+                                      queryset=models.FacilityCode.objects.all(),
+                                      label=_("Facility"))
+
 
 
 class RiveForm(CreatePrams):
