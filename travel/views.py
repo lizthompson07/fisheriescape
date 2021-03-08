@@ -33,7 +33,7 @@ from . import models
 from . import reports
 from . import utils
 from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin
-from .utils import in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver, is_manager_or_assistant_or_admin
+from .utils import in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver, is_manager_or_assistant_or_admin, is_admin
 
 
 def get_file(request, file):
@@ -487,11 +487,14 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
 
     def get_h1(self):
         if self.request.GET.get("rdg"):
-            return _("Do you wish to approve on behalf of {user} ({role})".format(
+            return _("Do you wish to approve on behalf of {user}".format(
                 user=self.get_object().user,
-                role=self.get_object().get_role_display(),
             ))
         return _("Do you wish to approve the following request?")
+
+    def get_h2(self):
+        if self.request.GET.get("rdg"):
+            return f"<span class='highlight py-1 px-1'>{self.get_object().get_role_display()}</span>"
 
     def get_parent_crumb(self):
         return {"title": _("Requests Awaiting Review"), "url": reverse("travel:request_reviewer_list") + self.get_query_string()}
@@ -502,7 +505,7 @@ class RequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
         my_user = self.request.user
         # if this is an rdg approval, then we make sure it is a travel admin
         if self.request.GET.get("rdg"):
-            return in_travel_admin_group(my_user) and reviewer.role == 6
+            return in_travel_admin_group(my_user) and reviewer.role == 7
         # otherwise we make sure that this person is the current reviewer
         else:
             return is_approver(my_user, my_trip_request)
