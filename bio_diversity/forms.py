@@ -884,6 +884,7 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
+                    # check for dud (fecu = 0)
                     if int(row["Exp. #"]):
                         fecu_est = models.SpawnDet(pair_id=pair,
                                                    spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
@@ -1060,19 +1061,21 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    fecu_est = models.SpawnDet(pair_id=pair,
-                                               spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
-                                               det_val=int(row["Exp. #"]),
-                                               qual_id=models.QualCode.objects.filter(name="Calculated").get(),
-                                               created_by=cleaned_data["created_by"],
-                                               created_date=cleaned_data["created_date"],
-                                               )
-                    try:
-                        fecu_est.clean()
-                        fecu_est.save()
-                        row_entered = True
-                    except ValidationError:
-                        pass
+                    # check for dud (fecu = 0)
+                    if int(row["Exp #"]):
+                        fecu_est = models.SpawnDet(pair_id=pair,
+                                                   spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
+                                                   det_val=int(row["Exp. #"]),
+                                                   qual_id=models.QualCode.objects.filter(name="Calculated").get(),
+                                                   created_by=cleaned_data["created_by"],
+                                                   created_date=cleaned_data["created_date"],
+                                                   )
+                        try:
+                            fecu_est.clean()
+                            fecu_est.save()
+                            row_entered = True
+                        except ValidationError:
+                            pass
 
                     # grp
                     anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],

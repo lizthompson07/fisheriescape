@@ -12,7 +12,8 @@ def generate_facility_tank_report(facic_id):
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
 
-    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates", "facility_tank_template.xlsx")
+    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
+                                      "facility_tank_template.xlsx")
 
     facic = models.FacilityCode.objects.filter(pk=facic_id).get()
 
