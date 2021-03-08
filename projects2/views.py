@@ -1372,7 +1372,7 @@ def export_capital_request_costs(request):
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="test.csv"'.format(year, region_name, section_name)
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_capital_request_costs.csv"'.format(year, region_name)
 
     writer = csv.writer(response)
     writer.writerow(['Project ID', 'Project Name', 'Theme', 'Capital Cost', 'Amount'])
