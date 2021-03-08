@@ -5,7 +5,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'trips', views.TripViewSet)  # tested
-router.register(r'requests', views.RequestViewSet)
+router.register(r'requests', views.RequestViewSet)   # tested
 router.register(r'travellers', views.TravellerViewSet)
 router.register(r'request-reviewers', views.ReviewerViewSet)
 router.register(r'trip-reviewers', views.TripReviewerViewSet)

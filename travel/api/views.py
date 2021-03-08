@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets, filters
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -75,9 +75,9 @@ class TripViewSet(viewsets.ModelViewSet):
                 else:
                     raise ValidationError(_("This function can only be used with an unreviewed trip."))
             else:
-                return Response(_("You do not have the permissions to reset the reviewer list"), status.HTTP_403_FORBIDDEN)
+                raise PermissionDenied(_("You do not have the permissions to reset the reviewer list"))
             return Response(None, status.HTTP_204_NO_CONTENT)
-        return Response(_("You do not have the permissions to reset the reviewer list"), status.HTTP_403_FORBIDDEN)
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
 
     def get_queryset(self):
         if self.kwargs.get("pk"):
@@ -135,8 +135,10 @@ class RequestViewSet(viewsets.ModelViewSet):
                 else:
                     raise ValidationError(_("This function can only be used when the trip request is still a draft"))
             else:
-                raise ValidationError(_("You do not have the permissions to reset the reviewer list"))
+                raise PermissionDenied(_("You do not have the permissions to reset the reviewer list"))
             return Response(None, status.HTTP_204_NO_CONTENT)
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
 
     def get_queryset(self):
         # if someone is looking for a specific object...
@@ -156,6 +158,8 @@ class RequestViewSet(viewsets.ModelViewSet):
 
             if can_proceed:
                 return models.TripRequest.objects.filter(pk=self.kwargs.get("pk"))
+            else:
+                raise PermissionDenied(_("You do not have the permissions to view this request."))
         else:
             qp = self.request.query_params
             if qp.get("all") and utils.is_manager_or_assistant_or_admin(self.request.user):
@@ -168,11 +172,10 @@ class RequestViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
+        serializer.save(updated_by=self.request.user)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = serializers.TripRequestSerializerLITE(page, many=True)
