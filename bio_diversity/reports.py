@@ -1,7 +1,6 @@
 import os
 
 from openpyxl import load_workbook
-
 from bio_diversity import models
 from dm_apps import settings
 
@@ -38,6 +37,20 @@ def generate_facility_tank_report(facic_id):
     for item in qs:
 
         ws['A' + str(row_count)].value = item.name
+
+        cnt = 0
+        year_coll_set = set()
+        indv_list, grp_list = item.fish_in_cont()
+        if indv_list:
+            ws['B' + str(row_count)].value = "Y"
+            cnt += len(indv_list)
+            year_coll_set |= set([indv.stok_year_coll_str() for indv in indv_list])
+        if grp_list:
+            for grp in grp_list:
+                cnt += grp.fish_in_group()
+                year_coll_set |= {grp.__str__()}
+        ws['C' + str(row_count)].value = cnt
+        ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
 
         row_count += 1
 

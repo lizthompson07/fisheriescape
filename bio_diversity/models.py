@@ -897,6 +897,9 @@ class Individual(BioModel):
         else:
             return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
+    def stok_year_coll_str(self):
+        return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
+
     def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         cont = []
 
