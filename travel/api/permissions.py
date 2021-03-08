@@ -10,7 +10,7 @@ from rest_framework import permissions
 #     def has_object_permission(self, request, view, obj):
 #         return request.user.profile.oceanography
 #
-from travel.utils import can_modify_request, is_admin
+from travel.utils import can_modify_request, is_admin, in_adm_admin_group
 
 
 # from ..utils import can_modify_project
@@ -43,5 +43,9 @@ class TravelAdminOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS and request.user.id:
             return True
         else:
-            return is_admin(request.user)
+            if not obj.is_adm_approval_required:
+                return is_admin(request.user)
+            else:
+                return in_adm_admin_group(request.user)
+
 

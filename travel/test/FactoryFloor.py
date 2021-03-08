@@ -48,6 +48,7 @@ class TripFactory(factory.django.DjangoModelFactory):
     trip_subcategory = factory.lazy_attribute(lambda o: models.TripSubcategory.objects.all()[faker.random_int(0, models.TripSubcategory.objects.count() - 1)])
     name = factory.lazy_attribute(lambda o: faker.catch_phrase())
     location = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    is_adm_approval_required = factory.lazy_attribute(lambda o: faker.pybool())
     start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
     lead = factory.SubFactory(RegionFactory)

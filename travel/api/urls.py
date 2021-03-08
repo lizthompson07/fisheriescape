@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r'trips', views.TripViewSet)
+router.register(r'trips', views.TripViewSet)  # tested
 router.register(r'requests', views.RequestViewSet)
 router.register(r'travellers', views.TravellerViewSet)
 router.register(r'request-reviewers', views.ReviewerViewSet)

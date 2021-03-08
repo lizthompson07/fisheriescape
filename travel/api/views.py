@@ -108,9 +108,6 @@ class TripViewSet(viewsets.ModelViewSet):
         serializer = serializers.TripSerializerLITE(queryset, many=True)
         return Response(serializer.data)
 
-    # def perform_create(self, serializer):
-    #     serializer.save(last_modified_by=self.request.user)
-
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
 
@@ -146,12 +143,14 @@ class RequestViewSet(viewsets.ModelViewSet):
         if self.kwargs.get("pk"):
             my_request = get_object_or_404(models.TripRequest, pk=self.kwargs.get("pk"))
             related_ids = [r.id for r in utils.get_related_requests(self.request.user)]
-
+            # they can proceed if: 1) can modify func returns true
             can_proceed = False
             if utils.can_modify_request(self.request.user, self.kwargs.get("pk")):
                 can_proceed = True
+            # if: 2) this request is connected to them
             elif int(self.kwargs.get("pk")) in related_ids:
                 can_proceed = True
+            # if: 3) this request fall under their managerial purview
             elif my_request in utils.get_requests_with_managerial_access(self.request.user):
                 can_proceed = True
 
