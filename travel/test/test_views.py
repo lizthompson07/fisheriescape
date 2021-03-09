@@ -166,7 +166,6 @@ class TestIndexTemplateView(CommonTest):
         context_vars = [
             "processes",
             "information_sections",
-            "faqs",
             "refs",
             "is_admin",
             "is_adm_admin",
