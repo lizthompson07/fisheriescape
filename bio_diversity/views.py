@@ -1107,6 +1107,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
         anix_set = self.object.animal_details.filter(pair_id__isnull=False)
         pair_list = list(dict.fromkeys([anix.pair_id for anix in anix_set]))
+        pair_list.extend([pair for pair in self.object.pairings.all()])
         pair_field_list = ["start_date", "indv_id", "prio_id"]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{} Details".format(obj_mixin.title),
