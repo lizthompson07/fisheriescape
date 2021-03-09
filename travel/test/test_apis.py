@@ -822,7 +822,7 @@ class TestTripReviewerAPIViewSet(CommonTest):
         # authenticated users
 
         users = [self.admin_user, self.adm_admin_user]
-        self.get_and_login_user(user=users[faker.pyint(0, 2)])
+        self.get_and_login_user(user=users[faker.pyint(0, 1)])
         data_dict = FactoryFloor.TripReviewerFactory.get_valid_data()
         data_dict["trip"] = self.instance.trip.id
         data_dict["role"] = 1
@@ -982,8 +982,8 @@ class TestFileAPIViewSet(CommonTest):
 
     @tag("api", 'request')
     def test_url(self):
-        self.assert_correct_url("file-list", test_url_args=None, expected_url_path=f"/api/travel/files/")
-        self.assert_correct_url("file-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/files/{self.instance.pk}/")
+        self.assert_correct_url("file-list", test_url_args=None, expected_url_path=f"/api/travel/request-files/")
+        self.assert_correct_url("file-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/request-files/{self.instance.pk}/")
 
     @tag("api", 'request')
     def test_get(self):
@@ -1004,9 +1004,9 @@ class TestFileAPIViewSet(CommonTest):
         response = self.client.get(self.test_list_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+
     @tag("api", 'request')
     def test_post(self):
-        """ this is a loaded method... """
 
         # PERMISSIONS
         # authenticated users
@@ -1015,8 +1015,6 @@ class TestFileAPIViewSet(CommonTest):
         self.get_and_login_user(user=users[faker.pyint(0, 2)])
         data_dict = FactoryFloor.FileFactory.get_valid_data()
         data_dict["request"] = self.instance.request.id
-        data_dict["start_date"] = self.instance.request.trip.start_date.strftime("%Y-%m-%d %H:%M")
-        data_dict["end_date"] = self.instance.request.trip.end_date.strftime("%Y-%m-%d %H:%M")
         data_json = json.dumps(data_dict)
         response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -1029,108 +1027,15 @@ class TestFileAPIViewSet(CommonTest):
         response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # SPECIAL OPERATIONS:
-        # populate all costs
-        file = self.instance
-        request = file.request
-
-        # these do not have to be anyone in particular.
-        self.get_and_login_user()
-        self.assertTrue(file.costs.count() == 0)
-        response = self.client.post(f'{self.test_detail_url}?populate_all_costs=true')
-        self.assertTrue(file.costs.count() > 1)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # clear_empty_costs
-        cost = file.costs.first()
-        cost.amount_cad = 100
-        cost.save()
-        response = self.client.post(f'{self.test_detail_url}?clear_empty_costs=true')
-        self.assertTrue(file.costs.count() == 1)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-        # CHERRY PICKING --> while this is a util, we will test the func here out of
-        # convenience since the func requires a wsgi request object.
-
-        # first let's make sure it is only adm who can access this view:
-        bad_users = [self.adm_admin_user, self.admin_user, file.user]
-        adm1 = UserFactory()
-        national_branch, created = Region.objects.get_or_create(name="national")
-        national_branch.head = adm1
-        national_branch.save()
-        adm2 = UserFactory()
-        models.DefaultReviewer.objects.get_or_create(user=adm2, special_role=5)
-        good_users = [adm1, adm2]
-        bad_user = bad_users[faker.pyint(0, len(bad_users) - 1)]
-        good_user = good_users[faker.pyint(0, len(good_users) - 1)]
-        self.get_and_login_user(user=bad_user)
-        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.get_and_login_user(user=good_user)
-        self.assertNotEqual(request.status, 14)
-        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
-        # we are expecting a 400 since the trip request is not in the correct status
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        # set the status of the trip to PENDING ADM and make sure there is a current reviewer ready to go
-        request.status = 14
-        request.save()
-        reviewer = FactoryFloor.ReviewerFactory(request=request, status=1)
-        self.assertEqual(request.current_reviewer, reviewer)
-        # We have to test two scenarios. 1) single file request 2) group request
-        # SCENARIO 1:
-        self.assertEqual(request.files.count(), 1)
-        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # check the status of the reviewer
-        reviewer = get_object_or_404(models.Reviewer, pk=reviewer.pk)
-        self.assertEqual(reviewer.status, 2)
-        self.assertIn("approved", reviewer.comments.lower())
-        self.assertIsNotNone(reviewer.status_date)
-
-        # SCENARIO 2:
-        file = FactoryFloor.FileFactory()
-        self.test_detail_url = reverse("file-detail", args=[file.pk])
-        request = file.request
-        request.status = 14
-        request.save()
-        self.assertIn(file, request.files.all())
-        for i in range(0, 10):
-            FactoryFloor.FileFactory(request=request)
-        reviewer1 = FactoryFloor.ReviewerFactory(request=request, status=1)
-        my_comment = faker.text()
-        reviewer2 = FactoryFloor.ReviewerFactory(request=request, status=2, comments=my_comment)
-        self.assertEqual(request.current_reviewer, reviewer1)
-        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # refresh the file
-        file = get_object_or_404(models.File, pk=file.pk)
-
-        # now here is where things get a bit complicated
-        # the original request has been cloned and the file moved to the new request
-        self.assertNotIn(file, request.files.all())
-        self.assertIn(file, file.request.files.all())
-        self.assertEqual(file.request.files.count(), 1)
-        # the new request should have two reviewers
-        self.assertEqual(file.request.reviewers.count(), 2)
-        self.assertNotEqual(file.request.current_reviewer, reviewer1)
-        for r in file.request.reviewers.all():
-            self.assertEqual(r.status, 2)
-        # finally, make sure that there is a reviewer on the new request that matches with reviewer2
-        r2 = file.request.reviewers.get(user=reviewer2.user)
-        self.assertEqual(r2.comments, my_comment)
-
     @tag("api", 'request')
     def test_put_patch(self):
         # PERMISSIONS
         # authenticated users
         owner = self.instance.request.created_by
-        file_user = self.instance.user
-        users = [owner, file_user, self.admin_user, self.adm_admin_user]
+        users = [owner, self.admin_user, self.adm_admin_user]
         self.get_and_login_user(user=users[faker.pyint(0, 3)])
         data_dict = FactoryFloor.FileFactory.get_valid_data()
         data_dict["request"] = self.instance.request.id
-        data_dict["user"] = self.instance.user.id  # keep the same user otherwise might loose permissions!
-        data_dict["start_date"] = self.instance.request.trip.start_date.strftime("%Y-%m-%d %H:%M")
-        data_dict["end_date"] = self.instance.request.trip.end_date.strftime("%Y-%m-%d %H:%M")
         data_json = json.dumps(data_dict)
         response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1155,9 +1060,8 @@ class TestFileAPIViewSet(CommonTest):
         # PERMISSIONS
         # authenticated users
         owner = self.instance.request.created_by
-        file_user = self.instance.user
-        users = [owner, file_user, self.admin_user, self.adm_admin_user]
-        self.get_and_login_user(user=users[faker.pyint(0, 3)])
+        users = [owner, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 2)])
         response = self.client.delete(self.test_detail_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -1171,3 +1075,215 @@ class TestFileAPIViewSet(CommonTest):
         response = self.client.delete(self.test_detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.get_and_login_user(user=self.admin_user)
+
+
+
+class TestTravellerCostAPIViewSet(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.instance = FactoryFloor.TravellerCostFactory()
+        self.test_list_url = reverse("travellercost-list", args=None)
+        self.test_detail_url = reverse("travellercost-detail", args=[self.instance.pk])
+
+    @tag("api", 'request')
+    def test_url(self):
+        self.assert_correct_url("travellercost-list", test_url_args=None, expected_url_path=f"/api/travel/costs/")
+        self.assert_correct_url("travellercost-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/costs/{self.instance.pk}/")
+
+    @tag("api", 'request')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        self.get_and_login_user()
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.instance.id)
+        response = self.client.get(self.test_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 1)  # related requests
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.get(self.test_list_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+    @tag("api", 'request')
+    def test_post(self):
+
+        # PERMISSIONS
+        # authenticated users
+        owner = self.instance.traveller.request.created_by
+        users = [owner, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 2)])
+        data_dict = FactoryFloor.TravellerCostFactory.get_valid_data()
+        data_dict["traveller"] = self.instance.traveller.id
+        data_json = json.dumps(data_dict)
+        response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # clean up the travellercost
+        t = get_object_or_404(models.TravellerCost, pk=response.data["id"])
+        t.delete()
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @tag("api", 'request')
+    def test_put_patch(self):
+        # PERMISSIONS
+        # authenticated users
+        owner = self.instance.traveller.request.created_by
+        users = [owner, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 2)])
+        data_dict = FactoryFloor.TravellerCostFactory.get_valid_data()
+        data_dict["traveller"] = self.instance.traveller.id
+        data_json = json.dumps(data_dict)
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user()
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user(user=self.admin_user)
+
+    @tag("api", 'request')
+    def test_delete(self):
+        # PERMISSIONS
+        # authenticated users
+        owner = self.instance.traveller.request.created_by
+        users = [owner, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 2)])
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # unauthenticated users
+        self.instance = FactoryFloor.TravellerCostFactory()
+        self.test_detail_url = reverse("travellercost-detail", args=[self.instance.pk])
+        self.client.logout()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user(user=self.admin_user)
+
+
+class TestHelpTextAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.instance = FactoryFloor.HelpTextFactory()
+        self.test_url = reverse("help-text", args=None)
+
+    @tag("api" ,'help-text')
+    def test_url(self):
+        self.assert_correct_url("help-text", test_url_args=None, expected_url_path=f"/api/URL/{self.instance.pk}/")
+
+
+    @tag("api", 'help-text')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+        # or, for lists with pagination...
+        self.assertEqual(len(data["results"]), 1)
+        self.assertEqual(data["results"][0]["id"], self.instance.id)
+
+        # check query params
+        object = FactoryFloor.Factory()
+        data = self.client.get(self.test_url+f"?={object.id}").data
+        keys.extend([
+            "",
+        ])
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'help-text')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.HelpTextFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.HelpTextFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.post(self.test_url, data=FactoryFloor.HelpTextFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(response.data, keys)
+
+
+
+    @tag("api", 'help-text')
+    def test_put_patch(self):
+        # PERMISSIONS
+        # authenticated users
+        data_dict = Factory.get_valid_data()
+        data_json = json.dumps(data_dict)
+        response = self.client.put(self.test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.patch(self.test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.put(self.test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        data_dict = ObservationFactory.get_valid_data()
+        data_json = json.dumps(data_dict)
+        self.get_and_login_user(self.user)
+        response = self.client.patch(self.test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.data["my_random_field_to_spot_check"], data_dict["carapace_length_mm"])
+
+        data_dict = ObservationFactory.get_valid_data()
+        data_json = json.dumps(data_dict)
+        self.get_and_login_user(self.user)
+        response = self.client.put(self.test_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.data["my_random_field_to_spot_check"], data_dict["carapace_length_mm"])
+
+
+    @tag("api",'help-text')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)

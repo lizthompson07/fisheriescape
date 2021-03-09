@@ -167,7 +167,14 @@ class FileFactory(factory.django.DjangoModelFactory):
         model = models.File
 
     request = factory.SubFactory(TripRequestFactory)
-    name = factory.lazy_attribute(lambda o: faker.word())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'request': TripRequestFactory().id,
+            'name': faker.catch_phrase(),
+        }
 
 
 class ProcessStepFactory(factory.django.DjangoModelFactory):
