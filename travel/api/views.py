@@ -195,20 +195,19 @@ class TravellerViewSet(viewsets.ModelViewSet):
         obj = get_object_or_404(models.Traveller, pk=pk)
         if qp.get("populate_all_costs"):
             utils.populate_traveller_costs(self.request, obj)
-            return Response(None, status.HTTP_200_OK)
+            return Response(None, status.HTTP_204_NO_CONTENT)
         elif qp.get("clear_empty_costs"):
             utils.clear_empty_traveller_costs(obj)
-            return Response(None, status.HTTP_200_OK)
+            return Response(None, status.HTTP_204_NO_CONTENT)
         elif qp.get("cherry_pick_approval"):
             # This should only ever be performed by the ADM and on requests that are sitting with ADM
             if utils.is_adm(request.user):
                 if obj.request.status == 14:
-                    # first remove any existing reviewers
                     utils.cherry_pick_traveller(obj, request=request)
                 else:
                     raise ValidationError(_("This function can only be used with requests that are sitting at the ADM level."))
             else:
-                raise ValidationError(_("You do not have the permissions to cherry pick the approval"))
+                raise PermissionDenied(_("You do not have the permissions to cherry pick the approval"))
             return Response(None, status.HTTP_204_NO_CONTENT)
 
     def perform_create(self, serializer):

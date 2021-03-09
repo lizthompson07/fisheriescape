@@ -71,8 +71,6 @@ class UtilsTest(CommonTest):
         user = self.get_and_login_user()
         self.assertFalse(utils.is_adm(user))
         models.DefaultReviewer.objects.get_or_create(user=user, special_role=5)
-        national_branch.head = user
-        national_branch.save()
         self.assertTrue(utils.is_adm(user))
 
     @tag("utils", )
@@ -415,3 +413,7 @@ class UtilsTest(CommonTest):
             self.assertIn(r, utils.get_requests_with_managerial_access(section1.head))
             self.assertIn(r, utils.get_requests_with_managerial_access(section1.admin))
 
+    @tag("utils")
+    def test_cherry_pick_traveller(self):
+        """ because of the complications of having a request obj in here, we will test this through the api view tests"""
+        pass
