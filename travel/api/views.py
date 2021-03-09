@@ -287,10 +287,13 @@ class ReviewerViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
         qp = request.query_params
-        if qp.get("rdg") and utils.is_admin(request.user):
-            qs = qs.filter(role=7, status=1).filter(~Q(request__status=16))  # rdg & pending
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
+        if qp.get("rdg"):
+            if utils.is_admin(request.user):
+                qs = qs.filter(role=7, status=1).filter(~Q(request__status=16))  # rdg & pending
+                serializer = self.get_serializer(qs, many=True)
+                return Response(serializer.data)
+            else:
+                raise PermissionDenied(_("You do not have the permissions to view this list"))
         else:
             qs = utils.get_related_request_reviewers(request.user)
             serializer = self.get_serializer(qs, many=True)
