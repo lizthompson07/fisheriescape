@@ -137,6 +137,7 @@ class ReviewerFactory(factory.django.DjangoModelFactory):
             'user': UserFactory().id,
             'role': models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0],
             'status': models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0],
+            'order': faker.pyint(1, 10),
         }
 
 

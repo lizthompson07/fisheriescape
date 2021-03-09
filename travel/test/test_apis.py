@@ -553,7 +553,6 @@ class TestReviewerAPIViewSet(CommonTest):
         reviewer.status = 1
         reviewer.save()
         self.instance = reviewer
-
         self.test_list_url = reverse("reviewer-list", args=None)
         self.test_detail_url = reverse("reviewer-detail", args=[self.instance.pk])
 
@@ -625,8 +624,6 @@ class TestReviewerAPIViewSet(CommonTest):
         data_dict = FactoryFloor.ReviewerFactory.get_valid_data()
         data_dict["request"] = self.instance.request.id
         data_dict["user"] = self.instance.user.id  # keep the same user otherwise might loose permissions!
-        data_dict["start_date"] = self.instance.request.trip.start_date.strftime("%Y-%m-%d %H:%M")
-        data_dict["end_date"] = self.instance.request.trip.end_date.strftime("%Y-%m-%d %H:%M")
         data_json = json.dumps(data_dict)
         response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -650,12 +647,41 @@ class TestReviewerAPIViewSet(CommonTest):
     def test_delete(self):
         # PERMISSIONS
         # authenticated users
-        owner = self.instance.request.created_by
-        reviewer_user = self.instance.user
-        users = [owner, reviewer_user, self.admin_user, self.adm_admin_user]
-        self.get_and_login_user(user=users[faker.pyint(0, 3)])
-        response = self.client.delete(self.test_detail_url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        opened_statuses = [4, 20]
+        closed_statuses = [1, 2, 3]
+        opened_status = opened_statuses[faker.pyint(0, len(opened_statuses) - 1)]
+        closed_status = closed_statuses[faker.pyint(0, len(closed_statuses) - 1)]
+        reviewer = self.instance
+
+        # start of with the closed status
+        reviewer.role = 1
+        reviewer.status = closed_status
+        reviewer.save()
+        owner = reviewer.request.created_by
+        users = [owner, self.admin_user, self.adm_admin_user]
+        for u in users:
+            self.get_and_login_user(user=u)
+            response = self.client.delete(self.test_detail_url)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        for u in users:
+            reviewer = FactoryFloor.ReviewerFactory(request=reviewer.request, status=opened_status)
+            self.test_detail_url = reverse("reviewer-detail", args=[reviewer.pk])
+            self.get_and_login_user(user=u)
+            response = self.client.delete(self.test_detail_url)
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # but... if someone is trying to change an ADM or RDG reviewer, they must be an admin
+        for u in users:
+            reviewer = FactoryFloor.ReviewerFactory(request=reviewer.request, status=opened_status, role=[5, 6][faker.pyint(0, 1)])
+            self.test_detail_url = reverse("reviewer-detail", args=[reviewer.pk])
+            self.get_and_login_user(user=u)
+            response = self.client.delete(self.test_detail_url)
+            if u == owner:
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+            else:
+                self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # unauthenticated users
         self.instance = FactoryFloor.ReviewerFactory()

@@ -279,7 +279,7 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         # can only change if is in draft or queued
         if instance.status in [4, 20]:
             if not utils.is_admin(self.request.user) and instance.role in [5, 6]:
-                raise ValidationError(_("You do not have the necessary permission to delete this reviewer."))
+                raise PermissionDenied(_("You do not have the necessary permission to delete this reviewer."))
             super().perform_destroy(instance)
         else:
             raise ValidationError("cannot delete this reviewer who has the status of " + instance.get_status_display())
