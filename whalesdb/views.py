@@ -13,8 +13,7 @@ from shared_models.views import CommonTemplateView, CommonAuthCreateView, Common
 
 import json
 import shared_models.models as shared_models
-
-
+from .utils import AdminRequiredMixin
 from . import mixins
 
 
@@ -49,8 +48,8 @@ def rst_delete(request, pk):
 
 
 class IndexView(CommonTemplateView):
-    nav_menu = 'whalesdb/whales_nav_menu.html'
-    site_css = 'whalesdb/whales_css.css'
+    nav_menu = 'whalesdb/base/whales_nav_menu.html'
+    site_css = 'whalesdb/base/whales_css.css'
     title = _("Whale Equipment Metadata Database")
     template_name = 'whalesdb/index.html'
 
@@ -68,8 +67,8 @@ class IndexView(CommonTemplateView):
 # has the correct privileges to interact with Creation Views
 class CommonCreate(CommonAuthCreateView):
 
-    nav_menu = 'whalesdb/whales_nav_menu.html'
-    site_css = 'whalesdb/whales_css.css'
+    nav_menu = 'whalesdb/base/whales_nav_menu.html'
+    site_css = 'whalesdb/base/whales_css.css'
     home_url_name = "whalesdb:index"
 
     def get_nav_menu(self):
@@ -269,10 +268,6 @@ class RstCreate(mixins.RstMixin, CommonCreate):
         return initial
 
 
-class RttCreate(mixins.RttMixin, CommonCreate):
-    pass
-
-
 class SteCreate(mixins.SteMixin, CommonCreate):
 
     def get_initial(self):
@@ -295,8 +290,8 @@ class TeaCreate(mixins.TeaMixin, CommonCreate):
 
 class CommonUpdate(CommonAuthUpdateView):
 
-    nav_menu = 'whalesdb/whales_nav_menu.html'
-    site_css = 'whalesdb/whales_css.css'
+    nav_menu = 'whalesdb/base/whales_nav_menu.html'
+    site_css = 'whalesdb/base/whales_css.css'
     home_url_name = "whalesdb:index"
 
     def get_success_url(self):
@@ -500,11 +495,12 @@ class DepDetails(mixins.DepMixin, CommonDetails):
                     if not hasattr(context, 'rec'):
                         context['rec'] = []
 
-                    rec = models.RecDataset.objects.get(eda_id=eda.pk)
-                    context['rec'].append({
-                        'text': str(rec),
-                        'id': rec.pk,
-                    })
+                    rec = models.RecDataset.objects.filter(eda_id=eda.pk)
+                    for r in rec:
+                        context['rec'].append({
+                            'text': str(r),
+                            'id': r.pk,
+                        })
 
         return context
 
@@ -562,11 +558,6 @@ class RscDetails(mixins.RscMixin, CommonDetails):
     editable = False
 
 
-class RttDetails(mixins.RttMixin, CommonDetails):
-    template_name = "whalesdb/details_rtt.html"
-    fields = ['rtt_name', 'rtt_abb', 'rtt_period']
-
-
 class StnDetails(mixins.StnMixin, CommonDetails):
     template_name = 'whalesdb/details_stn.html'
     fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
@@ -583,8 +574,8 @@ class StnDetails(mixins.StnMixin, CommonDetails):
 
 class CommonList(CommonAuthFilterView):
 
-    nav_menu = 'whalesdb/whales_nav_menu.html'
-    site_css = 'whalesdb/whales_css.css'
+    nav_menu = 'whalesdb/base/whales_nav_menu.html'
+    site_css = 'whalesdb/base/whales_css.css'
     home_url_name = "whalesdb:index"
 
     # fields to be used as columns to display an object in the filter view table
@@ -713,15 +704,6 @@ class RscList(mixins.RscMixin, CommonList):
     fields = ['rsc_name', 'rsc_period']
 
 
-class RttList(mixins.RttMixin, CommonList):
-    filterset_class = filters.RttFilter
-    fields = ['rtt_name', 'rtt_abb', 'rtt_offset']
-    editable = False
-
-    def get_details_url(self):
-        return None
-
-
 class StnList(mixins.StnMixin, CommonList):
     filterset_class = filters.StnFilter
     fields = ['stn_name', 'stn_code', 'stn_revision']
@@ -794,6 +776,74 @@ class CruDelete(mixins.CruMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+def delete_managed(request, key, pk):
+    if utils.whales_authorized(request.user):
+
+        if key == 'eqt':
+            models.EqtEquipmentTypeCode.objects.get(pk=pk).delete()
+            messages.success(request, _("The recording stage has been successfully deleted."))
+        elif key == 'rtt':
+            models.EqtEquipmentTypeCode.objects.get(pk=pk).delete()
+            messages.success(request, _("The recording stage has been successfully deleted."))
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+class ManagedFormsetViewMixin(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'whalesdb/managed_formset.html'
+    home_url_name = "whalesdb:index"
+    delete_url_name = "whalesdb:delete_managed"
+    container_class = "container bg-light curvy"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['key'] = self.key
+
+        return context
+
+
+class EqtMangedView(ManagedFormsetViewMixin):
+    key = 'eqt'
+    h1 = "Manage Equipment Type"
+    queryset = models.EqtEquipmentTypeCode.objects.all()
+    formset_class = forms.EqtFormset
+    success_url = reverse_lazy("whalesdb:managed_eqt")
+
+
+class ErtMangedView(ManagedFormsetViewMixin):
+    key = 'ert'
+    h1 = "Manage Recorder Type"
+    queryset = models.ErtRecorderType.objects.all()
+    formset_class = forms.ErtFormset
+    success_url = reverse_lazy("whalesdb:managed_ert")
+
+
+class PrmMangedView(ManagedFormsetViewMixin):
+    key = 'prm'
+    h1 = "Manage Parameter codes"
+    queryset = models.PrmParameterCode.objects.all()
+    formset_class = forms.PrmFormset
+    success_url = reverse_lazy("whalesdb:managed_prm")
+
+
+class RttMangedView(ManagedFormsetViewMixin):
+    key = 'rtt'
+    h1 = "Manage Timezone codes"
+    queryset = models.RttTimezoneCode.objects.all()
+    formset_class = forms.RttFormset
+    success_url = reverse_lazy("whalesdb:managed_rtt")
+
+
+class SetMangedView(ManagedFormsetViewMixin):
+    key = 'set'
+    h1 = "Manage Station Event codes"
+    queryset = models.SetStationEventCode.objects.all()
+    formset_class = forms.SetFormset
+    success_url = reverse_lazy("whalesdb:managed_set")
 
 
 class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
