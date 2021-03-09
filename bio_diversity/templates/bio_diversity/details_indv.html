@@ -5,147 +5,72 @@
 {% load i18n %}
 {% bootstrap_css %}
 
-{% block detail_tables %}
-    {% if spwn_list %}
-        <div class="card border border-dark my-1" name="spwn-details">
-            <h5 class="card-header">{% trans "Individual Spawning" %}</h5>
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in spwn_field_list %}
-                        <th>{% get_verbose_label spwn_object field %}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in spwn_list %}
-                        <tr href="{% url 'bio_diversity:details_spwn' 'indv' object.id obj.id %}">
-                        {% for field in spwn_field_list %}
-                            <td>
-                                {% get_field_value obj field %}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
+{% block title %}
+    {% trans title %}
+{% endblock title %}
 
-    {% if evnt_list %}
-        <div class="card border border-dark my-1" name="evnt-details">
-            <h5 class="card-header">{% trans "Individual Events" %}</h5>
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in evnt_field_list %}
-                        <th>{% get_verbose_label evnt_object field %}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in evnt_list %}
-                        <tr href="{% url 'bio_diversity:details_evnt' 'indv' object.id obj.id %}">
-                        {% for field in evnt_field_list %}
-                            <td>
-                                {% get_field_value obj field %}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
 
-    {% if indvd_list %}
-        <div class="card border border-dark my-1" name="indvd-details">
-            <h5 class="card-header">{% trans "Individual Details" %}</h5>
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in indvd_field_list %}
-                        <th>{% get_verbose_label indvd_object field %}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in indvd_list %}
-                        <tr href="{% url 'bio_diversity:details_indvd' 'indv' object.id obj.id %}">
-                        {% for field in indvd_field_list %}
-                            <td>
-                                {% get_field_value obj field %}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+{% block field_override %}
+    <div class="card border border-dark my-1">
+        <h5 class="card-header">{% trans title %}</h5>
+        <div class="card-body">
+        {% for field in fields %}
+        <div class="row" >
+                <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
         </div>
-    {% endif %}
+        {% endfor %}
+        {% if object.indv_valid %}
+            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'indv' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
+        {% else %}
+            <a class="btn btn-primary disabled" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'indv' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
+        {% endif %}
+        </div>
 
-    {% if object.pairings.count > 0 %}
-        <div class="card border border-dark my-1" name="pair-details">
-            <h5 class="card-header">{% trans "Individual Pairings" %}</h5>
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in pair_field_list %}
-                        <th>{% get_verbose_label pair_object field %}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in object.pairings.all %}
-                        <tr href="{% url 'bio_diversity:details_pair' 'indv' object.id obj.id %}">
-                        {% for field in pair_field_list %}
-                            <td>
-                                {% get_field_value obj field %}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
 
-    {% if object.sires.count > 0 %}
-        <div class="card border border-dark my-1" name="sire-details">
-            <h5 class="card-header">{% trans "Individual Sires" %}</h5>
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in sire_field_list %}
-                        <th>{% get_verbose_label sire_object field %}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in object.sires.all %}
-                        <tr href="{% url 'bio_diversity:details_sire' 'indv' object.id obj.id %}">
-                        {% for field in sire_field_list %}
-                            <td>
-                                {% get_field_value obj field %}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
-    {% if cont_evnt_list %}
-        <div class="card border border-dark my-1" name="container-details">
-            <h5 class="card-header">{% trans "Individual Container History" %}</h5>
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in cont_evnt_field_list %}
-                        <th>{{ field }}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in cont_evnt_list %}
-                        <tr>
-                        {% for field in obj %}
-                            <td>
-                                {{ field }}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
-{% endblock  %}
+    </div>
+{% endblock field_override %}
+
+
+{% block body_js %}
+
+{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
+{% if java_script %}
+{% include ''|add:java_script %}
+{% endif %}
+
+<script>
+
+var interval;
+
+// This is a method of opening a child window and testing to see if/when it closes
+// upon closing the drop menu the window is associated with is updated adding the new element
+// and setting it as the selected option
+function pop(url, tag) {
+    child = window.open(url, tag,'toolbar=0,status=0,height=500,width=600');
+    child.onbeforeunload = function() {
+        if(child.refresh && $('.is-invalid').length <= 0) {
+            refreshTag(tag);
+        }
+    }
+
+    return false;
+}
+
+function refreshTag(tag) {
+    if( tag == "all" ) {
+        interval = setInterval( function() {
+            location.reload(true);
+            clearInterval(interval);
+        }, 1000);
+    } else {
+        console.log("refresh called on: '" + tag + "'");
+        var id_tag = "#"+tag;
+        $(id_tag).load("# "+id_tag+">*");
+    }
+}
+</script>
+{% endblock %}
+
+
+
+

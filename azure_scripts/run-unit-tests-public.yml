@@ -14,8 +14,6 @@ steps:
       # install pre-requisites
       python -m pip install --upgrade pip setuptools wheel
       python -m pip install -r requirements.txt
-      python -m pip uninstall --yes django-easy-pdf
-      python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
       mkdir media
       mkdir media/temp
       mkdir media/travel
@@ -29,63 +27,63 @@ steps:
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Install Prerequisites '
 
-  - script: |
-      python manage.py test -b  shared_models.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for shared models'
-
-  - script: |
-      python manage.py test -b projects2.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for projects (v2)'
+#  - script: |
+#      python manage.py test -b  shared_models.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for shared models'
+#
+#  - script: |
+#      python manage.py test -b projects2.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for projects (v2)'
 
   - script: |
       python manage.py test -b travel.test
     condition: succeededOrFailed()
     displayName: 'Tests for travel'
 
-  - script: |
-      python manage.py test -b whalesdb.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for whalesdb'
-
-  - script: |
-      python manage.py test -b inventory.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for inventory'
-
-  - script: |
-      python manage.py test -b shiny.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for shiny'
-
-  - script: |
-      python manage.py test -b ihub.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for ihub'
-
-  - script: |
-      python manage.py test -b csas.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for csas'
-
-  - script: |
-      python manage.py test -b cruises.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for cruises'
-
-  - script: |
-      python manage.py test -b whalebrary.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for whalebrary'
-
-  - script: |
-      python manage.py test --exclude-tag=Functional -b bio_diversity.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for biodiversity'
-
-
-  - script: |
-      python manage.py test -b scuba.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for scuba'
+#  - script: |
+#      python manage.py test -b whalesdb.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for whalesdb'
+#
+#  - script: |
+#      python manage.py test -b inventory.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for inventory'
+#
+#  - script: |
+#      python manage.py test -b shiny.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for shiny'
+#
+#  - script: |
+#      python manage.py test -b ihub.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for ihub'
+#
+#  - script: |
+#      python manage.py test -b csas.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for csas'
+#
+#  - script: |
+#      python manage.py test -b cruises.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for cruises'
+#
+#  - script: |
+#      python manage.py test -b whalebrary.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for whalebrary'
+#
+#  - script: |
+#      python manage.py test --exclude-tag=Functional -b bio_diversity.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for biodiversity'
+#
+#
+#  - script: |
+#      python manage.py test -b scuba.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for scuba'

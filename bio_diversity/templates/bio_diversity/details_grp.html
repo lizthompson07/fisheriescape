@@ -5,77 +5,72 @@
 {% load i18n %}
 {% bootstrap_css %}
 
-{% block detail_tables %}
-    {% if evnt_list %}
-        <div class="card border border-dark my-1" name="evnt-details">
-            <h5 class="card-header">{% trans "Group Events" %}</h5>
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in evnt_field_list %}
-                        <th>{% get_verbose_label evnt_object field %}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in evnt_list %}
-                        <tr href="{% url 'bio_diversity:details_evnt' 'grp' object.id obj.id %}">
-                        {% for field in evnt_field_list %}
-                            <td>
-                                {% get_field_value obj field %}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+{% block title %}
+    {% trans title %}
+{% endblock title %}
+
+
+{% block field_override %}
+    <div class="card border border-dark my-1">
+        <h5 class="card-header">{% trans title %}</h5>
+        <div class="card-body">
+        {% for field in fields %}
+        <div class="row" >
+                <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
         </div>
-    {% endif %}
-
-    <div class="card border border-dark my-1" name="grpd-details">
-        <h5 class="card-header">{% trans "Group Details" %}
-
-        </h5>
-        {% if grpd_list %}
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in grpd_field_list %}
-                        <th>{% get_verbose_label grpd_object field %}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in grpd_list %}
-                        <tr href="{% url 'bio_diversity:details_grpd' 'grp' object.id obj.id %}">
-                        {% for field in grpd_field_list %}
-                            <td>
-                                {% get_field_value obj field %}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        {% endfor %}
+        {% if object.grp_valid %}
+            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'grp' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
+        {% else %}
+            <a class="btn btn-primary disabled" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'grp' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
         {% endif %}
-            {% if cont_evnt_list %}
-        <div class="card border border-dark my-1" name="container-details">
-            <h5 class="card-header">{% trans "Individual Container History" %}</h5>
-            <table class="table table-sm sortable table-hover">
-                <thead>
-                    {% for field in cont_evnt_field_list %}
-                        <th>{{ field }}</th>
-                    {% endfor %}
-                </thead>
-                <tbody>
-                    {% for obj in cont_evnt_list %}
-                        <tr>
-                        {% for field in obj %}
-                            <td>
-                                {{ field }}
-                            </td>
-                        {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
-    {% endif %}
+
+
     </div>
-{% endblock  %}
+{% endblock field_override %}
+
+
+{% block body_js %}
+
+{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
+{% if java_script %}
+{% include ''|add:java_script %}
+{% endif %}
+
+<script>
+
+var interval;
+
+// This is a method of opening a child window and testing to see if/when it closes
+// upon closing the drop menu the window is associated with is updated adding the new element
+// and setting it as the selected option
+function pop(url, tag) {
+    child = window.open(url, tag,'toolbar=0,status=0,height=500,width=600');
+    child.onbeforeunload = function() {
+        if(child.refresh && $('.is-invalid').length <= 0) {
+            refreshTag(tag);
+        }
+    }
+
+    return false;
+}
+
+function refreshTag(tag) {
+    if( tag == "all" ) {
+        interval = setInterval( function() {
+            location.reload(true);
+            clearInterval(interval);
+        }, 1000);
+    } else {
+        console.log("refresh called on: '" + tag + "'");
+        var id_tag = "#"+tag;
+        $(id_tag).load("# "+id_tag+">*");
+    }
+}
+</script>
+{% endblock %}
+
+
+
+

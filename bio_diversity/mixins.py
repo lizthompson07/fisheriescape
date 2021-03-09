@@ -349,6 +349,21 @@ class LoccMixin:
     admin_only = True
 
 
+class MatpMixin:
+    key = "matp"
+    form_class = forms.MatpForm
+    model = models.MatingPlan
+    title = _("Mating Plan")
+    admin_only = False
+
+
+class MortMixin:
+    key = "mort"
+    form_class = forms.MortForm
+    title = _("Mortality")
+    admin_only = False
+
+
 class OrgaMixin:
     key = 'orga'
     model = models.Organization
@@ -431,7 +446,7 @@ class RelcMixin:
     key = 'relc'
     model = models.ReleaseSiteCode
     form_class = forms.RelcForm
-    title = _("Release Site Code")
+    title = _("Site Code")
     admin_only = True
 
 
@@ -478,13 +493,6 @@ class SireMixin:
     model = models.Sire
     form_class = forms.SireForm
     title = _("Sire")
-    admin_only = False
-
-class SpwnMixin:
-    key = 'spwn'
-    model = models.Spawning
-    form_class = forms.SpwnForm
-    title = _("Spawning")
     admin_only = False
 
 class SpwndMixin:
