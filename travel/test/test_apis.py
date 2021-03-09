@@ -1,6 +1,7 @@
 import json
 from datetime import timedelta
 
+from django.shortcuts import get_object_or_404
 from django.test import tag
 from django.urls import reverse
 from django.utils import timezone
@@ -437,178 +438,98 @@ class TestTravellerAPIViewSet(CommonTest):
         request.status = 14
         request.save()
         reviewer = FactoryFloor.ReviewerFactory(request=request, status=1)
+        self.assertEqual(request.current_reviewer, reviewer)
         # We have to test two scenarios. 1) single traveller request 2) group request
         # SCENARIO 1:
         response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         # check the status of the reviewer
+        reviewer = get_object_or_404(models.Reviewer, pk=reviewer.pk)
         self.assertEqual(reviewer.status, 2)
         self.assertIn("approved", reviewer.comments.lower())
-
-
-        # reviewer = request.current_reviewer
-        # reviewer.user = request.user
-        # reviewer.comments = comment
-        # reviewer.status = 2
-        # reviewer.status_date = timezone.now()
-        # reviewer.save()
-        # approval_seeker(trip_request, False, request)
-
+        self.assertIsNotNone(reviewer.status_date)
 
         # SCENARIO 2:
-        # get request
-        # get travellers
+        traveller = FactoryFloor.TravellerFactory()
+        self.test_detail_url = reverse("traveller-detail", args=[traveller.pk])
+        request = traveller.request
+        request.status = 14
+        request.save()
+        self.assertIn(traveller, request.travellers.all())
         for i in range(0, 10):
             FactoryFloor.TravellerFactory(request=request)
-        # get reviewers
-        utils.get_request_reviewers(request)
-        self.assertTrue(request.reviewers.count() > 0)
-        traveller = request.travellers.first()
-        # get http request obj
-        #
-        # utils.cherry_pick_traveller()
+        reviewer1 = FactoryFloor.ReviewerFactory(request=request, status=1)
+        my_comment = faker.text()
+        reviewer2 = FactoryFloor.ReviewerFactory(request=request, status=2, comments=my_comment)
+        self.assertEqual(request.current_reviewer, reviewer1)
+        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # refresh the traveller
+        traveller = get_object_or_404(models.Traveller, pk=traveller.pk)
 
-        """
+        # now here is where things get a bit complicated
+        # the original request has been cloned and the traveller moved to the new request
+        self.assertNotIn(traveller, request.travellers.all())
+        self.assertIn(traveller, traveller.request.travellers.all())
+        self.assertEqual(traveller.request.travellers.count(), 1)
+        # the new request should have two reviewers
+        self.assertEqual(traveller.request.reviewers.count(), 2)
+        self.assertNotEqual(traveller.request.current_reviewer, reviewer1)
+        for r in traveller.request.reviewers.all():
+            self.assertEqual(r.status, 2)
+        # finally, make sure that there is a reviewer on the new request that matches with reviewer2
+        r2 = traveller.request.reviewers.get(user=reviewer2.user)
+        self.assertEqual(r2.comments, my_comment)
 
-def cherry_pick_traveller(traveller, request, comment="approved / approuvé"):
-    trip_request = traveller.request
-    # scenario 1: this is a single person request (yayy!!)
-    if trip_request.travellers.count() == 1:
-        reviewer = trip_request.current_reviewer
-        reviewer.user = request.user
-        reviewer.comments = comment
-        reviewer.status = 2
-        reviewer.status_date = timezone.now()
-        reviewer.save()
-        approval_seeker(trip_request, False, request)
-    else:
-        # scenario 2: they are being cherry picked out of a group request
-        # make a copy of the original request (include a copy of the reviewers)
-        old_obj = trip_request
-        new_obj = deepcopy(old_obj)
-        new_obj.pk = None
-        new_obj.save()
+    @tag("api", 'request')
+    def test_put_patch(self):
+        # PERMISSIONS
+        # authenticated users
+        owner = self.instance.request.created_by
+        traveller_user = self.instance.user
+        users = [owner, traveller_user, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 3)])
+        data_dict = FactoryFloor.TravellerFactory.get_valid_data()
+        data_dict["request"] = self.instance.request.id
+        data_dict["start_date"] = self.instance.request.trip.start_date.strftime("%Y-%m-%d %H:%M")
+        data_dict["end_date"] = self.instance.request.trip.end_date.strftime("%Y-%m-%d %H:%M")
+        data_json = json.dumps(data_dict)
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # copy over the reviewers
-        for old_rel_obj in old_obj.reviewers.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.request = new_obj
-            new_rel_obj.save()
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user()
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user(user=self.admin_user)
 
-        # move traveller over to the new request
-        traveller.request = new_obj
-        traveller.save()
-        old_obj.add_admin_note = f"{date(timezone.now())} - {traveller.smart_name} was automatically transferred to a separate request during" \
-                                 f" the course of the ADM-level review."
+    @tag("api", 'request')
+    def test_delete(self):
+        # PERMISSIONS
+        # authenticated users
+        owner = self.instance.request.created_by
+        traveller_user = self.instance.user
+        users = [owner, traveller_user, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 3)])
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        # finally, we approved the new request at the level of the active reviewer
-        reviewer = new_obj.current_reviewer
-        reviewer.user = request.user
-        reviewer.comments = comment
-        reviewer.status = 2
-        reviewer.status_date = timezone.now()
-        reviewer.save()
-        approval_seeker(new_obj, False, request)
-
-
-        """
-
-        # self.get_and_login_user()
-        # response = self.client.post(f'{self.test_detail_url}?reset_reviewers=true')
-        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        """
-        if qp.get("populate_all_costs"):
-            utils.populate_traveller_costs(self.request, obj)
-            return Response(None, status.HTTP_200_OK)
-        elif qp.get("clear_empty_costs"):
-            utils.clear_empty_traveller_costs(obj)
-            return Response(None, status.HTTP_200_OK)
-        elif qp.get("cherry_pick_approval"):
-            # This should only ever be performed by the ADM and on requests that are sitting with ADM
-            if utils.is_adm(request.user):
-                if obj.request.status == 14:
-                    # first remove any existing reviewers
-                    utils.cherry_pick_traveller(obj, request=request)
-                else:
-                    raise ValidationError(_("This function can only be used with requests that are sitting at the ADM level."))
-            else:
-                raise ValidationError(_("You do not have the permissions to cherry pick the approval"))
-            return Response(None, status.HTTP_204_NO_CONTENT)
-        """
-
-    #     request = self.instance
-    #     owner = request.created_by
-    #     traveller = FactoryFloor.TravellerFactory(request=request).user
-    #     request.status = 8
-    #     request.save()
-    #     self.get_and_login_user(user=[self.adm_admin_user, self.admin_user, owner, traveller][faker.pyint(0, 3)])
-    #     response1 = self.client.post(f'{self.test_detail_url}')
-    #     response2 = self.client.post(f'{self.test_detail_url}?reset_reviewers=true')
-    #     self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
-    #     self.assertEqual(response2.status_code, status.HTTP_204_NO_CONTENT)
-    #     request.status = [17, 12, 14, 15, 16, 10, 11, 22, ][faker.pyint(0, 7)]
-    #     request.save()
-    #     response3 = self.client.post(f'{self.test_detail_url}?reset_reviewers=true')
-    #     self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    #     # unauthenticated users
-    #     request = self.instance
-    #     request.status = 8
-    #     request.save()
-    #     self.get_and_login_user()
-    #     response = self.client.post(f'{self.test_detail_url}?reset_reviewers=true')
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     self.get_and_login_user()
-    #     response = self.client.post(f'{self.test_detail_url}?reset_reviewers=true')
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    # #
-    # @tag("api", 'request')
-    # def test_put_patch(self):
-    #     # PERMISSIONS
-    #     # authenticated users
-    #     owner = self.instance.created_by
-    #     traveller = FactoryFloor.TravellerFactory(request=self.instance).user
-    #     users = [owner, traveller, self.admin_user, self.adm_admin_user]
-    #     self.get_and_login_user(user=users[faker.pyint(0, 3)])
-    #     data_dict = FactoryFloor.TravellerFactory.get_valid_data()
-    #     del data_dict["section"] # avoiding having to deal with section dict
-    #     data_json = json.dumps(data_dict)
-    #     response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #
-    #     # unauthenticated users
-    #     self.client.logout()
-    #     response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     self.get_and_login_user()
-    #     response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     self.get_and_login_user(user=self.admin_user)
-    #
-    # @tag("api", 'request')
-    # def test_delete(self):
-    #     # PERMISSIONS
-    #     # authenticated users
-    #     owner = self.instance.created_by
-    #     traveller = FactoryFloor.TravellerFactory(request=self.instance).user
-    #     users = [owner, traveller, self.admin_user, self.adm_admin_user]
-    #     self.get_and_login_user(user=users[faker.pyint(0, 3)])
-    #     response = self.client.delete(self.test_detail_url)
-    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-    #
-    #     # unauthenticated users
-    #     self.instance = FactoryFloor.TravellerFactory()
-    #     self.test_detail_url = reverse("traveller-detail", args=[self.instance.pk])
-    #     self.client.logout()
-    #     response = self.client.delete(self.test_detail_url)
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     self.get_and_login_user()
-    #     response = self.client.delete(self.test_detail_url)
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     self.get_and_login_user(user=self.admin_user)
+        # unauthenticated users
+        self.instance = FactoryFloor.TravellerFactory()
+        self.test_detail_url = reverse("traveller-detail", args=[self.instance.pk])
+        self.client.logout()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user(user=self.admin_user)
