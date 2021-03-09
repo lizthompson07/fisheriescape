@@ -1286,3 +1286,38 @@ class TestAdminWarningsAPIView(CommonTest):
         self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestFAQListAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.test_url = reverse("travel-faqs", args=None)
+
+    @tag("api", 'travel-faqs')
+    def test_url(self):
+        self.assert_correct_url("travel-faqs", test_url_args=None, expected_url_path=f"/api/travel/faqs/")
+
+    @tag("api", 'travel-faqs')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        self.get_and_login_user()
+        response = self.client.get(self.test_url)
+        self.assertIsNotNone(response.data)
+
+    @tag("api", 'travel-faqs')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
