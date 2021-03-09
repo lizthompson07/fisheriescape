@@ -1360,11 +1360,16 @@ def export_project_position_allocation(request):
 def export_capital_request_costs(request):
     year = request.GET.get("year")
     region = request.GET.get("region")
+    division = request.GET.get("division")
     section = request.GET.get("section")
 
     region_name = None
     if region:
         region_name = shared_models.Region.objects.get(pk=region)
+
+    division_name = None
+    if division and division != 'None':
+        division_name = shared_models.Division.objects.get(pk=division)
 
     section_name = None
     if section and section != 'None':
@@ -1379,6 +1384,9 @@ def export_capital_request_costs(request):
 
     project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
                                                       project__section__division__branch__region_id=region)
+    if division and division != 'None':
+        project_years = project_years.filter(project__section__division_id=division)
+
     if section and section != 'None':
         project_years = project_years.filter(project__section_id=section)
 
