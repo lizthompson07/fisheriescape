@@ -524,6 +524,13 @@ class HelpTextAPIView(APIView):
         return Response(data)
 
 
+
+class FAQListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = models.FAQ.objects.all()
+    serializer_class = serializers.FAQSerializer
+
+
 class AdminWarningsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

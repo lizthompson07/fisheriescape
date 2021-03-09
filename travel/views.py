@@ -99,7 +99,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             models.ProcessStep.objects.filter(stage=2)
         ]
         context["information_sections"] = models.ProcessStep.objects.filter(stage=0, is_visible=True)
-        context["faqs"] = models.FAQ.objects.all()
+        # context["faqs"] = models.FAQ.objects.all()
         context["refs"] = models.ReferenceMaterial.objects.all()
         # context["region_tabs"] = [region.tname for region in shared_models.Region.objects.all()]
 
