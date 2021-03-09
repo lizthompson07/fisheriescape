@@ -250,7 +250,7 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         # first we must determine if this is a request to skip a reviewer. If it is, the user better be an admin
         if self.request.query_params.get("skip"):
             if not utils.is_admin(self.request.user):
-                raise ValidationError("Sorry this is an admin function and you are not an admin user")
+                raise PermissionDenied("Sorry this is an admin function and you are not an admin user")
             else:
                 my_reviewer = serializer.instance
                 my_reviewer.status = 21
@@ -267,7 +267,7 @@ class ReviewerViewSet(viewsets.ModelViewSet):
             if serializer.instance.status in [4, 20]:
                 # regular users should not be allowed to interact with RDG or ADM reviewers
                 if not utils.is_admin(self.request.user) and serializer.instance.role in [5, 6]:
-                    raise ValidationError(_("You do not have the necessary permission to modify this reviewer."))
+                    raise PermissionDenied(_("You do not have the necessary permission to modify this reviewer."))
                 serializer.save(updated_by=self.request.user)
             else:
                 # we will only tolerate interacting with the order of the reviewer
@@ -339,7 +339,7 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         # can only change if is in draft or queued
         if not utils.in_adm_admin_group(self.request.user):
-            raise ValidationError(_("You do not have the necessary permission to delete this reviewer."))
+            raise PermissionDenied(_("You do not have the necessary permission to delete this reviewer."))
         if instance.status in [23, 24]:
             super().perform_destroy(instance)
         else:

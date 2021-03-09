@@ -11,6 +11,7 @@ from rest_framework import status
 from shared_models.models import Region
 from shared_models.test.SharedModelsFactoryFloor import UserFactory
 from travel import models
+from travel.api.serializers import RequestReviewerSerializer, TripReviewerSerializer
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 
@@ -556,12 +557,12 @@ class TestReviewerAPIViewSet(CommonTest):
         self.test_list_url = reverse("reviewer-list", args=None)
         self.test_detail_url = reverse("reviewer-detail", args=[self.instance.pk])
 
-    @tag("api", 'request')
+    @tag("api", 'reviewer')
     def test_url(self):
         self.assert_correct_url("reviewer-list", test_url_args=None, expected_url_path=f"/api/travel/request-reviewers/")
         self.assert_correct_url("reviewer-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/request-reviewers/{self.instance.pk}/")
 
-    @tag("api", 'request')
+    @tag("api", 'reviewer')
     def test_get(self):
         # PERMISSIONS
         # authenticated users
@@ -594,7 +595,7 @@ class TestReviewerAPIViewSet(CommonTest):
         response = self.client.get(f'{self.test_list_url}?rdg=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @tag("api", 'request')
+    @tag("api", 'reviewer')
     def test_post(self):
 
         # PERMISSIONS
@@ -613,22 +614,81 @@ class TestReviewerAPIViewSet(CommonTest):
         response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @tag("api", 'request')
+    @tag("api", 'reviewer')
     def test_put_patch(self):
         # PERMISSIONS
-        # authenticated users
-        owner = self.instance.request.created_by
-        reviewer_user = self.instance.user
-        users = [owner, reviewer_user, self.admin_user, self.adm_admin_user]
-        self.get_and_login_user(user=users[faker.pyint(0, 3)])
+
+        opened_statuses = [4, 20]
+        closed_statuses = [1, 2, 3]
+        opened_status = opened_statuses[faker.pyint(0, len(opened_statuses) - 1)]
+        closed_status = closed_statuses[faker.pyint(0, len(closed_statuses) - 1)]
+        reviewer = self.instance
+
+        # start of with the closed status
+        reviewer.role = 1
+        reviewer.status = closed_status
+        reviewer.save()
         data_dict = FactoryFloor.ReviewerFactory.get_valid_data()
         data_dict["request"] = self.instance.request.id
-        data_dict["user"] = self.instance.user.id  # keep the same user otherwise might loose permissions!
+        data_dict["order"] = self.instance.order + 1
+        data_dict["status"] = closed_status
+        data_dict["role"] = 1
         data_json = json.dumps(data_dict)
-        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        owner = self.instance.request.created_by
+        users = [owner, self.admin_user, self.adm_admin_user]
+        for u in users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            reviewer = get_object_or_404(models.Reviewer, pk=reviewer.id)
+            # when in closed mode, we will only tolerate having the order changed, unless you are an admin user
+            self.assertNotEqual(data_dict["user"], reviewer.user.id)
+            self.assertEqual(data_dict["order"], reviewer.order)
+            response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            reviewer = get_object_or_404(models.Reviewer, pk=reviewer.id)
+            # when in closed mode, we will only tolerate having the order changed, unless you are an admin user
+            self.assertNotEqual(data_dict["user"], reviewer.user.id)
+            self.assertEqual(data_dict["order"], reviewer.order)
+
+        data_dict = FactoryFloor.ReviewerFactory.get_valid_data()
+        data_dict["request"] = self.instance.request.id
+        data_dict["order"] = self.instance.order + 1
+        data_dict["status"] = opened_status
+        data_dict["role"] = 1
+        data_json = json.dumps(data_dict)
+
+        # open status, basic role
+        reviewer.status = opened_status
+        reviewer.save()
+        for u in users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            reviewer = get_object_or_404(models.Reviewer, pk=reviewer.id)
+            self.assertEqual(data_dict["user"], reviewer.user.id)
+
+        # open status, ADM or RDG role
+        reviewer.role = [5, 6][faker.pyint(0, 1)]
+        reviewer.save()
+        data_dict = FactoryFloor.ReviewerFactory.get_valid_data()
+        data_dict["request"] = self.instance.request.id
+        data_dict["order"] = self.instance.order + 1
+        data_dict["status"] = closed_status
+        data_dict["role"] = reviewer.role
+        data_json = json.dumps(data_dict)
+
+        for u in users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+            reviewer = get_object_or_404(models.Reviewer, pk=reviewer.id)
+            if u == owner:
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+                self.assertNotEqual(data_dict["user"], reviewer.user.id)
+            else:
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(data_dict["user"], reviewer.user.id)
 
         # unauthenticated users
         self.client.logout()
@@ -641,9 +701,31 @@ class TestReviewerAPIViewSet(CommonTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.get_and_login_user(user=self.admin_user)
 
-    @tag("api", 'request')
+        # SPECIAL OPERATION --> Skip
+        data_dict = RequestReviewerSerializer(reviewer).data
+        data_dict["comments"] = "skipping!!"
+        data_json = json.dumps(data_dict)
+        # no user
+        self.client.logout()
+        response = self.client.put(f'{self.test_detail_url}?skip=true', data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # bad user
+        bad_users = [UserFactory(), reviewer.user, owner]
+        for u in bad_users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(f'{self.test_detail_url}?skip=true', data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        good_users = [self.admin_user, self.adm_admin_user]
+        for u in good_users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(f'{self.test_detail_url}?skip=true', data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            reviewer = get_object_or_404(models.Reviewer, pk=reviewer.id)
+            self.assertEqual(reviewer.status, 21)
+
+    @tag("api", 'reviewer')
     def test_delete(self):
         # PERMISSIONS
         # authenticated users
@@ -686,6 +768,402 @@ class TestReviewerAPIViewSet(CommonTest):
         # unauthenticated users
         self.instance = FactoryFloor.ReviewerFactory()
         self.test_detail_url = reverse("reviewer-detail", args=[self.instance.pk])
+        self.client.logout()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TestTripReviewerAPIViewSet(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        tripreviewer = FactoryFloor.TripReviewerFactory()
+        tripreviewer.status = 25
+        tripreviewer.save()
+        self.instance = tripreviewer
+        self.test_list_url = reverse("tripreviewer-list", args=None)
+        self.test_detail_url = reverse("tripreviewer-detail", args=[self.instance.pk])
+
+    @tag("api", 'tripreviewer')
+    def test_url(self):
+        self.assert_correct_url("tripreviewer-list", test_url_args=None, expected_url_path=f"/api/travel/trip-reviewers/")
+        self.assert_correct_url("tripreviewer-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/trip-reviewers/{self.instance.pk}/")
+
+    @tag("api", 'tripreviewer')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        self.get_and_login_user()
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.instance.id)
+        response = self.client.get(self.test_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)  # related requests tripreviewers
+        self.get_and_login_user(user=self.instance.user)  # log in with tripreviewer user
+        response = self.client.get(self.test_list_url)
+        self.assertEqual(len(response.data), 1)  # related requests tripreviewers
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.get(self.test_list_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @tag("api", 'tripreviewer')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+
+        users = [self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 2)])
+        data_dict = FactoryFloor.TripReviewerFactory.get_valid_data()
+        data_dict["trip"] = self.instance.trip.id
+        data_dict["role"] = 1
+        data_dict["order"] = self.instance.order + 1
+        data_json = json.dumps(data_dict)
+        response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @tag("api", 'tripreviewer')
+    def test_put_patch(self):
+        # PERMISSIONS
+
+        opened_statuses = [23, 24]
+        closed_statuses = [25, 26, 42, 44]
+        opened_status = opened_statuses[faker.pyint(0, len(opened_statuses) - 1)]
+        closed_status = closed_statuses[faker.pyint(0, len(closed_statuses) - 1)]
+        tripreviewer = self.instance
+
+        # start of with the closed status
+        tripreviewer.role = 1
+        tripreviewer.status = closed_status
+        tripreviewer.save()
+        data_dict = FactoryFloor.TripReviewerFactory.get_valid_data()
+        data_dict["trip"] = self.instance.trip.id
+        data_dict["order"] = self.instance.order + 1
+        data_dict["status"] = closed_status
+        data_dict["role"] = 1
+        data_json = json.dumps(data_dict)
+
+        users = [self.adm_admin_user]
+        for u in users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            tripreviewer = get_object_or_404(models.TripReviewer, pk=tripreviewer.id)
+            # when in closed mode, we will only tolerate having the order changed, unless you are an admin user
+            self.assertNotEqual(data_dict["user"], tripreviewer.user.id)
+            self.assertEqual(data_dict["order"], tripreviewer.order)
+            response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            tripreviewer = get_object_or_404(models.TripReviewer, pk=tripreviewer.id)
+            # when in closed mode, we will only tolerate having the order changed, unless you are an admin user
+            self.assertNotEqual(data_dict["user"], tripreviewer.user.id)
+            self.assertEqual(data_dict["order"], tripreviewer.order)
+
+        data_dict = FactoryFloor.TripReviewerFactory.get_valid_data()
+        data_dict["trip"] = self.instance.trip.id
+        data_dict["order"] = self.instance.order + 1
+        data_dict["status"] = opened_status
+        data_dict["role"] = 1
+        data_json = json.dumps(data_dict)
+
+        # open status, basic role
+        tripreviewer.status = opened_status
+        tripreviewer.save()
+        for u in users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            tripreviewer = get_object_or_404(models.TripReviewer, pk=tripreviewer.id)
+            self.assertEqual(data_dict["user"], tripreviewer.user.id)
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user()
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user(user=self.admin_user)
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # SPECIAL OPERATION --> Skip
+        data_dict = TripReviewerSerializer(tripreviewer).data
+        data_dict["comments"] = "skipping!!"
+        data_json = json.dumps(data_dict)
+        # no user
+        self.client.logout()
+        response = self.client.put(f'{self.test_detail_url}?skip=true', data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # bad user
+        bad_users = [UserFactory(), tripreviewer.user, self.admin_user]
+        for u in bad_users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(f'{self.test_detail_url}?skip=true', data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        good_users = [self.adm_admin_user]
+        for u in good_users:
+            self.get_and_login_user(user=u)
+            response = self.client.put(f'{self.test_detail_url}?skip=true', data=data_json, content_type="application/json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            tripreviewer = get_object_or_404(models.TripReviewer, pk=tripreviewer.id)
+            self.assertEqual(tripreviewer.status, 44)
+
+    @tag("api", 'tripreviewer')
+    def test_delete(self):
+        # PERMISSIONS
+        # authenticated users
+        opened_statuses = [23, 24]
+        closed_statuses = [25, 26, 42, 44]
+        opened_status = opened_statuses[faker.pyint(0, len(opened_statuses) - 1)]
+        closed_status = closed_statuses[faker.pyint(0, len(closed_statuses) - 1)]
+        tripreviewer = self.instance
+
+        # start of with the closed status
+        tripreviewer.role = 1
+        tripreviewer.status = closed_status
+        tripreviewer.save()
+        users = [self.adm_admin_user]
+        for u in users:
+            self.get_and_login_user(user=u)
+            response = self.client.delete(self.test_detail_url)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        for u in users:
+            tripreviewer = FactoryFloor.TripReviewerFactory(trip=tripreviewer.trip, status=opened_status)
+            self.test_detail_url = reverse("tripreviewer-detail", args=[tripreviewer.pk])
+            self.get_and_login_user(user=u)
+            response = self.client.delete(self.test_detail_url)
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # unauthenticated users
+        self.instance = FactoryFloor.TripReviewerFactory()
+        self.test_detail_url = reverse("tripreviewer-detail", args=[self.instance.pk])
+        self.client.logout()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user()
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user(user=self.admin_user)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TestFileAPIViewSet(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.adm_admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        self.instance = FactoryFloor.FileFactory()
+        self.test_list_url = reverse("file-list", args=None)
+        self.test_detail_url = reverse("file-detail", args=[self.instance.pk])
+
+    @tag("api", 'request')
+    def test_url(self):
+        self.assert_correct_url("file-list", test_url_args=None, expected_url_path=f"/api/travel/files/")
+        self.assert_correct_url("file-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/travel/files/{self.instance.pk}/")
+
+    @tag("api", 'request')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        self.get_and_login_user()
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.instance.id)
+        response = self.client.get(self.test_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 1)  # related requests
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.get(self.test_list_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @tag("api", 'request')
+    def test_post(self):
+        """ this is a loaded method... """
+
+        # PERMISSIONS
+        # authenticated users
+        owner = self.instance.request.created_by
+        users = [owner, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 2)])
+        data_dict = FactoryFloor.FileFactory.get_valid_data()
+        data_dict["request"] = self.instance.request.id
+        data_dict["start_date"] = self.instance.request.trip.start_date.strftime("%Y-%m-%d %H:%M")
+        data_dict["end_date"] = self.instance.request.trip.end_date.strftime("%Y-%m-%d %H:%M")
+        data_json = json.dumps(data_dict)
+        response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # clean up the file
+        t = get_object_or_404(models.File, pk=response.data["id"])
+        t.delete()
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_list_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # SPECIAL OPERATIONS:
+        # populate all costs
+        file = self.instance
+        request = file.request
+
+        # these do not have to be anyone in particular.
+        self.get_and_login_user()
+        self.assertTrue(file.costs.count() == 0)
+        response = self.client.post(f'{self.test_detail_url}?populate_all_costs=true')
+        self.assertTrue(file.costs.count() > 1)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # clear_empty_costs
+        cost = file.costs.first()
+        cost.amount_cad = 100
+        cost.save()
+        response = self.client.post(f'{self.test_detail_url}?clear_empty_costs=true')
+        self.assertTrue(file.costs.count() == 1)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # CHERRY PICKING --> while this is a util, we will test the func here out of
+        # convenience since the func requires a wsgi request object.
+
+        # first let's make sure it is only adm who can access this view:
+        bad_users = [self.adm_admin_user, self.admin_user, file.user]
+        adm1 = UserFactory()
+        national_branch, created = Region.objects.get_or_create(name="national")
+        national_branch.head = adm1
+        national_branch.save()
+        adm2 = UserFactory()
+        models.DefaultReviewer.objects.get_or_create(user=adm2, special_role=5)
+        good_users = [adm1, adm2]
+        bad_user = bad_users[faker.pyint(0, len(bad_users) - 1)]
+        good_user = good_users[faker.pyint(0, len(good_users) - 1)]
+        self.get_and_login_user(user=bad_user)
+        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user(user=good_user)
+        self.assertNotEqual(request.status, 14)
+        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
+        # we are expecting a 400 since the trip request is not in the correct status
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # set the status of the trip to PENDING ADM and make sure there is a current reviewer ready to go
+        request.status = 14
+        request.save()
+        reviewer = FactoryFloor.ReviewerFactory(request=request, status=1)
+        self.assertEqual(request.current_reviewer, reviewer)
+        # We have to test two scenarios. 1) single file request 2) group request
+        # SCENARIO 1:
+        self.assertEqual(request.files.count(), 1)
+        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # check the status of the reviewer
+        reviewer = get_object_or_404(models.Reviewer, pk=reviewer.pk)
+        self.assertEqual(reviewer.status, 2)
+        self.assertIn("approved", reviewer.comments.lower())
+        self.assertIsNotNone(reviewer.status_date)
+
+        # SCENARIO 2:
+        file = FactoryFloor.FileFactory()
+        self.test_detail_url = reverse("file-detail", args=[file.pk])
+        request = file.request
+        request.status = 14
+        request.save()
+        self.assertIn(file, request.files.all())
+        for i in range(0, 10):
+            FactoryFloor.FileFactory(request=request)
+        reviewer1 = FactoryFloor.ReviewerFactory(request=request, status=1)
+        my_comment = faker.text()
+        reviewer2 = FactoryFloor.ReviewerFactory(request=request, status=2, comments=my_comment)
+        self.assertEqual(request.current_reviewer, reviewer1)
+        response = self.client.post(f'{self.test_detail_url}?cherry_pick_approval=true')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # refresh the file
+        file = get_object_or_404(models.File, pk=file.pk)
+
+        # now here is where things get a bit complicated
+        # the original request has been cloned and the file moved to the new request
+        self.assertNotIn(file, request.files.all())
+        self.assertIn(file, file.request.files.all())
+        self.assertEqual(file.request.files.count(), 1)
+        # the new request should have two reviewers
+        self.assertEqual(file.request.reviewers.count(), 2)
+        self.assertNotEqual(file.request.current_reviewer, reviewer1)
+        for r in file.request.reviewers.all():
+            self.assertEqual(r.status, 2)
+        # finally, make sure that there is a reviewer on the new request that matches with reviewer2
+        r2 = file.request.reviewers.get(user=reviewer2.user)
+        self.assertEqual(r2.comments, my_comment)
+
+    @tag("api", 'request')
+    def test_put_patch(self):
+        # PERMISSIONS
+        # authenticated users
+        owner = self.instance.request.created_by
+        file_user = self.instance.user
+        users = [owner, file_user, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 3)])
+        data_dict = FactoryFloor.FileFactory.get_valid_data()
+        data_dict["request"] = self.instance.request.id
+        data_dict["user"] = self.instance.user.id  # keep the same user otherwise might loose permissions!
+        data_dict["start_date"] = self.instance.request.trip.start_date.strftime("%Y-%m-%d %H:%M")
+        data_dict["end_date"] = self.instance.request.trip.end_date.strftime("%Y-%m-%d %H:%M")
+        data_json = json.dumps(data_dict)
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user()
+        response = self.client.put(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.patch(self.test_detail_url, data=data_json, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.get_and_login_user(user=self.admin_user)
+
+    @tag("api", 'request')
+    def test_delete(self):
+        # PERMISSIONS
+        # authenticated users
+        owner = self.instance.request.created_by
+        file_user = self.instance.user
+        users = [owner, file_user, self.admin_user, self.adm_admin_user]
+        self.get_and_login_user(user=users[faker.pyint(0, 3)])
+        response = self.client.delete(self.test_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # unauthenticated users
+        self.instance = FactoryFloor.FileFactory()
+        self.test_detail_url = reverse("file-detail", args=[self.instance.pk])
         self.client.logout()
         response = self.client.delete(self.test_detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

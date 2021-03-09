@@ -147,12 +147,18 @@ class TripReviewerFactory(factory.django.DjangoModelFactory):
 
     trip = factory.SubFactory(TripFactory)
     role = factory.lazy_attribute(lambda o: models.TripReviewer.role_choices[faker.random_int(0, len(models.TripReviewer.role_choices) - 1)][0])
+    status = factory.lazy_attribute(lambda o: models.TripReviewer.status_choices[faker.random_int(0, len(models.TripReviewer.status_choices) - 1)][0])
     user = factory.SubFactory(UserFactory)
+    order = factory.lazy_attribute(lambda o: faker.pyint(1, 10))
 
     @staticmethod
     def get_valid_data():
         return {
-            'comments': faker.catch_phrase(),
+            'trip': TripFactory().id,
+            'user': UserFactory().id,
+            'role': models.TripReviewer.role_choices[faker.random_int(0, len(models.TripReviewer.role_choices) - 1)][0],
+            'status': models.TripReviewer.status_choices[faker.random_int(0, len(models.TripReviewer.status_choices) - 1)][0],
+            'order': faker.pyint(1, 10),
         }
 
 
