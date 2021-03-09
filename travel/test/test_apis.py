@@ -1004,10 +1004,8 @@ class TestFileAPIViewSet(CommonTest):
         response = self.client.get(self.test_list_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-
     @tag("api", 'request')
     def test_post(self):
-
         # PERMISSIONS
         # authenticated users
         owner = self.instance.request.created_by
@@ -1077,7 +1075,6 @@ class TestFileAPIViewSet(CommonTest):
         self.get_and_login_user(user=self.admin_user)
 
 
-
 class TestTravellerCostAPIViewSet(CommonTest):
     def setUp(self):
         super().setUp()
@@ -1112,10 +1109,8 @@ class TestTravellerCostAPIViewSet(CommonTest):
         response = self.client.get(self.test_list_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-
     @tag("api", 'request')
     def test_post(self):
-
         # PERMISSIONS
         # authenticated users
         owner = self.instance.traveller.request.created_by
@@ -1190,12 +1185,11 @@ class TestHelpTextAPIView(CommonTest):
         super().setUp()
         self.user = self.get_and_login_user()
         self.instance = FactoryFloor.HelpTextFactory()
-        self.test_url = reverse("help-text", args=None)
+        self.test_url = reverse("travel-help-text", args=None)
 
-    @tag("api" ,'help-text')
+    @tag("api", 'help-text')
     def test_url(self):
-        self.assert_correct_url("help-text", test_url_args=None, expected_url_path=f"/api/URL/{self.instance.pk}/")
-
+        self.assert_correct_url("travel-help-text", test_url_args=None, expected_url_path=f"/api/travel/help-text/")
 
     @tag("api", 'help-text')
     def test_get(self):
@@ -1209,78 +1203,83 @@ class TestHelpTextAPIView(CommonTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # RESPONSE DATA
-        valid_user = None
-        self.get_and_login_user(user=None)
+        self.get_and_login_user()
         response = self.client.get(self.test_url)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], self.instance.id)
-        # or, for lists with pagination...
-        self.assertEqual(len(data["results"]), 1)
-        self.assertEqual(data["results"][0]["id"], self.instance.id)
-
-        # check query params
-        object = FactoryFloor.Factory()
-        data = self.client.get(self.test_url+f"?={object.id}").data
-        keys.extend([
-            "",
-        ])
-        self.assert_dict_has_keys(data, keys)
+        self.assertIsNotNone(response.data)
 
     @tag("api", 'help-text')
-    def test_post(self):
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestCurrentUserAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.instance = FactoryFloor.UserFactory()
+        self.test_url = reverse("travel-current-user", args=None)
+
+    @tag("api", 'current-user')
+    def test_url(self):
+        self.assert_correct_url("travel-current-user", test_url_args=None, expected_url_path=f"/api/travel/user/")
+
+    @tag("api", 'current-user')
+    def test_get(self):
         # PERMISSIONS
         # authenticated users
-        response = self.client.post(self.test_url, data=FactoryFloor.HelpTextFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # unauthenticated users
-        self.client.logout()
-        response = self.client.post(self.test_url, data=FactoryFloor.HelpTextFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # RESPONSE DATA
-        valid_user = None
-        self.get_and_login_user(user=None)
-        response = self.client.post(self.test_url, data=FactoryFloor.HelpTextFactory.get_valid_data())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        keys = [
-            "id",
-        ]
-        self.assert_dict_has_keys(response.data, keys)
-
-
-
-    @tag("api", 'help-text')
-    def test_put_patch(self):
-        # PERMISSIONS
-        # authenticated users
-        data_dict = Factory.get_valid_data()
-        data_json = json.dumps(data_dict)
-        response = self.client.put(self.test_url, data=data_json, content_type="application/json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.patch(self.test_url, data=data_json, content_type="application/json")
+        response = self.client.get(self.test_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # unauthenticated users
         self.client.logout()
-        response = self.client.put(self.test_url, data=data_json, content_type="application/json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        response = self.client.patch(self.test_url, data=data_json, content_type="application/json")
+        response = self.client.get(self.test_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # RESPONSE DATA
-        data_dict = ObservationFactory.get_valid_data()
-        data_json = json.dumps(data_dict)
-        self.get_and_login_user(self.user)
-        response = self.client.patch(self.test_url, data=data_json, content_type="application/json")
-        self.assertEqual(response.data["my_random_field_to_spot_check"], data_dict["carapace_length_mm"])
+        self.get_and_login_user()
+        response = self.client.get(self.test_url)
+        self.assertIsNotNone(response.data)
 
-        data_dict = ObservationFactory.get_valid_data()
-        data_json = json.dumps(data_dict)
-        self.get_and_login_user(self.user)
-        response = self.client.put(self.test_url, data=data_json, content_type="application/json")
-        self.assertEqual(response.data["my_random_field_to_spot_check"], data_dict["carapace_length_mm"])
+    @tag("api", 'current-user')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 
 
-    @tag("api",'help-text')
+class TestAdminWarningsAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.test_url = reverse("travel-admin-warnings", args=None)
+
+    @tag("api", 'admin-warnings')
+    def test_url(self):
+        self.assert_correct_url("travel-admin-warnings", test_url_args=None, expected_url_path=f"/api/travel/admin-warnings/")
+
+    @tag("api", 'admin-warnings')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        self.get_and_login_user()
+        response = self.client.get(self.test_url)
+        self.assertIsNotNone(response.data)
+
+    @tag("api", 'admin-warnings')
     def test_unallowed_methods_only(self):
         restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)

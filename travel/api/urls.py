@@ -5,19 +5,18 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'trips', views.TripViewSet)  # tested
-router.register(r'requests', views.RequestViewSet)   # tested
+router.register(r'requests', views.RequestViewSet)  # tested
 router.register(r'travellers', views.TravellerViewSet)  # tested
 router.register(r'request-reviewers', views.ReviewerViewSet)  # tested
 router.register(r'trip-reviewers', views.TripReviewerViewSet)  # tested
-router.register(r'request-files', views.FileViewSet)
-router.register(r'costs', views.CostViewSet)
+router.register(r'request-files', views.FileViewSet)  # tested
+router.register(r'costs', views.CostViewSet)  # tested
 
 urlpatterns = [
-    path("travel/", include(router.urls)),
-    path("travel/user/", views.CurrentTravelUserAPIView.as_view(), name="travel-current-user"),
-    path("travel/help-text/", views.HelpTextAPIView.as_view(), name="travel-current-user"),
-    path("travel/admin-warnings/", views.AdminWarningsAPIView.as_view(), name="travel-current-user"),
-
+    path("travel/", include(router.urls)),  # tested
+    path("travel/user/", views.CurrentTravelUserAPIView.as_view(), name="travel-current-user"),  # tested
+    path("travel/help-text/", views.HelpTextAPIView.as_view(), name="travel-help-text"),  # tested
+    path("travel/admin-warnings/", views.AdminWarningsAPIView.as_view(), name="travel-admin-warnings"),  # tested
 
     # lookups
     path("travel/fiscal-years/", views.FiscalYearTravelListAPIView.as_view(), name="travel-fiscal-year-list"),
