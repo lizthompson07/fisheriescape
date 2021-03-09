@@ -120,8 +120,7 @@ var app = new Vue({
       if (this.faqSearch && this.faqSearch !== '') {
         myArray = []
         for (var i = 0; i < this.faqs.length; i++) {
-          if (this.faqs[i].tquestion.search(this.faqSearch) > -1 || this.faqs[i].tanswer.search(this.faqSearch) > -1) {
-            console.log(123)
+          if (this.faqs[i].tquestion.toLowerCase().search(this.faqSearch.toLowerCase()) > -1 || this.faqs[i].tanswer.toLowerCase().search(this.faqSearch.toLowerCase()) > -1) {
             myArray.push(this.faqs[i])
           }
         }
