@@ -4,10 +4,16 @@ from . import views
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
-    #
-    # # reference tables
-    # path('settings/divers/', views.DiverFormsetView.as_view(), name="manage_divers"),  
-    # path('settings/diver/<int:pk>/delete/', views.DiverHardDeleteView.as_view(), name="delete_diver"),  
+
+    # reference tables
+    path('settings/experiment-types/', views.ExperimentTypeFormsetView.as_view(), name="manage_experiment_types"),
+    path('settings/experiment-type/<int:pk>/delete/', views.ExperimentTypeHardDeleteView.as_view(), name="delete_experiment_type"),
+
+    path('settings/dna-extraction-protocols/', views.DNAExtractionProtocolFormsetView.as_view(), name="manage_dna_extraction_protocols"),
+    path('settings/dna-extraction-protocol/<int:pk>/delete/', views.DNAExtractionProtocolHardDeleteView.as_view(), name="delete_dna_extraction_protocol"),
+
+
+
     #
     # # regions
     # path('regions/', views.RegionListView.as_view(), name="region_list"),  
@@ -41,8 +47,8 @@ urlpatterns = [
     # path('dives/<int:pk>/view/', views.DiveDetailView.as_view(), name="dive_detail"),  
     # path('dives/<int:pk>/data-entry/', views.DiveDataEntryDetailView.as_view(), name="dive_data_entry"),  
     #
-    # # reports
-    # path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
+    # reports
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     # path('reports/dive-log/', views.dive_log_report, name="dive_log_report"),
 
 ]

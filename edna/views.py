@@ -1,5 +1,13 @@
-from edna.mixins import LoginAccessRequiredMixin
-from shared_models.views import CommonTemplateView
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy, reverse
+from django.utils.translation import gettext_lazy
+
+from lib.templatetags.custom_filters import nz
+from shared_models.views import CommonTemplateView, CommonHardDeleteView, CommonFormsetView, CommonFormView
+from . import models, forms
+from .mixins import LoginAccessRequiredMixin, eDNAAdminRequiredMixin
+from .utils import in_edna_admin_group
 
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
@@ -7,25 +15,45 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     active_page_name_crumb = "home"
     template_name = 'edna/index.html'
 
-#
-# # REFERENCE TABLES #
-# ####################
-#
-# class DiverFormsetView(eDNAAdminRequiredMixin, CommonFormsetView):
-#     template_name = 'edna/formset.html'
-#     h1 = "Manage Divers"
-#     queryset = models.Diver.objects.all()
-#     formset_class = forms.DiverFormset
-#     success_url_name = "edna:manage_divers"
-#     home_url_name = "edna:index"
-#     delete_url_name = "edna:delete_diver"
-#     post_display_fields = ["dive_count"]
-#
-#
-# class DiverHardDeleteView(eDNAAdminRequiredMixin, CommonHardDeleteView):
-#     model = models.Diver
-#     success_url = reverse_lazy("edna:manage_divers")
-#
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_edna_admin_group(self.request.user)
+        return context
+
+
+# REFERENCE TABLES #
+####################
+
+class ExperimentTypeFormsetView(eDNAAdminRequiredMixin, CommonFormsetView):
+    template_name = 'edna/formset.html'
+    h1 = "Manage Experiment Types"
+    queryset = models.ExperimentType.objects.all()
+    formset_class = forms.ExperimentTypeFormset
+    success_url_name = "edna:manage_experiment_types"
+    home_url_name = "edna:index"
+    delete_url_name = "edna:delete_experiment_type"
+
+
+class ExperimentTypeHardDeleteView(eDNAAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ExperimentType
+    success_url = reverse_lazy("edna:manage_experiment_types")
+
+
+class DNAExtractionProtocolFormsetView(eDNAAdminRequiredMixin, CommonFormsetView):
+    template_name = 'edna/formset.html'
+    h1 = "Manage DNA Extraction Protocols"
+    queryset = models.DNAExtractionProtocol.objects.all()
+    formset_class = forms.DNAExtractionProtocolFormset
+    success_url_name = "edna:manage_dna_experiment_protocols"
+    home_url_name = "edna:index"
+    delete_url_name = "edna:delete_dna_experiment_protocol"
+
+
+class DNAExtractionProtocolHardDeleteView(eDNAAdminRequiredMixin, CommonHardDeleteView):
+    model = models.DNAExtractionProtocol
+    success_url = reverse_lazy("edna:manage_dna_experiment_protocols")
+
+
 #
 # # REGIONS #
 # ###########
@@ -489,27 +517,23 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 #         return context
 #
 #
-# # REPORTS #
-# ###########
-#
-# class ReportSearchFormView(eDNAAdminRequiredMixin, CommonFormView):
-#     template_name = 'edna/report_search.html'
-#     form_class = forms.ReportSearchForm
-#     h1 = gettext_lazy("eDNA Reports")
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         return context
-#
-#     def form_valid(self, form):
-#         report = int(form.cleaned_data["report"])
-#         year = nz(form.cleaned_data["year"], "None")
-#         if report == 1:
-#             return HttpResponseRedirect(reverse("edna:dive_log_report") + f"?year={year}")
-#         else:
-#             messages.error(self.request, "Report is not available. Please select another report.")
-#             return HttpResponseRedirect(reverse("edna:reports"))
-#
+# REPORTS #
+###########
+
+class ReportSearchFormView(eDNAAdminRequiredMixin, CommonFormView):
+    template_name = 'edna/report_search.html'
+    form_class = forms.ReportSearchForm
+    h1 = gettext_lazy("eDNA Reports")
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        year = nz(form.cleaned_data["year"], "None")
+        if report == 1:
+            return HttpResponseRedirect(reverse("edna:dive_log_report") + f"?year={year}")
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("edna:reports"))
+
 #
 # @login_required()
 # def dive_log_report(request):

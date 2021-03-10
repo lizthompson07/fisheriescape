@@ -4,31 +4,28 @@
   {% trans "Home" %}
 </a></li>
 
-{#<li class="nav-item"><a class="nav-link" href="{% url 'edna:reports' %}">#}
-{#  {% trans "Reports" %}#}
-{#</a></li>#}
+{% if is_admin %}
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'edna:reports' %}">
+      {% trans "Reports" %}
+    </a>
+  </li>
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+      {% trans "Settings" %}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="{% url 'edna:manage_experiment_types' %}">
+        {% trans "Experiment Types" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'edna:manage_dna_extraction_protocols' %}">
+        {% trans "DNA Extraction Protocols" %}
+      </a>
+    </div>
+  </li>
+{% endif %}
 
-{#{% for group in user.groups.all %}#}
-{#  {% if group.name == "edna_admin" %}#}
-{##}
-{#    <li class="nav-item dropdown">#}
-{#      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"#}
-{#         aria-haspopup="true" aria-expanded="false">#}
-{#        {% trans "Settings" %}#}
-{#      </a>#}
-{#      <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
-{#        <a class="dropdown-item" href="{% url 'edna:region_list' %}">#}
-{#          {% trans "Regions, Sites and Transects" %}#}
-{#        </a>#}
-{#        <a class="dropdown-item" href="{% url 'edna:manage_divers' %}">#}
-{#          {% trans "Divers" %}#}
-{#        </a>#}
-{#      </div>#}
-{#    </li>#}
-{##}
-{#  {% endif %}#}
-{##}
-{#{% endfor %}#}
 
 
 

@@ -1,8 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
-from .utils import in_scuba_crud_group, in_scuba_admin_group
-
+from .utils import in_edna_crud_group, in_edna_admin_group
 
 class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
@@ -18,7 +17,7 @@ class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class eDNACRUDAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
-        return in_scuba_crud_group(self.request.user)
+        return in_edna_crud_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -29,7 +28,7 @@ class eDNACRUDAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class eDNAAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
-        return in_scuba_admin_group(self.request.user)
+        return in_edna_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
