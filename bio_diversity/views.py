@@ -264,6 +264,12 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             else:
                 self.get_form_class().base_fields["tank_id"].required = False
                 self.get_form_class().base_fields["tank_id"].widget = forms.HiddenInput()
+            if evntc.__str__() == "Egg Development":
+                self.get_form_class().base_fields["trof_id"].required = True
+            else:
+                self.get_form_class().base_fields["trof_id"].required = False
+                self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
+                self.get_form_class().base_fields["egg_data_type"].widget = forms.HiddenInput()
         return init
 
     def get_context_data(self, **kwargs):
@@ -2352,9 +2358,9 @@ class MortFormView(mixins.MortMixin, UserPassesTestMixin, CommonFormView):
         init["created_date"] = date.today
         init["mort_date"] = date.today
         if self.kwargs.get("iorg") == "indv":
-            init["indv_mort"]=self.kwargs.get("pk")
+            init["indv_mort"] = self.kwargs.get("pk")
         elif self.kwargs.get("iorg") == "grp":
-            init["grp_mort"]=self.kwargs.get("pk")
+            init["grp_mort"] = self.kwargs.get("pk")
         return init
 
     def get_nav_menu(self):

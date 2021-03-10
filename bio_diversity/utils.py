@@ -286,11 +286,36 @@ def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp
         return False
 
 
+def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
+    row_entered = False
+    if not trof_name == "nan":
+        contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                     trof_id=models.Trough.objects.filter(name=trof_name, facic_id=cleaned_data["facic_id"]).get(),
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+        try:
+            contx.clean()
+            contx.save()
+            row_entered = True
+        except ValidationError:
+            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
+                                                        trof_id=contx.trof_id).get()
+        if indv_pk or grp_pk:
+            enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
+        if return_contx:
+            return contx
+        else:
+            return row_entered
+    else:
+        return False
+
+
 def enter_trof_contx(trof, cleaned_data, final_flag, indv_pk=None, grp_pk=None, return_contx=False):
     row_entered = False
     if not trof == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                     tro_id=models.Trough.objects.filter(name=trof, facic_id=cleaned_data["facic_id"]).get(),
+                                     trof_id=models.Trough.objects.filter(name=trof, facic_id=cleaned_data["facic_id"]).get(),
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
                                      )
@@ -312,7 +337,7 @@ def enter_trof_contx(trof, cleaned_data, final_flag, indv_pk=None, grp_pk=None, 
         return False
 
 
-def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_id=None, contx=None, inst_id=None, env_start=None, avg=False):
+def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None, env_start=None, avg=False, save=True, qual_id=False):
     row_entered = False
     if isinstance(env_value, float):
         if math.isnan(env_value):
@@ -321,38 +346,49 @@ def enter_env(env_value, env_date, cleaned_data, envc_str, envsc_str=None, loc_i
         env_datetime = datetime.datetime.combine(env_date, env_start).replace(tzinfo=pytz.UTC)
     else:
         env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
-    if envsc_str:
+
+    if not qual_id:
+        qual_id = models.QualCode.objects.filter(name="Good").get()
+
+    if envsc_id:
         env = models.EnvCondition(contx_id=contx,
                                   loc_id=loc_id,
-                                  envc_id=models.EnvCode.objects.filter(name=envc_str).get(),
-                                  envsc_id=models.EnvSubjCode.objects.filter(name=envsc_str).get(),
+                                  envc_id=envc_id,
+                                  envsc_id=envsc_id,  # models.EnvSubjCode.objects.filter(name=envsc_str).get(),
                                   inst_id=inst_id,
                                   env_val=str(env_value),
                                   env_avg=avg,
                                   start_datetime=env_datetime,
-                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  qual_id=qual_id,
                                   created_by=cleaned_data["created_by"],
                                   created_date=cleaned_data["created_date"],
                                   )
     else:
         env = models.EnvCondition(contx_id=contx,
                                   loc_id=loc_id,
-                                  envc_id=models.EnvCode.objects.filter(name=envc_str).get(),
+                                  envc_id=envc_id, # models.EnvCode.objects.filter(name=envc_str).get(),
                                   inst_id=inst_id,
                                   env_val=str(env_value),
                                   env_avg=avg,
                                   start_datetime=env_datetime,
-                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  qual_id=qual_id,
                                   created_by=cleaned_data["created_by"],
                                   created_date=cleaned_data["created_date"],
                                   )
-    try:
-        env.clean()
-        env.save()
-        row_entered = True
-    except (ValidationError, IntegrityError):
-        pass
-    return row_entered
+    if save:
+        try:
+            env.clean()
+            env.save()
+            row_entered = True
+        except (ValidationError, IntegrityError):
+            pass
+        return row_entered
+    else:
+        try:
+            env.clean()
+            return env
+        except (ValidationError, IntegrityError):
+            return None
 
 
 def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, final_flag=None):

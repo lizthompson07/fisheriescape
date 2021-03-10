@@ -16,7 +16,8 @@ from django.utils.translation import gettext_lazy as _
 
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
-    create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration, enter_cnt, enter_cnt_det
+    create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration, enter_cnt, enter_cnt_det, \
+    enter_trof_contx
 
 
 class CreatePrams(forms.ModelForm):
@@ -215,6 +216,10 @@ class DataForm(CreatePrams):
     class Meta:
         model = models.DataLoader
         exclude = []
+
+    egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
+    egg_data_type = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
+    trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
@@ -790,7 +795,7 @@ class DataForm(CreatePrams):
         # ---------------------------MACTAQUAC SPAWNING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=5, sheet_name="RECORDED matings")
+                data = pd.read_excel(cleaned_data["data_csv"], header=5,  engine='xlrd', sheet_name="RECORDED matings")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -973,7 +978,7 @@ class DataForm(CreatePrams):
         # ---------------------------COLDBROOK SPAWNING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=5, sheet_name="Recording")
+                data = pd.read_excel(cleaned_data["data_csv"], header=5, engine='xlrd', sheet_name="Recording")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -1207,6 +1212,41 @@ class DataForm(CreatePrams):
 
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+    # ---------------------------TROUGH TEMPERATURE DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Sheet1",
+                                     converters={"Hour": str, 'Year': str, 'Month': str, 'Day': str})
+                data = data.dropna(subset=["Temperature"])
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
+            parsed = True
+            self.request.session["load_success"] = True
+
+            contx = enter_trof_contx(cleaned_data["trof_id"].name, cleaned_data, final_flag=None, return_contx=True)
+
+            qual_id = models.QualCode.objects.filter(name="Good").get()
+            envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+
+            data["datetime"] = data.apply(lambda row: datetime.strptime(row["Year"] + "/" + row["Month"] + "/" +
+                                                                        row["Day"] + "/" + row["Hour"],
+                                                                        "%Y/%b/%d/%H").replace(tzinfo=pytz.UTC), axis=1)
+
+            data["env"] = data.apply(lambda row: enter_env(row["Temperature"], row["datetime"].date(), cleaned_data,
+                                                           envc_id, env_start=row["datetime"].time(), contx=contx,
+                                                           save=False, qual_id=qual_id), axis=1)
+
+            entered_list = models.EnvCondition.objects.bulk_create(list(data["env"].dropna()))
+
+            if not parsed:
+                self.request.session["load_success"] = False
+
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), len(entered_list), len(data_dict))
 
         else:
             log_data = "Data loading not set up for this event type.  No data loaded."
