@@ -12,15 +12,28 @@ YES_NO_CHOICES = (
 )
 
 
-class ExperimentTypeForm(forms.ModelForm):
+class TagForm(forms.ModelForm):
     class Meta:
-        model = models.ExperimentType
+        model = models.Tag
         fields = "__all__"
 
 
-ExperimentTypeFormset = modelformset_factory(
-    model=models.ExperimentType,
-    form=ExperimentTypeForm,
+TagFormset = modelformset_factory(
+    model=models.Tag,
+    form=TagForm,
+    extra=1,
+)
+
+
+class FiltrationTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.FiltrationType
+        fields = "__all__"
+
+
+FiltrationTypeFormset = modelformset_factory(
+    model=models.FiltrationType,
+    form=FiltrationTypeForm,
     extra=1,
 )
 
@@ -38,76 +51,38 @@ DNAExtractionProtocolFormset = modelformset_factory(
 )
 
 
-#
-#
-# class RegionForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Region
-#         fields = "__all__"
-#
-#
-# class SiteForm(forms.ModelForm):
-#     field_order = ["name"]
-#
-#     class Meta:
-#         model = models.Site
-#         fields = "__all__"
-#
-#
-# class TransectForm(forms.ModelForm):
-#     field_order = ["name"]
-#
-#     class Meta:
-#         model = models.Transect
-#         fields = "__all__"
-#
-#
-# class SampleForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Sample
-#         fields = "__all__"
-#         widgets = {
-#             "datetime": forms.DateInput(attrs=dict(type="date")),
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         site_choices = [(site.id, f"{site.region} - {site}") for site in models.Site.objects.order_by("region", "name")]
-#         site_choices.insert(0, (None, "---------"))
-#
-#         self.fields["site"].choices = site_choices
-#
-#
-# class DiveForm(forms.ModelForm):
-#     # field_order = ["name"]
-#     class Meta:
-#         model = models.Dive
-#         fields = "__all__"
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         if kwargs.get("instance"):
-#             self.fields["transect"].queryset = kwargs.get("instance").sample.site.transects.all()
-#         elif kwargs.get("initial"):
-#             self.fields["transect"].queryset = models.Sample.objects.get(pk=kwargs.get("initial").get("sample")).site.transects.all()
-#
-#         self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
-#
-#     def clean(self):
-#         if hasattr(self.instance, "sample"):
-#             sample = self.instance.sample
-#         else:
-#             sample = models.Sample.objects.get(pk=self.initial.get("sample"))
-#
-#         cleaned_data = super().clean()
-#
-#         start_descent = cleaned_data.get("start_descent")
-#
-#         if start_descent and (start_descent.year != sample.datetime.year or
-#                               start_descent.month != sample.datetime.month or
-#                               start_descent.day != sample.datetime.day):
-#             msg = gettext(gettext('This must occur on the same day as the sample: {}').format(date(sample.datetime)))
-#             self.add_error('start_descent', msg)
+class SpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.Species
+        fields = "__all__"
+
+
+class CollectionForm(forms.ModelForm):
+    class Meta:
+        model = models.Collection
+        fields = "__all__"
+        widgets = {
+            "contact_users": forms.SelectMultiple(attrs=chosen_js),
+            "tags": forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+class SampleForm(forms.ModelForm):
+    # field_order = ["name"]
+    class Meta:
+        model = models.Sample
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kwargs.get("instance"):
+            self.fields["transect"].queryset = kwargs.get("instance").sample.site.transects.all()
+        elif kwargs.get("initial"):
+            self.fields["transect"].queryset = models.Collection.objects.get(pk=kwargs.get("initial").get("sample")).site.transects.all()
+
+        self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
+
+
 #
 #
 # class SectionForm(forms.ModelForm):

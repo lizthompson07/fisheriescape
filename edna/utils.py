@@ -4,6 +4,9 @@ from django.contrib.auth.models import Group
 
 
 # open basic access up to anybody who is logged in
+from django.utils.translation import gettext as _
+
+
 def in_edna_admin_group(user):
     # make sure the following group exist:
     admin_group, created = Group.objects.get_or_create(name="enda_admin")
@@ -29,3 +32,30 @@ def calc_nautical_dist(p0, p1):
         math.cos(p1["y"] * math.pi / 180 - p0["y"] * math.pi / 180)
     )
     return nautical_miles
+
+
+def get_sample_field_list():
+    my_list = [
+        'datetime',
+        'site_description',
+        'site_identifier',
+        'collector',
+        'sample_identifier',
+        'latitude',
+        'longitude',
+        'comments',
+    ]
+    return my_list
+
+def get_collection_field_list(collection):
+    my_list = [
+        'program_description',
+        'location_description',
+        'province',
+        'contacts',
+        'filtration_type',
+        'dates|dates',
+        'metadata|{}'.format(_("metadata")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list

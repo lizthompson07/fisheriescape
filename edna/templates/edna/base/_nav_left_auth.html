@@ -16,6 +16,12 @@
       {% trans "Settings" %}
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="{% url 'edna:species_list' %}">
+        {% trans "Species" %}
+      </a>
+       <a class="dropdown-item" href="{% url 'edna:manage_tags' %}">
+        {% trans "Tags" %}
+      </a>
       <a class="dropdown-item" href="{% url 'edna:manage_experiment_types' %}">
         {% trans "Experiment Types" %}
       </a>

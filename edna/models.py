@@ -1,14 +1,17 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.template.defaultfilters import date
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
-from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear
+from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region
 from shared_models.utils import get_metadata_string
 
 
-class ExperimentType(UnilingualLookup):
+class FiltrationType(UnilingualLookup):
     pass
 
 
@@ -16,19 +19,32 @@ class DNAExtractionProtocol(UnilingualLookup):
     pass
 
 
+class Tag(SimpleLookup):
+    pass
+
 class Species(models.Model):
-    common_name_en = models.CharField(max_length=255, blank=True, null=True)
-    common_name_fr = models.CharField(max_length=255, blank=True, null=True)
-    scientific_name = models.CharField(max_length=255, blank=True, null=True)
-    abbrev = models.CharField(max_length=255, blank=True, null=True)
+    common_name_en = models.CharField(max_length=255, verbose_name=_("common name (EN)"))
+    common_name_fr = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("common name (FR)"))
+    scientific_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("scientific name"))
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
 
+    @property
+    def tcommon(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("common_name_en"))):
+            my_str = f'{getattr(self, str(_("common_name_en")))}'
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.common_name_en
+        return my_str
+
     def __str__(self):
-        return self.common_name_en if self.common_name_en else self.scientific_name
+        return self.tcommon
 
     class Meta:
         ordering = ['id']
+        verbose_name_plural = _("Species")
 
     def get_absolute_url(self):
         return reverse('diets:species_detail', kwargs={'pk': self.id})
@@ -37,16 +53,21 @@ class Species(models.Model):
     def full_name(self):
         return "{} (<em>{}</em>)".format(self.common_name_en, self.scientific_name)
 
+    @property
+    def formatted_scientific(self):
+        return f"<em>{self.scientific_name}</em>"
+
 
 class Collection(UnilingualSimpleLookup):
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='edna_collections', blank=True, null=True, verbose_name=_("DFO region"))
     program_description = models.TextField(blank=True, null=True, verbose_name=_("program description"))
-    site_description = models.TextField(blank=True, null=True, verbose_name=_("site description"))
-    site_identifier = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("site identifier"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='edna_regions', blank=True, null=True)
+    location_description = models.TextField(blank=True, null=True, verbose_name=_("location description"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='edna_collections', blank=True, null=True)
     contact_users = models.ManyToManyField(User, blank=True, verbose_name=_("contact DMApps user(s)"))
-    contact_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("contact_name"))
-    contact_email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_("contact_email"))
-    experiment_type = models.ForeignKey(ExperimentType, on_delete=models.DO_NOTHING, related_name="collections", verbose_name=_("experiment type"))
+    contact_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("contact name"))
+    contact_email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_("contact email"))
+    filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="collections", verbose_name=_("filtration type"))
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("tags"))
 
     # calculated
     start_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("start date"))
@@ -68,10 +89,31 @@ class Collection(UnilingualSimpleLookup):
             self.updated_by,
         )
 
+    @property
+    def dates(self):
+        my_str = date(self.start_date)
+        if self.end_date:
+            my_str += f" &rarr; {date(self.end_date)}"
+        return mark_safe(my_str)
 
-class FieldSample(models.Model):
-    collection = models.ForeignKey(Collection, related_name='field_samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
+    @property
+    def sample_count(self):
+        return self.samples.count()
+
+    @property
+    def contacts(self):
+        if self.contact_users.exists():
+            return mark_safe(listrify([f'<a href="mailto:{u.email}">{u.get_full_name()}</a>' for u in self.contact_users.all()]))
+        return mark_safe(f'<a href="mailto:{self.contact_email}">{self.contact_name}</a>')
+
+    def get_absolute_url(self):
+        return reverse("edna:collection_detail", args=[self.pk])
+
+class Sample(models.Model):
+    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
     datetime = models.DateTimeField(verbose_name=_("collection date"), blank=False, null=True)
+    site_description = models.TextField(blank=True, null=True, verbose_name=_("site description"))
+    site_identifier = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("site identifier"))
     collector = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("weather notes"))
     sample_identifier = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("sample identifier"))
     latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude"))
@@ -82,11 +124,11 @@ class FieldSample(models.Model):
         ordering = ["-datetime", "collection"]
 
     def get_absolute_url(self):
-        return reverse("edna:field_sample_detail", args=[self.pk])
+        return reverse("edna:sample_detail", args=[self.pk])
 
 
 class LabSample(models.Model):
-    field_sample = models.ForeignKey(Collection, related_name='lab_samples', on_delete=models.DO_NOTHING, verbose_name=_("field sample"))
+    field_sample = models.ForeignKey(Sample, related_name='lab_samples', on_delete=models.DO_NOTHING, verbose_name=_("field sample"))
     tube_identifier = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("tube ID"))
     # filtration phase
     filtration_datetime = models.DateTimeField(verbose_name=_("filtration date"))
@@ -128,7 +170,7 @@ class LabSample(models.Model):
 
 
 class SpeciesObservation(models.Model):
-    lab_sample = models.ForeignKey(Collection, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("lab sample"))
+    lab_sample = models.ForeignKey(LabSample, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("lab sample"))
     species = models.ForeignKey(Species, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("species"))
     ct_1 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("cycle threshold (ct) - rep 1"))
     edna_1 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L) - rep 1"))

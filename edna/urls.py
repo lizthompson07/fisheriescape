@@ -6,50 +6,39 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # reference tables
-    path('settings/experiment-types/', views.ExperimentTypeFormsetView.as_view(), name="manage_experiment_types"),
-    path('settings/experiment-type/<int:pk>/delete/', views.ExperimentTypeHardDeleteView.as_view(), name="delete_experiment_type"),
+    path('settings/experiment-types/', views.FiltrationTypeFormsetView.as_view(), name="manage_experiment_types"),
+    path('settings/experiment-type/<int:pk>/delete/', views.FiltrationTypeHardDeleteView.as_view(), name="delete_experiment_type"),
 
     path('settings/dna-extraction-protocols/', views.DNAExtractionProtocolFormsetView.as_view(), name="manage_dna_extraction_protocols"),
     path('settings/dna-extraction-protocol/<int:pk>/delete/', views.DNAExtractionProtocolHardDeleteView.as_view(), name="delete_dna_extraction_protocol"),
 
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
 
-    #
-    # # regions
-    # path('regions/', views.RegionListView.as_view(), name="region_list"),  
-    # path('regions/new/', views.RegionCreateView.as_view(), name="region_new"),  
-    # path('regions/<int:pk>/edit/', views.RegionUpdateView.as_view(), name="region_edit"),  
-    # path('regions/<int:pk>/delete/', views.RegionDeleteView.as_view(), name="region_delete"),  
-    # path('regions/<int:pk>/view/', views.RegionDetailView.as_view(), name="region_detail"),  
-    #
-    # # sites
-    # path('regions/<int:region>/new-site/', views.SiteCreateView.as_view(), name="site_new"),  
-    # path('sites/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),  
-    # path('sites/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),  
-    # path('sites/<int:pk>/view/', views.SiteDetailView.as_view(), name="site_detail"),  
-    #
-    # # transects
-    # path('sites/<int:site>/new-transect/', views.TransectCreateView.as_view(), name="transect_new"),  
-    # path('transects/<int:pk>/edit/', views.TransectUpdateView.as_view(), name="transect_edit"),  
-    # path('transects/<int:pk>/delete/', views.TransectDeleteView.as_view(), name="transect_delete"),  
-    #
-    # # samples
-    # path('samples/', views.SampleListView.as_view(), name="sample_list"),  
-    # path('samples/new/', views.SampleCreateView.as_view(), name="sample_new"),  
-    # path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),  
-    # path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),  
-    # path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),  
-    #
-    # # dives
-    # path('samples/<int:sample>/new-dive/', views.DiveCreateView.as_view(), name="dive_new"),  
-    # path('dives/<int:pk>/edit/', views.DiveUpdateView.as_view(), name="dive_edit"),  
-    # path('dives/<int:pk>/delete/', views.DiveDeleteView.as_view(), name="dive_delete"),  
-    # path('dives/<int:pk>/view/', views.DiveDetailView.as_view(), name="dive_detail"),  
-    # path('dives/<int:pk>/data-entry/', views.DiveDataEntryDetailView.as_view(), name="dive_data_entry"),  
+    # species
+    path('species/', views.SpeciesListView.as_view(), name="species_list"),
+    path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
+    path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
+    path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
+
+    # collections
+    path('collections/', views.CollectionListView.as_view(), name="collection_list"),
+    path('collections/new/', views.CollectionCreateView.as_view(), name="collection_new"),
+    path('collections/<int:pk>/edit/', views.CollectionUpdateView.as_view(), name="collection_edit"),
+    path('collections/<int:pk>/delete/', views.CollectionDeleteView.as_view(), name="collection_delete"),
+    path('collections/<int:pk>/view/', views.CollectionDetailView.as_view(), name="collection_detail"),
+
+    # samples
+    path('collections/<int:collection>/new-sample/', views.SampleCreateView.as_view(), name="sample_new"),
+    path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
+    path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
+    path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
+    path('samples/<int:pk>/data-entry/', views.SampleDataEntryDetailView.as_view(), name="sample_data_entry"),
     #
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
-    # path('reports/dive-log/', views.dive_log_report, name="dive_log_report"),
 
 ]
 
