@@ -406,8 +406,8 @@ def get_app_dict(request):
 
     try:
         app_dict["fisheriescape"] = {
-            "title": _("Fisheries Risk Management Landscape"),
-            "description": _("Tool for assessing seasonal fisheries risks for marine species at risk"),
+            "title": _("Fisheries Landscape Tool"),
+            "description": _("Tool for mapping fisheries landscapes for marine species at risk"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('fisheriescape:index'),

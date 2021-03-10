@@ -48,6 +48,10 @@ function removeInfoCrab() {
     snowCrabFishery.resetStyle(this);
 }
 
+function removeInfoNafo() {
+    nafoFishery.resetStyle(this);
+}
+
 
 // Create Lobster polygon layer and use onEachFeature to show certain info for each feature
 
@@ -85,6 +89,24 @@ var snowCrabFishery = L.geoJSON(snowCrabObj, {
         }
 });
 
+// Create NAFO polygon layer and use onEachFeature to show certain info for each feature
+
+var nafoFishery = L.geoJSON(nafoObj, {
+    style: function() {
+        return {
+            color: 'green'
+        }
+    },
+    onEachFeature: function (feature, layer) {
+        myUrl = `http://127.0.0.1:8000/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+        layer.on({
+            mouseover: showInfo,
+            mouseout: removeInfoNafo
+        });
+        }
+});
+
 
 // Create basemaps variable and add basemaps desired to it as options
 
@@ -98,7 +120,8 @@ var baseMaps = {
 var overlayMaps = {
     "Test": tests,
     "Lobster Areas": lobsterFishery,
-    "Snow Crab Areas": snowCrabFishery
+    "Snow Crab Areas": snowCrabFishery,
+    "NAFO Areas": nafoFishery
 };
 
 // Create the control layer box and add baseMaps and overlayMaps to it

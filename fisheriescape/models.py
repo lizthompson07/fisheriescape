@@ -91,7 +91,7 @@ class MarineMammals(models.Model):
     latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("scientific name"))
     sara_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("sara status"))
     cosewic_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("cosewic status"))
-    website = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("website"))
+    website = models.URLField(max_length=250, blank=True, null=True, verbose_name=_("website"))
 
     def __str__(self):
         if self.english_name_short:
@@ -116,7 +116,7 @@ class Fishery(models.Model):
     fishery_status = models.CharField(max_length=255, null=True, blank=True, choices=STATUS_CHOICES,
                                       verbose_name=_("fishery status"))
     gear_type = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear type"))
-    marine_mammals = models.ManyToManyField(MarineMammals, related_name="fisherys", verbose_name=_("marine mammals"))
+    marine_mammals = models.ManyToManyField(MarineMammals, blank=True, related_name="fisherys", verbose_name=_("marine mammals"))
     # license_type = models.CharField(max_length=255, null=True, blank=True, choices=LICENSE_CHOICES,
     #                                 verbose_name=_("type of license"))
 

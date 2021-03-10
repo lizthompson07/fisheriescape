@@ -8,21 +8,38 @@ import os
 from django.contrib.gis.utils import LayerMapping
 from .models import FisheryArea
 
-# For SnowCrab_polygons.shp
+# For NAFO.shp
 mapping = {
     'layer_id': 'Layer_id',
-    'name': 'ZONE_1',
+    'name': 'ZONE',
     'polygon': 'MULTIPOLYGON',
 }
 
-crab_shp = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'data', 'SnowCrab_polygons.shp'),
+nafo_shp = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'data', 'NAFO_Atlantic.shp'),
 )
 
 
 def run(verbose=True):
-    lm = LayerMapping(FisheryArea, crab_shp, mapping, transform=False)
+    lm = LayerMapping(FisheryArea, nafo_shp, mapping, transform=False)
     lm.save(strict=True, verbose=verbose)
+
+
+# For SnowCrab_polygons.shp
+# mapping = {
+#     'layer_id': 'Layer_id',
+#     'name': 'ZONE_1',
+#     'polygon': 'MULTIPOLYGON',
+# }
+#
+# crab_shp = os.path.abspath(
+#     os.path.join(os.path.dirname(__file__), 'data', 'SnowCrab_polygons.shp'),
+# )
+#
+#
+# def run(verbose=True):
+#     lm = LayerMapping(FisheryArea, crab_shp, mapping, transform=False)
+#     lm.save(strict=True, verbose=verbose)
 
 ## For Lobster_polygons.shp
 # mapping = {

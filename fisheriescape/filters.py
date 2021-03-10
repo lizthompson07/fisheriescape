@@ -1,5 +1,7 @@
 import django_filters
 from django import forms
+from django.db.models import Q
+
 from . import models
 from django.utils.translation import gettext as _
 
@@ -27,9 +29,11 @@ class FisheryFilter(django_filters.FilterSet):
     #                                        widget=forms.DateInput(attrs=attr_fp_date))
 
     # had to add 'django_filters' to INSTALLED_APPS in settings.py
-    date_between = django_filters.DateFromToRangeFilter(field_name='start_date',
-                                                        label='Season Start Date (Between)',
-                                                        widget=django_filters.widgets.RangeWidget(attrs=attr_fp_date))
+    # date_between = django_filters.DateFromToRangeFilter(field_name='start_date',
+    #                                                     label='Season Start Date (Between)',
+    #                                                     widget=django_filters.widgets.RangeWidget(attrs=attr_fp_date))
+
+    date = django_filters.DateTimeFilter(method='date_filter', widget=forms.DateInput(attrs=attr_fp_date), label="Date of Interest")
 
     class Meta:
         model = models.Fishery
@@ -40,6 +44,12 @@ class FisheryFilter(django_filters.FilterSet):
 
         }
 
+    def date_filter(self, queryset, name, value):
+        return models.Fishery.objects.filter(
+            Q(start_date__lte=value) & Q(end_date__gte=value)
+        )
+
+#TODO this doesn't currently work
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["species__icontains"] = django_filters.CharFilter(field_name='search_term',

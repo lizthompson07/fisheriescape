@@ -27,15 +27,28 @@
         {% for obj in object.marine_mammals.all %}
             <tr>
             {% for field in mammals_field_list %}
-                <td>
-                {% get_field_value obj field %}
-                </td>
+                {% if field == "website" %}
+                    <td>
+                        <a href="{{ obj.website }}" target="_blank">{{ obj.website }}</a>
+                     </td>
+                {% elif field == "latin_name" %}
+                    <td>
+                        <em>{% get_field_value obj field %}</em>
+                    </td>
+                {% else %}
+                    <td>
+                    {% get_field_value obj field %}
+                    </td>
+                {% endif %}
             {% endfor %}
             </tr>
         {% endfor %}
         </tbody>
     </table>
 {% endif %}
+
+
+
 
 
 
