@@ -78,12 +78,24 @@
         {% trans "Other" %}
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-        <a class="dropdown-item" href="{% url 'whalesdb:list_rtt' %}">
-            {% trans "Time Zone" %}
-        </a>
-        <hr />
         <a class="dropdown-item" href="{% url 'whalesdb:list_cru' %}">
             {% trans "Cruise List" %}
+        </a>
+        <hr />
+        <a class="dropdown-item" href="{% url 'whalesdb:managed_eqt' %}">
+            {% trans "Managed Equipment Type Codes" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'whalesdb:managed_ert' %}">
+            {% trans "Managed Recorder Type Codes" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'whalesdb:managed_prm' %}">
+            {% trans "Managed Parameter Codes" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'whalesdb:managed_rtt' %}">
+            {% trans "Manged Time Zone codes" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'whalesdb:managed_set' %}">
+            {% trans "Manged Station Event Codes" %}
         </a>
     </div>
   </li>

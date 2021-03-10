@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets, filters
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -75,8 +75,9 @@ class TripViewSet(viewsets.ModelViewSet):
                 else:
                     raise ValidationError(_("This function can only be used with an unreviewed trip."))
             else:
-                raise ValidationError(_("You do not have the permissions to reset the reviewer list"))
+                raise PermissionDenied(_("You do not have the permissions to reset the reviewer list"))
             return Response(None, status.HTTP_204_NO_CONTENT)
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
 
     def get_queryset(self):
         if self.kwargs.get("pk"):
@@ -107,11 +108,8 @@ class TripViewSet(viewsets.ModelViewSet):
         serializer = serializers.TripSerializerLITE(queryset, many=True)
         return Response(serializer.data)
 
-    def perform_create(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
-
     def perform_update(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
+        serializer.save(updated_by=self.request.user)
 
 
 class RequestViewSet(viewsets.ModelViewSet):
@@ -137,25 +135,31 @@ class RequestViewSet(viewsets.ModelViewSet):
                 else:
                     raise ValidationError(_("This function can only be used when the trip request is still a draft"))
             else:
-                raise ValidationError(_("You do not have the permissions to reset the reviewer list"))
+                raise PermissionDenied(_("You do not have the permissions to reset the reviewer list"))
             return Response(None, status.HTTP_204_NO_CONTENT)
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
 
     def get_queryset(self):
         # if someone is looking for a specific object...
         if self.kwargs.get("pk"):
             my_request = get_object_or_404(models.TripRequest, pk=self.kwargs.get("pk"))
             related_ids = [r.id for r in utils.get_related_requests(self.request.user)]
-
+            # they can proceed if: 1) can modify func returns true
             can_proceed = False
             if utils.can_modify_request(self.request.user, self.kwargs.get("pk")):
                 can_proceed = True
+            # if: 2) this request is connected to them
             elif int(self.kwargs.get("pk")) in related_ids:
                 can_proceed = True
+            # if: 3) this request fall under their managerial purview
             elif my_request in utils.get_requests_with_managerial_access(self.request.user):
                 can_proceed = True
 
             if can_proceed:
                 return models.TripRequest.objects.filter(pk=self.kwargs.get("pk"))
+            else:
+                raise PermissionDenied(_("You do not have the permissions to view this request."))
         else:
             qp = self.request.query_params
             if qp.get("all") and utils.is_manager_or_assistant_or_admin(self.request.user):
@@ -168,11 +172,10 @@ class RequestViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        serializer.save(last_modified_by=self.request.user)
+        serializer.save(updated_by=self.request.user)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = serializers.TripRequestSerializerLITE(page, many=True)
@@ -192,20 +195,19 @@ class TravellerViewSet(viewsets.ModelViewSet):
         obj = get_object_or_404(models.Traveller, pk=pk)
         if qp.get("populate_all_costs"):
             utils.populate_traveller_costs(self.request, obj)
-            return Response(None, status.HTTP_200_OK)
+            return Response(None, status.HTTP_204_NO_CONTENT)
         elif qp.get("clear_empty_costs"):
             utils.clear_empty_traveller_costs(obj)
-            return Response(None, status.HTTP_200_OK)
+            return Response(None, status.HTTP_204_NO_CONTENT)
         elif qp.get("cherry_pick_approval"):
             # This should only ever be performed by the ADM and on requests that are sitting with ADM
             if utils.is_adm(request.user):
                 if obj.request.status == 14:
-                    # first remove any existing reviewers
                     utils.cherry_pick_traveller(obj, request=request)
                 else:
                     raise ValidationError(_("This function can only be used with requests that are sitting at the ADM level."))
             else:
-                raise ValidationError(_("You do not have the permissions to cherry pick the approval"))
+                raise PermissionDenied(_("You do not have the permissions to cherry pick the approval"))
             return Response(None, status.HTTP_204_NO_CONTENT)
 
     def perform_create(self, serializer):
@@ -285,10 +287,13 @@ class ReviewerViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
         qp = request.query_params
-        if qp.get("rdg") and utils.is_admin(request.user):
-            qs = qs.filter(role=7, status=1).filter(~Q(request__status=16))  # rdg & pending
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
+        if qp.get("rdg"):
+            if utils.is_admin(request.user):
+                qs = qs.filter(role=7, status=1).filter(~Q(request__status=16))  # rdg & pending
+                serializer = self.get_serializer(qs, many=True)
+                return Response(serializer.data)
+            else:
+                raise PermissionDenied(_("You do not have the permissions to view this list"))
         else:
             qs = utils.get_related_request_reviewers(request.user)
             serializer = self.get_serializer(qs, many=True)
