@@ -1,0 +1,113 @@
+{% extends 'edna/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+  .my-btn {
+      font-size: small;
+  }
+
+  #map {
+      height: 200px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
+
+  <div class="btns mb-3">
+    <a href="{% url 'edna:sample_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'edna:sample_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+  </div>
+
+  <div class="mb-3 row">
+    <div class="col">
+      <table class="table table-sm" style="width: 50%">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
+    </div>
+    <div class="col">
+      <div id="map">
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <div class="float-right">
+      <a href="{% url 'edna:dive_new' object.id %}" class="btn btn-sm btn-success"> {% trans "New Dive" %}</a>
+    </div>
+    <h3>{% trans "Dives" %}</h3>
+
+    {% if object.dives.exists %}
+
+      <table class="table table-hover table-sm">
+        <thead>
+        <tr>
+          {% for field in dive_field_list %}
+            {% if field == "comment" %}
+              <th style="width: 25%">
+                {% get_verbose_label object.dives.first field %}
+              </th>
+            {% else %}
+              <th>
+                {% get_verbose_label object.dives.first field %}
+              </th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for dive in object.dives.all %}
+          <tr href="{% url 'edna:dive_detail' dive.id %}">
+            {% for field in dive_field_list %}
+              <td>
+                {% get_field_value dive field %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+    {% else %}
+
+      <em>{% trans "This sample has no dives." %}</em>
+
+    {% endif %}
+  </div>
+  {% if object.site.get_coordinates %}
+
+
+    <script type="application/javascript">
+    function initialize() {
+      map = new L.Map("map", {
+        center: new L.LatLng({{ object.site.get_coordinates.x }}, {{ object.site.get_coordinates.y }}),
+        zoom: 14,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+
+      L.marker(
+          [{{object.site.latitude}}, {{ object.site.longitude }}],
+          {
+            title: '{{object.site}}',
+          }
+      ).addTo(map).bindPopup("<b>Site name:</b> {{object.site.name}}");
+
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
+    });
+    </script>
+  {% endif %}
+
+{% endblock %}

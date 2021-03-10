@@ -1,0 +1,40 @@
+{% extends "edna/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load custom_tags %}
+
+{% block header %}
+  {{ block.super }}
+  {% include "edna/_background_img.html" %}
+{% endblock %}
+
+{% block content %}
+
+  {% echo "btn btn-outline-dark " as btn_class %}
+  {% echo "btn btn-outline-secondary " as admin_btn_class %}
+  <br>
+  <div class="container bg-light curvy mb-3 mt-5 shadowbox">
+  <div class="float-left">
+    <img src="{% static 'edna/Edna_Krabappel.png' %}" alt="" width="200px">
+  </div>
+    <div class="">
+      <h1 class="text-center mt-3 mb-5">
+        {% trans "Welcome to eDNA Krabappel" %}
+      </h1>
+      <h3 class="text-center text-muted">
+        {% trans "eDNA Sample Archive and Tracking Tool" %}
+      </h3>
+    </div>
+    <div class="mb-5"></div>
+    <div class="text-center">
+      <a href="#" class="btn btn-primary">{% trans "Find a Samples" %}</a> {# {% url 'edna:sample_list' %} #}
+    </div>
+  </div>
+
+
+  </div>
+
+
+{% endblock %}
+
+

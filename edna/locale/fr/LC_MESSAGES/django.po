@@ -1,0 +1,587 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-03-10 12:12-0400\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"X-Generator: Poedit 2.4.1\n"
+
+#: .\edna\filters.py:25
+msgid "Search term"
+msgstr "Terme à rechercher"
+
+#: .\edna\filters.py:41
+msgid "Region"
+msgstr "Région"
+
+#: .\edna\forms.py:95
+msgid "This must occur on the same day as the sample: {}"
+msgstr "This must occur on the same day as the sample: {}"
+
+#: .\edna\forms.py:174
+msgid "Year"
+msgstr "Année"
+
+#: .\edna\models.py:23
+msgid "program description"
+msgstr ""
+
+#: .\edna\models.py:24
+#, fuzzy
+#| msgid "section"
+msgid "site description"
+msgstr "section"
+
+#: .\edna\models.py:25
+msgid "site identifier"
+msgstr ""
+
+#: .\edna\models.py:27
+msgid "contact DMApps user(s)"
+msgstr ""
+
+#: .\edna\models.py:28
+msgid "contact_name"
+msgstr ""
+
+#: .\edna\models.py:29
+msgid "contact_email"
+msgstr ""
+
+#: .\edna\models.py:30
+msgid "experiment type"
+msgstr ""
+
+#: .\edna\models.py:33
+#, fuzzy
+#| msgid "start latitude"
+msgid "start date"
+msgstr "latitude de depart"
+
+#: .\edna\models.py:34
+#, fuzzy
+#| msgid "end latitude"
+msgid "end date"
+msgstr "latitude de fin"
+
+#: .\edna\models.py:54
+#, fuzzy
+#| msgid "section"
+msgid "collection"
+msgstr "section"
+
+#: .\edna\models.py:55
+msgid "collection date"
+msgstr ""
+
+#: .\edna\models.py:56
+msgid "weather notes"
+msgstr "notes météorologiques"
+
+#: .\edna\models.py:57
+#, fuzzy
+#| msgid "sample count"
+msgid "sample identifier"
+msgstr "nombre des échantillons"
+
+#: .\edna\models.py:58
+#, fuzzy
+#| msgid "end latitude"
+msgid "latitude"
+msgstr "latitude de fin"
+
+#: .\edna\models.py:59
+#, fuzzy
+#| msgid "end longitude"
+msgid "longitude"
+msgstr "longitude de fin"
+
+#: .\edna\models.py:60
+#, fuzzy
+#| msgid "comment"
+msgid "field comments"
+msgstr "commentaire"
+
+#: .\edna\templates\edna\base\_app_title.html:2
+msgid "eDNA Krabappel"
+msgstr ""
+
+#: .\edna\templates\edna\base\_nav_left_auth.html:4
+msgid "Home"
+msgstr "Accueil"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:32
+msgid "All Done!"
+msgstr "Terminé!"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:34
+#: .\edna\templates\edna\dive_data_entry\main.html:58
+#: .\edna\templates\edna\dive_data_entry\main.html:152
+#: .\edna\templates\edna\dive_detail.html:49
+#: .\edna\templates\edna\dive_detail.html:61
+msgid "Observations"
+msgstr "Les observations"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:47
+#: .\edna\templates\edna\dive_data_entry\main.html:119
+msgid "New Section"
+msgstr "Nouvelle section"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:100
+msgid "No observations"
+msgstr "Aucune observations"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:112
+msgid "No sections have been added to this dive yet."
+msgstr "Aucune section n'a encore été ajoutée à cette plongée."
+
+#: .\edna\templates\edna\dive_data_entry\main.html:134
+msgid "Substrate total percentage:"
+msgstr "Pourcentage total du substrat:"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:144
+msgid "Save Section"
+msgstr "Enregistrer la section"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:191
+msgid "Add (Enter)"
+msgstr "Ajouter (retour)"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:222
+msgid "TOTAL: "
+msgstr ""
+
+#: .\edna\templates\edna\dive_data_entry\main.html:225
+msgid "This section has no observations"
+msgstr "Cette section n'a pas d'observations"
+
+#: .\edna\templates\edna\dive_data_entry\main.html:233
+msgid "Back"
+msgstr "Retour"
+
+#: .\edna\templates\edna\dive_detail.html:16
+#: .\edna\templates\edna\region_detail.html:16
+#: .\edna\templates\edna\sample_detail.html:21
+#: .\edna\templates\edna\site_detail.html:16
+#: .\edna\templates\edna\site_detail.html:70
+msgid "Edit"
+msgstr "Modifier"
+
+#: .\edna\templates\edna\dive_detail.html:17
+#: .\edna\templates\edna\region_detail.html:17
+#: .\edna\templates\edna\sample_detail.html:22
+#: .\edna\templates\edna\site_detail.html:17
+#: .\edna\templates\edna\site_detail.html:75
+msgid "Delete"
+msgstr "Supprimer"
+
+#: .\edna\templates\edna\dive_detail.html:18
+msgid "Data Entry Mode"
+msgstr "Mode de saisie des données"
+
+#: .\edna\templates\edna\dive_detail.html:39
+msgid "Cannot display map because transect has no coordinates"
+msgstr ""
+
+#: .\edna\templates\edna\dive_detail.html:139
+msgid "This dive has no observations."
+msgstr "Cette plongée n'a pas d'observation."
+
+#: .\edna\templates\edna\form.html:31
+msgid "Degrees (DD)"
+msgstr "Degrés (DD)"
+
+#: .\edna\templates\edna\form.html:32
+msgid "Minutes (MM.mmmmm)"
+msgstr "Minutes (MM.mmmmm)"
+
+#: .\edna\templates\edna\index.html:22
+msgid "Welcome to eDNA Krabappel"
+msgstr ""
+
+#: .\edna\templates\edna\index.html:25
+msgid "eDNA Sample Archive and Tracking Tool"
+msgstr ""
+
+#: .\edna\templates\edna\index.html:30
+#, fuzzy
+#| msgid "View Samples"
+msgid "Find a Samples"
+msgstr "Afficher les échantillons"
+
+#: .\edna\templates\edna\region_detail.html:36
+msgid "Add Site"
+msgstr "Ajouter un emplacement"
+
+#: .\edna\templates\edna\region_detail.html:38
+msgid "Sites"
+msgstr "Les emplacements"
+
+#: .\edna\templates\edna\region_detail.html:51
+msgid "No. of transects"
+msgstr "Nombre des transects"
+
+#: .\edna\templates\edna\region_detail.html:52
+msgid "No. of samples"
+msgstr "Nombre des echantillons"
+
+#: .\edna\templates\edna\region_detail.html:73
+msgid "This region has no sites."
+msgstr "Cette région n'a pas d'emplacements."
+
+#: .\edna\templates\edna\report_search.html:12
+msgid "Please select a report"
+msgstr "Veuillez sélectionner un rapport"
+
+#: .\edna\templates\edna\sample_detail.html:41
+msgid "New Dive"
+msgstr "Nouvelle plongée"
+
+#: .\edna\templates\edna\sample_detail.html:43
+msgid "Dives"
+msgstr "Les plongées"
+
+#: .\edna\templates\edna\sample_detail.html:78
+msgid "This sample has no dives."
+msgstr "Cet échantillon n'a pas de plongées."
+
+#: .\edna\templates\edna\site_detail.html:36
+msgid "Add Transect"
+msgstr "Ajouter un transect"
+
+#: .\edna\templates\edna\site_detail.html:38
+msgid "Transects"
+msgstr "Les transects"
+
+#: .\edna\templates\edna\site_detail.html:51
+msgid "No. of dives"
+msgstr "No. de plongées"
+
+#: .\edna\templates\edna\site_detail.html:85
+msgid "This site has no transects."
+msgstr "Ce emplacement n'a pas de transects."
+
+#: .\edna\test\test_models.py:268
+msgid "North"
+msgstr "nord"
+
+#: .\edna\test\test_models.py:269
+msgid "Northeast"
+msgstr "nord-est"
+
+#: .\edna\test\test_models.py:270
+msgid "East"
+msgstr "est"
+
+#: .\edna\test\test_models.py:271
+msgid "Southeast"
+msgstr "sud-est"
+
+#: .\edna\test\test_models.py:272
+msgid "South"
+msgstr "sud"
+
+#: .\edna\test\test_models.py:273
+msgid "Southwest"
+msgstr "sud-ouest"
+
+#: .\edna\test\test_models.py:274
+msgid "West"
+msgstr "ouest"
+
+#: .\edna\test\test_models.py:275
+msgid "Northwest"
+msgstr "nord-ouest"
+
+#: .\edna\test\test_models.py:284
+msgid "Left"
+msgstr "à gauche"
+
+#: .\edna\test\test_models.py:285
+msgid "Right"
+msgstr "à droite"
+
+#: .\edna\test\test_models.py:412
+msgid "0 - unknown"
+msgstr "0 - inconnue"
+
+#: .\edna\test\test_models.py:413
+msgid "1 - male"
+msgstr "1 - mâle"
+
+#: .\edna\test\test_models.py:414
+msgid "2 - female"
+msgstr "2 - femâle"
+
+#: .\edna\test\test_models.py:422
+msgid "0 - no eggs"
+msgstr "0 - pas d'oeufs"
+
+#: .\edna\test\test_models.py:423
+msgid "b - berried"
+msgstr "b - berried"
+
+#: .\edna\test\test_models.py:424
+msgid "b1 - berried with new eggs"
+msgstr "b1 - berried avec œufs nouveau"
+
+#: .\edna\test\test_models.py:425
+msgid "b2 - berried with black eggs"
+msgstr "b2 - berried avec œufs noirs"
+
+#: .\edna\test\test_models.py:426
+msgid "b3 - berried with developed eggs"
+msgstr "b3 - berried avec œufs développés"
+
+#: .\edna\test\test_models.py:434
+msgid "1 - certain"
+msgstr "1- certain"
+
+#: .\edna\test\test_models.py:435
+msgid "0 - uncertain"
+msgstr "0 - pas certain"
+
+#~ msgid "abbreviation"
+#~ msgstr "abréviation"
+
+#~ msgid "region"
+#~ msgstr "région"
+
+#~ msgid "latitude (degrees)"
+#~ msgstr "latitude (degrés)"
+
+#~ msgid "latitude (minutes)"
+#~ msgstr "latitude (minutes)"
+
+#~ msgid "longitude (degrees)"
+#~ msgstr "longitude (degrés)"
+
+#~ msgid "longitude (minutes)"
+#~ msgstr "longitude (minutes)"
+
+#~ msgid "latitude (decimal degrees)"
+#~ msgstr "latitude (degrés décimaux)"
+
+#~ msgid "longitude (decimal degrees)"
+#~ msgstr "longitude (degrés décimaux)"
+
+#~ msgid "name"
+#~ msgstr "nom"
+
+#~ msgid "site"
+#~ msgstr "emplacement"
+
+#~ msgid "start latitude (minutes)"
+#~ msgstr "latitude de départ (minutes)"
+
+#~ msgid "start longitude"
+#~ msgstr "longitude de depart"
+
+#~ msgid "start longitude (minutes)"
+#~ msgstr "longitude de départ (minutes)"
+
+#~ msgid "end latitude (minutes)"
+#~ msgstr "latitude de fin (minutes)"
+
+#~ msgid "end longitude (minutes)"
+#~ msgstr "longitude de fin (minutes)"
+
+#~ msgid "start latitude (decimal degrees)"
+#~ msgstr "latitude de départ (degrés décimaux)"
+
+#~ msgid "start longitude (decimal degrees)"
+#~ msgstr "longitude de départ (degrés décimaux)"
+
+#~ msgid "end latitude (decimal degrees)"
+#~ msgstr "latitude de fin (degrés décimaux)"
+
+#~ msgid "end longitude (decimal degrees)"
+#~ msgstr "longitude de fin (degrés décimaux)"
+
+#~ msgid "first name"
+#~ msgstr "prénom"
+
+#~ msgid "last name"
+#~ msgstr "nom de famille"
+
+#~ msgid "Sample #"
+#~ msgstr "No. d'échantillon "
+
+#~ msgid "sample"
+#~ msgstr "échantillon"
+
+#~ msgid "transect"
+#~ msgstr "transect"
+
+#~ msgid "diver"
+#~ msgstr "plongeur/euse"
+
+#~ msgid "start descent"
+#~ msgstr "commencer la descente"
+
+#~ msgid "bottom time (min)"
+#~ msgstr "temps au fond (min)"
+
+#~ msgid "max depth (ft)"
+#~ msgstr "profondeur max (ft)"
+
+#~ msgid "side"
+#~ msgstr "côté"
+
+#~ msgid "width (m)"
+#~ msgstr "largeur (m)"
+
+#~ msgid "dive"
+#~ msgstr "ploge"
+
+#~ msgid "5m interval [1-20]"
+#~ msgstr "Intervalle de 5m [1-20]"
+
+#~ msgid "depth (ft)"
+#~ msgstr "profondeur (ft)"
+
+#~ msgid "sand [0-1]"
+#~ msgstr "sable [0-1]"
+
+#~ msgid "mud [0-1]"
+#~ msgstr "vase [0-1]"
+
+#~ msgid "hard [0-1]"
+#~ msgstr "dur [0-1]"
+
+#~ msgid "algae [0-1]"
+#~ msgstr "algue [0-1]"
+
+#~ msgid "gravel [0-1]"
+#~ msgstr "gravier [0-1]"
+
+#~ msgid "cobble [0-1]"
+#~ msgstr "cobble [0-1]"
+
+#~ msgid "pebble [0-1]"
+#~ msgstr "caillou [0-1]"
+
+#~ msgid "sand"
+#~ msgstr "sable"
+
+#~ msgid "mud"
+#~ msgstr "vase"
+
+#~ msgid "hard"
+#~ msgstr "dur"
+
+#~ msgid "algae"
+#~ msgstr "algue"
+
+#~ msgid "gravel"
+#~ msgstr "gravier"
+
+#~ msgid "cobble"
+#~ msgstr "cobble"
+
+#~ msgid "pebble"
+#~ msgstr "caillou"
+
+#~ msgid "sex"
+#~ msgstr "sexe"
+
+#~ msgid "egg status"
+#~ msgstr "statut des œufs"
+
+#~ msgid "carapace length (mm)"
+#~ msgstr "longueur de la carapace (mm)"
+
+#~ msgid "length certainty"
+#~ msgstr "certitude de longeur"
+
+#~ msgid "SCUBA Survey"
+#~ msgstr "Relevé de SCUBA"
+
+#~ msgid "Reports"
+#~ msgstr "Rapports"
+
+#~ msgid "Settings"
+#~ msgstr "Paramètres"
+
+#~ msgid "Regions, Sites and Transects"
+#~ msgstr "Régions, emplacement et transects"
+
+#~ msgid "Divers"
+#~ msgstr "Plongeur/euse"
+
+#~ msgid "Gulf Region Lobster Survey Data Entry and Archiving Tool"
+#~ msgstr ""
+#~ "Outil de saisie et d'archivage des données de la relevé de homard de la "
+#~ "région du Golfe"
+
+#~ msgid "Regions"
+#~ msgstr "Régions"
+
+#~ msgid "Add a New Sample"
+#~ msgstr "Ajouter un échantillon"
+
+#~ msgid "dive count"
+#~ msgstr "nombre des plongées"
+
+#~ msgid "Samples"
+#~ msgstr "Les échantillons"
+
+#~ msgid "lobster count"
+#~ msgstr "nombre des homards"
+
+#~ msgid "substrate profile"
+#~ msgstr "profil de substrat"
+
+#~ msgid "dive Id"
+#~ msgstr "identifiant de la ploge"
+
+#~ msgid "observation count"
+#~ msgstr "nombre d'observations"
+
+#~ msgid "Scuba Reports"
+#~ msgstr "Rapports"
+
+#~ msgid "% sand"
+#~ msgstr "% sable"
+
+#~ msgid "% mud"
+#~ msgstr "% vase"
+
+#~ msgid "% hard"
+#~ msgstr "% dur"
+
+#~ msgid "% algae"
+#~ msgstr "% algue"
+
+#~ msgid "% gravel"
+#~ msgstr "% gravier"
+
+#~ msgid "% cobble"
+#~ msgstr "% cobble"
+
+#~ msgid "% pebble"
+#~ msgstr "% caillou"
+
+#~ msgid "certainty rating"
+#~ msgstr "cote de certitude"
+
+#~ msgid "Markdown syntax is supported in this field"
+#~ msgstr "La syntaxe Markdown est prise en charge dans ce champ"
+
+#~ msgid "immature"
+#~ msgstr "immature"
+
+#~ msgid "n/a"
+#~ msgstr "n / a"
+
+#~ msgid "section comment"
+#~ msgstr "commentaire de section"
+
+#~ msgid "% rock"
+#~ msgstr "% roche"
