@@ -377,6 +377,11 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
             'website',
         ]
 
+        # contexts for fishery_detail maps
+        polygon_subset = models.FisheryArea.objects.filter(species=self.object)
+
+        context["fishery_polygons"] = serialize("geojson", polygon_subset)
+
         return context
 
 
