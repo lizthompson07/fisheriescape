@@ -496,7 +496,7 @@ class TrayFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Tray
-        fields = ["name", "nom", "facic_id",]
+        fields = ["name", "nom",]
 
 
 class TraydFilter(django_filters.FilterSet):

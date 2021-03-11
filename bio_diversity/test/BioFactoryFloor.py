@@ -2470,24 +2470,26 @@ class TrayFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
-    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
+    trof_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TrofFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
+    start_date = factory.lazy_attribute(lambda o: faker.date())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
     @staticmethod
     def build_valid_data(**kwargs):
-        facic = FacicFactory()
+        trof = TrofFactory()
         obj = TrayFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
-            'facic_id': facic.pk,
+            'trof_id': trof.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
+            'start_date' : obj.start_date,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

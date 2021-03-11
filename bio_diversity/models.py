@@ -662,6 +662,21 @@ class Group(BioModel):
                 cont.append(tank)
         return cont
 
+    def current_trof(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
+        cont = []
+
+        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)
+        trof_in_set = Counter([anix.contx_id.trof_id for anix in anix_in_set]).most_common()
+        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date)
+        trof_out_set = Counter([anix.contx_id.trof_id for anix in anix_out_set]).most_common()
+
+        for trof, in_count in trof_in_set:
+            if trof not in trof_out_set:
+                cont.append(trof)
+            elif in_count > trof_out_set[trof]:
+                cont.append(trof)
+        return cont
+
     def fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
 
@@ -1459,13 +1474,32 @@ class Team(BioModel):
         ]
 
 
-class Tray(BioCont):
+class Tray(BioLookup):
     # tray tag
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='tray_uniqueness')
+            models.UniqueConstraint(fields=['name', 'trof_id', 'start_date'], name='tray_uniqueness')
         ]
-        ordering = ['facic_id', 'name']
+        ordering = ['trof_id', 'name']
+
+    # Make name not unique, is unique together with trough code.
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, verbose_name=_("Trough"))
+    start_date = models.DateField(verbose_name=_("Start Date"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
+
+    def fish_in_cont(self, at_date=datetime.datetime.now(timezone.get_current_timezone())):
+        grp_list = []
+
+        contx_set = self.contxs.filter(anixs__isnull=False)
+        anix_grp_sets = [contx.anixs.filter(final_contx_flag=True, grp_id__grp_valid=True) for contx in contx_set]
+        grp_in_list = list(dict.fromkeys([anix.grp_id for anix_set in anix_grp_sets for anix in anix_set]))
+
+        for grp in grp_in_list:
+            if self in grp.current_trof(at_date=at_date):
+                grp_list.append(grp)
+        # empty list is for individuals
+        return [], grp_list
 
 
 class TrayDet(BioContainerDet):

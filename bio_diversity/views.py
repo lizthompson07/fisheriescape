@@ -266,9 +266,11 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["tank_id"].widget = forms.HiddenInput()
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].required = True
+                self.get_form_class().base_fields["egg_data_type"].required = True
             else:
                 self.get_form_class().base_fields["trof_id"].required = False
                 self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
+                self.get_form_class().base_fields["egg_data_type"].required = False
                 self.get_form_class().base_fields["egg_data_type"].widget = forms.HiddenInput()
         return init
 
@@ -680,8 +682,8 @@ class CommonContDetails(CommonDetails):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["context_dict"] = {}
-
-        env_list = [env for contx in self.object.contxs.all() for env in contx.env_condition.all()]
+        contx_list = self.object.contxs.all()
+        env_list = [env for contx in contx_list for env in contx.env_condition.all()]
         env_field_list = ["envc_id", "envsc_id", "start_datetime", "env_val", ]
         obj_mixin = mixins.EnvMixin
         context["context_dict"]["env"] = {"div_title": "Environment Conditions",
@@ -689,7 +691,7 @@ class CommonContDetails(CommonDetails):
                                           "objects_list": env_list,
                                           "field_list": env_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
-        cnt_list = [cnt for contx in self.object.contxs.all() for cnt in contx.counts.all()]
+        cnt_list = [cnt for contx in contx_list for cnt in contx.counts.all()]
         cnt_field_list = ["cntc_id", "cnt", "est"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "Counts",
@@ -698,7 +700,7 @@ class CommonContDetails(CommonDetails):
                                           "field_list": cnt_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
-        envt_list = [envt for contx in self.object.contxs.all() for envt in contx.env_treatment.all()]
+        envt_list = [envt for contx in contx_list for envt in contx.env_treatment.all()]
         envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str", "duration", ]
         obj_mixin = mixins.EnvtMixin
         context["context_dict"]["envt"] = {"div_title": "Container Treatments",
@@ -710,19 +712,19 @@ class CommonContDetails(CommonDetails):
         indv_list, grp_list = self.object.fish_in_cont()
         indv_field_list = ["ufid", "pit_tag", "grp_id", ]
         obj_mixin = mixins.IndvMixin
-        context["context_dict"]["indv"] = {"div_title": "Individuals in Container",
-                                           "sub_model_key": obj_mixin.key,
-                                           "objects_list": indv_list,
-                                           "field_list": indv_field_list,
-                                           "single_object": obj_mixin.model.objects.first()}
+        context["context_dict"]["indv_cont"] = {"div_title": "Individuals in Container",
+                                                "sub_model_key": obj_mixin.key,
+                                                "objects_list": indv_list,
+                                                "field_list": indv_field_list,
+                                                "single_object": obj_mixin.model.objects.first()}
 
         grp_field_list = ["stok_id", "coll_id", "spec_id", ]
         obj_mixin = mixins.GrpMixin
-        context["context_dict"]["grp"] = {"div_title": "Groups in Container",
-                                          "sub_model_key": obj_mixin.key,
-                                          "objects_list": grp_list,
-                                          "field_list": grp_field_list,
-                                          "single_object": obj_mixin.model.objects.first()}
+        context["context_dict"]["grp_cont"] = {"div_title": "Groups in Container",
+                                               "sub_model_key": obj_mixin.key,
+                                               "objects_list": grp_list,
+                                               "field_list": grp_field_list,
+                                               "single_object": obj_mixin.model.objects.first()}
 
         context["table_list"] = ["grp_cont", "indv_cont", "env", "envt", "cnt"]
 
@@ -1375,6 +1377,7 @@ class SubrDetails(mixins.SubrMixin, CommonDetails):
 class TankDetails(mixins.TankMixin, CommonContDetails):
     fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
+
 class TankdDetails(mixins.TankdMixin, CommonDetails):
     fields = ["tank_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
               "created_by", "created_date", ]
@@ -1384,8 +1387,9 @@ class TeamDetails(mixins.TeamMixin, CommonDetails):
     fields = ["perc_id", "role_id", "created_by", "created_date", ]
 
 
-class TrayDetails(mixins.TrayMixin, CommonDetails):
-    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+class TrayDetails(mixins.TrayMixin, CommonContDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "start_date", "end_date",
+              "created_by", "created_date", ]
 
 
 class TraydDetails(mixins.TraydMixin, CommonDetails):
@@ -1399,7 +1403,7 @@ class TribDetails(mixins.TribMixin, CommonDetails):
 
 class TrofDetails(mixins.TrofMixin, CommonContDetails):
 
-    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["trof_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TrofdDetails(mixins.TrofdMixin, CommonDetails):
@@ -1839,7 +1843,7 @@ class TeamList(mixins.TeamMixin, CommonList):
 
 class TrayList(mixins.TrayMixin, CommonList):
     filterset_class = filters.TrayFilter
-    fields = ["name", "nom", "facic_id",]
+    fields = ["name", "nom", ]
 
 
 class TraydList(mixins.TraydMixin, CommonList):

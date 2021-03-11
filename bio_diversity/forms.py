@@ -252,6 +252,7 @@ class DataForm(CreatePrams):
             parsed = True
 
             self.request.session["load_success"] = True
+            temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
             for row in data_dict:
                 row_parsed = True
                 row_entered = False
@@ -276,7 +277,7 @@ class DataForm(CreatePrams):
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
                                                              relc_id=loc.relc_id, loc_date=loc.loc_date).get()
 
-                    if enter_env(row["temp"], row_datetime, cleaned_data, "Temperature", loc_id=loc,):
+                    if enter_env(row["temp"], row_datetime, cleaned_data, temp_envc_id, loc_id=loc,):
                         row_entered = True
 
                     cnt_caught = enter_cnt(cleaned_data, cnt_value=row["# of salmon collected"], loc_pk=loc.pk, cnt_code="Fish Caught" )
@@ -361,6 +362,7 @@ class DataForm(CreatePrams):
             parsed = True
 
             self.request.session["load_success"] = True
+            temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
             for row in data_dict:
                 row_parsed = True
                 row_entered = False
@@ -384,7 +386,7 @@ class DataForm(CreatePrams):
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
                                                              relc_id=loc.relc_id, loc_date=loc.loc_date).get()
 
-                    if enter_env(row["Temperature"], row_date, cleaned_data, "Temperature", loc_id=loc,):
+                    if enter_env(row["Temperature"], row_date, cleaned_data, temp_envc_id, loc_id=loc,):
                         row_entered = True
 
                     cnt_caught = enter_cnt(cleaned_data, cnt_value=row["# Parr Collected"], loc_pk=loc.pk, cnt_code="Fish Caught" )
@@ -754,6 +756,11 @@ class DataForm(CreatePrams):
                 return
             parsed = True
             self.request.session["load_success"] = True
+            temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+            oxlvl_envc_id = models.EnvCode.objects.filter(name="Oxygen Level").get()
+            ph_envc_id = models.EnvCode.objects.filter(name="pH").get()
+            disn_envc_id = models.EnvCode.objects.filter(name="Dissolved Nitrogen").get()
+
             for row in data_dict:
                 row_parsed = True
                 row_entered = False
@@ -766,13 +773,13 @@ class DataForm(CreatePrams):
                     else:
                         row_time = None
 
-                    if enter_env(row["Temp °C"], row_date, cleaned_data, "Temperature", contx=contx, env_start=row_time):
+                    if enter_env(row["Temp °C"], row_date, cleaned_data, temp_envc_id, contx=contx, env_start=row_time):
                         row_entered = True
-                    if enter_env(row["DO%"], row_date, cleaned_data, "Oxygen Level", contx=contx, env_start=row_time):
+                    if enter_env(row["DO%"], row_date, cleaned_data, oxlvl_envc_id, contx=contx, env_start=row_time):
                         row_entered = True
-                    if enter_env(row["pH"], row_date, cleaned_data, "pH", contx=contx, env_start=row_time):
+                    if enter_env(row["pH"], row_date, cleaned_data, ph_envc_id, contx=contx, env_start=row_time):
                         row_entered = True
-                    if enter_env(row["Dissolved Nitrogen %"], row_date, cleaned_data, "Dissolved Nitrogen", contx=contx, env_start=row_time):
+                    if enter_env(row["Dissolved Nitrogen %"], row_date, cleaned_data, disn_envc_id, contx=contx, env_start=row_time):
                         row_entered = True
 
                 except Exception as err:
@@ -1163,6 +1170,7 @@ class DataForm(CreatePrams):
                 return
             parsed = True
             self.request.session["load_success"] = True
+            water_envc_id = models.EnvCode.objects.filter(name="Water Level").get()
 
             for row in data_dict:
                 row_parsed = True
@@ -1192,7 +1200,7 @@ class DataForm(CreatePrams):
                         pass
 
                     water_level, height_unit = val_unit_splitter(row["Pond Level During Treatment"])
-                    enter_env(water_level, row_date, cleaned_data, "Water Level", contx=contx)
+                    enter_env(water_level, row_date, cleaned_data, water_envc_id, contx=contx)
 
                 except Exception as err:
                     parsed = False
