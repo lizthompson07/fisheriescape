@@ -1,5 +1,6 @@
 import inspect
 import math
+import os
 from datetime import date, datetime
 
 import pytz
@@ -1074,7 +1075,7 @@ class DataForm(CreatePrams):
                         pass
 
                     # check for dud (fecu = 0)
-                    if int(row["Exp #"]):
+                    if int(row["Exp. #"]):
                         fecu_est = models.SpawnDet(pair_id=pair,
                                                    spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
                                                    det_val=int(row["Exp. #"]),
@@ -1150,8 +1151,10 @@ class DataForm(CreatePrams):
                 try:
                     matp.clean()
                     matp.save()
-                except (ValidationError, IntegrityError):
-                    pass
+                except (ValidationError, IntegrityError) as err:
+                    if type(err) == IntegrityError:
+                        if os.path.isfile(matp.matp_xls.path):
+                            os.remove(matp.matp_xls.path)
 
             if not parsed:
                 self.request.session["load_success"] = False
