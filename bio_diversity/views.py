@@ -326,7 +326,7 @@ class EnvtcCreate(mixins.EnvtcMixin, CommonCreate):
 
 class EvntCreate(mixins.EvntMixin, CommonCreate):
     def get_success_url(self):
-        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs = {'pk': self.object.pk})
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs={'pk': self.object.pk})
 
         if self.kwargs.get("pop"):
             # create views intended to be pop out windows should close the window upon success
@@ -998,7 +998,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True)
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
-        evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_datetime" ]
+        evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_datetime"]
         obj_mixin = mixins.EvntMixin
         context["context_dict"]["evnt"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1009,7 +1009,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         grpd_list = list(dict.fromkeys([models.GroupDet.objects.filter(anix_id=anix.pk).get() for anix in anix_set
                                         if models.GroupDet.objects.filter(anix_id=anix.pk)]))
 
-        grpd_field_list = ["anidc_id", "det_val", "grpd_valid", "detail_date" ]
+        grpd_field_list = ["anidc_id", "det_val", "grpd_valid", "detail_date"]
         obj_mixin = mixins.GrpdMixin
         context["context_dict"]["grpd"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1031,7 +1031,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         anix_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, pair_id__isnull=False)
         pair_list = [anix.pair_id for anix in anix_set]
-        pair_field_list = ["start_date", "indv_id", "prio_id" ]
+        pair_field_list = ["start_date", "indv_id", "prio_id"]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1571,7 +1571,7 @@ class CupdList(mixins.CupdMixin, CommonList):
 
 class DrawList(mixins.DrawMixin, CommonList):
     filterset_class = filters.DrawFilter
-    fields = ["name", "nom", "facic_id",]
+    fields = ["name", "nom", "facic_id"]
 
 
 class EnvList(mixins.EnvMixin, CommonList):
@@ -1641,7 +1641,7 @@ class FeedmList(mixins.FeedmMixin, CommonList):
 
 class GrpList(mixins.GrpMixin, CommonList):
     filterset_class = filters.GrpFilter
-    fields = ["spec_id", "stok_id", "grp_year" ]
+    fields = ["spec_id", "stok_id", "grp_year"]
 
 
 class GrpdList(mixins.GrpdMixin, CommonList):
@@ -1671,7 +1671,7 @@ class ImgcList(mixins.ImgcMixin, CommonList):
 
 class IndvList(mixins.IndvMixin, CommonList):
     filterset_class = filters.IndvFilter
-    fields = ["pit_tag", "spec_id", "stok_id", "indv_year" ]
+    fields = ["pit_tag", "spec_id", "stok_id", "indv_year"]
     delete_url = "bio_diversity:delete_indv"
 
 
@@ -1872,7 +1872,7 @@ class TribList(mixins.TribMixin, CommonList):
 
 class TrofList(mixins.TrofMixin, CommonList):
     filterset_class = filters.TrofFilter
-    fields = ["name", "nom", "facic_id",]
+    fields = ["name", "nom", "facic_id"]
 
 
 class TrofdList(mixins.TrofdMixin, CommonList):
@@ -2017,7 +2017,7 @@ class EnvtcUpdate(mixins.EnvtcMixin, CommonUpdate):
 
 class EvntUpdate(mixins.EvntMixin, CommonUpdate):
     def get_success_url(self):
-        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs = {'pk': self.object.pk})
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs={'pk': self.object.pk})
 
         if self.kwargs.get("pop"):
             # create views intended to be pop out windows should close the window upon success
