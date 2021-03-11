@@ -4,6 +4,7 @@ import math
 import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.http import JsonResponse
 from django.utils import timezone
 from decimal import Decimal
 from bio_diversity import models
@@ -26,7 +27,7 @@ def get_comment_keywords_dict():
     return my_dict
 
 
-def get_help_text_dict(model=None):
+def get_help_text_dict(model=None, title=''):
     my_dict = {}
     if not model:
         for obj in models.HelpText.objects.all():
@@ -438,3 +439,30 @@ def enter_anix_contx(tank, cleaned_data):
 
         anix_contx = enter_anix(cleaned_data, contx_pk=contx.pk)
         return anix_contx
+
+
+def ajax_get_fields(request):
+    model_name = request.GET.get('model', None)
+
+    # use the model name passed from the web page to find the model in the apps models file
+    model = models.__dict__[model_name]
+
+    # use the retrieved model and get the doc string which is a string in the format
+    # SomeModelName(id, field1, field2, field3)
+    # remove the trailing parentheses, split the string up based on ', ', then drop the first element
+    # which is the model name and the id.
+    match = str(model.__dict__['__doc__']).replace(")", "").split(", ")[1:]
+    fields = list()
+    for f in match:
+        label = "---"
+        attr = getattr(model, f).field
+        if hasattr(attr, 'verbose_name'):
+            label = attr.verbose_name
+
+        fields.append([f, label])
+
+    data = {
+        'fields': fields
+    }
+
+    return JsonResponse(data)

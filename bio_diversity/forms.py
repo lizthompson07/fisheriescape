@@ -1397,6 +1397,7 @@ class HelpTextForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         clsmembers = [(cls[0], cls[0]) for cls in inspect.getmembers(models, inspect.isclass)]
+        clsmembers.insert(0, (None, "----"))
 
         self.fields['model'] = forms.ChoiceField(choices=clsmembers)
 
