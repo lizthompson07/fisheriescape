@@ -1031,7 +1031,7 @@ class TestFileAPIViewSet(CommonTest):
         # authenticated users
         owner = self.instance.request.created_by
         users = [owner, self.admin_user, self.adm_admin_user]
-        self.get_and_login_user(user=users[faker.pyint(0, 3)])
+        self.get_and_login_user(user=users[faker.pyint(0, 2)])
         data_dict = FactoryFloor.FileFactory.get_valid_data()
         data_dict["request"] = self.instance.request.id
         data_json = json.dumps(data_dict)

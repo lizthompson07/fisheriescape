@@ -211,7 +211,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         if self.request.GET.get("trip"):
-            return dict(trip=self.request.GET.get("trip"))
+            return dict(trip=get_object_or_404(models.Trip, pk=self.request.GET.get("trip")))
 
     def form_valid(self, form):
         my_object = form.save(commit=False)
