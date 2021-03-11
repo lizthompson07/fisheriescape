@@ -1360,11 +1360,16 @@ def export_project_position_allocation(request):
 def export_capital_request_costs(request):
     year = request.GET.get("year")
     region = request.GET.get("region")
+    division = request.GET.get("division")
     section = request.GET.get("section")
 
     region_name = None
     if region:
         region_name = shared_models.Region.objects.get(pk=region)
+
+    division_name = None
+    if division and division != 'None':
+        division_name = shared_models.Division.objects.get(pk=division)
 
     section_name = None
     if section and section != 'None':
@@ -1375,17 +1380,21 @@ def export_capital_request_costs(request):
     response['Content-Disposition'] = 'attachment; filename="{}_{}_capital_request_costs.csv"'.format(year, region_name)
 
     writer = csv.writer(response)
-    writer.writerow(['Project ID', 'Project Name', 'Theme', 'Capital Cost', 'Amount'])
+    writer.writerow(['Project ID', 'Project Name', 'Region', 'Division', 'Section', 'Theme', 'Capital Cost', 'Amount'])
 
     project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
                                                       project__section__division__branch__region_id=region)
+    if division and division != 'None':
+        project_years = project_years.filter(project__section__division_id=division)
+
     if section and section != 'None':
         project_years = project_years.filter(project__section_id=section)
 
     # Now filter down the projects to projects that have staff with staff levels, but no staff name.
     for p in project_years:
         for cost in p.capitalcost_set.all():
-            writer.writerow([p.project.pk, p.project.title, p.project.functional_group, cost, cost.amount])
+            proj = p.project
+            writer.writerow([proj.pk, proj.title, proj.section.division.branch.region, proj.section.division, proj.section, proj.functional_group, cost, cost.amount])
 
     return response
 
