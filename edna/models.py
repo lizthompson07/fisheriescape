@@ -66,7 +66,6 @@ class Collection(UnilingualSimpleLookup):
     contact_users = models.ManyToManyField(User, blank=True, verbose_name=_("contact DMApps user(s)"))
     contact_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("contact name"))
     contact_email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_("contact email"))
-    filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="collections", verbose_name=_("filtration type"))
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("tags"))
 
     # calculated
@@ -118,6 +117,7 @@ class Sample(models.Model):
     sample_identifier = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("sample identifier"))
     latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude"))
     longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude"))
+    filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="collections", verbose_name=_("filtration type"), null=True)
     comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
 
     class Meta:
