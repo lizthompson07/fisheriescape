@@ -1484,7 +1484,7 @@ class Tray(BioLookup):
 
     # Make name not unique, is unique together with trough code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, verbose_name=_("Trough"))
+    trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, related_name="trays", verbose_name=_("Trough"))
     start_date = models.DateField(verbose_name=_("Start Date"))
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
 
@@ -1500,6 +1500,14 @@ class Tray(BioLookup):
                 grp_list.append(grp)
         # empty list is for individuals
         return [], grp_list
+
+    @property
+    def degree_days(self):
+        if self.end_date:
+            degree_days = self.trof_id.degree_days(self.start_date, self.end_date)
+        else:
+            degree_days = self.trof_id.degree_days(self.start_date, datetime.datetime.today().date())
+        return round(sum(degree_days), 3)
 
 
 class TrayDet(BioContainerDet):
@@ -1527,6 +1535,22 @@ class Trough(BioCont):
             models.UniqueConstraint(fields=['name', 'facic_id'], name='trof_uniqueness')
         ]
         ordering = ['facic_id', 'name']
+
+    def degree_days(self, start_date, end_date):
+        env_qs = EnvCondition.objects.filter(contx_id__trof_id=self,start_datetime__gte=start_date,start_datetime__lte=end_date,envc_id__name="Temperature")
+
+        delta = end_date - start_date  # as timedelta
+        temp_list = []
+        for i in range(delta.days + 1):
+            day = start_date + datetime.timedelta(days=i)
+            day_temps = []
+            for env in env_qs:
+                if env.start_datetime.date() == day:
+                    day_temps.append(env.env_val)
+            if day_temps:
+                temp_list.append(sum(day_temps) / len(day_temps))
+
+        return temp_list
 
 
 class TroughDet(BioContainerDet):

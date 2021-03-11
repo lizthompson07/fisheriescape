@@ -1152,6 +1152,7 @@ class DataForm(CreatePrams):
                     matp.clean()
                     matp.save()
                 except (ValidationError, IntegrityError) as err:
+                    # delete mating plan if model did not save
                     if type(err) == IntegrityError:
                         if os.path.isfile(matp.matp_xls.path):
                             os.remove(matp.matp_xls.path)
@@ -1802,7 +1803,7 @@ class TeamForm(CreatePrams):
         exclude = []
 
 
-class TrayForm(CreatePrams):
+class TrayForm(CreateDatePrams):
     class Meta:
         model = models.Tray
         exclude = []

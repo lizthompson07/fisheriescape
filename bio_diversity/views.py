@@ -1405,6 +1405,20 @@ class TrofDetails(mixins.TrofMixin, CommonContDetails):
 
     fields = ["trof_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["table_list"].append("tray")
+
+        tray_list = self.object.trays.all()
+        tray_field_list = ["name", "start_date", "end_date", "degree_days"]
+        obj_mixin = mixins.TrayMixin
+        context["context_dict"]["tray"] = {"div_title": "Trays in Trough",
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": tray_list,
+                                           "field_list": tray_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+        return context
+
 
 class TrofdDetails(mixins.TrofdMixin, CommonDetails):
     fields = ["trof_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
