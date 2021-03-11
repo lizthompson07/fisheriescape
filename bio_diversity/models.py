@@ -2,7 +2,6 @@
 
 # Create your models here.
 import datetime
-import decimal
 import os
 from collections import Counter
 
@@ -543,7 +542,7 @@ class EnvTreatment(BioModel):
     @property
     def concentration_str(self):
         if self.concentration:
-            return "1:{}  |  {:.3}%".format(int(1/self.concentration), 100 * self.concentration)
+            return "1:{}  |  {:.3}%".format(int(1.0/self.concentration), 100 * self.concentration)
         else:
             return None
     concentration_str.fget.short_description = "Concentration"
@@ -563,7 +562,7 @@ class Event(BioTimeModel):
 
     @property
     def is_current(self):
-        if self.evnt_end and self.evnt_end < datetime.now(tz=timezone.get_current_timezone()):
+        if self.evnt_end and self.evnt_end < datetime.datetime.now(tz=timezone.get_current_timezone()):
             return True
         elif not self.evnt_end:
             return True
@@ -1448,7 +1447,6 @@ class Tank(BioCont):
         ordering = ['facic_id', 'name']
 
 
-
 class TankDet(BioContainerDet):
     # tankd tag
     tank_id = models.ForeignKey('Tank', on_delete=models.CASCADE, verbose_name=_("Tank"))
@@ -1537,7 +1535,10 @@ class Trough(BioCont):
         ordering = ['facic_id', 'name']
 
     def degree_days(self, start_date, end_date):
-        env_qs = EnvCondition.objects.filter(contx_id__trof_id=self,start_datetime__gte=start_date,start_datetime__lte=end_date,envc_id__name="Temperature")
+        env_qs = EnvCondition.objects.filter(contx_id__trof_id=self,
+                                             start_datetime__gte=start_date,
+                                             start_datetime__lte=end_date,
+                                             envc_id__name="Temperature")
 
         delta = end_date - start_date  # as timedelta
         temp_list = []
