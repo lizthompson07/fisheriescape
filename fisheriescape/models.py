@@ -41,19 +41,6 @@ class FisheryArea(models.Model):
         return reverse("fisheriescape:fishery_area_detail", kwargs={"pk": self.id})
 
 
-STATUS_CHOICES = (
-    ("Active", "Active"),
-    ("Inactive", "Inactive"),
-    ("Experimental", "Experimental"),
-    ("Unknown", "Unknown"),
-)
-
-LICENSE_CHOICES = (
-    ("Single", "Single Species"),
-    ("Multi", "Multi Species"),
-)
-
-
 class Species(models.Model):
     english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("english name"))
     french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
@@ -74,6 +61,7 @@ class Species(models.Model):
 
 
 RISK_STATUS_CHOICES = (
+    ("No Status", "No Status"),
     ("Not at Risk", "Not at Risk"),
     ("Special Concern", "Special Concern"),
     ("Threatened", "Threatened"),
@@ -83,7 +71,7 @@ RISK_STATUS_CHOICES = (
 )
 
 
-class MarineMammals(models.Model):
+class MarineMammal(models.Model):
     english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("english name"))
     english_name_short = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("short english name"))
     french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
@@ -107,6 +95,19 @@ class MarineMammals(models.Model):
     #     return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})
 
 
+STATUS_CHOICES = (
+    ("Active", "Active"),
+    ("Inactive", "Inactive"),
+    ("Experimental", "Experimental"),
+    ("Unknown", "Unknown"),
+)
+
+LICENSE_CHOICES = (
+    ("Single", "Single Species"),
+    ("Multi", "Multi Species"),
+)
+
+
 class Fishery(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="fisherys",
                                 verbose_name=_("species"))
@@ -116,7 +117,7 @@ class Fishery(models.Model):
     fishery_status = models.CharField(max_length=255, null=True, blank=True, choices=STATUS_CHOICES,
                                       verbose_name=_("fishery status"))
     gear_type = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear type"))
-    marine_mammals = models.ManyToManyField(MarineMammals, blank=True, related_name="fisherys", verbose_name=_("marine mammals"))
+    marine_mammals = models.ManyToManyField(MarineMammal, blank=True, related_name="fisherys", verbose_name=_("marine mammals"))
     # license_type = models.CharField(max_length=255, null=True, blank=True, choices=LICENSE_CHOICES,
     #                                 verbose_name=_("type of license"))
 

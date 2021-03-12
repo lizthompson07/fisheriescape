@@ -367,7 +367,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         context = super().get_context_data(**kwargs)
 
         # contexts for _mammals.html file
-        context["random_mammals"] = models.MarineMammals.objects.first()
+        context["random_mammals"] = models.MarineMammal.objects.first()
         context["mammals_field_list"] = [
             'english_name',
             'french_name',
