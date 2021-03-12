@@ -78,15 +78,18 @@ class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         fields = "__all__"
+        widgets = {
+            "datetime": forms.DateTimeInput(attrs=dict(type="datetime"))
+        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if kwargs.get("instance"):
-            self.fields["transect"].queryset = kwargs.get("instance").sample.site.transects.all()
-        elif kwargs.get("initial"):
-            self.fields["transect"].queryset = models.Collection.objects.get(pk=kwargs.get("initial").get("sample")).site.transects.all()
-
-        self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if kwargs.get("instance"):
+    #         self.fields["transect"].queryset = kwargs.get("instance").sample.site.transects.all()
+    #     elif kwargs.get("initial"):
+    #         self.fields["transect"].queryset = models.Collection.objects.get(pk=kwargs.get("initial").get("sample")).site.transects.all()
+    #
+    #     self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
 
 
 #

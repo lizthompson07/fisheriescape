@@ -4,11 +4,12 @@ from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from shapely.geometry import Polygon, Point
 
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region
-from shared_models.utils import get_metadata_string
+from shared_models.utils import get_metadata_string, format_coordinates
 
 
 class FiltrationType(UnilingualLookup):
@@ -109,6 +110,25 @@ class Collection(UnilingualSimpleLookup):
     def get_absolute_url(self):
         return reverse("edna:collection_detail", args=[self.pk])
 
+    def get_points(self):
+        poly_points = list()
+        for sample in self.samples.all():
+            point = sample.get_point()
+            if point:
+                poly_points.append(point)
+        return poly_points
+
+    def get_polygon(self):
+        points = self.get_points()
+        if len(points) >= 3:
+            return Polygon(points).centroid.coords
+
+    def get_centroid(self):
+        points = self.get_points()
+        if self.get_polygon():
+            return self.get_polygon().centroid.coords
+        elif len(points) > 0:
+            return points[-1]
 
 
 def file_directory_path(instance, filename):
@@ -131,23 +151,35 @@ class File(models.Model):
 
 class Sample(models.Model):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"), editable=False)
-    datetime = models.DateTimeField(verbose_name=_("collection date"))
     unique_sample_identifier = models.CharField(max_length=255, unique=True, verbose_name=_("bottle unique identifier"))
     site_identifier = models.CharField(max_length=255, verbose_name=_("site identifier"))
     site_description = models.TextField(verbose_name=_("site description"))
     samplers = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("sampler(s)"))
-    latitude = models.FloatField(blank=False, null=True, verbose_name=_("latitude"))
-    longitude = models.FloatField(blank=False, null=True, verbose_name=_("longitude"))
+    datetime = models.DateTimeField(verbose_name=_("collection date"))
+    latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude"))
+    longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
 
     class Meta:
-        ordering = ["-datetime", "collection"]
+        ordering = ["collection", "unique_sample_identifier"]
 
     def get_absolute_url(self):
         return reverse("edna:sample_detail", args=[self.pk])
 
     def __str__(self):
         return
+
+    def get_point(self):
+        if self.latitude and self.longitude:
+            return Point(self.latitude, self.longitude)
+
+    @property
+    def coordinates(self):
+        my_str = "---"
+        point = self.get_point()
+        if point:
+            my_str = format_coordinates(point.x, point.y, output_format="dd", sep="|")
+        return mark_safe(my_str)
 
 
 class FiltrationBatch(models.Model):

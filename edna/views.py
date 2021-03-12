@@ -195,11 +195,10 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sample_field_list = [
+            'unique_sample_identifier',
             'datetime',
             'site_identifier',
-            'sample_identifier',
-            'latitude',
-            'longitude',
+            'coordinates',
             # 'observation_count|{}'.format(_("lobster count")),
         ]
         context["sample_field_list"] = sample_field_list
@@ -255,14 +254,6 @@ class SampleCreateView(eDNAAdminRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
 
-    def get_initial(self):
-        collection = self.get_collection()
-        return dict(
-            collection=collection.id,
-            start_descent=collection.datetime,
-            start_final_ascent=collection.datetime,
-            reach_surface=collection.datetime,
-        )
 
     def get_collection(self):
         return get_object_or_404(models.Collection, pk=self.kwargs.get("collection"))
