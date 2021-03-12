@@ -6,6 +6,8 @@
   <div class="btns mb-3">
     <a href="{% url 'edna:collection_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'edna:collection_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    <a href="#" pop-href="{% url "edna:file_new" object.id %}" class="btn btn-primary btn-sm ml-3">{% trans "Add a File" %}</a>
+
   </div>
 
   <div class="mb-3 row">
@@ -14,6 +16,35 @@
         {% for field in field_list %}
           {% verbose_td_display object field th_width="200px" %}
         {% endfor %}
+
+        {# files #}
+        <tr>
+          <th>
+            {% trans "Associated Files" %}
+          </th>
+          <td>
+            {% if object.files.exists %}
+              <ul>
+                {% for file in object.files.all %}
+                  <li>
+                    <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
+                      <a href="#" pop-href="{% url 'edna:file_edit' file.id %}" class="ml-3">
+                        <span class="mdi mdi-pencil" style="font-size: large"></span>
+                      </a>
+                      <a href="#" pop-href="{% url 'edna:file_delete' file.id %}">
+                        <span class="mdi mdi-delete" style="font-size: large"></span>
+                      </a>
+
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <em>{% trans "There are no files attached to this collection." %}</em>
+            {% endif %}
+          </td>
+        </tr>
+
+
       </table>
     </div>
   </div>

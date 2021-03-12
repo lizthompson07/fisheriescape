@@ -67,6 +67,12 @@ class CollectionForm(forms.ModelForm):
         }
 
 
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        fields = "__all__"
+
+
 class SampleForm(forms.ModelForm):
     # field_order = ["name"]
     class Meta:

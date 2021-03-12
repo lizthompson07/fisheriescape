@@ -110,6 +110,25 @@ class Collection(UnilingualSimpleLookup):
         return reverse("edna:collection_detail", args=[self.pk])
 
 
+
+def file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'edna/{0}/{1}'.format(instance.collection.id, filename)
+
+
+class File(models.Model):
+    collection = models.ForeignKey(Collection, related_name="files", on_delete=models.CASCADE, editable=False)
+    caption = models.CharField(max_length=255)
+    file = models.FileField(upload_to=file_directory_path)
+    date_created = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return self.caption
+
+
 class Sample(models.Model):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"), editable=False)
     datetime = models.DateTimeField(verbose_name=_("collection date"))

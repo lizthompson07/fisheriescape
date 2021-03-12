@@ -49,12 +49,14 @@ def get_sample_field_list():
 
 def get_collection_field_list(collection):
     my_list = [
+        'name',
         'program_description',
+        'region',
         'location_description',
         'province',
         'contacts',
-        'filtration_type',
         'dates|dates',
+        'tags',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)

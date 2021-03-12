@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
 from shared_models.views import CommonTemplateView, CommonHardDeleteView, CommonFormsetView, CommonFormView, CommonDeleteView, CommonDetailView, \
-    CommonCreateView, CommonUpdateView, CommonFilterView
+    CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView
 from . import models, forms, filters, utils
 from .mixins import LoginAccessRequiredMixin, eDNAAdminRequiredMixin
 from .utils import in_edna_admin_group
@@ -67,10 +67,10 @@ class TagFormsetView(eDNAAdminRequiredMixin, CommonFormsetView):
     home_url_name = "edna:index"
     delete_url_name = "edna:delete_tag"
 
+
 class TagHardDeleteView(eDNAAdminRequiredMixin, CommonHardDeleteView):
     model = models.Tag
     success_url = reverse_lazy("edna:manage_tags")
-
 
 
 # SPECIES #
@@ -217,6 +217,31 @@ class CollectionDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:collection_detail", args=[self.get_object().id])}
+
+
+# FILES #
+#########
+
+class FileCreateView(eDNAAdminRequiredMixin, CommonPopoutCreateView):
+    model = models.File
+    form_class = forms.FileForm
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.collection_id = self.kwargs['collection']
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class FileUpdateView(eDNAAdminRequiredMixin, CommonPopoutUpdateView):
+    model = models.File
+    form_class = forms.FileForm
+    is_multipart_form_data = True
+
+
+class FileDeleteView(eDNAAdminRequiredMixin, CommonPopoutDeleteView):
+    model = models.File
 
 
 # SAMPLES #
