@@ -1,5 +1,8 @@
 import os
 
+from bokeh.embed import components
+from bokeh.plotting import figure
+from bokeh.resources import CDN
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -2262,6 +2265,7 @@ class UnitUpdate(mixins.UnitMixin, CommonUpdate):
     pass
 
 
+# ---------------------GENERIC VIEWS-----------------------
 class CommonLog(CommonTemplateView):
     success_url = reverse_lazy("shared_models:close_me")
     template_name = 'bio_diversity/bio_log.html'
@@ -2282,16 +2286,6 @@ class CommonLog(CommonTemplateView):
 
 class DataLog(CommonLog):
     pass
-
-
-def indv_delete(request, pk):
-    indv = models.Individual.objects.get(pk=pk)
-    if utils.bio_diverisity_admin(request.user):
-        indv.delete()
-        messages.success(request, _("The Individual has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
 class CommonDelete(UserPassesTestMixin, DeleteView):
@@ -2456,3 +2450,26 @@ def facility_tank_report(request):
 
             return response
     raise Http404
+
+
+class PlotView(CommonTemplateView):
+    success_url = reverse_lazy("shared_models:close_me")
+    template_name = 'bio_diversity/bio_plot.html'
+    title = "Plot view"
+
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.request.user)
+
+class GrowthChartView(PlotView):
+
+    title = "Growth Chart"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fish_pk = self.kwargs.get("pk")
+        if self.kwargs.get("iorg") == "indv":
+            plot_fish = models.Individual.objects.filter(pk=fish_pk).get()
+        elif self.kwargs.get("iorg") == "grp":
+            plot_fish = models.Group.objects.filter(pk=fish_pk).get()
+        context["the_script"], context["the_div"] = reports.generate_growth_chart(plot_fish)
+        return context

@@ -284,6 +284,8 @@ urlpatterns = [
     path('list/perc/', views.PercList.as_view(), name="list_perc"),
     path('update/perc/<int:pk>/', views.PercUpdate.as_view(), name="update_perc"),
 
+    path('plot/growth/<str:iorg>/<int:pk>/', views.GrowthChartView.as_view(), name="plot_growth"),
+
     path('create/prio/', views.PrioCreate.as_view(), name="create_prio"),
     path('details/prio/<int:pk>/', views.PrioDetails.as_view(), name="details_prio"),
     path('list/prio/', views.PrioList.as_view(), name="list_prio"),

@@ -1,5 +1,11 @@
 import os
+from datetime import datetime
 
+from bokeh.embed import components
+from bokeh.layouts import column
+from bokeh.models import Title
+from bokeh.plotting import figure
+from bokeh.resources import CDN
 from openpyxl import load_workbook
 from bio_diversity import models
 from dm_apps import settings
@@ -58,3 +64,50 @@ def generate_facility_tank_report(facic_id):
     wb.save(target_file_path)
 
     return target_url
+
+
+def generate_growth_chart(plot_fish):
+    if type(plot_fish) == models.Individual:
+        len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id=plot_fish)
+        weight_dets = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__indv_id=plot_fish)
+    else:
+        len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__grp_id=plot_fish)
+        weight_dets = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__grp_id=plot_fish)
+    
+    x_len_data = []
+    y_len_data = []
+    for len_det in len_dets:
+        x_len_data.append(datetime.combine(len_det.detail_date, datetime.min.time()))
+        y_len_data.append(len_det.det_val)
+        
+    x_weight_data = []
+    y_weight_data = []
+    for weight_det in weight_dets:
+        x_weight_data.append(datetime.combine(weight_det.detail_date, datetime.min.time()))
+        y_weight_data.append(weight_det.det_val)
+
+
+    # create a new plot
+    title_eng = "Growth Chart for fish"
+
+
+    p_len = figure(
+        tools="pan,box_zoom,wheel_zoom,reset,save",
+        x_axis_type='datetime',
+        x_axis_label='Date',
+        y_axis_label='Length',
+        plot_width=600, plot_height=300,
+    )
+    p_weight = figure(
+        tools="pan,box_zoom,wheel_zoom,reset,save",
+        x_axis_type='datetime',
+        x_axis_label='Date',
+        y_axis_label='Weight',
+        plot_width=600, plot_height=300,
+    )
+
+    p_len.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
+    p_len.line(x=x_len_data, y=y_len_data, line_width=3)
+    p_weight.line(x=x_weight_data, y=y_weight_data, line_width=3)
+
+    return components(column(p_len, p_weight), CDN)
