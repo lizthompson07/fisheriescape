@@ -4,6 +4,7 @@ from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
@@ -254,6 +255,12 @@ class SampleCreateView(eDNAAdminRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
 
+    def get_cancel_url(self):
+        return self.get_parent_crumb().get("url")
+
+    def get_initial(self):
+        return dict(add_another=True, collection_date=timezone.now())
+
     def get_collection(self):
         return get_object_or_404(models.Collection, pk=self.kwargs.get("collection"))
 
@@ -267,7 +274,11 @@ class SampleCreateView(eDNAAdminRequiredMixin, CommonCreateView):
         obj = form.save(commit=False)
         collection = self.get_collection()
         obj.collection = collection
-        return super().form_valid(form)
+        obj.save()
+        if form.cleaned_data.get("add_another", False):
+            return HttpResponseRedirect(reverse("edna:sample_new", args=[collection.id]))
+        else:
+            return HttpResponseRedirect(self.get_success_url())
 
 
 class SampleUpdateView(eDNAAdminRequiredMixin, CommonUpdateView):

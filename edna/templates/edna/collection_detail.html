@@ -131,18 +131,18 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map)
 
+    lineCoords = [];
     {% for sample in object.samples.all %}
-
       {% if sample.get_point %}
-        L.marker(
-            [{{sample.get_point.x}}, {{ sample.get_point.y }}],
+        lineCoords.push([ {{sample.get_point.x}}, {{ sample.get_point.y }} ])
+        L.marker([{{sample.get_point.x}}, {{ sample.get_point.y }}],
             {
               title: '{{sample}}',
             }
         ).addTo(map).bindPopup("<b>Bottle Id:</b> {{object}}");
       {% endif %}
     {% endfor %}
-
+    if (lineCoords.length) map.fitBounds(lineCoords);
   }
 
   $(document).ready(function () {
