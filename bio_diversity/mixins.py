@@ -51,6 +51,7 @@ class CntdMixin:
     model = models.CountDet
     title = _("Count Detail")
     admin_only = False
+    img = True
 
 
 class CollMixin:
@@ -99,6 +100,7 @@ class CupdMixin:
     model = models.CupDet
     title = _("Cup Detail")
     admin_only = False
+    img = True
 
 
 class DataMixin:
@@ -115,6 +117,7 @@ class DrawMixin:
     model = models.Drawer
     title = _("Drawer")
     admin_only = False
+    img = True
 
 
 class EnvcMixin:
@@ -252,6 +255,7 @@ class HeatdMixin:
     model = models.HeathUnitDet
     title = _("Heath Unit Detail")
     admin_only = False
+    img = True
 
 
 class ImgMixin:
@@ -341,6 +345,7 @@ class LocMixin:
     form_class = forms.LocForm
     title = _("Location")
     admin_only = False
+    img = True
 
 
 class LoccMixin:
@@ -483,6 +488,7 @@ class SampMixin:
     title = _("Sample ")
     admin_only = False
 
+
 class SampcMixin:
     key = 'sampc'
     model = models.SampleCode
@@ -497,6 +503,8 @@ class SampdMixin:
     form_class = forms.SampdForm
     title = _("Sample Detail")
     admin_only = False
+    img = True
+
 
 class SireMixin:
     key = 'sire'
@@ -505,12 +513,15 @@ class SireMixin:
     title = _("Sire")
     admin_only = False
 
+
 class SpwndMixin:
     key = 'spwnd'
     model = models.SpawnDet
     form_class = forms.SpwndForm
     title = _("Spawning Detail")
     admin_only = False
+    img = True
+
 
 class SpwndcMixin:
     key = 'spwndc'
@@ -559,12 +570,15 @@ class TankMixin:
     title = _("Tank")
     admin_only = False
 
+
 class TankdMixin:
     key = 'tankd'
     model = models.TankDet
     form_class = forms.TankdForm
     title = _("Tank Detail")
     admin_only = False
+    img = True
+
 
 class TeamMixin:
     key = 'team'
@@ -573,6 +587,7 @@ class TeamMixin:
     title = _("Team")
     admin_only = False
 
+
 class TrayMixin:
     key = 'tray'
     model = models.Tray
@@ -580,12 +595,15 @@ class TrayMixin:
     title = _("Tray")
     admin_only = False
 
+
 class TraydMixin:
     key = 'trayd'
     model = models.TrayDet
     form_class = forms.TraydForm
     title = _("Tray Detail")
     admin_only = False
+    img = True
+
 
 class TribMixin:
     key = 'trib'
@@ -602,12 +620,15 @@ class TrofMixin:
     title = _("Trough")
     admin_only = False
 
+
 class TrofdMixin:
     key = 'trofd'
     model = models.TroughDet
     form_class = forms.TrofdForm
     title = _("Trough Detail")
     admin_only = False
+    img = True
+
 
 class UnitMixin:
     key = 'unit'

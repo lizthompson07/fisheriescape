@@ -2446,7 +2446,7 @@ class ReportFormView(mixins.ReportMixin, UserPassesTestMixin, CommonFormView):
             return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("projects2:reports"))
+            return HttpResponseRedirect(reverse("bio_diversity:reports"))
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
     def test_func(self):
@@ -2471,6 +2471,18 @@ def facility_tank_report(request):
     raise Http404
 
 
+@login_required()
+def plot_data_file(request):
+    file_url = request.GET.get("file_url")
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="text/csv")
+            response['Content-Disposition'] = f'inline; filename="plot_data_file ({timezone.now().strftime("%Y-%m-%d")}).csv"'
+            return response
+    raise Http404
+
+
 class PlotView(CommonTemplateView):
     success_url = reverse_lazy("shared_models:close_me")
     template_name = 'bio_diversity/bio_plot.html'
@@ -2478,6 +2490,7 @@ class PlotView(CommonTemplateView):
 
     def test_func(self):
         return utils.bio_diverisity_authorized(self.request.user)
+
 
 class GrowthChartView(PlotView):
 
@@ -2490,5 +2503,7 @@ class GrowthChartView(PlotView):
             plot_fish = models.Individual.objects.filter(pk=fish_pk).get()
         elif self.kwargs.get("iorg") == "grp":
             plot_fish = models.Group.objects.filter(pk=fish_pk).get()
-        context["the_script"], context["the_div"] = reports.generate_growth_chart(plot_fish)
+        context["the_script"], context["the_div"], file_url = reports.generate_growth_chart(plot_fish)
+        context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
         return context
+

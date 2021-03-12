@@ -1,3 +1,4 @@
+import csv
 import os
 from datetime import datetime
 
@@ -23,8 +24,6 @@ def generate_facility_tank_report(facic_id):
 
     facic = models.FacilityCode.objects.filter(pk=facic_id).get()
 
-    # get all project years that are not in the following status: draft, not approved, cancelled
-    # and that are a part of a project whose default funding source has an english name containing "csrf"
     qs = models.Tank.objects.filter(facic_id=facic)
 
     wb = load_workbook(filename=template_file_path)
@@ -67,6 +66,7 @@ def generate_facility_tank_report(facic_id):
 
 
 def generate_growth_chart(plot_fish):
+
     if type(plot_fish) == models.Individual:
         len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id=plot_fish)
         weight_dets = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__indv_id=plot_fish)
@@ -111,4 +111,15 @@ def generate_growth_chart(plot_fish):
     p_len.line(x=x_len_data, y=y_len_data, line_width=3)
     p_weight.line(x=x_weight_data, y=y_weight_data, line_width=3)
 
-    return components(column(p_len, p_weight), CDN)
+
+    #-------------------Data File-----------------
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.csv"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    with open(target_file_path, 'w') as data_file:
+        writer = csv.writer(data_file)
+        writer.writerow(["Date", "Length", "Date", "Weight"])
+        writer.writerows(zip(x_len_data, y_len_data, x_weight_data, y_weight_data))
+    scirpt, div = components(column(p_len, p_weight), CDN)
+    return scirpt, div, target_url
