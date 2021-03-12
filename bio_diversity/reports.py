@@ -86,10 +86,8 @@ def generate_growth_chart(plot_fish):
         x_weight_data.append(datetime.combine(weight_det.detail_date, datetime.min.time()))
         y_weight_data.append(weight_det.det_val)
 
-
     # create a new plot
     title_eng = "Growth Chart for fish"
-
 
     p_len = figure(
         tools="pan,box_zoom,wheel_zoom,reset,save",
@@ -103,9 +101,12 @@ def generate_growth_chart(plot_fish):
         x_axis_type='datetime',
         x_axis_label='Date',
         y_axis_label='Weight',
+        y_range=(max(y_weight_data), min(y_weight_data)),
         plot_width=600, plot_height=300,
     )
 
+    p_len.axis.axis_label_text_font_style = 'normal'
+    p_weight.axis.axis_label_text_font_style = 'normal'
     p_len.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
     p_len.line(x=x_len_data, y=y_len_data, line_width=3)
     p_weight.line(x=x_weight_data, y=y_weight_data, line_width=3)

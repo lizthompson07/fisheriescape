@@ -82,6 +82,39 @@
         </div>
         {% endif %}
     {% endif %}
+    {% if 'img' in table_list %}
+    <div class="card border border-dark my-1" name="img-details">
+        <h5 class="card-header">{% trans "Images" %}
+            <span class="px-1">
+                <a class="btn btn-primary" name="add-new-img-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_img' model_key object.pk 'pop' %}','all')" title="{% trans 'Add New Image' %}">{% trans 'Add New Image' %}</a>
+            </span>
+        </h5>
+        {% if object.images.count > 0 %}
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                    {% for field in img_field_list %}
+                        <th>{% get_verbose_label img_object field %}</th>
+                    {% endfor %}
+                </thead>
+                <tbody>
+                    {% for obj in object.images.all %}
+                        {% if obj.img_png %}
+                            <tr href="{{ MEDIA_URL }}{{obj.img_png.url}}">
+                        {% endif %}
+                        {% for field in img_field_list %}
+                            <td>
+                                {% get_field_value obj field %}
+                            </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    {% endif %}
+
+
     {% endblock %}
 </div>
 {% endblock %}

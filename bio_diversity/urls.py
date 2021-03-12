@@ -190,6 +190,7 @@ urlpatterns = [
     path('ajax/get_fields/', utils.ajax_get_fields, name='ajax_get_fields'),
 
     path('create/img/', views.ImgCreate.as_view(), name="create_img"),
+    path('create/img/<str:feature>/<int:feature_id>/<str:pop>/', views.ImgCreate.as_view(), name="create_img"),
     path('details/img/<int:pk>/', views.ImgDetails.as_view(), name="details_img"),
     path('list/img/', views.ImgList.as_view(), name="list_img"),
     path('update/img/<int:pk>/', views.ImgUpdate.as_view(), name="update_img"),
@@ -285,6 +286,7 @@ urlpatterns = [
     path('update/perc/<int:pk>/', views.PercUpdate.as_view(), name="update_perc"),
 
     path('plot/growth/<str:iorg>/<int:pk>/', views.GrowthChartView.as_view(), name="plot_growth"),
+    path('plot/growth/<str:iorg>/<int:pk>/<str:pop>', views.GrowthChartView.as_view(), name="plot_growth"),
 
     path('create/prio/', views.PrioCreate.as_view(), name="create_prio"),
     path('details/prio/<int:pk>/', views.PrioDetails.as_view(), name="details_prio"),

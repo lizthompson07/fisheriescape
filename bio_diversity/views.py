@@ -389,7 +389,15 @@ class HeatdCreate(mixins.HeatdMixin, CommonCreate):
 
 
 class ImgCreate(mixins.ImgMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'feature' in self.kwargs:
+            for field in self.get_form_class().base_fields:
+                if self.kwargs['feature'] in field:
+                    initial[field] = self.kwargs["feature_id"]
+                if field not in ["imgc_id", "img_png"]:
+                    self.get_form_class().base_fields[field].widget = forms.HiddenInput()
+        return initial
 
 
 class ImgcCreate(mixins.ImgcMixin, CommonCreate):
@@ -650,6 +658,8 @@ class CommonDetails(DetailView):
     # By default detail objects are editable, set to false to remove update buttons
     editable = True
 
+    img = False
+
     def get_auth(self):
         if self.admin_only:
             return utils.bio_diverisity_admin(self.request.user)
@@ -658,7 +668,7 @@ class CommonDetails(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        context["table_list"] = []
         if self.title:
             context['title'] = self.title
 
@@ -677,6 +687,14 @@ class CommonDetails(DetailView):
         context['auth'] = self.get_auth()
         context['editable'] = context['auth'] and self.editable
         context["model_key"] = self.key
+
+        if self.img:
+            context["table_list"].extend(["img"])
+            context["img_object"] = models.Image.objects.first()
+            context["img_field_list"] = [
+                "img_png",
+                "imgc_id",
+            ]
 
         return context
 
@@ -729,7 +747,7 @@ class CommonContDetails(CommonDetails):
                                                "field_list": grp_field_list,
                                                "single_object": obj_mixin.model.objects.first()}
 
-        context["table_list"] = ["grp_cont", "indv_cont", "env", "envt", "cnt"]
+        context["table_list"].extend(["grp_cont", "indv_cont", "env", "envt", "cnt"])
 
         return context
 
@@ -756,7 +774,7 @@ class CntDetails(mixins.CntMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
         context["context_dict"] = {}
 
-        context["table_list"] = ["cntd"]
+        context["table_list"].extend(["cntd"])
 
         cntd_list = [cntd for cntd in self.object.count_details.all()]
         cntd_field_list = ["anidc_id", "det_val"]
@@ -939,26 +957,27 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "field_list": matp_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        context["table_list"] = ["loc", "indv", "grp", "tank", "trof", "pair", "matp", "prot"]
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
-            context["table_list"] = ["data", "loc", "grp", "tank", "prot"]
+            context["table_list"].extend(["data", "loc", "grp", "tank", "prot"])
         elif evnt_code == "PIT Tagging":
-            context["table_list"] = ["data", "indv", "grp", "tank", "prot"]
+            context["table_list"].extend(["data", "indv", "grp", "tank", "prot"])
         elif evnt_code == "Egg Development":
-            context["table_list"] = ["data", "grp", "trof", "prot"]
+            context["table_list"].extend(["data", "grp", "trof", "prot"])
         elif evnt_code == "Maturity Sorting":
-            context["table_list"] = ["data", "indv", "tank", "prot"]
+            context["table_list"].extend(["data", "indv", "tank", "prot"])
         elif evnt_code == "Water Quality Record":
-            context["table_list"] = ["data", "tank", "prot"]
+            context["table_list"].extend(["data", "tank", "prot"])
         elif evnt_code == "Spawning":
-            context["table_list"] = ["data", "indv", "pair", "grp", "matp", "prot"]
+            context["table_list"].extend(["data", "indv", "pair", "grp", "matp", "prot"])
         elif evnt_code == "Treatment":
-            context["table_list"] = ["data", "tank", "trof", "prot"]
+            context["table_list"].extend(["data", "tank", "trof", "prot"])
         elif evnt_code == "Movement":
-            context["table_list"] = ["indv", "grp", "tank", "trof", "prot"]
+            context["table_list"].extend(["indv", "grp", "tank", "trof", "prot"])
         elif evnt_code == "Mortality":
-            context["table_list"] = ["indv", "grp"]
+            context["table_list"].extend(["indv", "grp"])
+        else:
+            context["table_list"].extend(["loc", "indv", "grp", "tank", "trof", "pair", "matp", "prot"])
 
         return context
 
@@ -997,7 +1016,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
         context["context_dict"] = {}
 
-        context["table_list"] = ["evnt", "indv", "grpd", "pair", "cont"]
+        context["table_list"].extend(["evnt", "indv", "grpd", "pair", "cont"])
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True)
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
@@ -1093,7 +1112,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
         context["title"] = "Individual: {}".format(self.object.__str__())
         context["context_dict"] = {}
-        context["table_list"] = ["evnt", "indvd", "pair", "cont", "sire"]
+        context["table_list"].extend(["evnt", "indvd", "pair", "cont", "sire"])
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
                                                           indvt_id__isnull=True, pair_id__isnull=True)
@@ -1188,7 +1207,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"] = ["env", "cnt"]
+        context["table_list"].extend(["env", "cnt"])
         context["context_dict"] = {}
 
         env_list = [env for env in self.object.env_condition.all()]
@@ -1231,7 +1250,7 @@ class PairDetails(mixins.PairMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"] = ["sire", "spwnd"]
+        context["table_list"].extend(["sire", "spwnd"])
         context["context_dict"] = {}
 
         sire_list = [sire for sire in self.object.sires.all()]
@@ -1275,7 +1294,7 @@ class ProgDetails(mixins.ProgMixin, CommonDetails):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["table_list"] = ["prot"]
+        context["table_list"].extend(["prot"])
         context["context_dict"] = {}
 
         prot_list = [prot for prot in self.object.protocols.all()]
@@ -1410,7 +1429,7 @@ class TrofDetails(mixins.TrofMixin, CommonContDetails):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["table_list"].append("tray")
+        context["table_list"].extend(["tray"])
 
         tray_list = self.object.trays.all()
         tray_field_list = ["name", "start_date", "end_date", "degree_days"]

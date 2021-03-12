@@ -815,29 +815,29 @@ def img_directory_path(instance, filename):
 class Image(BioModel):
     # img tag
     imgc_id = models.ForeignKey("ImageCode", on_delete=models.CASCADE, verbose_name=_("Image Code"))
-    loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True,
+    loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                verbose_name=_("Location"))
-    cntd_id = models.ForeignKey("CountDet", on_delete=models.CASCADE, null=True, blank=True,
+    cntd_id = models.ForeignKey("CountDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                 verbose_name=_("Count Detail"))
-    grpd_id = models.ForeignKey("GroupDet", on_delete=models.CASCADE, null=True, blank=True,
+    grpd_id = models.ForeignKey("GroupDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                 verbose_name=_("Group Detail"))
-    sampd_id = models.ForeignKey("SampleDet", on_delete=models.CASCADE, null=True, blank=True,
+    sampd_id = models.ForeignKey("SampleDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                  verbose_name=_("Sample Detail"))
-    indvd_id = models.ForeignKey("IndividualDet", on_delete=models.CASCADE, null=True, blank=True,
+    indvd_id = models.ForeignKey("IndividualDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                  verbose_name=_("Individual Detail"))
-    spwnd_id = models.ForeignKey("SpawnDet", on_delete=models.CASCADE, null=True, blank=True,
+    spwnd_id = models.ForeignKey("SpawnDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                  verbose_name=_("Spawn Detail"))
-    tankd_id = models.ForeignKey("TankDet", on_delete=models.CASCADE, null=True, blank=True,
+    tankd_id = models.ForeignKey("TankDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                  verbose_name=_("Tank Detail"))
-    heatd_id = models.ForeignKey("HeathUnitDet", on_delete=models.CASCADE, null=True, blank=True,
+    heatd_id = models.ForeignKey("HeathUnitDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                  verbose_name=_("Heath Unit Detail"))
-    draw_id = models.ForeignKey("Drawer", on_delete=models.CASCADE, null=True, blank=True,
+    draw_id = models.ForeignKey("Drawer", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                 verbose_name=_("Drawer"))
-    trofd_id = models.ForeignKey("TroughDet", on_delete=models.CASCADE, null=True, blank=True,
+    trofd_id = models.ForeignKey("TroughDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                  verbose_name=_("Trough Detail"))
-    trayd_id = models.ForeignKey("TrayDet", on_delete=models.CASCADE, null=True, blank=True,
+    trayd_id = models.ForeignKey("TrayDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                  verbose_name=_("Tray Detail"))
-    cupd_id = models.ForeignKey("CupDet", on_delete=models.CASCADE, null=True, blank=True,
+    cupd_id = models.ForeignKey("CupDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                 verbose_name=_("Cup Detail"))
     img_png = models.FileField(upload_to=img_directory_path, null=True, blank=True, verbose_name=_("Image File"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))

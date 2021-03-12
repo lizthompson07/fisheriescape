@@ -235,6 +235,7 @@ class GrpdMixin:
     model = models.GroupDet
     title = _("Group Detail")
     admin_only = False
+    img = True
 
 
 class HeatMixin:
@@ -283,6 +284,7 @@ class IndvdMixin:
     model = models.IndividualDet
     title = _("Individual Detail")
     admin_only = False
+    img = True
 
 
 class IndvtMixin:
@@ -433,6 +435,7 @@ class ProtfMixin:
     form_class = forms.ProtfForm
     title = _("Protocol File")
     admin_only = False
+
 
 class QualMixin:
     key = 'qual'
