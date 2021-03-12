@@ -40,7 +40,6 @@ urlpatterns = [
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
     path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
-    path('samples/<int:pk>/data-entry/', views.SampleDataEntryDetailView.as_view(), name="sample_data_entry"),
     #
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),

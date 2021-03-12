@@ -167,7 +167,7 @@ class Sample(models.Model):
         return reverse("edna:sample_detail", args=[self.pk])
 
     def __str__(self):
-        return
+        return self.unique_sample_identifier
 
     def get_point(self):
         if self.latitude and self.longitude:

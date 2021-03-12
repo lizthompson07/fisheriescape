@@ -254,7 +254,6 @@ class SampleCreateView(eDNAAdminRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
 
-
     def get_collection(self):
         return get_object_or_404(models.Collection, pk=self.kwargs.get("collection"))
 
@@ -300,6 +299,8 @@ class SampleDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     def get_grandparent_crumb(self):
         return {"title": self.get_object().collection, "url": reverse_lazy("edna:collection_detail", args=[self.get_object().collection.id])}
 
+    def get_success_url(self):
+        return self.get_grandparent_crumb().get("url")
 
 class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Sample
@@ -308,20 +309,13 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     container_class = "container bg-light curvy"
     field_list = [
-        'transect',
-        'sampler',
-        'starting_coordinates_ddmm|{}'.format(_("starting coordinates")),
-        'ending_coordinates_ddmm|{}'.format(_("ending coordinates")),
-        'sample_distance|{}'.format(_("sample distance (m)")),
-        'start_descent',
-        'bottom_time',
-        'max_depth_ft',
-        'psi_in',
-        'psi_out',
-        'heading',
-        'side',
-        'width_m',
-        'comment',
+        'unique_sample_identifier',
+        'site_identifier',
+        'site_description',
+        'samplers',
+        'datetime',
+        'coordinates',
+        'comments',
     ]
 
     def get_parent_crumb(self):
@@ -329,67 +323,23 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        section_field_list = [
-            'interval',
-            'depth_ft',
-            'substrate_profile|{}'.format(_("substrate profile")),
-            'comment',
-        ]
-        context["section_field_list"] = section_field_list
-        observation_field_list = [
-            'id',
-            'sex_special_display|{}'.format("sex"),
-            'egg_status_special_display|{}'.format("egg status"),
-            'carapace_length_mm',
-            'certainty_rating_special_display|{}'.format("length certainty"),
-            'comment',
-        ]
-        context["observation_field_list"] = observation_field_list
-        context["random_observation"] = models.Observation.objects.first()
-        return context
-
-
-class SampleDataEntryDetailView(eDNAAdminRequiredMixin, CommonDetailView):
-    model = models.Sample
-    template_name = 'edna/sample_data_entry/main.html'
-    container_class = "container bg-light-green curvy"
-    field_list = [
-        'id|{}'.format(_("sample Id")),
-        'transect',
-        'sampler',
-        'heading',
-        'side',
-        'width_m',
-        'comment',
-    ]
-
-    def get_h1(self):
-        return _("Data Entry Mode")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        section_field_list = [
-            'interval',
-            'depth_ft',
-            'substrate_profile|{}'.format(_("substrate profile")),
-            'observation_count|{}'.format(_("observation count")),
-            'comment',
-        ]
-        context["section_field_list"] = section_field_list
-        observation_field_list = [
-            'id',
-            'sex',
-            'egg_status',
-            'carapace_length_mm',
-            'certainty_rating',
-            'comment',
-        ]
-        context["observation_field_list"] = observation_field_list
-        context["random_section"] = models.Section.objects.first()
-        context["random_observation"] = models.Observation.objects.first()
-        context["section_form"] = forms.SectionForm
-        context["obs_form"] = forms.ObservationForm
-        context["new_obs_form"] = forms.NewObservationForm
+        # section_field_list = [
+        #     'interval',
+        #     'depth_ft',
+        #     'substrate_profile|{}'.format(_("substrate profile")),
+        #     'comment',
+        # ]
+        # context["section_field_list"] = section_field_list
+        # observation_field_list = [
+        #     'id',
+        #     'sex_special_display|{}'.format("sex"),
+        #     'egg_status_special_display|{}'.format("egg status"),
+        #     'carapace_length_mm',
+        #     'certainty_rating_special_display|{}'.format("length certainty"),
+        #     'comment',
+        # ]
+        # context["observation_field_list"] = observation_field_list
+        # context["random_observation"] = models.Observation.objects.first()
         return context
 
 
