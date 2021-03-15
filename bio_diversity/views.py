@@ -700,6 +700,8 @@ class CommonDetails(DetailView):
 
 
 class CommonContDetails(CommonDetails):
+    template_name = 'bio_diversity/details_cont.html'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["context_dict"] = {}
@@ -2520,7 +2522,7 @@ class PlotView(CommonTemplateView):
 
 class GrowthChartView(PlotView):
 
-    title = "Growth Chart"
+    title = _("Growth Chart")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2530,6 +2532,28 @@ class GrowthChartView(PlotView):
         elif self.kwargs.get("iorg") == "grp":
             plot_fish = models.Group.objects.filter(pk=fish_pk).get()
         context["the_script"], context["the_div"], file_url = reports.generate_growth_chart(plot_fish)
+        context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
+        return context
+
+
+class MaturityRateView(PlotView):
+
+    title = _("Maturity Rate")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cont_pk = self.kwargs.get("pk")
+        indv_list = grp_list = []
+        if self.kwargs.get("cont") == "tank":
+            cont = models.Tank.objects.filter(pk=cont_pk).get()
+            indv_list, grp_list = cont.fish_in_cont()
+        elif self.kwargs.get("cont") == "grp":
+            cont = models.Group.objects.filter(pk=cont_pk).get()
+            indv_list, grp_list = cont.fish_in_group()
+        elif self.kwargs.get("cont") == "trof":
+            cont = models.Trough.objects.filter(pk=cont_pk).get()
+            indv_list, grp_list = cont.fish_in_cont()
+        context["the_script"], context["the_div"], file_url = reports.generate_maturity_rate(indv_list, grp_list)
         context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
         return context
 

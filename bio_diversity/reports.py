@@ -173,3 +173,47 @@ def generate_growth_chart(plot_fish):
         writer.writerows(itertools.zip_longest(x_len_data, y_len_data, x_weight_data, y_weight_data))
     scirpt, div = components(column(p_len, p_weight), CDN)
     return scirpt, div, target_url
+
+
+def generate_maturity_rate(indv_list, grp_list):
+    hist_dict = {"Immature": 0, "Male": 0, "Female": 0}
+    pit_tag_list = []
+    gender_list = []
+    for indv in indv_list:
+        gender = "Unknown"
+        pit_tag_list.append(indv.pit_tag)
+        indvd = models.IndividualDet.objects.filter(anidc_id__name="Gender", indvd_valid=True).filter(anix_id__indv_id=indv)
+        if indvd.count() > 0:
+            gender = indvd.get().adsc_id.name
+            hist_dict[gender] += 1
+        gender_list.append(gender)
+
+    genders = ["Immature", "Male", "Female"]
+
+    # create a new plot
+    title_eng = "Maturity Rate"
+
+    p = figure(tools="pan,box_zoom,wheel_zoom,reset,save",
+               x_range=genders,
+               plot_width=600,
+               plot_height=300,
+               title="Maturity Rate")
+
+    p.vbar(x=genders, top=[hist_dict["Immature"], hist_dict["Male"], hist_dict["Female"]], width=0.9)
+    p.axis.axis_label_text_font_style = 'normal'
+    p.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
+
+    p.xgrid.grid_line_color = None
+    p.y_range.start = 0
+
+    # ------------------------Data File------------------------------
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.csv"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    with open(target_file_path, 'w') as data_file:
+        writer = csv.writer(data_file)
+        writer.writerow(["Pit Tag", "Gender"])
+        writer.writerows(itertools.zip_longest(pit_tag_list, gender_list))
+    scirpt, div = components(p, CDN)
+    return scirpt, div, target_url

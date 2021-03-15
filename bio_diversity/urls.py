@@ -287,6 +287,7 @@ urlpatterns = [
 
     path('plot/growth/<str:iorg>/<int:pk>/', views.GrowthChartView.as_view(), name="plot_growth"),
     path('plot/growth/<str:iorg>/<int:pk>/<str:pop>', views.GrowthChartView.as_view(), name="plot_growth"),
+    path('plot/maturity/<str:cont>/<int:pk>/<str:pop>', views.MaturityRateView.as_view(), name="plot_maturity_rate"),
     path('plots/plot_data_file/', views.plot_data_file, name="plot_data_file"),
 
     path('create/prio/', views.PrioCreate.as_view(), name="create_prio"),
