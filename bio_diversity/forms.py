@@ -1363,7 +1363,7 @@ class EnvForm(CreateTimePrams):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['contX_id'].widget = forms.HiddenInput()
+        self.fields['contx_id'].widget = forms.HiddenInput()
 
 
 class EnvcForm(CreatePrams):
@@ -1439,7 +1439,7 @@ class FeedForm(CreatePrams):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['contX_id'].widget = forms.HiddenInput()
+        self.fields['contx_id'].widget = forms.HiddenInput()
 
 
 class FeedcForm(CreatePrams):
@@ -1638,7 +1638,8 @@ class MortForm(forms.Form):
     created_by = forms.CharField(required=True, max_length=32)
     indv_length = forms.DecimalField(required=False, max_digits=5, label=_("Individual Length (cm)"))
     indv_mass = forms.DecimalField(required=False, max_digits=5,  label=_("Individual Mass (g)"))
-    indv_vial = forms.DecimalField(required=False, max_digits=5,  label=_("Individual Vial"))
+    indv_vial = forms.CharField(required=False, max_length=8,  label=_("Individual Vial"))
+    scale_envelope = forms.CharField(required=False, max_length=8,  label=_("Scale Envelope Label"))
     indv_gender = forms.ChoiceField(required=False, choices=gender_choices,  label=_("Individual Gender"))
     observations = forms.ModelMultipleChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Mortality Observation") | models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),  label=_("Observations"))
     indv_mort = forms.IntegerField(required=False, max_value=10000000)
@@ -1666,7 +1667,7 @@ class MortForm(forms.Form):
             indv.save()
             cleaned_data["evnt_id"] = models.AniDetailXref.objects.filter(indv_id_id=cleaned_data["indv_mort"]).last().evnt_id
         else:
-            evnt = models.AniDetailXref.objects.filter(grp_id_id=cleaned_data["grp_mort"]).last().evnt_id
+            cleaned_data["evnt_id"] = models.AniDetailXref.objects.filter(grp_id_id=cleaned_data["grp_mort"]).last().evnt_id
             grp = models.Group.objects.filter(pk=cleaned_data["grp_mort"]).get()
             indv = models.Individual(grp_id=grp,
                                      spec_id=grp.spec_id,
@@ -1699,6 +1700,8 @@ class MortForm(forms.Form):
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_mass"], "Weight", None)
         if cleaned_data["indv_vial"]:
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_vial"], "Vial", None)
+        if cleaned_data["scale_envelope"]:
+            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["scale_envelope"], "Scale Envelope", None)
         if cleaned_data["indv_gender"]:
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, "Gender", cleaned_data["indv_gender"])
 
