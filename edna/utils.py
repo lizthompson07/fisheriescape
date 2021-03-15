@@ -1,8 +1,6 @@
 import math
 
 from django.contrib.auth.models import Group
-
-
 # open basic access up to anybody who is logged in
 from django.utils.translation import gettext as _
 
@@ -19,7 +17,6 @@ def in_edna_crud_group(user):
     crud_group, created = Group.objects.get_or_create(name="enda_crud")
     if user:
         return in_edna_admin_group(user) or crud_group in user.groups.all()
-
 
 
 def calc_nautical_dist(p0, p1):
@@ -47,6 +44,7 @@ def get_sample_field_list():
     ]
     return my_list
 
+
 def get_collection_field_list(collection):
     my_list = [
         'name',
@@ -60,4 +58,14 @@ def get_collection_field_list(collection):
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)
+    return my_list
+
+
+def get_batch_field_list():
+    my_list = [
+        'id',
+        'datetime',
+        'operators',
+        'comments',
+    ]
     return my_list

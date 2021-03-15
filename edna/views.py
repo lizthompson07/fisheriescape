@@ -313,6 +313,7 @@ class SampleDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
     def get_success_url(self):
         return self.get_grandparent_crumb().get("url")
 
+
 class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Sample
     template_name = 'edna/sample_detail.html'
@@ -352,6 +353,231 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         # context["observation_field_list"] = observation_field_list
         # context["random_observation"] = models.Observation.objects.first()
         return context
+
+
+# FILTRATION BATCHES #
+######################
+
+class FiltrationBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
+    model = models.FiltrationBatch
+    template_name = 'edna/list.html'
+    filterset_class = filters.FiltrationBatchFilter
+    home_url_name = "edna:index"
+    row_object_url_name = "edna:filtration_batch_detail"
+    new_object_url = reverse_lazy("edna:filtration_batch_new")
+    new_btn_text = gettext_lazy("Add a New Filtration Batch")
+    container_class = "container-fluid bg-light curvy"
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'datetime', "class": "", "width": ""},
+        {"name": 'operators', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+    ]
+
+
+class FiltrationBatchUpdateView(eDNAAdminRequiredMixin, CommonUpdateView):
+    model = models.FiltrationBatch
+    form_class = forms.FiltrationBatchForm
+    template_name = 'edna/form.html'
+    home_url_name = "edna:index"
+    grandparent_crumb = {"title": gettext_lazy("Filtration Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("edna:filtration_batch_detail", args=[self.get_object().id])}
+
+
+class FiltrationBatchCreateView(eDNAAdminRequiredMixin, CommonCreateView):
+    model = models.FiltrationBatch
+    form_class = forms.FiltrationBatchForm
+    template_name = 'edna/form.html'
+    home_url_name = "edna:index"
+    parent_crumb = {"title": gettext_lazy("Filtration Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+
+
+class FiltrationBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
+    model = models.FiltrationBatch
+    template_name = 'edna/filtration_batch_detail.html'
+    home_url_name = "edna:index"
+    parent_crumb = {"title": gettext_lazy("Filtration Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+    field_list = utils.get_batch_field_list()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sample_field_list = [
+            'unique_sample_identifier',
+            'datetime',
+            'site_identifier',
+            'coordinates',
+            # 'observation_count|{}'.format(_("lobster count")),
+        ]
+        context["sample_field_list"] = sample_field_list
+        return context
+
+
+class FiltrationBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
+    model = models.FiltrationBatch
+    success_url = reverse_lazy('edna:filtration_batch_list')
+    home_url_name = "edna:index"
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'edna/confirm_delete.html'
+    container_class = "container bg-light curvy"
+    grandparent_crumb = {"title": gettext_lazy("Filtration Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("edna:filtration_batch_detail", args=[self.get_object().id])}
+
+
+# EXTRACTION BATCHES #
+######################
+
+class ExtractionBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
+    model = models.ExtractionBatch
+    template_name = 'edna/list.html'
+    filterset_class = filters.ExtractionBatchFilter
+    home_url_name = "edna:index"
+    row_object_url_name = "edna:filtration_batch_detail"
+    new_object_url = reverse_lazy("edna:filtration_batch_new")
+    new_btn_text = gettext_lazy("Add a New Extraction Batch")
+    container_class = "container-fluid bg-light curvy"
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'datetime', "class": "", "width": ""},
+        {"name": 'operators', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+    ]
+
+
+class ExtractionBatchUpdateView(eDNAAdminRequiredMixin, CommonUpdateView):
+    model = models.ExtractionBatch
+    form_class = forms.ExtractionBatchForm
+    template_name = 'edna/form.html'
+    home_url_name = "edna:index"
+    grandparent_crumb = {"title": gettext_lazy("Extraction Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("edna:filtration_batch_detail", args=[self.get_object().id])}
+
+
+class ExtractionBatchCreateView(eDNAAdminRequiredMixin, CommonCreateView):
+    model = models.ExtractionBatch
+    form_class = forms.ExtractionBatchForm
+    template_name = 'edna/form.html'
+    home_url_name = "edna:index"
+    parent_crumb = {"title": gettext_lazy("Extraction Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+
+
+class ExtractionBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
+    model = models.ExtractionBatch
+    template_name = 'edna/filtration_batch_detail.html'
+    home_url_name = "edna:index"
+    parent_crumb = {"title": gettext_lazy("Extraction Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+    field_list = utils.get_batch_field_list()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sample_field_list = [
+            'unique_sample_identifier',
+            'datetime',
+            'site_identifier',
+            'coordinates',
+            # 'observation_count|{}'.format(_("lobster count")),
+        ]
+        context["sample_field_list"] = sample_field_list
+        return context
+
+
+class ExtractionBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
+    model = models.ExtractionBatch
+    success_url = reverse_lazy('edna:filtration_batch_list')
+    home_url_name = "edna:index"
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'edna/confirm_delete.html'
+    container_class = "container bg-light curvy"
+    grandparent_crumb = {"title": gettext_lazy("Extraction Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("edna:filtration_batch_detail", args=[self.get_object().id])}
+
+
+# PCR BATCHES #
+######################
+
+class PCRBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
+    model = models.PCRBatch
+    template_name = 'edna/list.html'
+    filterset_class = filters.PCRBatchFilter
+    home_url_name = "edna:index"
+    row_object_url_name = "edna:filtration_batch_detail"
+    new_object_url = reverse_lazy("edna:filtration_batch_new")
+    new_btn_text = gettext_lazy("Add a New PCR Batch")
+    container_class = "container-fluid bg-light curvy"
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'datetime', "class": "", "width": ""},
+        {"name": 'operators', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+    ]
+
+
+class PCRBatchUpdateView(eDNAAdminRequiredMixin, CommonUpdateView):
+    model = models.PCRBatch
+    form_class = forms.PCRBatchForm
+    template_name = 'edna/form.html'
+    home_url_name = "edna:index"
+    grandparent_crumb = {"title": gettext_lazy("PCR Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("edna:filtration_batch_detail", args=[self.get_object().id])}
+
+
+class PCRBatchCreateView(eDNAAdminRequiredMixin, CommonCreateView):
+    model = models.PCRBatch
+    form_class = forms.PCRBatchForm
+    template_name = 'edna/form.html'
+    home_url_name = "edna:index"
+    parent_crumb = {"title": gettext_lazy("PCR Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+
+
+class PCRBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
+    model = models.PCRBatch
+    template_name = 'edna/filtration_batch_detail.html'
+    home_url_name = "edna:index"
+    parent_crumb = {"title": gettext_lazy("PCR Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+    container_class = "container bg-light curvy"
+    field_list = utils.get_batch_field_list()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sample_field_list = [
+            'unique_sample_identifier',
+            'datetime',
+            'site_identifier',
+            'coordinates',
+            # 'observation_count|{}'.format(_("lobster count")),
+        ]
+        context["sample_field_list"] = sample_field_list
+        return context
+
+
+class PCRBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
+    model = models.PCRBatch
+    success_url = reverse_lazy('edna:filtration_batch_list')
+    home_url_name = "edna:index"
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'edna/confirm_delete.html'
+    container_class = "container bg-light curvy"
+    grandparent_crumb = {"title": gettext_lazy("PCR Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("edna:filtration_batch_detail", args=[self.get_object().id])}
 
 
 # REPORTS #

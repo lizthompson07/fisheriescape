@@ -73,6 +73,34 @@ class FileForm(forms.ModelForm):
         fields = "__all__"
 
 
+class FiltrationBatchForm(forms.ModelForm):
+    class Meta:
+        model = models.FiltrationBatch
+        fields = "__all__"
+        widgets = {
+            "datetime": forms.DateInput(attrs=dict(type="date")),
+            "operators": forms.SelectMultiple(attrs=chosen_js),
+        }
+
+class ExtractionBatchForm(forms.ModelForm):
+    class Meta:
+        model = models.ExtractionBatch
+        fields = "__all__"
+        widgets = {
+            "datetime": forms.DateInput(attrs=dict(type="date")),
+            "operators": forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
+class PCRBatchForm(forms.ModelForm):
+    class Meta:
+        model = models.PCRBatch
+        fields = "__all__"
+        widgets = {
+            "datetime": forms.DateInput(attrs=dict(type="date")),
+            "operators": forms.SelectMultiple(attrs=chosen_js),
+        }
+
 class SampleForm(forms.ModelForm):
     add_another = forms.BooleanField(required=False)
 

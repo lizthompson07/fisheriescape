@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import date
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from shapely.geometry import Polygon, Point
@@ -182,13 +183,22 @@ class Sample(models.Model):
         return mark_safe(my_str)
 
 
-class FiltrationBatch(models.Model):
-    datetime = models.DateTimeField(auto_now=True, verbose_name=_("start date/time"))
+class Batch(models.Model):
+    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("start date/time"))
     operators = models.ManyToManyField(User, blank=True, verbose_name=_("operators"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
         ordering = ["datetime"]
+        abstract = True
+
+
+class FiltrationBatch(Batch):
+    class Meta:
+        verbose_name_plural = _("Filtration Batches")
+
+    def __str__(self):
+        return "{} {} ({})".format(_("Filtration Batch"),  self.id, self.datetime.strftime("%Y-%m-%d"))
 
 
 class Filter(models.Model):
@@ -221,13 +231,9 @@ class Filter(models.Model):
         ordering = ["filtration_batch", "sample"]
 
 
-class ExtractionBatch(models.Model):
-    datetime = models.DateTimeField(auto_now=True, verbose_name=_("start date/time"))
-    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operators"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
-
+class ExtractionBatch(Batch):
     class Meta:
-        ordering = ["datetime"]
+        verbose_name_plural = _("DNA Extraction Batches")
 
 
 class DNAExtract(models.Model):
@@ -257,13 +263,9 @@ class DNAExtract(models.Model):
         ordering = ["extraction_batch", "filter_id"]
 
 
-class PCRBatch(models.Model):
-    datetime = models.DateTimeField(auto_now=True, verbose_name=_("start date/time"))
-    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operators"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
-
+class PCRBatch(Batch):
     class Meta:
-        ordering = ["datetime"]
+        verbose_name_plural = _("PCR Batches")
 
 
 class PCR(models.Model):

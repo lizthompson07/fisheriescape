@@ -34,3 +34,31 @@ class CollectionFilter(django_filters.FilterSet):
             'contact_users': ['exact'],
             'fiscal_year': ['exact'],
         }
+
+
+
+
+class FiltrationBatchFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.FiltrationBatch
+        fields = {
+            'datetime': ['exact'],
+        }
+
+
+
+class ExtractionBatchFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.ExtractionBatch
+        fields = {
+            'datetime': ['exact'],
+        }
+
+
+
+class PCRBatchFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.PCRBatch
+        fields = {
+            'datetime': ['exact'],
+        }
