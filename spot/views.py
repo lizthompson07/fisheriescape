@@ -96,15 +96,14 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'name',
-            'sub_organization',
+            'organization_type',
             'address',
             'province',
-            'phone',
             'city',
+            'postal_code',
+            'phone',
             'email',
             'website',
-            'type',
-            'postal_code',
             'date_last_modified',
             'last_modified_by',
         ]
@@ -261,6 +260,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
         context["field_list"] = [
             'agreement_number',
             'agreement_lineage',
@@ -274,18 +274,16 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'start_date',
             'end_date',
             'region',
-            'watershed',
             'primary_river',
-            'secondary_river',
-            'latitude',
-            'longitude',
             'management_area',
+            'smu_name',
+            'cu_index',
+            'cu_name',
+            'outlook',
             'target_species',
             'salmon_life_cycle',
             'project_type',
             'project_sub_type',
-            'project_class',
-            'project_component',
             'project_stage',
             'project_scale',
             'monitoring_approach',
@@ -299,6 +297,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'strategic_agreement_link',
             'DFO_project_authority',
             'DFO_aboriginal_AAA',
+            'DFO_resource_manager',
             'tribal_council',
             'primary_first_nations_contact',
             'primary_first_nations_contact_role',
@@ -451,7 +450,7 @@ class ObjectiveDeleteView(SpotAccessRequiredMixin, DeleteView):
 ##########
 class MethodListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/method_list.html'
-    #filterset NEED TO DO
+    filterset_class = filters.MethodFilter
     model = models.Method
     queryset = models.Method.objects.annotate()
     search_term = Concat('doc_num', 'id', output_field=TextField())
@@ -479,6 +478,7 @@ class MethodDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'method_section',
             'document_number',
             'document_category',
             'document_topic',
@@ -543,7 +543,7 @@ class MethodDeleteView(SpotAccessRequiredMixin, DeleteView):
 ############
 class DatabasesUsedListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/database_list.html'
-    #filterset NEED TO DO
+    filterset_class = filters.DatabasesUsedFilter
     model = models.DatabasesUsed
     queryset = models.DatabasesUsed.objects.annotate()
     search_term = Concat('database', 'id', output_field=TextField())
@@ -551,6 +551,15 @@ class DatabasesUsedListView(SpotAccessRequiredMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.DatabasesUsed.objects.first()
+        context["field_list"] = [
+            'species_data',
+            'database',
+            'data_owner',
+            'data_format',
+            'models_used',
+            'analysis_program',
+            'data_quality',
+        ]
         return context
 
 
@@ -561,13 +570,15 @@ class DatabasesUsedDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'species_data',
+            'data_owner',
             'database',
             'analysis_program',
             'models_used',
             'data_format',
-            'data_fn',
-            'data_DFO',
             'data_quality',
+            'DFO_analysts',
+            'non_DFO_analysts',
             'date_last_modified',
             'last_modified_by',
         ]
@@ -615,7 +626,7 @@ class DatabasesUsedDeleteView(SpotAccessRequiredMixin, DeleteView):
 ############
 class FeedbackListView(SpotAdminRequiredMixin,FilterView):
     template_name = 'spot/feedback_list.html'
-    #filterset NEED TO DO
+    filterset_class = filters.FeedbackFilter
     model = models.Feedback
     queryset = models.Feedback.objects.annotate()
     search_term = Concat('id', 'subject', output_field=TextField())
@@ -623,6 +634,10 @@ class FeedbackListView(SpotAdminRequiredMixin,FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Feedback.objects.first()
+        context["field_list"] = [
+            'sent_by',
+            'subject',
+        ]
         return context
 
 
@@ -646,7 +661,7 @@ class FeedbackCreateView(SpotAccessRequiredMixin, CreateView):
     form_class = forms.FeedbackForm
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user}
+        return {'sent_by': self.request.user}
 
     def form_valid(self, form):
         my_data = form.save()
@@ -668,7 +683,7 @@ class FeedbackDeleteView(SpotAdminRequiredMixin, DeleteView):
 ############
 class MeetingsListView(SpotAccessRequiredMixin,FilterView):
     template_name = 'spot/meetings_list.html'
-    #filterset NEED TO DO
+    filterset_class = filters.MeetingsFilter
     model = models.Meetings
     queryset = models.Meetings.objects.annotate()
     search_term = Concat('name', 'id', output_field=TextField())
@@ -676,6 +691,10 @@ class MeetingsListView(SpotAccessRequiredMixin,FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Meetings.objects.first()
+        context["field_list"] = [
+            'name',
+            'location',
+        ]
         return context
 
 
@@ -737,7 +756,7 @@ class MeetingsDeleteView(SpotAccessRequiredMixin, DeleteView):
 ###########
 class ReportsListView(SpotAccessRequiredMixin,FilterView):
     template_name = 'spot/reports_list.html'
-    #filterset NEED TO DO
+    filterset_class = filters.ReportsFilter
     model = models.Reports
     queryset = models.Reports.objects.annotate()
     search_term = Concat('report_topic', 'id', output_field=TextField())
@@ -745,6 +764,17 @@ class ReportsListView(SpotAccessRequiredMixin,FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Reports.objects.first()
+        context["field_list"] = [
+            'report_topic',
+            'report_timeline',
+            'report_purpose',
+            'report_form_project_level',
+            'report_client',
+            'document_name',
+            'document_author',
+            'document_location',
+            'document_link',
+        ]
         return context
 
 

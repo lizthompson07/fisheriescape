@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 from shared_models import models as shared_models
 from . import models
 
+
 attr_chosen_contains = {"class": "chosen-select-contains"}
 attr_chosen = {"class": "chosen-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
@@ -30,6 +31,9 @@ class OrganizationForm(forms.ModelForm):
 
 
 class PersonForm(forms.ModelForm):
+
+    organization = forms.ModelMultipleChoiceField(queryset=models.Organization.objects.all(), widget=forms.SelectMultiple(attrs=attr_chosen_contains))
+
     class Meta:
         model = models.Person #ml
         fields = '__all__'

@@ -4,12 +4,9 @@
 {% load verbose_names %}
 {% load el_pagination_tags %}
 {% load i18n %}
-
-
 {% block content %}
 
     <style>
-
 
         table, td, th {
             font-size: small;
@@ -17,14 +14,16 @@
 
         #filter-form {
             font-size: small;
-            width: 75%;
+            width: 100%;
+        }
+        select,option{
+            font-size: x-small;
         }
 
         label {
             font-weight: bold;
         }
     </style>
-
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
@@ -44,7 +43,7 @@
                         {% bootstrap_field field placeholder="" size="small" %}
                     </div>
                 {% endfor %}
-                <div class="col-2">
+                <div class="col-1">
                     <br>
                     <input type="submit" value="Filter" class="btn btn-sm btn-warning">
                 </div>
@@ -54,7 +53,7 @@
         <br>
 
 
-        {% paginate 100 filter.qs as filter_list %}
+        {% paginate 75 filter.qs as filter_list %}
 
 
         <div class="row">
@@ -75,9 +74,12 @@
             <thead>
             <tr>
                 {% for field in field_list %}
-                    <th scope="col">{% get_verbose_label my_object field %}</th>
+                    {% if field == "start_year" %}
+                        <th scope="col" style="width: 100px">{% get_verbose_label my_object field %}</th>
+                    {% else %}
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                    {% endif %}
                 {% endfor %}
-                <th scope="col">Address</th>
             </tr>
             </thead>
             <tbody>
@@ -85,15 +87,18 @@
                 {% url 'spot:org_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
-                        <td>{% get_field_value object field %}</td>
+                        {% if field == "status" %}
+                            <td style="background-color: {{ object.status.color }}">{% get_field_value object field %}</td>
+                        {% else %}
+                            <td>{% get_field_value object field %}</td>
+                        {% endif %}
                     {% endfor %}
-
-                    <td>{{ object.full_address }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
+
 
 
 

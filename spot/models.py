@@ -3,7 +3,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
-from shared_models.models import UnilingualSimpleLookup, Region, River
+from shared_models.models import UnilingualSimpleLookup
+from django.core.mail import send_mail
 
 
 class FundingYear(UnilingualSimpleLookup):
@@ -218,6 +219,104 @@ class ReportClient(UnilingualSimpleLookup):
     pass
 
 
+class OrgType(UnilingualSimpleLookup):
+    pass
+
+
+class River(models.Model):
+
+    name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("name"))
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("latitude"))
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("longitude"))
+
+
+class Region(UnilingualSimpleLookup):
+    pass
+
+
+class Organization(models.Model):
+
+    name = models.CharField(max_length=1000, verbose_name=_("name"))
+    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
+    organization_type = models.ForeignKey(OrgType, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("organization type"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"), related_name="organization_province")
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
+    postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
+    email = models.EmailField(max_length=1000, blank=True, null=True, verbose_name=_("email"))
+    website = models.URLField(blank=True, null=True, verbose_name=_("website"))
+
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="organization_last_modified_by")
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name']
+
+
+class Person(models.Model):
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
+    city = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("city"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("province"))
+    address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("address"))
+    organization = models.ManyToManyField(Organization, default=None, blank=True, null=True, verbose_name=_("organization"))
+    role = models.ForeignKey(Role, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role"))
+    section = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("section"))
+    other_membership = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("other membership"))
+
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
+                                              verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{}, {}".format(self.last_name, self.first_name)
+
+    class Meta:
+        ordering = ['last_name', 'first_name']
+
+    @property
+    def display_name(self):
+        my_str = "{}".format(self)
+        return my_str
+
+    @property
+    def full_name(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+    @property
+    def contact_card_no_name(self):
+        my_str = ""
+        if self.phone:
+            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone)
+        if self.email:
+            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email)
+        return my_str
+
+    @property
+    def contact_card(self):
+        my_str = "<b>{first} {last}</b>".format(first=self.first_name, last=self.last_name)
+        if self.phone:
+            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone)
+        if self.email:
+            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email)
+
+        return my_str
+
+
 class Method(models.Model):
 
     method_section = models.ForeignKey(CoreComponent, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("method section"))
@@ -264,15 +363,15 @@ class Method(models.Model):
 
 class DatabasesUsed(models.Model):
 
+    species_data = models.ForeignKey(Species, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='species_data', verbose_name=_("species data"))
+    data_owner = models.ForeignKey(Person, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='data_owner', verbose_name=_("database owner"))
     database = models.ForeignKey(Database, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='database', verbose_name=_("database"))
     analysis_program = models.ForeignKey(AnalysisProgramUsed, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='databases',  verbose_name=_("analysis program used"))
     models_used = models.ForeignKey(ModelsUsed, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='models_used',  verbose_name=_("models used"))
     data_format = models.ForeignKey(DataFormat, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='data_format',  verbose_name=_("data format"))
 
-    #NEED MORE INFO ON THE NEXT TWO
-    data_fn = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("data deliverables FN"))
-    data_DFO = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("data deliverables DFO"))
-    ####
+    DFO_analysts = models.ForeignKey(Person, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='DFO_analysts', verbose_name=_("Non DFO analysts"))
+    Non_DFO_analysts = models.ForeignKey(Person, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='non_DFO_analysts', verbose_name=_("DFO analysts"))
 
     data_quality = models.ForeignKey(DataQuality, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='data_quality',  verbose_name=_("data quality"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -286,14 +385,14 @@ class DatabasesUsed(models.Model):
         return "{}".format(self.database)
 
     class Meta:
-        ordering = ['database']
+        ordering = ['species_data']
 
 
 class Feedback(models.Model):
 
     subject = models.ForeignKey(Subject, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("subject"))
     comment = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
-    sent_by = models.ForeignKey(User, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("sent by"))
+    sent_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("sent by"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
 
@@ -302,94 +401,10 @@ class Feedback(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return "{}".format(self.subject)
+        return "{}".format(self.sent_by)
 
     class Meta:
         ordering = ['subject']
-
-
-class Organization(models.Model):
-
-    name = models.CharField(max_length=1000, verbose_name=_("name"))
-    sub_organization = models.ManyToManyField("Organization", default=None, blank=True, verbose_name=_("sub organization"))
-    address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"), related_name="organization_province")
-    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
-    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
-    email = models.EmailField(max_length=1000, blank=True, null=True, verbose_name=_("email"))
-    website = models.URLField(blank=True, null=True, verbose_name=_("website"))
-    type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("type"))
-    postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
-
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="organization_last_modified_by")
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
-
-    def __str__(self):
-        return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name']
-
-
-class Person(models.Model):
-    first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
-    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
-    email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
-    city = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("city"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("province"))
-    address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("address"))
-    organization = models.ForeignKey(Organization, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("organization"))
-    role = models.ForeignKey(Role, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role"))
-    section = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("section"))
-    other_membership = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("other membership"))
-
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
-                                              verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                         verbose_name=_("last modified by"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
-
-    def __str__(self):
-        return "{}, {}".format(self.last_name, self.first_name)
-
-    class Meta:
-        ordering = ['last_name', 'first_name']
-
-    @property
-    def display_name(self):
-        my_str = "{}".format(self)
-        return my_str
-
-    @property
-    def full_name(self):
-        return "{} {}".format(self.first_name, self.last_name)
-
-    @property
-    def contact_card_no_name(self):
-        my_str = ""
-        if self.phone:
-            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone)
-        if self.email:
-            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email)
-        return my_str
-
-    @property
-    def contact_card(self):
-        my_str = "<b>{first} {last}</b>".format(first=self.first_name, last=self.last_name)
-        if self.phone:
-            my_str += "<br>{}: {}".format(_("Phone 1"), self.phone)
-        if self.email:
-            my_str += "<br>{}: {}".format(_("E-mail 1"), self.email)
-
-        return my_str
 
 
 class Objective(models.Model):
@@ -455,15 +470,16 @@ class Project(models.Model):
     start_date = models.DateField(blank=True, null=True, verbose_name=_("stating date"))
     end_date = models.DateField(blank=True, null=True, verbose_name=_("end date"))
 
+    primary_river = models.ForeignKey(River, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='primary_river', verbose_name=_("primary river"))
+    management_area = models.IntegerField(null=True, blank=True, verbose_name=_("management area"))
+
     region = models.ForeignKey(Region, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("region"))
     smu_name = models.ForeignKey(SMUName, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='smu_name', verbose_name=_("smu name"))
     cu_index = models.ForeignKey(CUIndex, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='cu_index', verbose_name=_("cu index"))
     cu_name = models.ForeignKey(CUName, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='cu_name', verbose_name=_("cu name"))
-    primary_river = models.ForeignKey(River, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='primary_river', verbose_name=_("primary river"))
-    secondary_river = models.ManyToManyField(River, blank=True, related_name='secondary_river', verbose_name=_("secondary river"))
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("latitude"))
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("longitude"))
-    management_area = models.IntegerField(null=True, blank=True, verbose_name=_("management area"))
+    outlook = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("out look number"))
+    #CHANGE BOTH OF THESE
+
     target_species = models.ForeignKey(Species, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='target_species', verbose_name=_("target species"))
     salmon_life_cycle = models.ForeignKey(SalmonStage, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='salmon_life_cycle', verbose_name=_("salmon life cycle"))
 
@@ -471,9 +487,7 @@ class Project(models.Model):
     #Project type
     project_type = models.ForeignKey(ProjectType, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_type', verbose_name=_("project type"))
     project_sub_type = models.ForeignKey(ProjectSubType, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_sub_type', verbose_name=_("project sub type"))
-    project_class = models.ForeignKey(ProjectClass, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_class', verbose_name=_("project class"))
     project_theme = models.ForeignKey(ProjectTheme, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_theme', verbose_name=_("project theme"))
-    project_component = models.ForeignKey(ProjectComponent, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_component', verbose_name=_("project component"))
     project_stage = models.ForeignKey(ProjectStage, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_stage', verbose_name=_("project stage"))
     project_scale = models.ForeignKey(ProjectScale, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='project_scale', verbose_name=_("project scale"))
     monitoring_approach = models.ForeignKey(MonitoringApproach, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='monitoring_approach', verbose_name=_("monitoring approach"))
@@ -513,6 +527,9 @@ class Project(models.Model):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
 
+    def __str__(self):
+        return "{}".format(self.name)
+
     class Meta:
         ordering = ['agreement_number', 'name', 'region', 'primary_river', 'target_species', 'DFO_project_authority']
 
@@ -531,8 +548,11 @@ class Meetings(models.Model):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
 
+    def __str__(self):
+        return "{}".format(self.name)
+
     class Meta:
-        ordering = []
+        ordering = ['name']
 
 
 class Reports(models.Model):
@@ -556,5 +576,8 @@ class Reports(models.Model):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
 
+    def __str__(self):
+        return "{}".format(self.document_name)
+
     class Meta:
-        ordering = []
+        ordering = ['report_topic']
