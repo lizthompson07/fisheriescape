@@ -66,6 +66,56 @@ def generate_facility_tank_report(facic_id):
     return target_url
 
 
+def generate_stock_code_report(stok_id):
+    # report is given a stock code and returns location of all associated fish
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
+                                      "stock_code_report_template.xlsx")
+    indv_qs = models.Individual.objects.filter(stok_id=stok_id, indv_valid=True)
+    grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
+
+    wb = load_workbook(filename=template_file_path)
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws_indv = wb['template']
+    ws_indv.title = "Individuals"
+    wb.copy_worksheet(ws_indv).title = str("template")
+    ws_grp = wb['template']
+    ws_grp.title = "Groups"
+    wb.copy_worksheet(ws_grp).title = str("template")
+    try:
+        ws = wb["Individuals"]
+    except KeyError:
+        print("Individuals is not a valid name of a worksheet")
+
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in indv_qs:
+        ws_indv['A' + str(row_count)].value = item.pit_tag
+        ws_indv['B' + str(row_count)].value = item.indv_year
+        ws_indv['C' + str(row_count)].value = item.coll_id.name
+        ws_indv['D' + str(row_count)].value = ', '.join([cont.name for cont in item.current_tank()])
+        row_count += 1
+
+    row_count = 3
+    for item in grp_qs:
+        ws_grp['B' + str(row_count)].value = item.grp_year
+        ws_grp['C' + str(row_count)].value = item.coll_id.name
+        ws_grp['D' + str(row_count)].value = ', '.join([cont.name for cont in item.current_tank()])
+
+        row_count += 1
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
 def generate_growth_chart(plot_fish):
 
     if type(plot_fish) == models.Individual:

@@ -1320,6 +1320,8 @@ class DataForm(CreatePrams):
                                                "Tissue Sample"):
                                     row_entered = True
 
+                        if enter_indvd(anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope", None):
+                            row_entered=True
                         if create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_datetime,
                                                 indv_pk=indv.pk):
                             row_entered = True
@@ -1790,12 +1792,15 @@ class ReportForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Facility Tanks Report (xlsx)"),
+        (2, "River Code Report Report (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    facic_id = forms.ModelChoiceField(required=True,
+    facic_id = forms.ModelChoiceField(required=False,
                                       queryset=models.FacilityCode.objects.all(),
                                       label=_("Facility"))
-
+    stok_id = forms.ModelChoiceField(required=False,
+                                     queryset=models.StockCode.objects.all(),
+                                     label=_("Stock Code"))
 
 
 class RiveForm(CreatePrams):

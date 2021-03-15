@@ -335,6 +335,7 @@ urlpatterns = [
     
     path('create/repr/', views.ReportFormView.as_view(), name="create_repr"),
     path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
+    path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),

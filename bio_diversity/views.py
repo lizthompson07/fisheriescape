@@ -2440,10 +2440,13 @@ class ReportFormView(mixins.ReportMixin, UserPassesTestMixin, CommonFormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        facic_pk = int(form.cleaned_data["facic_id"].pk)
 
         if report == 1:
+            facic_pk = int(form.cleaned_data["facic_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
+        elif report == 2:
+            stok_pk = int(form.cleaned_data["stok_id"].pk)
+            return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("bio_diversity:reports"))
@@ -2466,6 +2469,21 @@ def facility_tank_report(request):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dmapps facility tank report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+
+            return response
+    raise Http404
+
+@login_required()
+def stock_code_report(request):
+    stok_pk = request.GET.get("stok_pk")
+    stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
+    if stok_id:
+        file_url = reports.generate_stock_code_report(stok_id)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps stock codes report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
             return response
     raise Http404
