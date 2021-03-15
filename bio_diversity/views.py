@@ -886,7 +886,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         anix_set = self.object.animal_details.filter(indv_id__isnull=False, grp_id__isnull=True, contx_id__isnull=True,
                                                      loc_id__isnull=True, indvt_id__isnull=True, pair_id__isnull=True)
         indv_list = list(dict.fromkeys([anix.indv_id for anix in anix_set]))
-        indv_field_list = ["ufid", "pit_tag", "grp_id", ]
+        indv_field_list = ["ufid", "pit_tag", "grp_id", "indv_valid"]
         obj_mixin = mixins.IndvMixin
         context["context_dict"]["indv"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -977,7 +977,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         elif evnt_code == "Mortality":
             context["table_list"].extend(["indv", "grp"])
         else:
-            context["table_list"].extend(["loc", "indv", "grp", "tank", "trof", "pair", "matp", "prot"])
+            context["table_list"].extend(["data", "loc", "indv", "grp", "tank", "trof", "pair", "matp", "prot"])
 
         return context
 

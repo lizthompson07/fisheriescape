@@ -1,4 +1,5 @@
 import csv
+import itertools
 import os
 from datetime import datetime
 
@@ -101,7 +102,6 @@ def generate_growth_chart(plot_fish):
         x_axis_type='datetime',
         x_axis_label='Date',
         y_axis_label='Weight',
-        y_range=(max(y_weight_data), min(y_weight_data)),
         plot_width=600, plot_height=300,
     )
 
@@ -111,8 +111,7 @@ def generate_growth_chart(plot_fish):
     p_len.line(x=x_len_data, y=y_len_data, line_width=3)
     p_weight.line(x=x_weight_data, y=y_weight_data, line_width=3)
 
-
-    #-------------------Data File-----------------
+    #------------------------Data File------------------------------
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.csv"
     target_file_path = os.path.join(target_dir, target_file)
@@ -120,6 +119,6 @@ def generate_growth_chart(plot_fish):
     with open(target_file_path, 'w') as data_file:
         writer = csv.writer(data_file)
         writer.writerow(["Date", "Length", "Date", "Weight"])
-        writer.writerows(zip(x_len_data, y_len_data, x_weight_data, y_weight_data))
+        writer.writerows(itertools.zip_longest(x_len_data, y_len_data, x_weight_data, y_weight_data))
     scirpt, div = components(column(p_len, p_weight), CDN)
     return scirpt, div, target_url

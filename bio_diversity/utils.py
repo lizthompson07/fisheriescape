@@ -103,119 +103,10 @@ def comment_parser(comment_str, anix_indv, det_date):
         anix_indv.indv_id.save()
 
 
-def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Number of Fish", est=False):
-    cnt = False
-    if not math.isnan(cnt_value):
-        cnt = models.Count(loc_id_id=loc_pk,
-                           contx_id_id=contx_pk,
-                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                           cntc_id=models.CountCode.objects.filter(name__iexact=cnt_code).get(),
-                           cnt=cnt_value,
-                           est=est,
-                           created_by=cleaned_data["created_by"],
-                           created_date=cleaned_data["created_date"],
-                           )
-        try:
-            cnt.clean()
-            cnt.save()
-        except ValidationError:
-            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, contx_id=cnt.contx_id, cntc_id=cnt.cntc_id).get()
-            if cnt_code == "Mortality":
-                cnt.cnt += 1
-                cnt.save()
-    return cnt
-
-
-def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, qual="Good"):
-    row_entered = False
-    if not math.isnan(det_val):
-        cntd = models.CountDet(cnt_id_id=cnt_pk,
-                               anidc_id=models.AnimalDetCode.objects.filter(
-                                   name__iexact=det_code).get(),
-                               det_val=det_val,
-                               qual_id=models.QualCode.objects.filter(name=qual).get(),
-                               created_by=cleaned_data["created_by"],
-                               created_date=cleaned_data["created_date"],
-                               )
-        try:
-            cntd.clean()
-            cntd.save()
-            row_entered = True
-        except ValidationError:
-            row_entered = False
-    return row_entered
-
-
-def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str, comments=None):
-    row_entered = False
-    if isinstance(det_value, float):
-        if math.isnan(det_value):
-            return False
-    if adsc_str:
-        indvd = models.IndividualDet(anix_id_id=anix_pk,
-                                     anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
-                                     adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
-                                     det_val=det_value,
-                                     detail_date=det_date,
-                                     qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                     comments=comments,
-                                     created_by=cleaned_data["created_by"],
-                                     created_date=cleaned_data["created_date"],
-                                     )
-    else:
-        indvd = models.IndividualDet(anix_id_id=anix_pk,
-                                     anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
-                                     det_val=det_value,
-                                     detail_date=det_date,
-                                     qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                     created_by=cleaned_data["created_by"],
-                                     created_date=cleaned_data["created_date"],
-                                     )
-    try:
-        indvd.clean()
-        indvd.save()
-        row_entered = True
-    except (ValidationError, IntegrityError):
-        pass
-    return row_entered
-
-
-def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=None, comments=None):
-    row_entered = False
-    if isinstance(det_value, float):
-        if math.isnan(det_value):
-            return False
-    if adsc_str:
-        grpd = models.GroupDet(anix_id_id=anix_pk,
-                               anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
-                               adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
-                               det_val=det_value,
-                               detail_date=det_date,
-                               qual_id=models.QualCode.objects.filter(name="Good").get(),
-                               comments=comments,
-                               created_by=cleaned_data["created_by"],
-                               created_date=cleaned_data["created_date"],
-                               )
-    else:
-        grpd = models.GroupDet(anix_id_id=anix_pk,
-                               anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
-                               det_val=det_value,
-                               detail_date=det_date,
-                               qual_id=models.QualCode.objects.filter(name="Good").get(),
-                               created_by=cleaned_data["created_by"],
-                               created_date=cleaned_data["created_date"],
-                               )
-    try:
-        grpd.clean()
-        grpd.save()
-        row_entered = True
-    except (ValidationError, IntegrityError):
-        pass
-    return row_entered
-
-
 def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, indv_pk=None, grp_pk=None):
     row_entered = False
+    origin = str(origin)
+    destination = str(destination)
     new_cleaned_data = cleaned_data.copy()
     if origin == destination:
         row_entered = False
@@ -260,6 +151,248 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
             row_entered = True
 
         return row_entered
+
+
+def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, final_flag=None):
+    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk]):
+        anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                    indv_id_id=indv_pk,
+                                    contx_id_id=contx_pk,
+                                    loc_id_id=loc_pk,
+                                    pair_id_id=pair_pk,
+                                    grp_id_id=grp_pk,
+                                    indvt_id_id=indvt_pk,
+                                    final_contx_flag=final_flag,
+                                    created_by=cleaned_data["created_by"],
+                                    created_date=cleaned_data["created_date"],
+                                    )
+        try:
+            anix.clean()
+            anix.save()
+            return anix
+        except ValidationError:
+            anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
+                                                       indv_id=anix.indv_id,
+                                                       contx_id=anix.contx_id,
+                                                       loc_id=anix.loc_id,
+                                                       pair_id=anix.pair_id,
+                                                       grp_id=anix.grp_id,
+                                                       indvt_id=anix.indvt_id,
+                                                       ).get()
+            return anix
+
+
+def enter_anix_contx(tank, cleaned_data):
+    if tank:
+        contx = models.ContainerXRef(evnt_id=cleaned_data["evnt_id"],
+                                     tank_id=tank,
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+        try:
+            contx.clean()
+            contx.save()
+            return contx
+        except ValidationError:
+            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
+                                                        tank=contx.tank_id,
+                                                        ).get()
+
+        anix_contx = enter_anix(cleaned_data, contx_pk=contx.pk)
+        return anix_contx
+
+
+def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Number of Fish", est=False):
+    cnt = False
+    if not math.isnan(cnt_value):
+        cnt = models.Count(loc_id_id=loc_pk,
+                           contx_id_id=contx_pk,
+                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                           cntc_id=models.CountCode.objects.filter(name__iexact=cnt_code).get(),
+                           cnt=cnt_value,
+                           est=est,
+                           created_by=cleaned_data["created_by"],
+                           created_date=cleaned_data["created_date"],
+                           )
+        try:
+            cnt.clean()
+            cnt.save()
+        except ValidationError:
+            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, contx_id=cnt.contx_id, cntc_id=cnt.cntc_id).get()
+            if cnt_code == "Mortality":
+                cnt.cnt += 1
+                cnt.save()
+    return cnt
+
+
+def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, qual="Good"):
+    row_entered = False
+    if not math.isnan(det_val):
+        cntd = models.CountDet(cnt_id_id=cnt_pk,
+                               anidc_id=models.AnimalDetCode.objects.filter(
+                                   name__iexact=det_code).get(),
+                               det_val=det_val,
+                               qual_id=models.QualCode.objects.filter(name=qual).get(),
+                               created_by=cleaned_data["created_by"],
+                               created_date=cleaned_data["created_date"],
+                               )
+        try:
+            cntd.clean()
+            cntd.save()
+            row_entered = True
+        except ValidationError:
+            row_entered = False
+    return row_entered
+
+
+def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None, env_start=None, avg=False, save=True, qual_id=False):
+    row_entered = False
+    if isinstance(env_value, float):
+        if math.isnan(env_value):
+            return False
+    if env_start:
+        env_datetime = datetime.datetime.combine(env_date, env_start).replace(tzinfo=pytz.UTC)
+    else:
+        env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
+
+    if not qual_id:
+        qual_id = models.QualCode.objects.filter(name="Good").get()
+
+    if envsc_id:
+        env = models.EnvCondition(contx_id=contx,
+                                  loc_id=loc_id,
+                                  envc_id=envc_id,
+                                  envsc_id=envsc_id,
+                                  inst_id=inst_id,
+                                  env_val=str(env_value),
+                                  env_avg=avg,
+                                  start_datetime=env_datetime,
+                                  qual_id=qual_id,
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    else:
+        env = models.EnvCondition(contx_id=contx,
+                                  loc_id=loc_id,
+                                  envc_id=envc_id,
+                                  inst_id=inst_id,
+                                  env_val=str(env_value),
+                                  env_avg=avg,
+                                  start_datetime=env_datetime,
+                                  qual_id=qual_id,
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    if save:
+        try:
+            env.clean()
+            env.save()
+            row_entered = True
+        except (ValidationError, IntegrityError):
+            pass
+        return row_entered
+    else:
+        try:
+            env.clean()
+            return env
+        except (ValidationError, IntegrityError):
+            return None
+
+
+def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=None, comments=None):
+    row_entered = False
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
+    if adsc_str:
+        grpd = models.GroupDet(anix_id_id=anix_pk,
+                               anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                               adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
+                               det_val=det_value,
+                               detail_date=det_date,
+                               qual_id=models.QualCode.objects.filter(name="Good").get(),
+                               comments=comments,
+                               created_by=cleaned_data["created_by"],
+                               created_date=cleaned_data["created_date"],
+                               )
+    else:
+        grpd = models.GroupDet(anix_id_id=anix_pk,
+                               anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                               det_val=det_value,
+                               detail_date=det_date,
+                               qual_id=models.QualCode.objects.filter(name="Good").get(),
+                               created_by=cleaned_data["created_by"],
+                               created_date=cleaned_data["created_date"],
+                               )
+    try:
+        grpd.clean()
+        grpd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
+
+
+def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str, comments=None):
+    row_entered = False
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
+    if adsc_str:
+        indvd = models.IndividualDet(anix_id_id=anix_pk,
+                                     anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                     adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
+                                     det_val=det_value,
+                                     detail_date=det_date,
+                                     qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                     comments=comments,
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+    else:
+        indvd = models.IndividualDet(anix_id_id=anix_pk,
+                                     anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                     det_val=det_value,
+                                     detail_date=det_date,
+                                     qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+    try:
+        indvd.clean()
+        indvd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
+
+
+def enter_mortality(indv, cleaned_data, mort_date):
+    mortality_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Mortality").get(),
+                                  facic_id=cleaned_data["evnt_id"].facic_id,
+                                  prog_id=cleaned_data["evnt_id"].prog_id,
+                                  perc_id=cleaned_data["evnt_id"].perc_id,
+                                  start_datetime=mort_date,
+                                  end_datetime=mort_date,
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    try:
+        mortality_evnt.clean()
+        mortality_evnt.save()
+    except (ValidationError, IntegrityError):
+        mortality_evnt = models.Event.objects.filter(evntc_id=mortality_evnt.evntc_id,
+                                                     facic_id=mortality_evnt.facic_id,
+                                                     prog_id=mortality_evnt.prog_id,
+                                                     start_datetime=mortality_evnt.start_datetime,
+                                                     end_datetime=mortality_evnt.end_datetime,
+                                                     ).get()
+    new_cleaned_data = cleaned_data.copy()
+    new_cleaned_data["evnt_id"] = mortality_evnt
+    anix = enter_anix(new_cleaned_data, indv_pk=indv.pk)
+    indv.indv_valid = False
+    indv.save()
+    return mortality_evnt, anix
 
 
 def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
@@ -310,135 +443,6 @@ def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp
             return row_entered
     else:
         return False
-
-
-def enter_trof_contx(trof, cleaned_data, final_flag, indv_pk=None, grp_pk=None, return_contx=False):
-    row_entered = False
-    if not trof == "nan":
-        contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                     trof_id=models.Trough.objects.filter(name=trof, facic_id=cleaned_data["facic_id"]).get(),
-                                     created_by=cleaned_data["created_by"],
-                                     created_date=cleaned_data["created_date"],
-                                     )
-        try:
-            contx.clean()
-            contx.save()
-            row_entered = True
-        except ValidationError:
-            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
-                                                        trof_id=contx.trof_id).get()
-
-        enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
-
-        if return_contx:
-            return contx
-        else:
-            return row_entered
-    else:
-        return False
-
-
-def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None, env_start=None, avg=False, save=True, qual_id=False):
-    row_entered = False
-    if isinstance(env_value, float):
-        if math.isnan(env_value):
-            return False
-    if env_start:
-        env_datetime = datetime.datetime.combine(env_date, env_start).replace(tzinfo=pytz.UTC)
-    else:
-        env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
-
-    if not qual_id:
-        qual_id = models.QualCode.objects.filter(name="Good").get()
-
-    if envsc_id:
-        env = models.EnvCondition(contx_id=contx,
-                                  loc_id=loc_id,
-                                  envc_id=envc_id,
-                                  envsc_id=envsc_id,  # models.EnvSubjCode.objects.filter(name=envsc_str).get(),
-                                  inst_id=inst_id,
-                                  env_val=str(env_value),
-                                  env_avg=avg,
-                                  start_datetime=env_datetime,
-                                  qual_id=qual_id,
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"],
-                                  )
-    else:
-        env = models.EnvCondition(contx_id=contx,
-                                  loc_id=loc_id,
-                                  envc_id=envc_id, # models.EnvCode.objects.filter(name=envc_str).get(),
-                                  inst_id=inst_id,
-                                  env_val=str(env_value),
-                                  env_avg=avg,
-                                  start_datetime=env_datetime,
-                                  qual_id=qual_id,
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"],
-                                  )
-    if save:
-        try:
-            env.clean()
-            env.save()
-            row_entered = True
-        except (ValidationError, IntegrityError):
-            pass
-        return row_entered
-    else:
-        try:
-            env.clean()
-            return env
-        except (ValidationError, IntegrityError):
-            return None
-
-
-def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, final_flag=None):
-    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk]):
-        anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                    indv_id_id=indv_pk,
-                                    contx_id_id=contx_pk,
-                                    loc_id_id=loc_pk,
-                                    pair_id_id=pair_pk,
-                                    grp_id_id=grp_pk,
-                                    indvt_id_id=indvt_pk,
-                                    final_contx_flag=final_flag,
-                                    created_by=cleaned_data["created_by"],
-                                    created_date=cleaned_data["created_date"],
-                                    )
-        try:
-            anix.clean()
-            anix.save()
-            return anix
-        except ValidationError:
-            anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id,
-                                                       indv_id=anix.indv_id,
-                                                       contx_id=anix.contx_id,
-                                                       loc_id=anix.loc_id,
-                                                       pair_id=anix.pair_id,
-                                                       grp_id=anix.grp_id,
-                                                       indvt_id=anix.indvt_id,
-                                                       ).get()
-            return anix
-
-
-def enter_anix_contx(tank, cleaned_data):
-    if tank:
-        contx = models.ContainerXRef(evnt_id=cleaned_data["evnt_id"],
-                                     tank_id=tank,
-                                     created_by=cleaned_data["created_by"],
-                                     created_date=cleaned_data["created_date"],
-                                     )
-        try:
-            contx.clean()
-            contx.save()
-            return contx
-        except ValidationError:
-            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
-                                                        tank=contx.tank_id,
-                                                        ).get()
-
-        anix_contx = enter_anix(cleaned_data, contx_pk=contx.pk)
-        return anix_contx
 
 
 def ajax_get_fields(request):

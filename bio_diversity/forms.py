@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
     create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration, enter_cnt, enter_cnt_det, \
-    enter_trof_contx
+    enter_trof_contx, enter_mortality
 
 
 class CreatePrams(forms.ModelForm):
@@ -143,6 +143,9 @@ class CntForm(CreatePrams):
         model = models.Count
         exclude = []
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['contx_id'].widget = forms.HiddenInput()
 
 class CntcForm(CreatePrams):
     class Meta:
@@ -724,7 +727,7 @@ class DataForm(CreatePrams):
                             row_entered = True
 
                         if row["COMMENTS"]:
-                            comment_parser(row["COMMENTS"], anix_indv)
+                            comment_parser(row["COMMENTS"], anix_indv, row_date)
                     else:
                         break
 
@@ -1258,8 +1261,92 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), len(entered_list), len(data_dict))
 
+        # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
         else:
-            log_data = "Data loading not set up for this event type.  No data loaded."
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
+                                     converters={'PIT': str, 'Year': str, 'Month': str, 'Day': str})
+                data["COMMENTS"] = data["COMMENTS"].fillna('')
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
+            parsed = True
+            self.request.session["load_success"] = True
+            sex_dict = {"M": "Male",
+                        "F": "Female",
+                        "I": "Immature"}
+            for row in data_dict:
+                row_parsed = True
+                row_entered = False
+                try:
+                    indv_qs = models.Individual.objects.filter(pit_tag=row["PIT"])
+                    if len(indv_qs) == 1:
+                        indv = indv_qs.get()
+                    else:
+                        row_entered = False
+                        row_parsed = False
+                        indv = False
+                        log_data += "Error parsing row: \n"
+                        log_data += str(row)
+                        log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
+
+                    if indv:
+                        anix = enter_anix(cleaned_data, indv_pk=indv.pk)
+
+                        row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
+                                                         "%Y%b%d").replace(tzinfo=pytz.UTC)
+                        row_date = row_datetime.date()
+                        if enter_indvd(anix.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], None):
+                            row_entered = True
+                        if enter_indvd(anix.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
+                            row_entered = True
+                        if enter_indvd(anix.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
+                            row_entered = True
+                        if enter_indvd(anix.pk, cleaned_data, row_date, row["Vial"], "Vial", None):
+                            row_entered = True
+                        if type(row["Precocity (Y/N)"]) == str:
+                            if row["Precocity (Y/N)"].upper() == "Y":
+                                if enter_indvd(anix.pk, cleaned_data, row_date, None, "Animal Health",
+                                               "Tissue Sample"):
+                                    row_entered = True
+                        if type(row["Mortality (Y/N)"]) == str:
+                            if row["Mortality (Y/N)"].upper() == "Y":
+                                mort_evnt, mort_anix = enter_mortality(indv, cleaned_data, row_date)
+                        if type(row["Tissue Sample (Y/N)"]) == str:
+                            if row["Tissue Sample (Y/N)"].upper() == "Y":
+                                if enter_indvd(anix.pk, cleaned_data, row_date, None, "Animal Health",
+                                               "Tissue Sample"):
+                                    row_entered = True
+
+                        if create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_datetime,
+                                                indv_pk=indv.pk):
+                            row_entered = True
+
+                        if row["COMMENTS"]:
+                            comment_parser(row["COMMENTS"], anix, row_date)
+                    else:
+                        break
+
+                except Exception as err:
+                    parsed = False
+                    self.request.session["load_success"] = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
+            if not parsed:
+                self.request.session["load_success"] = False
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+
+            # log_data = "Data loading not set up for this event type.  No data loaded."
         self.request.session["log_data"] = log_data
 
 
@@ -1273,8 +1360,10 @@ class EnvForm(CreateTimePrams):
     class Meta:
         model = models.EnvCondition
         exclude = []
-        widgets = {
-        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['contX_id'].widget = forms.HiddenInput()
 
 
 class EnvcForm(CreatePrams):
@@ -1299,6 +1388,10 @@ class EnvtForm(CreatePrams):
     class Meta:
         model = models.EnvTreatment
         exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['contx_id'].widget = forms.HiddenInput()
 
 
 class EnvtcForm(CreatePrams):
@@ -1344,6 +1437,10 @@ class FeedForm(CreatePrams):
         model = models.Feeding
         exclude = []
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['contX_id'].widget = forms.HiddenInput()
+
 
 class FeedcForm(CreatePrams):
     class Meta:
@@ -1367,6 +1464,10 @@ class GrpdForm(CreatePrams):
     class Meta:
         model = models.GroupDet
         exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['anix_id'].widget = forms.HiddenInput()
 
 
 class HeatForm(CreatePrams):
@@ -1444,6 +1545,10 @@ class IndvdForm(CreatePrams):
     class Meta:
         model = models.IndividualDet
         exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['anix_id'].widget = forms.HiddenInput()
 
 
 class IndvtForm(CreateTimePrams):
@@ -1559,7 +1664,7 @@ class MortForm(forms.Form):
             indv = models.Individual.objects.filter(pk=cleaned_data["indv_mort"]).get()
             indv.indv_valid = False
             indv.save()
-            evnt = models.AniDetailXref.objects.filter(indv_id_id=cleaned_data["indv_mort"]).last().evnt_id
+            cleaned_data["evnt_id"] = models.AniDetailXref.objects.filter(indv_id_id=cleaned_data["indv_mort"]).last().evnt_id
         else:
             evnt = models.AniDetailXref.objects.filter(grp_id_id=cleaned_data["grp_mort"]).last().evnt_id
             grp = models.Group.objects.filter(pk=cleaned_data["grp_mort"]).get()
@@ -1576,29 +1681,11 @@ class MortForm(forms.Form):
             indv.save()
             cleaned_data["indv_mort"] = indv.pk
 
-        mortality_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Mortality").get(),
-                                      facic_id=evnt.facic_id,
-                                      prog_id=evnt.prog_id,
-                                      perc_id=cleaned_data["perc_id"],
-                                      start_datetime=cleaned_data["mort_date"],
-                                      end_datetime=cleaned_data["mort_date"],
-                                      created_by=cleaned_data["created_by"],
-                                      created_date=cleaned_data["created_date"],
-                                      )
-        try:
-            mortality_evnt.clean()
-            mortality_evnt.save()
-        except (ValidationError, IntegrityError):
-            mortality_evnt = models.Event.objects.filter(evntc_id=mortality_evnt.evntc_id,
-                                                         facic_id=mortality_evnt.facic_id,
-                                                         prog_id=mortality_evnt.prog_id,
-                                                         start_datetime=mortality_evnt.start_datetime,
-                                                         end_datetime=mortality_evnt.end_datetime,
-                                                         ).get()
+        mortality_evnt, anix = enter_mortality(indv, cleaned_data, cleaned_data["mort_date"])
+
         cleaned_data["evnt_id"] = mortality_evnt
         cleaned_data["facic_id"] = mortality_evnt.facic_id
 
-        anix = enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"])
         if cleaned_data["grp_mort"]:
             anix_grp = enter_anix(cleaned_data, grp_pk=cleaned_data["grp_mort"])
             anix_both = enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
