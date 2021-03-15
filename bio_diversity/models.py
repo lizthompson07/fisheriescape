@@ -1406,8 +1406,8 @@ class SpawnDet(BioDet):
 
 class SpawnDetCode(BioLookup):
     # spwndc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
+    min_val = models.DecimalField(blank=True, null=True, max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
+    max_val = models.DecimalField(blank=True, null=True, max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
     unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"))
     spwn_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
 

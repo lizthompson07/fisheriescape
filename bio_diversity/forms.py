@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
     create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration, enter_cnt, enter_cnt_det, \
-    enter_trof_contx, enter_mortality
+    enter_trof_contx, enter_mortality, enter_spwnd
 
 
 class CreatePrams(forms.ModelForm):
@@ -900,19 +900,13 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    fecu_est = models.SpawnDet(pair_id=pair,
-                                               spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
-                                               det_val=int(row["Exp. #"]),
-                                               qual_id=models.QualCode.objects.filter(name="Calculated").get(),
-                                               created_by=cleaned_data["created_by"],
-                                               created_date=cleaned_data["created_date"],
-                                               )
-                    try:
-                        fecu_est.clean()
-                        fecu_est.save()
-                        row_entered = True
-                    except ValidationError:
-                        pass
+                    # fecu/dud
+                    if row["Exp. #"] > 0:
+                        if enter_spwnd(pair.pk, cleaned_data, row["Exp. #"], "Fecundity", None, "Calculated"):
+                            row_entered = True
+                    else:
+                        if enter_spwnd(pair.pk, cleaned_data, None, "Dud", None, "Good"):
+                            row_entered = True
 
                     # grp
                     anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],

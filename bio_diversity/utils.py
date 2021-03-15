@@ -395,6 +395,38 @@ def enter_mortality(indv, cleaned_data, mort_date):
     return mortality_evnt, anix
 
 
+def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_str, spwnsc_str, qual_code="Good", comments=None):
+    row_entered = False
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
+    if spwnsc_str:
+        spwnd = models.SpawnDet(pair_id_id=pair_pk,
+                                anidc_id=models.SpawnDetCode.objects.filter(name=spwndc_str).get(),
+                                adsc_id=models.SpawnDetSubjCode.objects.filter(name=spwnsc_str).get(),
+                                det_val=det_value,
+                                qual_id=models.QualCode.objects.filter(name=qual_code).get(),
+                                comments=comments,
+                                created_by=cleaned_data["created_by"],
+                                created_date=cleaned_data["created_date"],
+                                )
+    else:
+        spwnd = models.SpawnDet(pair_id_id=pair_pk,
+                                spwndc_id=models.SpawnDetCode.objects.filter(name=spwndc_str).get(),
+                                det_val=det_value,
+                                qual_id=models.QualCode.objects.filter(name=qual_code).get(),
+                                created_by=cleaned_data["created_by"],
+                                created_date=cleaned_data["created_date"],
+                                )
+        try:
+            spwnd.clean()
+            spwnd.save()
+            row_entered = True
+        except ValidationError:
+            pass
+    return row_entered
+
+
 def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
     row_entered = False
     if not tank_name == "nan":
