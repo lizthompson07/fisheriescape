@@ -719,7 +719,7 @@ class DataForm(CreatePrams):
                         row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
                                                          "%Y%b%d").replace(tzinfo=pytz.UTC)
                         row_date =row_datetime.date()
-                        if enter_indvd(anix_indv.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], comments=row["COMMENTS"]):
+                        if enter_indvd(anix_indv.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None, comments=row["COMMENTS"]):
                             row_entered = True
 
                         if create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_datetime,
@@ -834,7 +834,7 @@ class DataForm(CreatePrams):
                     anix_female = enter_anix(cleaned_data, indv_pk=indv_female.pk)
                     anix_male = enter_anix(cleaned_data, indv_pk=indv_male.pk)
 
-                    if enter_indvd(anix_female.pk, cleaned_data, row_date, None, "Gender", "Female"):
+                    if enter_indvd(anix_female.pk, cleaned_data, row_date, "Female", "Gender", None):
                         row_entered = True
 
                     if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
@@ -843,7 +843,7 @@ class DataForm(CreatePrams):
                     if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Wt"], "Weight", None):
                         row_entered = True
 
-                    if enter_indvd(anix_male.pk, cleaned_data, row_date, None, "Gender", "Male"):
+                    if enter_indvd(anix_male.pk, cleaned_data, row_date, "Male", "Gender", None):
                         row_entered = True
 
                     if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Ln.1"], "Length", None):
@@ -1292,7 +1292,7 @@ class DataForm(CreatePrams):
                         row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
                                                          "%Y%b%d").replace(tzinfo=pytz.UTC)
                         row_date = row_datetime.date()
-                        if enter_indvd(anix.pk, cleaned_data, row_date, None, "Gender", sex_dict[row["SEX"]], None):
+                        if enter_indvd(anix.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None, None):
                             row_entered = True
                         if enter_indvd(anix.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                             row_entered = True
@@ -1699,7 +1699,7 @@ class MortForm(forms.Form):
         if cleaned_data["scale_envelope"]:
             enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["scale_envelope"], "Scale Envelope", None)
         if cleaned_data["indv_gender"]:
-            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, "Gender", cleaned_data["indv_gender"])
+            enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_gender"], "Gender", None)
 
         if cleaned_data["observations"].count() != 0:
             for adsc in cleaned_data["observations"]:

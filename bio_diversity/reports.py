@@ -184,7 +184,7 @@ def generate_maturity_rate(indv_list, grp_list):
         pit_tag_list.append(indv.pit_tag)
         indvd = models.IndividualDet.objects.filter(anidc_id__name="Gender", indvd_valid=True).filter(anix_id__indv_id=indv)
         if indvd.count() > 0:
-            gender = indvd.get().adsc_id.name
+            gender = indvd.get().det_value
             hist_dict[gender] += 1
         gender_list.append(gender)
 
