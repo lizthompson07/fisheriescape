@@ -5,6 +5,7 @@ import datetime
 import os
 from collections import Counter
 
+import pytz
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
@@ -135,7 +136,7 @@ class BioCont(BioLookup):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
 
-    def fish_in_cont(self, at_date=datetime.datetime.now(timezone.get_current_timezone())):
+    def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
         indv_list = []
         grp_list = []
 
@@ -646,7 +647,7 @@ class Group(BioModel):
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
+    def current_tank(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
         cont = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)
@@ -914,7 +915,7 @@ class Individual(BioModel):
     def stok_year_coll_str(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
+    def current_tank(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
         cont = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)

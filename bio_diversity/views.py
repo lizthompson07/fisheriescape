@@ -1,8 +1,7 @@
+import datetime
 import os
 
-from bokeh.embed import components
-from bokeh.plotting import figure
-from bokeh.resources import CDN
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -17,6 +16,7 @@ from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models, reports
 from datetime import date
+import pytz
 from django.utils.translation import gettext_lazy as _
 
 from .mixins import IndvMixin
@@ -2446,7 +2446,10 @@ class ReportFormView(mixins.ReportMixin, UserPassesTestMixin, CommonFormView):
             return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
         elif report == 2:
             stok_pk = int(form.cleaned_data["stok_id"].pk)
-            return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}")
+            if form.cleaned_data["on_date"]:
+                return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}&on_date={form.cleaned_data['on_date']}")
+            else:
+                return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("bio_diversity:reports"))
@@ -2473,11 +2476,16 @@ def facility_tank_report(request):
             return response
     raise Http404
 
+
 @login_required()
 def stock_code_report(request):
     stok_pk = request.GET.get("stok_pk")
+    on_date = request.GET.get("on_date")
     stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
-    if stok_id:
+    if stok_id and on_date:
+        on_date = datetime.datetime.strptime(on_date, "%Y-%m-%d").replace(tzinfo=pytz.UTC)
+        file_url = reports.generate_stock_code_report(stok_id, on_date)
+    elif stok_id:
         file_url = reports.generate_stock_code_report(stok_id)
 
     if os.path.exists(file_url):

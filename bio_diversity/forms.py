@@ -1789,6 +1789,7 @@ class ReportForm(forms.Form):
     class Meta:
         model = models.ReleaseSiteCode
         exclude = []
+
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Facility Tanks Report (xlsx)"),
@@ -1801,6 +1802,12 @@ class ReportForm(forms.Form):
     stok_id = forms.ModelChoiceField(required=False,
                                      queryset=models.StockCode.objects.all(),
                                      label=_("Stock Code"))
+    on_date = forms.DateField(required=False, label=_("Report Date"))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["on_date"].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                               "class": "fp-date"})
 
 
 class RiveForm(CreatePrams):
