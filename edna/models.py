@@ -9,7 +9,7 @@ from shapely.geometry import Polygon, Point
 
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
-from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region
+from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
 from shared_models.utils import get_metadata_string, format_coordinates
 
 
@@ -61,7 +61,7 @@ class Species(models.Model):
         return f"<em>{self.scientific_name}</em>"
 
 
-class Collection(UnilingualSimpleLookup):
+class Collection(UnilingualSimpleLookup, MetadataFields):
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='edna_collections', blank=True, null=True, verbose_name=_("DFO region"))
     program_description = models.TextField(blank=True, null=True, verbose_name=_("program description"))
     location_description = models.TextField(blank=True, null=True, verbose_name=_("area of operation"))
@@ -75,21 +75,6 @@ class Collection(UnilingualSimpleLookup):
     start_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("end date"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="collections", blank=True, null=True, editable=False)
-
-    # metadata
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_collection_created_by", blank=True, null=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_collection_updated_by", blank=True, null=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-
-    @property
-    def metadata(self):
-        return get_metadata_string(
-            self.created_at,
-            self.created_by,
-            self.updated_at,
-            self.updated_by,
-        )
 
     @property
     def dates(self):
@@ -185,7 +170,7 @@ class Sample(models.Model):
 
 class Batch(models.Model):
     datetime = models.DateTimeField(default=timezone.now, verbose_name=_("start date/time"))
-    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operators"))
+    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
@@ -198,10 +183,10 @@ class FiltrationBatch(Batch):
         verbose_name_plural = _("Filtration Batches")
 
     def __str__(self):
-        return "{} {} ({})".format(_("Filtration Batch"),  self.id, self.datetime.strftime("%Y-%m-%d"))
+        return "{} {} ({})".format(_("Filtration Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
 
 
-class Filter(models.Model):
+class Filter(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("filtration batch"))
     sample = models.ForeignKey(Sample, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("field sample"), blank=True, null=True)
@@ -212,21 +197,6 @@ class Filter(models.Model):
     storage_location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("storage location"))
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
-    # metadata
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_filter_created_by", blank=True, null=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_filter_updated_by", blank=True, null=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-
-    @property
-    def metadata(self):
-        return get_metadata_string(
-            self.created_at,
-            self.created_by,
-            self.updated_at,
-            self.updated_by,
-        )
-
     class Meta:
         ordering = ["filtration_batch", "sample"]
 
@@ -236,7 +206,7 @@ class ExtractionBatch(Batch):
         verbose_name_plural = _("DNA Extraction Batches")
 
 
-class DNAExtract(models.Model):
+class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     filter_id = models.OneToOneField(Filter, on_delete=models.CASCADE)
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
@@ -246,18 +216,7 @@ class DNAExtract(models.Model):
 
     # metadata
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_extract_created_by", blank=True, null=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_extract_updated_by", blank=True, null=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-
-    @property
-    def metadata(self):
-        return get_metadata_string(
-            self.created_at,
-            self.created_by,
-            self.updated_at,
-            self.updated_by,
-        )
 
     class Meta:
         ordering = ["extraction_batch", "filter_id"]
@@ -268,7 +227,7 @@ class PCRBatch(Batch):
         verbose_name_plural = _("PCR Batches")
 
 
-class PCR(models.Model):
+class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     extract_id = models.OneToOneField(DNAExtract, on_delete=models.CASCADE)
     pcr_batch = models.ForeignKey(ExtractionBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
@@ -280,26 +239,11 @@ class PCR(models.Model):
     qpcr_ipc = models.FloatField(blank=True, null=True, verbose_name=_("qPCR IPC"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
 
-    # metadata
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_pcr_created_by", blank=True, null=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_pcr_updated_by", blank=True, null=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-
-    @property
-    def metadata(self):
-        return get_metadata_string(
-            self.created_at,
-            self.created_by,
-            self.updated_at,
-            self.updated_by,
-        )
-
     class Meta:
         ordering = ["pcr_batch", "extract_id"]
 
 
-class SpeciesObservation(models.Model):
+class SpeciesObservation(MetadataFields):
     pcr = models.ForeignKey(PCR, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
     species = models.ForeignKey(Species, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("species"))
     ct_1 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("cycle threshold (ct) - rep 1"))
@@ -310,20 +254,6 @@ class SpeciesObservation(models.Model):
     edna_conc_3 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L) - rep 3"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
 
-    # metadata
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_obs_created_by", blank=True, null=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_obs_updated_by", blank=True, null=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, editable=False)
-
-    @property
-    def metadata(self):
-        return get_metadata_string(
-            self.created_at,
-            self.created_by,
-            self.updated_at,
-            self.updated_by,
-        )
-
     class Meta:
         ordering = ["pcr", "species"]
+

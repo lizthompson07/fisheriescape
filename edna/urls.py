@@ -15,7 +15,6 @@ urlpatterns = [
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
-
     # species
     path('species/', views.SpeciesListView.as_view(), name="species_list"),
     path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
@@ -41,7 +40,6 @@ urlpatterns = [
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
     path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
 
-
     # filtration batches
     path('filtrations/', views.FiltrationBatchListView.as_view(), name="filtration_batch_list"),
     path('filtrations/new/', views.FiltrationBatchCreateView.as_view(), name="filtration_batch_new"),
@@ -49,20 +47,19 @@ urlpatterns = [
     path('filtrations/<int:pk>/delete/', views.FiltrationBatchDeleteView.as_view(), name="filtration_batch_delete"),
     path('filtrations/<int:pk>/view/', views.FiltrationBatchDetailView.as_view(), name="filtration_batch_detail"),
 
-# extraction batches
+    # extraction batches
     path('extractions/', views.ExtractionBatchListView.as_view(), name="extraction_batch_list"),
     path('extractions/new/', views.ExtractionBatchCreateView.as_view(), name="extraction_batch_new"),
     path('extractions/<int:pk>/edit/', views.ExtractionBatchUpdateView.as_view(), name="extraction_batch_edit"),
     path('extractions/<int:pk>/delete/', views.ExtractionBatchDeleteView.as_view(), name="extraction_batch_delete"),
     path('extractions/<int:pk>/view/', views.ExtractionBatchDetailView.as_view(), name="extraction_batch_detail"),
 
-# pcr batches
+    # pcr batches
     path('pcrs/', views.PCRBatchListView.as_view(), name="pcr_batch_list"),
     path('pcrs/new/', views.PCRBatchCreateView.as_view(), name="pcr_batch_new"),
     path('pcrs/<int:pk>/edit/', views.PCRBatchUpdateView.as_view(), name="pcr_batch_edit"),
     path('pcrs/<int:pk>/delete/', views.PCRBatchDeleteView.as_view(), name="pcr_batch_delete"),
     path('pcrs/<int:pk>/view/', views.PCRBatchDetailView.as_view(), name="pcr_batch_detail"),
-
 
     #
     # reports

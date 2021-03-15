@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section, Organization
-from shared_models.utils import special_capitalize
+from shared_models.utils import special_capitalize, get_labels
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyOrReadOnly, TravelAdminOrReadOnly
@@ -430,21 +430,13 @@ class SectionListAPIView(ListAPIView):
         return qs
 
 
-def _get_labels(model):
-    labels = {}
-    for field in model._meta.get_fields():
-        if hasattr(field, "name") and hasattr(field, "verbose_name"):
-            labels[field.name] = special_capitalize(field.verbose_name)
-    return labels
-
-
 class RequestModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.TripRequest
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 
@@ -454,7 +446,7 @@ class TripModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 
@@ -464,7 +456,7 @@ class ReviewerModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         data['role_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.role_choices]
         return Response(data)
 
@@ -475,7 +467,7 @@ class TripReviewerModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         data['role_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.role_choices]
         return Response(data)
 
@@ -486,7 +478,7 @@ class TravellerModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         data['role_choices'] = [dict(text=item.tname, value=item.id) for item in models.Role.objects.all()]
         data['org_choices'] = [dict(text=item.full_name_and_address, value=item.full_name_and_address) for item in Organization.objects.filter(is_dfo=True)]
         return Response(data)
@@ -498,7 +490,7 @@ class FileModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 
@@ -509,7 +501,7 @@ class CostModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['cost_choices'] = [dict(text=item.tname, value=item.id) for item in models.Cost.objects.all()]
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 

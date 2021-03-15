@@ -148,3 +148,11 @@ def format_coordinates(lat, lng, output_format, sep="/"):
         return mystr
     except:
         return "---"
+
+
+def get_labels(model):
+    labels = {}
+    for field in model._meta.get_fields():
+        if hasattr(field, "name") and hasattr(field, "verbose_name"):
+            labels[field.name] = special_capitalize(field.verbose_name)
+    return labels

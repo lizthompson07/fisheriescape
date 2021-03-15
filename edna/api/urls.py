@@ -1,14 +1,14 @@
-from django.urls import path
-
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
-urlpatterns = [
-    path("scuba/user/", views.CurrentUserAPIView.as_view(), name="current-user"),  # tested
+router = DefaultRouter()
+router.register(r'filters', views.FilterViewSet)  # tested
 
-    # observations
-    # path("scuba/observations/", views.ObservationListCreateAPIView.as_view(), name="observation-list"),  # tested
-    # path("scuba/observations/<int:pk>/", views.ObservationRetrieveUpdateDestroyAPIView.as_view(), name="observation-detail"),  # tested
-    # path("scuba/sections/", views.SectionListCreateAPIView.as_view(), name="section-list"),  # tested
-    # path("scuba/sections/<int:pk>/", views.SectionRetrieveUpdateDestroyAPIView.as_view(), name="section-detail"),  # tested
+urlpatterns = [
+    path("edna/", include(router.urls)),  # tested
+    path("edna/user/", views.CurrentUserAPIView.as_view(), name="edna-current-user"),  # tested
+
+    path("edna/meta/models/filter/", views.FilterModelMetaAPIView.as_view(), name="edna-filter-model-meta"),
 
 ]
