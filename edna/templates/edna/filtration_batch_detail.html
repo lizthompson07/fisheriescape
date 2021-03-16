@@ -15,6 +15,16 @@
       height: 300px; /* The height is 400 pixels */
       width: 100%; /* The width is the width of the web page */
   }
+
+  .no-borders {
+      border: 0;
+      width: 100%;
+  }
+
+  .no-borders:focus {
+      outline: none;
+  }
+
   </style>
 
   <div class="btns mb-3">
@@ -32,7 +42,8 @@
   <div id="app" class="mt-5">
     <div class="mb-3">
       <p class="h3">{% trans "Filters" %}</p>
-      <button @click="addFilter" class="btn btn-sm btn-primary">{% trans "Add a Filter" %}</button>
+      <button @click="addFilter(null)" class="btn btn-sm btn-primary">{% trans "Add a Filter" %}</button>
+      <button @click="addFilter('all')" class="btn btn-sm btn-warning">{% trans "Add all un-filtered samples" %}</button>
     </div>
 
     <div v-if="loading" class="loading mb-3 mt-3 mt-5">
@@ -44,36 +55,55 @@
       <em>{% trans "No filters have been added to this batch." %}</em>
     </div>
     <div v-else>
-      <table class="table table-sm">
+      <div class="alert alert-danger" role="alert" v-if="filterErrorMsg">
+        <p class="mb-0 lead" v-html="filterErrorMsg"></p>
+      </div>
+      <table class="table table-bordered">
         <thead>
         <tr>
-          <th>Id</th>
-          <th>${labels.sample}</th>
-          <th>${labels.filtration_type}</th>
-          <th>${labels.start_datetime}</th>
-          <th>${labels.duration_min}</th>
-          <th>${labels.filtration_volume_ml}</th>
-          <th>${labels.storage_location}</th>
-          <th>${labels.comments}</th>
+          <th class="px-0 py-0">#</th>
+          <th class="px-0 py-0">Id</th>
+          <th class="px-0 py-0" style="width: 120px">${labels.sample}</th>
+          <th class="px-0 py-0" style="width: 210px">${labels.filtration_type}</th>
+          <th class="px-0 py-0" style="width: 175px">${labels.start_datetime}</th>
+          <th class="px-0 py-0" style="width: 110px">${labels.duration_min}</th>
+          <th class="px-0 py-0" style="width: 110px">${labels.filtration_volume_ml}</th>
+          <th class="px-0 py-0" style="width: 175px">${labels.storage_location}</th>
+          <th class="px-0 py-0">${labels.comments}</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(f, index) in filters">
-          <td>${f.id}</td>
-          <td>
-            <select v-model="f.sample" class="form-control form-control-sm">
+        <tr v-for="(f, index) in filters" :class="{'red-font':f.dirty}">
+          <td class="px-0 py-0 text-muted">${index+1}</td>
+          <td class="px-0  py-0 text-muted">${f.id}</td>
+          <td class="px-0 py-0">
+            <select v-model="f.sample" class="no-borders" @change="updateFilter(f)">
               <option value="">{% trans "Blank" %}</option>
               <option v-for="(obj, index) in sampleChoices" :value="obj.value">${obj.text}</option>
             </select>
           </td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td>
-            <button class="btn" @click="deleteFilter(f)"><span class="h5 mdi mdi-delete"></span></button>
+          <td class="px-0 py-0">
+            <select v-model="f.filtration_type" class="no-borders" @change="updateFilter(f)">
+              <option v-for="(obj, index) in filtrationTypeChoices" :value="obj.value">${obj.text}</option>
+            </select>
+          </td>
+          <td class="px-0 py-0">
+            <input type="text" class="no-borders" v-model="f.start_datetime" @change="updateFilter(f)">
+          </td>
+          <td class="px-0 py-0">
+            <input type="text" class="no-borders" v-model="f.duration_min" @change="updateFilter(f)">
+          </td>
+          <td class="px-0 py-0">
+            <input type="text" class="no-borders" v-model="f.filtration_volume_ml" @change="updateFilter(f)">
+          </td>
+          <td class="px-0 py-0">
+            <input type="text" class="no-borders" v-model="f.storage_location" @change="updateFilter(f)">
+          </td>
+          <td class="px-0 py-0">
+            <input type="text" class="no-borders" v-model="f.comments" @change="updateFilter(f)">
+          </td>
+          <td class="px-0 py-0">
+            <button class="btn py-0" @click="deleteFilter(f)"><span class="h5 mdi mdi-delete"></span></button>
           </td>
         </tr>
         </tbody>
@@ -100,6 +130,7 @@
       filtrationTypeChoices: [],
       sampleChoices: [],
       filters: [],
+      filterErrorMsg: null
     },
     methods: {
       getCurrentUser() {
@@ -124,20 +155,21 @@
             .then(response => {
               this.loading = false;
               if (response.length && response[0].id) {
+                for (var i = 0; i < response.length; i++) {
+                  response[i].start_datetime = response[i].start_datetime.replace("T", " ").replace("Z", "")
+                }
                 this.filters = response;
               }
             })
       },
       getBlankFilter(sample) {
         let now = new Date(Date.now());
-        let nextSample = "";
         if (!sample) {
-          nextSample = this.getQueuedSamples(1)[0];
-          console.log(nextSample)
+          sample = this.getQueuedSamples(1)[0];
         }
         return {
           filtration_batch: filterBatchId,
-          sample: nextSample,
+          sample: sample,
           filtration_type: 1,
           start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
           duration_min: null,
@@ -146,35 +178,58 @@
           comments: null,
         }
       },
+      addFilter(howMany) {
+        if (!howMany) {
+          howMany = Number(prompt("{% trans 'How many filters do you want to add?' %}"));
+        } else if (howMany === "all") {
+          howMany = 0;
+          for (var i = 0; i < this.sampleChoices.length; i++) {
+            if (!this.sampleChoices[i].has_filter) {
+              howMany += 1;
+            }
+          }
+        }
+        if (howMany) {
+          sampleArray = this.getQueuedSamples(howMany);
+          for (let i = 0; i < sampleArray.length; i++) {
+            this.newFilter(sampleArray[i]);
+          }
+        }
+      },
       newFilter(sample) {
         endpoint = `/api/edna/filters/`;
         data = this.getBlankFilter(sample)
-        console.log(data)
         apiService(endpoint, "POST", data)
             .then(response => {
               if (response.id) {
                 this.filters.push(response)
+                // refresh the sample choices
+                this.getFilterMetadata();
               }
             })
       },
-      addFilter() {
-        let howMany = Number(prompt("{% trans 'How many filters do you want to add?' %}"));
-        if (howMany) {
-
-
-          for (var i = 0; i < howMany; i++) {
-            this.newFilter();
-          }
-        }
-
+      updateFilter(filter) {
+        this.filterErrorMsg = null;
+        endpoint = `/api/edna/filters/${filter.id}/`;
+        apiService(endpoint, "PUT", filter)
+            .then(response => {
+              console.log(response)
+              if (!response.id) {
+                this.filterErrorMsg = this.groomJSON(response)
+              }
+            })
+      },
+      groomJSON(json) {
+        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
       },
       getQueuedSamples(howMany) {
         let samples = [...this.sampleChoices];
+        console.log(samples)
         myArray = []
         let result;
         for (let i = 0; i < howMany; i++) {
-          result = null;
-          for (let j = 0; i < samples.length; i++) {
+          result = "";
+          for (let j = 0; j < samples.length; j++) {
             let sample = samples[j];
             if (!sample.has_filter) {
               let index = samples.indexOf(sample);
@@ -184,8 +239,6 @@
           }
           myArray.push(result);
         }
-        // refresh the sample choices
-        this.getFilterMetadata();
         // return the results array
         return myArray;
       },
@@ -200,15 +253,24 @@
         }
       },
     },
-    computed: {},
-    created() {
-      this.getCurrentUser();
-      this.getFilterMetadata();
-      this.getFilters();
-    },
-    mounted() {
-    },
-  });
+    computed
+  :
+  {
+  }
+  ,
+  created()
+  {
+    this.getCurrentUser();
+    this.getFilterMetadata();
+    this.getFilters();
+  }
+  ,
+  mounted()
+  {
+  }
+  ,
+  })
+  ;
   </script>
 
 {% endblock %}

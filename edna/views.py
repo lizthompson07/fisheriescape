@@ -401,7 +401,7 @@ class FiltrationBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     template_name = 'edna/filtration_batch_detail.html'
     home_url_name = "edna:index"
     parent_crumb = {"title": gettext_lazy("Filtration Batches"), "url": reverse_lazy("edna:filtration_batch_list")}
-    container_class = "container bg-light curvy"
+    container_class = "container-fluid"
     field_list = utils.get_batch_field_list()
 
     def get_context_data(self, **kwargs):
