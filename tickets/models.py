@@ -25,17 +25,6 @@ def get_name(self):
 User.add_to_class("__str__", get_name)
 
 
-class RequestType(models.Model):
-    request_type = models.CharField(max_length=255)
-    financial_follow_up_needed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.request_type
-
-    class Meta:
-        ordering = ['request_type', ]
-
-
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
 
