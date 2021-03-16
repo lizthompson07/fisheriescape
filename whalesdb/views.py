@@ -672,7 +672,7 @@ class EqpList(mixins.EqpMixin, CommonList):
 
 class EtrList(mixins.EtrMixin, CommonList):
     filterset_class = filters.EtrFilter
-    fields = ['etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
+    fields = ['etr_date', 'eqp', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
 
 
 class MorList(mixins.MorMixin, CommonList):

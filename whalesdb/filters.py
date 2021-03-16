@@ -39,7 +39,7 @@ class EtrFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.EtrTechnicalRepairEvent
-        fields = ['etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe' ]
+        fields = ['etr_date', 'eqp', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe' ]
 
 
 class MorFilter(django_filters.FilterSet):
