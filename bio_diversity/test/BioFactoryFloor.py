@@ -798,6 +798,67 @@ class EvntcFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class EvntfFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EventFile
+    # only using one id for this test, can add more if necesary
+    evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
+    evntfc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntfcFactory")
+    stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
+    evntf_xls = factory.lazy_attribute(lambda o: faker.url())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        evnt = EvntFactory()
+        evntfc = EvntfcFactory()
+        stok = StokFactory()
+        obj = EvntfFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'evnt_id': evnt.pk,
+            'evntfc_id': evntfc.pk,
+            'stok_id': stok.pk,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class EvntfcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EventFileCode
+        django_get_or_create = ('name',)
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = EvntfcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class FacicFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.FacilityCode
@@ -1568,35 +1629,6 @@ class LoccFactory(factory.django.DjangoModelFactory):
             'nom': obj.nom,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
-            'created_by': obj.created_by,
-            'created_date': obj.created_date,
-        }
-
-        return data
-
-
-class MatpFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.MatingPlan
-    # only using one id for this test, can add more if necesary
-    evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
-    stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
-    matp_xls = factory.lazy_attribute(lambda o: faker.url())
-    comments = factory.lazy_attribute(lambda o: faker.text())
-    created_by = factory.lazy_attribute(lambda o: faker.name())
-    created_date = factory.lazy_attribute(lambda o: faker.date())
-
-    @staticmethod
-    def build_valid_data(**kwargs):
-        evnt = EvntFactory()
-        stok = StokFactory()
-        obj = MatpFactory.build(**kwargs)
-
-        # Convert the data to a dictionary to be used in testing
-        data = {
-            'evnt_id': evnt.pk,
-            'stok_id': stok.pk,
-            'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

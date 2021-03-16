@@ -184,6 +184,22 @@ class EvntcMixin:
     admin_only = True
 
 
+class EvntfMixin:
+    key = "evntf"
+    form_class = forms.EvntfForm
+    model = models.EventFile
+    title = _("Event File")
+    admin_only = False
+
+
+class EvntfcMixin:
+    key = "evntfc"
+    form_class = forms.EvntfcForm
+    model = models.EventFileCode
+    title = _("Event File Code")
+    admin_only = True
+
+
 class FacicMixin:
     key = "facic"
     form_class = forms.FacicForm
@@ -354,14 +370,6 @@ class LoccMixin:
     form_class = forms.LoccForm
     title = _("Location Code")
     admin_only = True
-
-
-class MatpMixin:
-    key = "matp"
-    form_class = forms.MatpForm
-    model = models.MatingPlan
-    title = _("Mating Plan")
-    admin_only = False
 
 
 class MortMixin:

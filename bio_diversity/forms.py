@@ -956,21 +956,25 @@ class DataForm(CreatePrams):
                 elif row_parsed:
                     rows_parsed += 1
 
-            # matp
+            # evntf
             indv_qs = models.Individual.objects.filter(pit_tag=data["Pit or carlin"][0])
             if len(indv_qs) == 1:
                 indv_female = indv_qs.get()
-                matp = models.MatingPlan(evnt_id_id=cleaned_data["evnt_id"].pk,
+                evntf = models.EventFile(evnt_id_id=cleaned_data["evnt_id"].pk,
                                          stok_id=indv_female.stok_id,
-                                         matp_xls=cleaned_data["data_csv"],
+                                         evntfc_id=models.EventFileCode.objects.filter(name="Mating Plan").get(),
+                                         evntf_xls=cleaned_data["data_csv"],
                                          created_by=cleaned_data["created_by"],
                                          created_date=cleaned_data["created_date"],
                                          )
                 try:
-                    matp.clean()
-                    matp.save()
-                except (ValidationError, IntegrityError):
-                    pass
+                    evntf.clean()
+                    evntf.save()
+                except (ValidationError, IntegrityError) as err:
+                    # delete mating plan if model did not save
+                    if type(err) == IntegrityError:
+                        if os.path.isfile(evntf.evntf_xls.path):
+                            os.remove(evntf.evntf_xls.path)
 
             if not parsed:
                 self.request.session["load_success"] = False
@@ -1133,24 +1137,25 @@ class DataForm(CreatePrams):
                 elif row_parsed:
                     rows_parsed += 1
 
-            # matp
+            # evntf
             indv_qs = models.Individual.objects.filter(pit_tag=data["Pit tag"][0])
             if len(indv_qs) == 1:
                 indv_female = indv_qs.get()
-                matp = models.MatingPlan(evnt_id_id=cleaned_data["evnt_id"].pk,
+                evntf = models.EventFile(evnt_id_id=cleaned_data["evnt_id"].pk,
                                          stok_id=indv_female.stok_id,
-                                         matp_xls=cleaned_data["data_csv"],
+                                         evntfc_id=models.EventFileCode.objects.filter(name="Mating Plan"),
+                                         evntf_xls=cleaned_data["data_csv"],
                                          created_by=cleaned_data["created_by"],
                                          created_date=cleaned_data["created_date"],
                                          )
                 try:
-                    matp.clean()
-                    matp.save()
+                    evntf.clean()
+                    evntf.save()
                 except (ValidationError, IntegrityError) as err:
                     # delete mating plan if model did not save
                     if type(err) == IntegrityError:
-                        if os.path.isfile(matp.matp_xls.path):
-                            os.remove(matp.matp_xls.path)
+                        if os.path.isfile(evntf.evntf_xls.path):
+                            os.remove(evntf.evntf_xls.path)
 
             if not parsed:
                 self.request.session["load_success"] = False
@@ -1416,6 +1421,18 @@ class EvntcForm(CreatePrams):
         exclude = []
 
 
+class EvntfForm(CreatePrams):
+    class Meta:
+        model = models.EventFile
+        exclude = []
+
+
+class EvntfcForm(CreatePrams):
+    class Meta:
+        model = models.EventFileCode
+        exclude = []
+
+
 class FacicForm(CreatePrams):
     class Meta:
         model = models.FacilityCode
@@ -1616,15 +1633,9 @@ class LoccForm(CreatePrams):
         exclude = []
 
 
-class MatpForm(CreatePrams):
-    class Meta:
-        model = models.MatingPlan
-        exclude = []
-
 
 class MortForm(forms.Form):
     class Meta:
-        model = models.MatingPlan
         exclude = []
 
     gender_choices = ((None, "---------"), ('Male', 'Male'), ('Female', 'Female'), ('Immature', 'Immature'))

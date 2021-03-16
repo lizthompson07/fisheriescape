@@ -150,6 +150,20 @@ class EvntcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", ]
 
 
+class EvntfFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EventFile
+        fields = ["evnt_id", ]
+
+
+class EvntfcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EventFileCode
+        fields = ["name", "nom", ]
+
+
 class FacicFilter(django_filters.FilterSet):
 
     class Meta:
@@ -298,13 +312,6 @@ class LoccFilter(django_filters.FilterSet):
     class Meta:
         model = models.LocCode
         fields = ["name", "nom", ]
-
-
-class MatpFilter(django_filters.FilterSet):
-
-    class Meta:
-        model = models.MatingPlan
-        fields = ["evnt_id", ]
 
 
 class OrgaFilter(django_filters.FilterSet):

@@ -342,6 +342,14 @@ class EvntcCreate(mixins.EvntcMixin, CommonCreate):
     pass
 
 
+class EvntfCreate(mixins.EvntfMixin, CommonCreate):
+    pass
+
+
+class EvntfcCreate(mixins.EvntfcMixin, CommonCreate):
+    pass
+
+
 class FacicCreate(mixins.FacicMixin, CommonCreate):
     pass
 
@@ -460,10 +468,6 @@ class LocCreate(mixins.LocMixin, CommonCreate):
 
 
 class LoccCreate(mixins.LoccMixin, CommonCreate):
-    pass
-
-
-class MatpCreate(mixins.MatpMixin, CommonCreate):
     pass
 
 
@@ -950,13 +954,13 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "field_list": pair_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        matp_list = [matp for matp in self.object.mating_plan.all()]
-        matp_field_list = ["matp_xls", "stok_id", ]
-        obj_mixin = mixins.MatpMixin
-        context["context_dict"]["matp"] = {"div_title": "{} Details".format(obj_mixin.title),
+        evntf_list = [evntf for evntf in self.object.event_files.all()]
+        evntf_field_list = ["evntf_xls", "evntfc_id", "stok_id", ]
+        obj_mixin = mixins.EvntfMixin
+        context["context_dict"]["evntf"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
-                                           "objects_list": matp_list,
-                                           "field_list": matp_field_list,
+                                           "objects_list": evntf_list,
+                                           "field_list": evntf_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
         evnt_code = self.object.evntc_id.__str__()
@@ -971,7 +975,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         elif evnt_code == "Water Quality Record":
             context["table_list"].extend(["data", "tank", "prot"])
         elif evnt_code == "Spawning":
-            context["table_list"].extend(["data", "indv", "pair", "grp", "matp", "prot"])
+            context["table_list"].extend(["data", "indv", "pair", "grp", "evntf", "prot"])
         elif evnt_code == "Treatment":
             context["table_list"].extend(["data", "tank", "trof", "prot"])
         elif evnt_code == "Movement":
@@ -979,12 +983,21 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         elif evnt_code == "Mortality":
             context["table_list"].extend(["indv", "grp"])
         else:
-            context["table_list"].extend(["data", "loc", "indv", "grp", "tank", "trof", "pair", "matp", "prot"])
+            context["table_list"].extend(["data", "loc", "indv", "grp", "tank", "trof", "pair", "evntf", "prot"])
 
         return context
 
 
 class EvntcDetails(mixins.EvntcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class EvntfDetails(mixins.EvntfMixin, CommonDetails):
+    template_name = 'bio_diversity/details_evntf.html'
+    fields = ["evnt_id", "evntfc_id", "evntf_xls", "stok_id", "comments", "created_by", "created_date", ]
+
+
+class EvntfcDetails(mixins.EvntfcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
@@ -1235,11 +1248,6 @@ class LocDetails(mixins.LocMixin, CommonDetails):
 
 class LoccDetails(mixins.LoccMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
-
-
-class MatpDetails(mixins.MatpMixin, CommonDetails):
-    template_name = 'bio_diversity/details_matp.html'
-    fields = ["evnt_id", "matp_xls", "stok_id", "comments", "created_by", "created_date", ]
 
 
 class OrgaDetails(mixins.OrgaMixin, CommonDetails):
@@ -1638,6 +1646,16 @@ class EvntcList(mixins.EvntcMixin, CommonList):
     fields = ["name", "nom", ]
 
 
+class EvntfList(mixins.EvntfMixin, CommonList):
+    filterset_class = filters.EvntfFilter
+    fields = ["evnt_id", "evntf_xls", ]
+
+
+class EvntfcList(mixins.EvntfcMixin, CommonList):
+    filterset_class = filters.EvntfcFilter
+    fields = ["name", "nom", ]
+
+
 class FacicList(mixins.FacicMixin, CommonList):
     filterset_class = filters.FacicFilter
     fields = ["name", "nom", ]
@@ -1742,11 +1760,6 @@ class LocList(mixins.LocMixin, CommonList):
 class LoccList(mixins.LoccMixin, CommonList):
     filterset_class = filters.LoccFilter
     fields = ["name", "nom", ]
-
-
-class MatpList(mixins.MatpMixin, CommonList):
-    filterset_class = filters.MatpFilter
-    fields = ["evnt_id", ]
 
 
 class OrgaList(mixins.OrgaMixin, CommonList):
@@ -2064,6 +2077,14 @@ class EvntcUpdate(mixins.EvntcMixin, CommonUpdate):
     pass
 
 
+class EvntfUpdate(mixins.EvntfMixin, CommonUpdate):
+    pass
+
+
+class EvntfcUpdate(mixins.EvntfcMixin, CommonUpdate):
+    pass
+
+
 class FacicUpdate(mixins.FacicMixin, CommonUpdate):
     pass
 
@@ -2151,10 +2172,6 @@ class LocUpdate(mixins.LocMixin, CommonUpdate):
 
 
 class LoccUpdate(mixins.LoccMixin, CommonUpdate):
-    pass
-
-
-class MatpUpdate(mixins.MatpMixin, CommonUpdate):
     pass
 
 

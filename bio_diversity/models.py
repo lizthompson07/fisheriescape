@@ -586,6 +586,63 @@ class EventCode(BioLookup):
         ordering = ['name']
 
 
+def evntf_directory_path(instance, filename):
+    return 'bio_diversity/event_files/{}'.format(filename)
+
+def matp_directory_path(instance, filename):
+    return 'bio_diversity/event_files/{}'.format(filename)
+
+
+class EventFile(BioModel):
+    # evntf tag
+    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"), related_name="event_files")
+    evntfc_id = models.ForeignKey('EventFileCode', on_delete=models.CASCADE, verbose_name=_("Event File Code"), related_name="event_files")
+    evntf_xls = models.FileField(upload_to=evntf_directory_path, null=True, blank=True, verbose_name=_("Event File"))
+    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, blank=True, null=True,
+                                verbose_name=_("Stock Code"), related_name="event_files")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["evnt_id", "stok_id"], name='Event_File_Uniqueness')
+        ]
+
+
+@receiver(models.signals.post_delete, sender=EventFile)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.evntf_xls:
+        if os.path.isfile(instance.evntf_xls.path):
+            os.remove(instance.evntf_xls.path)
+
+
+@receiver(models.signals.pre_save, sender=EventFile)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+    try:
+        old_file = EventFile.objects.get(pk=instance.pk).evntf_xls
+    except EventFile.DoesNotExist:
+        return False
+    new_file = instance.evntf_xls
+    if old_file and not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
+class EventFileCode(BioLookup):
+    # evntfc tag
+    pass
+
+
 class FacilityCode(BioLookup):
     # facic tag
     pass
@@ -1095,54 +1152,6 @@ class Location(BioModel):
 class LocCode(BioLookup):
     # locc tag
     pass
-
-
-def matp_directory_path(instance, filename):
-    return 'bio_diversity/mating_plans/{}'.format(filename)
-
-
-class MatingPlan(BioModel):
-    # matp tag
-    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"), related_name="mating_plan")
-    matp_xls = models.FileField(upload_to=matp_directory_path, null=True, blank=True, verbose_name=_("Mating Plan File"))
-    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, blank=True, null=True,
-                                verbose_name=_("Stock Code"), related_name="mating_plan")
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["evnt_id", "stok_id"], name='Mating_Plan_Uniqueness')
-        ]
-
-
-@receiver(models.signals.post_delete, sender=MatingPlan)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.matp_xls:
-        if os.path.isfile(instance.matp_xls.path):
-            os.remove(instance.matp_xls.path)
-
-
-@receiver(models.signals.pre_save, sender=MatingPlan)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-    try:
-        old_file = MatingPlan.objects.get(pk=instance.pk).matp_xls
-    except MatingPlan.DoesNotExist:
-        return False
-    new_file = instance.matp_xls
-    if old_file and not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
 
 
 class Organization(BioLookup):

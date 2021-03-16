@@ -136,7 +136,19 @@ urlpatterns = [
     path('details/evntc/<int:pk>/', views.EvntcDetails.as_view(), name="details_evntc"),
     path('list/evntc/', views.EvntcList.as_view(), name="list_evntc"),
     path('update/evntc/<int:pk>/', views.EvntcUpdate.as_view(), name="update_evntc"),
-            
+
+    path('create/evntf/', views.EvntfCreate.as_view(), name="create_evntf"),
+    path('details/evntf/<int:pk>/', views.EvntfDetails.as_view(), name="details_evntf"),
+    path('details/evntf/<str:back>/<int:back_id>/<int:pk>/', views.EvntfDetails.as_view(), name="details_evntf"),
+    path('list/evntf/', views.EvntfList.as_view(), name="list_evntf"),
+    path('update/evntf/<int:pk>/', views.EvntfUpdate.as_view(), name="update_evntf"),
+      
+    path('create/evntfc/', views.EvntfcCreate.as_view(), name="create_evntfc"),
+    path('details/evntfc/<int:pk>/', views.EvntfcDetails.as_view(), name="details_evntfc"),
+    path('details/evntfc/<str:back>/<int:back_id>/<int:pk>/', views.EvntfcDetails.as_view(), name="details_evntfc"),
+    path('list/evntfc/', views.EvntfcList.as_view(), name="list_evntfc"),
+    path('update/evntfc/<int:pk>/', views.EvntfcUpdate.as_view(), name="update_evntfc"),
+
     path('create/facic/', views.FacicCreate.as_view(), name="create_facic"),
     path('details/facic/<int:pk>/', views.FacicDetails.as_view(), name="details_facic"),
     path('list/facic/', views.FacicList.as_view(), name="list_facic"),
@@ -256,12 +268,6 @@ urlpatterns = [
     path('details/locc/<int:pk>/', views.LoccDetails.as_view(), name="details_locc"),
     path('list/locc/', views.LoccList.as_view(), name="list_locc"),
     path('update/locc/<int:pk>/', views.LoccUpdate.as_view(), name="update_locc"),
-
-    path('create/matp/', views.MatpCreate.as_view(), name="create_matp"),
-    path('details/matp/<int:pk>/', views.MatpDetails.as_view(), name="details_matp"),
-    path('details/matp/<str:back>/<int:back_id>/<int:pk>/', views.MatpDetails.as_view(), name="details_matp"),
-    path('list/matp/', views.MatpList.as_view(), name="list_matp"),
-    path('update/matp/<int:pk>/', views.MatpUpdate.as_view(), name="update_matp"),
     
     path('create/mort/<str:iorg>/<int:pk>/', views.MortFormView.as_view(), name="create_mort"),
     path('create/mort/<str:iorg>/<int:pk>/<str:pop>/', views.MortFormView.as_view(), name="create_mort"),
