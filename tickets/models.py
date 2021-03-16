@@ -87,10 +87,10 @@ class Ticket(models.Model):
     dm_assigned = models.ManyToManyField(User, limit_choices_to={"is_staff": True},
                                          verbose_name=_("ticket assigned to"), blank=True, related_name="dm_assigned_tickets")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True)
-    request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING)
+    request_type = models.ForeignKey(RequestType, on_delete=models.DO_NOTHING, verbose_name=_("type of request"))
     status = models.ForeignKey(Status, default=2, on_delete=models.DO_NOTHING)
-    priority = models.CharField(default='2', max_length=1, choices=PRIORITY_CHOICES)
-    description = models.TextField(blank=True, null=True)
+    priority = models.CharField(default='2', max_length=1, choices=PRIORITY_CHOICES, verbose_name=_("priority level"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     financial_coding = models.CharField(max_length=100, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     notes_html = models.TextField(blank=True, null=True, verbose_name="Notes")

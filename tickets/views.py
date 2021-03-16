@@ -288,6 +288,7 @@ class TicketCreateView(LoginRequiredMixin, CommonCreateView):
 class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
     model = models.Ticket
     form_class = forms.FeedbackForm
+    h1 = gettext_lazy("Log a Ticket")
 
     def get_initial(self):
         return dict(

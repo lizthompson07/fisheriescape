@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext, gettext_lazy
 
 from shared_models import models as shared_models
 from . import models
@@ -81,10 +81,10 @@ class FeedbackForm(forms.ModelForm):
         }
 
         labels = {
-            'app': _("Application name (if applicable)"),
-            'description': _("Description"),
-            'title': _("Subject"),
-            'dm_assigned': _("Assign ticket to")
+            'app': gettext_lazy("Application name (if applicable)"),
+            'description': gettext_lazy("Description"),
+            'title': gettext_lazy("Subject"),
+            'dm_assigned': gettext_lazy("Assign ticket to")
         }
 
     def __init__(self, *args, **kwargs):
