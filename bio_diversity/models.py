@@ -140,11 +140,12 @@ class BioCont(BioLookup):
         indv_list = []
         grp_list = []
 
-        contx_set = self.contxs.filter(anixs__isnull=False)
-        anix_indv_sets = [contx.anixs.filter(final_contx_flag=True, indv_id__indv_valid=True) for contx in contx_set]
-        anix_grp_sets = [contx.anixs.filter(final_contx_flag=True, grp_id__grp_valid=True) for contx in contx_set]
-        indv_in_list = list(dict.fromkeys([anix.indv_id for anix_set in anix_indv_sets for anix in anix_set]))
-        grp_in_list = list(dict.fromkeys([anix.grp_id for anix_set in anix_grp_sets for anix in anix_set]))
+        anix_set = AniDetailXref.objects.filter(contx_id__tank_id=self).select_related("indv_id", "contx_id")
+        contx_set = [anix.contx_id for anix in anix_set]
+        anix_indv_set = anix_set.filter(final_contx_flag=True, indv_id__indv_valid=True)
+        anix_grp_set = anix_set.filter(final_contx_flag=True, grp_id__grp_valid=True)
+        indv_in_list = list(dict.fromkeys([anix.indv_id for anix in anix_indv_set]))
+        grp_in_list = list(dict.fromkeys([anix.grp_id for anix in anix_grp_set]))
 
         for indv in indv_in_list:
             if self in indv.current_tank(at_date=at_date):
@@ -588,6 +589,7 @@ class EventCode(BioLookup):
 
 def evntf_directory_path(instance, filename):
     return 'bio_diversity/event_files/{}'.format(filename)
+
 
 def matp_directory_path(instance, filename):
     return 'bio_diversity/event_files/{}'.format(filename)
