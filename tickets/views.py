@@ -292,7 +292,7 @@ class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
 
     def get_initial(self):
         return dict(
-            request_type=19,
+            request_type=20,
             app=self.kwargs.get("app"),  # using this as a way to talk to FormClass
             assign_to=self.request.GET.get("assign_to"),  # using this as a way to talk to FormClass
         )

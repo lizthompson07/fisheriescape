@@ -88,6 +88,15 @@ class FeedbackForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        request_type_choices = (
+            (20, _('Bug')),
+            (19, _('App enhancement')),
+            (5, _('Process development')),
+            (8, _('Permissions')),
+            (17, _('Report development')),
+            (18, _('Other')),
+        )
+
         STAFF_USER_CHOICES = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                               User.objects.filter(is_staff=True).order_by("last_name", "first_name")]
         # choices for app
@@ -99,6 +108,7 @@ class FeedbackForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['app'] = forms.ChoiceField(widget=forms.Select(attrs=chosen_select_contains), choices=APP_CHOICES)
         self.fields['dm_assigned'].choices = STAFF_USER_CHOICES
+        self.fields['request_type'].choices = request_type_choices
         if kwargs.get('initial'):
             initial = kwargs['initial']
             if initial.get('app'):
