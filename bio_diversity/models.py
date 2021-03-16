@@ -2,6 +2,7 @@
 
 # Create your models here.
 import datetime
+import decimal
 import os
 from collections import Counter
 
@@ -140,20 +141,44 @@ class BioCont(BioLookup):
         indv_list = []
         grp_list = []
 
-        anix_set = AniDetailXref.objects.filter(contx_id__tank_id=self).select_related("indv_id", "contx_id")
-        contx_set = [anix.contx_id for anix in anix_set]
-        anix_indv_set = anix_set.filter(final_contx_flag=True, indv_id__indv_valid=True)
-        anix_grp_set = anix_set.filter(final_contx_flag=True, grp_id__grp_valid=True)
-        indv_in_list = list(dict.fromkeys([anix.indv_id for anix in anix_indv_set]))
-        grp_in_list = list(dict.fromkeys([anix.grp_id for anix in anix_grp_set]))
+        filter_arg = "contx_id__{}_id".format(self.key)
 
-        for indv in indv_in_list:
-            if self in indv.current_tank(at_date=at_date):
+        anix_set = AniDetailXref.objects.filter(**{filter_arg: self},
+                                                final_contx_flag__isnull=False,
+                                                evnt_id__start_datetime__lte=at_date).select_related("indv_id", "indv_id__grp_id__stok_id","indv_id__grp_id__coll_id", "grp_id")
+        anix_indv_in_set = anix_set.filter(final_contx_flag=True, indv_id__indv_valid=True)
+        anix_indv_out_set = anix_set.filter(final_contx_flag=False, indv_id__indv_valid=True)
+        anix_grp_in_set = anix_set.filter(final_contx_flag=True, grp_id__grp_valid=True)
+        anix_grp_out_set = anix_set.filter(final_contx_flag=False, grp_id__grp_valid=True)
+
+        indv_in_set = Counter([anix.indv_id for anix in anix_indv_in_set]).most_common()
+        indv_out_set = Counter([anix.indv_id for anix in anix_indv_out_set]).most_common()
+        grp_in_set = Counter([anix.grp_id for anix in anix_grp_in_set]).most_common()
+        grp_out_set = Counter([anix.grp_id for anix in anix_grp_out_set]).most_common()
+
+        for indv, in_count in indv_in_set:
+            if indv not in indv_out_set:
                 indv_list.append(indv)
-        for grp in grp_in_list:
-            if self in grp.current_tank(at_date=at_date):
+            elif in_count > indv_out_set[indv]:
+                indv_list.append(indv)
+        for grp, in_count in grp_in_set:
+            if grp not in grp_out_set:
                 grp_list.append(grp)
+            elif in_count > grp_out_set[grp]:
+                indv_list.append(grp)
         return indv_list, grp_list
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class BioDateModel(BioModel):
@@ -225,16 +250,16 @@ class AniDetailXref(BioModel):
     # anix tag
     evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"),
                                 related_name="animal_details")
-    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="anixs",
+    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
                                  verbose_name=_("Container Cross Reference"))
     final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), default=None, blank=True, null=True)
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True,
-                               verbose_name=_("Location"))
-    indvt_id = models.ForeignKey("IndTreatment", on_delete=models.CASCADE, null=True, blank=True,
+                               related_name="animal_details", verbose_name=_("Location"))
+    indvt_id = models.ForeignKey("IndTreatment", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
                                  verbose_name=_("Individual Treatment"))
     indv_id = models.ForeignKey("Individual", on_delete=models.CASCADE, null=True, blank=True,
                                 related_name="animal_details", verbose_name=_("Individual"))
-    pair_id = models.ForeignKey("Pairing", on_delete=models.CASCADE, null=True, blank=True,
+    pair_id = models.ForeignKey("Pairing", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
                                 verbose_name=_("Pairing"))
     grp_id = models.ForeignKey("Group", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Group"),
                                related_name="animal_details")
@@ -378,6 +403,7 @@ class Cup(BioCont):
             models.UniqueConstraint(fields=['name', 'facic_id'], name='cup_uniqueness')
         ]
         ordering = ['facic_id', 'name']
+    key = "cup"
 
 
 class CupDet(BioContainerDet):
@@ -410,6 +436,7 @@ class Drawer(BioCont):
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='draw_uniqueness')
         ]
+    key = "draw"
 
 
 class EnvCode(BioLookup):
@@ -544,7 +571,7 @@ class EnvTreatment(BioModel):
     @property
     def concentration_str(self):
         if self.concentration:
-            return "1:{}  |  {:.3}%".format(int(1.0/self.concentration), 100 * self.concentration)
+            return "1:{}  |  {:.3}%".format(int(decimal.Decimal(1.0)/self.concentration), decimal.Decimal(100) * self.concentration)
         else:
             return None
     concentration_str.fget.short_description = "Concentration"
@@ -709,9 +736,9 @@ class Group(BioModel):
     def current_tank(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
         cont = []
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)
+        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
         tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
-        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date)
+        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
         tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
 
         for tank, in_count in tank_in_set:
@@ -739,18 +766,18 @@ class Group(BioModel):
     def fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
 
-        anix_qs = self.animal_details.filter(contx_id__counts__isnull=False)
-        cnt_qs_list = [anix.contx_id.counts.all() for anix in anix_qs]
+        # anix_qs = self.animal_details.filter(contx_id__counts__isnull=False).select_related('contx_id__counts')
+        cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self).select_related("cntc_id").distinct()
+        # cnt_qs_list = [anix.contx_id.counts.all() for anix in anix_qs]
 
         add_codes = ["Fish in Container", ]
         subtract_codes = ["Mortality", "Pit Tagged"]
 
-        for qs in cnt_qs_list:
-            for cnt in qs:
-                if cnt.cntc_id.name in add_codes:
-                    fish_count += cnt.cnt
-                elif cnt.cntc_id.name in subtract_codes:
-                    fish_count -= cnt.cnt
+        for cnt in cnt_set:
+            if cnt.cntc_id.name in add_codes:
+                fish_count += cnt.cnt
+            elif cnt.cntc_id.name in subtract_codes:
+                fish_count -= cnt.cnt
 
         return fish_count
 
@@ -826,6 +853,7 @@ class HeathUnit(BioCont):
     manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))
     inservice_date = models.DateField(verbose_name=_("Date unit was put into service"))
     serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"))
+    key = "heat"
 
     class Meta:
         constraints = [
@@ -977,9 +1005,9 @@ class Individual(BioModel):
     def current_tank(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
         cont = []
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)
+        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
         tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
-        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date)
+        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
         tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
 
         for tank, in_count in tank_in_set:
@@ -1457,6 +1485,7 @@ class Tank(BioCont):
             models.UniqueConstraint(fields=['name', 'facic_id'], name='tank_uniqueness')
         ]
         ordering = ['facic_id', 'name']
+    key = "tank"
 
 
 class TankDet(BioContainerDet):
@@ -1501,8 +1530,8 @@ class Tray(BioLookup):
     def fish_in_cont(self, at_date=datetime.datetime.now(timezone.get_current_timezone())):
         grp_list = []
 
-        contx_set = self.contxs.filter(anixs__isnull=False)
-        anix_grp_sets = [contx.anixs.filter(final_contx_flag=True, grp_id__grp_valid=True) for contx in contx_set]
+        contx_set = self.contxs.filter(animal_details__isnull=False)
+        anix_grp_sets = [contx.animal_details.filter(final_contx_flag=True, grp_id__grp_valid=True) for contx in contx_set]
         grp_in_list = list(dict.fromkeys([anix.grp_id for anix_set in anix_grp_sets for anix in anix_set]))
 
         for grp in grp_in_list:
@@ -1545,6 +1574,8 @@ class Trough(BioCont):
             models.UniqueConstraint(fields=['name', 'facic_id'], name='trof_uniqueness')
         ]
         ordering = ['facic_id', 'name']
+
+    key = "trof"
 
     def degree_days(self, start_date, end_date):
         env_qs = EnvCondition.objects.filter(contx_id__trof_id=self,
