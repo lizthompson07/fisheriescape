@@ -138,6 +138,7 @@ urlpatterns = [
     path('update/evntc/<int:pk>/', views.EvntcUpdate.as_view(), name="update_evntc"),
 
     path('create/evntf/', views.EvntfCreate.as_view(), name="create_evntf"),
+    path('create/evntf/<int:evnt_pk>/<str:pop>/', views.EvntfCreate.as_view(), name="create_evntf"),
     path('details/evntf/<int:pk>/', views.EvntfDetails.as_view(), name="details_evntf"),
     path('details/evntf/<str:back>/<int:back_id>/<int:pk>/', views.EvntfDetails.as_view(), name="details_evntf"),
     path('list/evntf/', views.EvntfList.as_view(), name="list_evntf"),

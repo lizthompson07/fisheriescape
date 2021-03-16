@@ -343,7 +343,13 @@ class EvntcCreate(mixins.EvntcMixin, CommonCreate):
 
 
 class EvntfCreate(mixins.EvntfMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        init = super().get_initial()
+        if 'evnt_pk' in self.kwargs:
+            init['evnt_id'] = self.kwargs['evnt_pk']
+            self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
+
+        return init
 
 
 class EvntfcCreate(mixins.EvntfcMixin, CommonCreate):
@@ -957,31 +963,32 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         evntf_list = [evntf for evntf in self.object.event_files.all()]
         evntf_field_list = ["evntf_xls", "evntfc_id", "stok_id", ]
         obj_mixin = mixins.EvntfMixin
-        context["context_dict"]["evntf"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["evntf"] = {"div_title": "{}".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": evntf_list,
                                            "field_list": evntf_field_list,
+                                           "add_btn_url": "foo",
                                            "single_object": obj_mixin.model.objects.first()}
 
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
-            context["table_list"].extend(["data", "loc", "grp", "tank", "prot"])
+            context["table_list"].extend(["data", "loc", "grp", "tank", "prot", "evntf"])
         elif evnt_code == "PIT Tagging":
-            context["table_list"].extend(["data", "indv", "grp", "tank", "prot"])
+            context["table_list"].extend(["data", "indv", "grp", "tank", "prot", "evntf"])
         elif evnt_code == "Egg Development":
-            context["table_list"].extend(["data", "grp", "trof", "prot"])
+            context["table_list"].extend(["data", "grp", "trof", "prot", "evntf"])
         elif evnt_code == "Maturity Sorting":
-            context["table_list"].extend(["data", "indv", "tank", "prot"])
+            context["table_list"].extend(["data", "indv", "tank", "prot", "evntf"])
         elif evnt_code == "Water Quality Record":
-            context["table_list"].extend(["data", "tank", "prot"])
+            context["table_list"].extend(["data", "tank", "prot", "evntf"])
         elif evnt_code == "Spawning":
-            context["table_list"].extend(["data", "indv", "pair", "grp", "evntf", "prot"])
+            context["table_list"].extend(["data", "indv", "pair", "grp", "evntf", "prot", "evntf"])
         elif evnt_code == "Treatment":
-            context["table_list"].extend(["data", "tank", "trof", "prot"])
+            context["table_list"].extend(["data", "tank", "trof", "prot", "evntf"])
         elif evnt_code == "Movement":
-            context["table_list"].extend(["indv", "grp", "tank", "trof", "prot"])
+            context["table_list"].extend(["indv", "grp", "tank", "trof", "prot", "evntf"])
         elif evnt_code == "Mortality":
-            context["table_list"].extend(["indv", "grp"])
+            context["table_list"].extend(["indv", "grp", "evntf"])
         else:
             context["table_list"].extend(["data", "loc", "indv", "grp", "tank", "trof", "pair", "evntf", "prot"])
 

@@ -188,7 +188,7 @@ class EvntfMixin:
     key = "evntf"
     form_class = forms.EvntfForm
     model = models.EventFile
-    title = _("Event File")
+    title = _("Event Files")
     admin_only = False
 
 
