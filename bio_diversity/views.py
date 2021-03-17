@@ -2461,6 +2461,8 @@ class ReportFormView(mixins.ReportMixin, UserPassesTestMixin, CommonFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['java_script'] = 'bio_diversity/_entry_report_js.html'
+
         return context
 
     def form_valid(self, form):
