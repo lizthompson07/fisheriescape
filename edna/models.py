@@ -107,12 +107,14 @@ class Collection(UnilingualSimpleLookup, MetadataFields):
     def get_polygon(self):
         points = self.get_points()
         if len(points) >= 3:
-            return Polygon(points).centroid.coords
+            return Polygon(points)
 
     def get_centroid(self):
+        print(123)
         points = self.get_points()
         if self.get_polygon():
-            return self.get_polygon().centroid.coords
+            p = self.get_polygon()
+            return p.centroid
         elif len(points) > 0:
             return points[-1]
 
