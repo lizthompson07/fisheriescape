@@ -48,7 +48,7 @@ def generate_facility_tank_report(facic_id):
 
         cnt = 0
         year_coll_set = set()
-        indv_list, grp_list = item.fish_in_cont()
+        indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id","indv_id__grp_id__coll_id"])
         if indv_list:
             ws['B' + str(row_count)].value = "Y"
             cnt += len(indv_list)
@@ -175,18 +175,24 @@ def generate_growth_chart(plot_fish):
     return scirpt, div, target_url
 
 
-def generate_maturity_rate(indv_list, grp_list):
+def generate_maturity_rate(cont):
     hist_dict = {"Immature": 0, "Male": 0, "Female": 0}
     pit_tag_list = []
     gender_list = []
-    for indv in indv_list:
-        gender = "Unknown"
-        pit_tag_list.append(indv.pit_tag)
-        indvd = models.IndividualDet.objects.filter(anidc_id__name="Gender", indvd_valid=True).filter(anix_id__indv_id=indv)
-        if indvd.count() > 0:
-            gender = indvd.get().det_val
-            hist_dict[gender] += 1
+    indv_list, grp_list = cont.fish_in_cont(select_fields=[])
+
+    indvd_set = models.IndividualDet.objects.filter(anidc_id__name="Gender", indvd_valid=True, anix_id__indv_id__in=indv_list).select_related("anix_id__indv_id")
+
+    for indvd in indvd_set:
+        pit_tag_list.append(indvd.anix_id.indv_id.pit_tag)
+        gender = indvd.det_val
+        hist_dict[gender] += 1
         gender_list.append(gender)
+
+    for indv in indv_list:
+        if indv.pit_tag not in pit_tag_list:
+            pit_tag_list.append(indv.pit_tag)
+            gender_list.append("Unknown")
 
     genders = ["Immature", "Male", "Female"]
 

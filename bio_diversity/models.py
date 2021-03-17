@@ -140,7 +140,7 @@ class BioCont(BioLookup):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
 
-    def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+    def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), select_fields=[]):
         indv_list = []
         grp_list = []
 
@@ -148,23 +148,23 @@ class BioCont(BioLookup):
 
         anix_set = AniDetailXref.objects.filter(**{filter_arg: self},
                                                 final_contx_flag__isnull=False,
-                                                evnt_id__start_datetime__lte=at_date).select_related("indv_id", "indv_id__grp_id__stok_id","indv_id__grp_id__coll_id", "grp_id")
+                                                evnt_id__start_datetime__lte=at_date).select_related("indv_id", "grp_id", *select_fields)
         anix_indv_in_set = anix_set.filter(final_contx_flag=True, indv_id__indv_valid=True)
         anix_indv_out_set = anix_set.filter(final_contx_flag=False, indv_id__indv_valid=True)
         anix_grp_in_set = anix_set.filter(final_contx_flag=True, grp_id__grp_valid=True)
         anix_grp_out_set = anix_set.filter(final_contx_flag=False, grp_id__grp_valid=True)
 
-        indv_in_set = Counter([anix.indv_id for anix in anix_indv_in_set]).most_common()
-        indv_out_set = Counter([anix.indv_id for anix in anix_indv_out_set]).most_common()
-        grp_in_set = Counter([anix.grp_id for anix in anix_grp_in_set]).most_common()
-        grp_out_set = Counter([anix.grp_id for anix in anix_grp_out_set]).most_common()
+        indv_in_set = Counter([anix.indv_id for anix in anix_indv_in_set])
+        indv_out_set = Counter([anix.indv_id for anix in anix_indv_out_set])
+        grp_in_set = Counter([anix.grp_id for anix in anix_grp_in_set])
+        grp_out_set = Counter([anix.grp_id for anix in anix_grp_out_set])
 
-        for indv, in_count in indv_in_set:
+        for indv, in_count in indv_in_set.items():
             if indv not in indv_out_set:
                 indv_list.append(indv)
             elif in_count > indv_out_set[indv]:
                 indv_list.append(indv)
-        for grp, in_count in grp_in_set:
+        for grp, in_count in grp_in_set.items():
             if grp not in grp_out_set:
                 grp_list.append(grp)
             elif in_count > grp_out_set[grp]:

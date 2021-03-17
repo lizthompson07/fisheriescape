@@ -745,7 +745,7 @@ class CommonContDetails(CommonDetails):
                                            "field_list": envt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        indv_list, grp_list = self.object.fish_in_cont()
+        indv_list, grp_list = self.object.fish_in_cont(select_fields=["indv_id__grp_id__stok_id","indv_id__grp_id__coll_id"])
         indv_field_list = ["ufid", "pit_tag", "grp_id", ]
         obj_mixin = mixins.IndvMixin
         context["context_dict"]["indv_cont"] = {"div_title": "Individuals in Container",
@@ -2569,14 +2569,9 @@ class MaturityRateView(PlotView):
         indv_list = grp_list = []
         if self.kwargs.get("cont") == "tank":
             cont = models.Tank.objects.filter(pk=cont_pk).get()
-            indv_list, grp_list = cont.fish_in_cont()
-        elif self.kwargs.get("cont") == "grp":
-            cont = models.Group.objects.filter(pk=cont_pk).get()
-            indv_list, grp_list = cont.fish_in_group()
         elif self.kwargs.get("cont") == "trof":
             cont = models.Trough.objects.filter(pk=cont_pk).get()
-            indv_list, grp_list = cont.fish_in_cont()
-        context["the_script"], context["the_div"], file_url = reports.generate_maturity_rate(indv_list, grp_list)
+        context["the_script"], context["the_div"], file_url = reports.generate_maturity_rate(cont)
         context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
         return context
 
