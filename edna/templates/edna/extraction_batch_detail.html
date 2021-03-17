@@ -20,7 +20,7 @@
     <div class="mb-3">
       <p class="h3">{% trans "Tubes" %}</p>
       <button @click="addExtract(null)" class="btn btn-sm btn-primary">{% trans "Add a Tube" %}</button>
-      <button @click="addExtract('all')" class="btn btn-sm btn-warning">{% trans "Add all un-extracted filters" %}</button>
+      <button @click="addAllExtracts()" class="btn btn-sm btn-warning">{% trans "Import all un-extracted filters" %}</button>
     </div>
 
     <div class="row mb-3 px-1 py-1" style="width: 30%">
@@ -57,7 +57,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(e, index) in extracts"  :key="e.id">
+        <tr v-for="(e, index) in extracts" :key="e.id">
           <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
           <td class="px-0  py-0 text-muted" tabindex="-1">${e.id}</td>
           <td class="px-0 py-0">
@@ -114,14 +114,18 @@
     },
     methods: {
       addExtract(howMany) {
-        if (!howMany) {
-          howMany = Number(prompt("{% trans 'How many tubes do you want to add?' %}"));
-        } else if (howMany === "all") {
-          howMany = 0;
-          for (var i = 0; i < this.filterChoices.length; i++) {
-            if (!this.filterChoices[i].has_extract) {
-              howMany += 1;
-            }
+        if (!howMany) howMany = Number(prompt("{% trans 'How many tubes do you want to add?' %}"));
+        if (howMany) {
+          for (let i = 0; i < howMany; i++) {
+            this.newExtract();
+          }
+        }
+      },
+      addAllExtracts() {
+        howMany = 0;
+        for (var i = 0; i < this.filterChoices.length; i++) {
+          if (!this.filterChoices[i].has_extract) {
+            howMany += 1;
           }
         }
         if (howMany) {
@@ -143,9 +147,6 @@
       },
       getBlankExtract(filter) {
         let now = new Date(Date.now());
-        if (!filter) {
-          filter = this.getQueuedFilters(1)[0];
-        }
         return {
           extraction_batch: extractBatchId,
           filter: filter,

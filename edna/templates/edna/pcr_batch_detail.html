@@ -22,9 +22,9 @@
     </div>
 
     <div class="mb-3" v-if="!focalPCR">
-      <p class="h3">{% trans "Tubes" %}</p>
-      <button @click="addPCR(null)" class="btn btn-sm btn-primary">{% trans "Add a Tube" %}</button>
-      <button @click="addPCR('all')" class="btn btn-sm btn-warning">{% trans "Add all non-processed extractions" %}</button>
+      <p class="h3">{% trans "Samples" %}</p>
+      <button @click="addPCR(null)" class="btn btn-sm btn-primary">{% trans "Add a Sample" %}</button>
+      <button @click="addAllPCRs()" class="btn btn-sm btn-warning">{% trans "Import all non-processed extractions" %}</button>
     </div>
 
     <div class="row mb-3 px-1 py-1" style="width: 75%" v-if="!focalPCR">
@@ -234,6 +234,11 @@
       },
       manageSpeciesObservations(pcr) {
         this.focalPCR = pcr;
+        if(!this.focalPCR.observations.length) {
+            this.$nextTick(()=>{
+              this.addSpeciesObservation();
+            })
+        }
       },
       clearFocalPCR() {
         this.unsavedChanges = false;
@@ -242,14 +247,18 @@
         this.getPCRs()
       },
       addPCR(howMany) {
-        if (!howMany) {
-          howMany = Number(prompt("{% trans 'How many tubes do you want to add?' %}"));
-        } else if (howMany === "all") {
-          howMany = 0;
-          for (var i = 0; i < this.extractChoices.length; i++) {
-            if (!this.extractChoices[i].has_pcr) {
-              howMany += 1;
-            }
+        if (!howMany) howMany = Number(prompt("{% trans 'How many tubes do you want to add?' %}"));
+        if (howMany) {
+          for (let i = 0; i < howMany; i++) {
+            this.newPCR();
+          }
+        }
+      },
+      addAllPCRs(howMany) {
+        howMany = 0;
+        for (var i = 0; i < this.extractChoices.length; i++) {
+          if (!this.extractChoices[i].has_pcr) {
+            howMany += 1;
           }
         }
         if (howMany) {
@@ -290,9 +299,6 @@
       },
       getBlankPCR(extract) {
         let now = new Date(Date.now());
-        if (!extract) {
-          extract = this.getQueuedFilters(1)[0];
-        }
         let next_number = this.lastPCRNumber + 1;
         this.lastPCRNumber += 1;
         return {
