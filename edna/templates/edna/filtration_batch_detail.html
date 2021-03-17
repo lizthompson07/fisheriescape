@@ -4,20 +4,6 @@
 
 {% block subcontent %}
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <style>
-  .my-btn {
-      font-size: small;
-  }
-
-  #map {
-      height: 300px; /* The height is 400 pixels */
-      width: 100%; /* The width is the width of the web page */
-  }
-
-  </style>
-
   <div class="btns mb-3">
     <a href="{% url 'edna:filtration_batch_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'edna:filtration_batch_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
@@ -62,7 +48,7 @@
       <div class="alert alert-danger" role="alert" v-if="filterErrorMsg">
         <p class="mb-0 lead" v-html="filterErrorMsg"></p>
       </div>
-      <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}">
+      <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}"  style="width: 100%">
         <thead>
         <tr>
           <th class="px-1 py-1">#</th>
@@ -77,7 +63,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(f, index) in filters" :class="{'red-font':f.dirty}">
+        <tr v-for="(f, index) in filters">
           <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
           <td class="px-0  py-0 text-muted" tabindex="-1">${f.id}</td>
           <td class="px-0 py-0">
@@ -128,19 +114,63 @@
     el: '#app',
     delimiters: ["${", "}"],
     data: {
-      loading: false,
       currentUser: null,
-      labels: [],
-      filtrationTypeChoices: [],
-      sampleChoices: [],
-      filters: [],
-      filterErrorMsg: null,
       default_filtration_type: 1,
       default_filtration_volume_ml: 1000,
+      filterErrorMsg: null,
+      filters: [],
+      filtrationTypeChoices: [],
+      labels: [],
+      loading: false,
+      sampleChoices: [],
       unsavedChanges: false
 
     },
     methods: {
+      addFilter(howMany) {
+        if (!howMany) {
+          howMany = Number(prompt("{% trans 'How many filters do you want to add?' %}"));
+        } else if (howMany === "all") {
+          howMany = 0;
+          for (var i = 0; i < this.sampleChoices.length; i++) {
+            if (!this.sampleChoices[i].has_filter) {
+              howMany += 1;
+            }
+          }
+        }
+        if (howMany) {
+          sampleArray = this.getQueuedSamples(howMany);
+          for (let i = 0; i < sampleArray.length; i++) {
+            this.newFilter(sampleArray[i]);
+          }
+        }
+      },
+      deleteFilter(filter) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this filter?' %}");
+        if (userInput) {
+          let endpoint = `/api/edna/filters/${filter.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                this.$delete(this.filters, this.filters.indexOf(filter))
+              })
+        }
+      },
+      getBlankFilter(sample) {
+        let now = new Date(Date.now());
+        if (!sample) {
+          sample = this.getQueuedSamples(1)[0];
+        }
+        return {
+          filtration_batch: filterBatchId,
+          sample: sample,
+          filtration_type: this.default_filtration_type,
+          start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
+          duration_min: null,
+          filtration_volume_ml: this.default_filtration_volume_ml,
+          storage_location: null,
+          comments: null,
+        }
+      },
       getCurrentUser() {
         let endpoint = `/api/edna/user/`;
         apiService(endpoint)
@@ -172,39 +202,28 @@
               }
             })
       },
-      getBlankFilter(sample) {
-        let now = new Date(Date.now());
-        if (!sample) {
-          sample = this.getQueuedSamples(1)[0];
-        }
-        return {
-          filtration_batch: filterBatchId,
-          sample: sample,
-          filtration_type: this.default_filtration_type,
-          start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
-          duration_min: null,
-          filtration_volume_ml: this.default_filtration_volume_ml,
-          storage_location: null,
-          comments: null,
-        }
-      },
-      addFilter(howMany) {
-        if (!howMany) {
-          howMany = Number(prompt("{% trans 'How many filters do you want to add?' %}"));
-        } else if (howMany === "all") {
-          howMany = 0;
-          for (var i = 0; i < this.sampleChoices.length; i++) {
-            if (!this.sampleChoices[i].has_filter) {
-              howMany += 1;
+      getQueuedSamples(howMany) {
+        let samples = [...this.sampleChoices];
+        console.log(samples)
+        myArray = []
+        let result;
+        for (let i = 0; i < howMany; i++) {
+          result = "";
+          for (let j = 0; j < samples.length; j++) {
+            let sample = samples[j];
+            if (!sample.has_filter) {
+              let index = samples.indexOf(sample);
+              result = samples.splice(index, 1)[0].value;
+              break;
             }
           }
+          myArray.push(result);
         }
-        if (howMany) {
-          sampleArray = this.getQueuedSamples(howMany);
-          for (let i = 0; i < sampleArray.length; i++) {
-            this.newFilter(sampleArray[i]);
-          }
-        }
+        // return the results array
+        return myArray;
+      },
+      groomJSON(json) {
+        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
       },
       newFilter(sample) {
         endpoint = `/api/edna/filters/`;
@@ -229,58 +248,13 @@
               else this.unsavedChanges = false;
             })
       },
-      groomJSON(json) {
-        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-      },
-      getQueuedSamples(howMany) {
-        let samples = [...this.sampleChoices];
-        console.log(samples)
-        myArray = []
-        let result;
-        for (let i = 0; i < howMany; i++) {
-          result = "";
-          for (let j = 0; j < samples.length; j++) {
-            let sample = samples[j];
-            if (!sample.has_filter) {
-              let index = samples.indexOf(sample);
-              result = samples.splice(index, 1)[0].value;
-              break;
-            }
-          }
-          myArray.push(result);
-        }
-        // return the results array
-        return myArray;
-      },
-      deleteFilter(filter) {
-        userInput = confirm("{% trans 'Are you sure you want to delete this filter?' %}");
-        if (userInput) {
-          let endpoint = `/api/edna/filters/${filter.id}/`;
-          apiService(endpoint, "DELETE")
-              .then(response => {
-                this.$delete(this.filters, this.filters.indexOf(filter))
-              })
-        }
-      },
     },
-    computed
-  :
-  {
-  }
-  ,
-  created()
-  {
-    this.getCurrentUser();
-    this.getFilterMetadata();
-    this.getFilters();
-  }
-  ,
-  mounted()
-  {
-  }
-  ,
-  })
-  ;
+    created() {
+      this.getCurrentUser();
+      this.getFilterMetadata();
+      this.getFilters();
+    },
+  });
   </script>
 
 {% endblock %}

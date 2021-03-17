@@ -14,3 +14,10 @@ class FilterSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+
+class DNAExtractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DNAExtract
+        fields = "__all__"
+
+

@@ -3,12 +3,15 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r'filters', views.FilterViewSet)  # tested
+router.register(r'filters', views.FilterViewSet)
+router.register(r'extracts', views.DNAExtractViewSet)
+# router.register(r'pcrs', views.PCRViewSet)  # tested
 
 urlpatterns = [
     path("edna/", include(router.urls)),  # tested
-    path("edna/user/", views.CurrentUserAPIView.as_view(), name="edna-current-user"),  # tested
+    path("edna/user/", views.CurrentUserAPIView.as_view(), name="edna-current-user"),
 
     path("edna/meta/models/filter/", views.FilterModelMetaAPIView.as_view(), name="edna-filter-model-meta"),
+    path("edna/meta/models/extract/", views.DNAExtractModelMetaAPIView.as_view(), name="edna-extract-model-meta"),
 
 ]

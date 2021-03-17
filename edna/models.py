@@ -10,7 +10,7 @@ from shapely.geometry import Polygon, Point
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
-from shared_models.utils import get_metadata_string, format_coordinates
+from shared_models.utils import format_coordinates
 
 
 class FiltrationType(UnilingualLookup):
@@ -50,7 +50,7 @@ class Species(models.Model):
         verbose_name_plural = _("Species")
 
     def get_absolute_url(self):
-        return reverse('diets:species_detail', kwargs={'pk': self.id})
+        return reverse('edna:species_detail', kwargs={'pk': self.id})
 
     @property
     def full_name(self):
@@ -185,6 +185,9 @@ class FiltrationBatch(Batch):
     def __str__(self):
         return "{} {} ({})".format(_("Filtration Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
 
+    def get_absolute_url(self):
+        return reverse('edna:filtration_batch_detail', kwargs={'pk': self.id})
+
 
 class Filter(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
@@ -205,14 +208,21 @@ class ExtractionBatch(Batch):
     class Meta:
         verbose_name_plural = _("DNA Extraction Batches")
 
+    def __str__(self):
+        return "{} {} ({})".format(_("DNA Extraction Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
+
+    def get_absolute_url(self):
+        return reverse('edna:extraction_batch_detail', kwargs={'pk': self.id})
+
 
 class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    filter_id = models.OneToOneField(Filter, on_delete=models.CASCADE)
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
+    filter = models.OneToOneField(Filter, on_delete=models.CASCADE, blank=True, null=True, related_name='extract')
     start_datetime = models.DateTimeField(verbose_name=_("start time"))
     dna_extraction_protocol = models.ForeignKey(DNAExtractionProtocol, on_delete=models.DO_NOTHING, verbose_name=_("extraction protocol"))
     storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("storage location"))
+    comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     # metadata
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_extract_created_by", blank=True, null=True, editable=False)
@@ -225,6 +235,12 @@ class DNAExtract(MetadataFields):
 class PCRBatch(Batch):
     class Meta:
         verbose_name_plural = _("PCR Batches")
+
+    def __str__(self):
+        return "{} {} ({})".format(_("PCR Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
+
+    def get_absolute_url(self):
+        return reverse('edna:pcr_batch_detail', kwargs={'pk': self.id})
 
 
 class PCR(MetadataFields):
@@ -256,4 +272,3 @@ class SpeciesObservation(MetadataFields):
 
     class Meta:
         ordering = ["pcr", "species"]
-
