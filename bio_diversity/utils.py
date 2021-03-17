@@ -245,15 +245,16 @@ def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, qual="Good"):
     return row_entered
 
 
-def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None, env_start=None, avg=False, save=True, qual_id=False):
+def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=None, contx=None, inst_id=None,
+              env_start=None, avg=False, save=True, qual_id=False):
     row_entered = False
     if isinstance(env_value, float):
         if math.isnan(env_value):
             return False
     if env_start:
-        env_datetime = datetime.datetime.combine(env_date, env_start).replace(tzinfo=pytz.UTC)
+        env_datetime = naive_to_aware(env_date, env_start)
     else:
-        env_datetime = datetime.datetime.combine(env_date, datetime.datetime.min.time()).replace(tzinfo=pytz.UTC)
+        env_datetime = naive_to_aware(env_date)
 
     if not qual_id:
         qual_id = models.QualCode.objects.filter(name="Good").get()
@@ -502,3 +503,8 @@ def ajax_get_fields(request):
     }
 
     return JsonResponse(data)
+
+
+def naive_to_aware(naive_date, naive_time=datetime.datetime.min.time()):
+    # adds null time and timezone to dates
+    return datetime.datetime.combine(naive_date,naive_time).replace(tzinfo=pytz.UTC)

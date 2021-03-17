@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
     create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration, enter_cnt, enter_cnt_det, \
-    enter_trof_contx, enter_mortality, enter_spwnd
+    enter_trof_contx, enter_mortality, enter_spwnd, naive_to_aware
 
 
 class CreatePrams(forms.ModelForm):
@@ -62,6 +62,8 @@ class CreateDatePrams(forms.ModelForm):
         return self.cleaned_data
 
 
+
+
 class CreateTimePrams(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -86,18 +88,16 @@ class CreateTimePrams(forms.ModelForm):
         # the end datetime is after the start datetime
         # and set the datetime values
         if cleaned_data["start_time"]:
-            start_time = datetime.strptime(cleaned_data["start_time"],
-                                           '%H:%M').time().replace(tzinfo=pytz.UTC)
+            start_time = datetime.strptime(cleaned_data["start_time"], '%H:%M').time()
         else:
-            start_time = datetime.min.time().replace(tzinfo=pytz.UTC)
-        cleaned_data["start_datetime"] = datetime.combine(cleaned_data["start_date"], start_time)
+            start_time = datetime.min.time()
+        cleaned_data["start_datetime"] = naive_to_aware(cleaned_data["start_date"], start_time)
         if cleaned_data["end_date"]:
             if cleaned_data["end_time"]:
-                end_time = datetime.strptime(cleaned_data["end_time"],
-                                             '%H:%M').time().replace(tzinfo=pytz.UTC)
+                end_time = datetime.strptime(cleaned_data["end_time"], '%H:%M').time()
             else:
-                end_time = datetime.min.time().replace(tzinfo=pytz.UTC)
-            cleaned_data["end_datetime"] = datetime.combine(cleaned_data["end_date"], end_time)
+                end_time = datetime.min.time()
+            cleaned_data["end_datetime"] = naive_to_aware(cleaned_data["end_date"], end_time)
 
         end_date = cleaned_data.get("end_date")
         end_time = cleaned_data.get("end_time")
@@ -1618,11 +1618,10 @@ class LocForm(CreatePrams):
     def save(self, commit=True):
         obj = super().save(commit=False)  # here the object is not commited in db
         if self.cleaned_data["start_time"]:
-            start_time = datetime.strptime(self.cleaned_data["start_time"],
-                                           '%H:%M').time().replace(tzinfo=pytz.UTC)
+            start_time = datetime.strptime(self.cleaned_data["start_time"], '%H:%M').time()
         else:
-            start_time = datetime.min.time().replace(tzinfo=pytz.UTC)
-        obj.loc_date = datetime.combine(self.cleaned_data["start_date"], start_time)
+            start_time = datetime.min.time()
+        obj.loc_date = naive_to_aware(self.cleaned_data["start_date"], start_time)
         obj.save()
         return obj
 
@@ -1663,7 +1662,7 @@ class MortForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        cleaned_data["mort_date"] = datetime.combine(cleaned_data["mort_date"], datetime.min.time()).replace(tzinfo=pytz.UTC)
+        cleaned_data["mort_date"] = naive_to_aware(cleaned_data["mort_date"])
 
         if not self.is_valid():
             return cleaned_data

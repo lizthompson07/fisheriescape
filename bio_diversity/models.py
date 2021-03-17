@@ -12,6 +12,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
 from django.utils import timezone
 
+from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -130,6 +131,8 @@ class BioLookup(shared_models.Lookup):
 
 
 class BioCont(BioLookup):
+    key = None
+
     class Meta:
         abstract = True
 
@@ -167,18 +170,6 @@ class BioCont(BioLookup):
             elif in_count > grp_out_set[grp]:
                 indv_list.append(grp)
         return indv_list, grp_list
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class BioDateModel(BioModel):
@@ -398,12 +389,13 @@ class CountDet(BioDet):
 
 class Cup(BioCont):
     # cup tag
+    key = "cup"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='cup_uniqueness')
         ]
         ordering = ['facic_id', 'name']
-    key = "cup"
 
 
 class CupDet(BioContainerDet):
@@ -432,11 +424,12 @@ class DataLoader(BioModel):
 
 class Drawer(BioCont):
     # draw tag
+    key = "draw"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='draw_uniqueness')
         ]
-    key = "draw"
 
 
 class EnvCode(BioLookup):
@@ -766,9 +759,8 @@ class Group(BioModel):
     def fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
 
-        # anix_qs = self.animal_details.filter(contx_id__counts__isnull=False).select_related('contx_id__counts')
-        cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self).select_related("cntc_id").distinct()
-        # cnt_qs_list = [anix.contx_id.counts.all() for anix in anix_qs]
+        cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
+                                       contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct()
 
         add_codes = ["Fish in Container", ]
         subtract_codes = ["Mortality", "Pit Tagged"]
@@ -850,10 +842,11 @@ class GroupDet(BioDet):
 
 class HeathUnit(BioCont):
     # heat tag
+    key = "heat"
+
     manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))
     inservice_date = models.DateField(verbose_name=_("Date unit was put into service"))
     serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"))
-    key = "heat"
 
     class Meta:
         constraints = [
@@ -1480,12 +1473,13 @@ class SubRiverCode(BioLookup):
 
 class Tank(BioCont):
     # tank tag
+    key = "tank"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='tank_uniqueness')
         ]
         ordering = ['facic_id', 'name']
-    key = "tank"
 
 
 class TankDet(BioContainerDet):
@@ -1513,8 +1507,10 @@ class Team(BioModel):
         ]
 
 
-class Tray(BioLookup):
+class Tray(BioCont):
     # tray tag
+    key = "tray"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'trof_id', 'start_date'], name='tray_uniqueness')
@@ -1524,21 +1520,9 @@ class Tray(BioLookup):
     # Make name not unique, is unique together with trough code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, related_name="trays", verbose_name=_("Trough"))
+    facic_id = None
     start_date = models.DateField(verbose_name=_("Start Date"))
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
-
-    def fish_in_cont(self, at_date=datetime.datetime.now(timezone.get_current_timezone())):
-        grp_list = []
-
-        contx_set = self.contxs.filter(animal_details__isnull=False)
-        anix_grp_sets = [contx.animal_details.filter(final_contx_flag=True, grp_id__grp_valid=True) for contx in contx_set]
-        grp_in_list = list(dict.fromkeys([anix.grp_id for anix_set in anix_grp_sets for anix in anix_set]))
-
-        for grp in grp_in_list:
-            if self in grp.current_trof(at_date=at_date):
-                grp_list.append(grp)
-        # empty list is for individuals
-        return [], grp_list
 
     @property
     def degree_days(self):
@@ -1569,18 +1553,18 @@ class Tributary(BioLookup):
 
 class Trough(BioCont):
     # trof tag
+    key = "trof"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'facic_id'], name='trof_uniqueness')
         ]
         ordering = ['facic_id', 'name']
 
-    key = "trof"
-
     def degree_days(self, start_date, end_date):
         env_qs = EnvCondition.objects.filter(contx_id__trof_id=self,
-                                             start_datetime__gte=start_date,
-                                             start_datetime__lte=end_date,
+                                             start_datetime__gte=naive_to_aware(start_date),
+                                             start_datetime__lte=naive_to_aware(end_date),
                                              envc_id__name="Temperature")
 
         delta = end_date - start_date  # as timedelta
