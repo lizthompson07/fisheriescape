@@ -404,6 +404,9 @@ class Cup(BioCont):
     start_date = models.DateField(verbose_name=_("Start Date"))
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
 
+    def __str__(self):
+        return "{}-{}".format(self.name, self.draw_id.__str__())
+
 
 class CupDet(BioContainerDet):
     # cupd tag
@@ -443,6 +446,9 @@ class Drawer(BioCont):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     heat_id = models.ForeignKey('HeathUnit', on_delete=models.CASCADE, related_name="draws", verbose_name=_("Heath Unit"))
     facic_id = None
+
+    def __str__(self):
+        return "{}-{}".format(self.name, self.heat_id.__str__())
 
 
 class EnvCode(BioLookup):
@@ -743,11 +749,11 @@ class Group(BioModel):
         cont = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
-        tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
+        tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set])
         anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
-        tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
+        tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set])
 
-        for tank, in_count in tank_in_set:
+        for tank, in_count in tank_in_set.items():
             if tank not in tank_out_set:
                 cont.append(tank)
             elif in_count > tank_out_set[tank]:
@@ -758,11 +764,11 @@ class Group(BioModel):
         cont = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)
-        trof_in_set = Counter([anix.contx_id.trof_id for anix in anix_in_set]).most_common()
+        trof_in_set = Counter([anix.contx_id.trof_id for anix in anix_in_set])
         anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date)
-        trof_out_set = Counter([anix.contx_id.trof_id for anix in anix_out_set]).most_common()
+        trof_out_set = Counter([anix.contx_id.trof_id for anix in anix_out_set])
 
-        for trof, in_count in trof_in_set:
+        for trof, in_count in trof_in_set.items():
             if trof not in trof_out_set:
                 cont.append(trof)
             elif in_count > trof_out_set[trof]:
@@ -1012,11 +1018,11 @@ class Individual(BioModel):
         cont = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
-        tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set]).most_common()
+        tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set])
         anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
-        tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set]).most_common()
+        tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set])
 
-        for tank, in_count in tank_in_set:
+        for tank, in_count in tank_in_set.items():
             if tank not in tank_out_set:
                 cont.append(tank)
             elif in_count > tank_out_set[tank]:
@@ -1544,6 +1550,9 @@ class Tray(BioCont):
         else:
             degree_days = self.trof_id.degree_days(self.start_date, datetime.datetime.today().date())
         return round(sum(degree_days), 3)
+
+    def __str__(self):
+        return "{}-{}".format(self.name, self.trof_id.__str__())
 
 
 class TrayDet(BioContainerDet):
