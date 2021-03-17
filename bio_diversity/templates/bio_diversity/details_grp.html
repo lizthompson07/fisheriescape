@@ -25,6 +25,8 @@
             <a class="btn btn-primary disabled" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'grp' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
         {% endif %}
         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_growth' 'grp' object.pk  'pop'%}')" title="{% trans 'Plot Growth Chart' %}">{% trans 'Plot Growth Chart' %}</a>
+        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_maturity_rate' model_key object.pk  'pop'%}')" title="{% trans 'Plot Maturity Rate' %}">{% trans 'Plot Maturity Rate' %}</a>
+
         </div>
 
 
@@ -47,7 +49,7 @@ var interval;
 // upon closing the drop menu the window is associated with is updated adding the new element
 // and setting it as the selected option
 function pop(url, tag) {
-    child = window.open(url, tag,'toolbar=0,status=0,height=500,width=600');
+    child = window.open(url, tag,'toolbar=0,status=0,height=600,width=800');
     child.onbeforeunload = function() {
         if(child.refresh && $('.is-invalid').length <= 0) {
             refreshTag(tag);

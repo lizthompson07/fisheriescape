@@ -1082,12 +1082,12 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "field_list": pair_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        indv_list = models.Individual.objects.filter(grp_id_id=self.object.pk)
+        indv_set = models.Individual.objects.filter(grp_id_id=self.object.pk)
         indv_field_list = ["pit_tag", "indv_valid"]
         obj_mixin = mixins.IndvMixin
         context["context_dict"]["indv"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
-                                           "objects_list": indv_list,
+                                           "objects_list": indv_set,
                                            "field_list": indv_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
@@ -2566,11 +2566,16 @@ class MaturityRateView(PlotView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cont_pk = self.kwargs.get("pk")
-        indv_list = grp_list = []
         if self.kwargs.get("cont") == "tank":
             cont = models.Tank.objects.filter(pk=cont_pk).get()
         elif self.kwargs.get("cont") == "trof":
             cont = models.Trough.objects.filter(pk=cont_pk).get()
+        elif self.kwargs.get("cont") == "tray":
+            cont = models.Tray.objects.filter(pk=cont_pk).get()
+        elif self.kwargs.get("cont") == "cup":
+            cont = models.Cup.objects.filter(pk=cont_pk).get()
+        elif self.kwargs.get("cont") == "grp":
+            cont = models.Group.objects.filter(pk=cont_pk).get()
         context["the_script"], context["the_div"], file_url = reports.generate_maturity_rate(cont)
         context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
         return context

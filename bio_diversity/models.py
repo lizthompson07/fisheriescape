@@ -775,7 +775,7 @@ class Group(BioModel):
                 cont.append(trof)
         return cont
 
-    def fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
+    def count_fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
 
         cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
@@ -791,6 +791,16 @@ class Group(BioModel):
                 fish_count -= cnt.cnt
 
         return fish_count
+
+    def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], grp_select_fields=[]):
+        indv_set = Individual.objects.filter(grp_id=self).select_related(*select_fields)
+        # for consistancy with container version:
+        indv_list = [indv for indv in indv_set]
+
+        grpd_set = GroupDet.objects.filter(frm_grp_id=self).select_related("anix_id__grp_id", *grp_select_fields)
+        grp_list = [grpd.anix_id.grp_id for grpd in grpd_set]
+
+        return indv_list, grp_list
 
 
 class GroupDet(BioDet):

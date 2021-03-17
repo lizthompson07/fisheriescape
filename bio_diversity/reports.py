@@ -55,7 +55,7 @@ def generate_facility_tank_report(facic_id):
             year_coll_set |= set([indv.stok_year_coll_str() for indv in indv_list])
         if grp_list:
             for grp in grp_list:
-                cnt += grp.fish_in_group()
+                cnt += grp.count_fish_in_group()
                 year_coll_set |= {grp.__str__()}
         ws['C' + str(row_count)].value = cnt
         ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
@@ -123,8 +123,10 @@ def generate_growth_chart(plot_fish):
         len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id=plot_fish)
         weight_dets = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__indv_id=plot_fish)
     else:
-        len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__grp_id=plot_fish)
-        weight_dets = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__grp_id=plot_fish)
+        indv_list, grp_list = plot_fish.fish_in_cont(select_fields=[])
+
+        len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id__in=indv_list)
+        weight_dets = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__indv_id__in=indv_list)
     
     x_len_data = []
     y_len_data = []
@@ -159,8 +161,8 @@ def generate_growth_chart(plot_fish):
     p_len.axis.axis_label_text_font_style = 'normal'
     p_weight.axis.axis_label_text_font_style = 'normal'
     p_len.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
-    p_len.line(x=x_len_data, y=y_len_data, line_width=3)
-    p_weight.line(x=x_weight_data, y=y_weight_data, line_width=3)
+    p_len.x(x=x_len_data, y=y_len_data, size=10)
+    p_weight.x(x=x_weight_data, y=y_weight_data, size=10)
 
     #------------------------Data File------------------------------
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
