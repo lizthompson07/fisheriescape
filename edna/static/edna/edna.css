@@ -198,3 +198,21 @@ label.filter {
     background-color: #eeeeee;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.95);
 }
+
+
+.no-borders {
+    border: 0;
+    width: 100%;
+}
+
+/*.no-borders:focus {*/
+/*    outline: none;*/
+/*}*/
+
+.saved-borders > thead > tr > th, .saved-borders > tbody > tr > td  {
+    border: green 1px solid;
+}
+
+.unsaved-borders > thead > tr > th, .unsaved-borders > tbody > tr > td  {
+    border: red 1px solid;
+}

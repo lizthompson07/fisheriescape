@@ -16,15 +16,6 @@
       width: 100%; /* The width is the width of the web page */
   }
 
-  .no-borders {
-      border: 0;
-      width: 100%;
-  }
-
-  .no-borders:focus {
-      outline: none;
-  }
-
   </style>
 
   <div class="btns mb-3">
@@ -46,6 +37,19 @@
       <button @click="addFilter('all')" class="btn btn-sm btn-warning">{% trans "Add all un-filtered samples" %}</button>
     </div>
 
+    <div class="row mb-3 px-1 py-1" style="width: 30%">
+      <div class="col">
+        <label for="">{% trans "Default filtration type" %}</label>
+        <select v-model="default_filtration_type" class="form-control form-control-sm">
+          <option v-for="(obj, index) in filtrationTypeChoices" :value="obj.value">${obj.text}</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="">{% trans "Default filtration volume (ml)" %}</label>
+        <input type="text" class="form-control form-control-sm" v-model="default_filtration_volume_ml">
+      </div>
+    </div>
+
     <div v-if="loading" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
@@ -58,24 +62,24 @@
       <div class="alert alert-danger" role="alert" v-if="filterErrorMsg">
         <p class="mb-0 lead" v-html="filterErrorMsg"></p>
       </div>
-      <table class="table table-bordered">
+      <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}">
         <thead>
         <tr>
-          <th class="px-0 py-0">#</th>
-          <th class="px-0 py-0">Id</th>
-          <th class="px-0 py-0" style="width: 120px">${labels.sample}</th>
-          <th class="px-0 py-0" style="width: 210px">${labels.filtration_type}</th>
-          <th class="px-0 py-0" style="width: 220px">${labels.start_datetime} (yyyy-mm-dd HH:MM:SS)</th>
-          <th class="px-0 py-0" style="width: 110px">${labels.duration_min}</th>
-          <th class="px-0 py-0" style="width: 110px">${labels.filtration_volume_ml}</th>
-          <th class="px-0 py-0" style="width: 175px">${labels.storage_location}</th>
-          <th class="px-0 py-0">${labels.comments}</th>
+          <th class="px-1 py-1">#</th>
+          <th class="px-1 py-1">Id</th>
+          <th class="px-1 py-1" style="width: 120px">${labels.sample}</th>
+          <th class="px-1 py-1" style="width: 220px">${labels.start_datetime} (yyyy-mm-dd HH:MM:SS)</th>
+          <th class="px-1 py-1" style="width: 210px">${labels.filtration_type}</th>
+          <th class="px-1 py-1" style="width: 110px">${labels.filtration_volume_ml}</th>
+          <th class="px-1 py-1" style="width: 110px">${labels.duration_min}</th>
+          <th class="px-1 py-1" style="width: 175px">${labels.storage_location}</th>
+          <th class="px-1 py-1">${labels.comments}</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="(f, index) in filters" :class="{'red-font':f.dirty}">
-          <td class="px-0 py-0 text-muted">${index+1}</td>
-          <td class="px-0  py-0 text-muted">${f.id}</td>
+          <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
+          <td class="px-0  py-0 text-muted" tabindex="-1">${f.id}</td>
           <td class="px-0 py-0">
             <select v-model="f.sample" class="no-borders" @change="updateFilter(f)">
               <option value="">{% trans "Blank" %}</option>
@@ -83,24 +87,24 @@
             </select>
           </td>
           <td class="px-0 py-0">
+            <input type="text" class="no-borders" v-model="f.start_datetime" @change="updateFilter(f)" @keypress="unsavedChanges=true">
+          </td>
+          <td class="px-0 py-0">
             <select v-model="f.filtration_type" class="no-borders" @change="updateFilter(f)">
               <option v-for="(obj, index) in filtrationTypeChoices" :value="obj.value">${obj.text}</option>
             </select>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.start_datetime" @change="updateFilter(f)">
+            <input type="text" class="no-borders" v-model="f.filtration_volume_ml" @change="updateFilter(f)" @keypress="unsavedChanges=true">
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.duration_min" @change="updateFilter(f)">
+            <input type="text" class="no-borders" v-model="f.duration_min" @change="updateFilter(f)" @keypress="unsavedChanges=true">
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.filtration_volume_ml" @change="updateFilter(f)">
+            <input type="text" class="no-borders" v-model="f.storage_location" @change="updateFilter(f)" @keypress="unsavedChanges=true">
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.storage_location" @change="updateFilter(f)">
-          </td>
-          <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.comments" @change="updateFilter(f)">
+            <input type="text" class="no-borders" v-model="f.comments" @change="updateFilter(f)" @keypress="unsavedChanges=true">
           </td>
           <td class="px-0 py-0">
             <button class="btn py-0" @click="deleteFilter(f)"><span class="h5 mdi mdi-delete"></span></button>
@@ -130,7 +134,11 @@
       filtrationTypeChoices: [],
       sampleChoices: [],
       filters: [],
-      filterErrorMsg: null
+      filterErrorMsg: null,
+      default_filtration_type: 1,
+      default_filtration_volume_ml: 1000,
+      unsavedChanges: false
+
     },
     methods: {
       getCurrentUser() {
@@ -157,6 +165,8 @@
               if (response.length && response[0].id) {
                 for (var i = 0; i < response.length; i++) {
                   response[i].start_datetime = response[i].start_datetime.replace("T", " ").replace("Z", "")
+                  if (!response[i].sample) response[i].sample = "";
+
                 }
                 this.filters = response;
               }
@@ -170,10 +180,10 @@
         return {
           filtration_batch: filterBatchId,
           sample: sample,
-          filtration_type: 1,
+          filtration_type: this.default_filtration_type,
           start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
           duration_min: null,
-          filtration_volume_ml: null,
+          filtration_volume_ml: this.default_filtration_volume_ml,
           storage_location: null,
           comments: null,
         }
@@ -202,6 +212,8 @@
         apiService(endpoint, "POST", data)
             .then(response => {
               if (response.id) {
+                response.start_datetime = response.start_datetime.replace("T", " ").replace("Z", "")
+                if (!response.sample) response.sample = "";
                 this.filters.push(response)
                 // refresh the sample choices
                 this.getFilterMetadata();
@@ -213,10 +225,8 @@
         endpoint = `/api/edna/filters/${filter.id}/`;
         apiService(endpoint, "PUT", filter)
             .then(response => {
-              console.log(response)
-              if (!response.id) {
-                this.filterErrorMsg = this.groomJSON(response)
-              }
+              if (!response.id) this.filterErrorMsg = this.groomJSON(response);
+              else this.unsavedChanges = false;
             })
       },
       groomJSON(json) {
