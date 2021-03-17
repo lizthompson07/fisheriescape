@@ -140,12 +140,12 @@ class File(models.Model):
 class Sample(models.Model):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"), editable=False)
     unique_sample_identifier = models.CharField(max_length=255, unique=True, verbose_name=_("bottle unique identifier"))
-    site_identifier = models.CharField(max_length=255, verbose_name=_("site identifier"))
-    site_description = models.TextField(verbose_name=_("site description"))
+    site_identifier = models.CharField(max_length=255, verbose_name=_("site identifier"), blank=True, null=True)
+    site_description = models.TextField(verbose_name=_("site description"), blank=True, null=True)
     samplers = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("sampler(s)"))
-    datetime = models.DateTimeField(verbose_name=_("collection date"))
-    latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude"))
-    longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude"))
+    datetime = models.DateTimeField(verbose_name=_("collection date"), blank=False, null=True)
+    latitude = models.FloatField(blank=False, null=True, verbose_name=_("latitude"))
+    longitude = models.FloatField(blank=False, null=True, verbose_name=_("longitude"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
 
     class Meta:

@@ -28,6 +28,7 @@ urlpatterns = [
     path('collections/<int:pk>/edit/', views.CollectionUpdateView.as_view(), name="collection_edit"),
     path('collections/<int:pk>/delete/', views.CollectionDeleteView.as_view(), name="collection_delete"),
     path('collections/<int:pk>/view/', views.CollectionDetailView.as_view(), name="collection_detail"),
+    path('collections/<int:pk>/import-samples/', views.ImportSamplesView.as_view(), name="import_samples"),
 
     # files
     path('<int:collection>/file/new/', views.FileCreateView.as_view(), name='file_new'),  # TESTED

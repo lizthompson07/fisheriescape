@@ -198,3 +198,8 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))
+
+
+
+class FileImportForm(forms.Form):
+    temp_file = forms.FileField(label="File to import")
