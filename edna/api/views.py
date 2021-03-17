@@ -54,9 +54,9 @@ class FilterModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['filtration_type_choices'] = [dict(text=item.name, value=item.id) for item in models.FiltrationType.objects.all()]
-        data['sample_choices'] = [dict(text=item.unique_sample_identifier, value=item.id, has_filter=item.filters.exists()) for item in models.Sample.objects.all()]
+        data['sample_choices'] = [dict(text=item.unique_sample_identifier, value=item.id, has_filter=item.filters.exists()) for item in
+                                  models.Sample.objects.all()]
         return Response(data)
-
 
 
 class DNAExtractViewSet(viewsets.ModelViewSet):
@@ -94,7 +94,6 @@ class DNAExtractModelMetaAPIView(APIView):
         data['dna_extraction_protocol_choices'] = [dict(text=item.name, value=item.id) for item in models.DNAExtractionProtocol.objects.all()]
 
         return Response(data)
-
 
 
 class PCRViewSet(viewsets.ModelViewSet):
@@ -136,4 +135,39 @@ class PCRModelMetaAPIView(APIView):
             last_pcr_number = qs.last().pcr_number_suffix
         data['last_pcr_number'] = last_pcr_number
 
+        return Response(data)
+
+
+class SpeciesObservationViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.SpeciesObservationSerializer
+    permission_classes = [eDNACRUDOrReadOnly]
+    queryset = models.SpeciesObservation.objects.all()
+
+    # pagination_class = StandardResultsSetPagination
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("pcr"):
+            pcr = get_object_or_404(models.PCR, pk=qp.get("pcr"))
+            qs = pcr.observations.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a PCR"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class SpeciesObservationModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.SpeciesObservation
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        # we want to get a list of filters for which there has been no SpeciesObservations
+        data['species_choices'] = [dict(text=str(item), value=item.id) for item in models.Species.objects.all()]
         return Response(data)

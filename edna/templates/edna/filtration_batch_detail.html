@@ -48,7 +48,7 @@
       <div class="alert alert-danger" role="alert" v-if="filterErrorMsg">
         <p class="mb-0 lead" v-html="filterErrorMsg"></p>
       </div>
-      <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}"  style="width: 100%">
+      <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
         <thead>
         <tr>
           <th class="px-1 py-1">#</th>
@@ -63,7 +63,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(f, index) in filters">
+        <tr v-for="(f, index) in filters" :key="f.id">
           <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
           <td class="px-0  py-0 text-muted" tabindex="-1">${f.id}</td>
           <td class="px-0 py-0">

@@ -57,7 +57,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(e, index) in extracts">
+        <tr v-for="(e, index) in extracts"  :key="e.id">
           <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
           <td class="px-0  py-0 text-muted" tabindex="-1">${e.id}</td>
           <td class="px-0 py-0">

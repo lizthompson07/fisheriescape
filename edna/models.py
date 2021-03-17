@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from shapely.geometry import Polygon, Point
 
-from lib.functions.custom_functions import listrify
+from lib.functions.custom_functions import listrify, nz
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
 from shared_models.utils import format_coordinates
@@ -246,7 +246,7 @@ class PCR(MetadataFields):
     start_datetime = models.DateTimeField(verbose_name=_("start time"))
     pcr_number_prefix = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("PCR number prefix"))
     pcr_number_suffix = models.IntegerField(blank=True, null=True, verbose_name=_("PCR number suffix"))
-    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("plate id"))
+    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("plate Id"))
     position = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("position"))
     ipc_added = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("IPC added"))
     qpcr_ipc = models.FloatField(blank=True, null=True, verbose_name=_("qPCR IPC"))
@@ -259,13 +259,19 @@ class PCR(MetadataFields):
         # get the last PCR number suffix in the system
         super().save(*args, **kwargs)
 
+    @property
+    def pcr_number(self):
+        return f'{nz(self.pcr_number_prefix, "")}:{nz(self.pcr_number_suffix, "")}'
+
 
 class SpeciesObservation(MetadataFields):
     pcr = models.ForeignKey(PCR, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
     species = models.ForeignKey(Species, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("species"))
-    ct = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
-    edna_conc = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
+    ct = models.FloatField(blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
+    edna_conc = models.FloatField(blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"))
+    is_undetermined = models.BooleanField(default=False, verbose_name=_("undetermined?"))
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
         ordering = ["pcr", "species"]
+        unique_together = (("pcr", "species"),)
