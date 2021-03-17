@@ -21,3 +21,10 @@ class DNAExtractSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+
+class PCRSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PCR
+        fields = "__all__"
+
+

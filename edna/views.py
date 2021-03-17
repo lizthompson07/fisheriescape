@@ -518,6 +518,7 @@ class PCRBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
     new_object_url = reverse_lazy("edna:pcr_batch_new")
     new_btn_text = gettext_lazy("Add a New PCR Batch")
     container_class = "container-fluid bg-light curvy"
+    h1 = gettext_lazy("qPCR Batches")
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'datetime', "class": "", "width": ""},

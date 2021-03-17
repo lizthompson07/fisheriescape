@@ -218,15 +218,11 @@ class ExtractionBatch(Batch):
 class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
-    filter = models.OneToOneField(Filter, on_delete=models.CASCADE, blank=True, null=True, related_name='extract')
+    filter = models.OneToOneField(Filter, on_delete=models.CASCADE, blank=True, null=True)
     start_datetime = models.DateTimeField(verbose_name=_("start time"))
     dna_extraction_protocol = models.ForeignKey(DNAExtractionProtocol, on_delete=models.DO_NOTHING, verbose_name=_("extraction protocol"))
     storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("storage location"))
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
-
-    # metadata
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_extract_created_by", blank=True, null=True, editable=False)
-    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="edna_extract_updated_by", blank=True, null=True, editable=False)
 
     class Meta:
         ordering = ["extraction_batch", "filter_id"]
@@ -245,29 +241,30 @@ class PCRBatch(Batch):
 
 class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    extract_id = models.OneToOneField(DNAExtract, on_delete=models.CASCADE)
-    pcr_batch = models.ForeignKey(ExtractionBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
+    pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
+    extract = models.ForeignKey(DNAExtract, on_delete=models.CASCADE, blank=True, null=True, related_name="pcrs", verbose_name=_("extract Id"))
     start_datetime = models.DateTimeField(verbose_name=_("start time"))
-    pcr_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("PCR number"))
+    pcr_number_prefix = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("PCR number prefix"))
+    pcr_number_suffix = models.IntegerField(blank=True, null=True, verbose_name=_("PCR number suffix"))
     plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("plate id"))
     position = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("position"))
     ipc_added = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("IPC added"))
     qpcr_ipc = models.FloatField(blank=True, null=True, verbose_name=_("qPCR IPC"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ["pcr_batch", "extract_id"]
+        ordering = ["pcr_batch", "extract", "pcr_number_suffix"]
+
+    def save(self, *args, **kwargs):
+        # get the last PCR number suffix in the system
+        super().save(*args, **kwargs)
 
 
 class SpeciesObservation(MetadataFields):
     pcr = models.ForeignKey(PCR, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
     species = models.ForeignKey(Species, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("species"))
-    ct_1 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("cycle threshold (ct) - rep 1"))
-    edna_conc_1 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L) - rep 1"))
-    ct_2 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("cycle threshold (ct) - rep 2"))
-    edna_conc_2 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L) - rep 2"))
-    ct_3 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("cycle threshold (ct) - rep 3"))
-    edna_conc_3 = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L) - rep 3"))
+    ct = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
+    edna_conc = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
 
     class Meta:

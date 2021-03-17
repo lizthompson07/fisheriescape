@@ -94,3 +94,46 @@ class DNAExtractModelMetaAPIView(APIView):
         data['dna_extraction_protocol_choices'] = [dict(text=item.name, value=item.id) for item in models.DNAExtractionProtocol.objects.all()]
 
         return Response(data)
+
+
+
+class PCRViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.PCRSerializer
+    permission_classes = [eDNACRUDOrReadOnly]
+    queryset = models.PCR.objects.all()
+
+    # pagination_class = StandardResultsSetPagination
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("batch"):
+            batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
+            qs = batch.pcrs.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a batch"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class PCRModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.PCR
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        # we want to get a list of filters for which there has been no PCRs
+        data['extract_choices'] = [dict(text=item.id, value=item.id, has_pcr=item.pcrs.exists()) for item in models.DNAExtract.objects.all()]
+
+        qs = models.PCR.objects.filter(pcr_number_suffix__isnull=False).order_by("pcr_number_suffix")
+        last_pcr_number = 0
+        if qs.exists():
+            last_pcr_number = qs.last().pcr_number_suffix
+        data['last_pcr_number'] = last_pcr_number
+
+        return Response(data)
