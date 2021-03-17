@@ -375,24 +375,26 @@ class CupFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
-    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
+    draw_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.DrawFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
+    start_date = factory.lazy_attribute(lambda o: faker.date())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
     @staticmethod
     def build_valid_data(**kwargs):
-        facic = FacicFactory()
+        draw = DrawFactory()
         obj = CupFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
-            'facic_id': facic.pk,
+            'draw_id': draw.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
+            'start_date': obj.start_date,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
@@ -476,7 +478,7 @@ class DrawFactory(factory.django.DjangoModelFactory):
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
-    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
+    heat_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.HeatFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -484,14 +486,14 @@ class DrawFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
-        facic = FacicFactory()
+        heat = HeatFactory()
         obj = DrawFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'name': obj.name,
             'nom': obj.nom,
-            'facic_id': facic.pk,
+            'heat_id': heat.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
             'created_by': obj.created_by,

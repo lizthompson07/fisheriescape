@@ -829,7 +829,8 @@ class CdscDetails(mixins.CdscMixin, CommonDetails):
 
 
 class CupDetails(mixins.CupMixin, CommonContDetails):
-    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom", "draw_id", "description_en", "description_fr", "start_date", "end_date",
+              "created_by", "created_date", ]
 
 
 class CupdDetails(mixins.CupdMixin, CommonDetails):
@@ -838,7 +839,7 @@ class CupdDetails(mixins.CupdMixin, CommonDetails):
 
 
 class DrawDetails(mixins.DrawMixin, CommonContDetails):
-    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["heat_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
@@ -1425,7 +1426,7 @@ class TeamDetails(mixins.TeamMixin, CommonDetails):
 
 
 class TrayDetails(mixins.TrayMixin, CommonContDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "start_date", "end_date",
+    fields = ["name", "nom", "trof_id", "description_en", "description_fr", "start_date", "end_date",
               "created_by", "created_date", ]
 
 
@@ -1598,7 +1599,7 @@ class CdscList(mixins.CdscMixin, CommonList):
 
 class CupList(mixins.CupMixin, CommonList):
     filterset_class = filters.CupFilter
-    fields = ["name", "nom", "facic_id", ]
+    fields = ["name", "nom", "draw_id", ]
 
 
 class CupdList(mixins.CupdMixin, CommonList):
@@ -1608,7 +1609,7 @@ class CupdList(mixins.CupdMixin, CommonList):
 
 class DrawList(mixins.DrawMixin, CommonList):
     filterset_class = filters.DrawFilter
-    fields = ["name", "nom", "facic_id"]
+    fields = ["name", "nom", "heat_id"]
 
 
 class EnvList(mixins.EnvMixin, CommonList):

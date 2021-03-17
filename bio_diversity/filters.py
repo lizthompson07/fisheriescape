@@ -77,7 +77,7 @@ class CupFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Cup
-        fields = ["name", "nom", "facic_id", ]
+        fields = ["name", "nom", "draw_id", ]
 
 
 class CupdFilter(django_filters.FilterSet):
@@ -91,7 +91,7 @@ class DrawFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Drawer
-        fields = ["name", "nom", "facic_id", ]
+        fields = ["name", "nom", "heat_id", ]
 
 
 class EnvFilter(django_filters.FilterSet):
@@ -503,7 +503,7 @@ class TrayFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Tray
-        fields = ["name", "nom",]
+        fields = ["name", "nom", "trof_id" ]
 
 
 class TraydFilter(django_filters.FilterSet):

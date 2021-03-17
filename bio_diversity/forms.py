@@ -203,7 +203,7 @@ class CdscForm(CreatePrams):
         exclude = []
 
 
-class CupForm(CreatePrams):
+class CupForm(CreateDatePrams):
     class Meta:
         model = models.Cup
         exclude = []

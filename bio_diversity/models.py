@@ -393,9 +393,16 @@ class Cup(BioCont):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='cup_uniqueness')
+            models.UniqueConstraint(fields=['name', 'draw_id', 'start_date'], name='cup_uniqueness')
         ]
-        ordering = ['facic_id', 'name']
+        ordering = ['draw_id', 'name']
+
+    # Make name not unique, is unique together with drawer.
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    draw_id = models.ForeignKey('Drawer', on_delete=models.CASCADE, related_name="cups", verbose_name=_("Drawer"))
+    facic_id = None
+    start_date = models.DateField(verbose_name=_("Start Date"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
 
 
 class CupDet(BioContainerDet):
@@ -428,8 +435,14 @@ class Drawer(BioCont):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['name', 'facic_id'], name='draw_uniqueness')
+            models.UniqueConstraint(fields=['name', 'heat_id'], name='draw_uniqueness')
         ]
+        ordering = ['heat_id', 'name']
+
+    # Make name not unique, is unique together with drawer.
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    heat_id = models.ForeignKey('HeathUnit', on_delete=models.CASCADE, related_name="draws", verbose_name=_("Heath Unit"))
+    facic_id = None
 
 
 class EnvCode(BioLookup):
@@ -1567,7 +1580,7 @@ class Trough(BioCont):
                                              start_datetime__lte=naive_to_aware(end_date),
                                              envc_id__name="Temperature")
 
-        delta = end_date - start_date  # as timedelta
+        delta = end_date - start_date
         temp_list = []
         for i in range(delta.days + 1):
             day = start_date + datetime.timedelta(days=i)
