@@ -75,6 +75,7 @@ urlpatterns = [
 
     path('create/cup/', views.CupCreate.as_view(), name="create_cup"),
     path('details/cup/<int:pk>/', views.CupDetails.as_view(), name="details_cup"),
+    path('details/cup/<str:back>/<int:back_id>/<int:pk>/', views.CupDetails.as_view(), name="details_cup"),
     path('list/cup/', views.CupList.as_view(), name="list_cup"),
     path('update/cup/<int:pk>/', views.CupUpdate.as_view(), name="update_cup"),
     
@@ -90,6 +91,7 @@ urlpatterns = [
 
     path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),
     path('details/draw/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),
+    path('details/draw/<str:back>/<int:back_id>/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),
     path('list/draw/', views.DrawList.as_view(), name="list_draw"),
     path('update/draw/<int:pk>/', views.DrawUpdate.as_view(), name="update_draw"),
 
@@ -190,6 +192,7 @@ urlpatterns = [
     
     path('create/heat/', views.HeatCreate.as_view(), name="create_heat"),
     path('details/heat/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),
+    path('details/heat/<str:back>/<int:back_id>/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),
     path('list/heat/', views.HeatList.as_view(), name="list_heat"),
     path('update/heat/<int:pk>/', views.HeatUpdate.as_view(), name="update_heat"),
     

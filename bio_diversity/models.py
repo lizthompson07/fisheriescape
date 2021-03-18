@@ -618,6 +618,7 @@ class Event(BioTimeModel):
             models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'start_datetime', 'end_datetime'],
                                     name='Event_Uniqueness')
         ]
+        ordering = ['-start_datetime']
 
 
 class EventCode(BioLookup):

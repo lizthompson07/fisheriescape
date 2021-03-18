@@ -117,7 +117,6 @@ class DrawMixin:
     model = models.Drawer
     title = _("Drawer")
     admin_only = False
-    img = True
 
 
 class EnvcMixin:
