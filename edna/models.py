@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from shapely.geometry import Polygon, Point
 
-from lib.functions.custom_functions import listrify, nz
+from lib.functions.custom_functions import listrify, nz, fiscal_year
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
 from shared_models.utils import format_coordinates
@@ -76,6 +76,14 @@ class Collection(UnilingualSimpleLookup, MetadataFields):
     end_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("end date"))
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="collections", blank=True, null=True, editable=False)
 
+    def save(self, *args, **kwargs):
+        qs = self.samples.all()
+        if qs.exists():
+            self.start_date = qs.order_by("datetime").first().datetime
+            self.end_date = qs.order_by("datetime").last().datetime
+            self.fiscal_year_id = fiscal_year(self.end_date, sap_style=True)
+        super().save(*args, **kwargs)
+
     @property
     def dates(self):
         my_str = date(self.start_date)
@@ -110,7 +118,6 @@ class Collection(UnilingualSimpleLookup, MetadataFields):
             return Polygon(points)
 
     def get_centroid(self):
-        print(123)
         points = self.get_points()
         if self.get_polygon():
             p = self.get_polygon()

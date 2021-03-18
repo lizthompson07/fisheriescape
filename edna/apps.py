@@ -5,4 +5,4 @@ class eDNAConfig(AppConfig):
     name = 'edna'
 
     def ready(self):
-        pass
+        import edna.signals

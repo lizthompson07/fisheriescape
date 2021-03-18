@@ -222,7 +222,6 @@ def signup(request):
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         if form.is_valid():
-            print(123)
             user = form.save(commit=False)
             user.username = user.email
             user.is_active = False

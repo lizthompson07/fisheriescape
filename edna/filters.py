@@ -1,25 +1,12 @@
 import django_filters
 from django import forms
-from django.utils.translation import gettext_lazy as _, gettext
+from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
+from shared_models.models import FiscalYear
+from shared_models.utils import get_labels
 from . import models
 
-
-# class SampleFilter(django_filters.FilterSet):
-#     SeasonExact = django_filters.NumberFilter(field_name='year', label="From year", lookup_expr='exact')
-#     MonthExact = django_filters.NumberFilter(field_name='month', label="From month", lookup_expr='exact')
-#
-#     class Meta:
-#         model = models.Sample
-#         fields = {
-#             'id': ['exact'],
-#             'station__site': ['exact'],
-#             'station': ['exact'],
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.filters.get("station__site").label = "Site"
 
 class SpeciesFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label=_("Search term"), lookup_expr='icontains',
@@ -30,12 +17,18 @@ class CollectionFilter(django_filters.FilterSet):
     class Meta:
         model = models.Collection
         fields = {
-            'tags': ['exact'],
-            'contact_users': ['exact'],
             'fiscal_year': ['exact'],
+            'contact_users': ['exact'],
+            'tags': ['exact'],
         }
 
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        labels = get_labels(models.Collection)
+        user_choices = [(u.id, u.get_full_name()) for u in User.objects.filter(collection__isnull=False).distinct()]
+        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(collections__isnull=False).distinct()]
+        self.filters["contact_users"] = django_filters.ChoiceFilter(field_name="contact_users", choices=user_choices, label=labels["contact_users"])
+        self.filters["fiscal_year"] = django_filters.ChoiceFilter(field_name="fiscal_year", choices=fy_choices, label=labels["fiscal_year"])
 
 
 class FiltrationBatchFilter(django_filters.FilterSet):
@@ -46,14 +39,12 @@ class FiltrationBatchFilter(django_filters.FilterSet):
         }
 
 
-
 class ExtractionBatchFilter(django_filters.FilterSet):
     class Meta:
         model = models.ExtractionBatch
         fields = {
             'datetime': ['exact'],
         }
-
 
 
 class PCRBatchFilter(django_filters.FilterSet):
