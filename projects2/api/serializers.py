@@ -295,7 +295,7 @@ class OMCostSerializer(serializers.ModelSerializer):
         return str(instance.funding_source)
 
     def get_om_category_display(self, instance):
-        return str(instance.om_category)
+        return instance.om_category.tname
 
     def get_project_year_id(self, instance):
         return instance.project_year_id

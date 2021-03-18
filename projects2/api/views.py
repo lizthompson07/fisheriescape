@@ -827,5 +827,15 @@ class ActivityModelMetaAPIView(APIView):
         data['likelihood_choices'] = [dict(text=item[1], value=item[0]) for item in models.Activity.likelihood_choices]
         data['impact_choices'] = [dict(text=item[1], value=item[0]) for item in models.Activity.impact_choices]
         data['risk_rating_choices'] = [dict(text=item[1], value=item[0]) for item in models.Activity.risk_rating_choices]
+        return Response(data)
 
+
+class OMCostModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.OMCost
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        data['om_category_choices'] = [dict(text=item.id, value=str(item)) for item in models.OMCategory.objects.all()]
         return Response(data)

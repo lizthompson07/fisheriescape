@@ -36,6 +36,8 @@ var app = new Vue({
     omCostToEdit: {},
     showNewOMCostModal: false,
     showOldOMCostModal: false,
+    omCostLabels: [],
+    omCategoryChoices: [],
 
     // capital costs
     capital_cost_loading: false,
@@ -502,6 +504,13 @@ var app = new Vue({
         this.riskRatingChoices = data.risk_rating_choices;
       });
     },
+    getOMCostMetadata() {
+      let endpoint = `/api/project-planning/meta/models/om-cost/`;
+      apiService(endpoint).then(data => {
+        this.omCostLabels = data.labels;
+        this.omCategoryChoices = data.om_category_choices;
+      });
+    },
     markActivity(activity, action) {
       if (action === "complete" || action === "incomplete") {
         let userInput;
@@ -563,7 +572,7 @@ var app = new Vue({
   },
   created() {
     this.getActivityMetadata();
-
+    this.getOMCostMetadata();
     this.getProjectFinancials(projectId)
     this.getCurrentUser(projectId)
     this.getProject(projectId)

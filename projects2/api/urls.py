@@ -86,5 +86,6 @@ urlpatterns = [
 
     # model lookups
     path("project-planning/meta/models/activity/", views.ActivityModelMetaAPIView.as_view(), name="projects-activity-model-meta"),
+    path("project-planning/meta/models/om-cost/", views.OMCostModelMetaAPIView.as_view(), name="projects-omcost-model-meta"),
 
 ]
