@@ -1242,6 +1242,7 @@ class PersonnelCode(BioModel):
         constraints = [
             models.UniqueConstraint(fields=['perc_first_name', 'perc_last_name'], name='Personnel_Code_Uniqueness')
         ]
+        ordering = ["perc_last_name", "perc_first_name"]
 
 
 class PriorityCode(BioLookup):
@@ -1276,20 +1277,22 @@ class ProgAuthority(BioModel):
 
 class Protocol(BioDateModel):
     # prot tag
+
     prog_id = models.ForeignKey('Program', on_delete=models.CASCADE, verbose_name=_("Program"),
                                 limit_choices_to={'valid': True}, related_name="protocols")
     protc_id = models.ForeignKey('ProtoCode', on_delete=models.CASCADE, verbose_name=_("Protocol Code"))
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
     evntc_id = models.ForeignKey('EventCode', blank=True, null=True, on_delete=models.CASCADE,
                                  verbose_name=_("Event Code"))
+    name = models.CharField(max_length=25, verbose_name=_("Protocol Name"))
     prot_desc = models.CharField(max_length=4000, verbose_name=_("Protocol Description"))
 
     def __str__(self):
-        return "{}, {}".format(self.protc_id.__str__(), self.prog_id.__str__())
+        return self.name
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['prog_id', 'protc_id', 'start_date'], name='Protocol_Uniqueness')
+            models.UniqueConstraint(fields=['name', 'prog_id', 'protc_id', 'start_date'], name='Protocol_Uniqueness')
         ]
 
 

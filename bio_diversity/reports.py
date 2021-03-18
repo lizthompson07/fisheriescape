@@ -109,6 +109,7 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
         ws_grp['B' + str(row_count)].value = item.grp_year
         ws_grp['C' + str(row_count)].value = item.coll_id.name
         ws_grp['D' + str(row_count)].value = ', '.join([cont.name for cont in item.current_tank(at_date)])
+        ws_grp['E' + str(row_count)].value = item.count_fish_in_group(at_date)
 
         row_count += 1
 
@@ -164,14 +165,15 @@ def generate_growth_chart(plot_fish):
     p_len.x(x=x_len_data, y=y_len_data, size=10)
     p_weight.x(x=x_weight_data, y=y_weight_data, size=10)
 
-    #------------------------Data File------------------------------
+    # ------------------------Data File------------------------------
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.csv"
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
     with open(target_file_path, 'w') as data_file:
         writer = csv.writer(data_file)
-        writer.writerow(["Date", "Length", "Date", "Weight"])
+        writer.writerow(["Growth information for Fish {}".format(plot_fish.__str__())])
+        writer.writerow(["Date", " Length (cm)", " Date", " Weight (g)"])
         writer.writerows(itertools.zip_longest(x_len_data, y_len_data, x_weight_data, y_weight_data))
     scirpt, div = components(column(p_len, p_weight), CDN)
     return scirpt, div, target_url

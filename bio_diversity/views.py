@@ -270,7 +270,11 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["tank_id"].widget = forms.HiddenInput()
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].required = True
+                self.get_form_class().base_fields["trof_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["egg_data_type"].required = True
+                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
+                self.get_form_class().base_fields["egg_data_type"] = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
+
             else:
                 self.get_form_class().base_fields["trof_id"].required = False
                 self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
@@ -912,7 +916,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
 
         indv_set = models.Individual.objects.filter(animal_details__evnt_id=self.object,
-                                                    ).distinct().select_related("grp_id__stok_id","grp_id__coll_id")
+                                                    ).distinct().select_related("grp_id__stok_id", "grp_id__coll_id")
         indv_field_list = ["ufid", "pit_tag", "grp_id", "indv_valid"]
         obj_mixin = mixins.IndvMixin
         context["context_dict"]["indv"] = {"div_title": "{} Details".format(obj_mixin.title),
@@ -922,7 +926,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         grp_set = models.Group.objects.filter(animal_details__evnt_id=self.object,
-                                               ).distinct().select_related("stok_id", "coll_id", "spec_id")
+                                              ).distinct().select_related("stok_id", "coll_id", "spec_id")
         grp_field_list = ["stok_id", "coll_id", "spec_id", ]
         obj_mixin = mixins.GrpMixin
         context["context_dict"]["grp"] = {"div_title": "{} Details".format(obj_mixin.title),
@@ -931,8 +935,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                           "field_list": grp_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
-        tank_set = models.Tank.objects.filter(contxs__evnt_id=self.object,
-                                              ).distinct()
+        tank_set = models.Tank.objects.filter(contxs__evnt_id=self.object).distinct()
         tank_field_list = ["name"]
         obj_mixin = mixins.TankMixin
         context["context_dict"]["tank"] = {"div_title": "{} Details".format(obj_mixin.title),
@@ -941,8 +944,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "field_list": tank_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        trof_set = models.Trough.objects.filter(contxs__evnt_id=self.object,
-                                                ).distinct()
+        trof_set = models.Trough.objects.filter(contxs__evnt_id=self.object).distinct()
         trof_field_list = ["name"]
         obj_mixin = mixins.TrofMixin
         context["context_dict"]["trof"] = {"div_title": "{} Details".format(obj_mixin.title),
@@ -952,7 +954,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         prot_set = models.Protocol.objects.filter(prog_id=self.object.prog_id, evntc_id=self.object.evntc_id).distinct()
-        prot_field_list = ["evntc_id", "start_date", "end_date", ]
+        prot_field_list = ["name", "evntc_id", "start_date", "end_date", ]
         obj_mixin = mixins.ProtMixin
         context["context_dict"]["prot"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1062,7 +1064,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         grp_set = models.GroupDet.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anidc_id')
         grpd_field_list = ["anidc_id", "det_val", "grpd_valid", "detail_date"]
         obj_mixin = mixins.GrpdMixin
-        context["context_dict"]["grpd"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["grpd"] = {"div_title": "{} ".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": grp_set,
                                            "field_list": grpd_field_list,
@@ -1093,7 +1095,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         indv_set = models.Individual.objects.filter(grp_id_id=self.object.pk)
         indv_field_list = ["pit_tag", "indv_valid"]
         obj_mixin = mixins.IndvMixin
-        context["context_dict"]["indv"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["indv"] = {"div_title": "{} From Group".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": indv_set,
                                            "field_list": indv_field_list,
@@ -1171,7 +1173,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=self.object).distinct()
         indvd_field_list = ["anidc_id", "adsc_id", "det_val", "indvd_valid", "detail_date"]
         obj_mixin = mixins.IndvdMixin
-        context["context_dict"]["indvd"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["indvd"] = {"div_title": "{} ".format(obj_mixin.title),
                                             "sub_model_key": obj_mixin.key,
                                             "objects_list": indvd_set,
                                             "field_list": indvd_field_list,
@@ -1333,7 +1335,7 @@ class ProgDetails(mixins.ProgMixin, CommonDetails):
         context["table_list"].extend(["prot"])
 
         prot_set = self.object.protocols.all()
-        prot_field_list = ["protc_id", "start_date"]
+        prot_field_list = ["name", "protc_id", "start_date"]
         obj_mixin = mixins.ProtMixin
         context["context_dict"]["prot"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1350,8 +1352,8 @@ class ProgaDetails(mixins.ProgaMixin, CommonDetails):
 
 class ProtDetails(mixins.ProtMixin, CommonDetails):
     template_name = "bio_diversity/details_prot.html"
-    fields = ["prog_id", "protc_id", "prot_desc", "facic_id", "evntc_id", "start_date", "end_date", "valid", "created_by",
-              "created_date", ]
+    fields = ["name", "prog_id", "protc_id", "prot_desc", "facic_id", "evntc_id", "start_date", "end_date", "valid",
+              "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1744,7 +1746,7 @@ class IndvList(mixins.IndvMixin, CommonList):
 
 class IndvdList(mixins.IndvdMixin, CommonList):
     filterset_class = filters.IndvdFilter
-    fields = ["anix_id", "anidc_id", ]
+    fields = ["anidc_id", ]
 
 
 class IndvtList(mixins.IndvtMixin, CommonList):
@@ -1819,7 +1821,7 @@ class ProgaList(mixins.ProgaMixin, CommonList):
 
 class ProtList(mixins.ProtMixin, CommonList):
     filterset_class = filters.ProtFilter
-    fields = ["prog_id", "protc_id", "facic_id", ]
+    fields = ["prog_id", "protc_id", "facic_id", "name", ]
 
 
 class ProtcList(mixins.ProtcMixin, CommonList):
@@ -1904,7 +1906,7 @@ class SubrList(mixins.SubrMixin, CommonList):
 
 class TankList(mixins.TankMixin, CommonList):
     filterset_class = filters.TankFilter
-    fields = ["name", "nom", "facic_id", ]
+    fields = ["name", "nom", ]
 
 
 class TankdList(mixins.TankdMixin, CommonList):

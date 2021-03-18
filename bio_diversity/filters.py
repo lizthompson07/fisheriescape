@@ -210,7 +210,7 @@ class GrpdFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.GroupDet
-        fields = ["anix_id", "anidc_id", ]
+        fields = ["anidc_id", ]
 
 
 class HeatFilter(django_filters.FilterSet):
@@ -255,7 +255,7 @@ class IndvdFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.IndividualDet
-        fields = ["anix_id", "anidc_id", ]
+        fields = ["anidc_id", ]
 
 
 class IndvtFilter(django_filters.FilterSet):

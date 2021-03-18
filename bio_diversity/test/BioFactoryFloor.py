@@ -1836,6 +1836,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
     protc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtcFactory")
     evntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntcFactory")
     facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
+    name = factory.lazy_attribute(lambda o: faker.word())
     prot_desc = factory.lazy_attribute(lambda o: faker.text())
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
@@ -1858,6 +1859,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
             'protc_id': protc.pk,
             'evntc_id': evntc.pk,
             'facic_id': facic.pk,
+            'name': obj.name,
             'prot_desc': obj.prot_desc,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
