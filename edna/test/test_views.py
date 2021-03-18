@@ -1,364 +1,661 @@
-from django.shortcuts import get_object_or_404
 from django.test import tag
 from django.urls import reverse_lazy
 from faker import Factory
 
 from shared_models.test.common_tests import CommonTest
-from shared_models.utils import dm2decdeg
-from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView
+from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView, \
+    CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView
 from . import FactoryFloor
-from .FactoryFloor import DiveFactory
 from .. import views, models
 
 faker = Factory.create()
 
 
-class TestDiveCreateView(CommonTest):
+class TestCollectionCreateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.SampleFactory()
-        self.test_url = reverse_lazy('scuba:dive_new', args=[self.instance.id])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('edna:collection_new')
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("Dive", "dive_new", "view")
+    @tag("Collection", "collection_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.DiveCreateView, CommonCreateView)
+        self.assert_inheritance(views.CollectionCreateView, CommonCreateView)
 
-    @tag("Dive", "dive_new", "access")
+    @tag("Collection", "collection_new", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Dive", "dive_new", "submit")
+    @tag("Collection", "collection_new", "submit")
     def test_submit(self):
-        data = FactoryFloor.DiveFactory.get_valid_data(self.instance)
+        data = FactoryFloor.CollectionFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-    @tag("Dive", "dive_new", "correct_url")
+    @tag("Collection", "collection_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_new", f"/en/scuba/samples/{self.instance.pk}/new-dive/", [self.instance.pk])
+        self.assert_correct_url("edna:collection_new", f"/en/edna/collections/new/")
 
 
-class TestDiveDataEntryDetailView(CommonTest):
+class TestCollectionDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_data_entry', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/dive_data_entry/main.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.instance = FactoryFloor.CollectionFactory()
+        self.test_url = reverse_lazy('edna:collection_delete', args=[self.instance.pk, ])
+        self.expected_template = 'edna/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("Dive", "dive_data_entry", "view")
+    @tag("Collection", "collection_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.DiveDetailView, CommonDetailView)
+        self.assert_inheritance(views.CollectionDeleteView, CommonDeleteView)
 
-    @tag("Dive", "dive_data_entry", "access")
+    @tag("Collection", "collection_delete", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Dive", "dive_data_entry", "context")
-    def test_context(self):
-        context_vars = [
-            "section_field_list",
-            "random_section",
-            "observation_field_list",
-            "random_observation",
-            "section_form",
-            "obs_form",
-            "new_obs_form",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-    @tag("Dive", "dive_data_entry", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_data_entry", f"/en/scuba/dives/{self.instance.pk}/data-entry/", [self.instance.pk])
-
-
-class TestDiveDeleteView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Dive", "dive_delete", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.DiveDeleteView, CommonDeleteView)
-
-    @tag("Dive", "dive_delete", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Dive", "dive_delete", "submit")
+    @tag("Collection", "collection_delete", "submit")
     def test_submit(self):
-        data = FactoryFloor.DiveFactory.get_valid_data(self.instance.sample)
+        data = FactoryFloor.CollectionFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
         # for delete views...
-        self.assertEqual(models.Dive.objects.filter(pk=self.instance.pk).count(), 0)
+        self.assertEqual(models.Collection.objects.filter(pk=self.instance.pk).count(), 0)
 
-    @tag("Dive", "dive_delete", "correct_url")
+    @tag("Collection", "collection_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_delete", f"/en/scuba/dives/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("edna:collection_delete", f"/en/edna/collections/{self.instance.pk}/delete/", [self.instance.pk])
 
 
-class TestDiveDetailView(CommonTest):
+class TestCollectionDetailView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/dive_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.instance = FactoryFloor.CollectionFactory()
+        self.test_url = reverse_lazy('edna:collection_detail', args=[self.instance.pk, ])
+        self.expected_template = 'edna/collection_detail.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("Dive", "dive_detail", "view")
+    @tag("Collection", "collection_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.DiveDetailView, CommonDetailView)
+        self.assert_inheritance(views.CollectionDetailView, CommonDetailView)
 
-    @tag("Dive", "dive_detail", "access")
+    @tag("Collection", "collection_detail", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Dive", "dive_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "section_field_list",
-            "observation_field_list",
-            "random_observation",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-    @tag("Dive", "dive_detail", "correct_url")
+    @tag("Collection", "collection_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_detail", f"/en/scuba/dives/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("edna:collection_detail", f"/en/edna/collections/{self.instance.pk}/view/", [self.instance.pk])
 
 
-class TestDiveLogReportView(CommonTest):
+class TestCollectionListView(CommonTest):
     def setUp(self):
         super().setUp()
-        DiveFactory()
-        DiveFactory()
-        DiveFactory()
-        DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_log_report')
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('edna:collection_list')
+        self.expected_template = 'edna/list.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("DiveLog", "dive_log_report", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, user=self.user)
-
-    @tag("DiveLog", "dive_log_report", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_log_report", f"/en/scuba/reports/dive-log/")
-
-
-class TestDiveUpdateView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.DiveFactory()
-        self.test_url = reverse_lazy('scuba:dive_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Dive", "dive_edit", "view")
+    @tag("Collection", "collection_list", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.DiveUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.CollectionListView, CommonFilterView)
 
-    @tag("Dive", "dive_edit", "access")
+    @tag("Collection", "collection_list", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Dive", "dive_edit", "submit")
-    def test_submit(self):
-        data = FactoryFloor.DiveFactory.get_valid_data(self.instance.sample)
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        # let's test out the save method
-        data = FactoryFloor.DiveFactory.get_valid_data(self.instance.sample)
-        data['start_latitude_d'] = 48
-        data['start_latitude_mm'] = 12.34
-        data['start_longitude_d'] = -64
-        data['start_longitude_mm'] = 56.78
-        data['end_latitude_d'] = 49
-        data['end_latitude_mm'] = 13.34
-        data['end_longitude_d'] = -65
-        data['end_longitude_mm'] = 57.78
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        obj = get_object_or_404(models.Dive, pk=self.instance.pk)
-        self.assertEqual(dm2decdeg(data['start_latitude_d'], data['start_latitude_mm']), obj.start_latitude)
-        self.assertEqual(dm2decdeg(data['start_longitude_d'], data['start_longitude_mm']), obj.start_longitude)
-        self.assertEqual(dm2decdeg(data['end_latitude_d'], data['end_latitude_mm']), obj.end_latitude)
-        self.assertEqual(dm2decdeg(data['end_longitude_d'], data['end_longitude_mm']), obj.end_longitude)
-
-
-    @tag("Dive", "dive_edit", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:dive_edit", f"/en/scuba/dives/{self.instance.pk}/edit/", [self.instance.pk])
-
-
-class TestRegionCreateView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_url = reverse_lazy('scuba:region_new')
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Region", "region_new", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.RegionCreateView, CommonCreateView)
-
-    @tag("Region", "region_new", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Region", "region_new", "submit")
-    def test_submit(self):
-        data = FactoryFloor.RegionFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-    @tag("Region", "region_new", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_new", f"/en/scuba/regions/new/")
-
-
-class TestRegionDeleteView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:region_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Region", "region_delete", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.RegionDeleteView, CommonDeleteView)
-
-    @tag("Region", "region_delete", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Region", "region_delete", "submit")
-    def test_submit(self):
-        data = FactoryFloor.RegionFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        # for delete views...
-        self.assertEqual(models.Region.objects.filter(pk=self.instance.pk).count(), 0)
-
-    @tag("Region", "region_delete", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_delete", f"/en/scuba/regions/{self.instance.pk}/delete/", [self.instance.pk])
-
-
-class TestRegionDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:region_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/region_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Region", "region_detail", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.RegionDetailView, CommonDetailView)
-
-    @tag("Region", "region_detail", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Region", "region_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "site_field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-    @tag("Region", "region_detail", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_detail", f"/en/scuba/regions/{self.instance.pk}/view/", [self.instance.pk])
-
-
-class TestRegionListView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_url = reverse_lazy('scuba:region_list')
-        self.expected_template = 'scuba/list.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Region", "region_list", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.RegionListView, CommonFilterView)
-
-    @tag("Region", "region_list", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Region", "region_list", "context")
+    @tag("Collection", "collection_list", "context")
     def test_context(self):
         context_vars = [
             "field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
-    @tag("Region", "region_list", "correct_url")
+    @tag("Collection", "collection_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_list", f"/en/scuba/regions/")
+        self.assert_correct_url("edna:collection_list", f"/en/edna/collections/")
 
 
-class TestRegionUpdateView(CommonTest):
+class TestCollectionUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:region_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.instance = FactoryFloor.CollectionFactory()
+        self.test_url = reverse_lazy('edna:collection_edit', args=[self.instance.pk, ])
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("Region", "region_edit", "view")
+    @tag("Collection", "collection_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.RegionUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.CollectionUpdateView, CommonUpdateView)
 
-    @tag("Region", "region_edit", "access")
+    @tag("Collection", "collection_edit", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Region", "region_edit", "submit")
+    @tag("Collection", "collection_edit", "submit")
     def test_submit(self):
-        data = FactoryFloor.RegionFactory.get_valid_data()
+        data = FactoryFloor.CollectionFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-    @tag("Region", "region_edit", "correct_url")
+    @tag("Collection", "collection_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:region_edit", f"/en/scuba/regions/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("edna:collection_edit", f"/en/edna/collections/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestExtractionBatchCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:extraction_batch_new')
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("ExtractionBatch", "extraction_batch_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ExtractionBatchCreateView, CommonCreateView)
+
+    @tag("ExtractionBatch", "extraction_batch_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ExtractionBatch", "extraction_batch_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ExtractionBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("ExtractionBatch", "extraction_batch_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:extraction_batch_new", f"/en/edna/extractions/new/")
+
+
+class TestExtractionBatchDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ExtractionBatchFactory()
+        self.test_url = reverse_lazy('edna:extraction_batch_delete', args=[self.instance.pk, ])
+        self.expected_template = 'edna/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("ExtractionBatch", "extraction_batch_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ExtractionBatchDeleteView, CommonDeleteView)
+
+    @tag("ExtractionBatch", "extraction_batch_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ExtractionBatch", "extraction_batch_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ExtractionBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.ExtractionBatch.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("ExtractionBatch", "extraction_batch_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:extraction_batch_delete", f"/en/edna/extractions/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestExtractionBatchDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ExtractionBatchFactory()
+        self.test_url = reverse_lazy('edna:extraction_batch_detail', args=[self.instance.pk, ])
+        self.expected_template = 'edna/extraction_batch_detail.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("ExtractionBatch", "extraction_batch_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ExtractionBatchDetailView, CommonDetailView)
+
+    @tag("ExtractionBatch", "extraction_batch_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ExtractionBatch", "extraction_batch_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:extraction_batch_detail", f"/en/edna/extractions/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestExtractionBatchListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:extraction_batch_list')
+        self.expected_template = 'edna/list.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("ExtractionBatch", "extraction_batch_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ExtractionBatchListView, CommonFilterView)
+
+    @tag("ExtractionBatch", "extraction_batch_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ExtractionBatch", "extraction_batch_list", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("ExtractionBatch", "extraction_batch_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:extraction_batch_list", f"/en/edna/extractions/")
+
+
+class TestExtractionBatchUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ExtractionBatchFactory()
+        self.test_url = reverse_lazy('edna:extraction_batch_edit', args=[self.instance.pk, ])
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("ExtractionBatch", "extraction_batch_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ExtractionBatchUpdateView, CommonUpdateView)
+
+    @tag("ExtractionBatch", "extraction_batch_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ExtractionBatch", "extraction_batch_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ExtractionBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("ExtractionBatch", "extraction_batch_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:extraction_batch_edit", f"/en/edna/extractions/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestFileCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.CollectionFactory()
+        self.test_url = reverse_lazy('edna:file_new', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/generic_popout_form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("File", "file_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FileCreateView, CommonPopoutCreateView)
+
+    @tag("File", "file_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("File", "file_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FileFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user, file_field_name="file")
+
+    @tag("File", "file_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:file_new", f"/en/edna/collections/{self.instance.pk}/new-file/", [self.instance.pk])
+
+
+class TestFileDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FileFactory()
+        self.test_url = reverse_lazy('edna:file_delete', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("File", "file_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FileDeleteView, CommonPopoutDeleteView)
+
+    @tag("File", "file_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("File", "file_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FileFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.File.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("File", "file_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:file_delete", f"/en/edna/files/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestFileUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FileFactory()
+        self.test_url = reverse_lazy('edna:file_edit', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/generic_popout_form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("File", "file_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FileUpdateView, CommonPopoutUpdateView)
+
+    @tag("File", "file_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("File", "file_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FileFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("File", "file_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:file_edit", f"/en/edna/files/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestFiltrationBatchCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:filtration_batch_new')
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("FiltrationBatch", "filtration_batch_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FiltrationBatchCreateView, CommonCreateView)
+
+    @tag("FiltrationBatch", "filtration_batch_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FiltrationBatch", "filtration_batch_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FiltrationBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("FiltrationBatch", "filtration_batch_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:filtration_batch_new", f"/en/edna/filtrations/new/")
+
+
+class TestFiltrationBatchDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FiltrationBatchFactory()
+        self.test_url = reverse_lazy('edna:filtration_batch_delete', args=[self.instance.pk, ])
+        self.expected_template = 'edna/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("FiltrationBatch", "filtration_batch_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FiltrationBatchDeleteView, CommonDeleteView)
+
+    @tag("FiltrationBatch", "filtration_batch_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FiltrationBatch", "filtration_batch_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FiltrationBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.FiltrationBatch.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("FiltrationBatch", "filtration_batch_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:filtration_batch_delete", f"/en/edna/filtrations/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestFiltrationBatchDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FiltrationBatchFactory()
+        self.test_url = reverse_lazy('edna:filtration_batch_detail', args=[self.instance.pk, ])
+        self.expected_template = 'edna/filtration_batch_detail.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("FiltrationBatch", "filtration_batch_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FiltrationBatchDetailView, CommonDetailView)
+
+    @tag("FiltrationBatch", "filtration_batch_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FiltrationBatch", "filtration_batch_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:filtration_batch_detail", f"/en/edna/filtrations/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestFiltrationBatchListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:filtration_batch_list')
+        self.expected_template = 'edna/list.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("FiltrationBatch", "filtration_batch_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FiltrationBatchListView, CommonFilterView)
+
+    @tag("FiltrationBatch", "filtration_batch_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FiltrationBatch", "filtration_batch_list", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("FiltrationBatch", "filtration_batch_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:filtration_batch_list", f"/en/edna/filtrations/")
+
+
+class TestFiltrationBatchUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FiltrationBatchFactory()
+        self.test_url = reverse_lazy('edna:filtration_batch_edit', args=[self.instance.pk, ])
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("FiltrationBatch", "filtration_batch_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FiltrationBatchUpdateView, CommonUpdateView)
+
+    @tag("FiltrationBatch", "filtration_batch_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FiltrationBatch", "filtration_batch_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FiltrationBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("FiltrationBatch", "filtration_batch_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:filtration_batch_edit", f"/en/edna/filtrations/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestPCRBatchCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:pcr_batch_new')
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("PCRBatch", "pcr_batch_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PCRBatchCreateView, CommonCreateView)
+
+    @tag("PCRBatch", "pcr_batch_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("PCRBatch", "pcr_batch_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.PCRBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("PCRBatch", "pcr_batch_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:pcr_batch_new", f"/en/edna/pcrs/new/")
+
+
+class TestPCRBatchDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.PCRBatchFactory()
+        self.test_url = reverse_lazy('edna:pcr_batch_delete', args=[self.instance.pk, ])
+        self.expected_template = 'edna/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("PCRBatch", "pcr_batch_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PCRBatchDeleteView, CommonDeleteView)
+
+    @tag("PCRBatch", "pcr_batch_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("PCRBatch", "pcr_batch_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.PCRBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.PCRBatch.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("PCRBatch", "pcr_batch_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:pcr_batch_delete", f"/en/edna/pcrs/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestPCRBatchDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.PCRBatchFactory()
+        self.test_url = reverse_lazy('edna:pcr_batch_detail', args=[self.instance.pk, ])
+        self.expected_template = 'edna/pcr_batch_detail.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("PCRBatch", "pcr_batch_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PCRBatchDetailView, CommonDetailView)
+
+    @tag("PCRBatch", "pcr_batch_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("PCRBatch", "pcr_batch_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:pcr_batch_detail", f"/en/edna/pcrs/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestPCRBatchListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:pcr_batch_list')
+        self.expected_template = 'edna/list.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("PCRBatch", "pcr_batch_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PCRBatchListView, CommonFilterView)
+
+    @tag("PCRBatch", "pcr_batch_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("PCRBatch", "pcr_batch_list", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("PCRBatch", "pcr_batch_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:pcr_batch_list", f"/en/edna/pcrs/")
+
+
+class TestPCRBatchUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.PCRBatchFactory()
+        self.test_url = reverse_lazy('edna:pcr_batch_edit', args=[self.instance.pk, ])
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("PCRBatch", "pcr_batch_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PCRBatchUpdateView, CommonUpdateView)
+
+    @tag("PCRBatch", "pcr_batch_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("PCRBatch", "pcr_batch_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.PCRBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("PCRBatch", "pcr_batch_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:pcr_batch_edit", f"/en/edna/pcrs/{self.instance.pk}/edit/", [self.instance.pk])
 
 
 class TestReportSearchFormView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('scuba:reports')
-        self.expected_template = 'scuba/report_search.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('edna:reports')
+        self.expected_template = 'edna/report_search.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
@@ -377,15 +674,16 @@ class TestReportSearchFormView(CommonTest):
     @tag("ReportSearch", "reports", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:reports", f"/en/scuba/reports/")
+        self.assert_correct_url("edna:reports", f"/en/edna/reports/")
 
 
 class TestSampleCreateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('scuba:sample_new')
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.collection = FactoryFloor.CollectionFactory()
+        self.test_url = reverse_lazy('edna:sample_new', args=[self.collection.id])
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
     @tag("Sample", "sample_new", "view")
     def test_view_class(self):
@@ -404,16 +702,16 @@ class TestSampleCreateView(CommonTest):
     @tag("Sample", "sample_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_new", f"/en/scuba/samples/new/")
+        self.assert_correct_url("edna:sample_new", f"/en/edna/collections/{self.collection.id}/new-sample/", test_url_args=[self.collection.id])
 
 
 class TestSampleDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
-        self.test_url = reverse_lazy('scuba:sample_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('edna:sample_delete', args=[self.instance.pk, ])
+        self.expected_template = 'edna/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
     @tag("Sample", "sample_delete", "view")
     def test_view_class(self):
@@ -435,16 +733,16 @@ class TestSampleDeleteView(CommonTest):
     @tag("Sample", "sample_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_delete", f"/en/scuba/samples/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("edna:sample_delete", f"/en/edna/samples/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestSampleDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
-        self.test_url = reverse_lazy('scuba:sample_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/sample_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('edna:sample_detail', args=[self.instance.pk, ])
+        self.expected_template = 'edna/sample_detail.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
     @tag("Sample", "sample_detail", "view")
     def test_view_class(self):
@@ -455,55 +753,19 @@ class TestSampleDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Sample", "sample_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "dive_field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
     @tag("Sample", "sample_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_detail", f"/en/scuba/samples/{self.instance.pk}/view/", [self.instance.pk])
-
-
-class TestSampleListView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_url = reverse_lazy('scuba:sample_list')
-        self.expected_template = 'scuba/list.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Sample", "sample_list", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.SampleListView, CommonFilterView)
-
-    @tag("Sample", "sample_list", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Sample", "sample_list", "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-    @tag("Sample", "sample_list", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_list", f"/en/scuba/samples/")
+        self.assert_correct_url("edna:sample_detail", f"/en/edna/samples/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestSampleUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
-        self.test_url = reverse_lazy('scuba:sample_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('edna:sample_edit', args=[self.instance.pk, ])
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
     @tag("Sample", "sample_edit", "view")
     def test_view_class(self):
@@ -522,238 +784,142 @@ class TestSampleUpdateView(CommonTest):
     @tag("Sample", "sample_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:sample_edit", f"/en/scuba/samples/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("edna:sample_edit", f"/en/edna/samples/{self.instance.pk}/edit/", [self.instance.pk])
 
 
-class TestSiteCreateView(CommonTest):
+class TestSpeciesCreateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.RegionFactory()
-        self.test_url = reverse_lazy('scuba:site_new', args=[self.instance.id])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.test_url = reverse_lazy('edna:species_new')
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("Site", "site_new", "view")
+    @tag("Species", "species_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SiteCreateView, CommonCreateView)
+        self.assert_inheritance(views.SpeciesCreateView, CommonCreateView)
 
-    @tag("Site", "site_new", "access")
+    @tag("Species", "species_new", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Site", "site_new", "submit")
+    @tag("Species", "species_new", "submit")
     def test_submit(self):
-        data = FactoryFloor.SiteFactory.get_valid_data()
+        data = FactoryFloor.SpeciesFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-    @tag("Site", "site_new", "correct_url")
+    @tag("Species", "species_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_new", f"/en/scuba/regions/{self.instance.id}/new-site/", test_url_args=[self.instance.id])
+        self.assert_correct_url("edna:species_new", f"/en/edna/species/new/")
 
 
-class TestSiteDeleteView(CommonTest):
+class TestSpeciesDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.instance = FactoryFloor.SpeciesFactory()
+        self.test_url = reverse_lazy('edna:species_delete', args=[self.instance.pk, ])
+        self.expected_template = 'edna/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("Site", "site_delete", "view")
+    @tag("Species", "species_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SiteDeleteView, CommonDeleteView)
+        self.assert_inheritance(views.SpeciesDeleteView, CommonDeleteView)
 
-    @tag("Site", "site_delete", "access")
+    @tag("Species", "species_delete", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Site", "site_delete", "submit")
+    @tag("Species", "species_delete", "submit")
     def test_submit(self):
-        data = FactoryFloor.SiteFactory.get_valid_data()
+        data = FactoryFloor.SpeciesFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
         # for delete views...
-        self.assertEqual(models.Site.objects.filter(pk=self.instance.pk).count(), 0)
+        self.assertEqual(models.Species.objects.filter(pk=self.instance.pk).count(), 0)
 
-    @tag("Site", "site_delete", "correct_url")
+    @tag("Species", "species_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_delete", f"/en/scuba/sites/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("edna:species_delete", f"/en/edna/species/{self.instance.pk}/delete/", [self.instance.pk])
 
 
-class TestSiteDetailView(CommonTest):
+class TestSpeciesDetailView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_detail', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/site_detail.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.instance = FactoryFloor.SpeciesFactory()
+        self.test_url = reverse_lazy('edna:species_detail', args=[self.instance.pk, ])
+        self.expected_template = 'edna/species_detail.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("Site", "site_detail", "view")
+    @tag("Species", "species_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SiteDetailView, CommonDetailView)
+        self.assert_inheritance(views.SpeciesDetailView, CommonDetailView)
 
-    @tag("Site", "site_detail", "access")
+    @tag("Species", "species_detail", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Site", "site_detail", "context")
+    @tag("Species", "species_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:species_detail", f"/en/edna/species/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestSpeciesListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:species_list')
+        self.expected_template = 'edna/list.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
+
+    @tag("Species", "species_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SpeciesListView, CommonFilterView)
+
+    @tag("Species", "species_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Species", "species_list", "context")
     def test_context(self):
         context_vars = [
-            "transect_field_list",
+            "field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
-    @tag("Site", "site_detail", "correct_url")
+    @tag("Species", "species_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_detail", f"/en/scuba/sites/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("edna:species_list", f"/en/edna/species/")
 
 
-class TestSiteUpdateView(CommonTest):
+class TestSpeciesUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:site_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.instance = FactoryFloor.SpeciesFactory()
+        self.test_url = reverse_lazy('edna:species_edit', args=[self.instance.pk, ])
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
-    @tag("Site", "site_edit", "view")
+    @tag("Species", "species_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SiteUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.SpeciesUpdateView, CommonUpdateView)
 
-    @tag("Site", "site_edit", "access")
+    @tag("Species", "species_edit", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Site", "site_edit", "submit")
+    @tag("Species", "species_edit", "submit")
     def test_submit(self):
-        data = FactoryFloor.SiteFactory.get_valid_data()
+        data = FactoryFloor.SpeciesFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-        # let's test out the save method
-        data = FactoryFloor.SiteFactory.get_valid_data()
-        data['latitude_d'] = 48
-        data['latitude_mm'] = 12.34
-        data['longitude_d'] = -64
-        data['longitude_mm'] = 56.78
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        obj = get_object_or_404(models.Site, pk=self.instance.pk)
-        self.assertEqual(dm2decdeg(data['latitude_d'], data['latitude_mm']), obj.latitude)
-        self.assertEqual(dm2decdeg(data['longitude_d'], data['longitude_mm']), obj.longitude)
-
-    @tag("Site", "site_edit", "correct_url")
+    @tag("Species", "species_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:site_edit", f"/en/scuba/sites/{self.instance.pk}/edit/", [self.instance.pk])
-
-
-class TestTransectCreateView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('scuba:transect_new', args=[self.instance.id])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Transect", "transect_new", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.TransectCreateView, CommonCreateView)
-
-    @tag("Transect", "transect_new", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Transect", "transect_new", "submit")
-    def test_submit(self):
-        data = FactoryFloor.TransectFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-    @tag("Transect", "transect_new", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:transect_new", f"/en/scuba/sites/{self.instance.id}/new-transect/", test_url_args=[self.instance.id])
-
-
-class TestTransectDeleteView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.TransectFactory()
-        self.test_url = reverse_lazy('scuba:transect_delete', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Transect", "transect_delete", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.TransectDeleteView, CommonDeleteView)
-
-    @tag("Transect", "transect_delete", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Transect", "transect_delete", "submit")
-    def test_submit(self):
-        data = FactoryFloor.TransectFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        # for delete views...
-        self.assertEqual(models.Transect.objects.filter(pk=self.instance.pk).count(), 0)
-
-    @tag("Transect", "transect_delete", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:transect_delete", f"/en/scuba/transects/{self.instance.pk}/delete/", [self.instance.pk])
-
-
-class TestTransectUpdateView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.TransectFactory()
-        self.test_url = reverse_lazy('scuba:transect_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
-
-    @tag("Transect", "transect_edit", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.TransectUpdateView, CommonUpdateView)
-
-    @tag("Transect", "transect_edit", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Transect", "transect_edit", "submit")
-    def test_submit(self):
-        data = FactoryFloor.TransectFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        # let's test out the save method
-        data = FactoryFloor.TransectFactory.get_valid_data()
-        data['start_latitude_d'] = 48
-        data['start_latitude_mm'] = 12.34
-        data['start_longitude_d'] = -64
-        data['start_longitude_mm'] = 56.78
-        data['end_latitude_d'] = 49
-        data['end_latitude_mm'] = 13.34
-        data['end_longitude_d'] = -65
-        data['end_longitude_mm'] = 57.78
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-        obj = get_object_or_404(models.Transect, pk=self.instance.pk)
-        self.assertEqual(dm2decdeg(data['start_latitude_d'], data['start_latitude_mm']), obj.start_latitude)
-        self.assertEqual(dm2decdeg(data['start_longitude_d'], data['start_longitude_mm']), obj.start_longitude)
-        self.assertEqual(dm2decdeg(data['end_latitude_d'], data['end_latitude_mm']), obj.end_latitude)
-        self.assertEqual(dm2decdeg(data['end_longitude_d'], data['end_longitude_mm']), obj.end_longitude)
-
-    @tag("Transect", "transect_edit", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("scuba:transect_edit", f"/en/scuba/transects/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("edna:species_edit", f"/en/edna/species/{self.instance.pk}/edit/", [self.instance.pk])

@@ -195,6 +195,7 @@ class SampleForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
+        (1, "------"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))

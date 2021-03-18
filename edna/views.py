@@ -655,11 +655,11 @@ class ReportSearchFormView(eDNAAdminRequiredMixin, CommonFormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         year = nz(form.cleaned_data["year"], "None")
-        if report == 1:
-            return HttpResponseRedirect(reverse("edna:sample_log_report") + f"?year={year}")
-        else:
-            messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("edna:reports"))
+        # if report == 1:
+        #     return HttpResponseRedirect(reverse("edna:sample_log_report") + f"?year={year}")
+        # else:
+        messages.error(self.request, "Report is not available. Please select another report.")
+        return HttpResponseRedirect(reverse("edna:reports"))
 
 #
 # @login_required()

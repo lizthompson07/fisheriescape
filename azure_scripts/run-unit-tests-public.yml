@@ -87,3 +87,8 @@ steps:
 #      python manage.py test -b scuba.test
 #    condition: succeededOrFailed()
 #    displayName: 'Tests for scuba'
+#
+#  - script: |
+#      python manage.py test -b edna.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for eDNA'
