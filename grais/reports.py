@@ -625,6 +625,9 @@ def generate_open_data_ver_1_wms_report(year, lang):
     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
     writer = csv.writer(response)
 
+    yes = "yes" if lang == 1 else "oui"
+    no = "no" if lang == 1 else "non"
+
     header_row = [
         'seasons' if lang == 1 else "saisons",
         'station_code' if lang == 1 else "code_de_station",
@@ -686,9 +689,9 @@ def generate_open_data_ver_1_wms_report(year, lang):
                 species=species,
             ).count()
             if spp_count > 0:
-                data_row.append(True)
+                data_row.append(yes)
             else:
-                data_row.append(False)
+                data_row.append(no)
 
         writer.writerow(data_row)
 
