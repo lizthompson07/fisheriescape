@@ -516,14 +516,13 @@ var app = new Vue({
         if (action === "complete") msg = markActivityAsComplete;
         else msg = markActivityAsIncomplete;
         let userInput = prompt(msg);
-        console.log(userInput)
         if (userInput !== null) {
           this.project_loading = true;
           let endpoint = `/api/project-planning/activities/${activity.id}/?action=${action}`;
           apiService(endpoint, "POST", userInput)
               .then(response => {
                 this.project_loading = false;
-                this.getProject(projectId)
+                this.getProjectYear(activity.project_year_id)
               })
         }
       }
