@@ -58,8 +58,8 @@
                                                                                             title="mark as completed"></span></button>
         </td>
         <td class="to-the-right" v-if="canModify">
-          <button @click="openActivityModal(item)" class="no-print"><span class="mdi mdi-pencil"></span></button>
-          <button @click="deleteActivity(item)" class="no-print"><span class="mdi mdi-delete"></span></button>
+          <button @click="openActivityModal(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteActivity(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>
       </tbody>
