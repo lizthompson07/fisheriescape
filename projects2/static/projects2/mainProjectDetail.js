@@ -513,15 +513,13 @@ var app = new Vue({
     },
     markActivity(activity, action) {
       if (action === "complete" || action === "incomplete") {
-        let userInput;
-        if (action === "complete") {
-          userInput = prompt(markActivityAsComplete);
-        } else {
-          userInput = confirm(markActivityAsIncomplete);
-        }
-        if (userInput) {
+        if (action === "complete") msg = markActivityAsComplete;
+        else msg = markActivityAsIncomplete;
+        let userInput = prompt(msg);
+        console.log(userInput)
+        if (userInput !== null) {
           this.project_loading = true;
-          let endpoint = `/api/project-planning/activities/${activity.id}/?action=${action}/`;
+          let endpoint = `/api/project-planning/activities/${activity.id}/?action=${action}`;
           apiService(endpoint, "POST", userInput)
               .then(response => {
                 this.project_loading = false;

@@ -419,21 +419,32 @@ class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         obj.project_year.update_modified_by(self.request.user)
 
     def post(self, request, pk):
-        activity = get_object_or_404(models.Activity, pk=pk)
-
-        # get or create a status report
-        qs = models.StatusReport.objects.filter(project_year=activity.project_year)
-        if qs:
-            status_report = qs.order_by("id").last()
-        else:
-            status_report = models.StatusReport.objects.create(
-                project_year=activity.project_year
+        # we only allow this method when we are changing statuses
+        qp = request.GET
+        action = qp.get("action")
+        if action == "complete" or action == "incomplete":
+            activity = get_object_or_404(models.Activity, pk=pk)
+            # get or create a status report
+            qs = models.StatusReport.objects.filter(project_year=activity.project_year)
+            if qs:
+                status_report = qs.order_by("id").last()
+            else:
+                status_report = models.StatusReport.objects.create(project_year=activity.project_year)
+            # now we get or create the activity update
+            update, create = models.ActivityUpdate.objects.get_or_create(
+                status_report=status_report,
+                activity=activity,
             )
+            if action == "complete":
+                update.status = 8
+            else:
+                update.status = 7
+            update.notes = request.data
+            update.save()
+            # if all the
 
-        print(status_report)
-        return Response(serializers.ActivitySerializer(activity).data, status=status.HTTP_200_OK)
-
-
+            return Response(serializers.ActivitySerializer(activity).data, status=status.HTTP_200_OK)
+        raise ValidationError("sorry, I am missing the query param for 'action'")
 
 # COLLABORATION
 ##############
@@ -813,7 +824,6 @@ class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
         if self.request.data.get("review_email_update"):
             my_review.send_review_email(self.request)
-
 
 
 class ActivityModelMetaAPIView(APIView):
