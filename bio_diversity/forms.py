@@ -1225,8 +1225,8 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
-    # ---------------------------TROUGH TEMPERATURE DATA ENTRY----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature":
+    # ---------------------------TROUGH TEMPERATURE DATA ENTRY COLDBROOK----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Sheet1",
                                      converters={"Hour": str, 'Year': str, 'Month': str, 'Day': str})
@@ -1249,6 +1249,37 @@ class DataForm(CreatePrams):
                                                                         "%Y/%b/%d/%H").replace(tzinfo=pytz.UTC), axis=1)
 
             data["env"] = data.apply(lambda row: enter_env(row["Temperature"], row["datetime"].date(), cleaned_data,
+                                                           envc_id, env_start=row["datetime"].time(), contx=contx,
+                                                           save=False, qual_id=qual_id), axis=1)
+
+            entered_list = models.EnvCondition.objects.bulk_create(list(data["env"].dropna()))
+
+            if not parsed:
+                self.request.session["load_success"] = False
+
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
+                        "database".format(rows_parsed, len(data_dict), len(entered_list), len(data_dict))
+
+        # ---------------------------TROUGH TEMPERATURE DATA ENTRY MACTAQUAC----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+            try:
+                data = pd.read_csv(cleaned_data["data_csv"], encoding="mbcs", header=7)
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
+            parsed = True
+            self.request.session["load_success"] = True
+
+            contx = enter_trof_contx(cleaned_data["trof_id"].name, cleaned_data, final_flag=None, return_contx=True)
+            qual_id = models.QualCode.objects.filter(name="Good").get()
+            envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+
+            data["datetime"] = data.apply(lambda row: datetime.strptime(row["Date(yyyy-mm-dd)"] + ", " + row["Time(hh:mm:ss)"],
+                                                                        "%Y-%m-%d, %H:%M:%S").replace(tzinfo=pytz.UTC), axis=1)
+
+            data["env"] = data.apply(lambda row: enter_env(row["Temperature (°C)"], row["datetime"].date(), cleaned_data,
                                                            envc_id, env_start=row["datetime"].time(), contx=contx,
                                                            save=False, qual_id=qual_id), axis=1)
 
