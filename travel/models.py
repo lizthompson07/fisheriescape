@@ -469,7 +469,7 @@ class Trip(models.Model):
                 can_proceed = True
                 reason = _("All actionable requests have been actioned.")
         # this is a special case of the below scenario, where no trips are ready for ADM but should still proceed
-        elif self.requests.count() == self.requests.filter(Q(status=11) | Q(status=8) | Q(status=10)).count():
+        elif self.requests.count() == self.requests.filter(Q(status=11) | Q(status=8) | Q(status=10) | Q(status=22)).count():
             can_proceed = True
             reason = _("All actionable requests have already been approved.")
         elif not self.requests.filter(status=14).exists():
