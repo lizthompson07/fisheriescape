@@ -60,7 +60,7 @@ class TestAllHardDeleteViews(CommonTest):
         ]
         self.test_dicts = list()
 
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.user = self.get_and_login_user(in_group="edna_admin")
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]

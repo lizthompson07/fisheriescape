@@ -42,7 +42,7 @@
       </div>
       <div class="col">
         <label for="">{% trans "Starting PCR number suffix" %}</label>
-        <input type="text" class="form-control form-control-sm" v-model="lastPCRNumber">
+        <input type="number" class="form-control form-control-sm" v-model="lastPCRNumber">
       </div>
     </div>
 
@@ -299,8 +299,8 @@
       },
       getBlankPCR(extract) {
         let now = new Date(Date.now());
-        let next_number = this.lastPCRNumber + 1;
-        this.lastPCRNumber += 1;
+        let next_number = Number(this.lastPCRNumber) + 1;
+        this.lastPCRNumber = next_number;
         return {
           pcr_batch: pcrBatchId,
           extract: extract,
