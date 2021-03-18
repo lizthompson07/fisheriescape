@@ -17,20 +17,24 @@ class TestAllFormsets(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url_names = [
-            "manage_divers",
+            "manage_filtration_types",
+            "manage_dna_extraction_protocols",
+            "manage_tags",
         ]
 
-        self.test_urls = [reverse_lazy("scuba:" + name) for name in self.test_url_names]
+        self.test_urls = [reverse_lazy("edna:" + name) for name in self.test_url_names]
         self.test_views = [
-            views.DiverFormsetView,
+            views.FiltrationTypeFormsetView,
+            views.DNAExtractionProtocolFormsetView,
+            views.TagFormsetView,
         ]
-        self.expected_template = 'scuba/formset.html'
-        self.user = self.get_and_login_user(in_group="scuba_admin")
+        self.expected_template = 'edna/formset.html'
+        self.user = self.get_and_login_user(in_group="edna_admin")
 
     @tag('formsets', "view")
     def test_view_class(self):
         for v in self.test_views:
-            self.assert_inheritance(v, views.ScubaAdminRequiredMixin)
+            self.assert_inheritance(v, views.eDNAAdminRequiredMixin)
             self.assert_inheritance(v, CommonFormsetView)
 
     @tag('formsets', "access")
@@ -50,7 +54,9 @@ class TestAllHardDeleteViews(CommonTest):
     def setUp(self):
         super().setUp()
         self.starter_dicts = [
-            {"model": models.Diver, "url_name": "delete_diver", "view": views.DiverHardDeleteView},
+            {"model": models.FiltrationType, "url_name": "delete_filtration_type", "view": views.FiltrationTypeHardDeleteView},
+            {"model": models.DNAExtractionProtocol, "url_name": "delete_dna_extraction_protocol", "view": views.DNAExtractionProtocolHardDeleteView},
+            {"model": models.Tag, "url_name": "delete_tag", "view": views.TagHardDeleteView},
         ]
         self.test_dicts = list()
 
@@ -58,18 +64,22 @@ class TestAllHardDeleteViews(CommonTest):
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
-            if m == models.Diver:
-                obj = FactoryFloor.DiverFactory()
+            if m == models.FiltrationType:
+                obj = FactoryFloor.FiltrationTypeFactory()
+            elif m == models.DNAExtractionProtocol:
+                obj = FactoryFloor.DNAExtractionProtocolFactory()
+            elif m == models.Tag:
+                obj = FactoryFloor.TagFactory()
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
-            new_d["url"] = reverse_lazy("scuba:" + d["url_name"], kwargs={"pk": obj.id})
+            new_d["url"] = reverse_lazy("edna:" + d["url_name"], kwargs={"pk": obj.id})
             self.test_dicts.append(new_d)
 
     @tag('hard_delete', "view")
     def test_view_class(self):
         for d in self.test_dicts:
-            self.assert_inheritance(d["view"], views.ScubaAdminRequiredMixin)
+            self.assert_inheritance(d["view"], views.eDNAAdminRequiredMixin)
             self.assert_inheritance(d["view"], CommonHardDeleteView)
 
     @tag('hard_delete', "access")

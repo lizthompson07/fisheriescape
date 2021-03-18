@@ -19,6 +19,7 @@ class CollectionFilter(django_filters.FilterSet):
         fields = {
             'fiscal_year': ['exact'],
             'contact_users': ['exact'],
+            'region': ['exact'],
             'tags': ['exact'],
         }
 

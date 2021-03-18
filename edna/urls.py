@@ -6,14 +6,12 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # reference tables
-    path('settings/experiment-types/', views.FiltrationTypeFormsetView.as_view(), name="manage_experiment_types"),
-    path('settings/experiment-type/<int:pk>/delete/', views.FiltrationTypeHardDeleteView.as_view(), name="delete_experiment_type"),
-
-    path('settings/dna-extraction-protocols/', views.DNAExtractionProtocolFormsetView.as_view(), name="manage_dna_extraction_protocols"),
-    path('settings/dna-extraction-protocol/<int:pk>/delete/', views.DNAExtractionProtocolHardDeleteView.as_view(), name="delete_dna_extraction_protocol"),
-
-    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
-    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
+    path('settings/filtration-types/', views.FiltrationTypeFormsetView.as_view(), name="manage_filtration_types"), # tested
+    path('settings/filtration-type/<int:pk>/delete/', views.FiltrationTypeHardDeleteView.as_view(), name="delete_filtration_type"), # tested
+    path('settings/dna-extraction-protocols/', views.DNAExtractionProtocolFormsetView.as_view(), name="manage_dna_extraction_protocols"), # tested
+    path('settings/dna-extraction-protocol/<int:pk>/delete/', views.DNAExtractionProtocolHardDeleteView.as_view(), name="delete_dna_extraction_protocol"), # tested
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"), # tested
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"), # tested
 
     # species
     path('species/', views.SpeciesListView.as_view(), name="species_list"),

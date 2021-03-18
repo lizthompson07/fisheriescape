@@ -37,17 +37,17 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 
 class FiltrationTypeFormsetView(eDNAAdminRequiredMixin, CommonFormsetView):
     template_name = 'edna/formset.html'
-    h1 = "Manage Experiment Types"
+    h1 = "Manage Fitlration Types"
     queryset = models.FiltrationType.objects.all()
     formset_class = forms.FiltrationTypeFormset
-    success_url_name = "edna:manage_experiment_types"
+    success_url_name = "edna:manage_filtration_types"
     home_url_name = "edna:index"
-    delete_url_name = "edna:delete_experiment_type"
+    delete_url_name = "edna:delete_filtration_type"
 
 
 class FiltrationTypeHardDeleteView(eDNAAdminRequiredMixin, CommonHardDeleteView):
     model = models.FiltrationType
-    success_url = reverse_lazy("edna:manage_experiment_types")
+    success_url = reverse_lazy("edna:manage_filtration_types")
 
 
 class DNAExtractionProtocolFormsetView(eDNAAdminRequiredMixin, CommonFormsetView):

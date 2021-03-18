@@ -7,14 +7,14 @@ from django.utils.translation import gettext as _
 
 def in_edna_admin_group(user):
     # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="enda_admin")
+    admin_group, created = Group.objects.get_or_create(name="edna_admin")
     if user:
         return admin_group in user.groups.all()
 
 
 def in_edna_crud_group(user):
     # make sure the following group exist:
-    crud_group, created = Group.objects.get_or_create(name="enda_crud")
+    crud_group, created = Group.objects.get_or_create(name="edna_crud")
     if user:
         return in_edna_admin_group(user) or crud_group in user.groups.all()
 
