@@ -111,6 +111,7 @@ class Species(models.Model):
         else:
             return mark_safe("<em>" + self.scientific_name + "</em>")
 
+    @property
     def name_plaintext(self):
         if self.common_name or self.common_name_fra:
             return f"{self.tname} ({self.scientific_name})" if self.scientific_name else self.tname
