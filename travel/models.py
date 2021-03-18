@@ -468,6 +468,10 @@ class Trip(models.Model):
             else:
                 can_proceed = True
                 reason = _("All actionable requests have been actioned.")
+        # this is a special case of the below scenario, where no trips are ready for ADM but should still proceed
+        elif self.requests.count() == self.requests.filter(Q(status=11) | Q(status=8) | Q(status=10)).count():
+            can_proceed = True
+            reason = _("All actionable requests have already been approved.")
         elif not self.requests.filter(status=14).exists():
             can_proceed = False
             reason = _("there are no requests ready for ADM approval.")
@@ -537,7 +541,6 @@ class TripRequest(models.Model):
             # set all the reviewer statuses to 'queued'
             self.save()
             utils.start_request_review_process(self)
-
 
     @property
     def travellers_from_other_requests(self):
@@ -921,7 +924,7 @@ class Reviewer(models.Model):
         (4, _("ADM Recommender")),
         (5, _("ADM")),
         (6, _("Expenditure Initiation")),
-        (7, _("RDG (Expenditure Initiation)")), # this is temporary until RDG is actually looped into the process
+        (7, _("RDG (Expenditure Initiation)")),  # this is temporary until RDG is actually looped into the process
     )
     request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")  # todo remove the non-null!!!!
     order = models.IntegerField(null=True, verbose_name=_("process order"))
