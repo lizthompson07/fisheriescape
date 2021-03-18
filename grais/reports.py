@@ -561,7 +561,7 @@ def generate_open_data_ver_1_report(year=None):
         # summarize all of the samplers
         samplers = listrify(["{} ({})".format(obj, obj.organization) for obj in surface.line.sample.samplers.all()])
         # summarize all of the "other" species
-        other_spp = listrify([str(sp) for sp in surface.species.all() if sp.id not in species_id_list])
+        other_spp = listrify([sp.name_plaintext for sp in surface.species.all() if sp.id not in species_id_list])
 
         data_row = [
             surface.line.sample.season,
@@ -662,7 +662,7 @@ def generate_open_data_ver_1_wms_report(year, lang):
     )
 
     for station in stations:
-        other_spp = listrify([str(models.Species.objects.get(pk=obj["species"])) for obj in
+        other_spp = listrify([models.Species.objects.get(pk=obj["species"]).name_plaintext for obj in
                               surfacespecies.filter(surface__line__sample__station=station).order_by("species").values("species").distinct()
                               if obj["species"] not in species_id_list])
         seasons = listrify(
