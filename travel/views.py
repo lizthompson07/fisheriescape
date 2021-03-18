@@ -99,7 +99,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             models.ProcessStep.objects.filter(stage=2)
         ]
         context["information_sections"] = models.ProcessStep.objects.filter(stage=0, is_visible=True)
-        context["faqs"] = models.FAQ.objects.all()
+        # context["faqs"] = models.FAQ.objects.all()
         context["refs"] = models.ReferenceMaterial.objects.all()
         # context["region_tabs"] = [region.tname for region in shared_models.Region.objects.all()]
 
@@ -211,7 +211,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         if self.request.GET.get("trip"):
-            return dict(trip=self.request.GET.get("trip"))
+            return dict(trip=get_object_or_404(models.Trip, pk=self.request.GET.get("trip")))
 
     def form_valid(self, form):
         my_object = form.save(commit=False)

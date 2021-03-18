@@ -27,6 +27,7 @@ APP_DICT = {
     'herring': dict(name='HerMorrhage', staff_ids=[50, ]),
     'camp': dict(name='CAMP db', staff_ids=[50, ]),
     'scuba': dict(name='SCUBA survey', staff_ids=[50, ]),
+    'edna': dict(name='eDNA Krabappel', staff_ids=[50, ]),
     'diets': dict(name='Marine diets', staff_ids=[50, ]),
     'projects': dict(name='Science project planning', staff_ids=[50,382 ]),
     'projects2': dict(name='Science project planning v2.0', staff_ids=[50,382 ]),
