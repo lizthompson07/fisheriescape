@@ -84,5 +84,7 @@ urlpatterns = [
     path("project-planning/publications/", views.PublicationListAPIView.as_view(), name="projects2-publication-list"),
     # path("project-planning/publication/<int:pk>/", views.PublicationRetrieveUpdateDestroyAPIView.as_view(), name="publication-detail"),
 
+    # model lookups
+    path("project-planning/meta/models/activity/", views.ActivityModelMetaAPIView.as_view(), name="projects-activity-model-meta"),
 
 ]

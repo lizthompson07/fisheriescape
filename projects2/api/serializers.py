@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date
+from django.urls import reverse
 from django.utils.timesince import timesince
 from markdown import markdown
 from rest_framework import serializers
@@ -343,7 +344,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     def get_latest_update(self, instance):
         if instance.latest_update:
-            return f"{instance.latest_update.get_status_display()} <br>(from {instance.latest_update.status_report})"
+            return f'<a target="_blank" href="{reverse("projects2:report_detail", args=[instance.latest_update.status_report.id])}">{instance.latest_update.get_status_display()}</a>'
         return "n/a"
 
     def get_target_date_display(self, instance):

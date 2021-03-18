@@ -1,25 +1,28 @@
 {% load verbose_names %}
 {% load project_filters %}
+{% load custom_tags %}
 {% load i18n %}
 
-<div v-if="canModify" class="mb-3">
-  <button class="no-print"
+{% echo "btn btn-sm btn-outline-secondary" as btn_class_1 %}
+
+<div v-if="canModify" class="mb-3 float-right">
+  <button class="btn btn-sm btn-outline-secondary no-print"
           @click="goProjectYearEdit(projectYear.id)">
     <span class="mdi mdi-pencil"></span>
     {% trans "Edit" %}
   </button>
-  <button class="no-print"
+  <button class="btn btn-sm btn-outline-secondary no-print"
           @click="goProjectYearDelete(projectYear.id)">
     <span class="mdi mdi-delete"></span>
     {% trans "Delete" %}
   </button>
-  <button class="no-print"
+  <button class="btn btn-sm btn-outline-secondary no-print"
           @click="goProjectYearClone(projectYear.id)">
     <span class="mdi mdi-content-copy"></span>
     {% trans "Clone" %}
   </button>
-
 </div>
+<h4>{% trans "Overview" %}</h4>
 
 
 {# OVERVIEW #}

@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 
 from dm_apps.utils import custom_send_mail
 from shared_models import models as shared_models
+from shared_models.utils import get_labels
 from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays, emails
@@ -417,6 +418,22 @@ class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         obj = serializer.save()
         obj.project_year.update_modified_by(self.request.user)
 
+    def post(self, request, pk):
+        activity = get_object_or_404(models.Activity, pk=pk)
+
+        # get or create a status report
+        qs = models.StatusReport.objects.filter(project_year=activity.project_year)
+        if qs:
+            status_report = qs.order_by("id").last()
+        else:
+            status_report = models.StatusReport.objects.create(
+                project_year=activity.project_year
+            )
+
+        print(status_report)
+        return Response(serializers.ActivitySerializer(activity).data, status=status.HTTP_200_OK)
+
+
 
 # COLLABORATION
 ##############
@@ -564,7 +581,7 @@ class ActivityUpdateRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     def perform_update(self, serializer):
         obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
+        obj.status_report.project_year.update_modified_by(self.request.user)
 
 
 # FILES / Supporting Resources
@@ -796,3 +813,19 @@ class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
         if self.request.data.get("review_email_update"):
             my_review.send_review_email(self.request)
+
+
+
+class ActivityModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Activity
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        data['type_choices'] = [dict(text=item[1], value=item[0]) for item in models.Activity.type_choices]
+        data['likelihood_choices'] = [dict(text=item[1], value=item[0]) for item in models.Activity.likelihood_choices]
+        data['impact_choices'] = [dict(text=item[1], value=item[0]) for item in models.Activity.impact_choices]
+        data['risk_rating_choices'] = [dict(text=item[1], value=item[0]) for item in models.Activity.risk_rating_choices]
+
+        return Response(data)

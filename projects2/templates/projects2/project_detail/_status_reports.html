@@ -6,7 +6,7 @@
 
 <div class="mb-5">
   <div class="mb-2 neighbours">
-    <h2>{% trans "Status Reports" %}</h2>
+    <h4>{% trans "Status Reports" %}</h4>
   </div>
   <div v-if="!status_report_loading" class="mb-3 neighbours">
     <button @click="openStatusReportModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
