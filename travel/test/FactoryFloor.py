@@ -137,6 +137,7 @@ class ReviewerFactory(factory.django.DjangoModelFactory):
             'user': UserFactory().id,
             'role': models.Reviewer.role_choices[faker.random_int(0, len(models.Reviewer.role_choices) - 1)][0],
             'status': models.Reviewer.status_choices[faker.random_int(0, len(models.Reviewer.status_choices) - 1)][0],
+            'order': faker.pyint(1, 10),
         }
 
 
@@ -146,12 +147,18 @@ class TripReviewerFactory(factory.django.DjangoModelFactory):
 
     trip = factory.SubFactory(TripFactory)
     role = factory.lazy_attribute(lambda o: models.TripReviewer.role_choices[faker.random_int(0, len(models.TripReviewer.role_choices) - 1)][0])
+    status = factory.lazy_attribute(lambda o: models.TripReviewer.status_choices[faker.random_int(0, len(models.TripReviewer.status_choices) - 1)][0])
     user = factory.SubFactory(UserFactory)
+    order = factory.lazy_attribute(lambda o: faker.pyint(1, 10))
 
     @staticmethod
     def get_valid_data():
         return {
-            'comments': faker.catch_phrase(),
+            'trip': TripFactory().id,
+            'user': UserFactory().id,
+            'role': models.TripReviewer.role_choices[faker.random_int(0, len(models.TripReviewer.role_choices) - 1)][0],
+            'status': models.TripReviewer.status_choices[faker.random_int(0, len(models.TripReviewer.status_choices) - 1)][0],
+            'order': faker.pyint(1, 10),
         }
 
 
@@ -160,7 +167,14 @@ class FileFactory(factory.django.DjangoModelFactory):
         model = models.File
 
     request = factory.SubFactory(TripRequestFactory)
-    name = factory.lazy_attribute(lambda o: faker.word())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'request': TripRequestFactory().id,
+            'name': faker.catch_phrase(),
+        }
 
 
 class ProcessStepFactory(factory.django.DjangoModelFactory):
@@ -224,4 +238,19 @@ class TravellerCostFactory(factory.django.DjangoModelFactory):
             'traveller': TravellerFactory().id,
             'cost': models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)].id,
             'amount_cad': faker.pyint(1000, 5000),
+        }
+
+
+class HelpTextFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.HelpText
+
+    field_name = factory.lazy_attribute(lambda o: faker.word())
+    eng_text = factory.lazy_attribute(lambda o: faker.text())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'field_name': faker.word(),
+            'eng_text': faker.text(),
         }
