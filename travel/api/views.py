@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section, Organization
-from shared_models.utils import special_capitalize
+from shared_models.utils import special_capitalize, get_labels
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyOrReadOnly, TravelAdminOrReadOnly
@@ -250,7 +250,7 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         # first we must determine if this is a request to skip a reviewer. If it is, the user better be an admin
         if self.request.query_params.get("skip"):
             if not utils.is_admin(self.request.user):
-                raise ValidationError("Sorry this is an admin function and you are not an admin user")
+                raise PermissionDenied("Sorry this is an admin function and you are not an admin user")
             else:
                 my_reviewer = serializer.instance
                 my_reviewer.status = 21
@@ -267,7 +267,7 @@ class ReviewerViewSet(viewsets.ModelViewSet):
             if serializer.instance.status in [4, 20]:
                 # regular users should not be allowed to interact with RDG or ADM reviewers
                 if not utils.is_admin(self.request.user) and serializer.instance.role in [5, 6]:
-                    raise ValidationError(_("You do not have the necessary permission to modify this reviewer."))
+                    raise PermissionDenied(_("You do not have the necessary permission to modify this reviewer."))
                 serializer.save(updated_by=self.request.user)
             else:
                 # we will only tolerate interacting with the order of the reviewer
@@ -279,7 +279,7 @@ class ReviewerViewSet(viewsets.ModelViewSet):
         # can only change if is in draft or queued
         if instance.status in [4, 20]:
             if not utils.is_admin(self.request.user) and instance.role in [5, 6]:
-                raise ValidationError(_("You do not have the necessary permission to delete this reviewer."))
+                raise PermissionDenied(_("You do not have the necessary permission to delete this reviewer."))
             super().perform_destroy(instance)
         else:
             raise ValidationError("cannot delete this reviewer who has the status of " + instance.get_status_display())
@@ -339,7 +339,7 @@ class TripReviewerViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         # can only change if is in draft or queued
         if not utils.in_adm_admin_group(self.request.user):
-            raise ValidationError(_("You do not have the necessary permission to delete this reviewer."))
+            raise PermissionDenied(_("You do not have the necessary permission to delete this reviewer."))
         if instance.status in [23, 24]:
             super().perform_destroy(instance)
         else:
@@ -430,21 +430,13 @@ class SectionListAPIView(ListAPIView):
         return qs
 
 
-def _get_labels(model):
-    labels = {}
-    for field in model._meta.get_fields():
-        if hasattr(field, "name") and hasattr(field, "verbose_name"):
-            labels[field.name] = special_capitalize(field.verbose_name)
-    return labels
-
-
 class RequestModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.TripRequest
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 
@@ -454,7 +446,7 @@ class TripModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 
@@ -464,7 +456,7 @@ class ReviewerModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         data['role_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.role_choices]
         return Response(data)
 
@@ -475,7 +467,7 @@ class TripReviewerModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         data['role_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.role_choices]
         return Response(data)
 
@@ -486,7 +478,7 @@ class TravellerModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         data['role_choices'] = [dict(text=item.tname, value=item.id) for item in models.Role.objects.all()]
         data['org_choices'] = [dict(text=item.full_name_and_address, value=item.full_name_and_address) for item in Organization.objects.filter(is_dfo=True)]
         return Response(data)
@@ -498,7 +490,7 @@ class FileModelMetaAPIView(APIView):
 
     def get(self, request):
         data = dict()
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 
@@ -509,7 +501,7 @@ class CostModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['cost_choices'] = [dict(text=item.tname, value=item.id) for item in models.Cost.objects.all()]
-        data['labels'] = _get_labels(self.model)
+        data['labels'] = get_labels(self.model)
         return Response(data)
 
 
@@ -522,6 +514,13 @@ class HelpTextAPIView(APIView):
         for obj in models.HelpText.objects.all():
             data[obj.field_name] = str(obj)
         return Response(data)
+
+
+
+class FAQListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = models.FAQ.objects.all()
+    serializer_class = serializers.FAQSerializer
 
 
 class AdminWarningsAPIView(APIView):

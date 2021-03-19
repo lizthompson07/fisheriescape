@@ -288,10 +288,11 @@ class TicketCreateView(LoginRequiredMixin, CommonCreateView):
 class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
     model = models.Ticket
     form_class = forms.FeedbackForm
+    h1 = gettext_lazy("Log a Ticket")
 
     def get_initial(self):
         return dict(
-            request_type=19,
+            request_type=20,
             app=self.kwargs.get("app"),  # using this as a way to talk to FormClass
             assign_to=self.request.GET.get("assign_to"),  # using this as a way to talk to FormClass
         )
