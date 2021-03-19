@@ -18,12 +18,6 @@ steps:
       mkdir media/temp
       mkdir media/travel
       mkdir media/travel/temp
-      mkdir media/projects
-      mkdir media/projects/temp
-      mkdir media/inventory
-      mkdir media/inventory/temp
-      mkdir media/ihub
-      mkdir media/ihub/temp
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Install Prerequisites '
 
