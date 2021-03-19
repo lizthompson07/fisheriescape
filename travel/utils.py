@@ -44,11 +44,11 @@ def is_adm(user):
     try:
         if hasattr(user, "travel_default_reviewers") and user.travel_default_reviewers.special_role == 5:
             return True
-        national_branch = shared_models.Region.objects.get(name__icontains="national")
-        if user == national_branch.head:
+        national_region = shared_models.Region.objects.get(name__icontains="national")
+        if user == national_region.head:
             return True
-    except:
-        print("Cannot find branch named: 'national'")
+    except Exception as ex:
+        print("Cannot find region named: 'national'", ex)
 
 
 def is_trip_approver(user, trip):
