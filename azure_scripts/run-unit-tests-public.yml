@@ -1,6 +1,9 @@
 pool:
   vmImage: 'Ubuntu 18.04'
 
+trigger:
+  - None
+
 steps:
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.8'
@@ -34,10 +37,10 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Tests for projects (v2)'
 
-  - script: |
-      python manage.py test -b travel.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for travel'
+#  - script: |
+#      python manage.py test -b travel.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for travel'
 
   - script: |
       python manage.py test -b whalesdb.test
