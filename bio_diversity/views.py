@@ -269,10 +269,10 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["tank_id"].required = False
                 self.get_form_class().base_fields["tank_id"].widget = forms.HiddenInput()
             if evntc.__str__() == "Egg Development":
-                self.get_form_class().base_fields["trof_id"].required = True
+                self.get_form_class().base_fields["trof_id"].required = False
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["egg_data_type"].required = True
-                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
+                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'), ('Cross Mapping', 'Cross Mapping'))
                 self.get_form_class().base_fields["egg_data_type"] = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
 
             else:
@@ -964,7 +964,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
 
         pair_set = models.Pairing.objects.filter(animal_details__evnt_id=self.object
                                                  ).distinct().select_related("indv_id")
-        pair_field_list = ["start_date", "indv_id", ]
+        pair_field_list = ["start_date", "indv_id", "cross", ]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,

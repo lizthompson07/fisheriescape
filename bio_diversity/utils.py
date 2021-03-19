@@ -153,6 +153,23 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
         return row_entered
 
 
+def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
+    tray = models.Tray(trof_id=trof,
+                       name=tray_name,
+                       description_en="Auto generated tray",
+                       start_date=start_date,
+                       created_by=cleaned_data["created_by"],
+                       created_date=cleaned_data["created_date"],
+                       )
+    try:
+        if save:
+            tray.clean()
+            tray.save()
+    except (ValidationError, IntegrityError):
+        tray = models.Tray.objects.filter(trof_id=tray.trof_id, name=tray.name, start_date=tray.start_date).get()
+    return tray
+
+
 def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, final_flag=None):
     if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk]):
         anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -458,6 +475,31 @@ def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp
     if not trof_name == "nan":
         contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
                                      trof_id=models.Trough.objects.filter(name=trof_name, facic_id=cleaned_data["facic_id"]).get(),
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+        try:
+            contx.clean()
+            contx.save()
+            row_entered = True
+        except ValidationError:
+            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
+                                                        trof_id=contx.trof_id).get()
+        if indv_pk or grp_pk:
+            enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
+        if return_contx:
+            return contx
+        else:
+            return row_entered
+    else:
+        return False
+
+
+def enter_tray_contx(tray, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
+    row_entered = False
+    if not tray == "nan":
+        contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                     tray_id=tray,
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
                                      )

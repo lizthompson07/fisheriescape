@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from bio_diversity import models
 from bio_diversity.utils import comment_parser, enter_tank_contx, enter_indvd, year_coll_splitter, enter_env, \
     create_movement_evnt, enter_grpd, enter_anix, val_unit_splitter, parse_concentration, enter_cnt, enter_cnt_det, \
-    enter_trof_contx, enter_mortality, enter_spwnd, naive_to_aware
+    enter_trof_contx, enter_mortality, enter_spwnd, naive_to_aware, create_tray, enter_tray_contx
 
 
 class CreatePrams(forms.ModelForm):
@@ -221,7 +221,7 @@ class DataForm(CreatePrams):
         model = models.DataLoader
         exclude = []
 
-    egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
+    egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'), ('Cross Mapping', 'Cross Mapping'))
     egg_data_type = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
 
@@ -1219,8 +1219,9 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
-    # ---------------------------TROUGH TEMPERATURE DATA ENTRY COLDBROOK----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature" and cleaned_data["facic_id"].__str__() == "Coldbrook":
+        # ---------------------------TROUGH TEMPERATURE DATA ENTRY COLDBROOK----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature" \
+                and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Sheet1",
                                      converters={"Hour": str, 'Year': str, 'Month': str, 'Day': str})
@@ -1251,11 +1252,12 @@ class DataForm(CreatePrams):
             if not parsed:
                 self.request.session["load_success"] = False
 
-            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
-                        "database".format(rows_parsed, len(data_dict), len(entered_list), len(data_dict))
+            log_data += "\n\n\n {} of {} rows entered to " \
+                        "database".format(len(entered_list), len(data_dict))
 
         # ---------------------------TROUGH TEMPERATURE DATA ENTRY MACTAQUAC----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature"\
+                and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_csv(cleaned_data["data_csv"], encoding="mbcs", header=7)
                 data_dict = data.to_dict('records')
@@ -1282,8 +1284,41 @@ class DataForm(CreatePrams):
             if not parsed:
                 self.request.session["load_success"] = False
 
-            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
-                        "database".format(rows_parsed, len(data_dict), len(entered_list), len(data_dict))
+            log_data += "\n\n\n {} of {} rows entered to " \
+                        "database".format(len(entered_list), len(data_dict))
+        # ---------------------------CROSS TRAY MAPPING MACTAQUAC----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] ==\
+                "Cross Mapping" and cleaned_data["facic_id"].__str__() == "Mactaquac":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0)
+            except Exception as err:
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
+            parsed = True
+            self.request.session["load_success"] = True
+
+            pair_qs = models.Pairing.objects.all().select_related('indv_id__stok_id')
+            data["pairs"] = data.apply(lambda row: pair_qs.filter(cross=row["Cross"], indv_id__stok_id__name=row["Stock"]).get(), axis=1)
+
+            anix_qs = models.AniDetailXref.objects.filter(pair_id__in=data["pairs"], grp_id__isnull=False).select_related('grp_id')
+            data["grps"] = data.apply(lambda row: anix_qs.filter(pair_id=row["pairs"]).get().grp_id, axis=1)
+
+            trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
+            data["trofs"] = data.apply(lambda row: trof_qs.filter(name=row["Trough"]).get(), axis=1)
+
+            # trays, date from cross
+            data["trays"] = data.apply(lambda row: create_tray(row["trofs"], row["Tray"], row["pairs"].start_date, cleaned_data, save=True), axis=1)
+            data_dict = data.to_dict('records')
+            for row in data_dict:
+                if enter_tray_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk):
+                    rows_entered += 1
+
+            if not parsed:
+                self.request.session["load_success"] = False
+
+            log_data += "\n\n\n {} of {} rows entered to " \
+                        "database".format(rows_entered, len(data_dict))
 
         # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
         else:
