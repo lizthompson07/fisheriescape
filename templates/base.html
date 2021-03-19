@@ -1,5 +1,4 @@
 {% load leaflet_tags %}
-{% load leaflet_tags %}
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
@@ -13,7 +12,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2.0">
 
   {# block for loading leaflet tags  #}
-  {% block leaflet %}{% endblock leaflet %}
+  {% block leaflet %}
+          {% leaflet_js %}
+    {% leaflet_css %}
+    <style>
+    .leaflet-container {
+        height: 400px;
+        width: 600px;
+    }
+    </style>
+  {% endblock leaflet %}
 
   {#  Include all css files  #}
   {% include "_base_css.html" %}

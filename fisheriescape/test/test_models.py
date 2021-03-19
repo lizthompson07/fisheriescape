@@ -12,12 +12,11 @@ faker = Faker()
 # Example how to run with keyword tags
 # python manage.py test fisheriescape.test --tag models
 
-
+#TODO self.instance doesn't call anything
 class TestFisheryAreaModel(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.FisheryAreaFactory()
-        self.instance = models.FisheryArea.objects.all()[faker.random_int(0, models.FisheryArea.objects.count() - 1)]
 
     @tag('FisheryArea', 'models', 'fields')
     def test_fields(self):
@@ -47,7 +46,7 @@ class TestFisheryAreaModel(CommonTest):
 
     @tag('FisheryArea', 'models', 'mandatory_fields')
     def test_mandatory_fields(self):
-        fields_to_check = ['polgon', ]
+        fields_to_check = ['polygon', ]
         self.assert_mandatory_fields(models.FisheryArea, fields_to_check)
 
 
@@ -55,7 +54,6 @@ class TestMarineMammalModel(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.MarineMammalFactory()
-        self.instance = models.MarineMammal.objects.all()[faker.random_int(0, models.MarineMammal.objects.count() - 1)]
 
     @tag('MarineMammal', 'models', 'fields')
     def test_fields(self):
@@ -102,7 +100,6 @@ class TestFisheryModel(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.FisheryFactory()
-        self.instance = models.Fishery.objects.all()[faker.random_int(0, models.Fishery.objects.count() - 1)]
 
     @tag('Fishery', 'models', 'fields')
     def test_fields(self):
@@ -115,20 +112,20 @@ class TestFisheryModel(CommonTest):
         self.assert_has_fields(models.Fishery, fields_to_check)
 
     @tag('Fishery', 'models', 'm2m')
-    def test_m2m_marine_mammals(self):
-        # a `my_model` that is attached to a given `marine_mammals` should be accessible by the m2m field name `marine_mammalss`
+    def test_m2m_marine_mammal(self):
+        # a `my_model` that is attached to a given `marine_mammals` should be accessible by the m2m field name `marine_mammals`
         marine_mammals = FactoryFloor.MarineMammalFactory()
-        self.instance.marine_mammalss.add(marine_mammals)
-        self.assertEqual(self.instance.marine_mammalss.count(), 1)
-        self.assertIn(marine_mammals, self.instance.marine_mammalss.all())
+        self.instance.marine_mammals.add(marine_mammals)
+        self.assertEqual(self.instance.marine_mammals.count(), 1)
+        self.assertIn(marine_mammals, self.instance.marine_mammals.all())
 
     @tag('Fishery', 'models', 'm2m')
-    def test_m2m_fishery_area(self):
-        # a `my_model` that is attached to a given `fishery_area` should be accessible by the m2m field name `marine_mammalss`
-        fishery_area = FactoryFloor.FisheryAreaFactory()
-        self.instance.fishery_areas.add(fishery_area)
+    def test_m2m_fishery_areas(self):
+        # a `my_model` that is attached to a given `fishery_areas` should be accessible by the m2m field name `fishery_areas`
+        fishery_areas = FactoryFloor.FisheryAreaFactory()
+        self.instance.fishery_areas.add(fishery_areas)
         self.assertEqual(self.instance.fishery_areas.count(), 1)
-        self.assertIn(fishery_area, self.instance.fishery_areas.all())
+        self.assertIn(fishery_areas, self.instance.fishery_areas.all())
 
     @tag('Fishery', 'models', 'choices')
     def test_choices_fishery_status(self):
@@ -145,6 +142,5 @@ class TestFisheryModel(CommonTest):
     def test_mandatory_fields(self):
         fields_to_check = [
             'species',
-            'fishery_area',
         ]
         self.assert_mandatory_fields(models.Fishery, fields_to_check)

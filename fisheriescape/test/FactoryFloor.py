@@ -1,4 +1,5 @@
 import factory
+from django.contrib.gis.geos import Polygon, MultiPolygon
 from faker import Faker
 
 from .. import models
@@ -6,7 +7,14 @@ from .. import models
 faker = Faker()
 
 
-#TODO not sure how to test a multipolygon field for FisheryArea model
+#TODO not sure how to test a multipolygon field for FisheryArea model - create a static polygon
+def get_multipolygon():
+    p1 = Polygon(((0, 0), (0, 1), (1, 1), (0, 0)))
+    # p2 = Polygon(((1, 1), (1, 2), (2, 2), (1, 1)))
+    mp = MultiPolygon(p1)
+    # mp = MultiPolygon([p1, p2])
+    return mp
+
 
 class FisheryAreaFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -14,12 +22,14 @@ class FisheryAreaFactory(factory.django.DjangoModelFactory):
 
     layer_id = factory.lazy_attribute(lambda o: faker.catch_phrase())
     name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    polygon = get_multipolygon()
 
     @staticmethod
     def get_valid_data():
         return {
             'layer_id': faker.catch_phrase(),
             'name': faker.catch_phrase(),
+            'polygon': get_multipolygon(),
         }
 
 
@@ -54,13 +64,9 @@ class FisheryFactory(factory.django.DjangoModelFactory):
         model = models.Fishery
 
     species = factory.SubFactory(SpeciesFactory)
-    fishery_area = factory.SubFactory(FisheryAreaFactory)
-    marine_mammals = factory.SubFactory(MarineMammalFactory)
 
     @staticmethod
     def get_valid_data():
         return {
             'species': SpeciesFactory().id,
-            'fishery_area': FisheryAreaFactory().id,
-            'marine_mammals': MarineMammalFactory().id,
         }

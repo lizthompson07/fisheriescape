@@ -5,204 +5,107 @@ from django.test import tag
 from django.views.generic import DetailView
 
 from shared_models.views import CommonDetailView
-from whalebrary.test import FactoryFloor
-from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
+from fisheriescape.test import FactoryFloor
+from fisheriescape.test.common_tests import CommonFisheriescapeTest as CommonTest
 from .. import views
 
 # Example how to run with keyword tags
-# python manage.py test whalebrary.test --tag transaction_new
+# python manage.py test fisheriescape.test --tag species_new
 
 
-class TestItemDetailView(CommonTest):
+class TestSpeciesDetailView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.ItemFactory()
-        self.test_url = reverse_lazy('whalebrary:item_detail', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/item_detail.html'
-        self.user = self.get_and_login_user()
+        self.instance = FactoryFloor.SpeciesFactory()
+        self.test_url = reverse_lazy('fisheriescape:species_detail', args=[self.instance.pk, ])
+        self.expected_template = 'fisheriescape/species_detail.html'
+        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
 
-    @tag("Item", "item_detail", "view")
+    @tag("Species", "species_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ItemDetailView, CommonDetailView)
+        self.assert_inheritance(views.SpeciesDetailView, CommonDetailView)
+        self.assert_inheritance(views.SpeciesDetailView, views.FisheriescapeAdminAccessRequired)
 
-    @tag("Item", "item_detail", "access")
+    @tag("Species", "species_detail", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Item", "item_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-            "random_qty",
-            "oh_qty_field_list",
-            "random_sup",
-            "sup_field_list",
-            "random_ord",
-            "ord_field_list",
-            "random_lend",
-            "lend_field_list",
-            "random_file",
-            "file_field_list",
-
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-
-class TestLocationDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.LocationFactory()
-        self.test_url = reverse_lazy('whalebrary:location_detail', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/location_detail.html'
-        self.user = self.get_and_login_user(in_group="whalebrary_admin")
-
-    @tag("Location", "location_detail", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.LocationDetailView, CommonDetailView)
-        self.assert_inheritance(views.LocationDetailView, views.WhalebraryAdminAccessRequired)
-
-    @tag("Location", "location_detail", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Location", "location_detail", "context")
+    @tag("Species", "species_detail", "context")
     def test_context(self):
         context_vars = [
             "field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
+    @tag("Species", "species_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("fisheriescape:species_detail", f"/en/fisheriescape/species/{self.instance.pk}/view/", [self.instance.pk])
 
-class TestTransactionDetailView(CommonTest):
+
+class TestFisheryAreaDetailView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.TransactionFactory()
-        self.test_url = reverse_lazy('whalebrary:transaction_detail', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/transaction_detail.html'
-        self.user = self.get_and_login_user()
+        self.instance = FactoryFloor.FisheryAreaFactory()
+        self.test_url = reverse_lazy('fisheriescape:fishery_area_detail', args=[self.instance.pk, ])
+        self.expected_template = 'fisheriescape/fisheryarea_detail.html'
+        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
 
-    @tag("Transaction", "transaction_detail", "view")
+    @tag("FisheryArea", "fishery_area_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.TransactionDetailView, CommonDetailView)
+        self.assert_inheritance(views.FisheryAreaDetailView, CommonDetailView)
+        self.assert_inheritance(views.FisheryAreaDetailView, views.FisheriescapeAdminAccessRequired)
 
-    @tag("Transaction", "transaction_detail", "access")
+    @tag("FisheryArea", "fishery_area_detail", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Transaction", "transaction_detail", "context")
+    @tag("FisheryArea", "fishery_area_detail", "context")
     def test_context(self):
         context_vars = [
             "field_list",
+            "random_fishery",
+            "fishery_field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
+    @tag("FisheryArea", "fishery_area_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("fisheriescape:fishery_area_detail", f"/en/fisheriescape/fisheryarea/{self.instance.pk}/view/", [self.instance.pk])
 
-class TestOrderDetailView(CommonTest):
+
+class TestFisheryDetailView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.OrderFactory()
-        self.test_url = reverse_lazy('whalebrary:order_detail', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/order_detail.html'
-        self.user = self.get_and_login_user()
+        self.instance = FactoryFloor.FisheryFactory()
+        self.test_url = reverse_lazy('fisheriescape:fishery_detail', args=[self.instance.pk, ])
+        self.expected_template = 'fisheriescape/fishery_detail.html'
+        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
 
-    @tag("Order", "order_detail", "view")
+    @tag("Fishery", "fishery_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.OrderDetailView, CommonDetailView)
-        self.assert_inheritance(views.OrderDetailView, views.WhalebraryAccessRequired)
+        self.assert_inheritance(views.FisheryDetailView, CommonDetailView)
+        self.assert_inheritance(views.FisheryDetailView, views.FisheriescapeAdminAccessRequired)
 
-    @tag("Order", "order_detail", "access")
+    @tag("Fishery", "fishery_detail", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("Order", "order_detail", "context")
+    @tag("Fishery", "fishery_detail", "context")
     def test_context(self):
         context_vars = [
             "field_list",
+            "random_mammals",
+            "mammals_field_list",
+            "fishery_polygons",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
-
-class TestPersonnelDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.PersonnelFactory()
-        self.test_url = reverse_lazy('whalebrary:personnel_detail', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/personnel_detail.html'
-        self.user = self.get_and_login_user(in_group="whalebrary_admin")
-
-    @tag("Personnel", "personnel_detail", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.PersonnelDetailView, CommonDetailView)
-        self.assert_inheritance(views.PersonnelDetailView, views.WhalebraryAdminAccessRequired)
-
-    @tag("Personnel", "personnel_detail", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Personnel", "personnel_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-
-class TestSupplierDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.SupplierFactory()
-        self.test_url = reverse_lazy('whalebrary:supplier_detail', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/supplier_detail.html'
-        self.user = self.get_and_login_user()
-
-    @tag("Supplier", "supplier_detail", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.SupplierDetailView, CommonDetailView)
-        self.assert_inheritance(views.SupplierDetailView, views.WhalebraryAccessRequired)
-
-    @tag("Supplier", "supplier_detail", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Supplier", "supplier_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-
-class TestIncidentDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.IncidentFactory()
-        self.test_url = reverse_lazy('whalebrary:incident_detail', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/incident_detail.html'
-        self.user = self.get_and_login_user()
-
-    @tag("Incident", "incident_detail", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.IncidentDetailView, CommonDetailView)
-        self.assert_inheritance(views.IncidentDetailView, views.WhalebraryAccessRequired)
-
-    @tag("Incident", "incident_detail", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Incident", "incident_detail", "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-            "random_image",
-            "image_field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-
+    @tag("Fishery", "fishery_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("fisheriescape:fishery_detail", f"/en/fisheriescape/fishery/{self.instance.pk}/view/", [self.instance.pk])

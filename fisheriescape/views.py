@@ -336,7 +336,7 @@ class FisheryListView(FisheriescapeAccessRequired, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
-        {"name": 'fishery_area', "class": "", "width": ""},
+        {"name": 'fishery_areas', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": ""},
         {"name": 'end_date', "class": "", "width": ""},
         {"name": 'fishery_status', "class": "", "width": ""},
@@ -353,7 +353,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
     field_list = [
         'id',
         'species',
-        'fishery_area',
+        'fishery_areas',
         'start_date',
         'end_date',
         'fishery_status',

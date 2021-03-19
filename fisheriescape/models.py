@@ -25,13 +25,7 @@ class FisheryArea(models.Model):
         ordering = ["layer_id", "name", ]
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            my_str = "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            my_str = "{}".format(self.name)
+        my_str = "{}".format(self.name)
 
         if self.layer_id:
             my_str += f' ({self.layer_id})'
@@ -111,7 +105,7 @@ LICENSE_CHOICES = (
 class Fishery(models.Model):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="fisherys",
                                 verbose_name=_("species"))
-    fishery_area = models.ManyToManyField(FisheryArea, related_name="species", verbose_name=_("fishery area"))
+    fishery_areas = models.ManyToManyField(FisheryArea, related_name="species", verbose_name=_("fishery areas"))
     start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("start date of season"))
     end_date = models.DateTimeField(null=True, blank=True, verbose_name=_("end date of season"))
     fishery_status = models.CharField(max_length=255, null=True, blank=True, choices=STATUS_CHOICES,

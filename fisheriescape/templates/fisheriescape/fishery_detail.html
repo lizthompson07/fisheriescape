@@ -3,30 +3,6 @@
 {% load static %}
 {% load verbose_names %}
 {% load l10n %}
-{% load leaflet_tags %}
-
-{#{% block header %}#}
-{#    {{block.super}}#}
-{##}
-{#  <link rel="stylesheet" type="text/css" href="{% static 'fisheriescape/map.css' %}?version=1.0">#}
-{# <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"#}
-{#   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="#}
-{#   crossorigin=""/>#}
-{# <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"#}
-{#   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="#}
-{#   crossorigin=""></script>#}
-{#{% endblock %}#}
-
-{% block leaflet %}
-    {% leaflet_js %}
-    {% leaflet_css %}
-    <style>
-    .leaflet-container {
-        height: 400px;
-        width: 600px;
-    }
-    </style>
-{% endblock %}
 
 {% block subcontent %}
 

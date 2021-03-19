@@ -38,7 +38,7 @@ class FisheryFilter(django_filters.FilterSet):
     class Meta:
         model = models.Fishery
         fields = {
-            'fishery_area': ['exact'],
+            'fishery_areas': ['exact'],
             'fishery_status': ['exact'],
             'gear_type': ['exact'],
 

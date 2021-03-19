@@ -3,12 +3,14 @@ from django.test import tag
 
 from shared_models.views import CommonCreateView
 from whalebrary import views
-from whalebrary.test import FactoryFloor
-from whalebrary.test.FactoryFloor import ItemFactory
-from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
+from fisheriescape.test import FactoryFloor
+from fisheriescape.test.common_tests import CommonFisheriescapeTest as CommonTest
 
 # Example how to run with keyword tags
-# python manage.py test whalebrary.test --tag transaction_new
+# python manage.py test fisheriescape.test --tag species_new
+
+
+
 
 
 class TestItemCreateView(CommonTest):
