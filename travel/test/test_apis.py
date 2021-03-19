@@ -422,9 +422,9 @@ class TestTravellerAPIViewSet(CommonTest):
         # first let's make sure it is only adm who can access this view:
         bad_users = [self.adm_admin_user, self.admin_user, traveller.user]
         adm1 = UserFactory()
-        national_branch, created = Region.objects.get_or_create(name="national")
-        national_branch.head = adm1
-        national_branch.save()
+        national_region, created = Region.objects.get_or_create(name="national")
+        national_region.head = adm1
+        national_region.save()
         adm2 = UserFactory()
         models.DefaultReviewer.objects.get_or_create(user=adm2, special_role=5)
         good_users = [adm1, adm2]

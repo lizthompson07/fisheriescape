@@ -114,6 +114,7 @@ urlpatterns = [
     path('update/ret/<int:pk>/', views.RetUpdate.as_view(), name="update_ret"),
 
     path('create/rci/<int:rec_id>/<str:pop>/', views.RciCreate.as_view(), name="create_rci"),
+    path('delete/rci/<int:pk>/', views.rci_delete, name="delete_rci"),
 
     path('create/ree/<int:rec_id>/<str:pop>/', views.ReeCreate.as_view(), name="create_ree"),
 

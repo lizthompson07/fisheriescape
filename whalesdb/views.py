@@ -47,6 +47,16 @@ def rst_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
+def rci_delete(request, pk):
+    rci = models.RciChannelInfo.objects.get(pk=pk)
+    if utils.whales_authorized(request.user):
+        rci.delete()
+        messages.success(request, _("The recording channel has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 class IndexView(CommonTemplateView):
     nav_menu = 'whalesdb/base/whales_nav_menu.html'
     site_css = 'whalesdb/base/whales_css.css'
@@ -672,7 +682,7 @@ class EqpList(mixins.EqpMixin, CommonList):
 
 class EtrList(mixins.EtrMixin, CommonList):
     filterset_class = filters.EtrFilter
-    fields = ['etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
+    fields = ['etr_date', 'eqp', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
 
 
 class MorList(mixins.MorMixin, CommonList):
