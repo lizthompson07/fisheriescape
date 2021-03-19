@@ -17,6 +17,7 @@ class DepFilter(django_filters.FilterSet):
 
 class EcaFilter(django_filters.FilterSet):
 
+    eca_hydrophone = django_filters.ModelChoiceFilter(queryset=models.EqpEquipment.objects.filter(emm__eqt_id=4))
     class Meta:
         model = models.EcaCalibrationEvent
         fields = ['eca_date', 'eca_attachment', 'eca_hydrophone']
