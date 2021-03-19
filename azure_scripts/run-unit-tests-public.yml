@@ -1,9 +1,6 @@
 pool:
   vmImage: 'Ubuntu 18.04'
 
-trigger:
-  - glf_dev
-
 steps:
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.8'
