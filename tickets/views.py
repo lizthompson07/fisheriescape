@@ -183,14 +183,7 @@ def send_resolved_email(request, ticket):
     my_ticket = models.Ticket.objects.get(pk=ticket)
     # create a new email object
     email = emails.TicketResolvedEmail(my_ticket, request)
-    # send the email object
-    custom_send_mail(
-        subject=email.subject,
-        html_message=email.message,
-        from_email=email.from_email,
-        recipient_list=email.to_list
-    )
-
+    email.send()
     my_ticket.resolved_email_date = timezone.now()
     my_ticket.save()
     messages.success(request, "the email has been sent!")
