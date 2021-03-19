@@ -1462,7 +1462,7 @@ class TribDetails(mixins.TribMixin, CommonDetails):
 
 class TrofDetails(mixins.TrofMixin, CommonContDetails):
 
-    fields = ["trof_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2600,6 +2600,26 @@ class MaturityRateView(PlotView):
         elif self.kwargs.get("cont") == "grp":
             cont = models.Group.objects.filter(pk=cont_pk).get()
         context["the_script"], context["the_div"], file_url = reports.generate_maturity_rate(cont)
+        context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
+        return context
+
+
+class PlotTempData(PlotView):
+
+    title = _("Temperature Data")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cont_pk = self.kwargs.get("pk")
+        env_set = []
+        if self.kwargs.get("cont") == "tank":
+            env_set = models.EnvCondition.objects.filter(contx_id__tank_id=cont_pk, envc_id__name="Temperature")
+        elif self.kwargs.get("cont") == "trof":
+            env_set = models.EnvCondition.objects.filter(contx_id__trof_id=cont_pk, envc_id__name="Temperature")
+
+        x_data = [env.start_datetime for env in env_set]
+        y_data = [env.env_val for env in env_set]
+        context["the_script"], context["the_div"], file_url = reports.plot_date_data(x_data, y_data, "Temperature", "Temperature data")
         context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
         return context
 

@@ -227,3 +227,32 @@ def generate_maturity_rate(cont):
         writer.writerows(itertools.zip_longest(pit_tag_list, gender_list))
     scirpt, div = components(p, CDN)
     return scirpt, div, target_url
+
+
+def plot_date_data(x_data, y_data, y_label, title):
+    # create a new plot
+    title_eng = title
+
+    p = figure(
+        tools="pan,box_zoom,wheel_zoom,reset,save",
+        x_axis_type='datetime',
+        x_axis_label='Date',
+        y_axis_label=y_label,
+        plot_width=600, plot_height=400,
+    )
+
+    p.axis.axis_label_text_font_style = 'normal'
+    p.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
+    p.line(x=x_data, y=y_data, line_width=3)
+
+    # ------------------------Data File------------------------------
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.csv"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    with open(target_file_path, 'w') as data_file:
+        writer = csv.writer(data_file)
+        writer.writerow(["Date", y_label])
+        writer.writerows(itertools.zip_longest(x_data, y_data))
+    scirpt, div = components(p, CDN)
+    return scirpt, div, target_url
