@@ -840,7 +840,7 @@ class DataForm(CreatePrams):
                     if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
                         row_entered = True
 
-                    if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Wt"], "Weight", None):
+                    if enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 * row["Wt"], "Weight", None):
                         row_entered = True
 
                     if enter_indvd(anix_male.pk, cleaned_data, row_date, "Male", "Gender", None):
@@ -849,7 +849,7 @@ class DataForm(CreatePrams):
                     if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Ln.1"], "Length", None):
                         row_entered = True
 
-                    if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Wt.1"], "Weight", None):
+                    if enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 * row["Wt.1"], "Weight", None):
                         row_entered = True
 
                     # pair
@@ -859,6 +859,7 @@ class DataForm(CreatePrams):
                                               name__iexact=prio_dict[row["Pri."]]).get(),
                                           pair_prio_id=models.PriorityCode.objects.filter(
                                               name__iexact=prio_dict[row["Pri..2"]]).get(),
+                                          cross=row["Tray #"],
                                           valid=True,
                                           indv_id=indv_female,
                                           comments=row["Comment"],
@@ -905,7 +906,7 @@ class DataForm(CreatePrams):
                         if enter_spwnd(pair.pk, cleaned_data, row["Exp. #"], "Fecundity", None, "Calculated"):
                             row_entered = True
                     else:
-                        if enter_spwnd(pair.pk, cleaned_data, None, "Dud", None, "Good"):
+                        if enter_spwnd(pair.pk, cleaned_data, row["Choice"], "Dud", None, "Good"):
                             row_entered = True
 
                     # grp
@@ -1016,13 +1017,13 @@ class DataForm(CreatePrams):
                     if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
                         row_entered = True
 
-                    if enter_indvd(anix_female.pk, cleaned_data, row_date, row["Wt"], "Weight", None):
+                    if enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 * row["Wt"], "Weight", None):
                         row_entered = True
 
                     if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Ln.1"], "Length", None):
                         row_entered = True
 
-                    if enter_indvd(anix_male.pk, cleaned_data, row_date, row["Wt.1"], "Weight", None):
+                    if enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 * row["Wt.1"], "Weight", None):
                         row_entered = True
 
                     # pair
@@ -1032,6 +1033,7 @@ class DataForm(CreatePrams):
                                               name__iexact=prio_dict[row["Pri."]]).get(),
                                           pair_prio_id=models.PriorityCode.objects.filter(
                                               name__iexact=prio_dict[row["Pri..2"]]).get(),
+                                          cross=row["Tray #"],
                                           valid=True,
                                           indv_id=indv_female,
                                           comments=row["Comment"],
@@ -1073,21 +1075,13 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         pass
 
-                    # check for dud (fecu = 0)
-                    if int(row["Exp. #"]):
-                        fecu_est = models.SpawnDet(pair_id=pair,
-                                                   spwndc_id=models.SpawnDetCode.objects.filter(name="Fecundity").get(),
-                                                   det_val=int(row["Exp. #"]),
-                                                   qual_id=models.QualCode.objects.filter(name="Calculated").get(),
-                                                   created_by=cleaned_data["created_by"],
-                                                   created_date=cleaned_data["created_date"],
-                                                   )
-                        try:
-                            fecu_est.clean()
-                            fecu_est.save()
+                    # fecu/dud
+                    if row["Exp. #"] > 0:
+                        if enter_spwnd(pair.pk, cleaned_data, row["Exp. #"], "Fecundity", None, "Calculated"):
                             row_entered = True
-                        except ValidationError:
-                            pass
+                    else:
+                        if enter_spwnd(pair.pk, cleaned_data, row["Choice"], "Dud", None, "Good"):
+                            row_entered = True
 
                     # grp
                     anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],

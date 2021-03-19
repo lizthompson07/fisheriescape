@@ -1218,6 +1218,7 @@ class Pairing(BioDateModel):
                                 limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings")
     prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Female"), related_name="female_priorities")
     pair_prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Pair"), related_name="pair_priorities")
+    cross = models.IntegerField(verbose_name=_("Cross"))
 
     def __str__(self):
         return "{}".format(self.indv_id.__str__())

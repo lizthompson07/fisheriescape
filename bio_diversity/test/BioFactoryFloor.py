@@ -1677,6 +1677,7 @@ class PairFactory(factory.django.DjangoModelFactory):
     pair_prio_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PrioFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    cross = factory.lazy_attribute(lambda o: faker.random_int(1, 10))
     valid = True
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1697,6 +1698,7 @@ class PairFactory(factory.django.DjangoModelFactory):
             'pair_prio_id': pair_prio.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
+            'cross': obj.cross,
             'valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
