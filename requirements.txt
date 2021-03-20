@@ -41,7 +41,7 @@ html2text==2020.1.16
 html5lib==1.1
 idna==2.10
 isodate==0.6.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 Markdown==3.3.3
 MarkupSafe==1.1.1
 msrest==0.6.19
