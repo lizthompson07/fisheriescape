@@ -2,6 +2,7 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
+    showSidebar: true,
     currentUser: {},
     isAdminOrMgmt: false,
     hover: false,
