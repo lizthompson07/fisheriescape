@@ -37,6 +37,16 @@ def eda_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
+def dep_delete(request, pk):
+    dep = models.DepDeployment.objects.get(pk=pk)
+    if utils.whales_authorized(request.user):
+        dep.delete()
+        messages.success(request, _("The deployment has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 def rst_delete(request, pk):
     rst = models.RstRecordingStage.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
@@ -659,6 +669,8 @@ class DepList(mixins.DepMixin, CommonList):
     filterset_class = filters.DepFilter
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
     creation_form_height = 600
+
+    delete_url = "whalesdb:delete_dep"
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)

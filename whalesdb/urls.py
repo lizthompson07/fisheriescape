@@ -20,6 +20,7 @@ urlpatterns = [
     path('update/dep/<int:pk>/<str:pop>/', views.DepUpdate.as_view(), name="update_dep"),
     path('details/dep/<int:pk>/', views.DepDetails.as_view(), name="details_dep"),
     path('list/dep/', views.DepList.as_view(), name="list_dep"),
+    path('delete/dep/<int:pk>/', views.dep_delete, name="delete_dep"),
 
     path('list/eca/', views.EcaList.as_view(), name="list_eca"),
     path('create/eca/', views.EcaCreate.as_view(), name="create_eca"),

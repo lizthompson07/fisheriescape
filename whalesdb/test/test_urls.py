@@ -71,6 +71,10 @@ class URLTest(TestCase):
     def test_url_update_pop_dep_view(self):
         self.basic_en_url_test('whalesdb:update_dep', 'whalesdb/update/dep/1/pop/', views.DepUpdate, [1, 'pop'])
 
+    @tag('dep', 'url', 'delete')
+    def test_url_delete_dep_view(self):
+        self.basic_en_url_test('whalesdb:delete_dep', 'whalesdb/delete/dep/1/', views.dep_delete, [1])
+
     @tag('dep', 'url', 'list')
     def test_url_list_dep_view(self):
         self.basic_en_url_test('whalesdb:list_dep', 'whalesdb/list/dep/', views.DepList)

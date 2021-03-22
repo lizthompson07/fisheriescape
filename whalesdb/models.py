@@ -63,7 +63,7 @@ class EccCalibrationValue(models.Model):
 class EdaEquipmentAttachment(models.Model):
     eqp = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING, verbose_name=_("Equipment"),
                             related_name='deployments')
-    dep = models.ForeignKey('DepDeployment', on_delete=models.DO_NOTHING, verbose_name=_("Deployment"),
+    dep = models.ForeignKey('DepDeployment', on_delete=models.CASCADE, verbose_name=_("Deployment"),
                             related_name='attachments')
 
     def __str__(self):
@@ -269,7 +269,7 @@ class SetStationEventCode(shared_models.Lookup):
 
 
 class SteStationEvent(models.Model):
-    dep = models.ForeignKey(DepDeployment, on_delete=models.DO_NOTHING, related_name='station_events',
+    dep = models.ForeignKey(DepDeployment, on_delete=models.CASCADE, related_name='station_events',
                             verbose_name=_("Deployment"))
     set_type = models.ForeignKey('SetStationEventCode', on_delete=models.DO_NOTHING, db_column='set_type',
                                  verbose_name=_("Event Type"))
