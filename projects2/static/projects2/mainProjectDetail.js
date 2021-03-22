@@ -81,10 +81,9 @@ var app = new Vue({
 
   },
   methods: {
-    //these can probably be deleted
     displayOverview() {
-      this.showOverview = true
-      this.showSubmit = false
+      this.collapseOverview = false;
+      this.projectYear = {};
     },
     displaySubmit() {
       this.showSubmit = true

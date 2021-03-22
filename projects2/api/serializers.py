@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date
 from django.urls import reverse
-from django.utils.timesince import timesince
 from markdown import markdown
 from rest_framework import serializers
 
@@ -186,8 +185,6 @@ class ProjectYearSerializer(serializers.ModelSerializer):
             if instance.modified_by:
                 my_str += f" by {instance.modified_by}"
         return my_str
-
-
 
     def get_deliverables_html(self, instance):
         return instance.deliverables_html
@@ -430,6 +427,7 @@ class ActivityUpdateSerializer(serializers.ModelSerializer):
     activity = serializers.StringRelatedField()
     status_display = serializers.SerializerMethodField()
     notes_html = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
 
     class Meta:
         model = models.ActivityUpdate
@@ -440,6 +438,9 @@ class ActivityUpdateSerializer(serializers.ModelSerializer):
 
     def get_notes_html(self, instance):
         return instance.notes_html
+
+    def get_metadata(self, instance):
+        return instance.metadata
 
 
 class FileSerializer(serializers.ModelSerializer):

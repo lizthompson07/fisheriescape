@@ -32,8 +32,8 @@
       {% include "shared_models/_generic_breadcrumbs.html" %}
 
       <div class="mb-3">
-        <p class="lead mt-3">{% trans "Project ID:" %} {{ object.id }}</p>
-        <h2>{{ h1|safe }}</h2>
+        <h2 class="">{{ h1|safe }}</h2>
+        <p class="lead text-muted mt-1 mb-0">{% trans "Project ID:" %} {{ object.id }}</p>
       </div>
 
 
@@ -56,7 +56,7 @@
                       <span class="mdi mdi-pencil"></span> {% trans "Edit" %}
                     </button>
                   </div>
-                  <h3 id="overview"> {% trans "Project Overview" %} </h3>
+                  <h4 id="overview"> {% trans "Project Overview" %} </h4>
                 </div>
                 <div v-if="!collapseOverview">
                   {% trans "<span class='red-font'>missing</span>" as nulltext %}
@@ -139,7 +139,7 @@
               <div class="section-card">
 
                 <div class="mb-2 neighbours">
-                  <h3>{% trans "Project Years" %}</h3>
+                  <h4>{% trans "Project Years" %}</h4>
                 </div>
                 <div class="mb-3">
                   <ul class="nav nav-tabs">
@@ -290,7 +290,7 @@
 
   </script>
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=1.8" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=1.9" type="application/javascript"></script>
   <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=1.0" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
