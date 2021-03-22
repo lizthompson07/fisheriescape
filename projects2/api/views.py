@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.contrib.auth.models import User
 from django.db.models import Q
 from pandas import date_range
@@ -422,6 +424,7 @@ class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         # we only allow this method when we are changing statuses
         qp = request.GET
         action = qp.get("action")
+        clone = qp.get("clone")
         if action == "complete" or action == "incomplete":
             activity = get_object_or_404(models.Activity, pk=pk)
             # get or create a status report
@@ -444,7 +447,13 @@ class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             # if all the
 
             return Response(serializers.ActivitySerializer(activity).data, status=status.HTTP_200_OK)
-        raise ValidationError("sorry, I am missing the query param for 'action'")
+        elif clone:
+            old_activity = get_object_or_404(models.Activity, pk=pk)
+            new_activity = deepcopy(old_activity)
+            new_activity.pk = None
+            new_activity.save()
+            return Response(serializers.ActivitySerializer(new_activity).data, status=status.HTTP_200_OK)
+        raise ValidationError("sorry, I am missing the query param for 'action' or 'clone'")
 
 # COLLABORATION
 ##############

@@ -6,7 +6,7 @@
 
 <div class="mb-5">
   <div class="mb-2 neighbours">
-    <h4>{% trans "Capital Costs" %}</h4>
+    <p class="lead">{% trans "Capital Costs" %}</p>
   </div>
   <div v-if="!capital_cost_loading" class="mb-3 neighbours">
     <button @click="openCapitalCostModal()"class="{{ btn_class_1 }} no-print" v-if="canModify">

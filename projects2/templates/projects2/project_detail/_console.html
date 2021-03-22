@@ -6,8 +6,13 @@
 {% echo "btn btn-outline-primary btn-sm custom-btn" as btn_class_blue %}
 {% echo "btn btn-outline-success btn-sm custom-btn" as btn_class_green %}
 {% echo "btn btn-outline-danger btn-sm custom-btn" as btn_class_red %}
-
-<div class="container">
+<div v-if="!showSidebar">
+  <button class="{{ btn_class_black }} ml-2" @click="showSidebar=true" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
+    <span class="mdi mdi-arrow-collapse-right"></span>
+  </button>
+</div>
+<div v-else class="container">
+  <button class="{{ btn_class_black }} float-right mb-3" @click="showSidebar=false"><span class="mdi mdi-arrow-collapse-left"></span></button>
   <h6>
     {% trans "Reports" %}
   </h6>
@@ -102,7 +107,7 @@
 
     {# add a button for each project year #}
     <a v-for="(year, index) in project.years" @click="displayProjectYear(year.id)"
-      :class="{ '{{ btn_class_black }}': true, active: year.id == projectYear.id }"
+       :class="{ '{{ btn_class_black }}': true, active: year.id == projectYear.id }"
        href="#project-year">
       <span v-if="year.submitted" class="text-primary"><span class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name }</span>
       <span v-else class="text-danger"><span

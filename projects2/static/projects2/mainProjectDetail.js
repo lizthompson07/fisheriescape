@@ -3,6 +3,7 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
+    showSidebar: false,
     showOverview: true,
     collapseOverview: true,
     collapseFinancials: true,
@@ -83,7 +84,7 @@ var app = new Vue({
   methods: {
     displayOverview() {
       this.collapseOverview = false;
-      this.projectYear = {};
+      // this.projectYear = {};
     },
     displaySubmit() {
       this.showSubmit = true
@@ -320,6 +321,13 @@ var app = new Vue({
               if (!response.detail) this.$delete(this.activities, this.activities.indexOf(activity))
             })
       }
+    },
+    cloneActivity(activity) {
+      let endpoint = `/api/project-planning/activities/${activity.id}/?clone=true`;
+      apiService(endpoint, "POST")
+          .then(response => {
+            if (!response.detail) this.getActivities(activity.project_year_id);
+          })
     },
 
     openActivityModal(activity) {
