@@ -206,7 +206,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     # parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
 
     def get_active_page_name_crumb(self):
-        return str(self.get_object())
+        return "{} {}".format(_("Project ID"), self.get_object().id)
 
     def get_h1(self):
         mystr = str(self.get_object())

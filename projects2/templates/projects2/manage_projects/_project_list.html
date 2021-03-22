@@ -62,7 +62,12 @@
     >
       <td>${p.project.id}</td>
       <td>${p.display_name}</td>
-      <td>${p.project.title}</td>
+      <td>
+        <a class="text-primary pointy" @click="goProjectDetail(p)">
+          <u>${p.project.title}</u>
+        </a>
+      </td>
+
       <td>${p.project.default_funding_source}</td>
       <td>${p.project.functional_group}</td>
       <td v-if="showColumnLeads">${p.project.lead_staff}</td>
@@ -116,11 +121,6 @@
         </button>
       </td>
 
-      <td class="">
-        <button @click="goProjectDetail(p)" class="{{ btn_class }} btn-outline-primary">
-          <span class="mdi mdi-arrow-top-right text-primary"></span>
-        </button>
-      </td>
 
     </tr>
     </tbody>

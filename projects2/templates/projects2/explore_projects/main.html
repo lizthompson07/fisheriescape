@@ -65,7 +65,11 @@
                 {#            @click="goProjectDetail(p)"#}
               >
                 <td>${p.project.id}</td>
-                <td>${p.project.title}</td>
+                <td>
+                  <a class="text-primary pointy" @click="goProjectDetail(p)">
+                    ${p.project.title}
+                  </a>
+                </td>
                 <td>${p.display_name}</td>
                 <td v-html="p.formatted_status"></td>
                 {#            <td>${p.project.section}</td>#}
@@ -76,11 +80,11 @@
                   <span v-if="p.project.is_hidden" class="highlight">{% trans "Yes" %}</span>
                   <span v-else>{% trans "No" %}</span>
                 </td>
-                <td>
-                  <button @click="goProjectDetail(p)" data-toggle="tooltip" title="{% trans "Open in separate window" %}">
-                    <span class="mdi mdi-arrow-top-right"></span>
-                  </button>
-                </td>
+{#                <td>#}
+{#                  <button @click="goProjectDetail(p)" data-toggle="tooltip" title="{% trans "Open in separate window" %}">#}
+{#                    <span class="mdi mdi-arrow-top-right"></span>#}
+{#                  </button>#}
+{#                </td>#}
               </tr>
               </tbody>
             </table>
