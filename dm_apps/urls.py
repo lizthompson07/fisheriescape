@@ -58,7 +58,10 @@ if settings.INSTALLED_APPS.count("publications"):
     urlpatterns.append(
         path('api/', include('publications.api.urls')),
     )
-
+if settings.INSTALLED_APPS.count("ihub"):
+    urlpatterns.append(
+        path('api/', include('ihub.api.urls')),
+    )
 if settings.INSTALLED_APPS.count("events"):
     urlpatterns.extend([
         path('events/', include('events.urls')),

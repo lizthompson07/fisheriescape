@@ -182,15 +182,8 @@ def send_resolved_email(request, ticket):
     # grab a copy of the resource
     my_ticket = models.Ticket.objects.get(pk=ticket)
     # create a new email object
-    email = emails.TicketResolvedEmail(my_ticket, request)
-    # send the email object
-    custom_send_mail(
-        subject=email.subject,
-        html_message=email.message,
-        from_email=email.from_email,
-        recipient_list=email.to_list
-    )
-
+    email = emails.TicketResolvedEmail(request, my_ticket)
+    email.send()
     my_ticket.resolved_email_date = timezone.now()
     my_ticket.save()
     messages.success(request, "the email has been sent!")
@@ -556,7 +549,7 @@ def create_github_issue(request, pk):
     my_issue = my_repo.create_issue(
         title=my_ticket.title,
         body=descr,
-        labels=[my_ticket.app, my_ticket.request_type.request_type],
+        labels=[my_ticket.app, my_ticket.get_request_type_display()],
     )
     my_ticket.github_issue_number = my_issue.number
     my_ticket.save()
@@ -659,7 +652,7 @@ def edit_github_issue(ticket, user):
     my_issue.edit(
         title=my_ticket.title,
         body=descr,
-        labels=[my_ticket.app, my_ticket.request_type.request_type],
+        labels=[my_ticket.app, my_ticket.get_request_type_display()],
     )
 
     return None
