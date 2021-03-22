@@ -17,8 +17,6 @@ urlpatterns = [
     path('update/anidc/<int:pk>/', views.AnidcUpdate.as_view(), name="update_anidc"),
     
     path('create/anix/', views.AnixCreate.as_view(), name="create_anix"),
-    path('create/anix/<int:evnt>/<str:pop>/', views.AnixCreate.as_view(), name="create_anix"),
-    path('create/anix/<int:evnt>/<str:visible>/<str:pop>/', views.AnixCreate.as_view(), name="create_anix"),
     path('details/anix/<int:pk>/', views.AnixDetails.as_view(), name="details_anix"),
     path('list/anix/', views.AnixList.as_view(), name="list_anix"),
     path('update/anix/<int:pk>/', views.AnixUpdate.as_view(), name="update_anix"),
@@ -61,10 +59,7 @@ urlpatterns = [
     path('update/contdc/<int:pk>/', views.ContdcUpdate.as_view(), name="update_contdc"),
 
     path('create/contx/', views.ContxCreate.as_view(), name="create_contx"),
-    path('create/contx/<int:evnt>/<str:pop>/', views.ContxCreate.as_view(), name="create_contx"),
-    path('create/contx/<int:evnt>/<str:visible>/<str:pop>/', views.ContxCreate.as_view(), name="create_contx"),
     path('details/contx/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
-    path('details/contx/<str:back>/<int:back_id>/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
     path('list/contx/', views.ContxList.as_view(), name="list_contx"),
     path('update/contx/<int:pk>/', views.ContxUpdate.as_view(), name="update_contx"),
 

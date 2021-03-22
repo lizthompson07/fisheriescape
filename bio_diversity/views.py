@@ -5,7 +5,6 @@ import os
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
@@ -20,7 +19,6 @@ from datetime import date
 import pytz
 from django.utils.translation import gettext_lazy as _
 
-from .mixins import IndvMixin
 from .utils import get_cont_evnt
 
 
@@ -272,7 +270,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["trof_id"].required = False
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["egg_data_type"].required = True
-                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'), ('Cross Mapping', 'Cross Mapping'))
+                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'),
+                                  ('Cross Mapping', 'Cross Mapping'))
                 self.get_form_class().base_fields["egg_data_type"] = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
 
             else:

@@ -5,7 +5,6 @@ import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.http import JsonResponse
-from django.utils import timezone
 from decimal import Decimal
 from bio_diversity import models
 
