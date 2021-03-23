@@ -50,8 +50,6 @@
                     <button type="submit" class="btn btn-success">Add</button>
                     <a class="btn btn-secondary" href="{% url 'spot:org_list' %}">Cancel</a>
                 {% endif %}
-
-
             {% endbuttons %}
         </form>
 
@@ -62,5 +60,10 @@
         $("#id_regions").multiSelect()
         $("#id_sectors").multiSelect()
     </script>
+    <script>
+        $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+        });
+</script>
 
 {% endblock content %}

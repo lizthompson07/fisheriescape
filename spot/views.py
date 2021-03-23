@@ -99,6 +99,7 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
             'organization_type',
             'address',
             'province',
+            'country',
             'city',
             'postal_code',
             'phone',

@@ -2,6 +2,10 @@ from django.contrib import admin
 from . import models
 
 
+
+admin.site.register(models.OrgType)
+admin.site.register(models.Country)
+admin.site.register(models.Province)
 admin.site.register(models.FundingYear)
 admin.site.register(models.Role)
 admin.site.register(models.DocumentCategory)

@@ -7,6 +7,14 @@ from shared_models.models import UnilingualSimpleLookup
 from django.core.mail import send_mail
 
 
+class Province(UnilingualSimpleLookup):
+    pass
+
+
+class Country(UnilingualSimpleLookup):
+    pass
+
+
 class FundingYear(UnilingualSimpleLookup):
     pass
 
@@ -219,12 +227,11 @@ class ReportClient(UnilingualSimpleLookup):
     pass
 
 
-class OrgType(UnilingualSimpleLookup):
+class OrgType(models.Model):
     pass
 
 
 class River(models.Model):
-
     name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("name"))
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("latitude"))
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("longitude"))
@@ -238,8 +245,9 @@ class Organization(models.Model):
 
     name = models.CharField(max_length=1000, verbose_name=_("name"))
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
-    organization_type = models.ForeignKey(OrgType, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("organization type"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"), related_name="organization_province")
+    organization_type = models.ForeignKey(OrgType, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("organization type"), help_text='one \n two \n three')
+    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"), related_name="organization_province")
+    country = models.ForeignKey(Country, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("country"), related_name="organization_country")
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
@@ -266,17 +274,15 @@ class Person(models.Model):
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
     city = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("city"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("province"))
+    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("province"))
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("address"))
     organization = models.ManyToManyField(Organization, default=None, blank=True, null=True, verbose_name=_("organization"))
     role = models.ForeignKey(Role, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role"))
     section = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("section"))
     other_membership = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("other membership"))
 
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now,
-                                              verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                         verbose_name=_("last modified by"))
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()

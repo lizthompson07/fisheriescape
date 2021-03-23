@@ -20,10 +20,20 @@ YES_NO_CHOICES = (
 )
 
 
+def popover_html(label, content):
+    return label + ' <a tabindex="0" role="button" data-toggle="popover" data-html="true" \
+                            data-trigger="hover" data-placement="auto" data-content="' + content + '"> \
+                            <span class="glyphicon glyphicon-info-sign"></span></a>'
+
+
 class OrganizationForm(forms.ModelForm):
+
     class Meta:
         model = models.Organization #ml
         fields = '__all__'
+        labels = {
+            'name': popover_html('Name', 'The name of your Org')
+        }
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
