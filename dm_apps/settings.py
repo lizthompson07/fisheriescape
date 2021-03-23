@@ -161,6 +161,7 @@ INSTALLED_APPS = [
                      'shared_models',
                      'tickets',
                      'phonenumber_field',
+                     'leaflet',
                  ] + local_conf.MY_INSTALLED_APPS
 
 # If the GEODJANGO setting is set to False, turn off any apps that require it

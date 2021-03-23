@@ -52,8 +52,8 @@ var polygonObject = L.geoJSON(polygonObj, {
 // Create the map starting location and zoom level and tell it which layers to have on by default
 
 var map = L.map('map2', {
-    center: [48.46, -61.95],
-    zoom: 6,
+    // center: [48.46, -61.95],
+    // zoom: 6,
     layers: [streets, polygonObject] //this says what to have on by default
 });
 
@@ -72,3 +72,4 @@ var overlayMaps = {
 // Create the control layer box and add baseMaps and overlayMaps to it
 
 L.control.layers(baseMaps, overlayMaps).addTo(map);
+map.fitBounds(polygonObject.getBounds(), {padding: [50, 50]});

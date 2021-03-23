@@ -214,7 +214,7 @@ class FisheryAreaListView(FisheriescapeAccessRequired, CommonFilterView):
     h1 = "Fishery Area List"
     home_url_name = "fisheriescape:index"
     row_object_url_name = "fisheriescape:fishery_area_detail"
-    new_btn_text = "New Fishery Area"
+    # new_btn_text = "New Fishery Area"
 
     queryset = models.FisheryArea.objects.annotate(
         search_term=Concat('name', 'id', output_field=TextField()))
@@ -226,8 +226,8 @@ class FisheryAreaListView(FisheriescapeAccessRequired, CommonFilterView):
         {"name": 'region', "class": "", "width": ""},
     ]
 
-    def get_new_object_url(self):
-        return reverse("fisheriescape:fishery_area_new", kwargs=self.kwargs)
+    # def get_new_object_url(self):
+    #     return reverse("fisheriescape:fishery_area_new", kwargs=self.kwargs)
 
 
 class FisheryAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
@@ -258,61 +258,61 @@ class FisheryAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         return context
 
 
-class FisheryAreaUpdateView(FisheriescapeAdminAccessRequired, CommonUpdateView):
-    model = models.FisheryArea
-    form_class = forms.FisheryAreaForm
-    template_name = 'fisheriescape/geo_form.html'
-    cancel_text = _("Cancel")
-    home_url_name = "fisheriescape:index"
-
-    def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Fishery Area record successfully updated for : {my_object}"))
-        return HttpResponseRedirect(reverse("fisheriescape:fishery_area_detail", kwargs=self.kwargs))
-
-    def get_active_page_name_crumb(self):
-        my_object = self.get_object()
-        return my_object
-
-    def get_h1(self):
-        my_object = self.get_object()
-        return my_object
-
-    def get_parent_crumb(self):
-        return {"title": str(self.get_object()),
-                "url": reverse_lazy("fisheriescape:fishery_area_detail", kwargs=self.kwargs)}
-
-    def get_grandparent_crumb(self):
-        kwargs = deepcopy(self.kwargs)
-        del kwargs["pk"]
-        return {"title": _("Fishery Area List"), "url": reverse("fisheriescape:fishery_area_list", kwargs=kwargs)}
-
-
-class FisheryAreaCreateView(FisheriescapeAdminAccessRequired, CommonCreateView):
-    model = models.FisheryArea
-    form_class = forms.FisheryAreaForm2
-    template_name = 'fisheriescape/form.html'
-    home_url_name = "fisheriescape:index"
-    h1 = gettext_lazy("Add New Fishery Area")
-    parent_crumb = {"title": gettext_lazy("Fishery Area List"), "url": reverse_lazy("fisheriescape:fishery_area_list")}
-
-    def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Fishery Area record successfully created for : {my_object}"))
-        return super().form_valid(form)
-
-
-class FisheryAreaDeleteView(FisheriescapeAdminAccessRequired, CommonDeleteView):
-    model = models.FisheryArea
-    permission_required = "__all__"
-    success_url = reverse_lazy('fisheriescape:fishery_area_list')
-    template_name = 'fisheriescape/confirm_delete.html'
-    home_url_name = "fisheriescape:index"
-    grandparent_crumb = {"title": gettext_lazy("Fishery Area List"),
-                         "url": reverse_lazy("fisheriescape:fishery_area_list")}
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("fisheriescape:fishery_area_detail")}
+# class FisheryAreaUpdateView(FisheriescapeAdminAccessRequired, CommonUpdateView):
+#     model = models.FisheryArea
+#     form_class = forms.FisheryAreaForm
+#     template_name = 'fisheriescape/geo_form.html'
+#     cancel_text = _("Cancel")
+#     home_url_name = "fisheriescape:index"
+#
+#     def form_valid(self, form):
+#         my_object = form.save()
+#         messages.success(self.request, _(f"Fishery Area record successfully updated for : {my_object}"))
+#         return HttpResponseRedirect(reverse("fisheriescape:fishery_area_detail", kwargs=self.kwargs))
+#
+#     def get_active_page_name_crumb(self):
+#         my_object = self.get_object()
+#         return my_object
+#
+#     def get_h1(self):
+#         my_object = self.get_object()
+#         return my_object
+#
+#     def get_parent_crumb(self):
+#         return {"title": str(self.get_object()),
+#                 "url": reverse_lazy("fisheriescape:fishery_area_detail", kwargs=self.kwargs)}
+#
+#     def get_grandparent_crumb(self):
+#         kwargs = deepcopy(self.kwargs)
+#         del kwargs["pk"]
+#         return {"title": _("Fishery Area List"), "url": reverse("fisheriescape:fishery_area_list", kwargs=kwargs)}
+#
+#
+# class FisheryAreaCreateView(FisheriescapeAdminAccessRequired, CommonCreateView):
+#     model = models.FisheryArea
+#     form_class = forms.FisheryAreaForm2
+#     template_name = 'fisheriescape/form.html'
+#     home_url_name = "fisheriescape:index"
+#     h1 = gettext_lazy("Add New Fishery Area")
+#     parent_crumb = {"title": gettext_lazy("Fishery Area List"), "url": reverse_lazy("fisheriescape:fishery_area_list")}
+#
+#     def form_valid(self, form):
+#         my_object = form.save()
+#         messages.success(self.request, _(f"Fishery Area record successfully created for : {my_object}"))
+#         return super().form_valid(form)
+#
+#
+# class FisheryAreaDeleteView(FisheriescapeAdminAccessRequired, CommonDeleteView):
+#     model = models.FisheryArea
+#     permission_required = "__all__"
+#     success_url = reverse_lazy('fisheriescape:fishery_area_list')
+#     template_name = 'fisheriescape/confirm_delete.html'
+#     home_url_name = "fisheriescape:index"
+#     grandparent_crumb = {"title": gettext_lazy("Fishery Area List"),
+#                          "url": reverse_lazy("fisheriescape:fishery_area_list")}
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object(), "url": reverse_lazy("fisheriescape:fishery_area_detail", kwargs=self.kwargs)}
 
 
 # #

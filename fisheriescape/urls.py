@@ -24,10 +24,10 @@ urlpatterns = [
     # FISHERY AREA #
 
     path('fisheryarea-list/', views.FisheryAreaListView.as_view(), name="fishery_area_list"),
-    path('fisheryarea/new/', views.FisheryAreaCreateView.as_view(), name="fishery_area_new"),
+    # path('fisheryarea/new/', views.FisheryAreaCreateView.as_view(), name="fishery_area_new"),
     path('fisheryarea/<int:pk>/view/', views.FisheryAreaDetailView.as_view(), name="fishery_area_detail"),
-    path('fisheryarea/<int:pk>/edit/', views.FisheryAreaUpdateView.as_view(), name="fishery_area_edit"),
-    path('fisheryarea/<int:pk>/delete/', views.FisheryAreaDeleteView.as_view(), name="fishery_area_delete"),
+    # path('fisheryarea/<int:pk>/edit/', views.FisheryAreaUpdateView.as_view(), name="fishery_area_edit"),
+    # path('fisheryarea/<int:pk>/delete/', views.FisheryAreaDeleteView.as_view(), name="fishery_area_delete"),
 
     # FISHERY #
 

@@ -107,10 +107,10 @@
         {% blocktrans %}
             <h3>Welcome to the Fisheries Landscape Tool.</h3>This tool is under development, but feel free to explore the database below.<br><br>
             <ul>
-                <li><b>'Species List'</b> refers to the species fished.</li>
                 <li><b>'Fishery List'</b> is a database of fisheries with their areas, dates, gear types, and marine mammal potential interactions.</li>
-                <li><b>'Fishery Area List'</b> is a list of all the fishery areas and their maps.</li>
                 <li><b>'MAP'</b> is an interactive map where you can turn on and off fishing area layers and then click on the one you want to take you to the information page.</li>
+                <li><b>'Species List'</b> refers to the species fished.</li>
+                <li><b>'Fishery Area List'</b> is a list of all the fishery areas and their maps.</li>
             </ul>
 
         {% endblocktrans %}
@@ -129,17 +129,19 @@
         <div class="col-sm">
             <div class="card border border-dark">
                 <div class="card-header">
-                    <h2>{% trans 'Tables' %}</h2>
+                    <h2>{% trans 'Fishery Landscape' %}</h2>
                 </div>
                 <div class="card-img">
                     <img class="mh-80" src="{% static 'img/fisheriescape/fish.jpg' %}" alt="Card image" style="width: 80%; height: 120%">
                 </div>
                 <div class="card-body">
                     <div class="btns">
-                        <a href="{% url 'fisheriescape:species_list' %}" class="btn my-btn btn btn-primary">Species List</a>
                         <a href="{% url 'fisheriescape:fishery_list' %}" class="btn my-btn btn btn-primary">Fishery List</a>
-                        <a href="{% url 'fisheriescape:fishery_area_list' %}" class="btn my-btn btn btn-primary">Fishery Area List</a>
                         <a href="{% url 'fisheriescape:map_view' %}" class="btn my-btn btn btn-primary">MAP</a>
+                        <br><br>
+                        <a href="{% url 'fisheriescape:species_list' %}" class="btn my-btn btn btn-primary">Species List</a>
+                        <a href="{% url 'fisheriescape:fishery_area_list' %}" class="btn my-btn btn btn-primary">Fishery Area List</a>
+
                     </div>
                     <br>
                 </div>

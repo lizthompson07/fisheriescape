@@ -1,5 +1,5 @@
 import factory
-from django.contrib.gis.geos import Polygon, MultiPolygon
+from django.contrib.gis.geos import Polygon, MultiPolygon, fromstr
 from faker import Faker
 
 from .. import models
@@ -7,10 +7,12 @@ from .. import models
 faker = Faker()
 
 
-#TODO not sure how to test a multipolygon field for FisheryArea model - create a static polygon
+# TODO not sure how to test a multipolygon field for FisheryArea model - create a static polygon
 def get_multipolygon():
-    p1 = Polygon(((0, 0), (0, 1), (1, 1), (0, 0)))
+    # p1 = Polygon(((0, 0), (0, 1), (1, 1), (0, 0)))
     # p2 = Polygon(((1, 1), (1, 2), (2, 2), (1, 1)))
+    p1 = fromstr('POLYGON ((0 0, 0 50, 50 50, 50 0, 0 0))', srid=4326)
+    # p1 = Polygon()
     mp = MultiPolygon(p1)
     # mp = MultiPolygon([p1, p2])
     return mp
