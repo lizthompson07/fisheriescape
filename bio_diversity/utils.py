@@ -508,7 +508,7 @@ def enter_tray_contx(tray, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
             row_entered = True
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
-                                                        trof_id=contx.trof_id).get()
+                                                        tray_id=contx.tray_id).get()
         if indv_pk or grp_pk:
             enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
         if return_contx:
