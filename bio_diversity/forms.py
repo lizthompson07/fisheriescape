@@ -899,7 +899,7 @@ class DataForm(CreatePrams):
 
                     # fecu/dud
                     if row["Exp. #"] > 0:
-                        if utils.enter_spwnd(pair.pk, cleaned_data, row["Exp. #"], "Fecundity", None, "Calculated"):
+                        if utils.enter_spwnd(pair.pk, cleaned_data, int(row["Exp. #"]), "Fecundity", None, "Calculated"):
                             row_entered = True
                     else:
                         if utils.enter_spwnd(pair.pk, cleaned_data, row["Choice"], "Dud", None, "Good"):
@@ -1073,7 +1073,7 @@ class DataForm(CreatePrams):
 
                     # fecu/dud
                     if row["Exp. #"] > 0:
-                        if utils.enter_spwnd(pair.pk, cleaned_data, row["Exp. #"], "Fecundity", None, "Calculated"):
+                        if utils.enter_spwnd(pair.pk, cleaned_data, int(row["Exp. #"]), "Fecundity", None, "Calculated"):
                             row_entered = True
                     else:
                         if utils.enter_spwnd(pair.pk, cleaned_data, row["Choice"], "Dud", None, "Good"):
@@ -1304,11 +1304,19 @@ class DataForm(CreatePrams):
             data["trofs"] = data.apply(lambda row: trof_qs.filter(name=row["Trough"]).get(), axis=1)
 
             # trays, date from cross
-            data["trays"] = data.apply(lambda row: utils.create_tray(row["trofs"], row["Tray"], row["pairs"].start_date, cleaned_data, save=True), axis=1)
+            data["trays"] = data.apply(lambda row: utils.create_tray(row["trofs"], row["Tray"], row["pairs"].start_date,
+                                                                     cleaned_data, save=True), axis=1)
             data_dict = data.to_dict('records')
             for row in data_dict:
-                if utils.enter_tray_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk):
+                contx = utils.enter_tray_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
+                                               return_contx=True)
+                if contx:
                     rows_entered += 1
+                    # fecu to count:
+                    spwn_qs = models.SpawnDet.objects.filter(pair_id=row["pairs"], spwndc_id__name="Fecundity")
+                    if spwn_qs.exists():
+                        fecu_est = int(spwn_qs.get().det_val)
+                        utils.enter_cnt(cleaned_data, fecu_est, contx.pk, cnt_code="Fecundity Estimate", est=True)
 
             if not parsed:
                 self.request.session["load_success"] = False

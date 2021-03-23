@@ -755,9 +755,9 @@ class Group(BioModel):
         tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set])
 
         for tank, in_count in tank_in_set.items():
-            if tank not in tank_out_set:
+            if tank not in tank_out_set and tank:
                 cont.append(tank)
-            elif in_count > tank_out_set[tank]:
+            elif in_count > tank_out_set[tank] and tank:
                 cont.append(tank)
         return cont
 
@@ -782,8 +782,8 @@ class Group(BioModel):
         cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
                                        contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct()
 
-        add_codes = ["Fish in Container", ]
-        subtract_codes = ["Mortality", "Pit Tagged"]
+        add_codes = ["Fish in Container", "Counter Count", ]
+        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss"]
 
         for cnt in cnt_set:
             if cnt.cntc_id.name in add_codes:
