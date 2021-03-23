@@ -94,8 +94,10 @@ USE_AWS_SES = False
 # first check to see if a sendgrid api key is available
 if SENDGRID_API_KEY != "":
     USE_SENDGRID = True
+    print("using sendgrid")
 elif AWS_ACCESS_KEY_ID != "":
     USE_AWS_SES = True
+    print("using AWS SES")
 else:
     # if there is nothing there, let's check for SMTP EMAIL configuration
     if EMAIL_HOST == "":
