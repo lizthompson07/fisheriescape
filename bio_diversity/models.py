@@ -12,6 +12,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
 from django.utils import timezone
 
+from bio_diversity import utils
 from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
@@ -747,34 +748,36 @@ class Group(BioModel):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
     def current_tank(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
-        cont = []
+        return self.current_cont_by_key('tank', at_date)
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
-        tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set])
-        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
-        tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set])
+    def current_cont_by_key(self, cont_key, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+        cont_list = []
 
-        for tank, in_count in tank_in_set.items():
-            if tank not in tank_out_set and tank:
-                cont.append(tank)
-            elif in_count > tank_out_set[tank] and tank:
-                cont.append(tank)
-        return cont
+        anix_in_set = self.animal_details.filter(final_contx_flag=True,
+                                                 evnt_id__start_datetime__lte=at_date).select_related(
+            'contx_id__{}_id'.format(cont_key))
+        cont_in_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_in_set])
+        anix_out_set = self.animal_details.filter(final_contx_flag=False,
+                                                  evnt_id__start_datetime__lte=at_date).select_related(
+            'contx_id__{}_id'.format(cont_key))
+        cont_out_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_out_set])
+
+        for cont, in_count in cont_in_set.items():
+            if cont not in cont_out_set and cont:
+                cont_list.append(cont)
+            elif in_count > cont_out_set[cont] and cont:
+                cont_list.append(cont)
+        return cont_list
 
     def current_trof(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
-        cont = []
+        return self.current_cont_by_key('tank', at_date)
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date)
-        trof_in_set = Counter([anix.contx_id.trof_id for anix in anix_in_set])
-        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date)
-        trof_out_set = Counter([anix.contx_id.trof_id for anix in anix_out_set])
-
-        for trof, in_count in trof_in_set.items():
-            if trof not in trof_out_set:
-                cont.append(trof)
-            elif in_count > trof_out_set[trof]:
-                cont.append(trof)
-        return cont
+    def current_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+        current_cont_list = []
+        cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
+        for cont_type in cont_type_list:
+            current_cont_list += self.current_cont_by_key(cont_type, at_date)
+        return current_cont_list
 
     def count_fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
@@ -790,7 +793,6 @@ class Group(BioModel):
                 fish_count += cnt.cnt
             elif cnt.cntc_id.name in subtract_codes:
                 fish_count -= cnt.cnt
-
         return fish_count
 
     def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], grp_select_fields=[]):
@@ -1026,19 +1028,22 @@ class Individual(BioModel):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
     def current_tank(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
-        cont = []
+        return self.current_cont_by_key('tank', at_date)
 
-        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
-        tank_in_set = Counter([anix.contx_id.tank_id for anix in anix_in_set])
-        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__tank_id')
-        tank_out_set = Counter([anix.contx_id.tank_id for anix in anix_out_set])
+    def current_cont_by_key(self, cont_key, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+        cont_list = []
 
-        for tank, in_count in tank_in_set.items():
-            if tank not in tank_out_set:
-                cont.append(tank)
-            elif in_count > tank_out_set[tank]:
-                cont.append(tank)
-        return cont
+        anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__{}_id'.format(cont_key))
+        cont_in_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_in_set])
+        anix_out_set = self.animal_details.filter(final_contx_flag=False, evnt_id__start_datetime__lte=at_date).select_related('contx_id__{}_id'.format(cont_key))
+        cont_out_set = Counter([utils.get_cont_from_anix(anix, cont_key) for anix in anix_out_set])
+
+        for cont, in_count in cont_in_set.items():
+            if cont not in cont_out_set and cont:
+                cont_list.append(cont)
+            elif in_count > cont_out_set[cont] and cont:
+                cont_list.append(cont)
+        return cont_list
 
 
 class IndividualDet(BioDet):

@@ -74,6 +74,22 @@ def get_cont_evnt(contx_tuple):
     return output_list
 
 
+def get_cont_from_anix(anix, cont_key):
+    if cont_key == "tank":
+        return anix.contx_id.tank_id
+    elif cont_key == "tray":
+        return anix.contx_id.tray_id
+    elif cont_key == "trof":
+        return anix.contx_id.trof_id
+    elif cont_key == "cup":
+        return anix.contx_id.cup_id
+    elif cont_key == "heat":
+        return anix.contx_id.heat_id
+    elif cont_key == "draw":
+        return anix.contx_id.draw_id
+    else:
+        return None
+
 def comment_parser(comment_str, anix_indv, det_date):
     coke_dict = get_comment_keywords_dict()
     parser_list = coke_dict.keys()
