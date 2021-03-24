@@ -3,9 +3,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
-from projects import models as project_models
+from projects2 import models as project_models
 
-from django.core.validators import MaxValueValidator, MaxLengthValidator, EmailValidator
+from django.core.validators import MaxValueValidator
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ class MecMeetingContact(models.Model):
 
 class OmCost(models.Model):
     amount = models.DecimalField(decimal_places=10, max_digits=20)
-    funding_source = models.ForeignKey(project_models.FundingSource, on_delete=models.DO_NOTHING)
+    funding_source = models.ForeignKey(project_models.FundingSource, on_delete=models.DO_NOTHING, related_name="csas_om_costs")
     category = models.ForeignKey(project_models.OMCategory, on_delete=models.DO_NOTHING)
 
     description = models.TextField()
