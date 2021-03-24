@@ -61,11 +61,11 @@ var map = L.map('map2', {
 
 var baseMaps = {
     "Light": light,
-    "Streets": streets
+    "Streets": streets,
 };
 
 var overlayMaps = {
-    "Test": polygonObject,
+    "Fishery": polygonObject,
 
 };
 
