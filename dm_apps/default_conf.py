@@ -50,6 +50,7 @@ APP_DICT = {
     'shiny': dict(name="DM Apps Shiny App Collection", staff_ids=[50, ]),
     'bio_diversity': dict(name="Biodiversity", staff_ids=[382, 1337]),
     'events': dict(name="Events Planner", staff_ids=[50, ]),
+    'fisheriescape': dict(name="Fisheries Landscape Tool", staff_ids=[452, ]),
 }
 
 # Deal with fake apps...
