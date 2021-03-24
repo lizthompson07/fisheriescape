@@ -79,8 +79,16 @@ class SpeciesUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
     form_class = forms.SpeciesForm
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
-    parent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("grais:species_list")}
+    grandparent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("grais:species_list")}
     container_class = "container bg-light curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:species_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
 
 
 class SpeciesCreateView(GraisAdminRequiredMixin, CommonCreateView):
@@ -92,13 +100,17 @@ class SpeciesCreateView(GraisAdminRequiredMixin, CommonCreateView):
     parent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("grais:species_list")}
     container_class = "container bg-light curvy"
 
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
 
 class SpeciesDetailView(GraisAdminRequiredMixin, CommonDetailView):
     model = models.Species
     template_name = 'grais/species_detail.html'
     home_url_name = "grais:index"
     parent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("grais:species_list")}
-    container_class = "container bg-light curvy"
     field_list = [
         'id',
         'common_name',
@@ -124,6 +136,140 @@ class SpeciesDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
     success_message = 'The functional group was successfully deleted!'
     template_name = 'grais/confirm_delete.html'
     container_class = "container bg-light curvy"
+
+
+# STATION #
+###########
+
+class StationListView(GraisAdminRequiredMixin, CommonFilterView):
+    model = models.Station
+    template_name = 'grais/list.html'
+    filterset_class = filters.StationFilter
+    home_url_name = "grais:index"
+    new_object_url = reverse_lazy("grais:station_new")
+    row_object_url_name = row_ = "grais:station_detail"
+    container_class = "container-fluid bg-light curvy"
+    h1 = "AIS Sampling Stations"
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'station_name|{}'.format("common name"), "class": "", "width": ""},
+        {"name": 'province.abbrev_eng|{}'.format("province"), "class": "", "width": ""},
+        {"name": 'sample_count|sample count', "class": "", "width": ""},
+    ]
+
+
+class StationUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
+    model = models.Station
+    form_class = forms.StationForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
+    container_class = "container bg-light curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:station_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class StationCreateView(GraisAdminRequiredMixin, CommonCreateView):
+    model = models.Station
+    form_class = forms.StationForm
+    success_url = reverse_lazy('grais:station_list')
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    parent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
+    container_class = "container bg-light curvy"
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class StationDetailView(GraisAdminRequiredMixin, CommonDetailView):
+    model = models.Station
+    template_name = 'grais/station_detail.html'
+    home_url_name = "grais:index"
+    parent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
+    field_list = [
+        'id',
+        'name',
+        'latitude',
+        'longitude',
+        'depth',
+        'site_desc',
+        'metadata',
+    ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["sample_field_list"] = [
+            "id",
+            "season",
+        ]
+        return context
+
+
+class StationDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
+    model = models.Station
+    success_url = reverse_lazy('grais:station_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'grais/confirm_delete.html'
+    container_class = "container bg-light curvy"
+
+
+# # STATION #
+# ###########
+#
+# class StationListView(GraisAccessRequiredMixin, FilterView):
+#     filterset_class = filters.StationFilter
+#     template_name = "grais/station_list.html"
+#
+#
+# class StationUpdateView(GraisAdminRequiredMixin, UpdateView):
+#     # permission_required = "__all__"
+#     raise_exception = True
+#     model = models.Station
+#     form_class = forms.StationForm
+#
+#     def get_initial(self):
+#         return {'last_modified_by': self.request.user}
+#
+#
+# class StationCreateView(GraisAdminRequiredMixin, CreateView):
+#     model = models.Station
+#     form_class = forms.StationForm
+#
+#     def get_initial(self):
+#         return {'last_modified_by': self.request.user}
+#
+#
+# class StationDetailView(GraisAccessRequiredMixin, UpdateView):
+#     model = models.Station
+#     fields = ('__all__')
+#     template_name = 'grais/station_detail.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['google_api_key'] = settings.GOOGLE_API_KEY
+#         return context
+#
+#
+# class StationDeleteView(GraisAdminRequiredMixin, DeleteView):
+#     model = models.Station
+#     success_url = reverse_lazy('grais:station_list')
+#     success_message = 'The station was successfully deleted!'
+#
+#     def delete(self, request, *args, **kwargs):
+#         messages.success(self.request, self.success_message)
+#         return super().delete(request, *args, **kwargs)
+#
+#
 
 
 #
@@ -270,53 +416,6 @@ class SampleListView(GraisAccessRequiredMixin, FilterView):
 #     note.delete()
 #     messages.success(request, "The note has been successfully deleted.")
 #     return HttpResponseRedirect(reverse_lazy("grais:sample_detail", kwargs={"pk": note.sample_id}))
-#
-#
-# # STATION #
-# ###########
-#
-# class StationListView(GraisAccessRequiredMixin, FilterView):
-#     filterset_class = filters.StationFilter
-#     template_name = "grais/station_list.html"
-#
-#
-# class StationUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     # permission_required = "__all__"
-#     raise_exception = True
-#     model = models.Station
-#     form_class = forms.StationForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class StationCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.Station
-#     form_class = forms.StationForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class StationDetailView(GraisAccessRequiredMixin, UpdateView):
-#     model = models.Station
-#     fields = ('__all__')
-#     template_name = 'grais/station_detail.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#         return context
-#
-#
-# class StationDeleteView(GraisAdminRequiredMixin, DeleteView):
-#     model = models.Station
-#     success_url = reverse_lazy('grais:station_list')
-#     success_message = 'The station was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
 #
 #
 # # PERSON #

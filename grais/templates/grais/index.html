@@ -50,49 +50,36 @@
 
     </div>
 
+    <div class="text-center" style="margin-top: 150px">
+      <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_id"> Data Flow Diagram </a>
+    </div>
 
+    {#<!-- modal_label MODAL -->#}
+    <div class="modal fade" id="modal_id" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle"> Data Flow Diagram </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <div align="center">
+              <a href="{% static "/grais/dataflow_AIS.svg" %}">
+                <img src="{% static "/grais/dataflow_AIS.svg" %}" class="rounded" width="100%" alt="...">
+              </a>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <a class="btn btn-warning" href="#" target="_blank">Edit</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  {##}
-  {#      <div class="row">#}
-  {#        <div class="col-4">#}
-  {#          <div class="">#}
-  {#            <br><br>#}
-  {#            <h3>Please select a dataset:</h3>#}
-  {#            <h4>#}
-  {#              <ul>#}
-  {#                <li>#}
-  {#                  <a href="{% url 'grais:sample_list' %}">Biofouling Monitoring</a><br>#}
-  {##}
-  {#                </li>#}
-  {#                <li>#}
-  {##}
-  {#                  <a href="{% url 'grais:gcsample_list' %}">Greencrab Monitoring</a><br>#}
-  {#                </li>#}
-  {#                <li>#}
-  {##}
-  {#                  <a href="{% url 'grais:report_list' %}">Incidental Reports</a><br>#}
-  {#                </li>#}
-  {##}
-  {##}
-  {#              </ul>#}
-  {#            </h4>#}
-  {##}
-  {#          </div>#}
-  {#        </div>#}
-  {#        <div class="col">#}
-  {##}
-  {#
-  {##}
-  {#        </div>#}
-  {#      </div>#}
-  {##}
-  {#    {% else %}#}
-  {#      <div align="center">#}
-  {#        <img src="{% static "/grais/img4.JPG" %}" class="rounded" width="500px" alt="...">#}
-  {#      </div>#}
-  {#    {% endif %}#}
-  {##}
-  {##}
-  {#  </div>#}
 
 {% endblock %}

@@ -123,6 +123,11 @@ class MetadataFields(models.Model):
             self.updated_by,
         )
 
+    def save(self, *args, **kwargs):
+        if self.updated_by and not self.created_by:
+            self.created_by = self.updated_by
+        super().save(*args, **kwargs)
+
 
 # CONNECTED APPS: tickets, travel, projects, sci_fi
 class FiscalYear(models.Model):

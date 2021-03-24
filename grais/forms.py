@@ -21,9 +21,6 @@ class StationForm(forms.ModelForm):
             'site_desc': "Site description",
             'depth': "Depth (m)",
         }
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
 
 
 class EstuaryForm(forms.ModelForm):
@@ -49,9 +46,6 @@ class SpeciesForm(forms.ModelForm):
     class Meta:
         model = models.Species
         fields = "__all__"
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
 
 
 class GCSampleForm(forms.ModelForm):
@@ -118,7 +112,7 @@ class FollowUpForm(forms.ModelForm):
 
 class ProbeMeasurementForm(forms.ModelForm):
     class Meta:
-        fields = ("__all__")
+        fields = "__all__"
         model = models.ProbeMeasurement
 
         widgets = {
@@ -136,7 +130,7 @@ class ProbeMeasurementForm(forms.ModelForm):
 
 class GCProbeMeasurementForm(forms.ModelForm):
     class Meta:
-        fields = ("__all__")
+        fields = "__all__"
         model = models.GCProbeMeasurement
         widgets = {
             'last_modified_by': forms.HiddenInput(),
@@ -197,10 +191,10 @@ class SurfaceForm(forms.ModelForm):
 class SurfaceImageForm(forms.ModelForm):
     class Meta:
         model = models.Surface
-        fields = ('image', 'last_modified_by')
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
+        fields = ('image',)
+        # widgets = {
+        #     'last_modified_by': forms.HiddenInput(),
+        # }
 
 
 class SurfaceSpeciesForm(forms.ModelForm):

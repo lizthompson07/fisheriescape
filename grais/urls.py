@@ -21,6 +21,13 @@ urlpatterns = [
 
     # path('new-species-to-surface-<int:surface>/', views.SpeciesCreatePopoutView.as_view(), name="species_add"),
 
+    # STATION #
+    ###########
+    path('stations/', views.StationListView.as_view(), name="station_list"),
+    path('stations/new/', views.StationCreateView.as_view(), name="station_new"),
+    path('stations/<int:pk>/view/', views.StationDetailView.as_view(), name="station_detail"),
+    path('stations/<int:pk>/edit/', views.StationUpdateView.as_view(), name="station_edit"),
+    path('stations/<int:pk>/delete/', views.StationDeleteView.as_view(), name="station_delete"),
 
     #
     #
@@ -40,13 +47,7 @@ urlpatterns = [
     # path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
     # path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
     #
-    # # STATION #
-    # ###########
-    # path('station/', views.StationListView.as_view(), name="station_list"),
-    # path('station/new/', views.StationCreateView.as_view(), name="station_create"),
-    # path('station/<int:pk>/view/', views.StationDetailView.as_view(), name="station_detail"),
-    # path('station/<int:pk>/edit/', views.StationUpdateView.as_view(), name="station_edit"),
-    # path('station/<int:pk>/delete/', views.StationDeleteView.as_view(), name="station_delete"),
+
     #
     # # SAMPLE NOTE #
     # #############
