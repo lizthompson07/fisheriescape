@@ -58,7 +58,10 @@ if settings.INSTALLED_APPS.count("publications"):
     urlpatterns.append(
         path('api/', include('publications.api.urls')),
     )
-
+if settings.INSTALLED_APPS.count("ihub"):
+    urlpatterns.append(
+        path('api/', include('ihub.api.urls')),
+    )
 if settings.INSTALLED_APPS.count("events"):
     urlpatterns.extend([
         path('events/', include('events.urls')),
@@ -218,6 +221,12 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns += i18n_patterns(path('bio_diversity/', include('bio_diversity.urls')), prefix_default_language=True)
 else:
     print("not connecting bio_diversity app")
+
+if settings.INSTALLED_APPS.count("fisheriescape"):
+    urlpatterns += i18n_patterns(path('fisheriescape/', include('fisheriescape.urls')),
+                                 prefix_default_language=True)
+else:
+    print("not connecting fisheriescape app")
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,

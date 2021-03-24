@@ -242,7 +242,7 @@ class PublicationFormComResults(forms.ModelForm):
 
 class LookupForm(forms.ModelForm):
     class Meta:
-        fields = ['name', 'nom', 'description_en', 'description_fr']
+        fields = ['name', 'nom', 'description_en', 'description_fr', 'is_active']
 
 
 AptFormset = modelformset_factory(model=models.AptAdvisoryProcessType, form=LookupForm, extra=1, )
