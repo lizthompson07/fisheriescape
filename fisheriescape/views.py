@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from django.conf import settings
 from django.utils.translation import gettext as _, gettext_lazy
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -98,6 +99,7 @@ class MapView(FisheriescapeAccessRequired, TemplateView):
         context["lobster_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Lobster"))
         context["snow_crab_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Crab"))
         context["nafo_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="NAFO"))
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
 
@@ -254,7 +256,7 @@ class FisheryAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
             'fishery_status',
             'gear_type',
         ]
-
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
 

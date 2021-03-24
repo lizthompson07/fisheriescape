@@ -6,45 +6,46 @@
 
 {% block subcontent %}
 
-    <div class="mb-4">
-        <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'fisheriescape:fishery_edit' object.id %}">Edit</a>
-            <a class="btn btn-danger" href="{% url 'fisheriescape:fishery_delete' object.id %}">Delete</a>
-            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
-        </div>
+  <div class="mb-4">
+    <div class="btn-group">
+      <a class="btn btn-warning" href="{% url 'fisheriescape:fishery_edit' object.id %}">Edit</a>
+      <a class="btn btn-danger" href="{% url 'fisheriescape:fishery_delete' object.id %}">Delete</a>
+      <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}">Back</a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-3">
+      <table class="table table-sm table-striped">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
     </div>
 
-    <div class="row">
-        <div class="col-3">
-            <table class="table table-sm table-striped">
-            {% for field in field_list %}
-                 {% verbose_td_display object field %}
-            {% endfor %}
-            </table>
-        </div>
-
-        <div class="col" align="center">
-            {% leaflet_map "map2" %}
-        </div>
+    <div class="col" align="center">
+      {% leaflet_map "map2" %}
     </div>
-    <br>
-    <br>
+  </div>
+  <br>
+  <br>
 
-     <div class="col-12">
-            {% include "fisheriescape/_mammals.html" %}
-     </div>
+  <div class="col-12">
+    {% include "fisheriescape/_mammals.html" %}
+  </div>
 
 {% endblock %}
 
 {% block body_js %}
- {{ block.super }}
-    <script>
+  {{ block.super }}
+  <script>
 
-        var polygonObj = {{ fishery_polygons | safe }}
+  let polygonObj = {{ fishery_polygons | safe }};
+  let mapboxApiKey = '{{ mapbox_api_key }}';
 
-    </script>
+  </script>
 
-    <script src="{% static 'fisheriescape/map2.js' %}?version=1.0"></script>
+  <script src="{% static 'fisheriescape/map2.js' %}?version=1.0"></script>
 
 {% endblock %}
 

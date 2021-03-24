@@ -45,6 +45,8 @@ LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR,
 SITE_FROM_EMAIL = config("SITE_FROM_EMAIL", cast=str, default="DoNotReply-nepasrepondre.DMApps@dfo-mpo.gc.ca")
 # google maps API key
 GOOGLE_API_KEY = config("GOOGLE_API_KEY", cast=str, default="")
+# mapbox API key
+MAPBOX_API_KEY = config("MAPBOX_API_KEY", cast=str, default="")
 # github api key
 GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 # Should the ticketing app be displayed on the main index page?
