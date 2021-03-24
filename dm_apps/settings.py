@@ -78,7 +78,6 @@ else:
     # there is not a complete set of connection values in the env
     AZURE_AD = False
 
-
 # Email settings
 SENDGRID_API_KEY = config('SENDGRID_API_KEY', cast=str, default="")
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', cast=str, default="")
@@ -161,10 +160,9 @@ INSTALLED_APPS = [
                      'shared_models',
                      'tickets',
                      'phonenumber_field',
-                     'leaflet',
                  ] + local_conf.MY_INSTALLED_APPS
 
-# If the GEODJANGO setting is set to False, turn off any apps that require it
+# # If the GEODJANGO setting is set to False, turn off any apps that require it
 GEODJANGO = config("GEODJANGO", cast=bool, default=False)
 if not GEODJANGO:
     INSTALLED_APPS.remove('django.contrib.gis')
@@ -173,7 +171,7 @@ if not GEODJANGO:
         print("turning off spring cleanup app because geodjango is not enabled")
         INSTALLED_APPS.remove('fisheriescape')
         print("turning off fisheriescape app because geodjango is not enabled")
-    except ValueError:
+    except:
         pass
 
 MIDDLEWARE = [
@@ -381,7 +379,6 @@ if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
-
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
