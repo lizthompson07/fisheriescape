@@ -62,7 +62,7 @@ var lobsterFishery = L.geoJSON(lobsterObj, {
         }
     },
     onEachFeature: function (feature, layer) {
-        myUrl = `http://127.0.0.1:8000/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
         layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
         layer.on({
             mouseover: showInfo,
@@ -80,7 +80,7 @@ var snowCrabFishery = L.geoJSON(snowCrabObj, {
         }
     },
     onEachFeature: function (feature, layer) {
-        myUrl = `http://127.0.0.1:8000/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
         layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
         layer.on({
             mouseover: showInfo,
@@ -91,21 +91,21 @@ var snowCrabFishery = L.geoJSON(snowCrabObj, {
 
 // Create NAFO polygon layer and use onEachFeature to show certain info for each feature
 
-var nafoFishery = L.geoJSON(nafoObj, {
-    style: function() {
-        return {
-            color: 'green'
-        }
-    },
-    onEachFeature: function (feature, layer) {
-        myUrl = `http://127.0.0.1:8000/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
-        layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
-        layer.on({
-            mouseover: showInfo,
-            mouseout: removeInfoNafo
-        });
-        }
-});
+// var nafoFishery = L.geoJSON(nafoObj, {
+//     style: function() {
+//         return {
+//             color: 'green'
+//         }
+//     },
+//     onEachFeature: function (feature, layer) {
+//         myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+//         layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+//         layer.on({
+//             mouseover: showInfo,
+//             mouseout: removeInfoNafo
+//         });
+//         }
+// });
 
 
 // Create basemaps variable and add basemaps desired to it as options
@@ -121,7 +121,7 @@ var overlayMaps = {
     "Test": tests,
     "Lobster Areas": lobsterFishery,
     "Snow Crab Areas": snowCrabFishery,
-    "NAFO Areas": nafoFishery
+    // "NAFO Areas": nafoFishery
 };
 
 // Create the control layer box and add baseMaps and overlayMaps to it
