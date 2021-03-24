@@ -1,4 +1,3 @@
-{% load leaflet_tags %}
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
@@ -13,14 +12,6 @@
 
   {# block for loading leaflet tags  #}
   {% block leaflet %}
-          {% leaflet_js %}
-    {% leaflet_css %}
-    <style>
-    .leaflet-container {
-        height: 400px;
-        width: 600px;
-    }
-    </style>
   {% endblock leaflet %}
 
   {#  Include all css files  #}

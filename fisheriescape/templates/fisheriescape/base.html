@@ -1,4 +1,5 @@
 {% extends "shared_models/generic_base.html" %}
+{% load leaflet_tags %}
 
 {% block bug_create %}
     {% include "fisheriescape/base/_bug_url.html" %}
@@ -22,4 +23,13 @@
     {% include "fisheriescape/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
 
-
+{% block leaflet %}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <style>
+    .leaflet-container {
+        height: 400px;
+        width: 600px;
+    }
+    </style>
+{% endblock leaflet %}
