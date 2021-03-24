@@ -46,7 +46,7 @@ APP_DICT = {
     'csas': dict(name="Canadian Science Advisory Secretariat", staff_ids=[382, 581 ]),
     'vault': dict(name="Marine Megafauna Media Vault", staff_ids=[452, ]),
     'whalebrary': dict(name="Whalebrary Marine Mammal Tools", staff_ids=[452, ]),
-    'spring_cleanup': dict(name="Gulf Region Spring Cleanup", staff_ids=[50, ]),
+    # 'spring_cleanup': dict(name="Gulf Region Spring Cleanup", staff_ids=[50, ]),
     'shiny': dict(name="DM Apps Shiny App Collection", staff_ids=[50, ]),
     'bio_diversity': dict(name="Biodiversity", staff_ids=[382, 1337]),
     'events': dict(name="Events Planner", staff_ids=[50, ]),

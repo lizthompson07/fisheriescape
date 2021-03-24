@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date, slugify
 from django.urls import reverse
-from django.utils.timesince import timesince
 from markdown import markdown
 from rest_framework import serializers
 
@@ -88,12 +87,21 @@ class ProjectYearSerializerLITE(serializers.ModelSerializer):
             "project",
             "display_name",
             "submitted",
-            "formatted_status",
+            "status_class",
+            "status_display",
         ]
 
     display_name = serializers.SerializerMethodField()
     submitted = serializers.SerializerMethodField()
-    formatted_status = serializers.SerializerMethodField()
+
+    status_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display)
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
 
     def get_display_name(self, instance):
         return str(instance.fiscal_year)
@@ -101,9 +109,6 @@ class ProjectYearSerializerLITE(serializers.ModelSerializer):
     def get_submitted(self, instance):
         if instance.submitted:
             return instance.submitted.strftime("%Y-%m-%d")
-
-    def get_formatted_status(self, instance):
-        return instance.formatted_status
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -158,6 +163,14 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     allocated_budget = serializers.SerializerMethodField()
     review_score_percentage = serializers.SerializerMethodField()
     review_score_fraction = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    status_class = serializers.SerializerMethodField()
+
+    def get_status_class(self, instance):
+        return slugify(instance.get_status_display())
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
 
     def get_review_score_percentage(self, instance):
         return instance.review_score_percentage
@@ -186,8 +199,6 @@ class ProjectYearSerializer(serializers.ModelSerializer):
             if instance.modified_by:
                 my_str += f" by {instance.modified_by}"
         return my_str
-
-
 
     def get_deliverables_html(self, instance):
         return instance.deliverables_html
@@ -430,6 +441,7 @@ class ActivityUpdateSerializer(serializers.ModelSerializer):
     activity = serializers.StringRelatedField()
     status_display = serializers.SerializerMethodField()
     notes_html = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
 
     class Meta:
         model = models.ActivityUpdate
@@ -440,6 +452,9 @@ class ActivityUpdateSerializer(serializers.ModelSerializer):
 
     def get_notes_html(self, instance):
         return instance.notes_html
+
+    def get_metadata(self, instance):
+        return instance.metadata
 
 
 class FileSerializer(serializers.ModelSerializer):

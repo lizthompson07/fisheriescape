@@ -6,7 +6,7 @@
 
 <div class="mb-5">
   <div class="mb-2 neighbours">
-    <h4>{% trans "Activities" %}</h4>
+    <p class="lead">{% trans "Activities" %}</p>
   </div>
   <div v-if="!activity_loading" class="btn-group mb-3 neighbours">
     <button @click="openActivityModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
@@ -59,6 +59,7 @@
         </td>
         <td class="to-the-right" v-if="canModify">
           <button @click="openActivityModal(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="cloneActivity(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-content-copy" data-toggle="tooltip" title="clone"></span></button>
           <button @click="deleteActivity(item)" class="{{ btn_class_2 }} no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>
