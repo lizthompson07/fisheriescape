@@ -6,6 +6,7 @@ from django.db.models import Q, Sum
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from shapely.geometry import Point
 
 from shared_models import models as shared_models
 from shared_models.models import MetadataFields
@@ -65,6 +66,10 @@ class Station(MetadataFields):
     @property
     def sample_count(self):
         return self.samples.count()
+
+    def get_point(self):
+        if self.latitude and self.longitude:
+            return Point(self.latitude, self.longitude)
 
 class Species(MetadataFields):
     # choices for epibiont_type
@@ -226,6 +231,10 @@ class Line(models.Model):
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='LineSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
+
+    def get_point(self):
+        if self.latitude and self.longitude:
+            return Point(self.latitude, self.longitude)
 
     def save(self, *args, **kwargs):
         # if the line was lost, set all surfaces to be lost as well

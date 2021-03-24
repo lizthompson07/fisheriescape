@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 from django.contrib import messages
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
@@ -55,7 +56,7 @@ class SpeciesListView(GraisAdminRequiredMixin, CommonFilterView):
     home_url_name = "grais:index"
     new_object_url = reverse_lazy("grais:species_new")
     row_object_url_name = row_ = "grais:species_detail"
-    container_class = "container-fluid bg-light curvy"
+    container_class = "container-fluid"
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -80,7 +81,6 @@ class SpeciesUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
     grandparent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("grais:species_list")}
-    container_class = "container bg-light curvy"
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("grais:species_detail", args=[self.get_object().id])}
@@ -98,7 +98,6 @@ class SpeciesCreateView(GraisAdminRequiredMixin, CommonCreateView):
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
     parent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("grais:species_list")}
-    container_class = "container bg-light curvy"
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -135,7 +134,6 @@ class SpeciesDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
     success_url = reverse_lazy('grais:species_list')
     success_message = 'The functional group was successfully deleted!'
     template_name = 'grais/confirm_delete.html'
-    container_class = "container bg-light curvy"
 
 
 # STATION #
@@ -148,7 +146,6 @@ class StationListView(GraisAdminRequiredMixin, CommonFilterView):
     home_url_name = "grais:index"
     new_object_url = reverse_lazy("grais:station_new")
     row_object_url_name = row_ = "grais:station_detail"
-    container_class = "container-fluid bg-light curvy"
     h1 = "AIS Sampling Stations"
 
     field_list = [
@@ -165,7 +162,6 @@ class StationUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
     grandparent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
-    container_class = "container bg-light curvy"
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("grais:station_detail", args=[self.get_object().id])}
@@ -183,7 +179,6 @@ class StationCreateView(GraisAdminRequiredMixin, CommonCreateView):
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
     parent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
-    container_class = "container bg-light curvy"
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -212,6 +207,7 @@ class StationDetailView(GraisAdminRequiredMixin, CommonDetailView):
             "id",
             "season",
         ]
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
 
@@ -220,7 +216,6 @@ class StationDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
     success_url = reverse_lazy('grais:station_list')
     success_message = 'The functional group was successfully deleted!'
     template_name = 'grais/confirm_delete.html'
-    container_class = "container bg-light curvy"
 
 
 # # STATION #
