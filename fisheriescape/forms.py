@@ -1,7 +1,6 @@
 # from django import forms
-from django.forms import modelformset_factory
 from django.contrib.gis import forms
-import floppyforms as ff
+
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
