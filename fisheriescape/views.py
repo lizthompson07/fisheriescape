@@ -256,7 +256,7 @@ class FisheryAreaDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
             'fishery_status',
             'gear_type',
         ]
-        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
+
         return context
 
 
@@ -383,6 +383,7 @@ class FisheryDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
         polygon_subset = models.FisheryArea.objects.filter(species=self.object)
 
         context["fishery_polygons"] = serialize("geojson", polygon_subset)
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
 
         return context
 
