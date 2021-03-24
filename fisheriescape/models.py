@@ -115,6 +115,9 @@ class Fishery(models.Model):
     # license_type = models.CharField(max_length=255, null=True, blank=True, choices=LICENSE_CHOICES,
     #                                 verbose_name=_("type of license"))
 
+    class Meta:
+        ordering = ["start_date", "species", ]
+
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("species"))):
