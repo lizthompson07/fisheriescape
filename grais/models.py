@@ -5,7 +5,6 @@ from django.db import models
 from django.db.models import Q, Sum
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
@@ -105,12 +104,6 @@ class Species(models.Model):
                 my_str = "{}".format(self.common_name)
             return my_str
 
-    def __str__(self):
-        if self.common_name or self.common_name_fra:
-            return mark_safe(self.tname + " (<em>" + self.scientific_name + "</em>)") if self.scientific_name else self.tname
-        else:
-            return mark_safe("<em>" + self.scientific_name + "</em>")
-
     @property
     def name_plaintext(self):
         if self.common_name or self.common_name_fra:
@@ -120,9 +113,31 @@ class Species(models.Model):
 
     class Meta:
         ordering = ['common_name']
+        verbose_name_plural = _("Species")
 
     def get_absolute_url(self):
         return reverse('grais:species_detail', kwargs={'pk': self.id})
+
+    @property
+    def tcommon(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("common_name"))):
+            my_str = f'{getattr(self, str(_("common_name")))}'
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.common_name
+        return my_str
+
+    def __str__(self):
+        return self.tcommon
+
+    @property
+    def full_name(self):
+        return "{} (<em>{}</em>)".format(self.common_name, self.scientific_name)
+
+    @property
+    def formatted_scientific(self):
+        return f"<em>{self.scientific_name}</em>"
 
 
 class Sample(models.Model):
