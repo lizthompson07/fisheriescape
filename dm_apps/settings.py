@@ -171,6 +171,8 @@ if not GEODJANGO:
     try:
         INSTALLED_APPS.remove('spring_cleanup')
         print("turning off spring cleanup app because geodjango is not enabled")
+        INSTALLED_APPS.remove('fisheriescape')
+        print("turning off fisheriescape app because geodjango is not enabled")
     except ValueError:
         pass
 
