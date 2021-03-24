@@ -45,12 +45,18 @@ def callback(request):
 
     # Get the user's profile
     user = get_user(token)
-    my_email = user.get("mail")
+    my_email = user.get("mail") if user.get("mail") else user.get("userPrincipalName")
+    my_first_name = user.get("givenName")
+    my_last_name = user.get("surname")
+    my_job = user.get("jobTitle")
+    my_phone = user.get("businessPhones")
+
     try:
         my_user = User.objects.get(email__iexact=my_email)
+        my_user.first_name = my_first_name
+        my_user.last_name = my_last_name
+        my_user.save()
     except User.DoesNotExist:
-        my_first_name = user.get("givenName")
-        my_last_name = user.get("surname")
         my_user = User.objects.create(
             username=my_email,
             email=my_email,
@@ -59,6 +65,16 @@ def callback(request):
             is_active=True,
             password="pbkdf2_sha256$120000$ctoBiOUIJMD1$DWVtEKBlDXXHKfy/0wKCpcIDYjRrKfV/wpYMHKVrasw=",
         )
+    finally:
+        my_profile = my_user.profile
+        my_profile.position_eng = my_job
+        my_profile.position_fre = my_job
+        my_profile.phone = my_phone
+        try:
+            my_profile.save()
+        except:
+            print("there was an error in trying to copy over the user's profile data from AAD")
+
     login(request, my_user)
     return HttpResponseRedirect(reverse('index'))
 
@@ -206,7 +222,6 @@ def signup(request):
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         if form.is_valid():
-            print(123)
             user = form.save(commit=False)
             user.username = user.email
             user.is_active = False

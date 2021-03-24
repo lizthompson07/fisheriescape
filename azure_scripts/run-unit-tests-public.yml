@@ -2,7 +2,7 @@ pool:
   vmImage: 'Ubuntu 18.04'
 
 trigger:
-  - glf_dev
+  - None
 
 steps:
   - task: UsePythonVersion@0
@@ -14,8 +14,6 @@ steps:
       # install pre-requisites
       python -m pip install --upgrade pip setuptools wheel
       python -m pip install -r requirements.txt
-      python -m pip uninstall --yes django-easy-pdf
-      python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
       mkdir media
       mkdir media/temp
       mkdir media/travel
@@ -39,10 +37,10 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Tests for projects (v2)'
 
-  - script: |
-      python manage.py test -b travel.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for travel'
+#  - script: |
+#      python manage.py test -b travel.test
+#    condition: succeededOrFailed()
+#    displayName: 'Tests for travel'
 
   - script: |
       python manage.py test -b whalesdb.test
@@ -89,3 +87,8 @@ steps:
       python manage.py test -b scuba.test
     condition: succeededOrFailed()
     displayName: 'Tests for scuba'
+
+  - script: |
+      python manage.py test -b edna.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for eDNA'

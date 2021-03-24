@@ -1,13 +1,13 @@
+import csv
 import json
 import os
-import csv
-
 from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
+from django.db import IntegrityError
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
@@ -55,7 +55,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
         project_count = models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title").count()
         orphen_count = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user).count()
-        context["my_project_count"] =project_count+ orphen_count
+        context["my_project_count"] = project_count + orphen_count
         return context
 
 
@@ -206,7 +206,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     # parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
 
     def get_active_page_name_crumb(self):
-        return str(self.get_object())
+        return "{} {}".format(_("Project"), self.get_object().id)
 
     def get_h1(self):
         mystr = str(self.get_object())
@@ -520,13 +520,17 @@ class ProjectYearCloneView(ProjectYearUpdateView):
             new_rel_obj.save()
 
         # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
-        my_staff, created = models.Staff.objects.get_or_create(
-            user=self.request.user,
-            project_year=new_obj,
-            employee_type_id=1,
-        )
-        my_staff.lead = True
-        my_staff.save()
+        # but, there is a chance (and likely probability) that they will already be on there.
+        try:
+            my_staff, created = models.Staff.objects.get_or_create(
+                user=self.request.user,
+                project_year=new_obj,
+                employee_type_id=1,
+            )
+            my_staff.lead = True
+            my_staff.save()
+        except IntegrityError:
+            pass
 
         # 2) O&M
         for old_rel_obj in old_obj.omcost_set.all():
@@ -1048,7 +1052,7 @@ class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
 class StatusReportReviewUpdateView(ManagerOrAdminRequiredMixin, StatusReportUpdateView):
     form_class = forms.StatusReportReviewForm
     h1 = gettext_lazy("Please provide review comments")
-    container_class = "container-fluid"
+    container_class = "container bg-light curvy"
 
 
 class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
@@ -1093,20 +1097,25 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         report = int(form.cleaned_data["report"])
         year = nz(form.cleaned_data["year"], "None")
         region = nz(form.cleaned_data["region"], "None")
+        division = nz(form.cleaned_data["division"], "None")
         section = nz(form.cleaned_data["section"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
         elif report == 2:
-            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list")+f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list") + f'?year={year};region={region}')
         elif report == 3:
-            return HttpResponseRedirect(reverse("projects2:export_project_status_summary")+f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_project_status_summary") + f'?year={year};region={region}')
         elif report == 4:
-            return HttpResponseRedirect(reverse("projects2:export_project_list")+f'?year={year};section={section};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_project_list") + f'?year={year};section={section};region={region}')
         elif report == 5:
             return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
         elif report == 6:
             return HttpResponseRedirect(reverse("projects2:export_rsa") + f'?year={year};region={region}')
+        elif report == 7:
+            return HttpResponseRedirect(reverse("projects2:export_ppa") + f'?year={year};section={section};region={region}')
+        elif report == 8:
+            return HttpResponseRedirect(reverse("projects2:export_crc") + f'?year={year};section={section};division={division};region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))
@@ -1195,8 +1204,6 @@ def csrf_application(request, pk):
     raise Http404
 
 
-
-
 @login_required()
 def sara_application(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
@@ -1218,7 +1225,6 @@ def sara_application(request, pk):
             response['Content-Disposition'] = f'inline; filename="{filename}"'
             return response
     raise Http404
-
 
 
 @login_required()
@@ -1279,11 +1285,13 @@ def export_sar_workplan(request):
             return response
     raise Http404
 
+
 @login_required()
 def export_regional_staff_allocation(request):
     year = request.GET.get("year")
     region = request.GET.get("region")
     # Create the HttpResponse object with the appropriate CSV header.
+    region_name = None
     if region:
         region_name = shared_models.Region.objects.get(pk=region)
 
@@ -1305,8 +1313,93 @@ def export_regional_staff_allocation(request):
 
     return response
 
-# ADMIN USERS
 
+@login_required()
+def export_project_position_allocation(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    section = request.GET.get("section")
+
+    region_name = None
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    section_name = None
+    if section:
+        section_name = shared_models.Section.objects.get(pk=section)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    if section_name:
+        response['Content-Disposition'] = 'attachment; filename="{}_{}_{}.csv"'.format(year, region_name, section_name)
+    else:
+        response['Content-Disposition'] = 'attachment; filename="{}_{}.csv"'.format(year, region_name)
+
+    writer = csv.writer(response)
+    writer.writerow(['Project ID', 'Project Name', 'Project Lead', 'Staff Name', 'Staff Level', 'Funding Source'])
+
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section__division__branch__region_id=region)
+    if section:
+        project_years = project_years.filter(project__section_id=section)
+
+    # Now filter down the projects to projects that have staff with staff levels, but no staff name.
+    for p in project_years:
+        staff = p.staff_set.filter(user__id=None)
+        if staff:
+            leads = ", ".join(l.smart_name for l in p.staff_set.filter(is_lead=True))
+            project = p.project
+            for s in staff:
+                # sometimes people enter a persons name
+                writer.writerow([project.pk, project.title, '"' + leads + '"', s.smart_name, s.level, s.funding_source])
+
+    return response
+
+
+@login_required()
+def export_capital_request_costs(request):
+    year = request.GET.get("year")
+    region = request.GET.get("region")
+    division = request.GET.get("division")
+    section = request.GET.get("section")
+
+    region_name = None
+    if region:
+        region_name = shared_models.Region.objects.get(pk=region)
+
+    division_name = None
+    if division and division != 'None':
+        division_name = shared_models.Division.objects.get(pk=division)
+
+    section_name = None
+    if section and section != 'None':
+        section_name = shared_models.Section.objects.get(pk=section)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_capital_request_costs.csv"'.format(year, region_name)
+
+    writer = csv.writer(response)
+    writer.writerow(['Project ID', 'Project Name', 'Region', 'Division', 'Section', 'Theme', 'Capital Cost', 'Amount'])
+
+    project_years = models.ProjectYear.objects.filter(fiscal_year_id=year,
+                                                      project__section__division__branch__region_id=region)
+    if division and division != 'None':
+        project_years = project_years.filter(project__section__division_id=division)
+
+    if section and section != 'None':
+        project_years = project_years.filter(project__section_id=section)
+
+    # Now filter down the projects to projects that have staff with staff levels, but no staff name.
+    for p in project_years:
+        for cost in p.capitalcost_set.all():
+            proj = p.project
+            writer.writerow([proj.pk, proj.title, proj.section.division.branch.region, proj.section.division, proj.section, proj.functional_group, cost, cost.amount])
+
+    return response
+
+
+# ADMIN USERS
 class UserListView(AdminRequiredMixin, CommonFilterView):
     template_name = "projects2/user_list.html"
     filterset_class = filters.UserFilter

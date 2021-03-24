@@ -37,7 +37,7 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-    if settings.SHOW_TICKETING_APP:
+    if settings.SHOW_TICKETING_APP or request.user.is_staff:
         try:
             app_dict["tickets"] = {
                 "title": _("DM Apps Tickets"),
@@ -152,6 +152,19 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('scuba:index'),
             "icon_path": 'img/icons/diving-mask.png',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["edna"] = {
+            "title": _("eDNA Krabappel"),
+            "description": _("eDNA sample logging tool"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('edna:index'),
+            "icon_path": 'img/icons/dna.png',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -403,6 +416,20 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
+
+    try:
+        app_dict["fisheriescape"] = {
+            "title": _("Fisheries Landscape Tool"),
+            "description": _("Tool for mapping fisheries landscapes for marine species at risk"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('fisheriescape:index'),
+            "icon_path": 'img/icons/fisheriescape.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
     return OrderedDict(app_dict)
 
 

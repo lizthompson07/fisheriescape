@@ -10,6 +10,7 @@
 {% endblock title %}
 
 {% block body %}
+
 <div class="container mt-1">
     {% if back %}
             <a class="btn btn-primary" name="back-btn" href="{% url ''|add:list_url back_id %}" title="{% trans 'Back to Details' %}">{% trans 'Back to Details' %}</a>
@@ -37,7 +38,84 @@
             </div>
         </div>
     {% endblock field_override %}
-    {% block detail_tables %} {% endblock %}
+
+
+    {% block detail_tables %}
+    {% if "data" in table_list %}
+        <div class="card border border-dark my-1" name="evnt_data">
+            <h5 class="card-header">{% trans "Add program event data" %}
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-data-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_data' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Data' %}</a>
+                </span>
+            </h5>
+        </div>
+    {% endif %}
+
+    {% for key, value in context_dict.items %}
+        {% if key in table_list %}
+            {%  include "bio_diversity/details_table_block.html" with context_dict=value %}
+        {% endif %}
+    {% endfor %}
+
+    {% if "cont" in table_list %}
+        {% if cont_evnt_list %}
+        <div class="card border border-dark my-1" name="container-details">
+            <h5 class="card-header">{% trans "Container History" %}</h5>
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                {% for field in cont_evnt_field_list %}
+                <th>{{ field }}</th>
+                {% endfor %}
+                </thead>
+                <tbody>
+                {% for obj in cont_evnt_list %}
+                <tr>
+                    {% for field in obj %}
+                    <td>
+                        {{ field }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    {% endif %}
+    {% if 'img' in table_list %}
+    <div class="card border border-dark my-1" name="img-details">
+        <h5 class="card-header">{% trans "Images" %}
+            <span class="px-1">
+                <a class="btn btn-primary" name="add-new-img-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_img' model_key object.pk 'pop' %}','all')" title="{% trans 'Add New Image' %}">{% trans 'Add New Image' %}</a>
+            </span>
+        </h5>
+        {% if object.images.count > 0 %}
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                    {% for field in img_field_list %}
+                        <th>{% get_verbose_label img_object field %}</th>
+                    {% endfor %}
+                </thead>
+                <tbody>
+                    {% for obj in object.images.all %}
+                        {% if obj.img_png %}
+                            <tr href="{{ MEDIA_URL }}{{obj.img_png.url}}">
+                        {% endif %}
+                        {% for field in img_field_list %}
+                            <td>
+                                {% get_field_value obj field %}
+                            </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    {% endif %}
+
+
+    {% endblock %}
 </div>
 {% endblock %}
 
@@ -56,7 +134,7 @@ var interval;
 // upon closing the drop menu the window is associated with is updated adding the new element
 // and setting it as the selected option
 function pop(url, tag) {
-    child = window.open(url, tag,'toolbar=0,status=0,height=500,width=600');
+    child = window.open(url, tag,'toolbar=0,status=0,height=600,width=800');
     child.onbeforeunload = function() {
         if(child.refresh && $('.is-invalid').length <= 0) {
             refreshTag(tag);

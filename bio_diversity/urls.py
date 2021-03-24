@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, utils
 
 app_name = 'bio_diversity'
 
@@ -75,6 +75,7 @@ urlpatterns = [
 
     path('create/cup/', views.CupCreate.as_view(), name="create_cup"),
     path('details/cup/<int:pk>/', views.CupDetails.as_view(), name="details_cup"),
+    path('details/cup/<str:back>/<int:back_id>/<int:pk>/', views.CupDetails.as_view(), name="details_cup"),
     path('list/cup/', views.CupList.as_view(), name="list_cup"),
     path('update/cup/<int:pk>/', views.CupUpdate.as_view(), name="update_cup"),
     
@@ -90,6 +91,7 @@ urlpatterns = [
 
     path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),
     path('details/draw/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),
+    path('details/draw/<str:back>/<int:back_id>/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),
     path('list/draw/', views.DrawList.as_view(), name="list_draw"),
     path('update/draw/<int:pk>/', views.DrawUpdate.as_view(), name="update_draw"),
 
@@ -117,6 +119,7 @@ urlpatterns = [
     
     path('create/envt/', views.EnvtCreate.as_view(), name="create_envt"),
     path('details/envt/<int:pk>/', views.EnvtDetails.as_view(), name="details_envt"),
+    path('details/envt/<str:back>/<int:back_id>/<int:pk>/', views.EnvtDetails.as_view(), name="details_envt"),
     path('list/envt/', views.EnvtList.as_view(), name="list_envt"),
     path('update/envt/<int:pk>/', views.EnvtUpdate.as_view(), name="update_envt"),  
     
@@ -135,7 +138,20 @@ urlpatterns = [
     path('details/evntc/<int:pk>/', views.EvntcDetails.as_view(), name="details_evntc"),
     path('list/evntc/', views.EvntcList.as_view(), name="list_evntc"),
     path('update/evntc/<int:pk>/', views.EvntcUpdate.as_view(), name="update_evntc"),
-            
+
+    path('create/evntf/', views.EvntfCreate.as_view(), name="create_evntf"),
+    path('create/evntf/<int:evnt_pk>/<str:pop>/', views.EvntfCreate.as_view(), name="create_evntf"),
+    path('details/evntf/<int:pk>/', views.EvntfDetails.as_view(), name="details_evntf"),
+    path('details/evntf/<str:back>/<int:back_id>/<int:pk>/', views.EvntfDetails.as_view(), name="details_evntf"),
+    path('list/evntf/', views.EvntfList.as_view(), name="list_evntf"),
+    path('update/evntf/<int:pk>/', views.EvntfUpdate.as_view(), name="update_evntf"),
+      
+    path('create/evntfc/', views.EvntfcCreate.as_view(), name="create_evntfc"),
+    path('details/evntfc/<int:pk>/', views.EvntfcDetails.as_view(), name="details_evntfc"),
+    path('details/evntfc/<str:back>/<int:back_id>/<int:pk>/', views.EvntfcDetails.as_view(), name="details_evntfc"),
+    path('list/evntfc/', views.EvntfcList.as_view(), name="list_evntfc"),
+    path('update/evntfc/<int:pk>/', views.EvntfcUpdate.as_view(), name="update_evntfc"),
+
     path('create/facic/', views.FacicCreate.as_view(), name="create_facic"),
     path('details/facic/<int:pk>/', views.FacicDetails.as_view(), name="details_facic"),
     path('list/facic/', views.FacicList.as_view(), name="list_facic"),
@@ -176,6 +192,7 @@ urlpatterns = [
     
     path('create/heat/', views.HeatCreate.as_view(), name="create_heat"),
     path('details/heat/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),
+    path('details/heat/<str:back>/<int:back_id>/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),
     path('list/heat/', views.HeatList.as_view(), name="list_heat"),
     path('update/heat/<int:pk>/', views.HeatUpdate.as_view(), name="update_heat"),
     
@@ -186,8 +203,10 @@ urlpatterns = [
 
     path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
+    path('ajax/get_fields/', utils.ajax_get_fields, name='ajax_get_fields'),
 
     path('create/img/', views.ImgCreate.as_view(), name="create_img"),
+    path('create/img/<str:feature>/<int:feature_id>/<str:pop>/', views.ImgCreate.as_view(), name="create_img"),
     path('details/img/<int:pk>/', views.ImgDetails.as_view(), name="details_img"),
     path('list/img/', views.ImgList.as_view(), name="list_img"),
     path('update/img/<int:pk>/', views.ImgUpdate.as_view(), name="update_img"),
@@ -253,6 +272,9 @@ urlpatterns = [
     path('details/locc/<int:pk>/', views.LoccDetails.as_view(), name="details_locc"),
     path('list/locc/', views.LoccList.as_view(), name="list_locc"),
     path('update/locc/<int:pk>/', views.LoccUpdate.as_view(), name="update_locc"),
+    
+    path('create/mort/<str:iorg>/<int:pk>/', views.MortFormView.as_view(), name="create_mort"),
+    path('create/mort/<str:iorg>/<int:pk>/<str:pop>/', views.MortFormView.as_view(), name="create_mort"),
 
     path('create/orga/', views.OrgaCreate.as_view(), name="create_orga"),
     path('create/orga/<str:pop>/', views.OrgaCreate.as_view(), name="create_orga"),
@@ -262,6 +284,7 @@ urlpatterns = [
 
     path('create/pair/', views.PairCreate.as_view(), name="create_pair"),
     path('create/pair/<str:pop>/', views.PairCreate.as_view(), name="create_pair"),
+    path('create/pair/<int:evnt>/<str:pop>/', views.PairCreate.as_view(), name="create_pair"),
     path('details/pair/<int:pk>/', views.PairDetails.as_view(), name="details_pair"),
     path('details/pair/<str:back>/<int:back_id>/<int:pk>/', views.PairDetails.as_view(), name="details_pair"),
     path('list/pair/', views.PairList.as_view(), name="list_pair"),
@@ -271,6 +294,12 @@ urlpatterns = [
     path('details/perc/<int:pk>/', views.PercDetails.as_view(), name="details_perc"),
     path('list/perc/', views.PercList.as_view(), name="list_perc"),
     path('update/perc/<int:pk>/', views.PercUpdate.as_view(), name="update_perc"),
+
+    path('plot/growth/<str:iorg>/<int:pk>/', views.GrowthChartView.as_view(), name="plot_growth"),
+    path('plot/growth/<str:iorg>/<int:pk>/<str:pop>', views.GrowthChartView.as_view(), name="plot_growth"),
+    path('plot/maturity/<str:cont>/<int:pk>/<str:pop>', views.MaturityRateView.as_view(), name="plot_maturity_rate"),
+    path('plot/tempdata/<str:cont>/<int:pk>/<str:pop>', views.PlotTempData.as_view(), name="plot_temp_data"),
+    path('plots/plot_data_file/', views.plot_data_file, name="plot_data_file"),
 
     path('create/prio/', views.PrioCreate.as_view(), name="create_prio"),
     path('details/prio/<int:pk>/', views.PrioDetails.as_view(), name="details_prio"),
@@ -316,6 +345,10 @@ urlpatterns = [
     path('list/relc/', views.RelcList.as_view(), name="list_relc"),
     path('update/relc/<int:pk>/', views.RelcUpdate.as_view(), name="update_relc"),
     
+    path('create/repr/', views.ReportFormView.as_view(), name="create_repr"),
+    path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
+    path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
+
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
     path('list/rive/', views.RiveList.as_view(), name="list_rive"),
@@ -348,15 +381,9 @@ urlpatterns = [
     path('list/sire/', views.SireList.as_view(), name="list_sire"),
     path('update/sire/<int:pk>/', views.SireUpdate.as_view(), name="update_sire"),
 
-    path('create/spwn/', views.SpwnCreate.as_view(), name="create_spwn"),
-    path('create/spwn/<int:evnt>/<str:pop>/', views.SpwnCreate.as_view(), name="create_spwn"),
-    path('details/spwn/<int:pk>/', views.SpwnDetails.as_view(), name="details_spwn"),
-    path('details/spwn/<str:back>/<int:back_id>/<int:pk>/', views.SpwnDetails.as_view(), name="details_spwn"),
-    path('list/spwn/', views.SpwnList.as_view(), name="list_spwn"),
-    path('update/spwn/<int:pk>/', views.SpwnUpdate.as_view(), name="update_spwn"),
-    
     path('create/spwnd/', views.SpwndCreate.as_view(), name="create_spwnd"),
     path('details/spwnd/<int:pk>/', views.SpwndDetails.as_view(), name="details_spwnd"),
+    path('details/spwnd/<str:back>/<int:back_id>/<int:pk>/', views.SpwndDetails.as_view(), name="details_spwnd"),
     path('list/spwnd/', views.SpwndList.as_view(), name="list_spwnd"),
     path('update/spwnd/<int:pk>/', views.SpwndUpdate.as_view(), name="update_spwnd"),
     
