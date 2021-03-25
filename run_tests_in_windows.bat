@@ -39,3 +39,6 @@ python manage.py test -b publications.test --keepdb
 
 :: run tests for edna
 python manage.py test -b edna.test --keepdb
+
+:: run tests for edna
+python manage.py test -b fisheriescape.test --keepdb
