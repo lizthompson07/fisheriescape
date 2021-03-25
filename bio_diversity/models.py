@@ -1572,7 +1572,7 @@ class Tray(BioCont):
         return round(sum(degree_days), 3)
 
     def __str__(self):
-        return "{}-{}".format(self.name, self.trof_id.__str__())
+        return "TR{}.{}".format(self.trof_id.__str__(), self.name)
 
 
 class TrayDet(BioContainerDet):

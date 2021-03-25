@@ -1255,7 +1255,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature"\
                 and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_csv(cleaned_data["data_csv"], encoding="mbcs", header=7)
+                data = pd.read_csv(cleaned_data["data_csv"], encoding='ISO-8859-1', header=7)
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -1350,8 +1350,57 @@ class DataForm(CreatePrams):
                     cross_grp = models.Group.objects.filter(animal_details__contx_id__tray_id=tray).get()
                     contx = utils.enter_tray_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
                     utils.enter_cnt(cleaned_data, row["Picks"], contx.pk, cnt_code="Egg Picks")
-                    utils.enter_cnt(cleaned_data, row["Shock Loss"], contx.pk, cnt_code="Shock Loss")
+                    utils.enter_cnt(cleaned_data, row["Shock Loss"], contx.pk, cnt_code="Morts after shocking")
                     utils.enter_cnt(cleaned_data, row["Counter Total Remaining"], contx.pk, cnt_code="Counter Count")
+
+            if not parsed:
+                self.request.session["load_success"] = False
+
+            log_data += "\n\n\n {} of {} rows entered to " \
+                        "database".format(rows_entered, len(data_dict))
+        # ---------------------------PICKS DATA COLDBROOK----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] ==\
+                "Picks" and cleaned_data["facic_id"].__str__() == "Coldbrook":
+            try:
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', sheet_name="Matings and Losses", header=None)
+                data_dict = data.to_dict('records')
+            except Exception as err:
+                log_data += "\n File format not valid: {}".format(err.__str__())
+                self.request.session["log_data"] = log_data
+                return
+            parsed = True
+            self.request.session["load_success"] = True
+
+            pair_qs = models.Pairing.objects.all().select_related('indv_id__stok_id')
+            data["pairs"] = data.apply(
+                lambda row: pair_qs.filter(cross=row["cross"], indv_id__stok_id__name=row["Stock"]).get(), axis=1)
+
+            anix_qs = models.AniDetailXref.objects.filter(pair_id__in=data["pairs"],
+                                                          grp_id__isnull=False).select_related('grp_id')
+            data["grps"] = data.apply(lambda row: anix_qs.filter(pair_id=row["pairs"]).get().grp_id, axis=1)
+
+            trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
+            data["trofs"] = data.apply(lambda row: trof_qs.filter(name=row["Trough"]).get(), axis=1)
+
+            # trays, date from cross
+            data["trays"] = data.apply(lambda row: utils.create_tray(row["trofs"], row["cross"], row["pairs"].start_date,
+                                                                     cleaned_data, save=True), axis=1)
+
+            data_dict = data.to_dict('records')
+            for row in data_dict:
+                contx = utils.enter_tray_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
+                                               return_contx=True)
+                if contx:
+                    rows_entered += 1
+                    # fecu to count:
+                    spwn_qs = models.SpawnDet.objects.filter(pair_id=row["pairs"], spwndc_id__name="Fecundity")
+                    if spwn_qs.exists():
+                        fecu_est = int(spwn_qs.get().det_val)
+                        utils.enter_cnt(cleaned_data, fecu_est, contx.pk, cnt_code="Fecundity Estimate", est=True)
+                    utils.enter_cnt(cleaned_data, row["Fecundity Counts from Photos"], contx.pk, cnt_code="Photo Counts")
+                    utils.enter_cnt(cleaned_data, row["Morts 1st pick (day after spawning)"], contx.pk, cnt_code="Morts after Spawning")
+                    utils.enter_cnt(cleaned_data, row["Morts after cleaning"], contx.pk, cnt_code="Morts after cleaning")
+                    utils.enter_cnt(cleaned_data, row["Morts after shocking"], contx.pk, cnt_code="Morts after shocking")
 
             if not parsed:
                 self.request.session["load_success"] = False

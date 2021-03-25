@@ -749,7 +749,7 @@ class CommonContDetails(CommonDetails):
                                            "field_list": envt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        indv_list, grp_list = self.object.fish_in_cont(select_fields=["indv_id__grp_id__stok_id","indv_id__grp_id__coll_id"])
+        indv_list, grp_list = self.object.fish_in_cont(select_fields=["indv_id__grp_id__stok_id", "indv_id__grp_id__coll_id"])
         indv_field_list = ["ufid", "pit_tag", "grp_id", ]
         obj_mixin = mixins.IndvMixin
         context["context_dict"]["indv_cont"] = {"div_title": "Individuals in Container",
@@ -2615,6 +2615,9 @@ class PlotTempData(PlotView):
             env_set = models.EnvCondition.objects.filter(contx_id__tank_id=cont_pk, envc_id__name="Temperature")
         elif self.kwargs.get("cont") == "trof":
             env_set = models.EnvCondition.objects.filter(contx_id__trof_id=cont_pk, envc_id__name="Temperature")
+        elif self.kwargs.get("cont") == "tray":
+            trof_pk = models.Tray.objects.filter(pk=cont_pk).get().trof_id.pk
+            env_set = models.EnvCondition.objects.filter(contx_id__trof_id=trof_pk, envc_id__name="Temperature")
 
         x_data = [env.start_datetime for env in env_set]
         y_data = [env.env_val for env in env_set]
