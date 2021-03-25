@@ -6,7 +6,7 @@
 
 <div class="mb-5">
   <div class="mb-2 neighbours">
-    <h4>{% trans "Collaborations" %}</h4>
+    <p class="lead">{% trans "Collaborations" %}</p>
   </div>
   <div v-if="!collaboration_loading" class="mb-2 neighbours">
     <button @click="openCollaborationModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
