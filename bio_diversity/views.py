@@ -732,7 +732,7 @@ class CommonContDetails(CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
 
         cnt_set = models.Count.objects.filter(**{arg_name: cont_pk}).select_related("cntc_id")
-        cnt_field_list = ["cntc_id", "cnt", "est"]
+        cnt_field_list = ["cntc_id", "cnt", "est", "date"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "Counts",
                                           "sub_model_key": obj_mixin.key,

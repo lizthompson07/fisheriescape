@@ -358,6 +358,14 @@ class Count(BioModel):
         return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
 
 
+    @property
+    def date(self):
+        if self.contx_id:
+            return self.contx_id.evnt_id.start_date
+        else:
+            return None
+
+
 class CountCode(BioLookup):
     # cntc tag
     pass
@@ -406,7 +414,7 @@ class Cup(BioCont):
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
 
     def __str__(self):
-        return "{}-{}".format(self.name, self.draw_id.__str__())
+        return "{}.{}.{}".format(self.draw_id.heat_id.__str__(), self.draw_id.name, self.name)
 
 
 class CupDet(BioContainerDet):
@@ -449,7 +457,7 @@ class Drawer(BioCont):
     facic_id = None
 
     def __str__(self):
-        return "{}-{}".format(self.name, self.heat_id.__str__())
+        return "{}.{}".format(self.heat_id.__str__(), self.name)
 
 
 class EnvCode(BioLookup):
@@ -770,7 +778,7 @@ class Group(BioModel):
         return cont_list
 
     def current_trof(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
-        return self.current_cont_by_key('tank', at_date)
+        return self.current_cont_by_key('trof', at_date)
 
     def current_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
         current_cont_list = []
@@ -1572,7 +1580,7 @@ class Tray(BioCont):
         return round(sum(degree_days), 3)
 
     def __str__(self):
-        return "TR{}.{}".format(self.trof_id.__str__(), self.name)
+        return "TR{}-{}".format(self.trof_id.__str__(), self.name)
 
 
 class TrayDet(BioContainerDet):

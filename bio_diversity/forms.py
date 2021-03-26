@@ -243,7 +243,7 @@ class DataForm(CreatePrams):
         if cleaned_data["evntc_id"].__str__() == "Electrofishing" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl',
-                                     converters={'Year': str, 'Month': str, 'Day': str})
+                                     converters={'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -353,7 +353,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Electrofishing" and \
                 cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=1, engine='openpyxl')
+                data = pd.read_excel(cleaned_data["data_csv"], header=1, engine='openpyxl').dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -462,7 +462,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'to tank': str, 'Year': str, 'Month': str, 'Day': str})
+                                     converters={'to tank': str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -574,7 +574,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'to tank': str, "PIT": str, 'Year': str, 'Month': str, 'Day': str})
+                                     converters={'to tank': str, "PIT": str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
                 data["Comments"] = data["Comments"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
@@ -682,7 +682,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'PIT': str, 'Year': str, 'Month': str, 'Day': str})
+                                     converters={'PIT': str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
                 data["COMMENTS"] = data["COMMENTS"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
@@ -748,7 +748,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Water Quality Record" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'Pond': str, 'Year': str, 'Month': str, 'Day': str})
+                                     converters={'Pond': str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -802,7 +802,7 @@ class DataForm(CreatePrams):
         # ---------------------------MACTAQUAC SPAWNING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=5,  engine='xlrd', sheet_name="RECORDED matings")
+                data = pd.read_excel(cleaned_data["data_csv"], header=5,  engine='xlrd', sheet_name="RECORDED matings").dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -982,7 +982,7 @@ class DataForm(CreatePrams):
         # ---------------------------COLDBROOK SPAWNING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=5, engine='xlrd', sheet_name="Recording")
+                data = pd.read_excel(cleaned_data["data_csv"], header=5, engine='xlrd', sheet_name="Recording").dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -1133,7 +1133,7 @@ class DataForm(CreatePrams):
                 indv_female = indv_qs.get()
                 evntf = models.EventFile(evnt_id_id=cleaned_data["evnt_id"].pk,
                                          stok_id=indv_female.stok_id,
-                                         evntfc_id=models.EventFileCode.objects.filter(name="Mating Plan"),
+                                         evntfc_id=models.EventFileCode.objects.filter(name="Mating Plan").get(),
                                          evntf_xls=cleaned_data["data_csv"],
                                          created_by=cleaned_data["created_by"],
                                          created_date=cleaned_data["created_date"],
@@ -1156,7 +1156,7 @@ class DataForm(CreatePrams):
         # ---------------------------MACTAQUAC TREATMENT DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Treatment" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Ponds")
+                data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Ponds").dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -1215,45 +1215,8 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
-        # ---------------------------TROUGH TEMPERATURE DATA ENTRY COLDBROOK----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature" \
-                and cleaned_data["facic_id"].__str__() == "Coldbrook":
-            try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Sheet1",
-                                     converters={"Hour": str, 'Year': str, 'Month': str, 'Day': str})
-                data = data.dropna(subset=["Temperature"])
-                data_dict = data.to_dict('records')
-            except Exception as err:
-                log_data += "\n File format not valid: {}".format(err.__str__())
-                self.request.session["log_data"] = log_data
-                return
-            parsed = True
-            self.request.session["load_success"] = True
-
-            contx = utils.enter_trof_contx(cleaned_data["trof_id"].name, cleaned_data, final_flag=None, return_contx=True)
-
-            qual_id = models.QualCode.objects.filter(name="Good").get()
-            envc_id = models.EnvCode.objects.filter(name="Temperature").get()
-
-            data["datetime"] = data.apply(lambda row: datetime.strptime(row["Year"] + "/" + row["Month"] + "/" +
-                                                                        row["Day"] + "/" + row["Hour"],
-                                                                        "%Y/%b/%d/%H").replace(tzinfo=pytz.UTC), axis=1)
-
-            data["env"] = data.apply(lambda row: utils.enter_env(row["Temperature"], row["datetime"].date(),
-                                                                 cleaned_data, envc_id, env_start=row["datetime"].time(),
-                                                                 contx=contx, save=False, qual_id=qual_id), axis=1)
-
-            entered_list = models.EnvCondition.objects.bulk_create(list(data["env"].dropna()))
-
-            if not parsed:
-                self.request.session["load_success"] = False
-
-            log_data += "\n\n\n {} of {} rows entered to " \
-                        "database".format(len(entered_list), len(data_dict))
-
-        # ---------------------------TROUGH TEMPERATURE DATA ENTRY MACTAQUAC----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature"\
-                and cleaned_data["facic_id"].__str__() == "Mactaquac":
+        # ---------------------------TROUGH TEMPERATURE DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature":
             try:
                 data = pd.read_csv(cleaned_data["data_csv"], encoding='ISO-8859-1', header=7)
                 data_dict = data.to_dict('records')
@@ -1286,7 +1249,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] ==\
                 "Cross Mapping" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0)
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0).dropna(how="all")
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
                 self.request.session["log_data"] = log_data
@@ -1327,7 +1290,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] ==\
                 "Picks" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', sheet_name="LOSS", header=None)
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', sheet_name="LOSS", header=None).dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -1344,14 +1307,12 @@ class DataForm(CreatePrams):
                 trof = models.Trough.objects.filter(name=trof_df["Trough Number"][1], facic_id=cleaned_data["facic_id"]).get()
                 utils.enter_trof_contx(trof.name, cleaned_data)
                 pick_dates_df = trof_df.iloc[[0]].dropna(axis=1).drop(trof_df.iloc[[0]].iloc[:, 0:1], axis=1)
-
+                pick_date = datetime.now().date()
                 for row in trof_df.to_dict("records")[1:]:
                     tray = models.Tray.objects.filter(trof_id=trof, name=row["Tray Number"], end_date__isnull=True).get()
                     cross_grp = models.Group.objects.filter(animal_details__contx_id__tray_id=tray).get()
                     contx = utils.enter_tray_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
-                    utils.enter_cnt(cleaned_data, row["Picks"], contx.pk, cnt_code="Egg Picks")
-                    utils.enter_cnt(cleaned_data, row["Shock Loss"], contx.pk, cnt_code="Morts after shocking")
-                    utils.enter_cnt(cleaned_data, row["Counter Total Remaining"], contx.pk, cnt_code="Counter Count")
+                    utils.create_picks_evnt(cleaned_data, tray, cross_grp.pk, row["Picks"], pick_date, "Egg Picks")
 
             if not parsed:
                 self.request.session["load_success"] = False
@@ -1362,7 +1323,8 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] ==\
                 "Picks" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', sheet_name="Matings and Losses", header=None)
+                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', sheet_name="Matings and Losses",
+                                     header=1,  converters={'Trough': str, "cross": str}).dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -1397,10 +1359,51 @@ class DataForm(CreatePrams):
                     if spwn_qs.exists():
                         fecu_est = int(spwn_qs.get().det_val)
                         utils.enter_cnt(cleaned_data, fecu_est, contx.pk, cnt_code="Fecundity Estimate", est=True)
-                    utils.enter_cnt(cleaned_data, row["Fecundity Counts from Photos"], contx.pk, cnt_code="Photo Counts")
-                    utils.enter_cnt(cleaned_data, row["Morts 1st pick (day after spawning)"], contx.pk, cnt_code="Morts after Spawning")
-                    utils.enter_cnt(cleaned_data, row["Morts after cleaning"], contx.pk, cnt_code="Morts after cleaning")
-                    utils.enter_cnt(cleaned_data, row["Morts after shocking"], contx.pk, cnt_code="Morts after shocking")
+                    utils.enter_cnt(cleaned_data, row["Fecundity Counts from Photos"], contx.pk, cnt_code="Photo Count")
+                    # PICKS
+                    pick_tuples = [
+                        ("Spawning Picks Date", "Morts 1st pick (day after spawning)", "Spawning Loss"),
+                        ("Cleaning Pick Date", "Morts after cleaning", "Cleaning Loss"),
+                        ("Shocking Pick Date", "Morts after shocking", "Shock Loss"),
+                    ]
+
+                    for date_key, pick_key, pick_code in pick_tuples:
+                        pick_datetime = datetime.strptime(row[date_key], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+                        utils.create_picks_evnt(cleaned_data, row["trays"], row["grps"].pk, row[pick_key], pick_datetime, pick_code)
+
+                    # EGG MOVEMENT:
+                    move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+                    move_tuples = [
+                        ("EQU A #", "EQU A Location"),
+                        ("EQU B #", "EQU B Location"),
+                    ]
+                    for move_cnt, move_cup in move_tuples:
+                        utils.enter_cnt(cleaned_data, row[move_cnt], contx.pk, cnt_code="EQU eggs")
+                        cup = utils.get_cup_from_dot(row[move_cup], cleaned_data, move_date)
+                        indv, final_grp = cup.fish_in_cont(move_date)
+                        if not final_grp:
+                            final_grp = models.Group(spec_id=row["grps"].spec_id,
+                                                     coll_id=row["grps"].coll_id,
+                                                     grp_year=row["grps"].grp_year,
+                                                     stok_id=row["grps"].stok_id,
+                                                     grp_valid=True,
+                                                     created_by=cleaned_data["created_by"],
+                                                     created_date=cleaned_data["created_date"],
+                                                     )
+                            try:
+                                final_grp.clean()
+                                final_grp.save()
+                            except (ValidationError, IntegrityError):
+                                return None
+                        else:
+                            final_grp = final_grp[0]
+                        utils.create_egg_movement_evnt(row["trays"], cup, cleaned_data, move_date, final_grp.pk)
+                        cup_contx = utils.enter_cup_contx(cup, cleaned_data, None, grp_pk=final_grp.pk, return_contx=True)
+                        utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Egg Count", )
+                    # End Tray:
+                    tray = row["trays"]
+                    tray.end_date = move_date
+                    tray.save()
 
             if not parsed:
                 self.request.session["load_success"] = False
@@ -1412,7 +1415,7 @@ class DataForm(CreatePrams):
         else:
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'PIT': str, 'Year': str, 'Month': str, 'Day': str})
+                                     converters={'PIT': str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
                 data["COMMENTS"] = data["COMMENTS"].fillna('')
                 data_dict = data.to_dict('records')
             except Exception as err:
@@ -1468,7 +1471,7 @@ class DataForm(CreatePrams):
                                     row_entered = True
 
                         if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope", None):
-                            row_entered=True
+                            row_entered = True
                         if utils.create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_datetime,
                                                       indv_pk=indv.pk):
                             row_entered = True
