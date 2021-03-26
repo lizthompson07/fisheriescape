@@ -416,6 +416,20 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
+
+    try:
+        app_dict["fisheriescape"] = {
+            "title": _("Fisheries Landscape Tool"),
+            "description": _("Tool for mapping fisheries landscapes for marine species at risk"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('fisheriescape:index'),
+            "icon_path": 'img/icons/fisheriescape.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
     return OrderedDict(app_dict)
 
 

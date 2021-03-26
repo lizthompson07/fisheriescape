@@ -206,7 +206,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     # parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
 
     def get_active_page_name_crumb(self):
-        return str(self.get_object())
+        return "{} {}".format(_("Project"), self.get_object().id)
 
     def get_h1(self):
         mystr = str(self.get_object())
@@ -1052,7 +1052,7 @@ class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
 class StatusReportReviewUpdateView(ManagerOrAdminRequiredMixin, StatusReportUpdateView):
     form_class = forms.StatusReportReviewForm
     h1 = gettext_lazy("Please provide review comments")
-    container_class = "container-fluid"
+    container_class = "container bg-light curvy"
 
 
 class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):

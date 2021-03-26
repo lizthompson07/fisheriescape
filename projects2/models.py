@@ -15,7 +15,7 @@ from projects2 import emails
 from projects2.utils import get_risk_rating
 from shared_models import models as shared_models
 # Choices for language
-from shared_models.models import SimpleLookup, Lookup, HelpTextLookup
+from shared_models.models import SimpleLookup, Lookup, HelpTextLookup, MetadataFields
 from shared_models.utils import get_metadata_string
 
 YES_NO_CHOICES = (
@@ -1065,7 +1065,7 @@ class Activity(models.Model):
         return self.updates.first()
 
 
-class ActivityUpdate(models.Model):
+class ActivityUpdate(MetadataFields):
     status_choices = (
         (7, _("In progress")),
         (8, _("Completed")),

@@ -45,6 +45,8 @@ LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR,
 SITE_FROM_EMAIL = config("SITE_FROM_EMAIL", cast=str, default="DoNotReply-nepasrepondre.DMApps@dfo-mpo.gc.ca")
 # google maps API key
 GOOGLE_API_KEY = config("GOOGLE_API_KEY", cast=str, default="")
+# mapbox API key
+MAPBOX_API_KEY = config("MAPBOX_API_KEY", cast=str, default="")
 # github api key
 GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 # Should the ticketing app be displayed on the main index page?
@@ -77,7 +79,6 @@ if utils.azure_ad_values_exist(azure_connection_dict):
 else:
     # there is not a complete set of connection values in the env
     AZURE_AD = False
-
 
 # Email settings
 SENDGRID_API_KEY = config('SENDGRID_API_KEY', cast=str, default="")
@@ -163,15 +164,22 @@ INSTALLED_APPS = [
                      'phonenumber_field',
                  ] + local_conf.MY_INSTALLED_APPS
 
-# If the GEODJANGO setting is set to False, turn off any apps that require it
+# # If the GEODJANGO setting is set to False, turn off any apps that require it
 GEODJANGO = config("GEODJANGO", cast=bool, default=False)
 if not GEODJANGO:
     INSTALLED_APPS.remove('django.contrib.gis')
     try:
         INSTALLED_APPS.remove('spring_cleanup')
         print("turning off spring cleanup app because geodjango is not enabled")
-    except ValueError:
+    except:
         pass
+
+    try:
+        INSTALLED_APPS.remove('fisheriescape')
+        print("turning off fisheriescape app because geodjango is not enabled")
+    except:
+        pass
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -378,7 +386,6 @@ if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
-
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
