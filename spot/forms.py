@@ -1,8 +1,9 @@
 from django import forms
 from django.forms import modelformset_factory
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from . import models
+from django.utils.safestring import mark_safe
 
 
 attr_chosen_contains = {"class": "chosen-select-contains"}
@@ -20,24 +21,30 @@ YES_NO_CHOICES = (
 )
 
 
-def popover_html(label, content):
-    return label + ' <a tabindex="0" role="button" data-toggle="popover" data-html="true" \
-                            data-trigger="hover" data-placement="auto" data-content="' + content + '"> \
-                            <span class="glyphicon glyphicon-info-sign"></span></a>'
-
-
 class OrganizationForm(forms.ModelForm):
 
     class Meta:
         model = models.Organization #ml
         fields = '__all__'
-        labels = {
-            'name': popover_html('Name', 'The name of your Org')
-        }
         widgets = {
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
+        help_texts = {
+            'organization_type': 'its a mighty <br> cheese pizza',
+            'address': 'where ya live'
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(OrganizationForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})
+
 
 
 class PersonForm(forms.ModelForm):
@@ -52,6 +59,16 @@ class PersonForm(forms.ModelForm):
             'date_last_modified': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(PersonForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})
+
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -62,6 +79,15 @@ class ProjectForm(forms.ModelForm):
             'date_last_modified': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ProjectForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})
 
 class ObjectiveForm(forms.ModelForm):
     class Meta:
@@ -75,6 +101,15 @@ class ObjectiveForm(forms.ModelForm):
             'date_last_modified': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ObjectiveForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})
 
 class MethodForm(forms.ModelForm):
     class Meta:
@@ -85,6 +120,15 @@ class MethodForm(forms.ModelForm):
             'date_last_modified': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(MethodForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})
 
 class DatabasesUsedForm(forms.ModelForm):
     class Meta:
@@ -95,6 +139,15 @@ class DatabasesUsedForm(forms.ModelForm):
             'date_last_modified': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(DatabasesUsedForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})
 
 class FeedbackForm(forms.ModelForm):
     class Meta:
@@ -105,6 +158,15 @@ class FeedbackForm(forms.ModelForm):
             'date_last_modified': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(FeedbackForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})
 
 class MeetingsForm(forms.ModelForm):
     class Meta:
@@ -115,6 +177,15 @@ class MeetingsForm(forms.ModelForm):
             'date_last_modified': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(MeetingsForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})
 
 class ReportsForm(forms.ModelForm):
     class Meta:
@@ -124,3 +195,13 @@ class ReportsForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'date_last_modified': forms.HiddenInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(ReportsForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
+                     'data-container': 'body', 'data-html': "true"})

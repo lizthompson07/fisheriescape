@@ -245,7 +245,7 @@ class Organization(models.Model):
 
     name = models.CharField(max_length=1000, verbose_name=_("name"))
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
-    organization_type = models.ForeignKey(OrgType, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("organization type"), help_text='one \n two \n three')
+    organization_type = models.ForeignKey(OrgType, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("organization type"), help_text='one <br> two <br> three')
     province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"), related_name="organization_province")
     country = models.ForeignKey(Country, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("country"), related_name="organization_country")
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))

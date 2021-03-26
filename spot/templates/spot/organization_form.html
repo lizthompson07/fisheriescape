@@ -41,7 +41,6 @@
             {% csrf_token %}
 
             {% bootstrap_form form %}
-
             {% buttons %}
                 {% if object %}
                     <button type="submit" class="btn btn-success">Submit</button>
@@ -61,8 +60,8 @@
         $("#id_sectors").multiSelect()
     </script>
     <script>
-        $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
+        $(document).ready(function() {
+        $('.has-popover').popover({'trigger':'hover'});
         });
 </script>
 
