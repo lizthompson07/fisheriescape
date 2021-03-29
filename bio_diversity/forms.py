@@ -217,7 +217,7 @@ class DataForm(CreatePrams):
         model = models.DataLoader
         exclude = []
 
-    egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'), ('Cross Mapping', 'Cross Mapping'))
+    egg_data_types = ((0, "---------"), (1, 'Temperature'), (2, 'Picks'), (3, 'Cross Mapping'))
     egg_data_type = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
 

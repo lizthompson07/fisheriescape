@@ -254,10 +254,11 @@ class DataCreate(mixins.DataMixin, CommonCreate):
     def get_initial(self):
         init = super().get_initial()
         if 'evnt' in self.kwargs:
+            evnt = models.Event.objects.filter(pk=self.kwargs["evnt"]).select_related("evntc_id", "facic_id").get()
             init['evnt_id'] = self.kwargs['evnt']
-            evntc = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id
+            evntc = evnt.evntc_id
             init['evntc_id'] = evntc
-            init['facic_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id
+            init['facic_id'] = evnt.facic_id
             self.get_form_class().base_fields["data_csv"].required = True
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
@@ -272,10 +273,9 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["trof_id"].required = False
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["egg_data_type"].required = True
-                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'),
-                                  ('Cross Mapping', 'Cross Mapping'))
+                egg_data_types = ((0, "---------"), (1, 'Temperature'), (2, 'Picks'),
+                                  (3, 'Cross Mapping'))
                 self.get_form_class().base_fields["egg_data_type"] = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
-
             else:
                 self.get_form_class().base_fields["trof_id"].required = False
                 self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
@@ -285,6 +285,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['java_script'] = 'bio_diversity/_entry_data_js.html'
         if 'evnt' in self.kwargs:
             evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
