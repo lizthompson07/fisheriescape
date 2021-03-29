@@ -2636,25 +2636,31 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['records'] = models.Record.objects.all()
-        context['locations'] = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False)
-        context['google_api_key'] = settings.GOOGLE_API_KEY
+        context['google_api_key'] = ''  # settings.GOOGLE_API_KEY Turn this on once needed.
 
-        # start by determining with spp do not have spatial data
-        non_spatial_species_list = []
+        # filter locations by start-end dates if needed:
+        if self.kwargs.get("start"):
+            start_date = utils.naive_to_aware(datetime.datetime.strptime(self.kwargs.get("start"), '%Y-%m-%d'))
+            end_date = utils.naive_to_aware(datetime.datetime.strptime(self.kwargs.get("end"), '%Y-%m-%d'))
+            location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False,
+                                                         loc_date__lte=end_date, loc_date__gte=start_date)
+        else:
+            location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False)
+        context["locations"] = location_qs
+
+        # start by determining which locations do not have spatial data
+        non_spatial_location_list = []
         for loc in models.Location.objects.all():
             if loc.point:
                 break
             else:
-                non_spatial_species_list.append(loc)
+                non_spatial_location_list.append(loc)
 
-        context['non_spatial_species_list'] = non_spatial_species_list
+        context['non_spatial_location_list'] = non_spatial_location_list
 
         # if there are bounding coords, we look in the box
-        region_list = []
 
         if self.kwargs.get("n"):
-
             bbox = box(
                 float(self.kwargs.get("n")),
                 float(self.kwargs.get("e")),
@@ -2662,36 +2668,46 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
                 float(self.kwargs.get("w")),
             )
 
-            captured_species_list = []
-            for loc in models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False):
-                if loc not in non_spatial_species_list:
+            captured_locations_list = []
+
+            for loc in location_qs:
+                if loc not in non_spatial_location_list:
                     captured = False
                     # check to see if the bbox overlaps with any record points
                     if bbox.contains(loc.point):
                         captured = True
                     # if checked through all records and nothing found, add to non-spatial list
                     if captured:
-                        captured_species_list.append(loc)
+                        captured_locations_list.append(loc)
         else:
-            captured_species_list = []
+            captured_locations_list = []
 
-        context['region_list'] = region_list
-        context["captured_species_list"] = captured_species_list
+        context["captured_locations_list"] = captured_locations_list
         return context
 
     def get_initial(self, *args, **kwargs):
+        if self.kwargs.get("start"):
+            start_date = self.kwargs.get("start")
+            end_date = self.kwargs.get("end")
+        else:
+            start_date = (datetime.datetime.now() - datetime.timedelta(days=5 * 365)).date()
+            end_date = datetime.datetime.today()
+
         return {
             "north": self.kwargs.get("n"),
             "south": self.kwargs.get("s"),
             "east": self.kwargs.get("e"),
             "west": self.kwargs.get("w"),
+            "start_date": start_date,
+            "end_date": end_date,
         }
 
     def form_valid(self, form):
-        print(form.cleaned_data)
-        return HttpResponseRedirect(reverse("sar_search:map", kwargs={
+        return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs={
             "n": form.cleaned_data.get("north"),
             "s": form.cleaned_data.get("south"),
             "e": form.cleaned_data.get("east"),
             "w": form.cleaned_data.get("west"),
+            "start": form.cleaned_data.get("start_date"),
+            "end": form.cleaned_data.get("end_date"),
         }))

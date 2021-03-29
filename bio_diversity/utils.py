@@ -681,4 +681,4 @@ def ajax_get_fields(request):
 
 def naive_to_aware(naive_date, naive_time=datetime.datetime.min.time()):
     # adds null time and timezone to dates
-    return datetime.datetime.combine(naive_date,naive_time).replace(tzinfo=pytz.UTC)
+    return datetime.datetime.combine(naive_date, naive_time).replace(tzinfo=pytz.UTC)

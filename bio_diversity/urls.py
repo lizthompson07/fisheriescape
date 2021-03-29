@@ -270,6 +270,7 @@ urlpatterns = [
     
     path('map/', views.LocMapTemplateView.as_view(), name="loc_map"),
     path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/', views.LocMapTemplateView.as_view(), name="loc_map"),
+    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/start/<str:start>/end/<str:end>/', views.LocMapTemplateView.as_view(), name="loc_map"),
 
     path('create/mort/<str:iorg>/<int:pk>/', views.MortFormView.as_view(), name="create_mort"),
     path('create/mort/<str:iorg>/<int:pk>/<str:pop>/', views.MortFormView.as_view(), name="create_mort"),

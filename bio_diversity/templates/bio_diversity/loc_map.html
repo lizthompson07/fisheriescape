@@ -15,12 +15,12 @@
         /* Optional: Makes the sample page fill the window. */
         html, body {
             height: 100%;
-            margin: 0;
+            margin: 2.5%;
             padding: 0;
         }
 
         #floating-panel {
-        {#position: absolute;#} top: 10px;
+        {#position: absolute;#} top: 20px;
             left: 25%;
             z-index: 5;
             background-color: #030303;
@@ -42,6 +42,7 @@
     </style>
     <div class="row">
         <div class="col">
+            <div id="map"></div>
             <div id="floating-panel">
                 <form action="" method="POST">
                     {% csrf_token %}
@@ -50,32 +51,18 @@
                     <a class="btn btn-sm btn-warning" style="margin-left: 20px" href="{% url 'bio_diversity:loc_map' %}">Reset</a>
                 </form>
             </div>
-            <div id="map"></div>
         </div>
-        <div class="col-3">
-            <h3>SAR Report:</h3>
-            <br>
-            <h5>List of regions intersecting with bounding box:</h5>
+        <div class="col-3 card">
+            <h3>Location Report:</h3>
+
+            <h5>List of locations intersecting with bounding box:</h5>
             <ul>
-                {% for region in region_list %}
+                {% for loc in captured_locations_list %}
                     <li>
-                        <a href="{% url 'bio_diversity:loc_map'%}" target="_blank">{{ region }}</a>
+                        <a href="{% url 'bio_diversity:details_loc' loc.id%}" target="_blank">{{ loc }}</a>
                     </li>
                 {% empty %}
-                    <em>No regions to display...</em>
-                {% endfor %}
-            </ul>
-            <br>
-
-
-            <h5>List of species intersecting with bounding box:</h5>
-            <ul>
-                {% for sp in captured_species_list %}
-                    <li>
-                        <a href="{% url 'bio_diversity:loc_map'%}" target="_blank">{{ sp }}</a>
-                    </li>
-                {% empty %}
-                    <em>No species to display...</em>
+                    <em>No locations to display...</em>
                 {% endfor %}
             </ul>
             <br>
@@ -153,14 +140,18 @@
             function showNewRect(event) {
                 var ne = rectangle.getBounds().getNorthEast();
                 var sw = rectangle.getBounds().getSouthWest();
+                var start_date =  $("#id_start_date").attr("value");
+                var end_date =  $("#id_end_date").attr("value");
 
-                var contentString = '<a href="{% url 'bio_diversity:loc_map' %}n/' + ne.lat() + '/s/' + sw.lat() + '/e/' + ne.lng() + '/w/' + sw.lng() + '" class="btn btn-small btn-primary">Search this area!</a>' +
+                var contentString = '<a href="{% url 'bio_diversity:loc_map' %}n/' + ne.lat() + '/s/' + sw.lat() + '/e/' + ne.lng() + '/w/' + sw.lng() + '/start/' + start_date + '/end/' + end_date + '" class="btn btn-small btn-primary">Search this area!</a>' +
                     '<br>' +
                     '<br>' +
                     '<br><b>north:</b> ' + ne.lat() +
                     '<br><b>south:</b> ' + sw.lat() +
                     '<br><b>east:</b> ' + ne.lng() +
-                    '<br><b>west:</b> ' + sw.lng()
+                    '<br><b>west:</b> ' + sw.lng() +
+                    '<br><b>start date:</b> ' + start_date +
+                    '<br><b>end date:</b> ' + end_date
 
 
                 // Set the info window's content and position.

@@ -1788,6 +1788,8 @@ class MapForm(forms.Form):
     south = forms.FloatField(required=False)
     east = forms.FloatField(required=False)
     west = forms.FloatField(required=False)
+    start_date = forms.DateField(required=False, label=_("Start Date"))
+    end_date = forms.DateField(required=False, label=_("End date"))
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1798,6 +1800,13 @@ class MapForm(forms.Form):
 
         if not north or not south or not east or not west:
             raise forms.ValidationError("You must enter valid values for all directions.")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['start_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                  "class": "fp-date"})
+        self.fields['end_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                "class": "fp-date"})
 
 
 class MortForm(forms.Form):

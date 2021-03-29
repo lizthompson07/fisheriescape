@@ -377,6 +377,7 @@ class MapMixin:
     title = _("Map")
     admin_only = False
 
+
 class MortMixin:
     key = "mort"
     form_class = forms.MortForm
