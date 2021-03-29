@@ -1783,6 +1783,23 @@ class LoccForm(CreatePrams):
         exclude = []
 
 
+class MapForm(forms.Form):
+    north = forms.FloatField(required=False)
+    south = forms.FloatField(required=False)
+    east = forms.FloatField(required=False)
+    west = forms.FloatField(required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        north = cleaned_data.get("north")
+        south = cleaned_data.get("south")
+        east = cleaned_data.get("east")
+        west = cleaned_data.get("west")
+
+        if not north or not south or not east or not west:
+            raise forms.ValidationError("You must enter valid values for all directions.")
+
+
 class MortForm(forms.Form):
     class Meta:
         exclude = []

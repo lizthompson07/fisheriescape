@@ -1,13 +1,15 @@
 import datetime
 import os
 
-
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
+from shapely.geometry import box
+
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
     CommonFormsetView, CommonHardDeleteView, CommonFormView
 from django.urls import reverse_lazy, reverse
@@ -2625,3 +2627,71 @@ class PlotTempData(PlotView):
         context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
         return context
 
+
+class LocMapTemplateView(mixins.MapMixin, CommonFormView):
+    template_name = 'bio_diversity/loc_map.html'
+
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context['records'] = models.Record.objects.all()
+        context['locations'] = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False)
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        # start by determining with spp do not have spatial data
+        non_spatial_species_list = []
+        for loc in models.Location.objects.all():
+            if loc.point:
+                break
+            else:
+                non_spatial_species_list.append(loc)
+
+        context['non_spatial_species_list'] = non_spatial_species_list
+
+        # if there are bounding coords, we look in the box
+        region_list = []
+
+        if self.kwargs.get("n"):
+
+            bbox = box(
+                float(self.kwargs.get("n")),
+                float(self.kwargs.get("e")),
+                float(self.kwargs.get("s")),
+                float(self.kwargs.get("w")),
+            )
+
+            captured_species_list = []
+            for loc in models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False):
+                if loc not in non_spatial_species_list:
+                    captured = False
+                    # check to see if the bbox overlaps with any record points
+                    if bbox.contains(loc.point):
+                        captured = True
+                    # if checked through all records and nothing found, add to non-spatial list
+                    if captured:
+                        captured_species_list.append(loc)
+        else:
+            captured_species_list = []
+
+        context['region_list'] = region_list
+        context["captured_species_list"] = captured_species_list
+        return context
+
+    def get_initial(self, *args, **kwargs):
+        return {
+            "north": self.kwargs.get("n"),
+            "south": self.kwargs.get("s"),
+            "east": self.kwargs.get("e"),
+            "west": self.kwargs.get("w"),
+        }
+
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return HttpResponseRedirect(reverse("sar_search:map", kwargs={
+            "n": form.cleaned_data.get("north"),
+            "s": form.cleaned_data.get("south"),
+            "e": form.cleaned_data.get("east"),
+            "w": form.cleaned_data.get("west"),
+        }))

@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
 from django.utils import timezone
+from shapely.geometry import Point
 
 from bio_diversity import utils
 from bio_diversity.utils import naive_to_aware
@@ -1213,6 +1214,13 @@ class Location(BioModel):
             models.UniqueConstraint(fields=["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
                                             "loc_lon", "loc_date"], name='Location_Uniqueness')
         ]
+
+    @property
+    def point(self):
+        if self.loc_lat and self.loc_lon:
+            return Point(self.loc_lat, self.loc_lon)
+        else:
+            return False
 
 
 class LocCode(BioLookup):
