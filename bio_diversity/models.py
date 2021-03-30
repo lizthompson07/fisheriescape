@@ -415,7 +415,7 @@ class Cup(BioCont):
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
 
     def __str__(self):
-        return "{}.{}.{}".format(self.draw_id.heat_id.__str__(), self.draw_id.name, self.name)
+        return "HU {}.{}.{}".format(self.draw_id.heat_id.__str__(), self.draw_id.name, self.name)
 
 
 class CupDet(BioContainerDet):
@@ -458,7 +458,7 @@ class Drawer(BioCont):
     facic_id = None
 
     def __str__(self):
-        return "{}.{}".format(self.heat_id.__str__(), self.name)
+        return "HU {}.{}".format(self.heat_id.__str__(), self.name)
 
 
 class EnvCode(BioLookup):

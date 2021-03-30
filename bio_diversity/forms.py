@@ -1284,7 +1284,7 @@ class DataForm(CreatePrams):
                                                                      cleaned_data, save=True), axis=1)
             data_dict = data.to_dict('records')
             for row in data_dict:
-                contx = utils.enter_tray_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
+                contx = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
                                                return_contx=True)
                 if contx:
                     rows_entered += 1
@@ -1324,7 +1324,7 @@ class DataForm(CreatePrams):
                 for row in trof_df.to_dict("records")[1:]:
                     tray = models.Tray.objects.filter(trof_id=trof, name=row["Tray Number"], end_date__isnull=True).get()
                     cross_grp = models.Group.objects.filter(animal_details__contx_id__tray_id=tray).get()
-                    contx = utils.enter_tray_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
+                    contx = utils.enter_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
                     utils.create_picks_evnt(cleaned_data, tray, cross_grp.pk, row["Picks"], pick_date, "Egg Picks")
 
             if not parsed:
@@ -1363,8 +1363,9 @@ class DataForm(CreatePrams):
 
             data_dict = data.to_dict('records')
             for row in data_dict:
-                contx = utils.enter_tray_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
+                contx = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
                                                return_contx=True)
+                anix = utils.enter_anix(cleaned_data, grp_pk=row["grps"].pk)
                 if contx:
                     rows_entered += 1
                     # fecu to count:
@@ -1387,10 +1388,10 @@ class DataForm(CreatePrams):
                     # EGG MOVEMENT:
                     move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
                     move_tuples = [
-                        ("EQU A #", "EQU A Location", "EQU eggs"),
-                        ("EQU B #", "EQU B Location", "EQU eggs")
+                        ("EQU A #", "EQU A Location", "EQU eggs", "Weight 1 (g)"),
+                        ("EQU B #", "EQU B Location", "EQU eggs", "Weight 2 (g)")
                     ]
-                    for move_cnt, move_cup, cnt_code in move_tuples:
+                    for move_cnt, move_cup, cnt_code, move_weight in move_tuples:
                         utils.enter_cnt(cleaned_data, row[move_cnt], contx.pk, cnt_code=cnt_code)
                         cup = utils.get_cup_from_dot(row[move_cup], cleaned_data, move_date)
                         indv, final_grp = cup.fish_in_cont(move_date)
@@ -1412,8 +1413,9 @@ class DataForm(CreatePrams):
                             final_grp = final_grp[0]
                         final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk)
                         utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), "Parent Group", frm_grp_id=row["grps"])
+                        utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row[move_weight], "Weight")
                         utils.create_egg_movement_evnt(row["trays"], cup, cleaned_data, move_date, final_grp.pk)
-                        cup_contx = utils.enter_cup_contx(cup, cleaned_data, None, grp_pk=final_grp.pk, return_contx=True)
+                        cup_contx = utils.enter_contx(cup, cleaned_data, None, grp_pk=final_grp.pk, return_contx=True)
                         utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Egg Count", )
 
 
@@ -1423,6 +1425,8 @@ class DataForm(CreatePrams):
                         utils.create_movement_evnt(row["trays"], draw, cleaned_data, move_date, grp_pk=row["grps"].pk)
                     else:
                         log_data += "\n Draw {} from {} not found".format(draw, row["General Location stack.tray"])
+                    utils.enter_grpd(anix.pk, cleaned_data, move_date, row["Actual Wt of Generals"], "Weight")
+
                     tray = row["trays"]
                     tray.end_date = move_date
                     tray.save()

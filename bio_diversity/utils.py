@@ -223,9 +223,11 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk):
                                                     ).get()
 
     new_cleaned_data["evnt_id"] = movement_evnt
-    if enter_tray_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk):
+    if grp_pk:
+        enter_anix(new_cleaned_data, grp_pk=grp_pk)
+    if enter_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk):
         row_entered = True
-    if enter_cup_contx(cup, new_cleaned_data, True, None, grp_pk=grp_pk):
+    if enter_contx(cup, new_cleaned_data, True, None, grp_pk=grp_pk):
         row_entered = True
     return row_entered
 
@@ -258,7 +260,7 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
     new_cleaned_data["evnt_id"] = pick_evnt
     if grp_pk:
         enter_anix(new_cleaned_data, grp_pk=grp_pk)
-    contx = enter_tray_contx(tray, new_cleaned_data, False, grp_pk=grp_pk, return_contx=True)
+    contx = enter_contx(tray, new_cleaned_data, None, grp_pk=grp_pk, return_contx=True)
     if contx:
         row_entered = True
         enter_cnt(cleaned_data, pick_cnt, contx_pk=contx.pk, cnt_code=cnt_code)
