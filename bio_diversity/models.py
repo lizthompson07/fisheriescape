@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
 from django.utils import timezone
-from shapely.geometry import Point
+from shapely.geometry import Point, box
 
 from bio_diversity import utils
 from bio_diversity.utils import naive_to_aware
@@ -1389,6 +1389,16 @@ class ReleaseSiteCode(BioLookup):
                                   verbose_name=_("Min Longitude"))
     max_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Max Longitude"))
+
+    @property
+    def bbox(self):
+        bbox = box(
+                float(self.max_lat),
+                float(self.max_lon),
+                float(self.min_lat),
+                float(self.min_lon),
+            )
+        return bbox
 
 
 class RiverCode(BioLookup):

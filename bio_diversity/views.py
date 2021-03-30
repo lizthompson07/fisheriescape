@@ -2658,6 +2658,10 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
             location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False)
         context["locations"] = location_qs
 
+        # filter sites:
+        site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, max_lat__isnull=False, min_lon__isnull=False, max_lon__isnull=False)
+        context["sites"] = site_qs
+
         # start by determining which locations do not have spatial data
         non_spatial_location_list = []
         for loc in models.Location.objects.all():
@@ -2679,7 +2683,7 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
             )
 
             captured_locations_list = []
-
+            captured_site_list = []
             for loc in location_qs:
                 if loc not in non_spatial_location_list:
                     captured = False
@@ -2689,10 +2693,15 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
                     # if checked through all records and nothing found, add to non-spatial list
                     if captured:
                         captured_locations_list.append(loc)
+            for site in site_qs:
+                # check to see if the bbox overlaps with any record points
+                if bbox.intersects(site.bbox):
+                    captured_site_list.append(site)
         else:
             captured_locations_list = []
 
         context["captured_locations_list"] = captured_locations_list
+        context["captured_site_list"] = captured_site_list
         return context
 
     def get_initial(self, *args, **kwargs):

@@ -59,7 +59,7 @@
             <ul>
                 {% for loc in captured_locations_list %}
                     <li>
-                        <a href="{% url 'bio_diversity:details_loc' loc.id%}" target="_blank">{{ loc }}</a>
+                        <a href="{% url 'bio_diversity:details_loc' loc.id%}" target="_blank">{{ loc.evnt_id.evntc_id }} at {{ loc.relc_id }}</a>
                     </li>
                 {% empty %}
                     <em>No locations to display...</em>
@@ -82,7 +82,7 @@
             var bounds = new google.maps.LatLngBounds();
 
             {% for location in locations %}
-                var myInfoText{{ location.id }} = '<b>Location:</b> <a href="{% url 'bio_diversity:details_loc' location.id %}">{{location.relc_id.name}}</a><br><b>Location Type:</b> <a href="{% url 'bio_diversity:details_loc' location.id %}">{{location.locc_id.name}}</a>'
+                var myInfoText{{ location.id }} = '<b>Location:</b> <a href="{% url 'bio_diversity:details_loc' location.id %}">{{location.relc_id.name}}</a><br><b>Event:</b> <a href="{% url 'bio_diversity:details_evnt' location.evnt_id.id %}">{{location.evnt_id.evntc_id.name}}</a><br><b>Date:</b>{{location.evnt_id.start_date}}'
                 var marker = new google.maps.Marker({
                     position: new google.maps.LatLng({{location.loc_lat}}, {{location.loc_lon}}),
                     map: map,
