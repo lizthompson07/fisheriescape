@@ -217,7 +217,7 @@ class DataForm(CreatePrams):
         model = models.DataLoader
         exclude = []
 
-    egg_data_types = ((0, "---------"), (1, 'Temperature'), (2, 'Picks'), (3, 'Cross Mapping'))
+    egg_data_types = ((None, '---------'), ('Temperature', 'Temperature'), ('Picks', 'Picks'), ('Cross Mapping', 'Cross Mapping'))
     egg_data_type = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
 
@@ -523,8 +523,12 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
-                    if utils.create_movement_evnt(row["from Tank"], row["to tank"], cleaned_data, row_datetime, indv_pk=indv.pk):
-                        row_entered = True
+                    if not row["from Tank"] == "nan" and not row["to tank"] == "nan":
+                        in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
+                        out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
+                        if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
+                                                      indv_pk=indv.pk):
+                            row_entered = True
 
                     anix_indv = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
 
@@ -631,8 +635,12 @@ class DataForm(CreatePrams):
                     except (ValidationError, IntegrityError):
                         indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
-                    if utils.create_movement_evnt(row["Origin Pond"], row["Destination Pond"], cleaned_data, row_datetime, indv_pk=indv.pk):
-                        row_entered = True
+                    if not row["Origin Pond"] == "nan" and not row["Destination Pond"] == "nan":
+                        in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
+                        out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
+                        if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
+                                                      indv_pk=indv.pk):
+                            row_entered = True
 
                     anix_indv = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
 
@@ -718,8 +726,13 @@ class DataForm(CreatePrams):
                         if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None, comments=row["COMMENTS"]):
                             row_entered = True
 
-                        if utils.create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_datetime,
-                                                      indv_pk=indv.pk):
+                        if not row["ORIGIN POND"] == "nan" and not row["DESTINATION POND"] == "nan":
+                            in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
+                            out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
+                            if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
+                                                          indv_pk=indv.pk):
+                                row_entered = True
+
                             row_entered = True
 
                         if row["COMMENTS"]:
@@ -1374,11 +1387,11 @@ class DataForm(CreatePrams):
                     # EGG MOVEMENT:
                     move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
                     move_tuples = [
-                        ("EQU A #", "EQU A Location"),
-                        ("EQU B #", "EQU B Location"),
+                        ("EQU A #", "EQU A Location", "EQU eggs"),
+                        ("EQU B #", "EQU B Location", "EQU eggs")
                     ]
-                    for move_cnt, move_cup in move_tuples:
-                        utils.enter_cnt(cleaned_data, row[move_cnt], contx.pk, cnt_code="EQU eggs")
+                    for move_cnt, move_cup, cnt_code in move_tuples:
+                        utils.enter_cnt(cleaned_data, row[move_cnt], contx.pk, cnt_code=cnt_code)
                         cup = utils.get_cup_from_dot(row[move_cup], cleaned_data, move_date)
                         indv, final_grp = cup.fish_in_cont(move_date)
                         if not final_grp:
@@ -1397,10 +1410,19 @@ class DataForm(CreatePrams):
                                 return None
                         else:
                             final_grp = final_grp[0]
+                        final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk)
+                        utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), "Parent Group", frm_grp_id=row["grps"])
                         utils.create_egg_movement_evnt(row["trays"], cup, cleaned_data, move_date, final_grp.pk)
                         cup_contx = utils.enter_cup_contx(cup, cleaned_data, None, grp_pk=final_grp.pk, return_contx=True)
                         utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Egg Count", )
-                    # End Tray:
+
+
+                    # Move main group to drawer, and add end date to tray:
+                    draw = utils.get_draw_from_dot(str(row["General Location stack.tray"]), cleaned_data)
+                    if draw:
+                        utils.create_movement_evnt(row["trays"], draw, cleaned_data, move_date, grp_pk=row["grps"].pk)
+                    else:
+                        log_data += "\n Draw {} from {} not found".format(draw, row["General Location stack.tray"])
                     tray = row["trays"]
                     tray.end_date = move_date
                     tray.save()
@@ -1472,9 +1494,13 @@ class DataForm(CreatePrams):
 
                         if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope", None):
                             row_entered = True
-                        if utils.create_movement_evnt(row["ORIGIN POND"], row["DESTINATION POND"], cleaned_data, row_datetime,
-                                                      indv_pk=indv.pk):
-                            row_entered = True
+
+                        if not row["ORIGIN POND"] == "nan" and not row["DESTINATION POND"] == "nan":
+                            in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
+                            out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
+                            if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
+                                                          indv_pk=indv.pk):
+                                row_entered = True
 
                         if row["COMMENTS"]:
                             utils.comment_parser(row["COMMENTS"], anix, row_date)

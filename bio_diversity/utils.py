@@ -112,6 +112,15 @@ def get_cup_from_dot(dot_string, cleaned_data, start_date):
         return cup_obj
 
 
+def get_draw_from_dot(dot_string, cleaned_data):
+    heat, draw = dot_string.split(".")
+    draw_qs = models.Drawer.objects.filter(name=draw, heat_id__name=heat, heat_id__facic_id=cleaned_data["facic_id"])
+    if draw_qs.exists():
+        return draw_qs.get()
+    else:
+        return
+
+
 def comment_parser(comment_str, anix_indv, det_date):
     coke_dict = get_comment_keywords_dict()
     parser_list = coke_dict.keys()
@@ -142,20 +151,18 @@ def comment_parser(comment_str, anix_indv, det_date):
 
 def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, indv_pk=None, grp_pk=None):
     row_entered = False
-    origin = str(origin)
-    destination = str(destination)
     new_cleaned_data = cleaned_data.copy()
     if origin == destination:
         row_entered = False
         return row_entered
 
-    if enter_tank_contx(origin, cleaned_data, None):
+    if enter_contx(origin, cleaned_data, None):
         row_entered = True
 
-    if enter_tank_contx(destination, cleaned_data, None):
+    if enter_contx(destination, cleaned_data, None):
         row_entered = True
 
-    if not origin == "nan" and not destination == "nan":
+    if origin and destination:
         movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
                                      facic_id=cleaned_data["evnt_id"].facic_id,
                                      perc_id=cleaned_data["evnt_id"].perc_id,
@@ -182,16 +189,15 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
             enter_anix(new_cleaned_data, indv_pk=indv_pk)
         if grp_pk:
             enter_anix(new_cleaned_data, grp_pk=grp_pk)
-        if enter_tank_contx(origin, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk):
+        if enter_contx(origin, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk):
             row_entered = True
-        if enter_tank_contx(destination, new_cleaned_data, True, indv_pk=indv_pk, grp_pk=grp_pk):
+        if enter_contx(destination, new_cleaned_data, True, indv_pk=indv_pk, grp_pk=grp_pk):
             row_entered = True
-
     return row_entered
 
 
 def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk):
-    # moves eggs from trof-tray to heat.draw.cup
+    # moves eggs from trof-tray to heat.draw.cup, only use the final group as this splits groups
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
 
@@ -424,7 +430,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=
             return None
 
 
-def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=None, comments=None):
+def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=None, frm_grp_id=None, comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
@@ -433,6 +439,7 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=N
         grpd = models.GroupDet(anix_id_id=anix_pk,
                                anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
                                adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
+                               frm_grp_id=frm_grp_id,
                                det_val=det_value,
                                detail_date=det_date,
                                qual_id=models.QualCode.objects.filter(name="Good").get(),
@@ -443,6 +450,7 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=N
     else:
         grpd = models.GroupDet(anix_id_id=anix_pk,
                                anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                               frm_grp_id=frm_grp_id,
                                det_val=det_value,
                                detail_date=det_date,
                                qual_id=models.QualCode.objects.filter(name="Good").get(),
@@ -552,6 +560,22 @@ def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_str, spwnsc_str, qual_c
     return row_entered
 
 
+def enter_contx(cont, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
+    cont_type = type(cont)
+    if cont_type == models.Tank:
+        return enter_tank_contx(cont.name, cleaned_data, final_flag, indv_pk, grp_pk, return_contx)
+    elif cont_type == models.Trough:
+        return enter_trof_contx(cont.name, cleaned_data, final_flag, indv_pk, grp_pk, return_contx)
+    elif cont_type == models.Tray:
+        return enter_tray_contx(cont, cleaned_data, final_flag, indv_pk, grp_pk, return_contx)
+    elif cont_type == models.Cup:
+        return enter_cup_contx(cont, cleaned_data, final_flag, indv_pk, grp_pk, return_contx)
+    elif cont_type == models.Drawer:
+        return enter_draw_contx(cont, cleaned_data, final_flag, indv_pk, grp_pk, return_contx)
+    elif cont_type == models.HeathUnit:
+        return enter_heat_contx(cont, cleaned_data, final_flag, indv_pk, grp_pk, return_contx)
+
+
 def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
     row_entered = False
     if not tank_name == "nan":
@@ -642,6 +666,95 @@ def enter_cup_contx(cup, cleaned_data, final_flag=None, indv_pk=None, grp_pk=Non
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         cup_id=contx.cup_id).get()
+
+        draw_contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                          draw_id=cup.draw_id,
+                                          created_by=cleaned_data["created_by"],
+                                          created_date=cleaned_data["created_date"],
+                                          )
+        try:
+            draw_contx.clean()
+            draw_contx.save()
+            row_entered = True
+        except ValidationError:
+            pass
+
+        heat_contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                          heat_id=cup.draw_id.heat_id,
+                                          created_by=cleaned_data["created_by"],
+                                          created_date=cleaned_data["created_date"],
+                                          )
+        try:
+            heat_contx.clean()
+            heat_contx.save()
+            row_entered = True
+        except ValidationError:
+            pass
+
+        if indv_pk or grp_pk:
+            enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
+        if return_contx:
+            return contx
+        else:
+            return row_entered
+    else:
+        return False
+
+
+def enter_draw_contx(draw, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
+    row_entered = False
+    if draw:
+        contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                     draw_id=draw,
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+        try:
+            contx.clean()
+            contx.save()
+            row_entered = True
+        except ValidationError:
+            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
+                                                        draw_id=contx.draw_id).get()
+
+        heat_contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                          heat_id=draw.heat_id,
+                                          created_by=cleaned_data["created_by"],
+                                          created_date=cleaned_data["created_date"],
+                                          )
+        try:
+            heat_contx.clean()
+            heat_contx.save()
+            row_entered = True
+        except ValidationError:
+            pass
+
+        if indv_pk or grp_pk:
+            enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
+        if return_contx:
+            return contx
+        else:
+            return row_entered
+    else:
+        return False
+
+
+def enter_heat_contx(heat, cleaned_data, final_flag=None, indv_pk=None, grp_pk=None, return_contx=False):
+    row_entered = False
+    if heat:
+        contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                     heat_id=heat,
+                                     created_by=cleaned_data["created_by"],
+                                     created_date=cleaned_data["created_date"],
+                                     )
+        try:
+            contx.clean()
+            contx.save()
+            row_entered = True
+        except ValidationError:
+            contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
+                                                        heat_id=contx.heat_id).get()
+
         if indv_pk or grp_pk:
             enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag)
         if return_contx:

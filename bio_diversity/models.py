@@ -794,8 +794,8 @@ class Group(BioModel):
         cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
                                        contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct()
 
-        add_codes = ["Fish in Container", "Counter Count", ]
-        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss"]
+        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Egg Count"]
+        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "EQU Eggs", ]
 
         for cnt in cnt_set:
             if cnt.cntc_id.name in add_codes:

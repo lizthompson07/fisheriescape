@@ -273,8 +273,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["trof_id"].required = False
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["egg_data_type"].required = True
-                egg_data_types = ((0, "---------"), (1, 'Temperature'), (2, 'Picks'),
-                                  (3, 'Cross Mapping'))
+                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'),
+                                  ('Cross Mapping', 'Cross Mapping'))
                 self.get_form_class().base_fields["egg_data_type"] = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
             else:
                 self.get_form_class().base_fields["trof_id"].required = False
@@ -955,6 +955,15 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "field_list": trof_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
+        heat_set = models.HeathUnit.objects.filter(contxs__evnt_id=self.object).distinct()
+        heat_field_list = ["name"]
+        obj_mixin = mixins.HeatMixin
+        context["context_dict"]["heat"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": heat_set,
+                                           "field_list": heat_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
         prot_set = models.Protocol.objects.filter(prog_id=self.object.prog_id, evntc_id=self.object.evntc_id).distinct()
         prot_field_list = ["name", "evntc_id", "start_date", "end_date", ]
         obj_mixin = mixins.ProtMixin
@@ -990,7 +999,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         elif evnt_code == "PIT Tagging":
             context["table_list"].extend(["data", "indv", "grp", "tank", "prot", "evntf"])
         elif evnt_code == "Egg Development":
-            context["table_list"].extend(["data", "grp", "trof", "prot", "evntf"])
+            context["table_list"].extend(["data", "grp", "trof", "heat", "prot", "evntf"])
         elif evnt_code == "Maturity Sorting":
             context["table_list"].extend(["data", "indv", "tank", "prot", "evntf"])
         elif evnt_code == "Water Quality Record":
@@ -1004,7 +1013,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         elif evnt_code == "Mortality":
             context["table_list"].extend(["indv", "grp", "evntf"])
         else:
-            context["table_list"].extend(["data", "loc", "indv", "grp", "tank", "trof", "pair", "evntf", "prot"])
+            context["table_list"].extend(["data", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf", "prot"])
 
         return context
 
