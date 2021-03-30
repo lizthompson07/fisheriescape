@@ -6,6 +6,9 @@ app_name = 'whalesdb'
 urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
 
+    path('report/', views.ReportView.as_view(), name="report"),
+    path('report/deployment_summary/', views.report_deployment_summary, name="report_deployment_summary"),
+
     # CRUISES #
     ###########
     path('list/cru/', views.CruList.as_view(), name="list_cru"),

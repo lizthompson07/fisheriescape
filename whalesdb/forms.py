@@ -6,6 +6,14 @@ import shared_models.models as shared_models
 import inspect
 
 
+class ReportSearchForm(forms.Form):
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "Deployment Summary Report (csv)"),
+    )
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+
+
 class CruForm(forms.ModelForm):
     class Meta:
         model = shared_models.Cruise
