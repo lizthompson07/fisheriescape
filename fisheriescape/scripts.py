@@ -27,7 +27,7 @@ def export_fixtures():
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())
         my_label = model._meta.db_table
-        f = open(os.path.join(fixtures_dir, f'{my_label}.json'), 'w')
+        f = open(os.path.join(fixtures_dir, f'{my_label}.json'), 'w', encoding='utf-8')
         myfile = File(f)
         myfile.write(data)
         myfile.close()
