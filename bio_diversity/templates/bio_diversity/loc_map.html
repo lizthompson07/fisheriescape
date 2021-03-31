@@ -66,6 +66,19 @@
                 {% endfor %}
             </ul>
             <br>
+            <h3>Site Report:</h3>
+
+            <h5>List of sites intersecting with bounding box:</h5>
+            <ul>
+                {% for site in captured_site_list %}
+                    <li>
+                        <a href="{% url 'bio_diversity:details_relc' site.id%}" target="_blank">{{ site.name }} on {{ site.rive_id.name }}</a>
+                    </li>
+                {% empty %}
+                    <em>No locations to display...</em>
+                {% endfor %}
+            </ul>
+            <br>
         </div>
     </div>
 
@@ -97,8 +110,53 @@
                 })(marker));
             map.fitBounds(bounds);
 
-
             {% endfor %}
+
+
+            {% for site in sites %}
+                var mySiteInfoText{{ site.id }} = '<b>Site:</b> <a href="{% url 'bio_diversity:details_relc' site.id %}">{{site.name}}</a><br><b>River:</b> <a href="{% url 'bio_diversity:details_rive' site.rive_id.id %}">{{site.rive_id.name}}</a>'
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng({{site.bbox.centroid.x}}, {{site.bbox.centroid.y}}),
+                    map: map,
+                    //label: {text: "{{site.name}}", color: "#ffffff"},
+                });
+                google.maps.event.addListener(marker, 'click', (function (marker) {
+                    return function () {
+                        infowindow.setContent(mySiteInfoText{{ site.id }});
+                        infowindow.open(map, marker);
+                    }
+                })(marker));
+
+                // extend bounds var
+                bounds.extend(marker.position);
+                {% for point in site.bbox.exterior.coords %}
+                    bounds.extend(new google.maps.LatLng({{point.0}}, {{ point.1 }}));
+                {% endfor %}
+
+                // Define the LatLng coordinates for the polygon's path.
+                var polygonCoords = [
+                    {% for point in site.bbox.exterior.coords %}
+                        {lat: {{point.0}}, lng: {{point.1}}},
+                    {% endfor %}
+                ];
+
+                // Construct the stratum.
+                var color = '#ea4544';
+                var myPolygon = new google.maps.Polygon({
+                    paths: polygonCoords,
+                    strokeColor: 'white',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: color,
+                    fillOpacity: 0.25
+                });
+                myPolygon.setMap(map);
+                {#bounds.extend(myPolygon.getBounds());#}
+
+                map.fitBounds(bounds);
+                // add a click event on the polygon
+            {% endfor %}
+
 
             {% if view.kwargs.n %}
                 var newBounds = {

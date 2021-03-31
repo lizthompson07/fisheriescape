@@ -1820,6 +1820,7 @@ class MapForm(forms.Form):
     west = forms.FloatField(required=False)
     start_date = forms.DateField(required=False, label=_("Start Date"))
     end_date = forms.DateField(required=False, label=_("End date"))
+    rive_id = forms.ModelChoiceField(queryset=models.RiverCode.objects.all(), required=False, label=_("River Code"))
 
     def clean(self):
         cleaned_data = super().clean()

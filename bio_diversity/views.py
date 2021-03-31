@@ -2648,18 +2648,23 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = ''  # settings.GOOGLE_API_KEY Turn this on once needed.
 
-        # filter locations by start-end dates if needed:
+        # filter locations by start-end dates and river codes if needed:
+        location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False)
         if self.kwargs.get("start"):
             start_date = utils.naive_to_aware(datetime.datetime.strptime(self.kwargs.get("start"), '%Y-%m-%d'))
             end_date = utils.naive_to_aware(datetime.datetime.strptime(self.kwargs.get("end"), '%Y-%m-%d'))
-            location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False,
-                                                         loc_date__lte=end_date, loc_date__gte=start_date)
-        else:
-            location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False)
+            location_qs = location_qs.filter(loc_date__lte=end_date, loc_date__gte=start_date)
+
+        if self.kwargs.get("rive_id"):
+            location_qs = location_qs.filter(rive_id__name=self.kwargs.get("rive_id")) | location_qs.filter(relc_id__rive_id__name=self.kwargs.get("rive_id"))
+
         context["locations"] = location_qs
 
         # filter sites:
         site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, max_lat__isnull=False, min_lon__isnull=False, max_lon__isnull=False)
+        if self.kwargs.get("rive_id"):
+            site_qs = site_qs.filter(rive_id__name=self.kwargs.get("rive_id"))
+
         context["sites"] = site_qs
 
         # start by determining which locations do not have spatial data
@@ -2699,6 +2704,7 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
                     captured_site_list.append(site)
         else:
             captured_locations_list = []
+            captured_site_list = []
 
         context["captured_locations_list"] = captured_locations_list
         context["captured_site_list"] = captured_site_list
@@ -2722,11 +2728,14 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
         }
 
     def form_valid(self, form):
-        return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs={
+        kwarg_dict = {
             "n": form.cleaned_data.get("north"),
             "s": form.cleaned_data.get("south"),
             "e": form.cleaned_data.get("east"),
             "w": form.cleaned_data.get("west"),
             "start": form.cleaned_data.get("start_date"),
             "end": form.cleaned_data.get("end_date"),
-        }))
+        }
+        if form.cleaned_data.get("rive_id"):
+            kwarg_dict["rive_id"] = form.cleaned_data.get("rive_id").name
+        return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs=kwarg_dict))
