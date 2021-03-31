@@ -2649,7 +2649,7 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
         context['google_api_key'] = ''  # settings.GOOGLE_API_KEY Turn this on once needed.
 
         # filter locations by start-end dates and river codes if needed:
-        location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False)
+        location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False).select_related("evnt_id__evntc_id", "rive_id", "relc_id__rive_id")
         if self.kwargs.get("start"):
             start_date = utils.naive_to_aware(datetime.datetime.strptime(self.kwargs.get("start"), '%Y-%m-%d'))
             end_date = utils.naive_to_aware(datetime.datetime.strptime(self.kwargs.get("end"), '%Y-%m-%d'))
@@ -2661,7 +2661,7 @@ class LocMapTemplateView(mixins.MapMixin, CommonFormView):
         context["locations"] = location_qs
 
         # filter sites:
-        site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, max_lat__isnull=False, min_lon__isnull=False, max_lon__isnull=False)
+        site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, max_lat__isnull=False, min_lon__isnull=False, max_lon__isnull=False).select_related("rive_id")
         if self.kwargs.get("rive_id"):
             site_qs = site_qs.filter(rive_id__name=self.kwargs.get("rive_id"))
 
