@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import math
 
 import pytz
@@ -196,7 +197,7 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
     return row_entered
 
 
-def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk):
+def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, tray_contx=False):
     # moves eggs from trof-tray to heat.draw.cup, only use the final group as this splits groups
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
@@ -225,11 +226,15 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk):
     new_cleaned_data["evnt_id"] = movement_evnt
     if grp_pk:
         enter_anix(new_cleaned_data, grp_pk=grp_pk)
-    if enter_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk):
+    contx = enter_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk, return_contx=True)
+    if contx:
         row_entered = True
     if enter_contx(cup, new_cleaned_data, True, None, grp_pk=grp_pk):
         row_entered = True
-    return row_entered
+    if tray_contx:
+        return contx
+    else:
+        return row_entered
 
 
 def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code):
@@ -363,7 +368,7 @@ def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, qual="Good"):
         cntd = models.CountDet(cnt_id_id=cnt_pk,
                                anidc_id=models.AnimalDetCode.objects.filter(
                                    name__iexact=det_code).get(),
-                               det_val=det_val,
+                               det_val=round(decimal.Decimal(det_val), 5),
                                qual_id=models.QualCode.objects.filter(name=qual).get(),
                                created_by=cleaned_data["created_by"],
                                created_date=cleaned_data["created_date"],

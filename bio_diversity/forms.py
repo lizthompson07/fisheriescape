@@ -1387,12 +1387,15 @@ class DataForm(CreatePrams):
 
                     # EGG MOVEMENT:
                     move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+                    # eggs leaving the initial group
+                    utils.enter_cnt(cleaned_data, row["EQU"], contx.pk, cnt_code="EQU eggs")
+
+                    # create cup and new group if needed, and link to parent group and main event
                     move_tuples = [
-                        ("EQU A #", "EQU A Location", "EQU eggs", "Weight 1 (g)"),
-                        ("EQU B #", "EQU B Location", "EQU eggs", "Weight 2 (g)")
+                        ("EQU A #", "EQU A Location", "Weight 1 (g)", "EQU Eggs A"),
+                        ("EQU B #", "EQU B Location", "Weight 2 (g)", "EQU Eggs B")
                     ]
-                    for move_cnt, move_cup, cnt_code, move_weight in move_tuples:
-                        utils.enter_cnt(cleaned_data, row[move_cnt], contx.pk, cnt_code=cnt_code)
+                    for move_cnt, move_cup, move_weight, cnt_code in move_tuples:
                         cup = utils.get_cup_from_dot(row[move_cup], cleaned_data, move_date)
                         indv, final_grp = cup.fish_in_cont(move_date)
                         if not final_grp:
@@ -1413,10 +1416,14 @@ class DataForm(CreatePrams):
                             final_grp = final_grp[0]
                         final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk)
                         utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), "Parent Group", frm_grp_id=row["grps"])
-                        utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row[move_weight], "Weight")
-                        utils.create_egg_movement_evnt(row["trays"], cup, cleaned_data, move_date, final_grp.pk)
-                        cup_contx = utils.enter_contx(cup, cleaned_data, None, grp_pk=final_grp.pk, return_contx=True)
-                        utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Egg Count", )
+
+                        # create movement for the new group, create 2 contx's and 3 anix's
+                        tray_contx = utils.create_egg_movement_evnt(row["trays"], cup, cleaned_data, move_date, final_grp.pk, tray_contx=True)
+
+                        # link cup to egg development event
+                        utils.enter_contx(cup, cleaned_data, None, grp_pk=final_grp.pk)
+                        cnt = utils.enter_cnt(cleaned_data, row[move_cnt], tray_contx.pk, cnt_code=cnt_code, )
+                        utils.enter_cnt_det(cleaned_data, cnt.pk, row[move_weight], "Weight")
 
 
                     # Move main group to drawer, and add end date to tray:
