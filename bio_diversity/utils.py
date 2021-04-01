@@ -153,6 +153,7 @@ def comment_parser(comment_str, anix_indv, det_date):
 def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None):
     row_entered = False
     origin_conts = []
+    movement_date = naive_to_aware(movement_date)
     new_cleaned_data = cleaned_data.copy()
     if origin == destination:
         row_entered = False
