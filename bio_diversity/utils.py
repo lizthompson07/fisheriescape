@@ -352,7 +352,7 @@ def enter_anix_contx(tank, cleaned_data):
         return anix_contx
 
 
-def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Number of Fish", est=False):
+def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fish in Container", est=False):
     cnt = False
     if not math.isnan(cnt_value):
         cnt = models.Count(loc_id_id=loc_pk,
