@@ -1,4 +1,5 @@
 import csv
+import datetime
 
 from django.views.generic import TemplateView, DetailView, DeleteView
 from django.contrib import messages
@@ -246,6 +247,7 @@ class EheCreate(mixins.EheMixin, CommonCreate):
         initial = super().get_initial()
         initial['rec'] = self.kwargs['rec']
         initial['ecp_channel_no'] = self.kwargs['ecp_channel_no']
+        initial['ehe_date'] = datetime.date.today()
 
         return initial
 
@@ -433,24 +435,10 @@ class EcaUpdate(mixins.EcaMixin, CommonUpdate):
         return reverse_lazy("whalesdb:details_eca", args=(self.kwargs['pk'],))
 
 
-class EheUpdateRemove(mixins.EheMixin, CommonUpdate):
-
-    def get_initial(self):
-        initial = super().get_initial()
-
-        initial['rec'] = None
-        initial['ecp_channel_no'] = 0
-        return initial
-
-
 class EmmUpdate(mixins.EmmMixin, CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:list_emm")
-
-
-class EqhUpdate(mixins.EheMixin, CommonUpdate):
-    pass
 
 
 class EqhUpdate(mixins.EqhMixin, CommonUpdate):
@@ -884,6 +872,27 @@ class ManagedFormsetViewMixin(AdminRequiredMixin, CommonFormsetView):
         context['key'] = self.key
 
         return context
+
+
+class EheMangedView(ManagedFormsetViewMixin):
+    key = 'ehe'
+    h1 = "Manage Equipment Channel History"
+    queryset = models.EheHydrophoneEvent.objects.all()
+    formset_class = forms.EheFormset
+    success_url = reverse_lazy("whalesdb:managed_ehe")
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.kwargs and self.kwargs['rec']:
+            qs = qs.filter(rec=self.kwargs['rec'])
+
+        if self.kwargs and self.kwargs['ecp_channel_no']:
+            qs = qs.filter(ecp_channel_no=self.kwargs['ecp_channel_no'])
+
+        return qs
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:managed_ehe", kwargs=self.kwargs)
 
 
 class EqtMangedView(ManagedFormsetViewMixin):

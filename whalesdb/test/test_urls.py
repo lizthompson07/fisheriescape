@@ -155,6 +155,10 @@ class URLTest(TestCase):
     def test_url_update_pop_ehe_view(self):
         self.basic_en_url_test('whalesdb:remove_ehe', 'whalesdb/remove/ehe/1/pop/', views.EheUpdateRemove, [1, 'pop'])
 
+    @tag('ehe', 'url', 'manage')
+    def test_url_update_pop_ehe_view(self):
+        self.basic_en_url_test('whalesdb:managed_ehe', 'whalesdb/remove/ehe/1/', views.EheEcpMangedView, [1])
+
     @tag('eqh', 'url', 'create')
     def test_url_create_pop_eqh_view(self):
         self.basic_en_url_test('whalesdb:create_eqh', 'whalesdb/create/eqh/1/pop/', views.EqhCreate, [1, 'pop'])
