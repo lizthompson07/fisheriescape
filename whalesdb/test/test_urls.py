@@ -151,13 +151,9 @@ class URLTest(TestCase):
     def test_url_create_pop_ehe_view(self):
         self.basic_en_url_test('whalesdb:create_ehe', 'whalesdb/create/ehe/1/1/pop/', views.EheCreate, [1, 1, 'pop'])
 
-    @tag('ehe', 'url', 'update')
-    def test_url_update_pop_ehe_view(self):
-        self.basic_en_url_test('whalesdb:remove_ehe', 'whalesdb/remove/ehe/1/pop/', views.EheUpdateRemove, [1, 'pop'])
-
     @tag('ehe', 'url', 'manage')
     def test_url_update_ehe_view(self):
-        self.basic_en_url_test('whalesdb:managed_ehe', 'whalesdb/remove/ehe/1/1/', views.EheEcpMangedView, [1, 1])
+        self.basic_en_url_test('whalesdb:managed_ehe', 'whalesdb/managed/ehe/1/1/', views.EheMangedView, [1, 1])
 
     @tag('eqh', 'url', 'create')
     def test_url_create_pop_eqh_view(self):
@@ -281,7 +277,7 @@ class URLTest(TestCase):
 
     @tag('ree', 'url', 'pop', 'update')
     def test_url_update_ree_pop_view(self):
-        self.basic_en_url_test('whalesdb:update_ree', 'whalesdb/create/ree/1/pop/', views.ReeUpdate, [1, 'pop'])
+        self.basic_en_url_test('whalesdb:update_ree', 'whalesdb/update/ree/1/pop/', views.ReeUpdate, [1, 'pop'])
 
     @tag('rsc', 'url', 'create')
     def test_url_create_rsc_view(self):
