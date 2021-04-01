@@ -103,8 +103,11 @@ var app = new Vue({
     goRequestDetail(request) {
       let params = window.location.search.substring(1);
       url = `/travel-plans/requests/${request.id}/view/?${params}`;
-      window.location.href = url;
-      // var win = window.open(url);
+      let win;
+      if (this.pageType.search("all") > -1) win = window.open(url, '_blank');
+      else window.location.href = url;
+
+
     },
     loadMoreResults() {
       if (this.next) {
