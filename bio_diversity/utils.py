@@ -150,20 +150,27 @@ def comment_parser(comment_str, anix_indv, det_date):
         anix_indv.indv_id.save()
 
 
-def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, indv_pk=None, grp_pk=None):
+def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None):
     row_entered = False
+    origin_conts = []
     new_cleaned_data = cleaned_data.copy()
     if origin == destination:
         row_entered = False
         return row_entered
 
-    if enter_contx(origin, cleaned_data, None):
-        row_entered = True
+    if not origin:
+        # move indvidual or group to destination and clean up previous contx's
+        if grp_pk:
+            grp = models.Group.objects.filter(pk=grp_pk)
+            origin_conts = grp.current_cont(movement_date)
+    else:
+        if enter_contx(origin, cleaned_data, None):
+            row_entered = True
 
     if enter_contx(destination, cleaned_data, None):
         row_entered = True
 
-    if origin and destination:
+    if destination:
         movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
                                      facic_id=cleaned_data["evnt_id"].facic_id,
                                      perc_id=cleaned_data["evnt_id"].perc_id,
@@ -190,8 +197,14 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date=None, 
             enter_anix(new_cleaned_data, indv_pk=indv_pk)
         if grp_pk:
             enter_anix(new_cleaned_data, grp_pk=grp_pk)
-        if enter_contx(origin, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk):
-            row_entered = True
+        if origin:
+            if enter_contx(origin, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk):
+                row_entered = True
+        elif origin_conts:
+            for cont in origin_conts:
+                if not cont == destination:
+                    if enter_contx(cont, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk):
+                        row_entered = True
         if enter_contx(destination, new_cleaned_data, True, indv_pk=indv_pk, grp_pk=grp_pk):
             row_entered = True
     return row_entered
