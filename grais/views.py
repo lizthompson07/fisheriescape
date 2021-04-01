@@ -5,14 +5,14 @@ from django.contrib import messages
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from django.views.generic import FormView
-from django_filters.views import FilterView
 
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDetailView, CommonDeleteView
+    CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
 from . import filters
 from . import forms
 from . import models
@@ -45,6 +45,21 @@ class ProbeFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
 class ProbeHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
     model = models.Probe
     success_url = reverse_lazy("grais:manage_probes")
+
+
+class SamplerFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
+    template_name = 'grais/formset.html'
+    h1 = "Manage Samplers"
+    queryset = models.Sampler.objects.all()
+    formset_class = forms.SamplerFormset
+    success_url_name = "grais:manage_samplers"
+    home_url_name = "grais:index"
+    delete_url_name = "grais:delete_sampler"
+
+
+class SamplerHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Sampler
+    success_url = reverse_lazy("grais:manage_samplers")
 
 
 # SPECIES #
@@ -175,7 +190,6 @@ class StationUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
 class StationCreateView(GraisAdminRequiredMixin, CommonCreateView):
     model = models.Station
     form_class = forms.StationForm
-    success_url = reverse_lazy('grais:station_list')
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
     parent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
@@ -218,223 +232,168 @@ class StationDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
     template_name = 'grais/confirm_delete.html'
 
 
-# # STATION #
-# ###########
-#
-# class StationListView(GraisAccessRequiredMixin, FilterView):
-#     filterset_class = filters.StationFilter
-#     template_name = "grais/station_list.html"
-#
-#
-# class StationUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     # permission_required = "__all__"
-#     raise_exception = True
-#     model = models.Station
-#     form_class = forms.StationForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class StationCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.Station
-#     form_class = forms.StationForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class StationDetailView(GraisAccessRequiredMixin, UpdateView):
-#     model = models.Station
-#     fields = ('__all__')
-#     template_name = 'grais/station_detail.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#         return context
-#
-#
-# class StationDeleteView(GraisAdminRequiredMixin, DeleteView):
-#     model = models.Station
-#     success_url = reverse_lazy('grais:station_list')
-#     success_message = 'The station was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-
-
-#
-# class DataFlowTemplateView(GraisAccessRequiredMixin, TemplateView):
-#     template_name = 'grais/dataflow.html'
-#
-#
-# class CloserTemplateView(GraisAccessRequiredMixin, TemplateView):
-#     template_name = 'grais/close_me.html'
-#
-#
-
 # SAMPLE #
-##########
-class SampleListView(GraisAccessRequiredMixin, FilterView):
+###########
+
+class SampleListView(GraisAdminRequiredMixin, CommonFilterView):
+    model = models.Sample
+    template_name = 'grais/list.html'
     filterset_class = filters.SampleFilter
-    template_name = "grais/sample_list.html"
+    home_url_name = "grais:index"
+    new_object_url = reverse_lazy("grais:sample_new")
+    row_object_url_name = row_ = "grais:sample_detail"
+    h1 = "AIS Biofouling Samples"
+
+    field_list = [
+        {"name": 'station', "class": "", "width": ""},
+        {"name": 'date_deployed', "class": "", "width": ""},
+        {"name": 'date_retrieved', "class": "", "width": ""},
+        {"name": 'sample_type', "class": "", "width": ""},
+        {"name": 'weeks_deployed|{}'.format("weeks deployed"), "class": "", "width": ""},
+        {"name": 'has_invasive_spp|{}'.format("has invasive species?"), "class": "", "width": ""},
+    ]
+
+
+class SampleUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
+    model = models.Sample
+    form_class = forms.SampleForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:sample_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class SampleCreateView(GraisAdminRequiredMixin, CommonCreateView):
+    model = models.Sample
+    form_class = forms.SampleForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class SampleDetailView(GraisAdminRequiredMixin, CommonDetailView):
+    model = models.Sample
+    template_name = 'grais/sample_detail/main.html'
+    home_url_name = "grais:index"
+    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    field_list = [
+        'id',
+        'station',
+        'date_deployed',
+        'date_retrieved',
+        'weeks_deployed|Weeks deployed',
+        'samplers',
+        'sample_type',
+        'has_invasive_spp|Has invasive species?',
+        'metadata',
+    ]
+    container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["random_object"] = models.Sample.objects.first()
-        field_list = [
-            'id|Sample #',
-            'station',
-            'date_deployed',
-            'date_retrieved',
-            'sample_type',
-            'weeks_deployed|Weeks deployed',
-            'has_invasive_spp|Has invasive species?',
-
+        context["probe_field_list"] = [
+            'dt|Date/time',
+            'probe',
+            'probe_depth',
+            'cloud_cover',
+            'weather_notes',
+            'temp_c',
+            'sal_ppt',
+            'o2_percent',
+            'o2_mgl',
+            'sp_cond_ms',
+            'spc_ms',
+            'ph',
+            # 'metadata',
         ]
-        context["field_list"] = field_list
-
+        context["species_obs_field_list"] = [
+            'species',
+            'notes',
+            'observation_date',
+        ]
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     if kwargs["data"] is None:
-    #         kwargs["data"] = {"SeasonExact": timezone.now().year-2 }
-    #     return kwargs
+
+class SampleDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
+    model = models.Sample
+    success_url = reverse_lazy('grais:sample_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'grais/confirm_delete.html'
 
 
-#
-#
-# class SampleDetailView(GraisAccessRequiredMixin, DetailView):
-#     model = models.Sample
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#         context["field_list"] = [
-#             'station',
-#             'date_deployed',
-#             'date_retrieved',
-#             'weeks_deployed|Weeks deployed',
-#             'samplers',
-#             'sample_type',
-#             'has_invasive_spp|Has invasive species?',
-#             'last_modified',
-#             'last_modified_by',
-#         ]
-#
-#         sampler_field_list = [
-#             'first_name',
-#             'last_name',
-#             'email',
-#             'phone',
-#             'organization',
-#
-#         ]
-#         context["sampler_field_list"] = sampler_field_list
-#
-#         context["random_probe_object"] = models.ProbeMeasurement.objects.first()
-#         probe_field_list = [
-#             'time_date',
-#             'probe',
-#             'temp_c',
-#             'sal_ppt',
-#             'o2_percent',
-#             'o2_mgl',
-#             'sp_cond_ms',
-#             'spc_ms',
-#         ]
-#         context["probe_field_list"] = probe_field_list
-#
-#         return context
-#
-#
-# class SampleUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.Sample
-#     form_class = forms.SampleForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class SampleCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.Sample
-#     form_class = forms.SampleForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class SampleDeleteView(GraisAdminRequiredMixin, DeleteView):
-#     model = models.Sample
-#     success_url = reverse_lazy('grais:sample_list')
-#     success_message = 'The sample was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-# # SAMPLE NOTE #
-# ##############
-#
-# class SampleNoteUpdateView(GraisAccessRequiredMixin, UpdateView):
-#     model = models.SampleNote
-#     form_class = forms.SampleNoteForm
-#
-#
-# class SampleNoteCreateView(GraisAccessRequiredMixin, CreateView):
-#     model = models.SampleNote
-#     form_class = forms.SampleNoteForm
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(SampleNoteCreateView, self).get_context_data(**kwargs)
-#         context["sample"] = models.Sample.objects.get(pk=self.kwargs["sample"])
-#         return context
-#
-#     def get_initial(self):
-#         sample = models.Sample.objects.get(pk=self.kwargs["sample"])
-#         return {
-#             "sample": sample,
-#             "author": self.request.user
-#         }
-#
-#
-# @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
-# def sample_note_delete(request, pk):
-#     note = models.SampleNote.objects.get(pk=pk)
-#     note.delete()
-#     messages.success(request, "The note has been successfully deleted.")
-#     return HttpResponseRedirect(reverse_lazy("grais:sample_detail", kwargs={"pk": note.sample_id}))
-#
-#
-# # PERSON #
-# ##########
-#
-# class PersonUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.Sampler
-#     fields = ('__all__')
-#     template_name = 'grais/person_form_popout.html'
-#     success_url = reverse_lazy("grais:close_me")
-#
-#
-# class PersonCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.Sampler
-#     fields = ('__all__')
-#     template_name = 'grais/person_form_popout.html'
-#     success_url = reverse_lazy("grais:close_me")
-#
-#
-# class PersonDetailView(GraisAccessRequiredMixin, UpdateView):
-#     model = models.Sampler
-#     template_name = 'grais/person_detail_popout.html'
-#     fields = ('__all__')
-#
+# SAMPLE NOTE #
+###############
+
+class SampleNoteUpdateView(GraisAccessRequiredMixin, CommonPopoutUpdateView):
+    model = models.SampleNote
+    form_class = forms.SampleNoteForm
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class SampleNoteCreateView(GraisAccessRequiredMixin, CommonPopoutCreateView):
+    model = models.SampleNote
+    form_class = forms.SampleNoteForm
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.sample = get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+        obj.created_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class SampleNoteDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteView):
+    model = models.SampleNote
+
+
+# PROBE MEASUREMENT #
+#####################
+
+class ProbeMeasurementUpdateView(GraisAccessRequiredMixin, CommonPopoutUpdateView):
+    model = models.ProbeMeasurement
+    form_class = forms.ProbeMeasurementForm
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class ProbeMeasurementCreateView(GraisAccessRequiredMixin, CommonPopoutCreateView):
+    model = models.ProbeMeasurement
+    form_class = forms.ProbeMeasurementForm
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.sample = get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+        obj.created_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteView):
+    model = models.ProbeMeasurement
+
+
 #
 # # PROBE DATA #
 # ##############

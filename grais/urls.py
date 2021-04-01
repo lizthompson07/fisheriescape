@@ -11,6 +11,8 @@ urlpatterns = [
 
     path('settings/probes/', views.ProbeFormsetView.as_view(), name="manage_probes"),
     path('settings/probe/<int:pk>/delete/', views.ProbeHardDeleteView.as_view(), name="delete_probe"),
+    path('settings/samplers/', views.SamplerFormsetView.as_view(), name="manage_samplers"),
+    path('settings/sampler/<int:pk>/delete/', views.SamplerHardDeleteView.as_view(), name="delete_sampler"),
 
     # species
     path('species/', views.SpeciesListView.as_view(), name="species_list"),
@@ -21,7 +23,7 @@ urlpatterns = [
 
     # path('new-species-to-surface-<int:surface>/', views.SpeciesCreatePopoutView.as_view(), name="species_add"),
 
-    # STATION #
+    # station #
     ###########
     path('stations/', views.StationListView.as_view(), name="station_list"),
     path('stations/new/', views.StationCreateView.as_view(), name="station_new"),
@@ -29,40 +31,26 @@ urlpatterns = [
     path('stations/<int:pk>/edit/', views.StationUpdateView.as_view(), name="station_edit"),
     path('stations/<int:pk>/delete/', views.StationDeleteView.as_view(), name="station_delete"),
 
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    # path('close/', views.CloserTemplateView.as_view(), name="close_me"),
-    # path('dataflow/', views.DataFlowTemplateView.as_view(), name="dataflow"),
-    #
-    # # SAMPLE #
-    # ##########
-    path('sample/list/', views.SampleListView.as_view(), name="sample_list"),
-    # path('sample/new/', views.SampleCreateView.as_view(), name="sample_new"),
-    # path('sample/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
-    # path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
-    # path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
-    #
+    # sample #
+    ##########
+    path('samples/', views.SampleListView.as_view(), name="sample_list"),
+    path('samples/new/', views.SampleCreateView.as_view(), name="sample_new"),
+    path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
+    path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
+    path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
 
-    #
-    # # SAMPLE NOTE #
-    # #############
-    # path('sample/<int:sample>/sample-note/new/', views.SampleNoteCreateView.as_view(), name="sample_note_new"),
-    # path('sample-note/<int:pk>/edit/', views.SampleNoteUpdateView.as_view(), name="sample_note_edit"),
-    # path('sample-note/<int:pk>/delete/', views.sample_note_delete, name="sample_note_delete"),
-    #
+    # sample note #
+    ###############
+    path('samples/<int:sample>/new-note/', views.SampleNoteCreateView.as_view(), name="sample_note_new"),
+    path('sample-notes/<int:pk>/edit/', views.SampleNoteUpdateView.as_view(), name="sample_note_edit"),
+    path('sample-notes/<int:pk>/delete/', views.SampleNoteDeleteView.as_view(), name="sample_note_delete"),
 
-    # # PROBE MEASUREMENT #
-    # #####################
-    # path('sample/<int:sample>/probe-data/new/', views.ProbeMeasurementCreateView.as_view(),
-    #      name="probe_measurement_new"),
-    # path('probe-data/<int:pk>/view/', views.ProbeMeasurementDetailView.as_view(), name="probe_measurement_detail"),
-    # path('probe-data/<int:pk>/edit/', views.ProbeMeasurementUpdateView.as_view(), name="probe_measurement_edit"),
-    # path('probe-data/<int:pk>/delete/', views.ProbeMeasurementDeleteView.as_view(), name="probe_measurement_delete"),
+    # probe measurements #
+    ######################
+    path('samples/<int:sample>/new-measurement/', views.ProbeMeasurementCreateView.as_view(), name="measurement_new"),
+    path('measurements/<int:pk>/edit/', views.ProbeMeasurementUpdateView.as_view(), name="measurement_edit"),
+    path('measurements/<int:pk>/delete/', views.ProbeMeasurementDeleteView.as_view(), name="measurement_delete"),
+
     #
     # # LINE #
     # ########

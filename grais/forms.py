@@ -84,7 +84,6 @@ class SampleNoteForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'author': forms.HiddenInput(),
-            'sample': forms.HiddenInput(),
 
         }
 
@@ -117,7 +116,6 @@ class ProbeMeasurementForm(forms.ModelForm):
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'sample': forms.HiddenInput(),
             # metadata fields
             'time_date': forms.DateTimeInput(attrs=attr_fp_date_time_metadata),
             'probe': forms.Select(attrs=attr_metadata),
@@ -381,5 +379,18 @@ class ProbeForm(forms.ModelForm):
 ProbeFormset = modelformset_factory(
     model=models.Probe,
     form=ProbeForm,
+    extra=1,
+)
+
+
+class SamplerForm(forms.ModelForm):
+    class Meta:
+        model = models.Sampler
+        fields = "__all__"
+
+
+SamplerFormset = modelformset_factory(
+    model=models.Sampler,
+    form=SamplerForm,
     extra=1,
 )

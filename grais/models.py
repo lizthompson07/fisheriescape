@@ -6,10 +6,9 @@ from django.db.models import Q, Sum
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from shapely.geometry import Point
 
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields
+from shared_models.models import MetadataFields, LatLongFields
 
 YES_NO_CHOICES = (
     (True, "Yes"),
@@ -45,11 +44,9 @@ class Sampler(models.Model):
         return "{} {}".format(self.first_name, self.last_name)
 
 
-class Station(MetadataFields):
+class Station(MetadataFields, LatLongFields):
     station_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='stations')
-    latitude = models.FloatField(blank=True, null=True)
-    longitude = models.FloatField(blank=True, null=True)
     depth = models.FloatField(blank=True, null=True, verbose_name=_("depth (m)"))
     site_desc = models.TextField(blank=True, null=True, verbose_name=_("site description"))
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
@@ -67,9 +64,6 @@ class Station(MetadataFields):
     def sample_count(self):
         return self.samples.count()
 
-    def get_point(self):
-        if self.latitude and self.longitude:
-            return Point(self.latitude, self.longitude)
 
 class Species(MetadataFields):
     # choices for epibiont_type
@@ -141,7 +135,7 @@ class Species(MetadataFields):
         return f"<em>{self.scientific_name}</em>"
 
 
-class Sample(models.Model):
+class Sample(MetadataFields):
     # Choices for sample_type
     FIRST = 'first'
     SECOND = 'second'
@@ -157,7 +151,7 @@ class Sample(models.Model):
     date_deployed = models.DateTimeField()
     date_retrieved = models.DateTimeField(blank=True, null=True)
     days_deployed = models.IntegerField(blank=True, null=True)
-    samplers = models.ManyToManyField(Sampler)
+    samplers = models.ManyToManyField(Sampler, verbose_name=_("sampler(s)"))
     old_substn_id = models.IntegerField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SampleSpecies')
     season = models.IntegerField(null=True, blank=True)
@@ -176,7 +170,7 @@ class Sample(models.Model):
         return reverse('grais:sample_detail', kwargs={'pk': self.id})
 
     def __str__(self):
-        return "Sample {}".format(self.id)
+        return f"Sample {self.id} ({self.get_sample_type_display()})"
 
     @property
     def weeks_deployed(self):
@@ -206,11 +200,12 @@ class SampleSpecies(models.Model):
         unique_together = (('species', 'sample'),)
 
 
-class SampleNote(models.Model):
-    sample = models.ForeignKey(Sample, related_name='notes', on_delete=models.CASCADE)
+class SampleNote(MetadataFields):
+    sample = models.ForeignKey(Sample, related_name='notes', on_delete=models.CASCADE, editable=False)
+    note = models.TextField()
+
     date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
-    note = models.TextField()
 
     def __str__(self):
         return str(self.id)
@@ -222,19 +217,13 @@ class SampleNote(models.Model):
         ordering = ["-date"]
 
 
-class Line(models.Model):
+class Line(MetadataFields, LatLongFields):
     sample = models.ForeignKey(Sample, related_name='lines', on_delete=models.CASCADE)
     collector = models.CharField(max_length=56, blank=True, null=True)
-    latitude = models.FloatField(blank=True, null=True)
-    longitude = models.FloatField(blank=True, null=True)
     is_lost = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the line lost?")
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='LineSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
-
-    def get_point(self):
-        if self.latitude and self.longitude:
-            return Point(self.latitude, self.longitude)
 
     def save(self, *args, **kwargs):
         # if the line was lost, set all surfaces to be lost as well
@@ -287,7 +276,7 @@ class LineSpecies(models.Model):
         unique_together = (('species', 'line'),)
 
 
-class Surface(models.Model):
+class Surface(MetadataFields):
     # Choices for surface_type
     PETRI = 'pe'
     PLATE = 'pl'
@@ -334,7 +323,7 @@ class Surface(models.Model):
         return self.surface_spp.all().aggregate(dsum=Sum("percent_coverage"))["dsum"] if self.surface_spp.exists() else 0
 
 
-class SurfaceSpecies(models.Model):
+class SurfaceSpecies(MetadataFields):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="surface_spp")
     surface = models.ForeignKey(Surface, on_delete=models.CASCADE, related_name="surface_spp")
     percent_coverage = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1)])
@@ -358,7 +347,7 @@ class Probe(models.Model):
         return self.probe_name
 
 
-class ProbeMeasurement(models.Model):
+class ProbeMeasurement(MetadataFields):
     # Choices for timezone
     AST = 'AST'
     ADT = 'ADT'
@@ -369,31 +358,31 @@ class ProbeMeasurement(models.Model):
         (UTC, 'UTC'),
     )
 
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="probe_data")
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="probe_data", editable=False)
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING, verbose_name="Probe name")
     time_date = models.DateTimeField(blank=True, null=True, verbose_name="Date / Time (yyyy-mm-dd hh:mm)")
-    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
+    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True, default="ADT")
     probe_depth = models.FloatField(blank=True, null=True, verbose_name="Probe depth (m)")
-    cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="% cloud cover",
-                                      validators=[MinValueValidator(0), MaxValueValidator(100)])
+    cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    weather_notes = models.CharField(max_length=1000, blank=True, null=True)
     temp_c = models.FloatField(blank=True, null=True, verbose_name="Temp (°C)")
     sal_ppt = models.FloatField(blank=True, null=True, verbose_name="Salinity (ppt)")
     o2_percent = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (%)")
     o2_mgl = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (mg/l)")
     sp_cond_ms = models.FloatField(blank=True, null=True, verbose_name="Specific conductance (mS)")
     spc_ms = models.FloatField(blank=True, null=True, verbose_name="Conductivity (mS)")
-    ph = models.FloatField(blank=True, null=True, verbose_name="pH")
+    ph = models.FloatField(blank=True, null=True, verbose_name=" pH")
     turbidity = models.FloatField(blank=True, null=True)
-    weather_notes = models.CharField(max_length=1000, blank=True, null=True)
+
+    @property
+    def dt(self):
+        return f"{self.time_date.strftime('%Y-%m-%d %H:%M')} ({self.timezone})"
 
     def __str__(self):
         return "Probe measurement {}".format(self.id)
 
-    def get_absolute_url(self):
-        return reverse("grais:probe_measurement_detail", kwargs={"pk": self.id})
 
-
-class IncidentalReport(models.Model):
+class IncidentalReport(MetadataFields, LatLongFields):
     # Choices for report_source
     PHONE = 1
     INVADERS_EMAIL = 2
@@ -455,8 +444,6 @@ class IncidentalReport(models.Model):
     call_answered_by = models.CharField(max_length=150, null=True, blank=True)
     call_returned_by = models.CharField(max_length=150, null=True, blank=True)
     location_description = models.CharField(max_length=500, null=True, blank=True)
-    latitude = models.FloatField(blank=True, null=True)
-    longitude = models.FloatField(blank=True, null=True)
     specimens_retained = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
     sighting_description = models.TextField(null=True, blank=True)
     identified_by = models.CharField(max_length=150, null=True, blank=True)
@@ -516,12 +503,10 @@ class Estuary(models.Model):
         ordering = ['name', ]
 
 
-class Site(models.Model):
+class Site(LatLongFields):
     estuary = models.ForeignKey(Estuary, on_delete=models.DO_NOTHING, related_name='sites', blank=True, null=True)
     code = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
-    latitude = models.FloatField(blank=True, null=True)
-    longitude = models.FloatField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -531,7 +516,7 @@ class Site(models.Model):
         ordering = ['code', ]
 
 
-class GCSample(models.Model):
+class GCSample(MetadataFields):
     # Choices for sediment
     SAND = 1
     MUD = 2
@@ -583,7 +568,7 @@ class WeatherConditions(models.Model):
         return "{}".format(self.name)
 
 
-class GCProbeMeasurement(models.Model):
+class GCProbeMeasurement(MetadataFields):
     # choice for tide_state
     LOW = 'l'
     MID = 'm'
@@ -645,7 +630,7 @@ class GCProbeMeasurement(models.Model):
         return "Probe measurement {}".format(self.id)
 
 
-class Trap(models.Model):
+class Trap(MetadataFields, LatLongFields):
     # Choices for trap_type
     FUKUI = 1
     MINNOW = 2
@@ -663,8 +648,6 @@ class Trap(models.Model):
     trap_type = models.IntegerField(default=1, choices=TRAP_TYPE_CHOICES)
     bait_type = models.IntegerField(default=1, choices=BAIT_TYPE_CHOICES)
     depth_at_set_m = models.FloatField(blank=True, null=True, verbose_name="depth at set (m)")
-    latitude = models.FloatField(blank=True, null=True)
-    longitude = models.FloatField(blank=True, null=True)
     gps_waypoint = models.IntegerField(blank=True, null=True, verbose_name="GPS waypoint")
     notes = models.TextField(blank=True, null=True)
     total_green_crab_wt_kg = models.FloatField(blank=True, null=True, verbose_name="Total weight of green crabs (kg)")
@@ -688,7 +671,7 @@ class Trap(models.Model):
         return self.catch_spp.filter(species__green_crab_monitoring=True, species__invasive=False)
 
 
-class Catch(models.Model):
+class Catch(MetadataFields):
     # Choices for sex
     MALE = 1
     FEMALE = 2

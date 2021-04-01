@@ -3,6 +3,7 @@
 {% load verbose_names %}
 
 {% block header %}
+  {{ block.super }}
   <style>
   /* Set the size of the div element that contains the map */
   #map {
@@ -48,7 +49,7 @@
         <thead class="full-table">
         <tr>
           {% for field in sample_field_list %}
-            <th>{% get_verbose_label field object.samples.first %}</th>
+            <th>{% get_verbose_label object.samples.first field %}</th>
           {% endfor %}
         </tr>
         </thead>
@@ -56,7 +57,7 @@
         {% for sample in object.samples.all %}
           <tr href="{% url 'grais:sample_detail' sample.id %}">
             {% for field in sample_field_list %}
-              <td>{% get_field_value field sample %}</td>
+              <td>{% get_field_value sample field %}</td>
             {% endfor %}
           </tr>
         {% endfor %}
@@ -94,6 +95,13 @@
         zoom: 6,
       });
     {% endif %}
+
+    L.marker(
+        [{{object.get_point.x}}, {{ object.get_point.y }}],
+        {
+          title: '{{object}}',
+        }
+    ).addTo(map).bindPopup("<b>Station:</b> {{object}}");
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
