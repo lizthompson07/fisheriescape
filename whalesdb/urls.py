@@ -46,8 +46,6 @@ urlpatterns = [
     path('list/emm/', views.EmmList.as_view(), name="list_emm"),
 
     path('create/ehe/<int:rec>/<int:ecp_channel_no>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
-    path('managed/ehe/', views.EheMangedView.as_view(), name="managed_ehe"),
-    path('managed/ehe/<int:rec>/', views.EheMangedView.as_view(), name="managed_ehe"),
     path('managed/ehe/<int:rec>/<int:ecp_channel_no>/', views.EheMangedView.as_view(), name="managed_ehe"),
 
     path('create/eqh/<int:pk>/<str:pop>/', views.EqhCreate.as_view(), name="create_eqh"),
@@ -123,6 +121,7 @@ urlpatterns = [
     path('delete/rci/<int:pk>/', views.rci_delete, name="delete_rci"),
 
     path('create/ree/<int:rec_id>/<str:pop>/', views.ReeCreate.as_view(), name="create_ree"),
+    path('update/ree/<int:pk>/<str:pop>/', views.ReeUpdate.as_view(), name="update_ree"),
 
     path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),

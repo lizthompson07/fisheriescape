@@ -476,6 +476,10 @@ class RecUpdate(mixins.RecMixin, CommonUpdate):
         return reverse_lazy("whalesdb:details_rec", args=(self.kwargs['pk'],))
 
 
+class ReeUpdate(mixins.ReeMixin, CommonUpdate):
+    pass
+
+
 class RetUpdate(mixins.RetMixin, CommonUpdate):
 
     def get_success_url(self):

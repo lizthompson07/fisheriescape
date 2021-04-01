@@ -156,8 +156,8 @@ class URLTest(TestCase):
         self.basic_en_url_test('whalesdb:remove_ehe', 'whalesdb/remove/ehe/1/pop/', views.EheUpdateRemove, [1, 'pop'])
 
     @tag('ehe', 'url', 'manage')
-    def test_url_update_pop_ehe_view(self):
-        self.basic_en_url_test('whalesdb:managed_ehe', 'whalesdb/remove/ehe/1/', views.EheEcpMangedView, [1])
+    def test_url_update_ehe_view(self):
+        self.basic_en_url_test('whalesdb:managed_ehe', 'whalesdb/remove/ehe/1/1/', views.EheEcpMangedView, [1, 1])
 
     @tag('eqh', 'url', 'create')
     def test_url_create_pop_eqh_view(self):
@@ -278,6 +278,10 @@ class URLTest(TestCase):
     @tag('prm', 'url', 'managed')
     def test_url_managed_prm_view(self):
         self.basic_en_url_test('whalesdb:managed_prm', 'whalesdb/settings/managed-prm/', views.PrmMangedView)
+
+    @tag('ree', 'url', 'pop', 'update')
+    def test_url_update_ree_pop_view(self):
+        self.basic_en_url_test('whalesdb:update_ree', 'whalesdb/create/ree/1/pop/', views.ReeUpdate, [1, 'pop'])
 
     @tag('rsc', 'url', 'create')
     def test_url_create_rsc_view(self):
