@@ -162,7 +162,7 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
     if not origin:
         # move indvidual or group to destination and clean up previous contx's
         if grp_pk:
-            grp = models.Group.objects.filter(pk=grp_pk)
+            grp = models.Group.objects.filter(pk=grp_pk).get()
             origin_conts = grp.current_cont(movement_date)
     else:
         if enter_contx(origin, cleaned_data, None):

@@ -65,9 +65,41 @@ class TestGrpMove(CommonTest):
         self.assertIn(self.grp, grp_list)
         self.assertIn(second_grp, grp_list)
 
+    def test_fix_jumped_tanks(self):
+        # simulate accidentally recording group in wrong tank and correcting:
+        # ie A->B, C->D (fish is in both B and D) ->E should correct this
+        tank_a = BioFactoryFloor.TankFactory()
+        tank_a.facic_id = self.evnt.facic_id
+        tank_a.save()
+        tank_b = BioFactoryFloor.TankFactory()
+        tank_b.facic_id = self.evnt.facic_id
+        tank_b.save()
+        tank_c = BioFactoryFloor.TankFactory()
+        tank_c.facic_id = self.evnt.facic_id
+        tank_c.save()
+        tank_d = BioFactoryFloor.TankFactory()
+        tank_d.facic_id = self.evnt.facic_id
+        tank_d.save()
+        tank_e = BioFactoryFloor.TankFactory()
+        tank_e.facic_id = self.evnt.facic_id
+        tank_e.save()
+        # need three dates to ensure unique moving events, to keep django test env happy
+        move_a_date = (datetime.datetime.now() - datetime.timedelta(days=2)).date()
+        move_b_date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
+        move_c_date = datetime.datetime.now().date()
+
+        utils.create_movement_evnt(tank_a, tank_b, self.cleaned_data, move_a_date, grp_pk=self.grp.pk)
+        utils.create_movement_evnt(tank_c, tank_d, self.cleaned_data, move_b_date, grp_pk=self.grp.pk)
+        self.assertIn(tank_b, self.grp.current_cont())
+        self.assertIn(tank_d, self.grp.current_cont())
+        utils.create_movement_evnt(None, tank_e, self.cleaned_data, move_c_date, grp_pk=self.grp.pk)
+        self.assertIn(tank_e, self.grp.current_cont())
+        self.assertNotIn(tank_c, self.grp.current_cont())
+        self.assertNotIn(tank_d, self.grp.current_cont())
+
 
 @tag("Grp", "Cnt", "Utils")
-class TestGrpCnts(CommonTest):
+class TestGrpCnt(CommonTest):
     fixtures = ["initial_data.json"]
 
     def setUp(self):
