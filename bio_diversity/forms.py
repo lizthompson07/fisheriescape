@@ -217,7 +217,7 @@ class DataForm(CreatePrams):
         model = models.DataLoader
         exclude = []
 
-    egg_data_types = ((None, '---------'), ('Temperature', 'Temperature'), ('Picks', 'Picks'), ('Cross Mapping', 'Cross Mapping'))
+    egg_data_types = ((None, '---------'), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
     egg_data_type = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
 
@@ -462,7 +462,7 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                     converters={'to tank': str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
+                                     converters={'to tank': str, 'from tank': str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -481,7 +481,7 @@ class DataForm(CreatePrams):
                 elif len(grp_qs) > 1:
                     for grp in grp_qs:
                         tank_list = grp.current_tank()
-                        if data["from Tank"][0] in [tank.name for tank in tank_list]:
+                        if str(data["from Tank"][0]) in [tank.name for tank in tank_list]:
                             grp_id = grp.pk
 
             except Exception as err:
@@ -524,8 +524,8 @@ class DataForm(CreatePrams):
                         indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
                     if not row["from Tank"] == "nan" and not row["to tank"] == "nan":
-                        in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
-                        out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
+                        in_tank = models.Tank.objects.filter(name=row["from Tank"]).get()
+                        out_tank = models.Tank.objects.filter(name=row["to tank"]).get()
                         if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
                                                       indv_pk=indv.pk):
                             row_entered = True
@@ -1026,13 +1026,13 @@ class DataForm(CreatePrams):
                     if utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None):
                         row_entered = True
 
-                    if utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 * row["Wt"], "Weight", None):
+                    if utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row["Wt"], "Weight", None):
                         row_entered = True
 
                     if utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row["Ln.1"], "Length", None):
                         row_entered = True
 
-                    if utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 * row["Wt.1"], "Weight", None):
+                    if utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row["Wt.1"], "Weight", None):
                         row_entered = True
 
                     # pair
@@ -1259,7 +1259,7 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows entered to " \
                         "database".format(len(entered_list), len(data_dict))
         # ---------------------------CROSS TRAY MAPPING MACTAQUAC----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] ==\
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == \
                 "Cross Mapping" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0).dropna(how="all")
@@ -1285,7 +1285,7 @@ class DataForm(CreatePrams):
             data_dict = data.to_dict('records')
             for row in data_dict:
                 contx = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
-                                               return_contx=True)
+                                          return_contx=True)
                 if contx:
                     rows_entered += 1
                     # fecu to count:
@@ -1300,7 +1300,7 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows entered to " \
                         "database".format(rows_entered, len(data_dict))
         # ---------------------------PICKS DATA MACTAQUAC----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] ==\
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == \
                 "Picks" and cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', sheet_name="LOSS", header=None).dropna(how="all")
@@ -1333,7 +1333,7 @@ class DataForm(CreatePrams):
             log_data += "\n\n\n {} of {} rows entered to " \
                         "database".format(rows_entered, len(data_dict))
         # ---------------------------PICKS DATA COLDBROOK----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] ==\
+        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == \
                 "Picks" and cleaned_data["facic_id"].__str__() == "Coldbrook":
             try:
                 data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', sheet_name="Matings and Losses",
@@ -1346,6 +1346,7 @@ class DataForm(CreatePrams):
             parsed = True
             self.request.session["load_success"] = True
 
+            # add objects rows to dataframe:
             pair_qs = models.Pairing.objects.all().select_related('indv_id__stok_id')
             data["pairs"] = data.apply(
                 lambda row: pair_qs.filter(cross=row["cross"], indv_id__stok_id__name=row["Stock"]).get(), axis=1)
@@ -1364,7 +1365,7 @@ class DataForm(CreatePrams):
             data_dict = data.to_dict('records')
             for row in data_dict:
                 contx = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
-                                               return_contx=True)
+                                          return_contx=True)
                 anix = utils.enter_anix(cleaned_data, grp_pk=row["grps"].pk)
                 if contx:
                     rows_entered += 1
@@ -1387,17 +1388,29 @@ class DataForm(CreatePrams):
 
                     # EGG MOVEMENT:
                     move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
-                    # eggs leaving the initial group
-                    utils.enter_cnt(cleaned_data, row["EQU"], contx.pk, cnt_code="EQU eggs")
 
-                    # create cup and new group if needed, and link to parent group and main event
+                    # list of movement column headers
                     move_tuples = [
-                        ("EQU A #", "EQU A Location", "Weight 1 (g)", "EQU Eggs A"),
-                        ("EQU B #", "EQU B Location", "Weight 2 (g)", "EQU Eggs B")
+                        ("EQU A #", "EQU A Location", "Weight 1 (g)", "EQU A"),
+                        ("EQU B #", "EQU B Location", "Weight 2 (g)", "EQU B"),
+                        ("# of PEQUs", "PEQU Location stack.tray", "Actual PEQU Wt (g)", "PEQU")
                     ]
+
+                    # eggs out:
+                    all_eggs_out = 0
+                    out_cnt = utils.enter_cnt(cleaned_data, 0, contx.pk, cnt_code="Eggs Removed")
                     for move_cnt, move_cup, move_weight, cnt_code in move_tuples:
-                        cup = utils.get_cup_from_dot(row[move_cup], cleaned_data, move_date)
-                        indv, final_grp = cup.fish_in_cont(move_date)
+                        if not math.isnan(row[move_cnt]):
+                            utils.enter_cnt_det(cleaned_data, out_cnt.pk, row[move_cnt], "Program Group", cnt_code)
+                            all_eggs_out += row[move_cnt]
+                    if all_eggs_out:
+                        out_cnt.det_val = int(all_eggs_out)
+                        out_cnt.save()
+
+                    # record movement event
+                    for move_cnt, move_cup, move_weight, cnt_code in move_tuples:
+                        cont = utils.get_cont_from_dot(row[move_cup], cleaned_data, move_date)
+                        indv, final_grp = cont.fish_in_cont(move_date)
                         if not final_grp:
                             final_grp = models.Group(spec_id=row["grps"].spec_id,
                                                      coll_id=row["grps"].coll_id,
@@ -1416,15 +1429,19 @@ class DataForm(CreatePrams):
                             final_grp = final_grp[0]
                         final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk)
                         utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), "Parent Group", frm_grp_id=row["grps"])
+                        utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, None, "Program Group", adsc_str=cnt_code)
 
                         # create movement for the new group, create 2 contx's and 3 anix's
-                        tray_contx = utils.create_egg_movement_evnt(row["trays"], cup, cleaned_data, move_date, final_grp.pk, tray_contx=True)
+                        # tray contx is contx used tyo link the positive counts
+                        tray_contx = utils.create_egg_movement_evnt(row["trays"], cont, cleaned_data, move_date, final_grp.pk, tray_contx=True)
+
+                        # add the positive counts
+                        cnt = utils.enter_cnt(cleaned_data, row[move_cnt], tray_contx.pk, cnt_code="Eggs Added", )
+                        utils.enter_cnt_det(cleaned_data, cnt.pk, row[move_weight], "Weight")
+                        utils.enter_cnt_det(cleaned_data, cnt.pk, row[move_cnt], "Program Group", cnt_code)
 
                         # link cup to egg development event
-                        utils.enter_contx(cup, cleaned_data, None, grp_pk=final_grp.pk)
-                        cnt = utils.enter_cnt(cleaned_data, row[move_cnt], tray_contx.pk, cnt_code=cnt_code, )
-                        utils.enter_cnt_det(cleaned_data, cnt.pk, row[move_weight], "Weight")
-
+                        utils.enter_contx(cont, cleaned_data, None, grp_pk=final_grp.pk)
 
                     # Move main group to drawer, and add end date to tray:
                     draw = utils.get_draw_from_dot(str(row["General Location stack.tray"]), cleaned_data)

@@ -92,8 +92,25 @@ def get_cont_from_anix(anix, cont_key):
         return None
 
 
+def get_cont_from_dot(dot_string, cleaned_data, start_date):
+    dot_string = str(dot_string)
+    cup = get_cup_from_dot(dot_string, cleaned_data, start_date)
+    if cup:
+        return cup
+    else:
+        draw = get_draw_from_dot(dot_string, cleaned_data)
+        if draw:
+            return draw
+        else:
+            return None
+
+
 def get_cup_from_dot(dot_string, cleaned_data, start_date):
-    heat, draw, cup = dot_string.split(".")
+    cont_list = dot_string.split(".")
+    if len(cont_list) == 3:
+        heat, draw, cup = cont_list
+    else:
+        return None
     cup_qs = models.Cup.objects.filter(name=cup, draw_id__name=draw, draw_id__heat_id__name=heat, draw_id__heat_id__facic_id=cleaned_data["facic_id"], end_date__isnull=True)
     if cup_qs.exists():
         return cup_qs.get()
@@ -114,7 +131,11 @@ def get_cup_from_dot(dot_string, cleaned_data, start_date):
 
 
 def get_draw_from_dot(dot_string, cleaned_data):
-    heat, draw = dot_string.split(".")
+    cont_list = dot_string.split(".")
+    if len(cont_list) == 2:
+        heat, draw = cont_list
+    else:
+        return None
     draw_qs = models.Drawer.objects.filter(name=draw, heat_id__name=heat, heat_id__facic_id=cleaned_data["facic_id"])
     if draw_qs.exists():
         return draw_qs.get()
@@ -213,6 +234,7 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
 
 def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, tray_contx=False):
     # moves eggs from trof-tray to heat.draw.cup, only use the final group as this splits groups
+    # cup argument can also be a drawer object
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
 
@@ -360,7 +382,7 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
                            contx_id_id=contx_pk,
                            spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                            cntc_id=models.CountCode.objects.filter(name__iexact=cnt_code).get(),
-                           cnt=cnt_value,
+                           cnt=int(cnt_value),
                            est=est,
                            created_by=cleaned_data["created_by"],
                            created_date=cleaned_data["created_date"],
@@ -376,22 +398,32 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
     return cnt
 
 
-def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, qual="Good"):
+def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, det_subj_code=None, qual="Good"):
     row_entered = False
-    if not math.isnan(det_val):
-        cntd = models.CountDet(cnt_id_id=cnt_pk,
-                               anidc_id=models.AnimalDetCode.objects.filter(
-                                   name__iexact=det_code).get(),
-                               det_val=round(decimal.Decimal(det_val), 5),
-                               qual_id=models.QualCode.objects.filter(name=qual).get(),
-                               created_by=cleaned_data["created_by"],
-                               created_date=cleaned_data["created_date"],
-                               )
+    # checks for truthness of det_val and if its a nan. Fails for None and nan (nan == nan is false), passes for values
+    if det_val == det_val and det_val:
+        if not det_subj_code:
+            cntd = models.CountDet(cnt_id_id=cnt_pk,
+                                   anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),
+                                   det_val=round(decimal.Decimal(det_val), 5),
+                                   qual_id=models.QualCode.objects.filter(name=qual).get(),
+                                   created_by=cleaned_data["created_by"],
+                                   created_date=cleaned_data["created_date"],
+                                   )
+        else:
+            cntd = models.CountDet(cnt_id_id=cnt_pk,
+                                   anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),
+                                   adsc_id=models.AniDetSubjCode.objects.filter(name__iexact=det_subj_code).get(),
+                                   det_val=round(decimal.Decimal(det_val), 5),
+                                   qual_id=models.QualCode.objects.filter(name=qual).get(),
+                                   created_by=cleaned_data["created_by"],
+                                   created_date=cleaned_data["created_date"],
+                                   )
         try:
             cntd.clean()
             cntd.save()
             row_entered = True
-        except ValidationError:
+        except (ValidationError, IntegrityError):
             row_entered = False
     return row_entered
 

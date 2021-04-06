@@ -85,6 +85,17 @@ class BioContainerDet(BioModel):
             })
 
 
+class BioDateModel(BioModel):
+    # model with start date/end date, still valid, created by and created date fields
+    class Meta:
+        abstract = True
+
+    start_date = models.DateField(verbose_name=_("Start Date"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
+    valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+
 class BioDet(BioModel):
     class Meta:
         abstract = True
@@ -132,6 +143,41 @@ class BioLookup(shared_models.Lookup):
                     raise ValidationError(msg)
 
 
+class BioTimeModel(BioModel):
+    # model with start datetime/end datetime, created by and created date fields
+    class Meta:
+        abstract = True
+
+    start_datetime = models.DateTimeField(verbose_name=_("Start date"))
+    end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End date"))
+
+    @property
+    def start_date(self):
+        return self.start_datetime.date()
+
+    @property
+    def start_time(self):
+        if self.start_datetime.time() == datetime.datetime.min.time():
+            return None
+        return self.start_datetime.time().strftime("%H:%M")
+
+    @property
+    def end_date(self):
+        if self.end_datetime:
+            return self.end_datetime.date()
+        else:
+            return None
+
+    @property
+    def end_time(self):
+        if self.end_datetime:
+            if self.end_datetime.time() == datetime.datetime.min.time():
+                return None
+            return self.end_datetime.time().strftime("%H:%M")
+        else:
+            return None
+
+
 class BioCont(BioLookup):
     key = None
 
@@ -172,52 +218,6 @@ class BioCont(BioLookup):
             elif in_count > grp_out_set[grp]:
                 indv_list.append(grp)
         return indv_list, grp_list
-
-
-class BioDateModel(BioModel):
-    # model with start date/end date, still valid, created by and created date fields
-    class Meta:
-        abstract = True
-
-    start_date = models.DateField(verbose_name=_("Start Date"))
-    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
-    valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-
-
-class BioTimeModel(BioModel):
-    # model with start datetime/end datetime, created by and created date fields
-    class Meta:
-        abstract = True
-
-    start_datetime = models.DateTimeField(verbose_name=_("Start date"))
-    end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End date"))
-
-    @property
-    def start_date(self):
-        return self.start_datetime.date()
-
-    @property
-    def start_time(self):
-        if self.start_datetime.time() == datetime.datetime.min.time():
-            return None
-        return self.start_datetime.time().strftime("%H:%M")
-
-    @property
-    def end_date(self):
-        if self.end_datetime:
-            return self.end_datetime.date()
-        else:
-            return None
-
-    @property
-    def end_time(self):
-        if self.end_datetime:
-            if self.end_datetime.time() == datetime.datetime.min.time():
-                return None
-            return self.end_datetime.time().strftime("%H:%M")
-        else:
-            return None
 
 
 class AnimalDetCode(BioLookup):
@@ -794,8 +794,8 @@ class Group(BioModel):
         cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
                                        contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct()
 
-        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Egg Count"]
-        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "EQU Eggs", ]
+        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Egg Count", "Eggs Added"]
+        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed", ]
 
         for cnt in cnt_set:
             if cnt.cntc_id.name in add_codes:

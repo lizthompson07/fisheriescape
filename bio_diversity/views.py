@@ -260,6 +260,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             init['evntc_id'] = evntc
             init['facic_id'] = evnt.facic_id
             self.get_form_class().base_fields["data_csv"].required = True
+            self.get_form_class().base_fields["trof_id"].required = False
+
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
@@ -270,15 +272,12 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["tank_id"].required = False
                 self.get_form_class().base_fields["tank_id"].widget = forms.HiddenInput()
             if evntc.__str__() == "Egg Development":
-                self.get_form_class().base_fields["trof_id"].required = False
-                self.get_form_class().base_fields["trof_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+                self.get_form_class().base_fields["trof_id"].widget = forms.Select(
+                    attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["egg_data_type"].required = True
-                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'),
-                                  ('Cross Mapping', 'Cross Mapping'))
+                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
                 self.get_form_class().base_fields["egg_data_type"] = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
             else:
-                self.get_form_class().base_fields["trof_id"].required = False
-                self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
                 self.get_form_class().base_fields["egg_data_type"].required = False
                 self.get_form_class().base_fields["egg_data_type"].widget = forms.HiddenInput()
         return init
@@ -797,7 +796,7 @@ class CntDetails(mixins.CntMixin, CommonDetails):
         context["table_list"].extend(["cntd"])
 
         cntd_set = self.object.count_details.all()
-        cntd_field_list = ["anidc_id", "det_val"]
+        cntd_field_list = ["anidc_id", "adsc_id", "det_val"]
         obj_mixin = mixins.CntdMixin
         context["context_dict"]["cntd"] = {"div_title": "Count Details",
                                            "sub_model_key": obj_mixin.key,
@@ -1060,7 +1059,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["table_list"].extend(["evnt", "indv", "grpd", "pair", "cont"])
+        context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "pair", "cont"])
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True).select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id')
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
@@ -1080,6 +1079,15 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "objects_list": grp_set,
                                            "field_list": grpd_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
+
+        cnt_set = models.Count.objects.filter(contx_id__animal_details__grp_id=self.object).distinct().select_related("cntc_id")
+        cnt_field_list = ["cntc_id", "cnt", "est", "date"]
+        obj_mixin = mixins.CntMixin
+        context["context_dict"]["cnt"] = {"div_title": "Counts",
+                                          "sub_model_key": obj_mixin.key,
+                                          "objects_list": cnt_set,
+                                          "field_list": cnt_field_list,
+                                          "single_object": obj_mixin.model.objects.first()}
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
                                                           indvt_id__isnull=True, pair_id__isnull=True)
