@@ -200,7 +200,7 @@ class Project(models.Model):
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"), editable=False)
     funding_sources = models.ManyToManyField(FundingSource, editable=False, verbose_name=_("complete list of funding sources"))
-    staff_search_field = models.CharField(editable=False, max_length=1000, blank=True, null=True)
+    staff_search_field = models.CharField(editable=False, max_length=5000, blank=True, null=True)
     lead_staff = models.ManyToManyField("Staff", editable=False, verbose_name=_("project leads"))
     fiscal_years = models.ManyToManyField(shared_models.FiscalYear, editable=False, verbose_name=_("fiscal years"))
 
