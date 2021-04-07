@@ -3,22 +3,17 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
-from projects import models as project_models
+from projects2 import models as project_models
 
-from django.core.validators import MaxValueValidator, MaxLengthValidator, EmailValidator
+from django.core.validators import MaxValueValidator
 
 
 # ----------------------------------------------------------------------------------------------------
-#
-class Lookup(models.Model):
-    name_en = models.CharField(max_length=255, unique=True)
-    name_fr = models.CharField(max_length=255, unique=True)
-
-    description_en = models.TextField(null=True, blank=True)
-    description_fr = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        return "{}/{}".format(self.name_en, self.name_fr)
+# Add an is_active field used to determine if a lookup value is still used and should show up in
+# managed lists or if the code should be hidden, but kept for legacy reasons.
+# ----------------------------------------------------------------------------------------------------
+class Lookup(shared_models.Lookup):
+    is_active = models.BooleanField(default=True, verbose_name=_("is active?"))
 
     class Meta:
         abstract = True
@@ -27,43 +22,43 @@ class Lookup(models.Model):
 # ----------------------------------------------------------------------------------------------------
 # Create models for contacts
 #
-class CohHonorific(shared_models.Lookup):
+class CohHonorific(Lookup):
     pass
 
 
-class CotType(shared_models.Lookup):
+class CotType(Lookup):
     pass
 
 
-class LanLanguage(shared_models.Lookup):
+class LanLanguage(Lookup):
     pass
 
 
-class NotNotificationPreference(shared_models.Lookup):
+class NotNotificationPreference(Lookup):
     pass
 
 
-class RolRole(shared_models.Lookup):
+class RolRole(Lookup):
     pass
 
 
-class SecSector(shared_models.Lookup):
+class SecSector(Lookup):
     pass
 
 
-class BraBranch(shared_models.Lookup):
+class BraBranch(Lookup):
     pass
 
 
-class RetType(shared_models.Lookup):
+class RetType(Lookup):
     pass
 
 
-class CotStatus(shared_models.Lookup):
+class CotStatus(Lookup):
     pass
 
 
-class CotExpertise(shared_models.Lookup):
+class CotExpertise(Lookup):
     pass
 
 
@@ -126,43 +121,43 @@ class MftMeetingFileType(models.Model):
         return "{}".format(self.name)
 
 
-class SttStatus(shared_models.Lookup):
+class SttStatus(Lookup):
     pass
 
 
-class ScpScope(shared_models.Lookup):
+class ScpScope(Lookup):
     pass
 
 
-class AptAdvisoryProcessType(shared_models.Lookup):
+class AptAdvisoryProcessType(Lookup):
     pass
 
 
-class LocLocationProv(shared_models.Lookup):
+class LocLocationProv(Lookup):
     pass
 
 
-class LocLocationCity(shared_models.Lookup):
+class LocLocationCity(Lookup):
     pass
 
 
-class MdfMeetingDocsRef(shared_models.Lookup):
+class MdfMeetingDocsRef(Lookup):
     pass
 
 
-class MepMeetingExpectedPublication(shared_models.Lookup):
+class MepMeetingExpectedPublication(Lookup):
     pass
 
 
-class MccMeetingCostCategory(shared_models.Lookup):
+class MccMeetingCostCategory(Lookup):
     pass
 
 
-class MeqQuarter(shared_models.Lookup):
+class MeqQuarter(Lookup):
     pass
 
 
-class MemMeetingMonth(shared_models.Lookup):
+class MemMeetingMonth(Lookup):
     pass
 
 
@@ -304,7 +299,7 @@ class MecMeetingContact(models.Model):
 
 class OmCost(models.Model):
     amount = models.DecimalField(decimal_places=10, max_digits=20)
-    funding_source = models.ForeignKey(project_models.FundingSource, on_delete=models.DO_NOTHING)
+    funding_source = models.ForeignKey(project_models.FundingSource, on_delete=models.DO_NOTHING, related_name="csas_om_costs")
     category = models.ForeignKey(project_models.OMCategory, on_delete=models.DO_NOTHING)
 
     description = models.TextField()
@@ -313,7 +308,7 @@ class OmCost(models.Model):
         return "{}".format(self.pk)
 
 
-class PsePublicationSeries(shared_models.Lookup):
+class PsePublicationSeries(Lookup):
     pass
 
     # def __str__(self):
@@ -352,35 +347,35 @@ class MomMeetingOmCost(models.Model):
 # ----------------------------------------------------------------------------------------------------
 # Create models for publications
 #
-class PseSeries(shared_models.Lookup):
+class PseSeries(Lookup):
     name = models.CharField(max_length=50)
 
 
-class KeyKeywords(shared_models.Lookup):
+class KeyKeywords(Lookup):
     name = models.CharField(max_length=100)
 
 
-class PusPublicationStatus(shared_models.Lookup):
+class PusPublicationStatus(Lookup):
     pass
 
 
-class PtsPublicationTransStatus(shared_models.Lookup):
+class PtsPublicationTransStatus(Lookup):
     pass
 
 
-class PtlPublicationTargetLanguage(shared_models.Lookup):
+class PtlPublicationTargetLanguage(Lookup):
     pass
 
 
-class PurPublicationUrgentRequest(shared_models.Lookup):
+class PurPublicationUrgentRequest(Lookup):
     pass
 
 
-class PccPublicationCostCategory(shared_models.Lookup):
+class PccPublicationCostCategory(Lookup):
     pass
 
 
-class PccPublicationComResultsCategory(shared_models.Lookup):
+class PccPublicationComResultsCategory(Lookup):
     pass
 
 
@@ -573,23 +568,23 @@ class PtiPublicationTitle(models.Model):
 # ----------------------------------------------------------------------------------------------------
 # Create models for requests
 #
-class RepPriority(shared_models.Lookup):
+class RepPriority(Lookup):
     pass
 
 
-class RetTiming(shared_models.Lookup):
+class RetTiming(Lookup):
     pass
 
 
-class RedDecision(shared_models.Lookup):
+class RedDecision(Lookup):
     pass
 
 
-class ResStatus(shared_models.Lookup):
+class ResStatus(Lookup):
     pass
 
 
-class RdeDecisionExplanation(shared_models.Lookup):
+class RdeDecisionExplanation(Lookup):
     pass
 
 

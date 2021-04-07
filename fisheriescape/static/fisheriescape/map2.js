@@ -39,7 +39,7 @@ var polygonObject = L.geoJSON(polygonObj, {
         }
     },
     onEachFeature: function (feature, layer) {
-        myUrl = `http://127.0.0.1:8000/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
+        myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`
         layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
         layer.on({
             mouseover: showInfo,
@@ -61,11 +61,11 @@ var map = L.map('map2', {
 
 var baseMaps = {
     "Light": light,
-    "Streets": streets
+    "Streets": streets,
 };
 
 var overlayMaps = {
-    "Test": polygonObject,
+    "Fishery": polygonObject,
 
 };
 
