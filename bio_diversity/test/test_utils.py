@@ -123,7 +123,7 @@ class TestGrpCnt(CommonTest):
         self.contx = utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
 
     def test_zero_cnt(self):
-        # test that with no details present count returns zero
+        # test that with no details present, count returns zero
         self.assertEqual(self.grp.count_fish_in_group(), 0)
 
     def test_simple_cnt(self):
@@ -139,4 +139,27 @@ class TestGrpCnt(CommonTest):
         contx = utils.enter_contx(self.final_tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
         utils.enter_cnt(self.cleaned_data, cnt_val, contx.pk, cnt_code="Fish in Container")
         self.assertEqual(self.grp.count_fish_in_group(), 2 * cnt_val)
+
+    def test_program_grp_cnt(self):
+        #  take two types of eggs from group in same event.
+        init_cnt = randint(300, 500)
+        cnt_one_val = randint(0, 100)
+        cnt_two_val = randint(0, 100)
+        utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
+        cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")
+        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
+        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_two_val, "Program Group", "PEQU")
+        self.assertEqual(self.grp.count_fish_in_group(), init_cnt - cnt_one_val - cnt_two_val)
+
+    def test_aboslute_cnt(self):
+        #  take eggs from a group and then record absolute count.
+        init_cnt = randint(300, 500)
+        cnt_one_val = randint(5, 100)
+        cnt_final_val = randint(0, 5)
+        utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
+        cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")
+        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
+        utils.enter_cnt(self.cleaned_data, cnt_final_val, self.contx.pk, cnt_code="Egg Count")
+        self.assertEqual(self.grp.count_fish_in_group(), cnt_final_val)
+
 
