@@ -389,7 +389,7 @@ class CountDet(BioDet):
 
     def clean(self):
         super(CountDet, self).clean()
-        if self.det_val:
+        if self.det_val and self.anidc_id.max_val and self.anidc_id.min_val:
             if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"

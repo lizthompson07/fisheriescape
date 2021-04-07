@@ -1,7 +1,7 @@
 import inspect
 import math
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import pytz
 from django import forms
@@ -1386,9 +1386,23 @@ class DataForm(CreatePrams):
                         pick_datetime = datetime.strptime(row[date_key], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
                         utils.create_picks_evnt(cleaned_data, row["trays"], row["grps"].pk, row[pick_key], pick_datetime, pick_code)
 
-                    # EGG MOVEMENT:
+                    # HU Transfer:
                     move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+                    # want to shift the hu move event, so that the counting math always works out.
+                    hu_move_date = move_date + timedelta(minutes=1)
+                    hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)
+                    utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk)
+                    hu_contx = utils.enter_contx(row["trays"], hu_cleaned_data, None, grp_pk=row["grps"].pk, return_contx=True)
 
+                    # HU Picks:
+                    hu_pick_cnt = utils.enter_cnt(cleaned_data, row["HU transfer TOTAL"], hu_contx.pk, cnt_code="HU Transfer Loss")
+
+                    hu_pick_tuples = [("Morts", None), ("Weak-Eyed", "Weak-Eyed"), ("Pre-Hatch", "Pre-Hatch")]
+
+                    for pick_cnt, pick_code in hu_pick_tuples:
+                        utils.enter_cnt_det(hu_cleaned_data, hu_pick_cnt, row[pick_cnt], "Mortality Observation", pick_code)
+
+                    # HU selections:
                     # list of movement column headers
                     move_tuples = [
                         ("EQU A #", "EQU A Location", "Weight 1 (g)", "EQU A"),
@@ -1398,7 +1412,7 @@ class DataForm(CreatePrams):
 
                     # eggs out:
                     all_eggs_out = 0
-                    out_cnt = utils.enter_cnt(cleaned_data, 0, contx.pk, cnt_code="Eggs Removed")
+                    out_cnt = utils.enter_cnt(cleaned_data, 0, hu_contx.pk, cnt_code="Eggs Removed")
                     for move_cnt, move_cup, move_weight, cnt_code in move_tuples:
                         if not math.isnan(row[move_cnt]):
                             utils.enter_cnt_det(cleaned_data, out_cnt, row[move_cnt], "Program Group", cnt_code)

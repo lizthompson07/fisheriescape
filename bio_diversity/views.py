@@ -1073,7 +1073,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True).select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id')
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
-        evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_datetime"]
+        evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_date"]
         obj_mixin = mixins.EvntMixin
         context["context_dict"]["evnt"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,

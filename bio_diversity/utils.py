@@ -238,6 +238,32 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
         return row_entered
 
 
+def create_new_evnt(cleaned_data, evntc_name, evnt_date):
+    new_cleaned_data = cleaned_data.copy()
+    new_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name=evntc_name).get(),
+                            facic_id=cleaned_data["evnt_id"].facic_id,
+                            perc_id=cleaned_data["evnt_id"].perc_id,
+                            prog_id=cleaned_data["evnt_id"].prog_id,
+                            start_datetime=evnt_date,
+                            end_datetime=evnt_date,
+                            created_by=cleaned_data["created_by"],
+                            created_date=cleaned_data["created_date"],
+                            )
+    try:
+        new_evnt.clean()
+        new_evnt.save()
+    except (ValidationError, IntegrityError):
+        new_evnt = models.Event.objects.filter(evntc_id=new_evnt.evntc_id,
+                                               facic_id=new_evnt.facic_id,
+                                               prog_id=new_evnt.prog_id,
+                                               start_datetime=new_evnt.start_datetime,
+                                               end_datetime=new_evnt.end_datetime,
+                                               ).get()
+
+    new_cleaned_data["evnt_id"] = new_evnt
+    return new_cleaned_data
+
+
 def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, return_cup_contx=False):
     # moves eggs from trof-tray to heat.draw.cup, only use the final group as this splits groups
     # cup argument can also be a drawer object
