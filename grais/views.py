@@ -17,7 +17,7 @@ from . import filters
 from . import forms
 from . import models
 from . import reports
-from .mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin
+from .mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
 from .utils import is_grais_admin
 
 
@@ -65,7 +65,7 @@ class SamplerHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
 # SPECIES #
 ###########
 
-class SpeciesListView(GraisAdminRequiredMixin, CommonFilterView):
+class SpeciesListView(GraisAccessRequiredMixin, CommonFilterView):
     template_name = 'grais/list.html'
     filterset_class = filters.SpeciesFilter
     home_url_name = "grais:index"
@@ -106,7 +106,7 @@ class SpeciesUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class SpeciesCreateView(GraisAdminRequiredMixin, CommonCreateView):
+class SpeciesCreateView(GraisCRUDRequiredMixin, CommonCreateView):
     model = models.Species
     form_class = forms.SpeciesForm
     success_url = reverse_lazy('grais:species_list')
@@ -120,7 +120,7 @@ class SpeciesCreateView(GraisAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class SpeciesDetailView(GraisAdminRequiredMixin, CommonDetailView):
+class SpeciesDetailView(GraisAccessRequiredMixin, CommonDetailView):
     model = models.Species
     template_name = 'grais/species_detail.html'
     home_url_name = "grais:index"
@@ -154,7 +154,7 @@ class SpeciesDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
 # STATION #
 ###########
 
-class StationListView(GraisAdminRequiredMixin, CommonFilterView):
+class StationListView(GraisAccessRequiredMixin, CommonFilterView):
     model = models.Station
     template_name = 'grais/list.html'
     filterset_class = filters.StationFilter
@@ -171,7 +171,7 @@ class StationListView(GraisAdminRequiredMixin, CommonFilterView):
     ]
 
 
-class StationUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
+class StationUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
     model = models.Station
     form_class = forms.StationForm
     template_name = 'grais/form.html'
@@ -187,7 +187,7 @@ class StationUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class StationCreateView(GraisAdminRequiredMixin, CommonCreateView):
+class StationCreateView(GraisCRUDRequiredMixin, CommonCreateView):
     model = models.Station
     form_class = forms.StationForm
     template_name = 'grais/form.html'
@@ -200,7 +200,7 @@ class StationCreateView(GraisAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class StationDetailView(GraisAdminRequiredMixin, CommonDetailView):
+class StationDetailView(GraisAccessRequiredMixin, CommonDetailView):
     model = models.Station
     template_name = 'grais/station_detail.html'
     home_url_name = "grais:index"
@@ -235,7 +235,7 @@ class StationDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
 # SAMPLE #
 ###########
 
-class SampleListView(GraisAdminRequiredMixin, CommonFilterView):
+class SampleListView(GraisAccessRequiredMixin, CommonFilterView):
     model = models.Sample
     template_name = 'grais/list.html'
     filterset_class = filters.SampleFilter
@@ -254,7 +254,7 @@ class SampleListView(GraisAdminRequiredMixin, CommonFilterView):
     ]
 
 
-class SampleUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
+class SampleUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
     model = models.Sample
     form_class = forms.SampleForm
     template_name = 'grais/form.html'
@@ -270,7 +270,7 @@ class SampleUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class SampleCreateView(GraisAdminRequiredMixin, CommonCreateView):
+class SampleCreateView(GraisCRUDRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
     template_name = 'grais/form.html'
@@ -283,7 +283,7 @@ class SampleCreateView(GraisAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class SampleDetailView(GraisAdminRequiredMixin, CommonDetailView):
+class SampleDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     model = models.Sample
     template_name = 'grais/sample_detail/main.html'
     home_url_name = "grais:index"
@@ -327,7 +327,7 @@ class SampleDetailView(GraisAdminRequiredMixin, CommonDetailView):
         return context
 
 
-class SampleDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
+class SampleDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
     model = models.Sample
     success_url = reverse_lazy('grais:sample_list')
     success_message = 'The functional group was successfully deleted!'
@@ -400,71 +400,132 @@ class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteVie
 class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonDetailView):
     template_name = 'grais/species_observations.html'
     home_url_name = 'grais:index'
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
 
     def get_object(self):
         if self.kwargs.get("type") == "samples":
             return get_object_or_404(models.Sample, pk=self.kwargs.get("pk"))
+        elif self.kwargs.get("type") == "lines":
+            return get_object_or_404(models.Line, pk=self.kwargs.get("pk"))
         return Http404
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("grais:sample_detail", args=[self.get_object().id])}
+        type_singular = self.kwargs.get("type")[:-1]
+        return {"title": self.get_object(), "url": reverse_lazy(f"grais:{type_singular}_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        if self.kwargs.get("type") == "lines":
+            return {"title": self.get_object().sample, "url": reverse_lazy(f"grais:sample_detail", args=[self.get_object().sample.id])}
 
     def get_h1(self):
         if self.kwargs.get("type") == "samples":
             return "Sample-Level Species Observations"
+        elif self.kwargs.get("type") == "lines":
+            return "Line-Level Species Observations"
 
 
-#
-# # PROBE DATA #
-# ##############
-#
-# class ProbeMeasurementCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.ProbeMeasurement
-#     form_class = forms.ProbeMeasurementForm
-#     template_name = 'grais/probe_measurement_form.html'
-#
-#     def get_initial(self):
-#         sample = models.Sample.objects.get(pk=self.kwargs['sample'])
-#         return {
-#             'sample': sample,
-#             'last_modified_by': self.request.user,
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['sample'] = models.Sample.objects.get(pk=self.kwargs["sample"])
-#         return context
-#
-#
-# class ProbeMeasurementDetailView(GraisAccessRequiredMixin, UpdateView):
-#     model = models.ProbeMeasurement
-#     form_class = forms.ProbeMeasurementForm
-#     template_name = 'grais/probe_measurement_detail.html'
-#
-#
-# class ProbeMeasurementUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.ProbeMeasurement
-#     form_class = forms.ProbeMeasurementForm
-#     template_name = 'grais/probe_measurement_form.html'
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class ProbeMeasurementDeleteView(GraisAdminRequiredMixin, DeleteView):
-#     model = models.ProbeMeasurement
-#     template_name = "grais/probe_measurement_confirm_delete.html"
-#     success_message = 'The probe measurement was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#     def get_success_url(self):
-#         return reverse_lazy('grais:sample_detail', kwargs={'pk': self.object.sample.id})
-#
-#
+# LINE #
+###########
+
+class LineUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
+    model = models.Line
+    form_class = forms.LineForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:line_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class LineCreateView(GraisCRUDRequiredMixin, CommonCreateView):
+    model = models.Line
+    form_class = forms.LineCreateForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse_lazy("grais:sample_detail", args=[self.get_sample().id])}
+
+    def get_sample(self):
+        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+
+    def get_initial(self):
+        return {
+            'number_plates': 2,
+            'number_petris': 3,
+        }
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.sample = self.get_sample()
+        obj.updated_by = self.request.user
+        obj.save()
+        petris = form.cleaned_data['number_petris']
+        plates = form.cleaned_data['number_plates']
+        if petris + plates > 0:
+            # create instances of surfaces on the collector lines
+            # create iterable
+            for i in range(petris):
+                s = models.Surface.objects.create(line=obj, surface_type='pe', label="Petri dish {}".format(i + 1))
+                s.save()
+            for i in range(plates):
+                s = models.Surface.objects.create(line=obj, surface_type='pl', label="Plate {}".format(i + 1))
+                s.save()
+        return super().form_valid(form)
+
+
+class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
+    model = models.Line
+    template_name = 'grais/line_detail/main.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    field_list = [
+        'id',
+        'collector',
+        'coordinates',
+        'is_lost',
+        'notes',
+        'metadata',
+    ]
+    container_class = "container-fluid"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["surface_field_list"] = [
+            'id',
+            'display|surface',
+            'has_invasive_spp|has invasive spp.?',
+            'species_count|total spp.',
+            'thumbnail',
+            'is_lost',
+        ]
+        context["species_obs_field_list"] = [
+            'species',
+            'observation_date',
+            'notes',
+        ]
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
+        return context
+
+
+class LineDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
+    model = models.Line
+    success_url = reverse_lazy('grais:line_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'grais/confirm_delete.html'
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+
+
 # # LINES #
 # #########
 #

@@ -44,6 +44,28 @@ class SampleSpeciesViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+
+class LineSpeciesViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.LineSpeciesSerializer
+    permission_classes = [graisCRUDOrReadOnly]
+    queryset = models.LineSpecies.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("line"):
+            line = get_object_or_404(models.Line, pk=qp.get("line"))
+            qs = line.line_spp.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a line"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
 class SpeciesModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Species

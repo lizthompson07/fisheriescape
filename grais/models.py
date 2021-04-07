@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Q, Sum
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
@@ -218,7 +219,7 @@ class SampleNote(MetadataFields):
 
 
 class Line(MetadataFields, LatLongFields):
-    sample = models.ForeignKey(Sample, related_name='lines', on_delete=models.CASCADE)
+    sample = models.ForeignKey(Sample, related_name='lines', on_delete=models.CASCADE, editable=False)
     collector = models.CharField(max_length=56, blank=True, null=True)
     is_lost = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the line lost?")
     notes = models.TextField(blank=True, null=True)
@@ -266,7 +267,7 @@ def img_file_name(instance, filename):
     return img_name
 
 
-class LineSpecies(models.Model):
+class LineSpecies(MetadataFields):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="line_spp")
     line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name="line_spp")
     observation_date = models.DateTimeField()
@@ -300,13 +301,17 @@ class Surface(MetadataFields):
             'pk': self.id
         })
 
-    def __str__(self):
+    @property
+    def display(self):
         if self.label:
             my_str = "{}".format(self.label)
         else:
             my_str = "Surface {} (missing label)".format(self.id)
 
         return my_str
+
+    def __str__(self):
+        return self.display
 
     class Meta:
         ordering = ['line', 'surface_type', 'label']
@@ -319,8 +324,16 @@ class Surface(MetadataFields):
         return False
 
     @property
+    def species_count(self):
+        return self.species.count()
+
+    @property
     def total_coverage(self):
         return self.surface_spp.all().aggregate(dsum=Sum("percent_coverage"))["dsum"] if self.surface_spp.exists() else 0
+
+    @property
+    def thumbnail(self):
+        return mark_safe(f'<a href="{self.image.url}"><img src="{self.image.url}" alt="Image not found..." width="150 em"></a>')
 
 
 class SurfaceSpecies(MetadataFields):

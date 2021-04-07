@@ -15,6 +15,12 @@ class SampleSpeciesSerializer(serializers.ModelSerializer):
         model = models.SampleSpecies
         fields = "__all__"
 
+
+class LineSpeciesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.LineSpecies
+        fields = "__all__"
+
 #
 # class DNAExtractSerializer(serializers.ModelSerializer):
 #     class Meta:

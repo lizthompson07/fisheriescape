@@ -56,13 +56,13 @@ urlpatterns = [
     path('<str:type>/<int:pk>/observations/', views.SpeciesObservationTemplateView.as_view(), name="species_observations"),
 
 
-    #
-    # # LINE #
-    # ########
-    # path('sample/<int:sample>/line/new/', views.LineCreateView.as_view(), name="line_new"),
-    # path('line/<int:pk>/view/', views.LineDetailView.as_view(), name="line_detail"),
-    # path('line/<int:pk>/edit/', views.LineUpdateView.as_view(), name="line_edit"),
-    # path('line/<int:pk>/delete/', views.LineDeleteView.as_view(), name="line_delete"),
+
+    # LINE #
+    ########
+    path('samples/<int:sample>/new-line/', views.LineCreateView.as_view(), name="line_new"),
+    path('lines/<int:pk>/view/', views.LineDetailView.as_view(), name="line_detail"),
+    path('lines/<int:pk>/edit/', views.LineUpdateView.as_view(), name="line_edit"),
+    path('lines/<int:pk>/delete/', views.LineDeleteView.as_view(), name="line_delete"),
     #
     # # SURFACE #
     # ###########

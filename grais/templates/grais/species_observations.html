@@ -6,41 +6,45 @@
     <div class="alert alert-danger" role="alert" v-if="obsErrorMsg">
       <p class="mb-0 lead" v-html="obsErrorMsg"></p>
     </div>
-    <button @click="addObservation" class="btn btn-sm btn-primary py-0 mb-1">Add</button>
-    <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
-      <thead>
-      <tr>
-        <th class="px-1 py-1" style="width: 25px">#</th>
-        <th>Species</th>
-        <th style="width: 250px;">Observation Date</th>
-        <th>Notes</th>
-        {#        <th style="width: 25px">Id</th>#}
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="(obs, index) in observations" :key="index">
-        <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
-        <td class="px-0 py-0">
-          <v-select v-model="obs.species" :items="speciesChoices" required class="no-borders"></v-select>
-
-          {#          <select v-model="obs.species" class="no-borders" @change="updateObservation(obs)">#}
-          {#            <option value="">{% trans "-----" %}</option>#}
-          {#            <option v-for="(obj, index) in speciesChoices" :value="obj.value">${obj.text}</option>#}
-          {#          </select>#}
-        </td>
-        <td class="px-0 py-0">
-          <input type="datetime-local" class="no-borders" v-model="obs.observation_date" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
-        </td>
-        <td class="px-0 py-0">
-          <input type="text" class="no-borders" v-model="obs.notes" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
-        </td>
-        {#        <td>          <span class="text-muted">${obs.id} </span>        </td>#}
-        <td class="px-0 py-0">
-          <button class="btn py-0 px-0" @click="deleteObservation(obs)"><span class="h5 mdi mdi-delete"></span></button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+    <div v-if="!observations.length">
+      <em>There are no species observations</em>
+    </div>
+    <div v-else>
+      <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
+        <thead>
+        <tr>
+          <th class="px-1 py-1" style="width: 25px">#</th>
+          <th>Species</th>
+          <th style="width: 250px;">Observation Date</th>
+          <th>Notes</th>
+          {#        <th style="width: 25px">Id</th>#}
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(obs, index) in observations" :key="index">
+          <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
+          <td class="px-0 py-0">
+            {#          <v-select v-model="obs.species" :items="speciesChoices" required class="no-borders"></v-select>#}
+            <select v-model="obs.species" class="no-borders" @change="updateObservation(obs)">
+              <option value="">{% trans "-----" %}</option>
+              <option v-for="(obj, index) in speciesChoices" :value="obj.value">${obj.text}</option>
+            </select>
+          </td>
+          <td class="px-0 py-0">
+            <input type="datetime-local" class="no-borders" v-model="obs.observation_date" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
+          </td>
+          <td class="px-0 py-0">
+            <input type="text" class="no-borders" v-model="obs.notes" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
+          </td>
+          {#        <td>          <span class="text-muted">${obs.id} </span>        </td>#}
+          <td class="px-0 py-0">
+            <button class="btn py-0 px-0" @click="deleteObservation(obs)"><span class="h5 mdi mdi-delete"></span></button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <button @click="addObservation" class="btn btn-sm btn-primary py-0 mt-3">Add</button>
 
   </div>
 {% endblock %}
@@ -73,14 +77,14 @@
         this.unsavedChanges = true;
         let dt = "";
         if (this.observations.length && this.observations[this.observations.length - 1].observation_date) dt = this.observations[this.observations.length - 1].observation_date;
-        this.observations.push(
-            {
-              sample: objectId,
-              species: "",
-              observation_date: dt,
-              notes: "",
-            }
-        )
+        obj = {
+          species: "",
+          observation_date: dt,
+          notes: "",
+        }
+        if (pageType === "samples") obj.sample = objectId;
+        else if (pageType === "lines") obj.line = objectId;
+        this.observations.push(obj);
       },
 
       getSpeciesMetadata() {
@@ -92,7 +96,7 @@
       },
 
       getCurrentUser() {
-        let endpoint = `/api/project-planning/user/`;
+        let endpoint = `/api/grais/user/`;
         apiService(endpoint)
             .then(response => {
               this.currentUser = response;
@@ -102,7 +106,8 @@
       getObservations() {
         this.loadingObservations = true;
         let endpoint;
-        if (pageType === "samples") endpoint = `/api/grais/sample-species/?sample=${objectId}`;
+        if (pageType === "samples") endpoint = `${this.endpointPrefix}/?sample=${objectId}`;
+        else if (pageType === "lines") endpoint = `${this.endpointPrefix}/?line=${objectId}`;
         apiService(endpoint)
             .then(response => {
               if (response.length && response[0].id) {
@@ -120,10 +125,10 @@
         let endpoint;
         let method;
         if (obs.id) {
-          endpoint = `/api/grais/sample-species/${obs.id}/`;
+          endpoint = `${this.endpointPrefix}/${obs.id}/`;
           method = "PUT";
         } else {
-          endpoint = `/api/grais/sample-species/`;
+          endpoint = `${this.endpointPrefix}/`;
           method = "POST";
         }
         apiService(endpoint, method, obs)
@@ -140,7 +145,7 @@
         userInput = confirm("{% trans 'Are you sure you want to delete this observation?' %}");
         if (userInput) {
           if (obs.id) {
-            let endpoint = `/api/grais/sample-species/${obs.id}/`;
+            let endpoint = `${this.endpointPrefix}/${obs.id}/`;
             apiService(endpoint, "DELETE")
                 .then(response => {
                   this.$delete(this.observations, this.observations.indexOf(obs));
@@ -151,32 +156,16 @@
           }
         }
       },
-      deleteSection(section) {
-        // warning
-        var userInput = true;
-        msg = "Are you certain you want to delete this section?";
-        userInput = confirm(msg);
-        if (userInput) {
-          let endpoint = `/api/scuba/sections/${section.id}`;
-          apiService(endpoint, "DELETE")
-              .then(response => {
-                // if the response does not have an id, it means there is an error...
-                if (response.detail) {
-                  this.sectionFormErrors = response["detail"]
-                } else {
-
-                  this.closeEditMode()
-                }
-
-              })
-        }
-      },
       groomJSON(json) {
         return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
       },
 
     },
-    computed: {},
+    computed: {
+      endpointPrefix() {
+        return `/api/grais/${pageType.slice(0, pageType.length - 1)}-species`
+      }
+    },
     created() {
       this.getObservations();
       this.getSpeciesMetadata();
