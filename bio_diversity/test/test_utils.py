@@ -152,14 +152,22 @@ class TestGrpCnt(CommonTest):
         self.assertEqual(self.grp.count_fish_in_group(), init_cnt - cnt_one_val - cnt_two_val)
 
     def test_aboslute_cnt(self):
-        #  take eggs from a group and then record absolute count.
+        #  take eggs from a group and then record absolute count the following day.
         init_cnt = randint(300, 500)
         cnt_one_val = randint(5, 100)
         cnt_final_val = randint(0, 5)
+        next_day_evnt = BioFactoryFloor.EvntFactory()
+        next_day_evnt.facic_id = self.evnt.facic_id
+        next_day_evnt.start_datetime = self.evnt.start_datetime + datetime.timedelta(days=1)
+        next_day_evnt.save()
+        new_cleaned_data = self.cleaned_data.copy()
+        new_cleaned_data["evnt_id"] = next_day_evnt
+        end_contx = utils.enter_contx(self.tank, new_cleaned_data, None, grp_pk=self.grp.pk, return_contx=True)
+
         utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
         cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
-        utils.enter_cnt(self.cleaned_data, cnt_final_val, self.contx.pk, cnt_code="Egg Count")
+        utils.enter_cnt(new_cleaned_data, cnt_final_val, end_contx.pk, cnt_code="Egg Count")
         self.assertEqual(self.grp.count_fish_in_group(), cnt_final_val)
 
 

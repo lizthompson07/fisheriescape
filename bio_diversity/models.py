@@ -793,7 +793,7 @@ class Group(BioModel):
 
         # ordered oldest to newest
         cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
-                                       contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct().order_by('-contx_id__evnt_id__start_datetime')
+                                       contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
         absolute_codes = ["Egg Count", ]
         add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added"]
