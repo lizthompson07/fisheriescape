@@ -51,6 +51,11 @@ urlpatterns = [
     path('measurements/<int:pk>/edit/', views.ProbeMeasurementUpdateView.as_view(), name="measurement_edit"),
     path('measurements/<int:pk>/delete/', views.ProbeMeasurementDeleteView.as_view(), name="measurement_delete"),
 
+    # species observations #
+    ########################
+    path('<str:type>/<int:pk>/observations/', views.SpeciesObservationTemplateView.as_view(), name="species_observations"),
+
+
     #
     # # LINE #
     # ########

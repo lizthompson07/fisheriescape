@@ -20,7 +20,7 @@
       </div>
       <div class="modal-body">
         {% if not object.species.exists %}
-          <em>No species observation have been recorded.</em>
+          <em>No species were observed at the sample level.</em>
         {% else %}
           <table class="table table-hover table-sm">
             <thead>
@@ -31,9 +31,9 @@
             </tr>
             </thead>
             <tbody>
-            {% for obj in object.probe_data.all %}
-              <tr href="{% url 'grais:probe_measurement_detail' obj.id %}">
-                {% for field in probe_field_list %}
+            {% for obj in object.species.all %}
+              <tr>
+                {% for field in species_obs_field_list %}
                   <td>
                     {% get_field_value obj field display_time=True %}
                   </td>
@@ -45,8 +45,8 @@
         {% endif %}
       </div>
       <div class="modal-footer">
-        <a class="btn btn-primary" href=""> New Line </a>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <a class="btn btn-primary" href="{% url 'grais:species_observations' 'samples' object.id %}"> Manage Observations </a>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"> Close </button>
       </div>
     </div>
   </div>

@@ -394,6 +394,27 @@ class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteVie
     model = models.ProbeMeasurement
 
 
+# SPECIES OBSERVATIONS - VUE JS #
+##################################
+
+class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonTemplateView):
+    template_name = 'grais/species_observations.html'
+    home_url_name = 'grais:index'
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+
+    def get_object(self):
+        if self.kwargs.get("type") == "samples":
+            return get_object_or_404(models.Sample, pk=self.kwargs.get("pk"))
+        return Http404
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:sample_detail", args=[self.get_object().id])}
+
+    def get_h1(self):
+        if self.kwargs.get("type") == "samples":
+            return "Sample-Level Species Observations"
+
+
 #
 # # PROBE DATA #
 # ##############
