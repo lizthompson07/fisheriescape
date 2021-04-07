@@ -19,10 +19,7 @@
 {% endblock %}
 
 {% block subcontent %}
-  <div
-    id="app"
-    @keydown.esc.prevent="closeModals()"
-  >
+  <div id="app" @keydown.esc.prevent="closeModals()" v-cloak>
 
     <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar, 'no-print':true}">
       {% include "projects2/project_detail/_console.html" %}
