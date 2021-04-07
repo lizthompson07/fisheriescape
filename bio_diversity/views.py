@@ -538,7 +538,17 @@ class QualCreate(mixins.QualMixin, CommonCreate):
 
 
 class RelcCreate(mixins.RelcMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'n' in self.kwargs:
+            initial['max_lat'] = round(float(self.kwargs['n']), 5)
+        if 's' in self.kwargs:
+            initial['min_lat'] = round(float(self.kwargs['s']), 5)
+        if 'w' in self.kwargs:
+            initial['min_lon'] = round(float(self.kwargs['w']), 5)
+        if 'e' in self.kwargs:
+            initial['max_lon'] = round(float(self.kwargs['e']), 5)
+        return initial
 
 
 class RiveCreate(mixins.RiveMixin, CommonCreate):

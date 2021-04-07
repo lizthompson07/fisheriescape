@@ -342,6 +342,7 @@ urlpatterns = [
     path('update/qual/<int:pk>/', views.QualUpdate.as_view(), name="update_qual"),
 
     path('create/relc/', views.RelcCreate.as_view(), name="create_relc"),
+    path('create/relc/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/', views.RelcCreate.as_view(), name="create_relc"),
     path('details/relc/<int:pk>/', views.RelcDetails.as_view(), name="details_relc"),
     path('list/relc/', views.RelcList.as_view(), name="list_relc"),
     path('update/relc/<int:pk>/', views.RelcUpdate.as_view(), name="update_relc"),

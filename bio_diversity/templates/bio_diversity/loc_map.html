@@ -204,10 +204,8 @@
                 var contentString = '<a href="{% url 'bio_diversity:loc_map' %}n/' + ne.lat() + '/s/' + sw.lat() + '/e/' + ne.lng() + '/w/' + sw.lng() + '/start/' + start_date + '/end/' + end_date + '" class="btn btn-small btn-primary">Search this area!</a>' +
                     '<br>' +
                     '<br>' +
-                    '<br><b>north:</b> ' + ne.lat() +
-                    '<br><b>south:</b> ' + sw.lat() +
-                    '<br><b>east:</b> ' + ne.lng() +
-                    '<br><b>west:</b> ' + sw.lng() +
+                    '<a href="{% url 'bio_diversity:create_relc' %}n/' + ne.lat() + '/s/' + sw.lat() + '/e/' + ne.lng() + '/w/' + sw.lng() + '" class="btn btn-small btn-secondary">Create New Site</a>' +
+                    '<br>' +
                     '<br><b>start date:</b> ' + start_date +
                     '<br><b>end date:</b> ' + end_date
 
