@@ -171,8 +171,9 @@ def comment_parser(comment_str, anix_indv, det_date):
         anix_indv.indv_id.save()
 
 
-def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None):
+def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None, return_end_contx=False):
     row_entered = False
+    end_contx = False
     origin_conts = []
     movement_date = naive_to_aware(movement_date)
     new_cleaned_data = cleaned_data.copy()
@@ -227,12 +228,17 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
                 if not cont == destination:
                     if enter_contx(cont, new_cleaned_data, False, indv_pk=indv_pk, grp_pk=grp_pk):
                         row_entered = True
-        if enter_contx(destination, new_cleaned_data, True, indv_pk=indv_pk, grp_pk=grp_pk):
+        end_contx = enter_contx(destination, new_cleaned_data, True, indv_pk=indv_pk, grp_pk=grp_pk, return_contx=True)
+        if end_contx:
             row_entered = True
-    return row_entered
+
+    if return_end_contx:
+        return end_contx
+    else:
+        return row_entered
 
 
-def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, tray_contx=False):
+def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, return_cup_contx=False):
     # moves eggs from trof-tray to heat.draw.cup, only use the final group as this splits groups
     # cup argument can also be a drawer object
     row_entered = False
@@ -262,13 +268,14 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, tra
     new_cleaned_data["evnt_id"] = movement_evnt
     if grp_pk:
         enter_anix(new_cleaned_data, grp_pk=grp_pk)
-    contx = enter_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk, return_contx=True)
-    if contx:
-        row_entered = True
-    if enter_contx(cup, new_cleaned_data, True, None, grp_pk=grp_pk):
-        row_entered = True
+    tray_contx = enter_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk, return_contx=True)
     if tray_contx:
-        return contx
+        row_entered = True
+    cup_contx = enter_contx(cup, new_cleaned_data, True, None, grp_pk=grp_pk, return_contx=True)
+    if cup_contx:
+        row_entered = True
+    if return_cup_contx:
+        return cup_contx
     else:
         return row_entered
 
@@ -398,12 +405,12 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
     return cnt
 
 
-def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, det_subj_code=None, qual="Good"):
+def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual="Good"):
     row_entered = False
     # checks for truthness of det_val and if its a nan. Fails for None and nan (nan == nan is false), passes for values
     if det_val == det_val and det_val:
         if not det_subj_code:
-            cntd = models.CountDet(cnt_id_id=cnt_pk,
+            cntd = models.CountDet(cnt_id=cnt,
                                    anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),
                                    det_val=round(decimal.Decimal(det_val), 5),
                                    qual_id=models.QualCode.objects.filter(name=qual).get(),
@@ -411,7 +418,7 @@ def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, det_subj_code=None, q
                                    created_date=cleaned_data["created_date"],
                                    )
         else:
-            cntd = models.CountDet(cnt_id_id=cnt_pk,
+            cntd = models.CountDet(cnt_id=cnt,
                                    anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),
                                    adsc_id=models.AniDetSubjCode.objects.filter(name__iexact=det_subj_code).get(),
                                    det_val=round(decimal.Decimal(det_val), 5),
@@ -425,6 +432,14 @@ def enter_cnt_det(cleaned_data, cnt_pk, det_val, det_code, det_subj_code=None, q
             row_entered = True
         except (ValidationError, IntegrityError):
             row_entered = False
+
+        # update count total if needed:
+        if det_code == "Program Group":
+            new_cnt = sum(models.CountDet.objects.filter(cnt_id=cnt, anidc_id__name__iexact=det_code).values_list('det_val', flat=True))
+            if new_cnt > cnt.cnt:
+                cnt.cnt = int(new_cnt)
+                cnt.save()
+
     return row_entered
 
 

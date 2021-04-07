@@ -284,14 +284,14 @@ class DataForm(CreatePrams):
                     cnt_obs = utils.enter_cnt(cleaned_data, cnt_value=row["# of salmon observed"], loc_pk=loc.pk, cnt_code="Fish Observed")
 
                     if cnt_caught:
-                        if utils.enter_cnt_det(cleaned_data, cnt_caught.pk, row["fishing seconds"], "Electrofishing Seconds"):
+                        if utils.enter_cnt_det(cleaned_data, cnt_caught, row["fishing seconds"], "Electrofishing Seconds"):
                             row_entered = True
-                        if utils.enter_cnt_det(cleaned_data, cnt_caught.pk, row["Voltage"], "Voltage"):
+                        if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Voltage"], "Voltage"):
                             row_entered = True
                     if cnt_obs:
-                        if utils.enter_cnt_det(cleaned_data, cnt_obs.pk, row["fishing seconds"], "Electrofishing Seconds"):
+                        if utils.enter_cnt_det(cleaned_data, cnt_obs, row["fishing seconds"], "Electrofishing Seconds"):
                             row_entered = True
-                        if utils.enter_cnt_det(cleaned_data, cnt_obs.pk, row["Voltage"], "Voltage"):
+                        if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Voltage"], "Voltage"):
                             row_entered = True
 
                 except Exception as err:
@@ -393,14 +393,14 @@ class DataForm(CreatePrams):
                     cnt_obs = utils.enter_cnt(cleaned_data, cnt_value=row["# Parr Observed"], loc_pk=loc.pk, cnt_code="Fish Observed")
 
                     if cnt_caught:
-                        if utils.enter_cnt_det(cleaned_data, cnt_caught.pk, row["Fishing seconds"], "Electrofishing Seconds"):
+                        if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Fishing seconds"], "Electrofishing Seconds"):
                             row_entered = True
-                        if utils.enter_cnt_det(cleaned_data, cnt_caught.pk, row["Voltage"], "Voltage"):
+                        if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Voltage"], "Voltage"):
                             row_entered = True
                     if cnt_obs:
-                        if utils.enter_cnt_det(cleaned_data, cnt_obs.pk, row["Fishing seconds"], "Electrofishing Seconds"):
+                        if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Fishing seconds"], "Electrofishing Seconds"):
                             row_entered = True
-                        if utils.enter_cnt_det(cleaned_data, cnt_obs.pk, row["Voltage"], "Voltage"):
+                        if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Voltage"], "Voltage"):
                             row_entered = True
 
                 except Exception as err:
@@ -1401,7 +1401,7 @@ class DataForm(CreatePrams):
                     out_cnt = utils.enter_cnt(cleaned_data, 0, contx.pk, cnt_code="Eggs Removed")
                     for move_cnt, move_cup, move_weight, cnt_code in move_tuples:
                         if not math.isnan(row[move_cnt]):
-                            utils.enter_cnt_det(cleaned_data, out_cnt.pk, row[move_cnt], "Program Group", cnt_code)
+                            utils.enter_cnt_det(cleaned_data, out_cnt, row[move_cnt], "Program Group", cnt_code)
                             all_eggs_out += row[move_cnt]
                     if all_eggs_out:
                         out_cnt.det_val = int(all_eggs_out)
@@ -1433,12 +1433,12 @@ class DataForm(CreatePrams):
 
                         # create movement for the new group, create 2 contx's and 3 anix's
                         # tray contx is contx used tyo link the positive counts
-                        tray_contx = utils.create_egg_movement_evnt(row["trays"], cont, cleaned_data, move_date, final_grp.pk, tray_contx=True)
+                        cup_contx = utils.create_egg_movement_evnt(row["trays"], cont, cleaned_data, move_date, final_grp.pk, return_cup_contx=True)
 
                         # add the positive counts
-                        cnt = utils.enter_cnt(cleaned_data, row[move_cnt], tray_contx.pk, cnt_code="Eggs Added", )
-                        utils.enter_cnt_det(cleaned_data, cnt.pk, row[move_weight], "Weight")
-                        utils.enter_cnt_det(cleaned_data, cnt.pk, row[move_cnt], "Program Group", cnt_code)
+                        cnt = utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Eggs Added", )
+                        utils.enter_cnt_det(cleaned_data, cnt, row[move_weight], "Weight")
+                        utils.enter_cnt_det(cleaned_data, cnt, row[move_cnt], "Program Group", cnt_code)
 
                         # link cup to egg development event
                         utils.enter_contx(cont, cleaned_data, None, grp_pk=final_grp.pk)
@@ -1446,10 +1446,11 @@ class DataForm(CreatePrams):
                     # Move main group to drawer, and add end date to tray:
                     draw = utils.get_draw_from_dot(str(row["General Location stack.tray"]), cleaned_data)
                     if draw:
-                        utils.create_movement_evnt(row["trays"], draw, cleaned_data, move_date, grp_pk=row["grps"].pk)
+                        end_contx = utils.create_movement_evnt(row["trays"], draw, cleaned_data, move_date, grp_pk=row["grps"].pk, return_end_contx=True)
                     else:
                         log_data += "\n Draw {} from {} not found".format(draw, row["General Location stack.tray"])
                     utils.enter_grpd(anix.pk, cleaned_data, move_date, row["Actual Wt of Generals"], "Weight")
+                    utils.enter_cnt(cleaned_data, row["# of Generals"], end_contx.pk, cnt_code="Egg Count")
 
                     tray = row["trays"]
                     tray.end_date = move_date

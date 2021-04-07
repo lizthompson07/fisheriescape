@@ -791,10 +791,12 @@ class Group(BioModel):
     def count_fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
 
+        # ordered oldest to newest
         cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
-                                       contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct()
+                                       contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct().order_by('-contx_id__evnt_id__start_datetime')
 
-        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Egg Count", "Eggs Added"]
+        absolute_codes = ["Egg Count",]
+        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed", ]
 
         for cnt in cnt_set:
@@ -802,6 +804,8 @@ class Group(BioModel):
                 fish_count += cnt.cnt
             elif cnt.cntc_id.name in subtract_codes:
                 fish_count -= cnt.cnt
+            elif cnt.cntc_id.name in absolute_codes:
+                fish_count = cnt.cnt
         return fish_count
 
     def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], grp_select_fields=[]):
