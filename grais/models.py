@@ -190,10 +190,10 @@ class Sample(MetadataFields):
         return False
 
 
-class SampleSpecies(models.Model):
+class SampleSpecies(MetadataFields):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="sample_spp")
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="sample_spp")
-    observation_date = models.DateTimeField()
+    observation_date = models.DateTimeField(verbose_name=_("observation date"))
     notes = models.TextField(blank=True, null=True)
 
     class Meta:

@@ -1,13 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
-from grais.utils import in_grais_group, in_grais_admin_group
+from grais.utils import has_grais_access, is_grais_admin
 
 
 class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
-        return in_grais_group(self.request.user)
+        return has_grais_access(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -19,7 +19,7 @@ class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 class GraisAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
-        return in_grais_admin_group(self.request.user)
+        return is_grais_admin(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()

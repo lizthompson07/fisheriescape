@@ -18,7 +18,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin
-from .utils import in_grais_admin_group
+from .utils import is_grais_admin
 
 
 class IndexView(GraisAccessRequiredMixin, CommonTemplateView):
@@ -27,7 +27,7 @@ class IndexView(GraisAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_admin"] = in_grais_admin_group(self.request.user)
+        context["is_admin"] = is_grais_admin(self.request.user)
         return context
 
 
@@ -320,8 +320,8 @@ class SampleDetailView(GraisAdminRequiredMixin, CommonDetailView):
         ]
         context["species_obs_field_list"] = [
             'species',
-            'notes',
             'observation_date',
+            'notes',
         ]
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
@@ -397,7 +397,7 @@ class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteVie
 # SPECIES OBSERVATIONS - VUE JS #
 ##################################
 
-class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonTemplateView):
+class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonDetailView):
     template_name = 'grais/species_observations.html'
     home_url_name = 'grais:index'
     grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
@@ -785,7 +785,7 @@ class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonTemplateVie
 #
 #
 # @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
+# @user_passes_test(is_grais_admin, login_url='/accounts/denied/')
 # def species_observation_delete(request, type, pk, backto):
 #     if type == "sample":
 #         object = models.SampleSpecies.objects.get(pk=pk)
@@ -1034,7 +1034,7 @@ class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonTemplateVie
 #
 #
 # @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
+# @user_passes_test(is_grais_admin, login_url='/accounts/denied/')
 # def follow_up_delete(request, pk):
 #     followup = models.FollowUp.objects.get(pk=pk)
 #     followup.delete()
@@ -1479,7 +1479,7 @@ class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonTemplateVie
 #
 #
 # @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
+# @user_passes_test(is_grais_admin, login_url='/accounts/denied/')
 # def catch_delete(request, pk):
 #     my_catch = models.Catch.objects.get(pk=pk)
 #     my_catch.delete()
@@ -1488,7 +1488,7 @@ class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonTemplateVie
 #
 #
 # @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
+# @user_passes_test(is_grais_admin, login_url='/accounts/denied/')
 # def manage_catch(request, trap, type):
 #     qs = models.Catch.objects.filter(trap_id=trap)
 #     context = dict()
@@ -1582,7 +1582,7 @@ class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonTemplateVie
 # #
 # #
 # # @login_required(login_url='/accounts/login/')
-# # @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
+# # @user_passes_test(is_grais_admin, login_url='/accounts/denied/')
 # # def bycatch_delete(request, pk):
 # #     bycatch = models.Catch.objects.get(pk=pk)
 # #     bycatch.delete()

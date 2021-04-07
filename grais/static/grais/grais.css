@@ -5,3 +5,20 @@ table {
 .pointy {
     cursor: pointer;
 }
+
+.no-borders {
+    border: 0;
+    width: 100%;
+}
+
+/*.no-borders:focus {*/
+/*    outline: none;*/
+/*}*/
+
+.saved-borders > thead > tr > th, .saved-borders > tbody > tr > td  {
+    border: green 1px solid;
+}
+
+.unsaved-borders > thead > tr > th, .unsaved-borders > tbody > tr > td  {
+    border: red 1px solid;
+}
