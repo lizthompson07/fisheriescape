@@ -1362,8 +1362,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         'species_count',
         'submitted',
         'first_report',
-        'lat',
-        'long',
+        'coordinates',
         'location',
         'region',
         'species',
@@ -1403,7 +1402,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         # context["map_incident"] = mark_safe(escapejs(json.dumps(map_incident)))
 
         # context["map_all_incidents"] = mark_safe(json.dumps([i.get_leaflet_dict() for i in models.Incident.objects.all()]))
-        context["all_incidents"] = [i.get_leaflet_dict() for i in models.Incident.objects.filter(lat__isnull=False, long__isnull=False)]
+        context["all_incidents"] = [i.get_leaflet_dict() for i in models.Incident.objects.filter(latitude__isnull=False, longitude__isnull=False)]
 
 
         #

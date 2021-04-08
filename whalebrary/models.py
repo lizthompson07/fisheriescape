@@ -11,6 +11,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shapely.geometry import Point
 
+from shared_models.models import LatLongFields
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("english name"))
@@ -368,15 +370,13 @@ INCIDENT_CHOICES = (
 )
 
 
-class Incident(models.Model):
+class Incident(LatLongFields):
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("incident name"))
     species_count = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species count"))
     submitted = models.BooleanField(choices=BOOL_CHOICES, blank=True, null=True,
                                     verbose_name=_("incident report submitted by Gulf?"))
     first_report = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                         verbose_name=_("date and time first reported"))
-    lat = models.FloatField(blank=True, null=True, verbose_name=_("latitude (DD)"))
-    long = models.FloatField(blank=True, null=True, verbose_name=_("longitude (DD)"))
     location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("location"))
     region = models.CharField(max_length=255, null=True, blank=True, choices=REGION_CHOICES, verbose_name=_("region"))
     species = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species"))
@@ -402,7 +402,7 @@ class Incident(models.Model):
         json_dict = dict(
             type='Feature',
             properties=dict(name=self.name),
-            geometry=dict(type='Point', coordinates=list([self.long, self.lat]))
+            geometry=dict(type='Point', coordinates=list([self.longitude, self.latitude]))
         )
         return json_dict
 
