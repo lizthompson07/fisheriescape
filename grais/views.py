@@ -318,6 +318,14 @@ class SampleDetailView(GraisCRUDRequiredMixin, CommonDetailView):
             'ph',
             # 'metadata',
         ]
+        context["line_field_list"] = [
+            'collector|tag',
+            'coordinates',
+            'surface_count|surface count',
+            'surface_species_count|species count',
+            'has_invasive_spp|has invasive spp.?',
+            'is_lost',
+        ]
         context["species_obs_field_list"] = [
             'species',
             'observation_date',
@@ -502,12 +510,22 @@ class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["surface_field_list"] = [
-            'id',
+            'label',
+            'surface_type',
             'display|surface',
             'has_invasive_spp|has invasive spp.?',
             'species_count|total spp.',
             'thumbnail',
             'is_lost',
+
+            # 'label',
+            # 'image',
+            # 'is_lost',
+            # 'notes',
+            # 'species',
+            # 'last_modified_by',
+            # 'old_plateheader_id',
+
         ]
         context["species_obs_field_list"] = [
             'species',
@@ -526,213 +544,155 @@ class LineDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
     grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
 
 
-# # LINES #
-# #########
+# SURFACES #
+############
+
+class SurfaceUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
+    model = models.Surface
+    form_class = forms.SurfaceForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    is_multipart_form_data = True
+
+    def get_greatgrandparent_crumb(self):
+        return {"title": self.get_object().line.sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().line.sample.id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().line, "url": reverse_lazy("grais:line_detail", args=[self.get_object().line.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:surface_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class SurfaceCreateView(GraisCRUDRequiredMixin, CommonCreateView):
+    model = models.Surface
+    form_class = forms.SurfaceForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    is_multipart_form_data = True
+    def get_grandparent_crumb(self):
+        return {"title": self.get_line().sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_line().sample.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_line(), "url": reverse_lazy("grais:line_detail", args=[self.get_line().id])}
+
+    def get_line(self):
+        return get_object_or_404(models.Line, pk=self.kwargs.get("line"))
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.line = self.get_line()
+        obj.updated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
+    model = models.Surface
+    template_name = 'grais/surface_detail/main.html'
+    home_url_name = "grais:index"
+    field_list = [
+        'id',
+        'collector',
+        'coordinates',
+        'is_lost',
+        'notes',
+        'metadata',
+    ]
+    container_class = "container-fluid"
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().line.sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().line.sample.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().line, "url": reverse_lazy("grais:line_detail", args=[self.get_object().line.id])}
+
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["surface_field_list"] = [
+            'id',
+            'display|surface',
+            'has_invasive_spp|has invasive spp.?',
+            'species_count|total spp.',
+            'thumbnail',
+            'is_lost',
+        ]
+        context["species_obs_field_list"] = [
+            'species',
+            'observation_date',
+            'notes',
+        ]
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
+        return context
+
+
+class SurfaceDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
+    model = models.Surface
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'grais/confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse('grais:line_detail', args=[self.get_object().line.id])
+
 #
-# class LineCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.Line
-#     form_class = forms.LineCreateForm
-#     template_name = 'grais/line_form.html'
-#
-#     def get_initial(self):
-#         sample = models.Sample.objects.get(pk=self.kwargs['sample'])
-#         return {
-#             'sample': sample,
-#             'number_plates': 2,
-#             'number_petris': 3,
-#             'last_modified_by': self.request.user
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['sample'] = models.Sample.objects.get(pk=self.kwargs["sample"])
-#         return context
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         petris = form.cleaned_data['number_petris']
-#         plates = form.cleaned_data['number_plates']
-#         if petris + plates > 0:
-#             # create instances of surfaces on the collector lines
-#             # create iterable
-#             for i in range(petris):
-#                 s = models.Surface.objects.create(line=self.object, surface_type='pe', label="Petri dish {}".format(i + 1))
-#                 s.save()
-#             for i in range(plates):
-#                 s = models.Surface.objects.create(line=self.object, surface_type='pl', label="Plate {}".format(i + 1))
-#                 s.save()
-#         return HttpResponseRedirect(self.get_success_url())
-#
-#
-# class LineDetailView(GraisAccessRequiredMixin, DetailView):
-#     model = models.Line
-#     template_name = 'grais/line_detail.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['google_api_key'] = settings.GOOGLE_API_KEY
-#         return context
-#
-#
-# class LineUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.Line
-#     form_class = forms.LineForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class LineDeleteView(GraisAdminRequiredMixin, DeleteView):
-#     model = models.Line
-#     template_name = "grais/line_confirm_delete.html"
-#     success_message = 'The line was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#     def get_success_url(self):
-#         return reverse_lazy('grais:sample_detail', kwargs={'pk': self.object.sample.id})
-#
-#
-# # SPECIES #
-# ###########
-#
-# class SpeciesListView(GraisAccessRequiredMixin, FilterView):
-#     template_name = "grais/species_list.html"
-#     filterset_class = filters.SpeciesFilter
-#     queryset = models.Species.objects.annotate(
-#         search_term=Concat('id', 'common_name', 'scientific_name', 'abbrev', output_field=TextField()))
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'id',
-#             'common_name',
-#             'common_name_fra',
-#             'scientific_name',
-#             'abbrev',
-#             'tsn|ITIS TSN',
-#             'aphia_id',
-#             'color_morph',
-#             'invasive',
-#             'Has occurred in db?',
-#         ]
-#         return context
-#
-#
-# class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
-#     model = models.Species
-#     fields = "__all__"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'id',
-#             'common_name',
-#             'common_name_fra',
-#             'scientific_name',
-#             'abbrev',
-#             'epibiont_type',
-#             'color_morph',
-#             'invasive',
-#         ]
-#         return context
-#
-#
-# class SpeciesUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.Species
-#     form_class = forms.SpeciesForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class SpeciesCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.Species
-#     form_class = forms.SpeciesForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class SpeciesCreatePopoutView(GraisAdminRequiredMixin, CreateView):
-#     model = models.Species
-#     form_class = forms.SpeciesForm
-#     template_name = 'grais/species_form_popout.html'
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         self.request.session['temp_msg'] = "The new species has been added to the list."
-#
-#         return HttpResponseRedirect(reverse('grais:close_me'))
-#
-#
-# class SpeciesDeleteView(GraisAdminRequiredMixin, DeleteView):
-#     model = models.Species
-#     success_url = reverse_lazy('grais:species_list')
-#     success_message = 'The species was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-# # SURFACES #
-# ############
-#
-# class SurfaceDetailView(GraisAccessRequiredMixin, UpdateView):
+# class SurfaceDetailView(GraisAccessRequiredMixin, CommonDetailView):
 #     model = models.Surface
 #     form_class = forms.SurfaceImageForm
-#     template_name = 'grais/surface_detail.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         surface = self.kwargs['pk']
-#         surface_spp = models.Surface.objects.get(id=surface).surface_spp.all()
-#         return context
-#
-#
-# class SurfaceUpdateView(GraisAdminRequiredMixin, UpdateView):
+#     template_name = 'grais/base.html'
+# 
+#     # def get_context_data(self, **kwargs):
+#     #     context = super().get_context_data(**kwargs)
+#     #     surface = self.kwargs['pk']
+#     #     surface_spp = models.Surface.objects.get(id=surface).surface_spp.all()
+#     #     return context
+# 
+# 
+# class SurfaceUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
 #     model = models.Surface
 #     form_class = forms.SurfaceForm
-#
+# 
 #     def get_initial(self):
 #         return {'last_modified_by': self.request.user}
-#
-#
-# class SurfaceCreateView(GraisAdminRequiredMixin, CreateView):
+# 
+# 
+# class SurfaceCreateView(GraisCRUDRequiredMixin, CommonCreateView):
 #     model = models.Surface
 #     form_class = forms.SurfaceForm
-#
+# 
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
 #         context["line"] = models.Line.objects.get(pk=self.kwargs['line'])
 #         return context
-#
+# 
 #     def get_initial(self):
 #         line = models.Line.objects.get(pk=self.kwargs['line'])
 #         return {
 #             'line': line,
 #             'last_modified_by': self.request.user
 #         }
-#
-#
-# class SurfaceDeleteView(GraisAdminRequiredMixin, DeleteView):
+# 
+# 
+# class SurfaceDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
 #     model = models.Surface
 #     template_name = "grais/surface_confirm_delete.html"
 #     success_message = 'The surface was successfully deleted!'
-#
+# 
 #     def delete(self, request, *args, **kwargs):
 #         messages.success(self.request, self.success_message)
 #         return super().delete(request, *args, **kwargs)
-#
+# 
 #     def get_success_url(self):
 #         return reverse_lazy('grais:line_detail', kwargs={'pk': self.object.line.id})
-#
+
 #
 # # SPECIES OBSERVATIONS (for sample and line level obs) #
 # ########################################################

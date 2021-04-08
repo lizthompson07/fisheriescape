@@ -130,8 +130,6 @@ class MetadataFields(models.Model):
         super().save(*args, **kwargs)
 
 
-
-
 class LatLongFields(models.Model):
     # metadata
     latitude = models.FloatField(blank=True, null=True)

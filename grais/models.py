@@ -203,6 +203,7 @@ class SampleSpecies(MetadataFields):
 
     class Meta:
         unique_together = (('species', 'sample'),)
+        verbose_name_plural = _("Sample Species")
 
 
 class SampleNote(MetadataFields):
@@ -255,15 +256,16 @@ class Line(MetadataFields, LatLongFields):
         return reverse('grais:line_detail', kwargs={'pk': self.id})
 
     @property
+    def surface_count(self):
+        return self.surfaces.count()
+
+    @property
     def surface_species_count(self):
-        return sum([s.species.count() for s in self.surfaces.all()])
+        return SurfaceSpecies.objects.filter(surface__line=self).count()
 
     @property
     def has_invasive_spp(self):
-        for surface in self.surfaces.all():
-            if surface.has_invasive_spp:
-                return True
-        return False
+        return SurfaceSpecies.objects.filter(surface__line=self, species__invasive=True).exists()
 
 
 def img_file_name(instance, filename):
@@ -279,6 +281,7 @@ class LineSpecies(MetadataFields):
 
     class Meta:
         unique_together = (('species', 'line'),)
+        verbose_name_plural = _("Line Species")
 
 
 class Surface(MetadataFields):
@@ -290,7 +293,7 @@ class Surface(MetadataFields):
         (PLATE, 'Plate'),
     )
 
-    line = models.ForeignKey(Line, related_name='surfaces', on_delete=models.CASCADE)
+    line = models.ForeignKey(Line, related_name='surfaces', on_delete=models.CASCADE, editable=False)
     surface_type = models.CharField(max_length=2, choices=SURFACE_TYPE_CHOICES)
     label = models.CharField(max_length=255)
     image = models.ImageField(blank=True, null=True, upload_to=img_file_name)
@@ -322,10 +325,7 @@ class Surface(MetadataFields):
 
     @property
     def has_invasive_spp(self):
-        for sp in self.species.all():
-            if sp.invasive:
-                return True
-        return False
+        return self.species.filter(invasive=True).exists()
 
     @property
     def species_count(self):
@@ -337,7 +337,8 @@ class Surface(MetadataFields):
 
     @property
     def thumbnail(self):
-        return mark_safe(f'<a href="{self.image.url}"><img src="{self.image.url}" alt="Image not found..." width="150 em"></a>')
+        if self.image:
+            return mark_safe(f'<a href="{self.image.url}"><img src="{self.image.url}" alt="Image not found..." width="150 em"></a>')
 
 
 class SurfaceSpecies(MetadataFields):
@@ -349,6 +350,7 @@ class SurfaceSpecies(MetadataFields):
 
     class Meta:
         unique_together = (('species', 'surface'),)
+        verbose_name_plural = _("Surface Species")
 
     def get_absolute_url(self):
         return reverse('grais:surface_spp_detail_pop', kwargs={

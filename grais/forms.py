@@ -180,10 +180,6 @@ class SurfaceForm(forms.ModelForm):
         model = models.Surface
         fields = "__all__"
         exclude = ['species']
-        widgets = {
-            'line': forms.HiddenInput(),
-            'last_modified_by': forms.HiddenInput(),
-        }
 
 
 class SurfaceImageForm(forms.ModelForm):

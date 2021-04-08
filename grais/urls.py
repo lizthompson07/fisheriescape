@@ -63,13 +63,13 @@ urlpatterns = [
     path('lines/<int:pk>/view/', views.LineDetailView.as_view(), name="line_detail"),
     path('lines/<int:pk>/edit/', views.LineUpdateView.as_view(), name="line_edit"),
     path('lines/<int:pk>/delete/', views.LineDeleteView.as_view(), name="line_delete"),
-    #
-    # # SURFACE #
-    # ###########
-    # path('line/<int:line>/surface/new/', views.SurfaceCreateView.as_view(), name="surface_new"),
-    # path('surface/<int:pk>/view/', views.SurfaceDetailView.as_view(), name="surface_detail"),
-    # path('surface/<int:pk>/edit/', views.SurfaceUpdateView.as_view(), name="surface_edit"),
-    # path('surface/<int:pk>/delete/', views.SurfaceDeleteView.as_view(), name="surface_delete"),
+
+    # SURFACE #
+    ###########
+    path('lines/<int:line>/new-surface/', views.SurfaceCreateView.as_view(), name="surface_new"),
+    path('surfaces/<int:pk>/view/', views.SurfaceDetailView.as_view(), name="surface_detail"),
+    path('surfaces/<int:pk>/edit/', views.SurfaceUpdateView.as_view(), name="surface_edit"),
+    path('surfaces/<int:pk>/delete/', views.SurfaceDeleteView.as_view(), name="surface_delete"),
     #
     # # SPECIES OBSERVATIONS (for sample + line level obs) #
     # ########################################################

@@ -1,4 +1,4 @@
-
+{% load verbose_names %}
 
 <div class="neighbours mx-3">
   <div class="card pointy" style="width: 18rem;" data-toggle="modal" data-target="#lines">
@@ -23,27 +23,27 @@
           <em>No lines have been added to this sample.</em>
         {% else %}
           <table class="table table-hover table-sm">
-            <thead>
+
+          <thead>
             <tr>
               <th>#</th>
-              <th>Tag</th>
-              <th>Coordinates</th>
-              <th class="text-center">No. surfaces</th>
-              <th class="text-center">Species count</th>
-              <th class="text-center">Has invasive species?</th>
-              <th class="text-center">Was lost?</th>
+              {% for field in line_field_list %}
+                <th>{% get_verbose_label object.lines.first field %}</th>
+              {% endfor %}
             </tr>
             </thead>
             <tbody>
-            {% for l in object.lines.all %}
-              <tr href="{% url 'grais:line_detail' l.id %}">
+            {% for obj in object.lines.all %}
+              <tr href="{% url 'grais:line_detail' obj.id %}">
                 <td>{{ forloop.counter }}</td>
-                <td>{{ l.collector }}</td>
-                <td>{{ l.coordinates }}</td>
-                <td class="text-center">{{ l.surfaces.count }}</td>
-                <td class="text-center">{{ l.surface_species_count }}</td>
-                <td class="text-center">{{ l.has_invasive_spp|yesno }}</td>
-                <td class="text-center {% if l.is_lost %}red-font{% endif %}">{{ l.is_lost|yesno }}</td>
+                {% for field in line_field_list %}
+                  {% if 'lost' in field %}
+                    <td class="{% if obj.is_lost %}bad{% endif %}">{% get_field_value obj field %}</td>
+                  {% else %}
+                    <td>{% get_field_value obj field %}</td>
+                  {% endif %}
+
+                {% endfor %}
               </tr>
             {% endfor %}
             </tbody>

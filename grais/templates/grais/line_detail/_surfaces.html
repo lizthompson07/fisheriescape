@@ -1,4 +1,4 @@
-
+{% load verbose_names %}
 
 <div class="neighbours mx-3">
   <div class="card pointy" style="width: 18rem;" data-toggle="modal" data-target="#surfaces">
@@ -10,7 +10,7 @@
 </div>
 
 <div class="modal fade" id="surfaces" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 60% !important">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 82% !important">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLongTitle"> Surfaces </h5>
@@ -26,24 +26,25 @@
             <thead>
             <tr>
               <th>#</th>
-              <th>Tag</th>
-              <th>Coordinates</th>
-              <th class="text-center">No. surfaces</th>
-              <th class="text-center">Species count</th>
-              <th class="text-center">Has invasive species?</th>
-              <th class="text-center">Was lost?</th>
+              {% for field in surface_field_list %}
+                <th>{% get_verbose_label object.surfaces.first field %}</th>
+              {% endfor %}
             </tr>
             </thead>
             <tbody>
-            {% for l in object.lines.all %}
-              <tr href="{% url 'grais:surface_detail' l.id %}">
+            {% for obj in object.surfaces.all %}
+              <tr href="{% url 'grais:surface_detail' obj.id %}">
                 <td>{{ forloop.counter }}</td>
-                <td>{{ l.collector }}</td>
-                <td>{{ l.coordinates }}</td>
-                <td class="text-center">{{ l.surfaces.count }}</td>
-                <td class="text-center">{{ l.surface_species_count }}</td>
-                <td class="text-center">{{ l.has_invasive_spp|yesno }}</td>
-                <td class="text-center {% if l.is_lost %}red-font{% endif %}">{{ l.is_lost|yesno }}</td>
+                {% for field in surface_field_list %}
+                  {% if 'lost' in field %}
+                    <td class="{% if obj.is_lost %}bad{% endif %}">{% get_field_value obj field %}</td>
+                  {% elif 'type' in field %}
+                    <td class="{{ obj.get_surface_type_display|slugify }}">{% get_field_value obj field %}</td>
+                  {% else %}
+                    <td>{% get_field_value obj field %}</td>
+                  {% endif %}
+
+                {% endfor %}
               </tr>
             {% endfor %}
             </tbody>
@@ -52,7 +53,7 @@
 
       </div>
       <div class="modal-footer">
-        <a class="btn btn-primary" href=""> New Surface </a>
+        <a class="btn btn-primary" href="{% url 'grais:surface_new' object.id %}"> New Surface </a>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>

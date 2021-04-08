@@ -26,3 +26,12 @@ table {
 .unsaved {
     background-color: #e0ffe0;
 }
+
+
+.petri-dish {
+    background-color: wheat;
+}
+
+.plate {
+    background-color: lightgreen;
+}
