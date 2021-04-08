@@ -34,7 +34,11 @@
             {% for obj in object.surface_spp.all %}
               <tr>
                 {% for field in species_obs_field_list %}
-                  <td>{% get_field_value obj field display_time=True %}</td>
+                  {% if "invasive" in field %}
+                    <td class="{% if obj.species.invasive %}bad{% endif %}">{{ obj.species.invasive|yesno }}</td>
+                  {% else %}
+                    <td>{% get_field_value obj field %}</td>
+                  {% endif %}
                 {% endfor %}
               </tr>
             {% endfor %}

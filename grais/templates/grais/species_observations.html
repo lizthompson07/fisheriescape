@@ -6,21 +6,22 @@
     <div class="alert alert-danger" role="alert" v-if="obsErrorMsg">
       <p class="mb-0 lead" v-html="obsErrorMsg"></p>
     </div>
-    <div class="text-right mb-3">
-      <button @click="addObservation" class="btn btn-sm btn-primary py-0 mt-3">Add</button>
-    </div>
 
     <div v-if="!observations.length">
       <em>There are no species observations</em>
     </div>
     <div v-else>
+      <div class="mb-3">
+        <button @click="addObservation" class="btn btn-sm btn-primary py-0 mt-3">Add</button>
+      </div>
       <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
         <thead>
         <tr>
           <th class="px-1 py-1" style="width: 25px">#</th>
           <th>Species (English / French / Latin)</th>
-          <th style="width: 200px;">Observation Date (date picker)</th>
-          <th style="width: 200px;">Observation Date (manual entry)</th>
+          <th v-if="pageType !== 'surfaces'" style="width: 200px;">Observation Date (date picker)</th>
+          <th v-if="pageType !== 'surfaces'" style="width: 200px;">Observation Date (manual entry)</th>
+          <th v-if="pageType === 'surfaces'" style="width: 200px;">Percent coverage (as fraction)</th>
           <th>Notes</th>
           {#        <th style="width: 25px">Id</th>#}
         </tr>
@@ -36,24 +37,41 @@
               :reduce="choice => choice.value"
               label="text"
               class="no-borders"
+              :clearable=false
               required
             ></v-select>
           </td>
-          <td class="px-0 py-0">
+          <td v-if="pageType !== 'surfaces'" class="px-0 py-0">
             <input type="datetime-local" class="no-borders" v-model="obs.observation_date" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
           </td>
-          <td class="px-0 py-0">
+          <td v-if="pageType !== 'surfaces'" class="px-0 py-0">
             <input type="text" class="no-borders" v-model="obs.observation_date" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
+          </td>
+          <td v-if="pageType === 'surfaces'" class="px-0 py-0">
+            <input type="number" class="no-borders" v-model="obs.percent_coverage" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
           </td>
           <td class="px-0 py-0">
             <input type="text" class="no-borders" v-model="obs.notes" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
           </td>
           {#        <td>          <span class="text-muted">${obs.id} </span>        </td>#}
           <td class="px-0 py-0">
-            <button class="btn py-0 px-0" @click="deleteObservation(obs)"><span class="h5 mdi mdi-delete"></span></button>
+            <button class="btn py-0 px-0" @click="deleteObservation(obs)" tabindex="-1"><span class="h5 mdi mdi-delete"></span></button>
           </td>
         </tr>
         </tbody>
+        <tfoot>
+        <tr>
+          <td>---</td>
+          <td>---</td>
+          <td :class="{'good':totalCoverage <=1, 'bad':totalCoverage >1}">
+            <span class="lead">
+              ${totalCoverage}
+            </span>
+
+          </td>
+          <td>---</td>
+        </tr>
+        </tfoot>
       </table>
     </div>
     <button @click="addObservation" class="btn btn-sm btn-primary py-0 mt-3">Add</button>
@@ -86,6 +104,7 @@
       speciesLabels: [],
       unsavedChanges: false,
       obsErrorMsg: null,
+      pageType: pageType,
     },
     methods: {
       addObservation() {
@@ -94,12 +113,18 @@
         if (this.observations.length && this.observations[this.observations.length - 1].observation_date) dt = this.observations[this.observations.length - 1].observation_date;
         obj = {
           species: "",
-          observation_date: dt,
           notes: "",
         }
-        if (pageType === "samples") obj.sample = objectId;
-        else if (pageType === "lines") obj.line = objectId;
-        else if (pageType === "surfaces") obj.line = objectId;
+        if (this.pageType === "samples") {
+          obj.sample = objectId;
+          obj.observation_date = dt;
+        } else if (this.pageType === "lines") {
+          obj.line = objectId;
+          obj.observation_date = dt;
+        } else if (this.pageType === "surfaces") {
+          obj.surface = objectId;
+          obj.percent_coverage = 0;
+        }
         this.observations.push(obj);
       },
 
@@ -122,13 +147,14 @@
       getObservations() {
         this.loadingObservations = true;
         let endpoint;
-        if (pageType === "samples") endpoint = `${this.endpointPrefix}/?sample=${objectId}`;
-        else if (pageType === "lines") endpoint = `${this.endpointPrefix}/?line=${objectId}`;
+        if (this.pageType === "samples") endpoint = `${this.endpointPrefix}/?sample=${objectId}`;
+        else if (this.pageType === "lines") endpoint = `${this.endpointPrefix}/?line=${objectId}`;
+        else if (this.pageType === "surfaces") endpoint = `${this.endpointPrefix}/?surface=${objectId}`;
         apiService(endpoint)
             .then(response => {
               if (response.length && response[0].id) {
                 for (var i = 0; i < response.length; i++) {
-                  response[i].observation_date = response[i].observation_date.replace("Z", "")
+                  if (response[i].observation_date) response[i].observation_date = response[i].observation_date.replace("Z", "")
                 }
                 this.observations = response;
                 this.loadingObservations = false;
@@ -151,7 +177,7 @@
             .then(response => {
               if (!response.id) this.obsErrorMsg = this.groomJSON(response);
               else {
-                response.observation_date = response.observation_date.replace("Z", "")
+                if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
                 this.$set(this.observations, this.observations.indexOf(obs), response)
                 this.unsavedChanges = false;
               }
@@ -179,7 +205,16 @@
     },
     computed: {
       endpointPrefix() {
-        return `/api/grais/${pageType.slice(0, pageType.length - 1)}-species`
+        return `/api/grais/${this.pageType.slice(0, this.pageType.length - 1)}-species`
+      },
+      totalCoverage() {
+        let total = 0;
+        let obs;
+        for (var i = 0; i < this.observations.length; i++) {
+          obs = this.observations[i];
+          if (obs.percent_coverage) total += Number(obs.percent_coverage);
+        }
+        return total
       }
     },
     created() {

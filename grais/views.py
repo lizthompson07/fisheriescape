@@ -251,6 +251,8 @@ class SampleListView(GraisAccessRequiredMixin, CommonFilterView):
         {"name": 'sample_type', "class": "", "width": ""},
         {"name": 'weeks_deployed|{}'.format("weeks deployed"), "class": "", "width": ""},
         {"name": 'has_invasive_spp|{}'.format("has invasive species?"), "class": "", "width": ""},
+        {"name": 'line_count|{}'.format("lines"), "class": "", "width": ""},
+        {"name": 'species_count|{}'.format("species count"), "class": "", "width": ""},
     ]
 
 
@@ -323,7 +325,7 @@ class SampleDetailView(GraisCRUDRequiredMixin, CommonDetailView):
             'coordinates',
             'surface_count|surface count',
             'surface_species_count|species count',
-            'has_invasive_spp|has invasive spp.?',
+            'has_invasive_spp|has invasive spp?',
             'is_lost',
         ]
         context["species_obs_field_list"] = [
@@ -508,6 +510,8 @@ class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         'id',
         'collector',
         'coordinates',
+        'species_list|surface species',
+        'has_invasive_spp|has invasive spp?',
         'is_lost',
         'notes',
         'metadata',
@@ -520,22 +524,12 @@ class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["surface_field_list"] = [
-            'label',
-            'surface_type',
             'display|surface',
-            'has_invasive_spp|has invasive spp.?',
-            'species_count|total spp.',
-            'thumbnail',
+            'surface_type',
+            'species_list|species',
+            'has_invasive_spp|has invasive spp?',
             'is_lost',
-
-            # 'label',
-            # 'image',
-            # 'is_lost',
-            # 'notes',
-            # 'species',
-            # 'last_modified_by',
-            # 'old_plateheader_id',
-
+            'thumbnail',
         ]
         context["species_obs_field_list"] = [
             'species',
@@ -610,11 +604,14 @@ class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     home_url_name = "grais:index"
     field_list = [
         'id',
-        'collector',
-        'coordinates',
-        'is_lost',
+        'display|surface',
+        'surface_type',
+        'species_list|species',
+        'has_invasive_spp|has invasive spp?',
         'notes',
+        'is_lost',
         'metadata',
+
     ]
     container_class = "container-fluid"
     greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
@@ -637,7 +634,8 @@ class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         ]
         context["species_obs_field_list"] = [
             'species',
-            'observation_date',
+            'invasive?',
+            'coverage_display|percent coverage',
             'notes',
         ]
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY

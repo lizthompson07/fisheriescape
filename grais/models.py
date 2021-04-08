@@ -8,6 +8,8 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from lib.functions.custom_functions import listrify
+from lib.templatetags.custom_filters import percentage
 from shared_models import models as shared_models
 from shared_models.models import MetadataFields, LatLongFields
 
@@ -194,6 +196,14 @@ class Sample(MetadataFields):
                 return True
         return False
 
+    @property
+    def line_count(self):
+        return self.lines.count()
+
+    @property
+    def species_count(self):
+        return SurfaceSpecies.objects.filter(surface__line__sample=self).count()
+
 
 class SampleSpecies(MetadataFields):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="sample_spp")
@@ -267,6 +277,10 @@ class Line(MetadataFields, LatLongFields):
     def has_invasive_spp(self):
         return SurfaceSpecies.objects.filter(surface__line=self, species__invasive=True).exists()
 
+    @property
+    def species_list(self):
+        return mark_safe(listrify(Species.objects.filter(surface_spp__surface__line=self).distinct(), "<br>"))
+
 
 def img_file_name(instance, filename):
     img_name = 'grais/sample_{}/{}'.format(instance.line.sample.id, filename)
@@ -310,12 +324,7 @@ class Surface(MetadataFields):
 
     @property
     def display(self):
-        if self.label:
-            my_str = "{}".format(self.label)
-        else:
-            my_str = "Surface {} (missing label)".format(self.id)
-
-        return my_str
+        return f"{self.label}" if self.label else f"Surface {self.id} (missing label)"
 
     def __str__(self):
         return self.display
@@ -330,6 +339,10 @@ class Surface(MetadataFields):
     @property
     def species_count(self):
         return self.species.count()
+
+    @property
+    def species_list(self):
+        return mark_safe(listrify(self.species.all(), "<br>"))
 
     @property
     def total_coverage(self):
@@ -356,6 +369,10 @@ class SurfaceSpecies(MetadataFields):
         return reverse('grais:surface_spp_detail_pop', kwargs={
             'pk': self.id,
         })
+
+    @property
+    def coverage_display(self):
+        return percentage(self.percent_coverage)
 
 
 class Probe(models.Model):
