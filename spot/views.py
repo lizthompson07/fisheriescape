@@ -185,7 +185,7 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
             'city',
             'province',
             'address',
-            'organization',
+            'organizations',
             'role',
             'section',
             'other_membership',

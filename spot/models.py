@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from shared_models.models import UnilingualSimpleLookup
 from django.core.mail import send_mail
+from django.urls import reverse
 
 
 class Province(UnilingualSimpleLookup):
@@ -236,6 +237,12 @@ class River(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("latitude"))
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("longitude"))
 
+    def __str__(self):
+        return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name']
+
 
 class Region(UnilingualSimpleLookup):
     pass
@@ -245,7 +252,7 @@ class Organization(models.Model):
 
     name = models.CharField(max_length=1000, verbose_name=_("name"))
     address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("address"))
-    organization_type = models.ForeignKey(OrgType, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("organization type"), help_text='one <br> two <br> three')
+    organization_type = models.ForeignKey(OrgType, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("organization type"))
     province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"), related_name="organization_province")
     country = models.ForeignKey(Country, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("country"), related_name="organization_country")
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
@@ -267,6 +274,9 @@ class Organization(models.Model):
     class Meta:
         ordering = ['name']
 
+    def get_absolute_url(self):
+        return reverse('org_detail', kwargs={'pk': self.pk})
+
 
 class Person(models.Model):
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
@@ -276,7 +286,7 @@ class Person(models.Model):
     city = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("city"))
     province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("province"))
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("address"))
-    organization = models.ManyToManyField(Organization, default=None, blank=True, null=True, verbose_name=_("organization"))
+    organizations = models.ManyToManyField(Organization, default=None, blank=True, verbose_name=_("organization"))
     role = models.ForeignKey(Role, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role"))
     section = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("section"))
     other_membership = models.TextField(max_length=1000, blank=True, null=True, verbose_name=_("other membership"))
@@ -293,6 +303,9 @@ class Person(models.Model):
 
     class Meta:
         ordering = ['last_name', 'first_name']
+
+    def get_absolute_url(self):
+        return reverse('person_detail', kwargs={'pk': self.pk})
 
     @property
     def display_name(self):
@@ -471,9 +484,9 @@ class Project(models.Model):
     funding_sources = models.ForeignKey(FundingSource, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='funding_sources', verbose_name=_("funding sources"))
     funding_years = models.ForeignKey(FundingYear, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='funding_years', verbose_name=_("funding year"))
 
-    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("name"))
+    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("project name"))
     project_description = models.TextField(max_length=1000, null=True, blank=True, verbose_name=_("project description"))
-    start_date = models.DateField(blank=True, null=True, verbose_name=_("stating date"))
+    start_date = models.DateField(blank=True, null=True, verbose_name=_("starting date"))
     end_date = models.DateField(blank=True, null=True, verbose_name=_("end date"))
 
     primary_river = models.ForeignKey(River, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='primary_river', verbose_name=_("primary river"))
@@ -495,6 +508,7 @@ class Project(models.Model):
     project_sub_type = models.ForeignKey(ProjectSubType, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_sub_type', verbose_name=_("project sub type"))
     project_theme = models.ForeignKey(ProjectTheme, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_theme', verbose_name=_("project theme"))
     project_stage = models.ForeignKey(ProjectStage, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_stage', verbose_name=_("project stage"))
+    merged_number = models.ForeignKey(Objective, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='merged_number', verbose_name=_("merged agreement number"))
     project_scale = models.ForeignKey(ProjectScale, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='project_scale', verbose_name=_("project scale"))
     monitoring_approach = models.ForeignKey(MonitoringApproach, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='monitoring_approach', verbose_name=_("monitoring approach"))
     core_component = models.ForeignKey(CoreComponent, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='core_component', verbose_name=_("core component"))

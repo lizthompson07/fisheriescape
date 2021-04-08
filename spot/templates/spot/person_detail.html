@@ -47,10 +47,19 @@
                 <h3>
                     Detail:
                 </h3>
+
                 {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-                <br>
+                    {% if field == 'organizations' %}
+                        <strong>Organization(s):</strong><br>
+                        <ul>
+                            {% for organization in person.organizations.all %}
+                                <li><a href="{% url 'spot:org_detail' organization.id %}">{{organization.name}}</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {% verbose_field_display object field %}
+                    {% endif %}
+               {% endfor %}
 
             </div>
         </div>
