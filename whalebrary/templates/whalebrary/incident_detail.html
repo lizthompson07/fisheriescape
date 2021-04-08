@@ -29,12 +29,9 @@
     </div>
   </div>
   <br><br><br>
-  <div class="row">
+  <div class="col-12">
     {% include "whalebrary/_image.html" %}
   </div>
-  {{ object.get_leaflet_dict }}
-  <br><br><br>
-  {{ all_incidents }}
 {% endblock %}
 
 {% block body_js %}

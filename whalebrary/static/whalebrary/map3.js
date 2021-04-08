@@ -30,7 +30,8 @@ var pointObject = L.geoJSON(pointObj, {
 var allPointObject = L.geoJSON(allPointObj, {
 
     onEachFeature: function (feature, layer) {
-        layer.bindPopup(`Incident: ${feature.properties.name}`);
+        myUrl = `http://dmapps/en/whalebrary/incident_detail/${feature.properties.pk}/view/`
+        layer.bindPopup(`Incident: <a href = "${myUrl}">${feature.properties.name}</a>`);
         }
 });
 
@@ -61,26 +62,17 @@ L.control.layers(baseMaps, overlayMaps).addTo(map);
 map.fitBounds(pointObject.getBounds());
 map.setZoom(6);
 
+// add print buttons from https://github.com/rowanwins/leaflet-easyPrint
 
-// var markersLayer = L.markerClusterGroup()
-// map.addLayer(markersLayer)
-//
-// function populateMap(data) {
-// for (i in data) {
-//   var name = data[i].name, //value searched
-//     loc = data[i].loc, //position found
-//     marker = new L.Marker(new L.LatLng(loc), {
-//       title: name,
-//
-//     }) //se property searched
-//   marker.bindPopup('<p>' + title + '</p>')
-//   markersLayer.addLayer(marker)
-// }
-// }
-//
-// // use context variable instead of making AJAX call
-// var map_incident = JSON.parse('{{ map_incident }}')
-// var new_lat = map_incident[0].loc[0]
-// var new_lon = map_incident[0].loc[1]
-// map.setView([0, 0], 2)
-// populateMap(map_incident)
+L.easyPrint({
+	title: 'Save to .png',
+	position: 'topleft',
+	sizeModes: ['Current', 'A4Portrait', 'A4Landscape'],
+    exportOnly: 'true'
+}).addTo(map);
+
+L.easyPrint({
+	title: 'Print to pdf',
+	position: 'topleft',
+	sizeModes: ['Current', 'A4Portrait', 'A4Landscape']
+}).addTo(map);

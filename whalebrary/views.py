@@ -1394,21 +1394,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         ]
 
         # contexts for incident_detail maps
-        # # TODO have to make so no error if lat and long not entered
-        # map_incident = [
-        #     {'loc': [float(incident.long), float(incident.lat)],
-        #      'name':incident.name} for incident in incidents]
-
-        # context["map_incident"] = mark_safe(escapejs(json.dumps(map_incident)))
-
-        # context["map_all_incidents"] = mark_safe(json.dumps([i.get_leaflet_dict() for i in models.Incident.objects.all()]))
         context["all_incidents"] = [i.get_leaflet_dict() for i in models.Incident.objects.filter(latitude__isnull=False, longitude__isnull=False)]
-
-
-        #
-        # incident = models.Incident.objects.all()
-        # context["map_all_incidents"] = serialize('geojson', incident, geometry_field='get_point')
-
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
 
         return context

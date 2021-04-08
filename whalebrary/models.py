@@ -339,38 +339,37 @@ class Personnel(models.Model):
         return reverse("whalebrary:personnel_detail", kwargs={"pk": self.id})
 
 
-BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
-
-REGION_CHOICES = (
-    ("Gulf", "Gulf"),
-    ("Mar", "Maritimes"),
-    ("NL", "Newfoundland"),
-    ("QC", "Quebec"),
-)
-
-SEX_CHOICES = (
-    ("M", "Male"),
-    ("F", "Female"),
-    ("UnK", "Unknown"),
-)
-
-AGE_CHOICES = (
-    ("J", "Juvenile"),
-    ("YA", "Young Adult"),
-    ("A", "Adult"),
-)
-
-INCIDENT_CHOICES = (
-    ("E", "Entangled"),
-    ("DF", "DEAD - Floating"),
-    ("DB", "DEAD - Beached"),
-    ("N", "Necropsy"),
-    ("LS", "LIVE - Stranded"),
-    ("DS", "DEAD - Stranded"),
-)
-
-
 class Incident(LatLongFields):
+    BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
+
+    REGION_CHOICES = (
+        ("Gulf", "Gulf"),
+        ("Mar", "Maritimes"),
+        ("NL", "Newfoundland"),
+        ("QC", "Quebec"),
+    )
+
+    SEX_CHOICES = (
+        ("M", "Male"),
+        ("F", "Female"),
+        ("UnK", "Unknown"),
+    )
+
+    AGE_CHOICES = (
+        ("J", "Juvenile"),
+        ("YA", "Young Adult"),
+        ("A", "Adult"),
+    )
+
+    INCIDENT_CHOICES = (
+        ("E", "Entangled"),
+        ("DF", "DEAD - Floating"),
+        ("DB", "DEAD - Beached"),
+        ("N", "Necropsy"),
+        ("LS", "LIVE - Stranded"),
+        ("DS", "DEAD - Stranded"),
+    )
+
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("incident name"))
     species_count = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species count"))
     submitted = models.BooleanField(choices=BOOL_CHOICES, blank=True, null=True,
@@ -401,7 +400,7 @@ class Incident(LatLongFields):
     def get_leaflet_dict(self):
         json_dict = dict(
             type='Feature',
-            properties=dict(name=self.name),
+            properties=dict(name=self.name, pk=self.pk),
             geometry=dict(type='Point', coordinates=list([self.longitude, self.latitude]))
         )
         return json_dict
