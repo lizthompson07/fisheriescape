@@ -1191,7 +1191,7 @@ class Location(BioModel):
     subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("SubRiver Code"))
     relc_id = models.ForeignKey('ReleaseSiteCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Site Code"))
+                                verbose_name=_("Site Code"), related_name="locations")
     loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Lattitude"))
     loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
@@ -1206,7 +1206,7 @@ class Location(BioModel):
 
     @property
     def start_time(self):
-        if self.loc_date.time() ==  datetime.datetime.min.time():
+        if self.loc_date.time() == datetime.datetime.min.time():
             return None
         return self.loc_date.time().strftime("%H:%M")
 
@@ -1380,7 +1380,7 @@ class QualCode(BioLookup):
 
 class ReleaseSiteCode(BioLookup):
     # relc tag
-    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"))
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), related_name="sites")
     trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Tributary"))
     subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True,

@@ -1409,12 +1409,42 @@ class QualDetails(mixins.QualMixin, CommonDetails):
 
 
 class RelcDetails(mixins.RelcMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom", "description_en", "description_fr", "rive_id", "trib_id", "subr_id", "min_lat", "max_lat",
+              "min_lon", "max_lon", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["table_list"].extend(["loc"])
+
+        obj_set = self.object.locations.all()
+        obj_field_list = ["locc_id", "start_date"]
+        obj_mixin = mixins.LocMixin
+        context["context_dict"]["loc"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": obj_set,
+                                           "field_list": obj_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
+        return context
 
 
 class RiveDetails(mixins.RiveMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "rive_id", "trib_id", "subr_id", "min_lat", "max_lat",
-              "min_lon", "max_lon", "created_by", "created_date", ]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["table_list"].extend(["relc"])
+
+        obj_set = self.object.sites.all()
+        obj_field_list = ["name", "subr_id", "trib_id"]
+        obj_mixin = mixins.RelcMixin
+        context["context_dict"]["relc"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": obj_set,
+                                           "field_list": obj_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
+        return context
 
 
 class RoleDetails(mixins.RoleMixin, CommonDetails):
@@ -2656,7 +2686,7 @@ class PlotTempData(PlotView):
         return context
 
 
-class LocMapTemplateView(mixins.MapMixin, CommonFormView):
+class LocMapTemplateView(mixins.MapMixin, UserPassesTestMixin, CommonFormView):
     template_name = 'bio_diversity/loc_map.html'
 
     def test_func(self):
