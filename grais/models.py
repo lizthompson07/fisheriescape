@@ -351,7 +351,7 @@ class Surface(MetadataFields):
     @property
     def thumbnail(self):
         if self.image:
-            return mark_safe(f'<a href="{self.image.url}"><img src="{self.image.url}" alt="Image not found..." width="150 em"></a>')
+            return mark_safe(f'<img src="{self.image.url}" alt="Image not found..." width="150 em">')
 
 
 class SurfaceSpecies(MetadataFields):
