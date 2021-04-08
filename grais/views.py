@@ -161,7 +161,7 @@ class StationListView(GraisAccessRequiredMixin, CommonFilterView):
     home_url_name = "grais:index"
     new_object_url = reverse_lazy("grais:station_new")
     row_object_url_name = row_ = "grais:station_detail"
-    h1 = "AIS Sampling Stations"
+    h1 = "Biofouling Stations"
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -242,7 +242,7 @@ class SampleListView(GraisAccessRequiredMixin, CommonFilterView):
     home_url_name = "grais:index"
     new_object_url = reverse_lazy("grais:sample_new")
     row_object_url_name = row_ = "grais:sample_detail"
-    h1 = "AIS Biofouling Samples"
+    h1 = "Biofouling Samples"
 
     field_list = [
         {"name": 'station', "class": "", "width": ""},
