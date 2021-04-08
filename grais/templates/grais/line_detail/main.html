@@ -33,11 +33,9 @@
             <div id="map"></div>
           </div>
         </div>
-        <div class="row">
+        <div class="">
           {% include "grais/line_detail/_surfaces.html" %}
           {% include "grais/line_detail/_species.html" %}
-          <div class="col">
-          </div>
         </div>
       </div>
     </div>
@@ -57,17 +55,17 @@
       zoom: 6,
     });
 
-    {% if object.sample.station.get_point %}
-      latLong = [{{object.sample.station.get_point.x}}, {{ object.sample.station.get_point.y }}]
-      coords.push(latLong)
-      L.marker(
-          latLong, {
-            title: '{{object.station}}',
-            icon: stnIcon,
-
-          }
-      ).addTo(map).bindPopup("<a href='{% url 'grais:station_detail' object.sample.station.id %}'>Station {{object.sample.station}}</a>");
-    {% endif %}
+    {#    {% if object.sample.station.get_point %}#}
+    {#      latLong = [{{object.sample.station.get_point.x}}, {{ object.sample.station.get_point.y }}]#}
+    {#      coords.push(latLong)#}
+    {#      L.marker(#}
+    {#          latLong, {#}
+    {#            title: '{{object.station}}',#}
+    {#            icon: stnIcon,#}
+    {##}
+    {#          }#}
+    {#      ).addTo(map).bindPopup("<a href='{% url 'grais:station_detail' object.sample.station.id %}'>Station {{object.sample.station}}</a>");#}
+    {#    {% endif %}#}
 
     {% if object.sample.lines.exists %}
       {% for line in object.sample.lines.all %}

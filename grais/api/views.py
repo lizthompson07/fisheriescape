@@ -73,7 +73,7 @@ class SpeciesModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = get_labels(self.model)
-        data['choices'] = [dict(text=str(item), value=item.id) for item in self.model.objects.all()]
+        data['choices'] = [dict(text=item.choice_display, value=item.id) for item in self.model.objects.all()]
         return Response(data)
 
 #

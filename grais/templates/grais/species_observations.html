@@ -6,6 +6,10 @@
     <div class="alert alert-danger" role="alert" v-if="obsErrorMsg">
       <p class="mb-0 lead" v-html="obsErrorMsg"></p>
     </div>
+    <div class="text-right mb-3">
+      <button @click="addObservation" class="btn btn-sm btn-primary py-0 mt-3">Add</button>
+    </div>
+
     <div v-if="!observations.length">
       <em>There are no species observations</em>
     </div>
@@ -14,8 +18,9 @@
         <thead>
         <tr>
           <th class="px-1 py-1" style="width: 25px">#</th>
-          <th>Species</th>
-          <th style="width: 250px;">Observation Date</th>
+          <th>Species (English / French / Latin)</th>
+          <th style="width: 200px;">Observation Date (date picker)</th>
+          <th style="width: 200px;">Observation Date (manual entry)</th>
           <th>Notes</th>
           {#        <th style="width: 25px">Id</th>#}
         </tr>
@@ -24,14 +29,21 @@
         <tr v-for="(obs, index) in observations" :key="index">
           <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
           <td class="px-0 py-0">
-            {#          <v-select v-model="obs.species" :items="speciesChoices" required class="no-borders"></v-select>#}
-            <select v-model="obs.species" class="no-borders" @change="updateObservation(obs)">
-              <option value="">{% trans "-----" %}</option>
-              <option v-for="(obj, index) in speciesChoices" :value="obj.value">${obj.text}</option>
-            </select>
+            <v-select
+              v-model="obs.species"
+              @input="updateObservation(obs)"
+              :options="speciesChoices"
+              :reduce="choice => choice.value"
+              label="text"
+              class="no-borders"
+              required
+            ></v-select>
           </td>
           <td class="px-0 py-0">
             <input type="datetime-local" class="no-borders" v-model="obs.observation_date" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
+          </td>
+          <td class="px-0 py-0">
+            <input type="text" class="no-borders" v-model="obs.observation_date" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
           </td>
           <td class="px-0 py-0">
             <input type="text" class="no-borders" v-model="obs.notes" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
@@ -45,6 +57,9 @@
       </table>
     </div>
     <button @click="addObservation" class="btn btn-sm btn-primary py-0 mt-3">Add</button>
+    <div class="mt-5 text-center">
+      <a class="btn btn-success" href="{{ request.META.HTTP_REFERER }}">Done</a>
+    </div>
 
   </div>
 {% endblock %}

@@ -22,3 +22,7 @@ table {
 .unsaved-borders > thead > tr > th, .unsaved-borders > tbody > tr > td  {
     border: red 1px solid;
 }
+
+.unsaved {
+    background-color: #e0ffe0;
+}

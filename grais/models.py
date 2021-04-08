@@ -91,6 +91,10 @@ class Species(MetadataFields):
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
 
     @property
+    def choice_display(self):
+        return f"{self.common_name} / {self.common_name_fra} / {self.scientific_name}"
+
+    @property
     def tname(self):
         if self.common_name or self.common_name_fra:
             if getattr(self, str(_("common_name"))):
