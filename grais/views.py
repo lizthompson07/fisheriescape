@@ -542,11 +542,18 @@ class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
 
 class LineDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
     model = models.Line
-    success_url = reverse_lazy('grais:line_list')
     success_message = 'The functional group was successfully deleted!'
     template_name = 'grais/confirm_delete.html'
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
 
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:line_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_success_url(self):
+        return self.get_grandparent_crumb().get("url")
 
 # SURFACES #
 ############
