@@ -1403,7 +1403,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         # context["map_incident"] = mark_safe(escapejs(json.dumps(map_incident)))
 
         # context["map_all_incidents"] = mark_safe(json.dumps([i.get_leaflet_dict() for i in models.Incident.objects.all()]))
-        context["map_all_incidents"] = {i.get_leaflet_dict() for i in models.Incident.objects.all()}
+        context["all_incidents"] = [i.get_leaflet_dict() for i in models.Incident.objects.filter(lat__isnull=False, long__isnull=False)]
 
 
         #

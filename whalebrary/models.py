@@ -1,19 +1,15 @@
-from datetime import datetime
+import os
 
-import json
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import Point
+from django.contrib.auth.models import User as AuthUser
+# from django.contrib.gis.geos import Point
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Sum, Q, Count
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-from shared_models import models as shared_models
-from lib.functions.custom_functions import nz
-import os
-from django.contrib.auth.models import User as AuthUser
+from shapely.geometry import Point
 
 
 class Category(models.Model):
@@ -403,13 +399,12 @@ class Incident(models.Model):
         return self.name
 
     def get_leaflet_dict(self):
-        json_dict = {'type': 'Feature', 'properties': dict(name=self.name),
-                     'geometry': dict(type='Point', coordinates=list([self.long, self.lat]))}
-        return json.dumps(json_dict)
-
-    def get_point(self):
-        if self.lat and self.long:
-            return Point(self.long, self.lat)
+        json_dict = dict(
+            type='Feature',
+            properties=dict(name=self.name),
+            geometry=dict(type='Point', coordinates=list([self.long, self.lat]))
+        )
+        return json_dict
 
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
