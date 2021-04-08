@@ -5,6 +5,7 @@ from . import views
 router = DefaultRouter()
 router.register(r'sample-species', views.SampleSpeciesViewSet)
 router.register(r'line-species', views.LineSpeciesViewSet)
+router.register(r'surface-species', views.SurfaceSpeciesViewSet)
 # router.register(r'extracts', views.DNAExtractViewSet)
 # router.register(r'pcrs', views.PCRViewSet)
 # router.register(r'observations', views.SpeciesObservationViewSet)

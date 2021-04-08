@@ -415,6 +415,8 @@ class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonDetailView)
             return get_object_or_404(models.Sample, pk=self.kwargs.get("pk"))
         elif self.kwargs.get("type") == "lines":
             return get_object_or_404(models.Line, pk=self.kwargs.get("pk"))
+        elif self.kwargs.get("type") == "surfaces":
+            return get_object_or_404(models.Surface, pk=self.kwargs.get("pk"))
         return Http404
 
     def get_parent_crumb(self):
@@ -424,12 +426,20 @@ class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonDetailView)
     def get_grandparent_crumb(self):
         if self.kwargs.get("type") == "lines":
             return {"title": self.get_object().sample, "url": reverse_lazy(f"grais:sample_detail", args=[self.get_object().sample.id])}
+        if self.kwargs.get("type") == "surfaces":
+            return {"title": self.get_object().line, "url": reverse_lazy(f"grais:line_detail", args=[self.get_object().line.id])}
+
+    def get_greatgrandparent_crumb(self):
+        if self.kwargs.get("type") == "surfaces":
+            return {"title": self.get_object().line.sample, "url": reverse_lazy(f"grais:sample_detail", args=[self.get_object().line.sample.id])}
 
     def get_h1(self):
         if self.kwargs.get("type") == "samples":
             return "Sample-Level Species Observations"
         elif self.kwargs.get("type") == "lines":
             return "Line-Level Species Observations"
+        elif self.kwargs.get("type") == "surfaces":
+            return "Surface-Level Species Observations"
 
 
 # LINE #
@@ -576,6 +586,7 @@ class SurfaceCreateView(GraisCRUDRequiredMixin, CommonCreateView):
     home_url_name = "grais:index"
     greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
     is_multipart_form_data = True
+
     def get_grandparent_crumb(self):
         return {"title": self.get_line().sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_line().sample.id])}
 
@@ -614,8 +625,6 @@ class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     def get_parent_crumb(self):
         return {"title": self.get_object().line, "url": reverse_lazy("grais:line_detail", args=[self.get_object().line.id])}
 
-
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["surface_field_list"] = [
@@ -642,6 +651,7 @@ class SurfaceDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
 
     def get_success_url(self):
         return reverse('grais:line_detail', args=[self.get_object().line.id])
+
 
 #
 # class SurfaceDetailView(GraisAccessRequiredMixin, CommonDetailView):

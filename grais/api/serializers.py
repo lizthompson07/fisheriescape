@@ -21,6 +21,14 @@ class LineSpeciesSerializer(serializers.ModelSerializer):
         model = models.LineSpecies
         fields = "__all__"
 
+
+class SurfaceSpeciesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.SurfaceSpecies
+        fields = "__all__"
+
+#
+
 #
 # class DNAExtractSerializer(serializers.ModelSerializer):
 #     class Meta:
