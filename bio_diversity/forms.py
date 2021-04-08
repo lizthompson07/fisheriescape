@@ -1366,6 +1366,7 @@ class DataForm(CreatePrams):
             for row in data_dict:
                 contx = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
                                           return_contx=True)
+                utils.enter_contx(row["trofs"], cleaned_data)
                 anix = utils.enter_anix(cleaned_data, grp_pk=row["grps"].pk)
                 if contx:
                     rows_entered += 1
@@ -1421,7 +1422,7 @@ class DataForm(CreatePrams):
                         out_cnt.det_val = int(all_eggs_out)
                         out_cnt.save()
 
-                    # record movement event
+                    # generate new group, cup, and movement evnt:
                     for move_cnt, move_cup, move_weight, cnt_code in move_tuples:
                         cont = utils.get_cont_from_dot(row[move_cup], cleaned_data, move_date)
                         indv, final_grp = cont.fish_in_cont(move_date)
@@ -1461,10 +1462,11 @@ class DataForm(CreatePrams):
                     draw = utils.get_draw_from_dot(str(row["General Location stack.tray"]), cleaned_data)
                     if draw:
                         end_contx = utils.create_movement_evnt(row["trays"], draw, cleaned_data, move_date, grp_pk=row["grps"].pk, return_end_contx=True)
+                        end_cnt = utils.enter_cnt(cleaned_data, row["# of Generals"], end_contx.pk,
+                                                  cnt_code="Egg Count")
+                        utils.enter_cnt_det(cleaned_data, end_cnt, row["Actual Wt of Generals"], "Weight")
                     else:
                         log_data += "\n Draw {} from {} not found".format(draw, row["General Location stack.tray"])
-                    utils.enter_grpd(anix.pk, cleaned_data, move_date, row["Actual Wt of Generals"], "Weight")
-                    utils.enter_cnt(cleaned_data, row["# of Generals"], end_contx.pk, cnt_code="Egg Count")
 
                     tray = row["trays"]
                     tray.end_date = move_date
