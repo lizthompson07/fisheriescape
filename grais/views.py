@@ -615,6 +615,7 @@ class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         'display|surface',
         'surface_type',
         'species_list|species',
+        'total_coverage_display|total coverage',
         'has_invasive_spp|has invasive spp?',
         'notes',
         'is_lost',
