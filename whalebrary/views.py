@@ -1,5 +1,4 @@
 import csv
-import json
 from copy import deepcopy
 from datetime import date
 
@@ -8,15 +7,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
-from django.core.serializers import serialize
 from django.db.models import TextField, Value
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.html import escapejs
-from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.utils.translation.trans_null import gettext_lazy
@@ -170,7 +166,7 @@ class LocationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     home_url_name = "whalebrary:index"
     delete_url_name = "whalebrary:delete_location"
 
-    ## TAG ##
+## TAG ##
 
 
 class TagHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
@@ -187,7 +183,7 @@ class TagFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     home_url_name = "whalebrary:index"
     delete_url_name = "whalebrary:delete_tag"
 
-    ## OWNER ##
+## OWNER ##
 
 
 class OwnerHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
@@ -204,7 +200,7 @@ class OwnerFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     home_url_name = "whalebrary:index"
     delete_url_name = "whalebrary:delete_owner"
 
-    ## SIZE ##
+## SIZE ##
 
 
 class SizeHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
@@ -221,7 +217,7 @@ class SizeFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     home_url_name = "whalebrary:index"
     delete_url_name = "whalebrary:delete_size"
 
-    ## ORGANISATION ##
+## ORGANISATION ##
 
 
 class OrganisationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
@@ -238,7 +234,7 @@ class OrganisationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     home_url_name = "whalebrary:index"
     delete_url_name = "whalebrary:delete_organisation"
 
-    ## TRAINING ##
+## TRAINING ##
 
 
 class TrainingHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
@@ -255,6 +251,22 @@ class TrainingFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     home_url_name = "whalebrary:index"
     delete_url_name = "whalebrary:delete_training"
 
+
+## SPECIES ##
+
+class SpeciesHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Species
+    success_url = reverse_lazy("whalebrary:manage_species")
+
+
+class SpeciesFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Species"
+    queryset = models.Species.objects.all()
+    formset_class = forms.SpeciesFormset
+    success_url = reverse_lazy("whalebrary:manage_species")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_species"
 
 # #
 # # ITEM #

@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from shared_models.models import LatLongFields
+from shared_models.models import LatLongFields, SimpleLookup
 
 
 class Category(models.Model):
@@ -337,6 +337,10 @@ class Personnel(models.Model):
         return reverse("whalebrary:personnel_detail", kwargs={"pk": self.id})
 
 
+class Species(SimpleLookup):
+    name_latin = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (latin)"))
+
+
 class Incident(LatLongFields):
     BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 
@@ -376,7 +380,7 @@ class Incident(LatLongFields):
                                         verbose_name=_("date and time first reported"))
     location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("location"))
     region = models.CharField(max_length=255, null=True, blank=True, choices=REGION_CHOICES, verbose_name=_("region"))
-    species = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species"))
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="incidents", verbose_name=_("species"))
     sex = models.CharField(max_length=255, blank=True, null=True, choices=SEX_CHOICES, verbose_name=_("sex"))
     age_group = models.CharField(max_length=255, blank=True, null=True, choices=AGE_CHOICES,
                                  verbose_name=_("age group"))
