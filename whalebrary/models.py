@@ -1,6 +1,8 @@
 from datetime import datetime
 
+import json
 from django.contrib.auth.models import User
+from django.contrib.gis.geos import Point
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum, Q, Count
@@ -365,6 +367,8 @@ INCIDENT_CHOICES = (
     ("DF", "DEAD - Floating"),
     ("DB", "DEAD - Beached"),
     ("N", "Necropsy"),
+    ("LS", "LIVE - Stranded"),
+    ("DS", "DEAD - Stranded"),
 )
 
 
@@ -397,6 +401,15 @@ class Incident(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_leaflet_dict(self):
+        json_dict = {'type': 'Feature', 'properties': dict(name=self.name),
+                     'geometry': dict(type='Point', coordinates=list([self.long, self.lat]))}
+        return json.dumps(json_dict)
+
+    def get_point(self):
+        if self.lat and self.long:
+            return Point(self.long, self.lat)
 
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})

@@ -14,7 +14,10 @@ class NewIncidentEmail:
         self.subject = 'A new incident has been logged / un nouveau incident a été enregistré'
         self.message = self.load_html_template(incident_object)
         self.from_email = from_email
-        self.to_list = ["elizabeth.thompson@dfo-mpo.gc.ca"]
+        self.to_list = ["elizabeth.thompson@dfo-mpo.gc.ca",
+                        "mylene.dufour@dfo-mpo.gc.ca",
+                        "WhaleSightings.XMAR@dfo-mpo.gc.ca"
+                        ]
 
     def load_html_template(self, incident_object):
         t = loader.get_template('whalebrary/email_incident.html')
