@@ -1387,6 +1387,13 @@ class DataForm(CreatePrams):
                         pick_datetime = datetime.strptime(row[date_key], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
                         utils.create_picks_evnt(cleaned_data, row["trays"], row["grps"].pk, row[pick_key], pick_datetime, pick_code)
 
+                    # Shocking:
+                    shock_date = row["Shocking Pick Date"]
+                    shocking_cleaned_data = utils.create_new_evnt(cleaned_data, "Shocking", shock_date)
+                    utils.enter_contx(row["trays"], shocking_cleaned_data, None, grp_pk=row["grps"].pk)
+                    shock_anix = utils.enter_anix(shocking_cleaned_data, grp_pk=row["grps"].pk)
+                    utils.enter_grpd(shock_anix.pk, shocking_cleaned_data, shock_date, 17, "Development")
+
                     # HU Transfer:
                     move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
                     # want to shift the hu move event, so that the counting math always works out.

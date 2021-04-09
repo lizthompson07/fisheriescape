@@ -1528,7 +1528,7 @@ class TrofDetails(mixins.TrofMixin, CommonContDetails):
         context["table_list"].extend(["tray"])
 
         tray_list = self.object.trays.all()
-        tray_field_list = ["name", "start_date", "end_date", "degree_days"]
+        tray_field_list = ["name", "start_date", "end_date"]
         obj_mixin = mixins.TrayMixin
         context["context_dict"]["tray"] = {"div_title": "Trays in Trough",
                                            "sub_model_key": obj_mixin.key,

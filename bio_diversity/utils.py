@@ -88,6 +88,9 @@ def get_cont_from_anix(anix, cont_key):
         return anix.contx_id.heat_id
     elif cont_key == "draw":
         return anix.contx_id.draw_id
+    elif cont_key is None:
+        all_conts = [anix.contx_id.tank_id, anix.contx_id.tray_id, anix.contx_id.trof_id, anix.contx_id.cup_id, anix.contx_id.heat_id, anix.contx_id.draw_id]
+        return [cont for cont in all_conts if cont][0]
     else:
         return None
 

@@ -1,11 +1,24 @@
 from datetime import timedelta
-
-
 from django.test import tag
 from datetime import datetime
 from bio_diversity.test import BioFactoryFloor
-from bio_diversity.test.common_views import CommonTest
+from shared_models.test.common_tests import CommonTest
 from bio_diversity import models
+
+
+@tag("Grp", 'models')
+class TestGrpModel(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.data = BioFactoryFloor.GrpFactory.build_valid_data()
+
+    def test_development(self):
+        # test that previous details with same code are made invalid
+        grp = BioFactoryFloor.GrpFactory()
+        grp_dev = grp.get_development()
+
+        self.assertTrue()
 
 
 @tag("Grpd", 'models')

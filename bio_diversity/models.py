@@ -219,6 +219,9 @@ class BioCont(BioLookup):
                 indv_list.append(grp)
         return indv_list, grp_list
 
+    def degree_days(self, start_date, end_date):
+        return 0
+
 
 class AnimalDetCode(BioLookup):
     # anidc tag
@@ -389,12 +392,18 @@ class CountDet(BioDet):
 
     def clean(self):
         super(CountDet, self).clean()
-        if self.det_val and self.anidc_id.max_val and self.anidc_id.min_val:
+        if self.is_numeric() and self.det_val is not None:
             if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
                                                .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
                 })
+
+    def is_numeric(self):
+        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 class Cup(BioCont):
@@ -817,6 +826,25 @@ class Group(BioModel):
         grp_list = [grpd.anix_id.grp_id for grpd in grpd_set]
 
         return indv_list, grp_list
+
+    def get_development(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+        dev = 0
+        degree_days = 0
+        anix_set = AniDetailXref.objects.filter(grp_id=self, final_contx_flag__isnull=False, evnt_id__start_datetime__lte=at_date).order_by("evnt_id__start_datetime").select_related("contx_id", "evnt_id")
+
+        start_date = False
+        end_date = 0
+        cont = False
+        for anix in anix_set:
+            if anix.final_contx_flag:
+                start_date = anix.evnt_id.start_datetime.date()
+                cont = utils.get_cont_from_anix(anix, None)
+            else:
+                end_date = anix.evnt_id.start_datetime.date()
+                if start_date and cont:
+                    degree_days += cont.degree_days(start_date, end_date)
+                    start_date = False
+        return degree_days
 
 
 class GroupDet(BioDet):
@@ -1515,12 +1543,18 @@ class SpawnDet(BioDet):
 
     def clean(self):
         super(SpawnDet, self).clean()
-        if self.det_val:
+        if self.is_numeric() and self.det_val is not None:
             if self.det_val > self.spwndc_id.max_val or self.det_val < self.spwndc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
                                                .format(self.det_val, self.spwndc_id.max_val, self.spwndc_id.min_val))
                 })
+
+    def is_numeric(self):
+        if self.spwndc_id.min_val is not None and self.spwndc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 class SpawnDetCode(BioLookup):
@@ -1611,12 +1645,15 @@ class Tray(BioCont):
     start_date = models.DateField(verbose_name=_("Start Date"))
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
 
-    @property
-    def degree_days(self):
-        if self.end_date:
-            degree_days = self.trof_id.degree_days(self.start_date, self.end_date)
+    def degree_days(self, start_date=None, end_date=None):
+        if not start_date:
+            start_date = self.start_date
+        if not end_date:
+            end_date = self.end_date
+        if end_date:
+            degree_days = self.trof_id.degree_days(start_date, end_date)
         else:
-            degree_days = self.trof_id.degree_days(self.start_date, datetime.datetime.today().date())
+            degree_days = self.trof_id.degree_days(start_date, datetime.datetime.today().date())
         return round(sum(degree_days), 3)
 
     def __str__(self):
