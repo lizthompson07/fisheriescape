@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseRedirect
@@ -21,6 +22,17 @@ class ReportListView(GraisAccessRequiredMixin, CommonFilterView):
     filterset_class = filters.ReportFilter
     template_name = "grais/list.html"
     home_url_name = "grais:index"
+    row_object_url_name = "grais:ir_detail"
+    new_object_url_name = "grais:ir_new"
+    field_list = [
+        {"name": 'season', "class": "", "width": ""},
+        {"name": 'report_source', "class": "", "width": ""},
+        {"name": 'requestor', "class": "", "width": ""},
+        {"name": 'report_date', "class": "", "width": ""},
+        {"name": 'species_list|species', "class": "", "width": ""},
+        {"name": 'coordinates', "class": "", "width": ""},
+        {"name": 'followup_count|follow-ups', "class": "", "width": ""},
+    ]
 
 
 class ReportUpdateView(GraisAccessRequiredMixin, CommonUpdateView):
@@ -28,9 +40,10 @@ class ReportUpdateView(GraisAccessRequiredMixin, CommonUpdateView):
     form_class = forms.ReportForm
     template_name = "grais/form.html"
     home_url_name = "grais:index"
+    grandparent_crumb = {"title": _("Reports"), "url": reverse_lazy("grais:ir_list")}
 
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:ir_detail", args=[self.get_object().id])}
 
 
 class ReportCreateView(GraisAccessRequiredMixin, CommonCreateView):
@@ -46,60 +59,53 @@ class ReportCreateView(GraisAccessRequiredMixin, CommonCreateView):
 
 class ReportDetailView(GraisAccessRequiredMixin, CommonDetailView):
     model = models.IncidentalReport
-
-    template_name = "grais/scratch/report_detail.html"
+    template_name = "grais/incidental_reports/report_detail.html"
+    home_url_name = "grais:index"
+    parent_crumb = {"title": _("Reports"), "url": reverse_lazy("grais:ir_list")}
+    field_list = [
+        'species',
+        'report_date',
+        'language_of_report',
+        'requestor_information|requestor information',
+        'coordinates',
+        'report_source',
+        'species_confirmation',
+        'gulf_ais_confirmed',
+        'seeking_general_info_ais',
+        'seeking_general_info_non_ais',
+        'management_related',
+        'dfo_it_related',
+        'incorrect_region',
+        'call_answered_by',
+        'call_returned_by',
+        'location_description',
+        'specimens_retained',
+        'sighting_description',
+        'identified_by',
+        'date_of_occurrence',
+        'observation_type',
+        # 'phone1',
+        # 'phone2',
+        # 'email',
+        'notes',
+        'season',
+    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context["field_list"] = [
-            "report_date",
-            "requestor_name",
-            "report_source",
-            "language_of_report",
-            "call_answered_by",
-            "call_returned_by",
-            "location_description",
-            "latitude_n",
-            "longitude_w",
-            "specimens_retained",
-            "sighting_description",
-            "identified_by",
-            "date_of_occurrence",
-            "observation_type",
-            "phone1",
-            "phone2",
-            "email",
-            "notes",
-            # "date_last_modified",
-            # "last_modified_by",
-        ]
-
-        # # get a list of species
-        # species_list = []
-        # for obj in models.Species.objects.all():
-        #     url = reverse("grais:report_species_add", kwargs={"report": self.object.id, "species": obj.id}),
-        #     html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
-        #         url[0],
-        #         static("admin/img/icon-addlink.svg"),
-        #         obj.common_name,
-        #         obj.scientific_name,
-        #         obj.abbrev
-        #     )
-        #     species_list.append(html_insert)
-        # context['species_list'] = species_list
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
 
 class ReportDeleteView(GraisAccessRequiredMixin, CommonDeleteView):
     model = models.IncidentalReport
-    success_url = reverse_lazy('grais:report_list')
-    success_message = 'The report was successfully deleted!'
     template_name = "grais/confirm_delete.html"
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": _("Reports"), "url": reverse_lazy("grais:ir_list")}
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:ir_detail", args=[self.get_object().id])}
+
 
 
 def report_species_observation_delete(request, report, species):

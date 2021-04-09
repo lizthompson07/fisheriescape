@@ -34,8 +34,8 @@
           </div>
         </div>
         <div class="">
-          {% include "grais/line_detail/_surfaces.html" %}
-          {% include "grais/line_detail/_species.html" %}
+          {% include "grais/biofouling/line_detail/_surfaces.html" %}
+          {% include "grais/biofouling/line_detail/_species.html" %}
         </div>
       </div>
     </div>
@@ -54,18 +54,6 @@
       center: new L.LatLng(46.13845952180798, -64.7906431818189),
       zoom: 6,
     });
-
-    {#    {% if object.sample.station.get_point %}#}
-    {#      latLong = [{{object.sample.station.get_point.x}}, {{ object.sample.station.get_point.y }}]#}
-    {#      coords.push(latLong)#}
-    {#      L.marker(#}
-    {#          latLong, {#}
-    {#            title: '{{object.station}}',#}
-    {#            icon: stnIcon,#}
-    {##}
-    {#          }#}
-    {#      ).addTo(map).bindPopup("<a href='{% url 'grais:station_detail' object.sample.station.id %}'>Station {{object.sample.station}}</a>");#}
-    {#    {% endif %}#}
 
     {% if object.sample.lines.exists %}
       {% for line in object.sample.lines.all %}

@@ -457,6 +457,9 @@ class IncidentalReport(MetadataFields, LatLongFields):
     language_of_report = models.IntegerField(choices=LANGUAGE_CHOICES)
     requestor_name = models.CharField(max_length=150)
     requestor_type = models.IntegerField(choices=REQUESTOR_TYPE_CHOICES, blank=True, null=True)
+    phone1 = models.CharField(max_length=50, null=True, blank=True, verbose_name="contact phone (primary)")
+    phone2 = models.CharField(max_length=50, null=True, blank=True, verbose_name="contact phone (secondary)")
+    email = models.EmailField(null=True, blank=True, verbose_name=_("contact email address"))
     report_source = models.IntegerField(choices=REPORT_SOURCE_CHOICES)
     species_confirmation = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Was there a species confirmation?"))
     gulf_ais_confirmed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Confirmed by Gulf AIS team?"))
@@ -472,12 +475,9 @@ class IncidentalReport(MetadataFields, LatLongFields):
     location_description = models.CharField(max_length=500, null=True, blank=True, verbose_name=_("description of location"))
     specimens_retained = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("were specimens retained?"))
     sighting_description = models.TextField(null=True, blank=True, verbose_name=_("description of sighting"))
-    identified_by = models.CharField(max_length=150, null=True, blank=True, verbose_name=_("name of identifier"))
     date_of_occurrence = models.DateTimeField()
+    identified_by = models.CharField(max_length=150, null=True, blank=True, verbose_name=_("name of identifier"))
     observation_type = models.IntegerField(choices=OBSERVATION_TYPE_CHOICES, verbose_name=_("type of observation"))
-    phone1 = models.CharField(max_length=50, null=True, blank=True, verbose_name="phone 1")
-    phone2 = models.CharField(max_length=50, null=True, blank=True, verbose_name="phone 2")
-    email = models.EmailField(null=True, blank=True, verbose_name=_("email address"))
     notes = models.TextField(null=True, blank=True)
     season = models.IntegerField(editable=False)
 
@@ -494,6 +494,34 @@ class IncidentalReport(MetadataFields, LatLongFields):
 
     class Meta:
         ordering = ["-report_date"]
+
+    @property
+    def requestor(self):
+        mystr = self.requestor_name
+        if self.requestor_type:
+            mystr += f' ({self.get_requestor_type_display()})'
+        return mystr
+
+    @property
+    def requestor_information(self):
+        mystr = f'<u>Name</u> &rarr; {self.requestor_name}'
+        if self.requestor_type:
+            mystr += f' ({self.get_requestor_type_display()})'
+        if self.phone1:
+            mystr += f'<br><u>Phone (primary)</u> &rarr; {self.phone1}'
+        if self.phone2:
+            mystr += f'<br><u>Phone (secondary)</u> &rarr; {self.phone2}'
+        if self.email:
+            mystr += f'<br><u>Email</u> &rarr; {self.email}'
+        return mark_safe(mystr)
+
+    @property
+    def followup_count(self):
+        return self.followups.count()
+
+    @property
+    def species_list(self):
+        return mark_safe(listrify(self.species.all(), "<br>"))
 
 
 class FollowUp(models.Model):
