@@ -6,7 +6,8 @@ from shared_models.test.common_tests import CommonTest
 from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView, \
     CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView
 from . import FactoryFloor
-from .. import views, models
+from .. import models
+from ..views import biofouling_views
 
 faker = Factory.create()
 
@@ -20,7 +21,7 @@ class TestCollectionCreateView(CommonTest):
 
     @tag("Collection", "collection_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.CollectionCreateView, CommonCreateView)
+        self.assert_inheritance(biofouling_views.CollectionCreateView, CommonCreateView)
 
     @tag("Collection", "collection_new", "access")
     def test_view(self):
@@ -48,7 +49,7 @@ class TestCollectionDeleteView(CommonTest):
 
     @tag("Collection", "collection_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.CollectionDeleteView, CommonDeleteView)
+        self.assert_inheritance(biofouling_views.CollectionDeleteView, CommonDeleteView)
 
     @tag("Collection", "collection_delete", "access")
     def test_view(self):
@@ -79,7 +80,7 @@ class TestCollectionDetailView(CommonTest):
 
     @tag("Collection", "collection_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.CollectionDetailView, CommonDetailView)
+        self.assert_inheritance(biofouling_views.CollectionDetailView, CommonDetailView)
 
     @tag("Collection", "collection_detail", "access")
     def test_view(self):
@@ -101,7 +102,7 @@ class TestCollectionListView(CommonTest):
 
     @tag("Collection", "collection_list", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.CollectionListView, CommonFilterView)
+        self.assert_inheritance(biofouling_views.CollectionListView, CommonFilterView)
 
     @tag("Collection", "collection_list", "access")
     def test_view(self):
@@ -131,7 +132,7 @@ class TestCollectionUpdateView(CommonTest):
 
     @tag("Collection", "collection_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.CollectionUpdateView, CommonUpdateView)
+        self.assert_inheritance(biofouling_views.CollectionUpdateView, CommonUpdateView)
 
     @tag("Collection", "collection_edit", "access")
     def test_view(self):
@@ -158,7 +159,7 @@ class TestExtractionBatchCreateView(CommonTest):
 
     @tag("ExtractionBatch", "extraction_batch_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ExtractionBatchCreateView, CommonCreateView)
+        self.assert_inheritance(biofouling_views.ExtractionBatchCreateView, CommonCreateView)
 
     @tag("ExtractionBatch", "extraction_batch_new", "access")
     def test_view(self):
@@ -186,7 +187,7 @@ class TestExtractionBatchDeleteView(CommonTest):
 
     @tag("ExtractionBatch", "extraction_batch_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ExtractionBatchDeleteView, CommonDeleteView)
+        self.assert_inheritance(biofouling_views.ExtractionBatchDeleteView, CommonDeleteView)
 
     @tag("ExtractionBatch", "extraction_batch_delete", "access")
     def test_view(self):
@@ -217,7 +218,7 @@ class TestExtractionBatchDetailView(CommonTest):
 
     @tag("ExtractionBatch", "extraction_batch_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ExtractionBatchDetailView, CommonDetailView)
+        self.assert_inheritance(biofouling_views.ExtractionBatchDetailView, CommonDetailView)
 
     @tag("ExtractionBatch", "extraction_batch_detail", "access")
     def test_view(self):
@@ -239,7 +240,7 @@ class TestExtractionBatchListView(CommonTest):
 
     @tag("ExtractionBatch", "extraction_batch_list", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ExtractionBatchListView, CommonFilterView)
+        self.assert_inheritance(biofouling_views.ExtractionBatchListView, CommonFilterView)
 
     @tag("ExtractionBatch", "extraction_batch_list", "access")
     def test_view(self):
@@ -269,7 +270,7 @@ class TestExtractionBatchUpdateView(CommonTest):
 
     @tag("ExtractionBatch", "extraction_batch_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ExtractionBatchUpdateView, CommonUpdateView)
+        self.assert_inheritance(biofouling_views.ExtractionBatchUpdateView, CommonUpdateView)
 
     @tag("ExtractionBatch", "extraction_batch_edit", "access")
     def test_view(self):
@@ -297,7 +298,7 @@ class TestFileCreateView(CommonTest):
 
     @tag("File", "file_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FileCreateView, CommonPopoutCreateView)
+        self.assert_inheritance(biofouling_views.FileCreateView, CommonPopoutCreateView)
 
     @tag("File", "file_new", "access")
     def test_view(self):
@@ -325,7 +326,7 @@ class TestFileDeleteView(CommonTest):
 
     @tag("File", "file_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FileDeleteView, CommonPopoutDeleteView)
+        self.assert_inheritance(biofouling_views.FileDeleteView, CommonPopoutDeleteView)
 
     @tag("File", "file_delete", "access")
     def test_view(self):
@@ -356,7 +357,7 @@ class TestFileUpdateView(CommonTest):
 
     @tag("File", "file_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FileUpdateView, CommonPopoutUpdateView)
+        self.assert_inheritance(biofouling_views.FileUpdateView, CommonPopoutUpdateView)
 
     @tag("File", "file_edit", "access")
     def test_view(self):
@@ -383,7 +384,7 @@ class TestFiltrationBatchCreateView(CommonTest):
 
     @tag("FiltrationBatch", "filtration_batch_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FiltrationBatchCreateView, CommonCreateView)
+        self.assert_inheritance(biofouling_views.FiltrationBatchCreateView, CommonCreateView)
 
     @tag("FiltrationBatch", "filtration_batch_new", "access")
     def test_view(self):
@@ -411,7 +412,7 @@ class TestFiltrationBatchDeleteView(CommonTest):
 
     @tag("FiltrationBatch", "filtration_batch_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FiltrationBatchDeleteView, CommonDeleteView)
+        self.assert_inheritance(biofouling_views.FiltrationBatchDeleteView, CommonDeleteView)
 
     @tag("FiltrationBatch", "filtration_batch_delete", "access")
     def test_view(self):
@@ -442,7 +443,7 @@ class TestFiltrationBatchDetailView(CommonTest):
 
     @tag("FiltrationBatch", "filtration_batch_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FiltrationBatchDetailView, CommonDetailView)
+        self.assert_inheritance(biofouling_views.FiltrationBatchDetailView, CommonDetailView)
 
     @tag("FiltrationBatch", "filtration_batch_detail", "access")
     def test_view(self):
@@ -464,7 +465,7 @@ class TestFiltrationBatchListView(CommonTest):
 
     @tag("FiltrationBatch", "filtration_batch_list", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FiltrationBatchListView, CommonFilterView)
+        self.assert_inheritance(biofouling_views.FiltrationBatchListView, CommonFilterView)
 
     @tag("FiltrationBatch", "filtration_batch_list", "access")
     def test_view(self):
@@ -494,7 +495,7 @@ class TestFiltrationBatchUpdateView(CommonTest):
 
     @tag("FiltrationBatch", "filtration_batch_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FiltrationBatchUpdateView, CommonUpdateView)
+        self.assert_inheritance(biofouling_views.FiltrationBatchUpdateView, CommonUpdateView)
 
     @tag("FiltrationBatch", "filtration_batch_edit", "access")
     def test_view(self):
@@ -521,7 +522,7 @@ class TestPCRBatchCreateView(CommonTest):
 
     @tag("PCRBatch", "pcr_batch_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.PCRBatchCreateView, CommonCreateView)
+        self.assert_inheritance(biofouling_views.PCRBatchCreateView, CommonCreateView)
 
     @tag("PCRBatch", "pcr_batch_new", "access")
     def test_view(self):
@@ -549,7 +550,7 @@ class TestPCRBatchDeleteView(CommonTest):
 
     @tag("PCRBatch", "pcr_batch_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.PCRBatchDeleteView, CommonDeleteView)
+        self.assert_inheritance(biofouling_views.PCRBatchDeleteView, CommonDeleteView)
 
     @tag("PCRBatch", "pcr_batch_delete", "access")
     def test_view(self):
@@ -580,7 +581,7 @@ class TestPCRBatchDetailView(CommonTest):
 
     @tag("PCRBatch", "pcr_batch_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.PCRBatchDetailView, CommonDetailView)
+        self.assert_inheritance(biofouling_views.PCRBatchDetailView, CommonDetailView)
 
     @tag("PCRBatch", "pcr_batch_detail", "access")
     def test_view(self):
@@ -602,7 +603,7 @@ class TestPCRBatchListView(CommonTest):
 
     @tag("PCRBatch", "pcr_batch_list", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.PCRBatchListView, CommonFilterView)
+        self.assert_inheritance(biofouling_views.PCRBatchListView, CommonFilterView)
 
     @tag("PCRBatch", "pcr_batch_list", "access")
     def test_view(self):
@@ -632,7 +633,7 @@ class TestPCRBatchUpdateView(CommonTest):
 
     @tag("PCRBatch", "pcr_batch_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.PCRBatchUpdateView, CommonUpdateView)
+        self.assert_inheritance(biofouling_views.PCRBatchUpdateView, CommonUpdateView)
 
     @tag("PCRBatch", "pcr_batch_edit", "access")
     def test_view(self):
@@ -659,7 +660,7 @@ class TestReportSearchFormView(CommonTest):
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ReportSearchFormView, CommonFormView)
+        self.assert_inheritance(biofouling_views.ReportSearchFormView, CommonFormView)
 
     @tag("ReportSearch", "reports", "access")
     def test_view(self):
@@ -687,7 +688,7 @@ class TestSampleCreateView(CommonTest):
 
     @tag("Sample", "sample_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SampleCreateView, CommonCreateView)
+        self.assert_inheritance(biofouling_views.SampleCreateView, CommonCreateView)
 
     @tag("Sample", "sample_new", "access")
     def test_view(self):
@@ -715,7 +716,7 @@ class TestSampleDeleteView(CommonTest):
 
     @tag("Sample", "sample_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SampleDeleteView, CommonDeleteView)
+        self.assert_inheritance(biofouling_views.SampleDeleteView, CommonDeleteView)
 
     @tag("Sample", "sample_delete", "access")
     def test_view(self):
@@ -746,7 +747,7 @@ class TestSampleDetailView(CommonTest):
 
     @tag("Sample", "sample_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SampleDetailView, CommonDetailView)
+        self.assert_inheritance(biofouling_views.SampleDetailView, CommonDetailView)
 
     @tag("Sample", "sample_detail", "access")
     def test_view(self):
@@ -769,7 +770,7 @@ class TestSampleUpdateView(CommonTest):
 
     @tag("Sample", "sample_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SampleUpdateView, CommonUpdateView)
+        self.assert_inheritance(biofouling_views.SampleUpdateView, CommonUpdateView)
 
     @tag("Sample", "sample_edit", "access")
     def test_view(self):
@@ -796,7 +797,7 @@ class TestSpeciesCreateView(CommonTest):
 
     @tag("Species", "species_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SpeciesCreateView, CommonCreateView)
+        self.assert_inheritance(biofouling_views.SpeciesCreateView, CommonCreateView)
 
     @tag("Species", "species_new", "access")
     def test_view(self):
@@ -824,7 +825,7 @@ class TestSpeciesDeleteView(CommonTest):
 
     @tag("Species", "species_delete", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SpeciesDeleteView, CommonDeleteView)
+        self.assert_inheritance(biofouling_views.SpeciesDeleteView, CommonDeleteView)
 
     @tag("Species", "species_delete", "access")
     def test_view(self):
@@ -855,7 +856,7 @@ class TestSpeciesDetailView(CommonTest):
 
     @tag("Species", "species_detail", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SpeciesDetailView, CommonDetailView)
+        self.assert_inheritance(biofouling_views.SpeciesDetailView, CommonDetailView)
 
     @tag("Species", "species_detail", "access")
     def test_view(self):
@@ -877,7 +878,7 @@ class TestSpeciesListView(CommonTest):
 
     @tag("Species", "species_list", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SpeciesListView, CommonFilterView)
+        self.assert_inheritance(biofouling_views.SpeciesListView, CommonFilterView)
 
     @tag("Species", "species_list", "access")
     def test_view(self):
@@ -907,7 +908,7 @@ class TestSpeciesUpdateView(CommonTest):
 
     @tag("Species", "species_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SpeciesUpdateView, CommonUpdateView)
+        self.assert_inheritance(biofouling_views.SpeciesUpdateView, CommonUpdateView)
 
     @tag("Species", "species_edit", "access")
     def test_view(self):

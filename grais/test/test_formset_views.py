@@ -1,12 +1,11 @@
 from django.test import tag
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.utils.translation import activate
 
 from shared_models.test.common_tests import CommonTest
 from ..test import FactoryFloor
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
-from .. import views
+from ..views import biofouling_views
 from .. import models
 from faker import Factory
 
@@ -24,9 +23,9 @@ class TestAllFormsets(CommonTest):
 
         self.test_urls = [reverse_lazy("edna:" + name) for name in self.test_url_names]
         self.test_views = [
-            views.FiltrationTypeFormsetView,
-            views.DNAExtractionProtocolFormsetView,
-            views.TagFormsetView,
+            biofouling_views.FiltrationTypeFormsetView,
+            biofouling_views.DNAExtractionProtocolFormsetView,
+            biofouling_views.TagFormsetView,
         ]
         self.expected_template = 'edna/formset.html'
         self.user = self.get_and_login_user(in_group="edna_admin")
@@ -34,7 +33,7 @@ class TestAllFormsets(CommonTest):
     @tag('formsets', "view")
     def test_view_class(self):
         for v in self.test_views:
-            self.assert_inheritance(v, views.eDNAAdminRequiredMixin)
+            self.assert_inheritance(v, biofouling_views.eDNAAdminRequiredMixin)
             self.assert_inheritance(v, CommonFormsetView)
 
     @tag('formsets', "access")
@@ -54,9 +53,9 @@ class TestAllHardDeleteViews(CommonTest):
     def setUp(self):
         super().setUp()
         self.starter_dicts = [
-            {"model": models.FiltrationType, "url_name": "delete_filtration_type", "view": views.FiltrationTypeHardDeleteView},
-            {"model": models.DNAExtractionProtocol, "url_name": "delete_dna_extraction_protocol", "view": views.DNAExtractionProtocolHardDeleteView},
-            {"model": models.Tag, "url_name": "delete_tag", "view": views.TagHardDeleteView},
+            {"model": models.FiltrationType, "url_name": "delete_filtration_type", "view": biofouling_views.FiltrationTypeHardDeleteView},
+            {"model": models.DNAExtractionProtocol, "url_name": "delete_dna_extraction_protocol", "view": biofouling_views.DNAExtractionProtocolHardDeleteView},
+            {"model": models.Tag, "url_name": "delete_tag", "view": biofouling_views.TagHardDeleteView},
         ]
         self.test_dicts = list()
 
@@ -79,7 +78,7 @@ class TestAllHardDeleteViews(CommonTest):
     @tag('hard_delete', "view")
     def test_view_class(self):
         for d in self.test_dicts:
-            self.assert_inheritance(d["view"], views.eDNAAdminRequiredMixin)
+            self.assert_inheritance(d["view"], biofouling_views.eDNAAdminRequiredMixin)
             self.assert_inheritance(d["view"], CommonHardDeleteView)
 
     @tag('hard_delete', "access")

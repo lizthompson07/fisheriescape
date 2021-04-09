@@ -2,6 +2,7 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -13,12 +14,12 @@ from django.views.generic import FormView
 
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
-from . import filters
-from . import forms
-from . import models
-from . import reports
-from .mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
-from .utils import is_grais_admin
+from grais import filters
+from grais import forms
+from grais import models
+from grais import reports
+from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
+from grais.utils import is_grais_admin
 
 
 class IndexView(GraisAccessRequiredMixin, CommonTemplateView):
@@ -660,424 +661,143 @@ class SurfaceDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
         return reverse('grais:line_detail', args=[self.get_object().line.id])
 
 
-#
-# class SurfaceDetailView(GraisAccessRequiredMixin, CommonDetailView):
-#     model = models.Surface
-#     form_class = forms.SurfaceImageForm
-#     template_name = 'grais/base.html'
-# 
-#     # def get_context_data(self, **kwargs):
-#     #     context = super().get_context_data(**kwargs)
-#     #     surface = self.kwargs['pk']
-#     #     surface_spp = models.Surface.objects.get(id=surface).surface_spp.all()
-#     #     return context
-# 
-# 
-# class SurfaceUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
-#     model = models.Surface
-#     form_class = forms.SurfaceForm
-# 
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-# 
-# 
-# class SurfaceCreateView(GraisCRUDRequiredMixin, CommonCreateView):
-#     model = models.Surface
-#     form_class = forms.SurfaceForm
-# 
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["line"] = models.Line.objects.get(pk=self.kwargs['line'])
-#         return context
-# 
-#     def get_initial(self):
-#         line = models.Line.objects.get(pk=self.kwargs['line'])
-#         return {
-#             'line': line,
-#             'last_modified_by': self.request.user
-#         }
-# 
-# 
-# class SurfaceDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
-#     model = models.Surface
-#     template_name = "grais/surface_confirm_delete.html"
-#     success_message = 'The surface was successfully deleted!'
-# 
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-# 
-#     def get_success_url(self):
-#         return reverse_lazy('grais:line_detail', kwargs={'pk': self.object.line.id})
 
-#
-# # SPECIES OBSERVATIONS (for sample and line level obs) #
-# ########################################################
-#
-# # this is shared between SampleSpecies and LineSpecies
-# class SpeciesObservationInsertView(GraisAdminRequiredMixin, TemplateView):
-#     template_name = "grais/species_obs_insert.html"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         type = self.kwargs['type']
-#         pk = self.kwargs['pk']
-#
-#         if type == "sample":
-#             sample = models.Sample.objects.get(pk=pk)
-#             context['sample'] = sample
-#             spp_list = sample.sample_spp.all()
-#             context['spp_list'] = spp_list
-#         elif type == "line":
-#             line = models.Line.objects.get(pk=pk)
-#             context['line'] = line
-#             spp_list = line.line_spp.all()
-#             context['spp_list'] = spp_list
-#
-#         # get a list of species
-#         species_list = []
-#         for obj in models.Species.objects.all():
-#             if type == "sample":
-#                 url = reverse("grais:spp_obs_new_pop", kwargs={"type": "sample", "pk": sample.id, "species": obj.id}),
-#             elif type == "line":
-#                 url = reverse("grais:spp_obs_new_pop", kwargs={"type": "line", "pk": line.id, "species": obj.id}),
-#
-#             html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
-#                 url[0],
-#                 static("admin/img/icon-addlink.svg"),
-#                 obj.common_name,
-#                 obj.scientific_name,
-#                 obj.abbrev
-#             )
-#             species_list.append(html_insert)
-#         context['species_list'] = species_list
-#
-#         return context
-#
-#
-# class SpeciesObservationCreatePopoutView(GraisAdminRequiredMixin, CreateView):
-#     template_name = 'grais/species_obs_form_popout.html'
-#     form_class = forms.SurfaceSpeciesForm
-#
-#     def get_form_class(self):
-#         if self.kwargs["type"] == "sample":
-#             return forms.SampleSpeciesForm
-#         elif self.kwargs["type"] == "line":
-#             return forms.LineSpeciesForm
-#
-#     def get_queryset(self):
-#         if self.kwargs["type"] == "sample":
-#             return models.Sample.objects.all()
-#         elif self.kwargs["type"] == "line":
-#             return models.Line.objects.all()
-#
-#     def get_initial(self):
-#         my_dict = {}
-#
-#         if self.kwargs["type"] == "sample":
-#             my_dict["sample"] = models.Sample.objects.get(pk=self.kwargs['pk'])
-#             my_dict['observation_date'] = my_dict["sample"].date_retrieved
-#         elif self.kwargs["type"] == "line":
-#             my_dict["line"] = models.Line.objects.get(pk=self.kwargs['pk'])
-#             my_dict['observation_date'] = my_dict["line"].sample.date_retrieved
-#         my_dict["species"] = models.Species.objects.get(pk=self.kwargs['species'])
-#
-#         return my_dict
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#
-#         if self.kwargs["type"] == "sample":
-#             context['sample'] = models.Sample.objects.all
-#         elif self.kwargs["type"] == "line":
-#             context['line'] = models.Line.objects.all
-#
-#         species = models.Species.objects.get(id=self.kwargs['species'])
-#         context['species'] = species
-#
-#         return context
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         return HttpResponseRedirect(reverse('grais:close_me'))
-#
-#
-# class SpeciesObservationUpdatePopoutView(GraisAdminRequiredMixin, UpdateView):
-#     template_name = 'grais/species_obs_form_popout.html'
-#
-#     def get_form_class(self):
-#         if self.kwargs["type"] == "sample":
-#             return forms.SampleSpeciesForm
-#         elif self.kwargs["type"] == "line":
-#             return forms.LineSpeciesForm
-#
-#     def get_queryset(self):
-#         if self.kwargs["type"] == "sample":
-#             return models.SampleSpecies.objects.all()
-#         elif self.kwargs["type"] == "line":
-#             return models.LineSpecies.objects.all()
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         return HttpResponseRedirect(reverse('grais:close_me'))
-#
-#
-# @login_required(login_url='/accounts/login/')
-# @user_passes_test(is_grais_admin, login_url='/accounts/denied/')
-# def species_observation_delete(request, type, pk, backto):
-#     if type == "sample":
-#         object = models.SampleSpecies.objects.get(pk=pk)
-#         linked_object = object.sample
-#         detail_url_name = "grais:sample_detail"
-#     elif type == "line":
-#         object = models.LineSpecies.objects.get(pk=pk)
-#         linked_object = object.line
-#         detail_url_name = "grais:line_detail"
-#
-#     object.delete()
-#     messages.success(request, "The species has been successfully deleted from {}.".format(linked_object))
-#
-#     if backto == "detail":
-#         return HttpResponseRedirect(reverse_lazy(detail_url_name, kwargs={"pk": linked_object.id}))
-#     else:
-#         return HttpResponseRedirect(reverse_lazy("grais:spp_obs_insert", kwargs={"type": type, "pk": linked_object.id}))
-#
-#
-# # SURFACE SPECIES #
-# ###################
-#
-# class SurfacaeSpeciesInsertView(GraisAdminRequiredMixin, TemplateView):
-#     template_name = "grais/surface_species_insert.html"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         surface = models.Surface.objects.get(pk=self.kwargs['surface'])
-#         context['surface'] = surface
-#         surface_spp = models.Surface.objects.get(pk=surface.id).surface_spp.all()
-#         context['surface_spp'] = surface_spp
-#
-#         # get a list of species
-#         species_list = []
-#         for obj in models.Species.objects.all():
-#             html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
-#                 reverse("grais:surface_spp_new_pop", kwargs={"surface": surface.id, "species": obj.id}),
-#                 static("admin/img/icon-addlink.svg"),
-#                 obj.common_name,
-#                 obj.scientific_name,
-#                 obj.abbrev
-#             )
-#             species_list.append(html_insert)
-#         context['species_list'] = species_list
-#
-#         total_coverage = 0
-#         for sp in surface_spp:
-#             total_coverage += sp.percent_coverage
-#         context['total_coverage'] = total_coverage
-#
-#         return context
-#
-#
-# class SurfaceSpeciesCreatePopoutView(GraisAdminRequiredMixin, CreateView):
-#     model = models.SurfaceSpecies
-#     template_name = 'grais/surface_species_form_popout.html'
-#     form_class = forms.SurfaceSpeciesForm
-#
-#     def get_initial(self):
-#         surface = models.Surface.objects.get(pk=self.kwargs['surface'])
-#         species = models.Species.objects.get(pk=self.kwargs['species'])
-#         return {
-#             'surface': surface,
-#             'species': species,
-#             'last_modified_by': self.request.user,
-#         }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         species = models.Species.objects.get(id=self.kwargs['species'])
-#         context['species'] = species
-#         surface = models.Surface.objects.get(id=self.kwargs['surface'])
-#         context['surface'] = surface
-#         return context
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         return HttpResponseRedirect(reverse('grais:close_me'))
-#
-#
-# class SurfaceSpeciesUpdatePopoutView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.SurfaceSpecies
-#     template_name = 'grais/surface_species_form_popout.html'
-#     form_class = forms.SurfaceSpeciesForm
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         return HttpResponseRedirect(reverse('grais:close_me'))
-#
-#
-# def surface_species_delete(request, pk, backto):
-#     object = models.SurfaceSpecies.objects.get(pk=pk)
-#     object.delete()
-#     messages.success(request, "The species has been successfully deleted from {}.".format(object.surface))
-#
-#     if backto == "detail":
-#         return HttpResponseRedirect(reverse_lazy("grais:surface_detail", kwargs={"pk": object.surface.id}))
-#     else:
-#         return HttpResponseRedirect(reverse_lazy("grais:surface_spp_insert", kwargs={"surface": object.surface.id}))
-#
-#
-# # CSVs #
-# ########
-#
-# def export_csv_1(request):
-#     # Create the HttpResponse object with the appropriate CSV header.
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
-#
-#     writer = csv.writer(response)
-#     writer.writerow(['First row', 'Foo', 'Bar', 'Baz'])
-#     writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
-#
-#     return response
-#
-#
-# # INCIDENTAL REPORT #
-# #####################
-#
-# class ReportListView(GraisAccessRequiredMixin, FilterView):
-#     filterset_class = filters.ReportFilter
-#     template_name = "grais/report_list.html"
-#
-#
-# class ReportUpdateView(GraisAccessRequiredMixin, UpdateView):
-#     model = models.IncidentalReport
-#     form_class = forms.ReportForm
-#     template_name = "grais/report_form.html"
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class ReportCreateView(GraisAccessRequiredMixin, CreateView):
-#     model = models.IncidentalReport
-#     form_class = forms.ReportForm
-#     template_name = "grais/report_form.html"
-#
-#     def get_initial(self):
-#         return {'last_modified_by': self.request.user}
-#
-#
-# class ReportDetailView(GraisAccessRequiredMixin, DetailView):
-#     model = models.IncidentalReport
-#
-#     template_name = "grais/report_detail.html"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#
-#         context["field_list"] = [
-#             "report_date",
-#             "requestor_name",
-#             "report_source",
-#             "language_of_report",
-#             "call_answered_by",
-#             "call_returned_by",
-#             "location_description",
-#             "latitude_n",
-#             "longitude_w",
-#             "specimens_retained",
-#             "sighting_description",
-#             "identified_by",
-#             "date_of_occurrence",
-#             "observation_type",
-#             "phone1",
-#             "phone2",
-#             "email",
-#             "notes",
-#             # "date_last_modified",
-#             # "last_modified_by",
-#         ]
-#
-#         # get a list of species
-#         species_list = []
-#         for obj in models.Species.objects.all():
-#             url = reverse("grais:report_species_add", kwargs={"report": self.object.id, "species": obj.id}),
-#             html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
-#                 url[0],
-#                 static("admin/img/icon-addlink.svg"),
-#                 obj.common_name,
-#                 obj.scientific_name,
-#                 obj.abbrev
-#             )
-#             species_list.append(html_insert)
-#         context['species_list'] = species_list
-#         return context
-#
-#
-# class ReportDeleteView(GraisAccessRequiredMixin, DeleteView):
-#     model = models.IncidentalReport
-#     success_url = reverse_lazy('grais:report_list')
-#     success_message = 'The report was successfully deleted!'
-#     template_name = "grais/report_confirm_delete.html"
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-# def report_species_observation_delete(request, report, species):
-#     report = models.IncidentalReport.objects.get(pk=report)
-#     species = models.Species.objects.get(pk=species)
-#     report.species.remove(species)
-#     messages.success(request, "The species has been successfully removed from this report.")
-#     return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
-#
-#
-# def report_species_observation_add(request, report, species):
-#     report = models.IncidentalReport.objects.get(pk=report)
-#     species = models.Species.objects.get(pk=species)
-#     report.species.add(species)
-#     return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
-#
-#
-# # FOLLOWUP #
-# ############
-#
-# class FollowUpUpdateView(GraisAccessRequiredMixin, UpdateView):
-#     model = models.FollowUp
-#     form_class = forms.FollowUpForm
-#     template_name = 'grais/followup_form_popout.html'
-#     success_url = reverse_lazy("grais:close_me")
-#
-#
-# class FollowUpCreateView(GraisAccessRequiredMixin, CreateView):
-#     model = models.FollowUp
-#     form_class = forms.FollowUpForm
-#     template_name = 'grais/followup_form_popout.html'
-#     success_url = reverse_lazy("grais:close_me")
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["report"] = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
-#         return context
-#
-#     def get_initial(self):
-#         report = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
-#         return {
-#             "incidental_report": report,
-#             "author": self.request.user
-#         }
-#
-#
-# @login_required(login_url='/accounts/login/')
-# @user_passes_test(is_grais_admin, login_url='/accounts/denied/')
-# def follow_up_delete(request, pk):
-#     followup = models.FollowUp.objects.get(pk=pk)
-#     followup.delete()
-#     messages.success(request, "The followup has been successfully deleted.")
-#     return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": followup.incidental_report_id}))
+
+# INCIDENTAL REPORT #
+#####################
+
+class ReportListView(GraisAccessRequiredMixin, CommonFilterView):
+    filterset_class = filters.ReportFilter
+    template_name = "grais/report_list.html"
+
+
+class ReportUpdateView(GraisAccessRequiredMixin, CommonUpdateView):
+    model = models.IncidentalReport
+    form_class = forms.ReportForm
+    template_name = "grais/report_form.html"
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class ReportCreateView(GraisAccessRequiredMixin, CommonCreateView):
+    model = models.IncidentalReport
+    form_class = forms.ReportForm
+    template_name = "grais/report_form.html"
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+class ReportDetailView(GraisAccessRequiredMixin, CommonDetailView):
+    model = models.IncidentalReport
+
+    template_name = "grais/report_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["field_list"] = [
+            "report_date",
+            "requestor_name",
+            "report_source",
+            "language_of_report",
+            "call_answered_by",
+            "call_returned_by",
+            "location_description",
+            "latitude_n",
+            "longitude_w",
+            "specimens_retained",
+            "sighting_description",
+            "identified_by",
+            "date_of_occurrence",
+            "observation_type",
+            "phone1",
+            "phone2",
+            "email",
+            "notes",
+            # "date_last_modified",
+            # "last_modified_by",
+        ]
+
+        # get a list of species
+        species_list = []
+        for obj in models.Species.objects.all():
+            url = reverse("grais:report_species_add", kwargs={"report": self.object.id, "species": obj.id}),
+            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
+                url[0],
+                static("admin/img/icon-addlink.svg"),
+                obj.common_name,
+                obj.scientific_name,
+                obj.abbrev
+            )
+            species_list.append(html_insert)
+        context['species_list'] = species_list
+        return context
+
+
+class ReportDeleteView(GraisAccessRequiredMixin, CommonDeleteView):
+    model = models.IncidentalReport
+    success_url = reverse_lazy('grais:report_list')
+    success_message = 'The report was successfully deleted!'
+    template_name = "grais/report_confirm_delete.html"
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+def report_species_observation_delete(request, report, species):
+    report = models.IncidentalReport.objects.get(pk=report)
+    species = models.Species.objects.get(pk=species)
+    report.species.remove(species)
+    messages.success(request, "The species has been successfully removed from this report.")
+    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
+
+
+def report_species_observation_add(request, report, species):
+    report = models.IncidentalReport.objects.get(pk=report)
+    species = models.Species.objects.get(pk=species)
+    report.species.add(species)
+    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
+
+
+# FOLLOWUP #
+############
+
+class FollowUpUpdateView(GraisAccessRequiredMixin, CommonUpdateView):
+    model = models.FollowUp
+    form_class = forms.FollowUpForm
+    template_name = 'grais/followup_form_popout.html'
+    success_url = reverse_lazy("grais:close_me")
+
+
+class FollowUpCreateView(GraisAccessRequiredMixin, CommonCreateView):
+    model = models.FollowUp
+    form_class = forms.FollowUpForm
+    template_name = 'grais/followup_form_popout.html'
+    success_url = reverse_lazy("grais:close_me")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["report"] = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
+        return context
+
+    def get_initial(self):
+        report = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
+        return {
+            "incidental_report": report,
+            "author": self.request.user
+        }
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_grais_admin, login_url='/accounts/denied/')
+def follow_up_delete(request, pk):
+    followup = models.FollowUp.objects.get(pk=pk)
+    followup.delete()
+    messages.success(request, "The followup has been successfully deleted.")
+    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": followup.incidental_report_id}))
 #
 #
 # # ESTUARY #
