@@ -424,45 +424,31 @@ class ProbeMeasurement(MetadataFields):
 
 class IncidentalReport(MetadataFields, LatLongFields):
     # Choices for report_source
-    PHONE = 1
-    INVADERS_EMAIL = 2
-    PERS_EMAIL = 3
-
     REPORT_SOURCE_CHOICES = (
-        (PHONE, 'Gulf AIS Hotline'),
-        (INVADERS_EMAIL, 'Gulf Invaders E-mail'),
-        (PERS_EMAIL, 'Personal E-mail'),
+        (1, 'Gulf AIS Hotline'),
+        (2, 'Gulf Invaders E-mail'),
+        (3, 'Personal E-mail'),
     )
 
     # Choices for language
-    ENG = 1
-    FRE = 2
     LANGUAGE_CHOICES = (
-        (ENG, 'English'),
-        (FRE, 'French'),
+        (1, 'English'),
+        (2, 'French'),
     )
 
     # Choices for observation_type
-    SINGLE = 1
-    ONGOING = 2
     OBSERVATION_TYPE_CHOICES = (
-        (SINGLE, 'Single observation'),
-        (ONGOING, 'Ongoing presence'),
+        (1, 'Single observation'),
+        (2, 'Ongoing presence'),
     )
 
     # Choices for requestor
-
-    PUB = 1
-    ACAD = 2
-    PRIV = 3
-    PROV = 4
-    FED = 5
     REQUESTOR_TYPE_CHOICES = (
-        (PUB, "public"),
-        (ACAD, "academia"),
-        (PRIV, "private sector"),
-        (PROV, "provincial government"),
-        (FED, "federal government"),
+        (1, "Public"),
+        (2, "Academia"),
+        (3, "Private sector"),
+        (4, "Provincial government"),
+        (5, "Federal government"),
     )
 
     # basic details
@@ -472,31 +458,28 @@ class IncidentalReport(MetadataFields, LatLongFields):
     requestor_name = models.CharField(max_length=150)
     requestor_type = models.IntegerField(choices=REQUESTOR_TYPE_CHOICES, blank=True, null=True)
     report_source = models.IntegerField(choices=REPORT_SOURCE_CHOICES)
-    species_confirmation = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
-    gulf_ais_confirmed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
-    seeking_general_info_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
-    seeking_general_info_non_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
-    management_related = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
-    dfo_it_related = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
-    incorrect_region = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
+    species_confirmation = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Was there a species confirmation?"))
+    gulf_ais_confirmed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Confirmed by Gulf AIS team?"))
+    seeking_general_info_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Seeking general information about AIS?"))
+    seeking_general_info_non_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Seeking general information about non-AIS?"))
+    management_related = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Management related?"))
+    dfo_it_related = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("DFO IT related?"))
+    incorrect_region = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Incorrect region?"))
 
     # sighting details
     call_answered_by = models.CharField(max_length=150, null=True, blank=True)
     call_returned_by = models.CharField(max_length=150, null=True, blank=True)
-    location_description = models.CharField(max_length=500, null=True, blank=True)
-    specimens_retained = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
-    sighting_description = models.TextField(null=True, blank=True)
-    identified_by = models.CharField(max_length=150, null=True, blank=True)
+    location_description = models.CharField(max_length=500, null=True, blank=True, verbose_name=_("description of location"))
+    specimens_retained = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("were specimens retained?"))
+    sighting_description = models.TextField(null=True, blank=True, verbose_name=_("description of sighting"))
+    identified_by = models.CharField(max_length=150, null=True, blank=True, verbose_name=_("name of identifier"))
     date_of_occurrence = models.DateTimeField()
-    observation_type = models.IntegerField(choices=OBSERVATION_TYPE_CHOICES)
+    observation_type = models.IntegerField(choices=OBSERVATION_TYPE_CHOICES, verbose_name=_("type of observation"))
     phone1 = models.CharField(max_length=50, null=True, blank=True, verbose_name="phone 1")
     phone2 = models.CharField(max_length=50, null=True, blank=True, verbose_name="phone 2")
-    email = models.EmailField(null=True, blank=True)
+    email = models.EmailField(null=True, blank=True, verbose_name=_("email address"))
     notes = models.TextField(null=True, blank=True)
-    season = models.IntegerField()
-
-    date_last_modified = models.DateTimeField(blank=True, null=True, editable=False)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
+    season = models.IntegerField(editable=False)
 
     def save(self):
         self.season = self.report_date.year
@@ -504,7 +487,7 @@ class IncidentalReport(MetadataFields, LatLongFields):
         return super().save()
 
     def get_absolute_url(self):
-        return reverse("grais:report_detail", kwargs={"pk": self.pk})
+        return reverse("grais:ir_detail", kwargs={"pk": self.pk})
 
     def __str__(self):
         return "Incidental Report #{}".format(self.id)

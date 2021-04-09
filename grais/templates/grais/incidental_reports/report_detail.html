@@ -1,4 +1,4 @@
-{% extends "grais/grais_base.html" %}
+{% extends "grais/base.html" %}
 {% load static %}
 {% load verbose_names %}
 
@@ -23,7 +23,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'grais:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'grais:report_list' %}"> All Reports </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'grais:ir_list' %}"> All Reports </a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -33,8 +33,8 @@
     <br>
     <h1>{{ object }}</h1>
     <div class="btn-group">
-        <a class="btn btn-warning" href="{% url 'grais:report_edit' object.id %}">Edit</a>
-        <a class="btn btn-danger" href="{% url 'grais:report_delete' object.id %}">Delete</a>
+        <a class="btn btn-warning" href="{% url 'grais:ir_edit' object.id %}">Edit</a>
+        <a class="btn btn-danger" href="{% url 'grais:ir_delete' object.id %}">Delete</a>
     </div>
 
     <br><br>
@@ -50,8 +50,8 @@
         <div class="col">
 
 
-            {% include "grais/_report_species.html" %}
-            {% include "grais/_report_followup_list.html" %}
+{#            {% include "grais/scratch/_report_species.html" %}#}
+{#            {% include "grais/scratch/_report_followup_list.html" %}#}
         </div>
     </div>
 
