@@ -1082,7 +1082,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         grp_set = models.GroupDet.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anidc_id')
-        grpd_field_list = ["anidc_id", "det_val", "grpd_valid", "detail_date"]
+        grpd_field_list = ["anidc_id", "adsc_id", "det_val", "grpd_valid", "detail_date"]
         obj_mixin = mixins.GrpdMixin
         context["context_dict"]["grpd"] = {"div_title": "{} ".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1275,7 +1275,7 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
 
 
 class LocDetails(mixins.LocMixin, CommonDetails):
-    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "start_date",
+    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "end_lat", "end_lon", "start_date",
               "start_time", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
@@ -2706,7 +2706,11 @@ class LocMapTemplateView(mixins.MapMixin, UserPassesTestMixin, CommonFormView):
         if self.kwargs.get("rive_id"):
             location_qs = location_qs.filter(rive_id__name=self.kwargs.get("rive_id")) | location_qs.filter(relc_id__rive_id__name=self.kwargs.get("rive_id"))
 
-        context["locations"] = location_qs
+
+
+        context["locations"] = location_qs.filter(end_lat__isnull=True, end_lon__isnull=True)
+        context["line_locations"] = location_qs.filter(end_lat__isnull=False, end_lon__isnull=False)
+
 
         # filter sites:
         site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, max_lat__isnull=False, min_lon__isnull=False, max_lon__isnull=False).select_related("rive_id")
@@ -2719,6 +2723,8 @@ class LocMapTemplateView(mixins.MapMixin, UserPassesTestMixin, CommonFormView):
         non_spatial_location_list = []
         for loc in models.Location.objects.all():
             if loc.point:
+                break
+            elif loc.linestring:
                 break
             else:
                 non_spatial_location_list.append(loc)
@@ -2741,7 +2747,7 @@ class LocMapTemplateView(mixins.MapMixin, UserPassesTestMixin, CommonFormView):
                 if loc not in non_spatial_location_list:
                     captured = False
                     # check to see if the bbox overlaps with any record points
-                    if bbox.contains(loc.point):
+                    if bbox.contains(loc.point) or bbox.contains(loc.end_point):
                         captured = True
                     # if checked through all records and nothing found, add to non-spatial list
                     if captured:

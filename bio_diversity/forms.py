@@ -1456,7 +1456,7 @@ class DataForm(CreatePrams):
                         utils.enter_cnt_det(cleaned_data, cnt, row[move_cnt], "Program Group", cnt_code)
 
                         # link cup to egg development event
-                        utils.enter_contx(cont, cleaned_data, None, grp_pk=final_grp.pk)
+                        utils.enter_contx(cont, cleaned_data, None)
 
                     # Move main group to drawer, and add end date to tray:
                     draw = utils.get_draw_from_dot(str(row["General Location stack.tray"]), cleaned_data)

@@ -112,6 +112,41 @@
 
             {% endfor %}
 
+            {% for location in line_locations %}
+                var myInfoText{{ location.id }} = '<b>Location:</b> <a href="{% url 'bio_diversity:details_loc' location.id %}">{{location.relc_id.name}}</a><br><b>Event:</b> <a href="{% url 'bio_diversity:details_evnt' location.evnt_id.id %}">{{location.evnt_id.evntc_id.name}}</a><br><b>Date:</b>{{location.evnt_id.start_date}}'
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng({{location.loc_lat}}, {{location.loc_lon}}),
+                    map: map,
+                    //label: {text: "{{point.location.locc_id.name}}", color: "#ffffff"},
+                });
+                google.maps.event.addListener(marker, 'click', (function (marker) {
+                    return function () {
+                        infowindow.setContent(myInfoText{{ location.id }});
+                        infowindow.open(map, marker);
+                    }
+                })(marker));
+
+                // create polyline:
+                var lineCoordinates = [
+                    { lat:{{location.loc_lat}}, lng: {{location.loc_lon}} },
+                    { lat:{{location.end_lat}}, lng: {{location.end_lon}} },
+                    ];
+                var locLine = new google.maps.Polyline({
+                    path: lineCoordinates,
+                    geodesic: true,
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2,
+                    });
+                locLine.setMap(map);
+
+                // extend bounds var
+                bounds.extend(marker.position);
+                bounds.extend(new google.maps.LatLng({{location.end_lat}}, {{location.end_lon}}));
+                map.fitBounds(bounds);
+
+            {% endfor %}
+
 
             {% for site in sites %}
                 var mySiteInfoText{{ site.id }} = '<b>Site:</b> <a href="{% url 'bio_diversity:details_relc' site.id %}">{{site.name}}</a><br><b>River:</b> <a href="{% url 'bio_diversity:details_rive' site.rive_id.id %}">{{site.rive_id.name}}</a>'

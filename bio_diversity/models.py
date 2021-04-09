@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
 from django.utils import timezone
-from shapely.geometry import Point, box
+from shapely.geometry import Point, box, LineString
 
 from bio_diversity import utils
 from bio_diversity.utils import naive_to_aware
@@ -838,7 +838,7 @@ class GroupDet(BioDet):
         ]
 
     def __str__(self):
-        return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
+        return "{} Detail".format(self.anidc_id.name)
 
     def clean(self):
         super(GroupDet, self).clean()
@@ -1196,6 +1196,10 @@ class Location(BioModel):
                                   verbose_name=_("Lattitude"))
     loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Longitude"))
+    end_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("End Lattitude"))
+    end_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("End Longitude"))
     loc_date = models.DateTimeField(verbose_name=_("Start date"))
 
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
@@ -1224,7 +1228,21 @@ class Location(BioModel):
         if self.loc_lat and self.loc_lon:
             return Point(self.loc_lat, self.loc_lon)
         else:
-            return False
+            return Point()
+
+    @property
+    def end_point(self):
+        if self.end_lat and self.end_lon:
+            return Point(self.end_lat, self.end_lon)
+        else:
+            return Point()
+
+    @property
+    def linestring(self):
+        if self.loc_lat and self.loc_lon and self.end_lat and self.end_lon:
+            return LineString([(self.loc_lat, self.loc_lon), (self.end_lat, self.end_lon)])
+        else:
+            return Point()
 
 
 class LocCode(BioLookup):
