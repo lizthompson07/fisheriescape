@@ -21,7 +21,6 @@ urlpatterns = [
     path('species/<int:pk>/delete/', shared_views.SpeciesDeleteView.as_view(), name="species_delete"),
     path('species/<int:pk>/view/', shared_views.SpeciesDetailView.as_view(), name="species_detail"),
 
-
     # station #
     ###########
     path('stations/', biofouling_views.StationListView.as_view(), name="station_list"),
@@ -68,17 +67,15 @@ urlpatterns = [
     path('surfaces/<int:pk>/edit/', biofouling_views.SurfaceUpdateView.as_view(), name="surface_edit"),
     path('surfaces/<int:pk>/delete/', biofouling_views.SurfaceDeleteView.as_view(), name="surface_delete"),
 
-
     # INCIDENTAL REPORT #
     #####################
-    path('incidental-report/list/', ir_views.ReportListView.as_view(), name="report_list"),
-    path('incidental-report/new/', ir_views.ReportCreateView.as_view(), name="report_new"),
-    path('incidental-report/<int:pk>/view/', ir_views.ReportDetailView.as_view(), name="report_detail"),
-    path('incidental-report/<int:pk>/edit/', ir_views.ReportUpdateView.as_view(), name="report_edit"),
-    path('incidental-report/<int:pk>/delete/', ir_views.ReportDeleteView.as_view(), name="report_delete"),
-    path('incidental-report/<int:report>/species/<int:species>/delete/', ir_views.report_species_observation_delete,
-         name="report_species_delete"),
-    path('incidental-report/<int:report>/species/<int:species>/add/', ir_views.report_species_observation_add, name="report_species_add"),
+    path('incidental-reports/', ir_views.ReportListView.as_view(), name="ir_list"),
+    path('incidental-reports/new/', ir_views.ReportCreateView.as_view(), name="ir_new"),
+    path('incidental-reports/<int:pk>/view/', ir_views.ReportDetailView.as_view(), name="ir_detail"),
+    path('incidental-reports/<int:pk>/edit/', ir_views.ReportUpdateView.as_view(), name="ir_edit"),
+    path('incidental-reports/<int:pk>/delete/', ir_views.ReportDeleteView.as_view(), name="ir_delete"),
+    # path('incidental-reports/<int:report>/species/<int:species>/delete/', ir_views.ir_species_observation_delete, name="ir_species_delete"),
+    # path('incidental-reports/<int:report>/species/<int:species>/add/', ir_views.ir_species_observation_add, name="ir_species_add"),
 
     # FOLLOWUP #
     ############
