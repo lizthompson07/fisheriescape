@@ -123,7 +123,7 @@ class SpeciesCreateView(GraisCRUDRequiredMixin, CommonCreateView):
 
 class SpeciesDetailView(GraisAccessRequiredMixin, CommonDetailView):
     model = models.Species
-    template_name = 'grais/species_detail.html'
+    template_name = 'grais/biofouling/species_detail.html'
     home_url_name = "grais:index"
     parent_crumb = {"title": gettext_lazy("Species"), "url": reverse_lazy("grais:species_list")}
     field_list = [
@@ -203,7 +203,7 @@ class StationCreateView(GraisCRUDRequiredMixin, CommonCreateView):
 
 class StationDetailView(GraisAccessRequiredMixin, CommonDetailView):
     model = models.Station
-    template_name = 'grais/station_detail.html'
+    template_name = 'grais/biofouling/station_detail.html'
     home_url_name = "grais:index"
     parent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
     field_list = [
@@ -289,7 +289,7 @@ class SampleCreateView(GraisCRUDRequiredMixin, CommonCreateView):
 
 class SampleDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     model = models.Sample
-    template_name = 'grais/sample_detail/main.html'
+    template_name = 'grais/biofouling/sample_detail/main.html'
     home_url_name = "grais:index"
     parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
     field_list = [
@@ -410,7 +410,7 @@ class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteVie
 ##################################
 
 class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonDetailView):
-    template_name = 'grais/species_observations.html'
+    template_name = 'grais/biofouling/species_observations.html'
     home_url_name = 'grais:index'
     greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
 
@@ -505,7 +505,7 @@ class LineCreateView(GraisCRUDRequiredMixin, CommonCreateView):
 
 class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     model = models.Line
-    template_name = 'grais/line_detail/main.html'
+    template_name = 'grais/biofouling/line_detail/main.html'
     home_url_name = "grais:index"
     grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
     field_list = [
@@ -609,7 +609,7 @@ class SurfaceCreateView(GraisCRUDRequiredMixin, CommonCreateView):
 
 class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     model = models.Surface
-    template_name = 'grais/surface_detail/main.html'
+    template_name = 'grais/biofouling/surface_detail/main.html'
     home_url_name = "grais:index"
     field_list = [
         'id',

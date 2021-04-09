@@ -1,27 +1,26 @@
 from django.urls import path
 
-from .views import biofouling_views
+from .views import biofouling_views, shared_views
 
 app_name = 'grais'
 
 urlpatterns = [
 
     # SETTINGS
-    path('', biofouling_views.IndexView.as_view(), name="index"),
+    path('', shared_views.IndexView.as_view(), name="index"),
 
-    path('settings/probes/', biofouling_views.ProbeFormsetView.as_view(), name="manage_probes"),
-    path('settings/probe/<int:pk>/delete/', biofouling_views.ProbeHardDeleteView.as_view(), name="delete_probe"),
-    path('settings/samplers/', biofouling_views.SamplerFormsetView.as_view(), name="manage_samplers"),
-    path('settings/sampler/<int:pk>/delete/', biofouling_views.SamplerHardDeleteView.as_view(), name="delete_sampler"),
+    path('settings/probes/', shared_views.ProbeFormsetView.as_view(), name="manage_probes"),
+    path('settings/probe/<int:pk>/delete/', shared_views.ProbeHardDeleteView.as_view(), name="delete_probe"),
+    path('settings/samplers/', shared_views.SamplerFormsetView.as_view(), name="manage_samplers"),
+    path('settings/sampler/<int:pk>/delete/', shared_views.SamplerHardDeleteView.as_view(), name="delete_sampler"),
 
     # species
-    path('species/', biofouling_views.SpeciesListView.as_view(), name="species_list"),
-    path('species/new/', biofouling_views.SpeciesCreateView.as_view(), name="species_new"),
-    path('species/<int:pk>/edit/', biofouling_views.SpeciesUpdateView.as_view(), name="species_edit"),
-    path('species/<int:pk>/delete/', biofouling_views.SpeciesDeleteView.as_view(), name="species_delete"),
-    path('species/<int:pk>/view/', biofouling_views.SpeciesDetailView.as_view(), name="species_detail"),
+    path('species/', shared_views.SpeciesListView.as_view(), name="species_list"),
+    path('species/new/', shared_views.SpeciesCreateView.as_view(), name="species_new"),
+    path('species/<int:pk>/edit/', shared_views.SpeciesUpdateView.as_view(), name="species_edit"),
+    path('species/<int:pk>/delete/', shared_views.SpeciesDeleteView.as_view(), name="species_delete"),
+    path('species/<int:pk>/view/', shared_views.SpeciesDetailView.as_view(), name="species_detail"),
 
-    # path('new-species-to-surface-<int:surface>/', views.SpeciesCreatePopoutView.as_view(), name="species_add"),
 
     # station #
     ###########
@@ -139,7 +138,7 @@ urlpatterns = [
     #
     # # Reports #
     # ###########
-    path('reports/search/', biofouling_views.ReportSearchFormView.as_view(), name="reports"),
+    path('reports/search/', shared_views.ReportSearchFormView.as_view(), name="reports"),
     # path('reports/species-by-sample-spreadsheet/<str:species_list>/', views.species_sample_spreadsheet_export,
     #      name="spp_sample_xlsx"),
     # path('reports/biofouling-presence-absence/', views.biofouling_presence_absence_spreadsheet_export, name="biofouling_pa_xlsx"),
