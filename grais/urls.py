@@ -138,17 +138,18 @@ urlpatterns = [
     # # Reports #
     # ###########
     path('reports/search/', shared_views.ReportSearchFormView.as_view(), name="reports"),
-    # path('reports/species-by-sample-spreadsheet/<str:species_list>/', views.species_sample_spreadsheet_export,
-    #      name="spp_sample_xlsx"),
-    # path('reports/biofouling-presence-absence/', views.biofouling_presence_absence_spreadsheet_export, name="biofouling_pa_xlsx"),
-    # path('reports/opendata1/<int:year>/', views.export_open_data_ver1, name="od1_report"),
-    # path('reports/opendata1/', views.export_open_data_ver1, name="od1_report"),
-    # path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
-    # path('reports/opendata1/wms/<str:year>/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
-    # # GC monitoring
-    # path('reports/gc/<int:year>/cpue/', views.export_gc_cpue, name="gc_cpue_report"),
-    # path('reports/gc/<int:year>/envr/', views.export_gc_envr, name="gc_envr_report"),
-    # path('reports/gc/site-list/', views.export_gc_sites, name="gc_site_report"),
+    path('reports/species-by-sample-spreadsheet/<str:species_list>/', shared_views.species_sample_spreadsheet_export,
+         name="spp_sample_xlsx"),
+    path('reports/biofouling-presence-absence/', shared_views.biofouling_presence_absence_spreadsheet_export, name="biofouling_pa_xlsx"),
+    path('reports/opendata1/<int:year>/', shared_views.export_open_data_ver1, name="od1_report"),
+    path('reports/opendata1/', shared_views.export_open_data_ver1, name="od1_report"),
+    path('reports/opendata1/dictionary/', shared_views.export_open_data_ver1_dictionary, name="od1_dictionary"),
+    path('reports/opendata1/wms/<str:year>/lang/<int:lang>/', shared_views.export_open_data_ver1_wms, name="od1_wms"),
+
+    # GC monitoring
+    path('reports/gc/<int:year>/cpue/', shared_views.export_gc_cpue, name="gc_cpue_report"),
+    path('reports/gc/<int:year>/envr/', shared_views.export_gc_envr, name="gc_envr_report"),
+    path('reports/gc/site-list/', shared_views.export_gc_sites, name="gc_site_report"),
     #
     #
 
