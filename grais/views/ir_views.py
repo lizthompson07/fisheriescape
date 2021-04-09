@@ -1,17 +1,14 @@
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
 from grais import filters
 from grais import forms
 from grais import models
-from grais.mixins import GraisAccessRequiredMixin
-from grais.utils import is_grais_admin
+from grais.mixins import GraisAccessRequiredMixin, GraisCRUDRequiredMixin
 from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDetailView, CommonDeleteView
+    CommonDetailView, CommonDeleteView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView
 
 
 # INCIDENTAL REPORT #
@@ -85,9 +82,6 @@ class ReportDetailView(GraisAccessRequiredMixin, CommonDetailView):
         'identified_by',
         'date_of_occurrence',
         'observation_type',
-        # 'phone1',
-        # 'phone2',
-        # 'email',
         'notes',
         'season',
     ]
@@ -108,55 +102,34 @@ class ReportDeleteView(GraisAccessRequiredMixin, CommonDeleteView):
         return {"title": self.get_object(), "url": reverse_lazy("grais:ir_detail", args=[self.get_object().id])}
 
 
+# FOLLOW UPs #
+###############
 
-def report_species_observation_delete(request, report, species):
-    report = models.IncidentalReport.objects.get(pk=report)
-    species = models.Species.objects.get(pk=species)
-    report.species.remove(species)
-    messages.success(request, "The species has been successfully removed from this report.")
-    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
-
-
-def report_species_observation_add(request, report, species):
-    report = models.IncidentalReport.objects.get(pk=report)
-    species = models.Species.objects.get(pk=species)
-    report.species.add(species)
-    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
-
-
-# FOLLOWUP #
-############
-
-class FollowUpUpdateView(GraisAccessRequiredMixin, CommonUpdateView):
+class FollowUpUpdateView(GraisCRUDRequiredMixin, CommonPopoutUpdateView):
     model = models.FollowUp
     form_class = forms.FollowUpForm
-    template_name = 'grais/followup_form_popout.html'
-    success_url = reverse_lazy("grais:close_me")
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
 
 
-class FollowUpCreateView(GraisAccessRequiredMixin, CommonCreateView):
+class FollowUpCreateView(GraisCRUDRequiredMixin, CommonPopoutCreateView):
     model = models.FollowUp
     form_class = forms.FollowUpForm
-    template_name = 'grais/followup_form_popout.html'
-    success_url = reverse_lazy("grais:close_me")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["report"] = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
-        return context
 
     def get_initial(self):
-        report = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
-        return {
-            "incidental_report": report,
-            "author": self.request.user
-        }
+        return dict(author=self.request.user)
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.incidental_report = get_object_or_404(models.IncidentalReport, pk=self.kwargs.get("report"))
+        obj.created_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(is_grais_admin, login_url='/accounts/denied/')
-def follow_up_delete(request, pk):
-    followup = models.FollowUp.objects.get(pk=pk)
-    followup.delete()
-    messages.success(request, "The followup has been successfully deleted.")
-    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": followup.incidental_report_id}))
+class FollowUpDeleteView(GraisCRUDRequiredMixin, CommonPopoutDeleteView):
+    model = models.FollowUp

@@ -27,6 +27,12 @@ class SurfaceSpeciesSerializer(serializers.ModelSerializer):
         model = models.SurfaceSpecies
         fields = "__all__"
 
+
+class IncidentalReportSpeciesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.IncidentalReportSpecies
+        fields = "__all__"
+
 #
 
 #

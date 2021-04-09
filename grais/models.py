@@ -452,7 +452,7 @@ class IncidentalReport(MetadataFields, LatLongFields):
     )
 
     # basic details
-    species = models.ManyToManyField(Species, verbose_name="Concerning which species")#, through='IncidentalReportSpecies')
+    species = models.ManyToManyField(Species, verbose_name="Concerning which species", through='IncidentalReportSpecies')
     report_date = models.DateTimeField(default=timezone.now)
     language_of_report = models.IntegerField(choices=LANGUAGE_CHOICES)
     requestor_name = models.CharField(max_length=150)
@@ -527,7 +527,7 @@ class IncidentalReport(MetadataFields, LatLongFields):
         return mark_safe(listrify(self.species.all(), "<br>"))
 
 
-class IncidentalReportSpecies(models.Model):
+class IncidentalReportSpecies(MetadataFields):
     incidental_report = models.ForeignKey(IncidentalReport, related_name='ir_species', on_delete=models.CASCADE)
     species = models.ForeignKey(Species, related_name='ir_species', on_delete=models.CASCADE)
     notes = models.TextField(blank=True, null=True)
@@ -539,17 +539,14 @@ class IncidentalReportSpecies(models.Model):
         ordering = ["incidental_report", "species"]
 
 
-class FollowUp(models.Model):
-    incidental_report = models.ForeignKey(IncidentalReport, related_name='followups', on_delete=models.CASCADE)
-    date = models.DateTimeField(default=timezone.now)
+class FollowUp(MetadataFields):
+    incidental_report = models.ForeignKey(IncidentalReport, related_name='followups', on_delete=models.CASCADE, editable=False)
+    date = models.DateTimeField(default=timezone.now, verbose_name=_("date of follow-up"))
     author = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
     note = models.TextField()
 
     def __str__(self):
         return str(self.id)
-
-    def get_absolute_url(self):
-        return reverse('grais:sample_detail', kwargs={'pk': self.sample.id, })
 
     class Meta:
         ordering = ["-date"]

@@ -79,9 +79,11 @@ urlpatterns = [
 
     # FOLLOWUP #
     ############
-    path('report/<int:report>/follow-up/new/', ir_views.FollowUpCreateView.as_view(), name="follow_up_new"),
-    path('follow-up/<int:pk>/edit/', ir_views.FollowUpUpdateView.as_view(), name="follow_up_edit"),
-    path('follow-up/<int:pk>/delete/', ir_views.follow_up_delete, name="follow_up_delete"),
+    path('incidental-reports/<int:report>/new-follow-up/', ir_views.FollowUpCreateView.as_view(), name="followup_new"),
+    path('follow-up/<int:pk>/edit/', ir_views.FollowUpUpdateView.as_view(), name="followup_edit"),
+    path('follow-up/<int:pk>/delete/', ir_views.FollowUpDeleteView.as_view(), name="followup_delete"),
+
+
     #
     # # ESTUARY #
     # ###########
