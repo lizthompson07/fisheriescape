@@ -452,7 +452,7 @@ class IncidentalReport(MetadataFields, LatLongFields):
     )
 
     # basic details
-    species = models.ManyToManyField(Species, verbose_name="Concerning which species")
+    species = models.ManyToManyField(Species, verbose_name="Concerning which species")#, through='IncidentalReportSpecies')
     report_date = models.DateTimeField(default=timezone.now)
     language_of_report = models.IntegerField(choices=LANGUAGE_CHOICES)
     requestor_name = models.CharField(max_length=150)
@@ -464,7 +464,8 @@ class IncidentalReport(MetadataFields, LatLongFields):
     species_confirmation = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Was there a species confirmation?"))
     gulf_ais_confirmed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Confirmed by Gulf AIS team?"))
     seeking_general_info_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Seeking general information about AIS?"))
-    seeking_general_info_non_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Seeking general information about non-AIS?"))
+    seeking_general_info_non_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
+                                                       verbose_name=_("Seeking general information about non-AIS?"))
     management_related = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Management related?"))
     dfo_it_related = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("DFO IT related?"))
     incorrect_region = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("Incorrect region?"))
@@ -473,6 +474,8 @@ class IncidentalReport(MetadataFields, LatLongFields):
     call_answered_by = models.CharField(max_length=150, null=True, blank=True)
     call_returned_by = models.CharField(max_length=150, null=True, blank=True)
     location_description = models.CharField(max_length=500, null=True, blank=True, verbose_name=_("description of location"))
+    latitude = models.FloatField(blank=True, null=True)  # adding here to force order
+    longitude = models.FloatField(blank=True, null=True)  # adding here to force order
     specimens_retained = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("were specimens retained?"))
     sighting_description = models.TextField(null=True, blank=True, verbose_name=_("description of sighting"))
     date_of_occurrence = models.DateTimeField()
@@ -522,6 +525,18 @@ class IncidentalReport(MetadataFields, LatLongFields):
     @property
     def species_list(self):
         return mark_safe(listrify(self.species.all(), "<br>"))
+
+
+class IncidentalReportSpecies(models.Model):
+    incidental_report = models.ForeignKey(IncidentalReport, related_name='ir_species', on_delete=models.CASCADE)
+    species = models.ForeignKey(Species, related_name='ir_species', on_delete=models.CASCADE)
+    notes = models.TextField()
+
+    def __str__(self):
+        return str(self.species)
+
+    class Meta:
+        ordering = ["incidental_report", "species"]
 
 
 class FollowUp(models.Model):

@@ -20,6 +20,7 @@ from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreate
 class ReportListView(GraisAccessRequiredMixin, CommonFilterView):
     model = models.IncidentalReport
     filterset_class = filters.ReportFilter
+    paginate_by = 50
     template_name = "grais/list.html"
     home_url_name = "grais:index"
     row_object_url_name = "grais:ir_detail"
@@ -59,11 +60,11 @@ class ReportCreateView(GraisAccessRequiredMixin, CommonCreateView):
 
 class ReportDetailView(GraisAccessRequiredMixin, CommonDetailView):
     model = models.IncidentalReport
+    container_class = "container-fluid"
     template_name = "grais/incidental_reports/report_detail.html"
     home_url_name = "grais:index"
     parent_crumb = {"title": _("Reports"), "url": reverse_lazy("grais:ir_list")}
     field_list = [
-        'species',
         'report_date',
         'language_of_report',
         'requestor_information|requestor information',

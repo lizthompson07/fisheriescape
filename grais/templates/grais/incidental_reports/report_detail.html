@@ -15,23 +15,32 @@
 
 
 {% block subcontent %}
-
-  <div class="mb-3">
-    <a class="btn btn-warning" href="{% url 'grais:ir_edit' object.id %}">Edit</a>
-    <a class="btn btn-danger" href="{% url 'grais:ir_delete' object.id %}">Delete</a>
-  </div>
-
-  <div class="row mb-5">
-    <div class="col">
-      <table class="table table-sm">
-        {% for field in field_list %}
-          {% verbose_td_display object field %}
-        {% endfor %}
-      </table>
+  <div id="app">
+    <div class="mb-3">
+      <a class="btn btn-warning" href="{% url 'grais:ir_edit' object.id %}">Edit</a>
+      <a class="btn btn-danger" href="{% url 'grais:ir_delete' object.id %}">Delete</a>
     </div>
 
-    <div class="col">
-      <div id="map"></div>
+    <div class="row mb-5">
+      <div class="col">
+      <div class="mb-3">
+          <p class="lead">Report Detail:</p>
+        </div>
+        <table class="table table-sm">
+          {% for field in field_list %}
+            {% verbose_td_display object field %}
+          {% endfor %}
+        </table>
+        {% if object.get_point %}
+          <div id="map"></div>
+        {% endif %}
+      </div>
+
+      <div class="col">
+        <div class="mb-3">
+          <p class="lead">Associated Species:</h4>
+        </div>
+      </div>
     </div>
   </div>
 
