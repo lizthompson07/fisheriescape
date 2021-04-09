@@ -286,6 +286,13 @@ class UserPasswordResetConfirmView(PasswordResetConfirmView):
                          "Your password has been successfully reset! Please try logging in with your new password.")
         return reverse('index')
 
+    def form_valid(self, form):
+        super().form_valid(form)
+        user = form.save(commit=False)
+        user.is_active = True
+        user.save()
+        return HttpResponseRedirect(self.get_success_url())
+
 
 class RequestAccessFormView(LoginRequiredMixin, FormView):
     template_name = "accounts/request_access_form_popout.html"
