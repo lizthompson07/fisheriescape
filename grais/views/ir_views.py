@@ -1,27 +1,17 @@
-import os
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Value, TextField
-from django.db.models.functions import Concat
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
-from django.templatetags.static import static
-from django.urls import reverse_lazy, reverse
-from django.utils import timezone
-from django.utils.translation import gettext_lazy, gettext
-from django.views.generic import FormView
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
 
-from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
 from grais import filters
 from grais import forms
 from grais import models
-from grais import reports
-from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
+from grais.mixins import GraisAccessRequiredMixin
 from grais.utils import is_grais_admin
-gettext
+from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreateView, \
+    CommonDetailView, CommonDeleteView
+
 
 # INCIDENTAL REPORT #
 #####################
@@ -48,7 +38,7 @@ class ReportCreateView(GraisAccessRequiredMixin, CommonCreateView):
     form_class = forms.ReportForm
     template_name = "grais/form.html"
     home_url_name = "grais:index"
-    parent_crumb = {"title":_("Reports"), "url": reverse_lazy("grais:ir_list")}
+    parent_crumb = {"title": _("Reports"), "url": reverse_lazy("grais:ir_list")}
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -163,4 +153,3 @@ def follow_up_delete(request, pk):
     followup.delete()
     messages.success(request, "The followup has been successfully deleted.")
     return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": followup.incidental_report_id}))
-
