@@ -787,4 +787,4 @@ def get_all_admins():
     to_list.extend(branch_admins)
     to_list.extend(division_admins)
     to_list.extend(section_admins)
-    return to_list
+    return set(to_list)
