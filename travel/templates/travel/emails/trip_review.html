@@ -3,7 +3,7 @@
 
 {% language 'en' %}
   <p>
-    The following trip, <a href="{% url 'travel:trip_detail' object.id %}">{{ object.tname }}</a> is now eligible for ADM review.
+    The following trip, <a href="{{SITE_FULL_URL}}{% url 'travel:trip_detail' object.id %}">{{ object.tname }}</a> is now eligible for ADM review.
     Please have your regional review and approval process completed by {{ due_date|date }} to
     ensure requests from your region are submitted to the ADM for approval.
   </p>
@@ -16,7 +16,7 @@
 
 {% language 'fr' %}
   <p>
-    Le voyage suivant <a href="{% url 'travel:trip_detail' object.id %}">{{ object.tname }}</a>, est maintenant admissible à l'examen du bureau du SMA.
+    Le voyage suivant <a href="{{SITE_FULL_URL}}{% url 'travel:trip_detail' object.id %}">{{ object.tname }}</a>, est maintenant admissible à l'examen du bureau du SMA.
     Veuillez faire en sorte que le processus d'examen et d'approbation de votre région soit terminé d'ici le {{ due_date|date }} afin que les demandes de votre
     région soient soumises à l'approbation du SMA.
   </p>
