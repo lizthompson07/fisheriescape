@@ -161,7 +161,7 @@ class StationListView(GraisAccessRequiredMixin, CommonFilterView):
     home_url_name = "grais:index"
     new_object_url = reverse_lazy("grais:station_new")
     row_object_url_name = row_ = "grais:station_detail"
-    h1 = "AIS Sampling Stations"
+    h1 = "Biofouling Stations"
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -239,10 +239,11 @@ class SampleListView(GraisAccessRequiredMixin, CommonFilterView):
     model = models.Sample
     template_name = 'grais/list.html'
     filterset_class = filters.SampleFilter
+    paginate_by = 100
     home_url_name = "grais:index"
     new_object_url = reverse_lazy("grais:sample_new")
     row_object_url_name = row_ = "grais:sample_detail"
-    h1 = "AIS Biofouling Samples"
+    h1 = "Biofouling Samples"
 
     field_list = [
         {"name": 'station', "class": "", "width": ""},
@@ -542,11 +543,18 @@ class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
 
 class LineDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
     model = models.Line
-    success_url = reverse_lazy('grais:line_list')
     success_message = 'The functional group was successfully deleted!'
     template_name = 'grais/confirm_delete.html'
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
 
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:line_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_success_url(self):
+        return self.get_grandparent_crumb().get("url")
 
 # SURFACES #
 ############
@@ -607,6 +615,7 @@ class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         'display|surface',
         'surface_type',
         'species_list|species',
+        'total_coverage_display|total coverage',
         'has_invasive_spp|has invasive spp?',
         'notes',
         'is_lost',
