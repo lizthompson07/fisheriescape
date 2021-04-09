@@ -1,8 +1,12 @@
+import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils import timezone
 
 from dm_apps.emails import Email
+from shared_models.models import Region, Branch, Division, Section
 
 from_email = settings.SITE_FROM_EMAIL
 
@@ -165,3 +169,28 @@ class TripCostWarningEmail(Email):
         context = super().get_context_data()
         context.update({'trip': self.instance, 'field_list': trip_field_list})
         return context
+
+
+class TripReviewEmail(Email):
+    email_template_path = 'travel/emails/trip_review.html'
+    subject_en = 'ADM trip review has commenced'
+    subject_fr = "L'examen de voyage par le SMA a commencé"
+
+    def get_recipient_list(self):
+        # essentially, every admin in DFO Science
+        to_list = list()
+        region_admins = [obj.admin.email for obj in Region.objects.filter(admin__isnull=False, admin__email__isnull=False)]
+        branch_admins = [obj.admin.email for obj in Branch.objects.filter(admin__isnull=False, admin__email__isnull=False)]
+        division_admins = [obj.admin.email for obj in Division.objects.filter(admin__isnull=False, admin__email__isnull=False)]
+        section_admins = [obj.admin.email for obj in Section.objects.filter(admin__isnull=False, admin__email__isnull=False)]
+        to_list.extend(region_admins)
+        to_list.extend(branch_admins)
+        to_list.extend(division_admins)
+        to_list.extend(section_admins)
+        return to_list
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context.update({'due_date': timezone.now() + datetime.timedelta(days=7)})
+        return context
+

@@ -776,8 +776,11 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
             else:
                 utils.end_trip_review_process(my_trip, reset=False)
         else:
-            utils.start_trip_review_process(my_trip)
             # go and get approvals!!
+            utils.start_trip_review_process(my_trip)
+            # send out a warning email to all DFO science admins
+            email = emails.TripReviewEmail(self.request, my_trip)
+            email.send()
 
         # No matter what business what done, we will call this function to sort through reviewer and request statuses
         utils.trip_approval_seeker(my_trip, self.request)

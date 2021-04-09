@@ -349,9 +349,13 @@ class Surface(MetadataFields):
         return self.surface_spp.all().aggregate(dsum=Sum("percent_coverage"))["dsum"] if self.surface_spp.exists() else 0
 
     @property
+    def total_coverage_display(self):
+        return percentage(self.total_coverage)
+
+    @property
     def thumbnail(self):
         if self.image:
-            return mark_safe(f'<a href="{self.image.url}"><img src="{self.image.url}" alt="Image not found..." width="150 em"></a>')
+            return mark_safe(f'<img src="{self.image.url}" alt="Image not found..." width="150 em">')
 
 
 class SurfaceSpecies(MetadataFields):
