@@ -530,7 +530,7 @@ class IncidentalReport(MetadataFields, LatLongFields):
 class IncidentalReportSpecies(models.Model):
     incidental_report = models.ForeignKey(IncidentalReport, related_name='ir_species', on_delete=models.CASCADE)
     species = models.ForeignKey(Species, related_name='ir_species', on_delete=models.CASCADE)
-    notes = models.TextField()
+    notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.species)
