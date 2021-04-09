@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import biofouling_views, shared_views
+from .views import biofouling_views, shared_views, ir_views
 
 app_name = 'grais'
 
@@ -71,20 +71,20 @@ urlpatterns = [
 
     # INCIDENTAL REPORT #
     #####################
-    path('incidental-report/list/', biofouling_views.ReportListView.as_view(), name="report_list"),
-    path('incidental-report/new/', biofouling_views.ReportCreateView.as_view(), name="report_new"),
-    path('incidental-report/<int:pk>/view/', biofouling_views.ReportDetailView.as_view(), name="report_detail"),
-    path('incidental-report/<int:pk>/edit/', biofouling_views.ReportUpdateView.as_view(), name="report_edit"),
-    path('incidental-report/<int:pk>/delete/', biofouling_views.ReportDeleteView.as_view(), name="report_delete"),
-    path('incidental-report/<int:report>/species/<int:species>/delete/', biofouling_views.report_species_observation_delete,
+    path('incidental-report/list/', ir_views.ReportListView.as_view(), name="report_list"),
+    path('incidental-report/new/', ir_views.ReportCreateView.as_view(), name="report_new"),
+    path('incidental-report/<int:pk>/view/', ir_views.ReportDetailView.as_view(), name="report_detail"),
+    path('incidental-report/<int:pk>/edit/', ir_views.ReportUpdateView.as_view(), name="report_edit"),
+    path('incidental-report/<int:pk>/delete/', ir_views.ReportDeleteView.as_view(), name="report_delete"),
+    path('incidental-report/<int:report>/species/<int:species>/delete/', ir_views.report_species_observation_delete,
          name="report_species_delete"),
-    path('incidental-report/<int:report>/species/<int:species>/add/', biofouling_views.report_species_observation_add, name="report_species_add"),
+    path('incidental-report/<int:report>/species/<int:species>/add/', ir_views.report_species_observation_add, name="report_species_add"),
 
     # FOLLOWUP #
     ############
-    path('report/<int:report>/follow-up/new/', biofouling_views.FollowUpCreateView.as_view(), name="follow_up_new"),
-    path('follow-up/<int:pk>/edit/', biofouling_views.FollowUpUpdateView.as_view(), name="follow_up_edit"),
-    path('follow-up/<int:pk>/delete/', biofouling_views.follow_up_delete, name="follow_up_delete"),
+    path('report/<int:report>/follow-up/new/', ir_views.FollowUpCreateView.as_view(), name="follow_up_new"),
+    path('follow-up/<int:pk>/edit/', ir_views.FollowUpUpdateView.as_view(), name="follow_up_edit"),
+    path('follow-up/<int:pk>/delete/', ir_views.follow_up_delete, name="follow_up_delete"),
     #
     # # ESTUARY #
     # ###########
