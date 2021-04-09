@@ -783,8 +783,13 @@ def get_all_admins():
     branch_admins = [obj.admin.email for obj in Branch.objects.filter(admin__isnull=False, admin__email__isnull=False)]
     division_admins = [obj.admin.email for obj in Division.objects.filter(admin__isnull=False, admin__email__isnull=False)]
     section_admins = [obj.admin.email for obj in Section.objects.filter(admin__isnull=False, admin__email__isnull=False)]
+    # now we have to add special reviewers (but only in the reviewer role)
+    special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(
+        Q(sections__isnull=False) | Q(divisions__isnull=False) | Q(branches__isnull=False)
+    ).distinct()]
     to_list.extend(region_admins)
     to_list.extend(branch_admins)
     to_list.extend(division_admins)
     to_list.extend(section_admins)
+    to_list.extend(special_reviewers)
     return set(to_list)
