@@ -59,14 +59,6 @@
     background-color: #fe49ff;
 }
 
-.petri {
-    background-color: wheat;
-}
-
-.plate {
-    background-color: lightgreen;
-}
-
 .nav-map {
     font-size: 1.25em;
     margin-left: 4em;
@@ -316,4 +308,8 @@
 .crumbs {
     background-color: rgba(255, 255, 255, 0);
 
+}
+
+[v-cloak] {
+    display: none;
 }
