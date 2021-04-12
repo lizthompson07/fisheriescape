@@ -872,8 +872,8 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
     template_name = 'bio_diversity/details_env.html'
-    fields = ["loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "start_date", "start_time",
-              "end_date", "end_time", "env_avg", "qual_id", "comments", "created_by", "created_date"]
+    fields = ["loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "start_date|Start Date", "start_time|Start Time",
+              "end_date|End Date", "end_time|End Time", "env_avg", "qual_id", "comments", "created_by", "created_date"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -911,14 +911,14 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
-    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "start_date", "start_time", "end_date",
-              "end_time", "comments", "created_by", "created_date", ]
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "start_time|Start Time", "end_date|End Date",
+              "end_time|End Time", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
         loc_set = self.object.location.all()
-        loc_field_list = ["locc_id", "rive_id", "subr_id", "start_date"]
+        loc_field_list = ["locc_id", "rive_id", "subr_id", "start_date|Start Date"]
         obj_mixin = mixins.LocMixin
         context["context_dict"]["loc"] = {"div_title": "{} Details".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
@@ -1073,7 +1073,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True).select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id')
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
-        evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_date"]
+        evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_date|Start Date"]
         obj_mixin = mixins.EvntMixin
         context["context_dict"]["evnt"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1248,8 +1248,8 @@ class IndvdDetails(mixins.IndvdMixin, CommonDetails):
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):
-    fields = ["indvtc_id", "lot_num", "dose", "unit_id", "start_date", "start_time", "end_date", "end_time",
-              "comments", "created_by", "created_date", ]
+    fields = ["indvtc_id", "lot_num", "dose", "unit_id", "start_time|Start Time", "end_date|End Date",
+              "end_time|End Time", "comments", "created_by", "created_date", ]
 
 
 class IndvtcDetails(mixins.IndvtcMixin, CommonDetails):
@@ -1275,8 +1275,8 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
 
 
 class LocDetails(mixins.LocMixin, CommonDetails):
-    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "end_lat", "end_lon", "start_date",
-              "start_time", "comments", "created_by", "created_date", ]
+    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "end_lat",
+              "end_lon", "start_date|Date", "start_time|Time",  "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -1284,7 +1284,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
         context["table_list"].extend(["env", "cnt"])
 
         env_set = self.object.env_condition.all()
-        env_field_list = ["envc_id", "env_val", "env_start", ]
+        env_field_list = ["envc_id", "env_val", "start_datetime|Date", ]
         obj_mixin = mixins.EnvMixin
         context["context_dict"]["env"] = {"div_title": "{} Details".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
@@ -1417,7 +1417,7 @@ class RelcDetails(mixins.RelcMixin, CommonDetails):
         context["table_list"].extend(["loc"])
 
         obj_set = self.object.locations.all()
-        obj_field_list = ["locc_id", "start_date"]
+        obj_field_list = ["locc_id", "start_date|Date"]
         obj_mixin = mixins.LocMixin
         context["context_dict"]["loc"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1840,7 +1840,7 @@ class InstdcList(mixins.InstdcMixin, CommonList):
 
 class LocList(mixins.LocMixin, CommonList):
     filterset_class = filters.LocFilter
-    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "start_date", ]
+    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "start_date|Date", ]
 
 
 class LoccList(mixins.LoccMixin, CommonList):
