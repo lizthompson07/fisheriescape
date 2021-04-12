@@ -52,6 +52,10 @@ def val_unit_splitter(full_str):
     return val, unit_str.strip()
 
 
+def daily_dev(degree_day):
+    dev = 100 / math.exp(6.002994 * math.exp(-0.03070758 * degree_day))
+    return  dev
+
 def parse_concentration(concentration_str):
     if "%" in concentration_str:
         return Decimal(float(concentration_str.rstrip("%"))/100)

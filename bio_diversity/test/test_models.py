@@ -8,6 +8,7 @@ from bio_diversity import models
 
 @tag("Grp", 'models')
 class TestGrpModel(CommonTest):
+    fixtures = ["valid_test_data.json"]
 
     def setUp(self):
         super().setUp()  # used to import fixtures
@@ -15,10 +16,10 @@ class TestGrpModel(CommonTest):
 
     def test_development(self):
         # test that previous details with same code are made invalid
-        grp = BioFactoryFloor.GrpFactory()
+        grp = models.Group.objects.filter(pk=46).get()
         grp_dev = grp.get_development()
 
-        self.assertTrue()
+        self.assertTrue(False)
 
 
 @tag("Grpd", 'models')

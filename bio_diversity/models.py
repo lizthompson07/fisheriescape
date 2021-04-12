@@ -829,7 +829,7 @@ class Group(BioModel):
 
     def get_development(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
         dev = 0
-        degree_days = 0
+        degree_days = []
         anix_set = AniDetailXref.objects.filter(grp_id=self, final_contx_flag__isnull=False, evnt_id__start_datetime__lte=at_date).order_by("evnt_id__start_datetime").select_related("contx_id", "evnt_id")
 
         start_date = False
@@ -842,9 +842,12 @@ class Group(BioModel):
             else:
                 end_date = anix.evnt_id.start_datetime.date()
                 if start_date and cont:
-                    degree_days += cont.degree_days(start_date, end_date)
+                    degree_days.extend(cont.degree_days(start_date, end_date))
                     start_date = False
-        return degree_days
+
+        dev = sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
+
+        return dev
 
 
 class GroupDet(BioDet):
@@ -1654,7 +1657,7 @@ class Tray(BioCont):
             degree_days = self.trof_id.degree_days(start_date, end_date)
         else:
             degree_days = self.trof_id.degree_days(start_date, datetime.datetime.today().date())
-        return round(sum(degree_days), 3)
+        return degree_days
 
     def __str__(self):
         return "TR{}-{}".format(self.trof_id.__str__(), self.name)
@@ -1703,7 +1706,7 @@ class Trough(BioCont):
                 if env.start_datetime.date() == day:
                     day_temps.append(env.env_val)
             if day_temps:
-                temp_list.append(sum(day_temps) / len(day_temps))
+                temp_list.append(round(sum(day_temps) / len(day_temps), 3))
 
         return temp_list
 
