@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import biofouling_views, shared_views, ir_views
+from .views import biofouling_views, shared_views, ir_views, gc_views
 
 app_name = 'grais'
 
@@ -87,53 +87,50 @@ urlpatterns = [
     #
     # # ESTUARY #
     # ###########
-    # path('estuaries/', views.EstuaryListView.as_view(), name="estuary_list"),
-    # path('estuary/new/', views.EstuaryCreateView.as_view(), name="estuary_new"),
-    # path('estuary/<int:pk>/view/', views.EstuaryDetailView.as_view(), name="estuary_detail"),
-    # path('estuary/<int:pk>/edit/', views.EstuaryUpdateView.as_view(), name="estuary_edit"),
-    # path('estuary/<int:pk>/delete/', views.EstuaryDeleteView.as_view(), name="estuary_delete"),
+    path('estuaries/', gc_views.EstuaryListView.as_view(), name="estuary_list"),
+    path('estuary/new/', gc_views.EstuaryCreateView.as_view(), name="estuary_new"),
+    path('estuary/<int:pk>/view/', gc_views.EstuaryDetailView.as_view(), name="estuary_detail"),
+    path('estuary/<int:pk>/edit/', gc_views.EstuaryUpdateView.as_view(), name="estuary_edit"),
+    path('estuary/<int:pk>/delete/', gc_views.EstuaryDeleteView.as_view(), name="estuary_delete"),
+
+    # SITE #
+    ###########
+    path('estuaries/<int:estuary>/new-site/', gc_views.SiteCreateView.as_view(), name="site_new"),
+    path('sites/<int:pk>/view/', gc_views.SiteDetailView.as_view(), name="site_detail"),
+    path('sites/<int:pk>/edit/', gc_views.SiteUpdateView.as_view(), name="site_edit"),
+    path('sites/<int:pk>/delete/', gc_views.SiteDeleteView.as_view(), name="site_delete"),
     #
-    # # SITE #
-    # ###########
-    # path('estuary/<int:estuary>/new/site/', views.SiteCreateView.as_view(), name="site_new"),
-    # # path('site/new/', views.NoEstuarySiteCreateView.as_view(), name="site_new"),
-    # path('site/<int:pk>/view/', views.SiteDetailView.as_view(), name="site_detail"),
-    # path('site/<int:pk>/edit/', views.SiteUpdateView.as_view(), name="site_edit"),
-    # path('site/<int:pk>/delete/', views.SiteDeleteView.as_view(), name="site_delete"),
+    # GC SAMPLE #
+    ##########
+    path('green-crab-samples/', gc_views.GCSampleListView.as_view(), name="gcsample_list"),
+    path('green-crab-samples/new/', gc_views.GCSampleCreateView.as_view(), name="gcsample_new"),
+    path('green-crab-samples/<int:pk>/view/', gc_views.GCSampleDetailView.as_view(), name="gcsample_detail"),
+    path('green-crab-samples/<int:pk>/edit/', gc_views.GCSampleUpdateView.as_view(), name="gcsample_edit"),
+    path('green-crab-samples/<int:pk>/delete/', gc_views.GCSampleDeleteView.as_view(), name="gcsample_delete"),
+
+    # probe measurements #
+    ######################
+    path('green-crab-samples/<int:sample>/new-measurement/', gc_views.GCProbeMeasurementCreateView.as_view(), name="gcmeasurement_new"),
+    path('green-crab-measurements/<int:pk>/edit/', gc_views.GCProbeMeasurementUpdateView.as_view(), name="gcmeasurement_edit"),
+    path('green-crab-measurements/<int:pk>/delete/', gc_views.GCProbeMeasurementDeleteView.as_view(), name="gcmeasurement_delete"),
+
+    # TRAP #
+    ########
+    path('green-crab-samples/<int:gcsample>/new-trap/', gc_views.TrapCreateView.as_view(), name="trap_new"),
+    path('traps/<int:pk>/view/', gc_views.TrapDetailView.as_view(), name="trap_detail"),
+    path('traps/<int:pk>/edit/', gc_views.TrapUpdateView.as_view(), name="trap_edit"),
+    path('traps/<int:pk>/delete/', gc_views.TrapDeleteView.as_view(), name="trap_delete"),
     #
-    # # GC SAMPLE #
-    # ##########
-    # path('green-crab-samples/', views.GCSampleListView.as_view(), name="gcsample_list"),
-    # path('green-crab-sample/new/', views.GCSampleCreateView.as_view(), name="gcsample_new"),
-    # path('green-crab-sample/<int:pk>/view/', views.GCSampleDetailView.as_view(), name="gcsample_detail"),
-    # path('green-crab-sample/<int:pk>/edit/', views.GCSampleUpdateView.as_view(), name="gcsample_edit"),
-    # path('green-crab-sample/<int:pk>/delete/', views.GCSampleDeleteView.as_view(), name="gcsample_delete"),
-    #
-    # # PROBE MEASUREMENT #
-    # #####################
-    # path('green-crab-sample/<int:gcsample>/gc-probe-data/new/', views.GCProbeMeasurementCreateView.as_view(),
-    #      name="gcprobe_measurement_new"),
-    # path('gc-probe-data/<int:pk>/view/', views.GCProbeMeasurementDetailView.as_view(), name="gcprobe_measurement_detail"),
-    # path('gc-probe-data/<int:pk>/edit/', views.GCProbeMeasurementUpdateView.as_view(), name="gcprobe_measurement_edit"),
-    # path('gc-probe-data/<int:pk>/delete/', views.GCProbeMeasurementDeleteView.as_view(), name="gcprobe_measurement_delete"),
-    #
-    # # TRAP #
-    # ########
-    # path('green-crab-sample/<int:gcsample>/trap/new/', views.TrapCreateView.as_view(), name="trap_new"),
-    # path('trap/<int:pk>/view/', views.TrapDetailView.as_view(), name="trap_detail"),
-    # path('trap/<int:pk>/edit/', views.TrapUpdateView.as_view(), name="trap_edit"),
-    # path('trap/<int:pk>/delete/', views.TrapDeleteView.as_view(), name="trap_delete"),
-    #
-    # # path('bycatch/<int:pk>/delete/', views.bycatch_delete, name="bycatch_delete"),
-    # # path('trap/<int:trap>/crab/<int:species>/add/', views.report_species_observation_add, name="crab_add"),
-    # # path('trap/<int:trap>/bycatch/<int:species>/add/', views.report_species_observation_add, name="bycatch_add"),
+    # # path('bycatch/<int:pk>/delete/', gc_views.bycatch_delete, name="bycatch_delete"),
+    # # path('trap/<int:trap>/crab/<int:species>/add/', gc_views.report_species_observation_add, name="crab_add"),
+    # # path('trap/<int:trap>/bycatch/<int:species>/add/', gc_views.report_species_observation_add, name="bycatch_add"),
     #
     # # CATCH #
     # ########
-    # path('catch/<int:trap>/species/<int:species>/new/', views.CatchCreateViewPopout.as_view(), name="catch_new"),
-    # path('catch/<int:pk>/edit/', views.CatchUpdateViewPopout.as_view(), name="catch_edit"),
-    # path('catch/<int:pk>/delete/', views.catch_delete, name="catch_delete"),
-    # path('trap/<int:trap>/manage-catch/type/<str:type>/', views.manage_catch, name="manage_catch"),
+    # path('catch/<int:trap>/species/<int:species>/new/', gc_views.CatchCreateViewPopout.as_view(), name="catch_new"),
+    # path('catch/<int:pk>/edit/', gc_views.CatchUpdateViewPopout.as_view(), name="catch_edit"),
+    # path('catch/<int:pk>/delete/', gc_views.catch_delete, name="catch_delete"),
+    # path('trap/<int:trap>/manage-catch/type/<str:type>/', gc_views.manage_catch, name="manage_catch"),
     #
     # # Reports #
     # ###########

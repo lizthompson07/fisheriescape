@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields, LatLongFields
+from shared_models.models import MetadataFields, LatLongFields, UnilingualSimpleLookup
 
 YES_NO_CHOICES = (
     (True, "Yes"),
@@ -554,19 +554,19 @@ class FollowUp(MetadataFields):
 
 #########  GREEN CRAB ##########
 
-class Estuary(models.Model):
+class Estuary(MetadataFields):
     name = models.CharField(max_length=255, blank=True, null=True)
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='estuaries', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.province.abbrev_eng)
+        return f"{self.name} ({self.province.abbrev_eng})"
 
     class Meta:
         ordering = ['name', ]
 
 
-class Site(LatLongFields):
+class Site(LatLongFields, MetadataFields):
     estuary = models.ForeignKey(Estuary, on_delete=models.DO_NOTHING, related_name='sites', blank=True, null=True)
     code = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
@@ -623,8 +623,24 @@ class GCSample(MetadataFields):
     class Meta:
         ordering = ['-season', 'traps_set', 'site']
 
+    @property
+    def trap_count(self):
+        return self.traps.count()
 
-class WeatherConditions(models.Model):
+    @property
+    def bycatch_count(self):
+        return Catch.objects.filter(species__green_crab_monitoring=False, trap__sample=self).count()
+
+    @property
+    def invasive_crabs_count(self):
+        return Catch.objects.filter(species__invasive=True, trap__sample=self).count()
+
+    @property
+    def noninvasive_crabs_count(self):
+        return Catch.objects.filter(species__green_crab_monitoring=True, species__invasive=False, trap__sample=self).count()
+
+
+class WeatherConditions(UnilingualSimpleLookup):
     name = models.CharField(max_length=50)
 
     def __str__(self):
@@ -660,7 +676,7 @@ class GCProbeMeasurement(MetadataFields):
         (UTC, 'UTC'),
     )
 
-    sample = models.ForeignKey(GCSample, on_delete=models.DO_NOTHING, related_name="probe_data")
+    sample = models.ForeignKey(GCSample, on_delete=models.DO_NOTHING, related_name="probe_data", editable=False)
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
     time_date = models.DateTimeField(blank=True, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True, default="ADT")
@@ -674,7 +690,7 @@ class GCProbeMeasurement(MetadataFields):
     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
     cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)",
                                       validators=[MinValueValidator(0), MaxValueValidator(100)])
-    weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)")
+    weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)", blank=True)
 
     # notes = models.TextField(blank=True, null=True)  # this field should be delete once all data has been entered
 
@@ -722,14 +738,23 @@ class Trap(MetadataFields, LatLongFields):
         ordering = ['sample', 'trap_number']
 
     @property
+    def bycatch_count(self):
+        return self.get_bycatch().count()
+
+    @property
+    def invasive_crabs_count(self):
+        return self.get_invasive_crabs().count()
+
+    @property
+    def noninvasive_crabs_count(self):
+        return self.get_noninvasive_crabs().count()
+
     def get_bycatch(self):
         return self.catch_spp.filter(species__green_crab_monitoring=False)
 
-    @property
     def get_invasive_crabs(self):
         return self.catch_spp.filter(species__invasive=True)
 
-    @property
     def get_noninvasive_crabs(self):
         return self.catch_spp.filter(species__green_crab_monitoring=True, species__invasive=False)
 

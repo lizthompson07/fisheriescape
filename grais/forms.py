@@ -53,8 +53,8 @@ class GCSampleForm(forms.ModelForm):
         model = models.GCSample
         exclude = ['last_modified', 'season']
         widgets = {
-            'traps_set': forms.DateTimeInput(attrs=attr_fp_date_time),
-            'traps_fished': forms.DateTimeInput(attrs=attr_fp_date_time),
+            'traps_set': forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            'traps_fished': forms.DateTimeInput(attrs={"type": "datetime-local"}),
             'last_modified_by': forms.HiddenInput(),
             'samplers': forms.SelectMultiple(attrs=multi_select_js),
             'vegetation_species': forms.SelectMultiple(attrs=multi_select_js),
@@ -131,8 +131,9 @@ class GCProbeMeasurementForm(forms.ModelForm):
         fields = "__all__"
         model = models.GCProbeMeasurement
         widgets = {
+            'time_date': forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            'weather_conditions': forms.SelectMultiple(attrs=multi_select_js),
             'last_modified_by': forms.HiddenInput(),
-            'sample': forms.HiddenInput(),
         }
 
 

@@ -1,57 +1,49 @@
-import os
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Value, TextField
-from django.db.models.functions import Concat
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.utils.translation import gettext_lazy
-from django.views.generic import FormView
 
-from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
 from grais import filters
 from grais import forms
 from grais import models
-from grais import reports
 from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
 from grais.utils import is_grais_admin
+from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreateView, \
+    CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
 
 
-
-# STATION #
+# Estuary #
 ###########
 
-class StationListView(GraisAccessRequiredMixin, CommonFilterView):
-    model = models.Station
+class EstuaryListView(GraisAccessRequiredMixin, CommonFilterView):
+    model = models.Estuary
     template_name = 'grais/list.html'
-    filterset_class = filters.StationFilter
+    filterset_class = filters.EstuaryFilter
     home_url_name = "grais:index"
-    new_object_url = reverse_lazy("grais:station_new")
-    row_object_url_name = row_ = "grais:station_detail"
-    h1 = "Biofouling Stations"
+    new_object_url = reverse_lazy("grais:estuary_new")
+    row_object_url_name = row_ = "grais:estuary_detail"
+    h1 = "Estuaries"
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
-        {"name": 'station_name|{}'.format("common name"), "class": "", "width": ""},
+        {"name": 'name|{}'.format("common name"), "class": "", "width": ""},
         {"name": 'province.abbrev_eng|{}'.format("province"), "class": "", "width": ""},
-        {"name": 'sample_count|sample count', "class": "", "width": ""},
+        {"name": 'site_count|sample count', "class": "", "width": ""},
     ]
 
 
-class StationUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
-    model = models.Station
-    form_class = forms.StationForm
+class EstuaryUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
+    model = models.Estuary
+    form_class = forms.EstuaryForm
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
-    grandparent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
+    grandparent_crumb = {"title": gettext_lazy("Estuaries"), "url": reverse_lazy("grais:estuary_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("grais:station_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("grais:estuary_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -59,12 +51,12 @@ class StationUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class StationCreateView(GraisCRUDRequiredMixin, CommonCreateView):
-    model = models.Station
-    form_class = forms.StationForm
+class EstuaryCreateView(GraisCRUDRequiredMixin, CommonCreateView):
+    model = models.Estuary
+    form_class = forms.EstuaryForm
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
-    parent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
+    parent_crumb = {"title": gettext_lazy("Estuaries"), "url": reverse_lazy("grais:estuary_list")}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -72,20 +64,95 @@ class StationCreateView(GraisCRUDRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class StationDetailView(GraisAccessRequiredMixin, CommonDetailView):
-    model = models.Station
-    template_name = 'grais/biofouling/station_detail.html'
+class EstuaryDetailView(GraisAccessRequiredMixin, CommonDetailView):
+    model = models.Estuary
+    template_name = 'grais/green_crab/estuary_detail.html'
     home_url_name = "grais:index"
-    parent_crumb = {"title": gettext_lazy("Stations"), "url": reverse_lazy("grais:station_list")}
+    parent_crumb = {"title": gettext_lazy("Estuaries"), "url": reverse_lazy("grais:estuary_list")}
     field_list = [
         'id',
         'name',
         'latitude',
         'longitude',
-        'depth',
-        'site_desc',
+        'description',
         'metadata',
     ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["site_field_list"] = [
+            'code',
+            'name',
+            'description',
+        ]
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
+        return context
+
+
+class EstuaryDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
+    model = models.Estuary
+    success_url = reverse_lazy('grais:estuary_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'grais/confirm_delete.html'
+
+
+# SITE #
+########
+
+class SiteUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
+    model = models.Site
+    form_class = forms.SiteForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("Estuaries"), "url": reverse_lazy("grais:estuary_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:site_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class SiteCreateView(GraisCRUDRequiredMixin, CommonCreateView):
+    model = models.Site
+    form_class = forms.SiteForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("Estuaries"), "url": reverse_lazy("grais:estuary_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_estuary(), "url": reverse_lazy("grais:estuary_detail", args=[self.get_estuary().id])}
+
+    def get_estuary(self):
+        return get_object_or_404(models.Estuary, pk=self.kwargs.get("estuary"))
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.estuary = self.get_estuary()
+        obj.updated_by = self.request.user
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class SiteDetailView(GraisCRUDRequiredMixin, CommonDetailView):
+    model = models.Site
+    template_name = 'grais/green_crab/site_detail.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("Estuaries"), "url": reverse_lazy("grais:estuary_list")}
+    field_list = [
+        'id',
+        'code',
+        'name',
+        'description',
+        'metadata',
+    ]
+    container_class = "container-fluid"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().estuary, "url": reverse_lazy("grais:estuary_detail", args=[self.get_object().estuary.id])}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -97,47 +164,56 @@ class StationDetailView(GraisAccessRequiredMixin, CommonDetailView):
         return context
 
 
-class StationDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
-    model = models.Station
-    success_url = reverse_lazy('grais:station_list')
+class SiteDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
+    model = models.Site
     success_message = 'The functional group was successfully deleted!'
     template_name = 'grais/confirm_delete.html'
+    greatgrandparent_crumb = {"title": gettext_lazy("Estuaries"), "url": reverse_lazy("grais:estuary_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:site_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().estuary, "url": reverse_lazy("grais:estuary_detail", args=[self.get_object().estuary.id])}
+
+    def get_success_url(self):
+        return self.get_grandparent_crumb().get("url")
 
 
-# SAMPLE #
+# GCSAMPLE #
 ###########
 
-class SampleListView(GraisAccessRequiredMixin, CommonFilterView):
-    model = models.Sample
+class GCSampleListView(GraisAccessRequiredMixin, CommonFilterView):
+    model = models.GCSample
     template_name = 'grais/list.html'
-    filterset_class = filters.SampleFilter
+    filterset_class = filters.GCSampleFilter
     paginate_by = 100
     home_url_name = "grais:index"
-    new_object_url = reverse_lazy("grais:sample_new")
-    row_object_url_name = row_ = "grais:sample_detail"
-    h1 = "Biofouling Samples"
+    new_object_url = reverse_lazy("grais:gcsample_new")
+    row_object_url_name = row_ = "grais:gcsample_detail"
+    h1 = "Green Crab Samples"
 
     field_list = [
-        {"name": 'station', "class": "", "width": ""},
-        {"name": 'date_deployed', "class": "", "width": ""},
-        {"name": 'date_retrieved', "class": "", "width": ""},
-        {"name": 'sample_type', "class": "", "width": ""},
-        {"name": 'weeks_deployed|{}'.format("weeks deployed"), "class": "", "width": ""},
-        {"name": 'has_invasive_spp|{}'.format("has invasive species?"), "class": "", "width": ""},
-        {"name": 'line_count|{}'.format("lines"), "class": "", "width": ""},
-        {"name": 'species_count|{}'.format("species count"), "class": "", "width": ""},
+        {"name": 'season', "class": "", "width": ""},
+        {"name": 'site', "class": "", "width": ""},
+        {"name": 'traps_set', "class": "", "width": ""},
+        {"name": 'traps_fished', "class": "", "width": ""},
+        {"name": 'trap_count|{}'.format("trap count"), "class": "", "width": ""},
+        {"name": 'bycatch_count|{}'.format("bycatch count"), "class": "", "width": ""},
+        {"name": 'invasive_crabs_count|{}'.format("invasive crab count"), "class": "", "width": ""},
+        {"name": 'noninvasive_crabs_count|{}'.format("non-invasive crab count"), "class": "", "width": ""},
     ]
 
 
-class SampleUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
-    model = models.Sample
-    form_class = forms.SampleForm
+class GCSampleUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
+    model = models.GCSample
+    form_class = forms.GCSampleForm
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Green Crab Samples"), "url": reverse_lazy("grais:gcsample_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("grais:sample_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("grais:gcsample_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -145,12 +221,12 @@ class SampleUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class SampleCreateView(GraisCRUDRequiredMixin, CommonCreateView):
-    model = models.Sample
-    form_class = forms.SampleForm
+class GCSampleCreateView(GraisCRUDRequiredMixin, CommonCreateView):
+    model = models.GCSample
+    form_class = forms.GCSampleForm
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
-    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    parent_crumb = {"title": gettext_lazy("Green Crab Samples"), "url": reverse_lazy("grais:gcsample_list")}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -158,21 +234,25 @@ class SampleCreateView(GraisCRUDRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class SampleDetailView(GraisCRUDRequiredMixin, CommonDetailView):
-    model = models.Sample
-    template_name = 'grais/biofouling/sample_detail/main.html'
+class GCSampleDetailView(GraisCRUDRequiredMixin, CommonDetailView):
+    model = models.GCSample
+    template_name = 'grais/green_crab/sample_detail/main.html'
     home_url_name = "grais:index"
-    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    parent_crumb = {"title": gettext_lazy("Green Crab Samples"), "url": reverse_lazy("grais:gcsample_list")}
     field_list = [
         'id',
-        'station',
-        'date_deployed',
-        'date_retrieved',
-        'weeks_deployed|Weeks deployed',
+        'site',
+        'season',
+        'traps_set',
+        'traps_fished',
         'samplers',
-        'sample_type',
-        'has_invasive_spp|Has invasive species?',
+        'eelgrass_assessed',
+        'eelgrass_percent_coverage',
+        'vegetation_species',
+        'sediment',
+        'notes',
         'metadata',
+
     ]
     container_class = "container-fluid"
 
@@ -210,49 +290,19 @@ class SampleDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         return context
 
 
-class SampleDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
-    model = models.Sample
-    success_url = reverse_lazy('grais:sample_list')
+class GCSampleDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
+    model = models.GCSample
+    success_url = reverse_lazy('grais:gcsample_list')
     success_message = 'The functional group was successfully deleted!'
     template_name = 'grais/confirm_delete.html'
-
-
-# SAMPLE NOTE #
-###############
-
-class SampleNoteUpdateView(GraisAccessRequiredMixin, CommonPopoutUpdateView):
-    model = models.SampleNote
-    form_class = forms.SampleNoteForm
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.updated_by = self.request.user
-        obj.save()
-        return super().form_valid(form)
-
-
-class SampleNoteCreateView(GraisAccessRequiredMixin, CommonPopoutCreateView):
-    model = models.SampleNote
-    form_class = forms.SampleNoteForm
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.sample = get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
-        obj.created_by = self.request.user
-        obj.save()
-        return super().form_valid(form)
-
-
-class SampleNoteDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteView):
-    model = models.SampleNote
 
 
 # PROBE MEASUREMENT #
 #####################
 
-class ProbeMeasurementUpdateView(GraisAccessRequiredMixin, CommonPopoutUpdateView):
-    model = models.ProbeMeasurement
-    form_class = forms.ProbeMeasurementForm
+class GCProbeMeasurementUpdateView(GraisAccessRequiredMixin, CommonPopoutUpdateView):
+    model = models.GCProbeMeasurement
+    form_class = forms.GCProbeMeasurementForm
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -261,33 +311,33 @@ class ProbeMeasurementUpdateView(GraisAccessRequiredMixin, CommonPopoutUpdateVie
         return super().form_valid(form)
 
 
-class ProbeMeasurementCreateView(GraisAccessRequiredMixin, CommonPopoutCreateView):
-    model = models.ProbeMeasurement
-    form_class = forms.ProbeMeasurementForm
+class GCProbeMeasurementCreateView(GraisAccessRequiredMixin, CommonPopoutCreateView):
+    model = models.GCProbeMeasurement
+    form_class = forms.GCProbeMeasurementForm
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.sample = get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+        obj.sample = get_object_or_404(models.GCSample, pk=self.kwargs.get("sample"))
         obj.created_by = self.request.user
         obj.save()
         return super().form_valid(form)
 
 
-class ProbeMeasurementDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteView):
-    model = models.ProbeMeasurement
+class GCProbeMeasurementDeleteView(GraisAccessRequiredMixin, CommonPopoutDeleteView):
+    model = models.GCProbeMeasurement
 
 
 # SPECIES OBSERVATIONS - VUE JS #
 ##################################
 
 class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonDetailView):
-    template_name = 'grais/biofouling/species_observations.html'
+    template_name = 'grais/green_crab/species_observations.html'
     home_url_name = 'grais:index'
-    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("GCSamples"), "url": reverse_lazy("grais:gcsample_list")}
 
     def get_object(self):
         if self.kwargs.get("type") == "samples":
-            return get_object_or_404(models.Sample, pk=self.kwargs.get("pk"))
+            return get_object_or_404(models.GCSample, pk=self.kwargs.get("pk"))
         elif self.kwargs.get("type") == "lines":
             return get_object_or_404(models.Line, pk=self.kwargs.get("pk"))
         elif self.kwargs.get("type") == "surfaces":
@@ -300,85 +350,69 @@ class SpeciesObservationTemplateView(GraisAccessRequiredMixin, CommonDetailView)
 
     def get_grandparent_crumb(self):
         if self.kwargs.get("type") == "lines":
-            return {"title": self.get_object().sample, "url": reverse_lazy(f"grais:sample_detail", args=[self.get_object().sample.id])}
+            return {"title": self.get_object().sample, "url": reverse_lazy(f"grais:gcsample_detail", args=[self.get_object().sample.id])}
         if self.kwargs.get("type") == "surfaces":
             return {"title": self.get_object().line, "url": reverse_lazy(f"grais:line_detail", args=[self.get_object().line.id])}
 
     def get_greatgrandparent_crumb(self):
         if self.kwargs.get("type") == "surfaces":
-            return {"title": self.get_object().line.sample, "url": reverse_lazy(f"grais:sample_detail", args=[self.get_object().line.sample.id])}
+            return {"title": self.get_object().line.sample, "url": reverse_lazy(f"grais:gcsample_detail", args=[self.get_object().line.sample.id])}
 
     def get_h1(self):
         if self.kwargs.get("type") == "samples":
-            return "Sample-Level Species Observations"
+            return "GCSample-Level Species Observations"
         elif self.kwargs.get("type") == "lines":
             return "Line-Level Species Observations"
         elif self.kwargs.get("type") == "surfaces":
             return "Surface-Level Species Observations"
 
 
-# LINE #
+# TRAPS #
 ###########
 
-class LineUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
-    model = models.Line
-    form_class = forms.LineForm
+class TrapUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
+    model = models.Trap
+    form_class = forms.TrapForm
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Green Crab Samples"), "url": reverse_lazy("grais:gcsample_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("grais:line_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("grais:trap_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
-        return super().form_valid(form)
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
-class LineCreateView(GraisCRUDRequiredMixin, CommonCreateView):
-    model = models.Line
-    form_class = forms.LineCreateForm
+class TrapCreateView(GraisCRUDRequiredMixin, CommonCreateView):
+    model = models.Trap
+    form_class = forms.TrapForm
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Green Crab Samples"), "url": reverse_lazy("grais:gcsample_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_sample(), "url": reverse_lazy("grais:sample_detail", args=[self.get_sample().id])}
+        return {"title": self.get_sample(), "url": reverse_lazy("grais:gcsample_detail", args=[self.get_sample().id])}
 
     def get_sample(self):
-        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
-
-    def get_initial(self):
-        return {
-            'number_plates': 2,
-            'number_petris': 3,
-        }
+        return get_object_or_404(models.GCSample, pk=self.kwargs.get("sample"))
 
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.sample = self.get_sample()
         obj.updated_by = self.request.user
         obj.save()
-        petris = form.cleaned_data['number_petris']
-        plates = form.cleaned_data['number_plates']
-        if petris + plates > 0:
-            # create instances of surfaces on the collector lines
-            # create iterable
-            for i in range(petris):
-                s = models.Surface.objects.create(line=obj, surface_type='pe', label="Petri dish {}".format(i + 1))
-                s.save()
-            for i in range(plates):
-                s = models.Surface.objects.create(line=obj, surface_type='pl', label="Plate {}".format(i + 1))
-                s.save()
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
 
-class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
-    model = models.Line
-    template_name = 'grais/biofouling/line_detail/main.html'
+class TrapDetailView(GraisCRUDRequiredMixin, CommonDetailView):
+    model = models.Trap
+    template_name = 'grais/green_crab/trap_detail/main.html'
     home_url_name = "grais:index"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Green Crab Samples"), "url": reverse_lazy("grais:gcsample_list")}
     field_list = [
         'id',
         'collector',
@@ -388,11 +422,16 @@ class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         'is_lost',
         'notes',
         'metadata',
+
+        'bycatch_count|{}'.format("has invasive species?"),
+        'invasive_crabs_count|{}'.format("has invasive species?"),
+        'noninvasive_crabs_count|{}'.format("has invasive species?"),
+
     ]
     container_class = "container-fluid"
 
     def get_parent_crumb(self):
-        return {"title": self.get_object().sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().sample.id])}
+        return {"title": self.get_object().sample, "url": reverse_lazy("grais:gcsample_detail", args=[self.get_object().sample.id])}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -413,20 +452,21 @@ class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         return context
 
 
-class LineDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
-    model = models.Line
+class TrapDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
+    model = models.Trap
     success_message = 'The functional group was successfully deleted!'
     template_name = 'grais/confirm_delete.html'
-    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Green Crab Samples"), "url": reverse_lazy("grais:gcsample_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("grais:line_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("grais:trap_detail", args=[self.get_object().id])}
 
     def get_grandparent_crumb(self):
-        return {"title": self.get_object().sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().sample.id])}
+        return {"title": self.get_object().sample, "url": reverse_lazy("grais:gcsample_detail", args=[self.get_object().sample.id])}
 
     def get_success_url(self):
         return self.get_grandparent_crumb().get("url")
+
 
 # SURFACES #
 ############
@@ -439,7 +479,7 @@ class SurfaceUpdateView(GraisCRUDRequiredMixin, CommonUpdateView):
     is_multipart_form_data = True
 
     def get_greatgrandparent_crumb(self):
-        return {"title": self.get_object().line.sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().line.sample.id])}
+        return {"title": self.get_object().line.sample, "url": reverse_lazy("grais:gcsample_detail", args=[self.get_object().line.sample.id])}
 
     def get_grandparent_crumb(self):
         return {"title": self.get_object().line, "url": reverse_lazy("grais:line_detail", args=[self.get_object().line.id])}
@@ -458,11 +498,11 @@ class SurfaceCreateView(GraisCRUDRequiredMixin, CommonCreateView):
     form_class = forms.SurfaceForm
     template_name = 'grais/form.html'
     home_url_name = "grais:index"
-    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("GCSamples"), "url": reverse_lazy("grais:gcsample_list")}
     is_multipart_form_data = True
 
     def get_grandparent_crumb(self):
-        return {"title": self.get_line().sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_line().sample.id])}
+        return {"title": self.get_line().sample, "url": reverse_lazy("grais:gcsample_detail", args=[self.get_line().sample.id])}
 
     def get_parent_crumb(self):
         return {"title": self.get_line(), "url": reverse_lazy("grais:line_detail", args=[self.get_line().id])}
@@ -480,7 +520,7 @@ class SurfaceCreateView(GraisCRUDRequiredMixin, CommonCreateView):
 
 class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
     model = models.Surface
-    template_name = 'grais/biofouling/surface_detail/main.html'
+    template_name = 'grais/green_crab/surface_detail/main.html'
     home_url_name = "grais:index"
     field_list = [
         'id',
@@ -495,10 +535,10 @@ class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
 
     ]
     container_class = "container-fluid"
-    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("grais:sample_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("GCSamples"), "url": reverse_lazy("grais:gcsample_list")}
 
     def get_grandparent_crumb(self):
-        return {"title": self.get_object().line.sample, "url": reverse_lazy("grais:sample_detail", args=[self.get_object().line.sample.id])}
+        return {"title": self.get_object().line.sample, "url": reverse_lazy("grais:gcsample_detail", args=[self.get_object().line.sample.id])}
 
     def get_parent_crumb(self):
         return {"title": self.get_object().line, "url": reverse_lazy("grais:line_detail", args=[self.get_object().line.id])}
@@ -530,8 +570,6 @@ class SurfaceDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
 
     def get_success_url(self):
         return reverse('grais:line_detail', args=[self.get_object().line.id])
-
-
 
 
 # INCIDENTAL REPORT #
@@ -803,14 +841,14 @@ def follow_up_delete(request, pk):
 #
 # # SAMPLE #
 # ##########
-# class GCSampleListView(GraisAccessRequiredMixin, FilterView):
-#     filterset_class = filters.GCSampleFilter
-#     template_name = "grais/gcsample_list.html"
-#     model = models.GCSample
+# class GCGCSampleListView(GraisAccessRequiredMixin, FilterView):
+#     filterset_class = filters.GCGCSampleFilter
+#     template_name = "grais/gcgcsample_list.html"
+#     model = models.GCGCSample
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
-#         context["my_object"] = models.GCSample.objects.first()
+#         context["my_object"] = models.GCGCSample.objects.first()
 #         context["field_list"] = [
 #             'season',
 #             'site',
@@ -820,8 +858,8 @@ def follow_up_delete(request, pk):
 #         return context
 #
 #
-# class GCSampleDetailView(GraisAccessRequiredMixin, DetailView):
-#     model = models.GCSample
+# class GCGCSampleDetailView(GraisAccessRequiredMixin, DetailView):
+#     model = models.GCGCSample
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -843,33 +881,33 @@ def follow_up_delete(request, pk):
 #         return context
 #
 #
-# class GCSampleUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.GCSample
-#     form_class = forms.GCSampleForm
+# class GCGCSampleUpdateView(GraisAdminRequiredMixin, UpdateView):
+#     model = models.GCGCSample
+#     form_class = forms.GCGCSampleForm
 #
 #     def get_initial(self):
 #         return {'last_modified_by': self.request.user}
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse_lazy("grais:gcsample_detail", kwargs={"pk": object.id}))
+#         return HttpResponseRedirect(reverse_lazy("grais:gcgcsample_detail", kwargs={"pk": object.id}))
 #
 #
-# class GCSampleCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.GCSample
-#     form_class = forms.GCSampleForm
+# class GCGCSampleCreateView(GraisAdminRequiredMixin, CreateView):
+#     model = models.GCGCSample
+#     form_class = forms.GCGCSampleForm
 #
 #     def get_initial(self):
 #         return {'last_modified_by': self.request.user}
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse_lazy("grais:gcsample_detail", kwargs={"pk": object.id}))
+#         return HttpResponseRedirect(reverse_lazy("grais:gcgcsample_detail", kwargs={"pk": object.id}))
 #
 #
-# class GCSampleDeleteView(GraisAdminRequiredMixin, DeleteView):
-#     model = models.GCSample
-#     success_url = reverse_lazy('grais:gcsample_list')
+# class GCGCSampleDeleteView(GraisAdminRequiredMixin, DeleteView):
+#     model = models.GCGCSample
+#     success_url = reverse_lazy('grais:gcgcsample_list')
 #     success_message = 'The sample was successfully deleted!'
 #
 #     def delete(self, request, *args, **kwargs):
@@ -880,13 +918,13 @@ def follow_up_delete(request, pk):
 # # GC PROBE DATA #
 # ##############
 #
-# class GCProbeMeasurementCreateView(GraisAdminRequiredMixin, CreateView):
-#     model = models.GCProbeMeasurement
-#     form_class = forms.GCProbeMeasurementForm
+# class GCGCProbeMeasurementCreateView(GraisAdminRequiredMixin, CreateView):
+#     model = models.GCGCProbeMeasurement
+#     form_class = forms.GCGCProbeMeasurementForm
 #     template_name = 'grais/gcprobe_measurement_form.html'
 #
 #     def get_initial(self):
-#         gcsample = models.GCSample.objects.get(pk=self.kwargs['gcsample'])
+#         gcsample = models.GCGCSample.objects.get(pk=self.kwargs['gcsample'])
 #         return {
 #             'sample': gcsample,
 #             'last_modified_by': self.request.user,
@@ -894,7 +932,7 @@ def follow_up_delete(request, pk):
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
-#         context['gcsample'] = models.GCSample.objects.get(pk=self.kwargs["gcsample"])
+#         context['gcsample'] = models.GCGCSample.objects.get(pk=self.kwargs["gcsample"])
 #         return context
 #
 #     def form_valid(self, form):
@@ -902,15 +940,15 @@ def follow_up_delete(request, pk):
 #         return HttpResponseRedirect(reverse_lazy("grais:gcprobe_measurement_detail", kwargs={"pk": object.id}))
 #
 #
-# class GCProbeMeasurementDetailView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.GCProbeMeasurement
-#     form_class = forms.GCProbeMeasurementForm
+# class GCGCProbeMeasurementDetailView(GraisAdminRequiredMixin, UpdateView):
+#     model = models.GCGCProbeMeasurement
+#     form_class = forms.GCGCProbeMeasurementForm
 #     template_name = 'grais/gcprobe_measurement_detail.html'
 #
 #
-# class GCProbeMeasurementUpdateView(GraisAdminRequiredMixin, UpdateView):
-#     model = models.GCProbeMeasurement
-#     form_class = forms.GCProbeMeasurementForm
+# class GCGCProbeMeasurementUpdateView(GraisAdminRequiredMixin, UpdateView):
+#     model = models.GCGCProbeMeasurement
+#     form_class = forms.GCGCProbeMeasurementForm
 #     template_name = 'grais/gcprobe_measurement_form.html'
 #
 #     def get_initial(self):
@@ -921,8 +959,8 @@ def follow_up_delete(request, pk):
 #         return HttpResponseRedirect(reverse_lazy("grais:gcprobe_measurement_detail", kwargs={"pk": object.id}))
 #
 #
-# class GCProbeMeasurementDeleteView(GraisAdminRequiredMixin, DeleteView):
-#     model = models.GCProbeMeasurement
+# class GCGCProbeMeasurementDeleteView(GraisAdminRequiredMixin, DeleteView):
+#     model = models.GCGCProbeMeasurement
 #     template_name = "grais/gcprobe_measurement_confirm_delete.html"
 #     success_message = 'The probe measurement was successfully deleted!'
 #
@@ -931,7 +969,7 @@ def follow_up_delete(request, pk):
 #         return super().delete(request, *args, **kwargs)
 #
 #     def get_success_url(self):
-#         return reverse_lazy('grais:gcsample_detail', kwargs={'pk': self.object.sample.id})
+#         return reverse_lazy('grais:gcgcsample_detail', kwargs={'pk': self.object.sample.id})
 #
 #
 # # TRAP #
@@ -942,7 +980,7 @@ def follow_up_delete(request, pk):
 #     form_class = forms.TrapForm
 #
 #     def get_initial(self):
-#         sample = models.GCSample.objects.get(pk=self.kwargs['gcsample'])
+#         sample = models.GCGCSample.objects.get(pk=self.kwargs['gcsample'])
 #         return {
 #             'sample': sample,
 #             'last_modified_by': self.request.user
@@ -950,7 +988,7 @@ def follow_up_delete(request, pk):
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
-#         context['gcsample'] = models.GCSample.objects.get(pk=self.kwargs["gcsample"])
+#         context['gcsample'] = models.GCGCSample.objects.get(pk=self.kwargs["gcsample"])
 #         return context
 #
 #     def form_valid(self, form):
@@ -1019,7 +1057,7 @@ def follow_up_delete(request, pk):
 #         return super().delete(request, *args, **kwargs)
 #
 #     def get_success_url(self):
-#         return reverse_lazy('grais:gcsample_detail', kwargs={'pk': self.object.sample.id})
+#         return reverse_lazy('grais:gcgcsample_detail', kwargs={'pk': self.object.sample.id})
 #
 #
 # # CATCH #
@@ -1218,114 +1256,4 @@ def follow_up_delete(request, pk):
 # #     messages.success(request, "The bycatch has been successfully removed from this trap.")
 # #     return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": bycatch.trap.id}))
 #
-#
-
-# REPORTS #
-###########
-
-class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
-    template_name = 'grais/report_search.html'
-    form_class = forms.ReportSearchForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-        species_list = str(form.cleaned_data["species"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
-        report = int(form.cleaned_data["report"])
-        year = form.cleaned_data["year"] if form.cleaned_data["year"] else "None"
-
-        if report == 1:
-            return HttpResponseRedirect(reverse("grais:spp_sample_xlsx", kwargs={"species_list": species_list}))
-        elif report == 2:
-            return HttpResponseRedirect(reverse("grais:od1_report", kwargs={"year": year})) if form.cleaned_data[
-                "year"] else HttpResponseRedirect(reverse("grais:od1_report"))
-        elif report == 3:
-            return HttpResponseRedirect(reverse("grais:od1_dictionary"))
-        elif report == 4:
-            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang": 1}))
-        elif report == 5:
-            return HttpResponseRedirect(reverse("grais:od1_wms", kwargs={"year": year, "lang": 2}))
-        elif report == 6:
-            return HttpResponseRedirect(reverse("grais:gc_cpue_report", kwargs={"year": year}))
-        elif report == 7:
-            return HttpResponseRedirect(reverse("grais:gc_envr_report", kwargs={"year": year}))
-        elif report == 8:
-            return HttpResponseRedirect(reverse("grais:gc_site_report"))
-        elif report == 9:
-            return HttpResponseRedirect(reverse("grais:biofouling_pa_xlsx") + f"?year={year}")
-        else:
-            messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("grais:report_search"))
-
-
-def species_sample_spreadsheet_export(request, species_list):
-    file_url = reports.generate_species_sample_spreadsheet(species_list)
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="grais export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
-            return response
-    raise Http404
-
-
-def biofouling_presence_absence_spreadsheet_export(request):
-    year = request.GET["year"] if request.GET["year"] != "None" else None
-
-    file_url = reports.generate_biofouling_pa_spreadsheet(year)
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="biofouling presence absence {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
-            return response
-    raise Http404
-
-
-def export_open_data_ver1(request, year=None):
-    response = reports.generate_open_data_ver_1_report(year)
-    return response
-
-
-def export_open_data_ver1_dictionary(request):
-    response = reports.generate_open_data_ver_1_data_dictionary()
-    return response
-
-
-def export_open_data_ver1_wms(request, year, lang):
-    response = reports.generate_open_data_ver_1_wms_report(year, lang)
-    return response
-
-
-def export_gc_cpue(request, year):
-    file_url = reports.generate_gc_cpue_report(year)
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="{} green crab CPUE data.xlsx"'.format(year)
-            return response
-    raise Http404
-
-
-def export_gc_envr(request, year):
-    file_url = reports.generate_gc_envr_report(year)
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="{} green crab environmental data.xlsx"'.format(year)
-            return response
-    raise Http404
-
-
-def export_gc_sites(request):
-    file_url = reports.generate_gc_sites_report()
-
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
-            return response
-    raise Http404
 #
