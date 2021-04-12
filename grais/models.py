@@ -678,7 +678,7 @@ class GCProbeMeasurement(MetadataFields):
 
     sample = models.ForeignKey(GCSample, on_delete=models.DO_NOTHING, related_name="probe_data", editable=False)
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING)
-    time_date = models.DateTimeField(blank=True, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
+    time_date = models.DateTimeField(blank=False, null=True, verbose_name="date / Time (yyyy-mm-dd hh:mm:ss)")
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True, default="ADT")
     temp_c = models.FloatField(blank=True, null=True, verbose_name="temperature (°C)")
     sal = models.FloatField(blank=True, null=True, verbose_name="salinity")
@@ -690,7 +690,7 @@ class GCProbeMeasurement(MetadataFields):
     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
     cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="cloud cover (%)",
                                       validators=[MinValueValidator(0), MaxValueValidator(100)])
-    weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions (ctrl+click to select multiple)", blank=True)
+    weather_conditions = models.ManyToManyField(WeatherConditions, verbose_name="weather conditions", blank=True)
 
     # notes = models.TextField(blank=True, null=True)  # this field should be delete once all data has been entered
 
@@ -704,6 +704,10 @@ class GCProbeMeasurement(MetadataFields):
                 my_str += " / "
             my_str += self.get_tide_direction_display()
         return my_str
+
+    @property
+    def dt(self):
+        return f"{self.time_date.strftime('%Y-%m-%d %H:%M')} ({self.timezone})"
 
     def __str__(self):
         return "Probe measurement {}".format(self.id)
@@ -722,7 +726,7 @@ class Trap(MetadataFields, LatLongFields):
     BAIT_TYPE_CHOICES = (
         (HERR, 'Herring'),
     )
-    sample = models.ForeignKey(GCSample, related_name='traps', on_delete=models.DO_NOTHING)
+    sample = models.ForeignKey(GCSample, related_name='traps', on_delete=models.DO_NOTHING, editable=False)
     trap_number = models.IntegerField()
     trap_type = models.IntegerField(default=1, choices=TRAP_TYPE_CHOICES)
     bait_type = models.IntegerField(default=1, choices=BAIT_TYPE_CHOICES)
@@ -749,8 +753,15 @@ class Trap(MetadataFields, LatLongFields):
     def noninvasive_crabs_count(self):
         return self.get_noninvasive_crabs().count()
 
+    @property
+    def crab_count(self):
+        return self.get_crabs().count()
+
     def get_bycatch(self):
         return self.catch_spp.filter(species__green_crab_monitoring=False)
+
+    def get_crabs(self):
+        return self.catch_spp.filter(Q(species__green_crab_monitoring=True))
 
     def get_invasive_crabs(self):
         return self.catch_spp.filter(species__invasive=True)
@@ -769,7 +780,7 @@ class Catch(MetadataFields):
         (FEMALE, 'Female'),
         (UNK, 'Unknown'),
     )
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="catch_spp")
     trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="catch_spp")
     width = models.FloatField(blank=True, null=True)
     sex = models.IntegerField(blank=True, null=True, choices=SEX_CHOICES)
@@ -791,7 +802,7 @@ class Catch(MetadataFields):
 
     @property
     def is_bycatch(self):
-        return self.species.green_crab_monitoring == False
+        return not self.species.green_crab_monitoring
 
     @property
     def is_invasive_crab(self):

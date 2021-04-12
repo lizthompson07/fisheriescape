@@ -13,6 +13,8 @@ urlpatterns = [
     path('settings/probe/<int:pk>/delete/', shared_views.ProbeHardDeleteView.as_view(), name="delete_probe"),
     path('settings/samplers/', shared_views.SamplerFormsetView.as_view(), name="manage_samplers"),
     path('settings/sampler/<int:pk>/delete/', shared_views.SamplerHardDeleteView.as_view(), name="delete_sampler"),
+    path('settings/weather-conditions/', shared_views.WeatherConditionFormsetView.as_view(), name="manage_weather_conditions"),
+    path('settings/weather-condition/<int:pk>/delete/', shared_views.WeatherConditionHardDeleteView.as_view(), name="delete_weather_condition"),
 
     # species
     path('species/', shared_views.SpeciesListView.as_view(), name="species_list"),
@@ -116,10 +118,15 @@ urlpatterns = [
 
     # TRAP #
     ########
-    path('green-crab-samples/<int:gcsample>/new-trap/', gc_views.TrapCreateView.as_view(), name="trap_new"),
+    path('green-crab-samples/<int:sample>/new-trap/', gc_views.TrapCreateView.as_view(), name="trap_new"),
     path('traps/<int:pk>/view/', gc_views.TrapDetailView.as_view(), name="trap_detail"),
     path('traps/<int:pk>/edit/', gc_views.TrapUpdateView.as_view(), name="trap_edit"),
     path('traps/<int:pk>/delete/', gc_views.TrapDeleteView.as_view(), name="trap_delete"),
+
+    # catch observations #
+    ########################
+    path('traps/<int:pk>/<str:type>-observations/', gc_views.CatchObservationTemplateView.as_view(), name="catch_observations"),
+
     #
     # # path('bycatch/<int:pk>/delete/', gc_views.bycatch_delete, name="bycatch_delete"),
     # # path('trap/<int:trap>/crab/<int:species>/add/', gc_views.report_species_observation_add, name="crab_add"),

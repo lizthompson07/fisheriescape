@@ -320,37 +320,37 @@ class TrapForm(forms.ModelForm):
         }
 
 
-class CatchForm(forms.ModelForm):
-    class Meta:
-        model = models.Catch
-        fields = "__all__"
-        widgets = {
-            'species': forms.HiddenInput(),
-            'trap': forms.HiddenInput(),
-            # 'sex': forms.Select(attrs=chosen_js),
-            # 'percent_coverage': forms.TextInput(attrs={'placeholder': "Value bewteen 0 and 1"}),
-            'notes': forms.Textarea(attrs={"rows": "3", "placeholder": ""}),
-            'last_modified_by': forms.HiddenInput(),
-        }
+# class CatchForm(forms.ModelForm):
+#     class Meta:
+#         model = models.Catch
+#         fields = "__all__"
+#         widgets = {
+#             'species': forms.HiddenInput(),
+#             'trap': forms.HiddenInput(),
+#             # 'sex': forms.Select(attrs=chosen_js),
+#             # 'percent_coverage': forms.TextInput(attrs={'placeholder': "Value bewteen 0 and 1"}),
+#             'notes': forms.Textarea(attrs={"rows": "3", "placeholder": ""}),
+#             'last_modified_by': forms.HiddenInput(),
+#         }
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         if kwargs.get("instance"):
+#             if kwargs.get("instance").is_bycatch:
+#                 del self.fields["width"]
+#                 del self.fields["sex"]
+#                 del self.fields["carapace_color"]
+#                 del self.fields["abdomen_color"]
+#                 del self.fields["egg_color"]
+#             else:
+#                 del self.fields["count"]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if kwargs.get("instance"):
-            if kwargs.get("instance").is_bycatch:
-                del self.fields["width"]
-                del self.fields["sex"]
-                del self.fields["carapace_color"]
-                del self.fields["abdomen_color"]
-                del self.fields["egg_color"]
-            else:
-                del self.fields["count"]
 
-
-CatchFormSet = modelformset_factory(
-    model=models.Catch,
-    form=CatchForm,
-    extra=0,
-)
+# CatchFormSet = modelformset_factory(
+#     model=models.Catch,
+#     form=CatchForm,
+#     extra=0,
+# )
 
 
 class NewCatchForm(forms.Form):
@@ -389,5 +389,18 @@ class SamplerForm(forms.ModelForm):
 SamplerFormset = modelformset_factory(
     model=models.Sampler,
     form=SamplerForm,
+    extra=1,
+)
+
+
+class WeatherConditionForm(forms.ModelForm):
+    class Meta:
+        model = models.WeatherConditions
+        fields = "__all__"
+
+
+WeatherConditionFormset = modelformset_factory(
+    model=models.WeatherConditions,
+    form=WeatherConditionForm,
     extra=1,
 )

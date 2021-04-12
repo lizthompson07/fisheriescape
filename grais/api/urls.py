@@ -7,6 +7,7 @@ router.register(r'sample-species', views.SampleSpeciesViewSet)
 router.register(r'line-species', views.LineSpeciesViewSet)
 router.register(r'surface-species', views.SurfaceSpeciesViewSet)
 router.register(r'incidental-report-species', views.IncidentalReportSpeciesViewSet)
+router.register(r'catch-species', views.CatchViewSet)
 # router.register(r'extracts', views.DNAExtractViewSet)
 # router.register(r'pcrs', views.PCRViewSet)
 # router.register(r'observations', views.SpeciesObservationViewSet)
@@ -17,6 +18,7 @@ urlpatterns = [
 
 
     path("grais/meta/models/species/", views.SpeciesModelMetaAPIView.as_view(), name="grais-species-model-meta"),
+    path("grais/meta/models/catch/", views.CatchModelMetaAPIView.as_view(), name="grais-catch-model-meta"),
 
     # path("grais/meta/models/extract/", views.DNAExtractModelMetaAPIView.as_view(), name="edna-extract-model-meta"),
     # path("grais/meta/models/pcr/", views.PCRModelMetaAPIView.as_view(), name="edna-pcr-model-meta"),

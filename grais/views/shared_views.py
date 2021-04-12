@@ -60,6 +60,21 @@ class SamplerHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("grais:manage_samplers")
 
 
+class WeatherConditionFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
+    template_name = 'grais/formset.html'
+    h1 = "Manage Weather Conditions"
+    queryset = models.WeatherConditions.objects.all()
+    formset_class = forms.WeatherConditionFormset
+    success_url_name = "grais:manage_weather_conditions"
+    home_url_name = "grais:index"
+    delete_url_name = "grais:delete_weather_condition"
+
+class WeatherConditionHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
+    model = models.WeatherConditions
+    success_url = reverse_lazy("grais:manage_weather_conditions")
+
+
+
 # SPECIES #
 ###########
 
@@ -80,6 +95,7 @@ class SpeciesListView(GraisAccessRequiredMixin, CommonFilterView):
         {"name": 'aphia_id|WoRMS Aphia ID', "class": "", "width": ""},
         {"name": 'color_morph', "class": "", "width": ""},
         {"name": 'invasive', "class": "", "width": ""},
+        {"name": 'green_crab_monitoring|green crab monitoring?', "class": "", "width": ""},
         {"name": 'Has occurred in db?', "class": "", "width": ""},
     ]
 
@@ -134,6 +150,7 @@ class SpeciesDetailView(GraisAccessRequiredMixin, CommonDetailView):
         'epibiont_type',
         'color_morph',
         'invasive',
+        'green_crab_monitoring',
         'database occurrences',
     ]
 
