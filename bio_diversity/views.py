@@ -2732,10 +2732,10 @@ class LocMapTemplateView(mixins.MapMixin, UserPassesTestMixin, CommonFormView):
 
         if self.kwargs.get("n"):
             bbox = box(
-                float(self.kwargs.get("n")),
-                float(self.kwargs.get("e")),
-                float(self.kwargs.get("s")),
                 float(self.kwargs.get("w")),
+                float(self.kwargs.get("s")),
+                float(self.kwargs.get("e")),
+                float(self.kwargs.get("n")),
             )
 
             captured_locations_list = []

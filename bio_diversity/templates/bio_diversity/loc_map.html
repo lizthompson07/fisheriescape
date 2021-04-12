@@ -151,7 +151,7 @@
             {% for site in sites %}
                 var mySiteInfoText{{ site.id }} = '<b>Site:</b> <a href="{% url 'bio_diversity:details_relc' site.id %}">{{site.name}}</a><br><b>River:</b> <a href="{% url 'bio_diversity:details_rive' site.rive_id.id %}">{{site.rive_id.name}}</a>'
                 marker = new google.maps.Marker({
-                    position: new google.maps.LatLng({{site.bbox.centroid.x}}, {{site.bbox.centroid.y}}),
+                    position: new google.maps.LatLng({{site.bbox.centroid.y}}, {{site.bbox.centroid.x}}),
                     map: map,
                     //label: {text: "{{site.name}}", color: "#ffffff"},
                 });
@@ -165,13 +165,13 @@
                 // extend bounds var
                 bounds.extend(marker.position);
                 {% for point in site.bbox.exterior.coords %}
-                    bounds.extend(new google.maps.LatLng({{point.0}}, {{ point.1 }}));
+                    bounds.extend(new google.maps.LatLng({{point.1}}, {{ point.0 }}));
                 {% endfor %}
 
                 // Define the LatLng coordinates for the polygon's path.
                 var polygonCoords = [
                     {% for point in site.bbox.exterior.coords %}
-                        {lat: {{point.0}}, lng: {{point.1}}},
+                        {lat: {{point.1}}, lng: {{point.0}}},
                     {% endfor %}
                 ];
 

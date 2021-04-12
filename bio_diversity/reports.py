@@ -35,7 +35,6 @@ def generate_facility_tank_report(facic_id):
 
     qs_list = [("Tank", tank_qs), ("Trough", tray_qs), ("Drawer", draw_qs), ("Cup", cup_qs)]
 
-
     wb = load_workbook(filename=template_file_path)
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the

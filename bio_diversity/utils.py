@@ -54,7 +54,8 @@ def val_unit_splitter(full_str):
 
 def daily_dev(degree_day):
     dev = 100 / math.exp(6.002994 * math.exp(-0.03070758 * degree_day))
-    return  dev
+    return dev
+
 
 def parse_concentration(concentration_str):
     if "%" in concentration_str:
@@ -148,6 +149,15 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return draw_qs.get()
     else:
         return
+
+
+def get_relc_from_point(shapely_geom):
+    relc_qs = models.ReleaseSiteCode.objects.all()
+    for relc in relc_qs:
+        # need to add infinitesimal buffer to deal with rounding issue
+        if relc.bbox.buffer(1e-14).contains(shapely_geom):
+            return relc
+    return None
 
 
 def comment_parser(comment_str, anix_indv, det_date):

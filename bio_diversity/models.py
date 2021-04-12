@@ -1256,24 +1256,33 @@ class Location(BioModel):
 
     @property
     def point(self):
+        # lon = x, lat = y
         if self.loc_lat and self.loc_lon:
-            return Point(self.loc_lat, self.loc_lon)
+            return Point(self.loc_lon, self.loc_lat)
         else:
             return Point()
 
     @property
     def end_point(self):
         if self.end_lat and self.end_lon:
-            return Point(self.end_lat, self.end_lon)
+            return Point(self.end_lon, self.end_lat)
         else:
             return Point()
 
     @property
     def linestring(self):
         if self.loc_lat and self.loc_lon and self.end_lat and self.end_lon:
-            return LineString([(self.loc_lat, self.loc_lon), (self.end_lat, self.end_lon)])
+            return LineString([(self.loc_lon, self.loc_lat), (self.end_lon, self.end_lat)])
         else:
             return Point()
+
+    def save(self, *args, **kwargs):
+        if not self.relc_id and self.point:
+            self.relc_id = utils.get_relc_from_point(self.point)
+            if not self.relc_id and self.end_point:
+                self.relc_id = utils.get_relc_from_point(self.linestring)
+
+        super(Location, self).save(*args, **kwargs)
 
 
 class LocCode(BioLookup):
@@ -1445,11 +1454,12 @@ class ReleaseSiteCode(BioLookup):
 
     @property
     def bbox(self):
+        # lon = x, lat = y
         bbox = box(
-                float(self.max_lat),
-                float(self.max_lon),
-                float(self.min_lat),
                 float(self.min_lon),
+                float(self.min_lat),
+                float(self.max_lon),
+                float(self.max_lat),
             )
         return bbox
 

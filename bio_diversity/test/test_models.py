@@ -18,8 +18,7 @@ class TestGrpModel(CommonTest):
         # test that previous details with same code are made invalid
         grp = models.Group.objects.filter(pk=46).get()
         grp_dev = grp.get_development()
-
-        self.assertTrue(False)
+        self.assertEqual(round(grp_dev, 3),  7.261)
 
 
 @tag("Grpd", 'models')
@@ -56,5 +55,35 @@ class TestIndvdModel(CommonTest):
         self.assertTrue(models.IndividualDet.objects.filter(pk=initial_id).get().indvd_valid)
         initial_instance.save()
         self.assertFalse(models.IndividualDet.objects.filter(pk=initial_id).get().indvd_valid)
+
+
+@tag("Loc", 'models')
+class TestLocModel(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.data = BioFactoryFloor.LocFactory()
+
+    def test_find_relc_from_point(self):
+        # test that given no relc_id one is set based off of location:
+        models.ReleaseSiteCode.objects.all().delete()
+        relc = BioFactoryFloor.RelcFactory()
+        loc = BioFactoryFloor.LocFactory()
+        loc.relc_id = None
+        loc.loc_lat = relc.min_lat
+        loc.loc_lon = relc.min_lon
+        loc.save()
+        self.assertEqual(loc.relc_id, relc)
+
+    def test_no_relc_no_point(self):
+        # test that given no relc_id one is not set based off of location:
+        models.ReleaseSiteCode.objects.all().delete()
+        relc = BioFactoryFloor.RelcFactory()
+        loc = BioFactoryFloor.LocFactory()
+        loc.relc_id = None
+        loc.loc_lat = None
+        loc.loc_lon = None
+        loc.save()
+        self.assertEqual(loc.relc_id, None)
 
 
