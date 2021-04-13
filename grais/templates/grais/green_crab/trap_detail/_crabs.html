@@ -19,7 +19,7 @@
         </button>
       </div>
       <div class="modal-body">
-        {% if not object.catch_spp.exists %}
+        {% if not object.get_crabs.exists %}
           <em>No crabs were caught in this trap.</em>
         {% else %}
           <table class="table table-sm">
@@ -27,12 +27,12 @@
             <tr>
               <th>#</th>
               {% for field in crab_field_list %}
-                <th>{% get_verbose_label object.catch_spp.first field %}</th>
+                <th>{% get_verbose_label object.get_crabs.first field %}</th>
               {% endfor %}
             </tr>
             </thead>
             <tbody>
-            {% for obj in object.catch_spp.all %}
+            {% for obj in object.get_crabs.all %}
               <tr>
                 <td>{{ forloop.counter }}</td>
                 {% for field in crab_field_list %}

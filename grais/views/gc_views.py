@@ -272,6 +272,7 @@ class GCSampleDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         context["trap_field_list"] = [
             'trap_number',
             'trap_type',
+            'coordinates',
             'total_green_crab_wt_kg',
             'bycatch_count|{}'.format("bycatch count"),
             'invasive_crabs_count|{}'.format("invasive crab count"),
@@ -370,6 +371,7 @@ class TrapDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         'trap_type',
         'bait_type',
         'depth_at_set_m',
+        'coordinates',
         'gps_waypoint',
         'notes',
         'total_green_crab_wt_kg',
