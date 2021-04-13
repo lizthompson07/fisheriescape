@@ -39,6 +39,7 @@ class TestGrpModel(CommonTest):
         entry_date = self.evnt_date - timedelta(days=1)
         utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
         grp_dev = self.grp.get_development()
+        # compare to hard coded value corresponding to 10 days of sequential temperature increases:
         self.assertEqual(round(grp_dev, 3),  5.826)
 
     def test_movement_development(self):

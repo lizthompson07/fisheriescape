@@ -1400,8 +1400,10 @@ class DataForm(CreatePrams):
                     # want to shift the hu move event, so that the counting math always works out.
                     hu_move_date = move_date + timedelta(minutes=1)
                     hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)
-                    utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk)
+                    hu_anix = utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk)
                     hu_contx = utils.enter_contx(row["trays"], hu_cleaned_data, None, grp_pk=row["grps"].pk, return_contx=True)
+                    dev_at_hu_transfer = row["grps"].get_development(hu_move_date)
+                    utils.enter_grpd(hu_anix.pk, hu_cleaned_data, hu_move_date, dev_at_hu_transfer, "Development")
 
                     # HU Picks:
                     hu_pick_cnt = utils.enter_cnt(cleaned_data, row["HU transfer TOTAL"], hu_contx.pk, cnt_code="HU Transfer Loss")
@@ -1419,7 +1421,7 @@ class DataForm(CreatePrams):
                         ("# of PEQUs", "PEQU Location stack.tray", "Actual PEQU Wt (g)", "PEQU")
                     ]
 
-                    # eggs out:
+                    # track eggs moving out:
                     all_eggs_out = 0
                     out_cnt = utils.enter_cnt(cleaned_data, 0, hu_contx.pk, cnt_code="Eggs Removed")
                     for move_cnt, move_cup, move_weight, cnt_code in move_tuples:
@@ -1453,6 +1455,7 @@ class DataForm(CreatePrams):
                         final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk)
                         utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), "Parent Group", frm_grp_id=row["grps"])
                         utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, None, "Program Group", adsc_str=cnt_code)
+                        utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, dev_at_hu_transfer, "Development")
 
                         # create movement for the new group, create 2 contx's and 3 anix's
                         # tray contx is contx used tyo link the positive counts

@@ -220,7 +220,7 @@ class BioCont(BioLookup):
         return indv_list, grp_list
 
     def degree_days(self, start_date, end_date):
-        return 0
+        return []
 
 
 class AnimalDetCode(BioLookup):
