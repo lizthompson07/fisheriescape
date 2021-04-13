@@ -31,7 +31,7 @@ class IndexView(GraisAccessRequiredMixin, CommonTemplateView):
 
 # SETTINGS
 class ProbeFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
-    template_name = 'shared_models/generic_formset.html'
+    template_name = 'grais/formset.html'
     h1 = "Manage Probes"
     queryset = models.Probe.objects.all()
     formset_class = forms.ProbeFormset

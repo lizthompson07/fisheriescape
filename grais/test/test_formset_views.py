@@ -5,8 +5,8 @@ from django.utils.translation import activate
 from shared_models.test.common_tests import CommonTest
 from ..test import FactoryFloor
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
-from ..views import biofouling_views
-from .. import models
+from ..views import biofouling_views, shared_views
+from .. import models, mixins
 from faker import Factory
 
 faker = Factory.create()
@@ -16,24 +16,24 @@ class TestAllFormsets(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url_names = [
-            "manage_filtration_types",
-            "manage_dna_extraction_protocols",
-            "manage_tags",
+            "manage_probes",
+            "manage_samplers",
+            "manage_weather_conditions",
         ]
 
-        self.test_urls = [reverse_lazy("edna:" + name) for name in self.test_url_names]
+        self.test_urls = [reverse_lazy("grais:" + name) for name in self.test_url_names]
         self.test_views = [
-            biofouling_views.FiltrationTypeFormsetView,
-            biofouling_views.DNAExtractionProtocolFormsetView,
-            biofouling_views.TagFormsetView,
+            shared_views.ProbeFormsetView,
+            shared_views.SamplerFormsetView,
+            shared_views.WeatherConditionFormsetView,
         ]
-        self.expected_template = 'edna/formset.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.expected_template = 'grais/formset.html'
+        self.user = self.get_and_login_user(in_group="grais_admin")
 
     @tag('formsets', "view")
     def test_view_class(self):
         for v in self.test_views:
-            self.assert_inheritance(v, biofouling_views.eDNAAdminRequiredMixin)
+            self.assert_inheritance(v, mixins.GraisAdminRequiredMixin)
             self.assert_inheritance(v, CommonFormsetView)
 
     @tag('formsets', "access")
@@ -53,32 +53,32 @@ class TestAllHardDeleteViews(CommonTest):
     def setUp(self):
         super().setUp()
         self.starter_dicts = [
-            {"model": models.FiltrationType, "url_name": "delete_filtration_type", "view": biofouling_views.FiltrationTypeHardDeleteView},
-            {"model": models.DNAExtractionProtocol, "url_name": "delete_dna_extraction_protocol", "view": biofouling_views.DNAExtractionProtocolHardDeleteView},
-            {"model": models.Tag, "url_name": "delete_tag", "view": biofouling_views.TagHardDeleteView},
+            {"model": models.Probe, "url_name": "delete_probe", "view": shared_views.ProbeHardDeleteView},
+            {"model": models.Sampler, "url_name": "delete_sampler", "view": shared_views.SamplerHardDeleteView},
+            {"model": models.WeatherConditions, "url_name": "delete_weather_condition", "view": shared_views.WeatherConditionHardDeleteView},
         ]
         self.test_dicts = list()
 
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(in_group="grais_admin")
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
-            if m == models.FiltrationType:
-                obj = FactoryFloor.FiltrationTypeFactory()
-            elif m == models.DNAExtractionProtocol:
-                obj = FactoryFloor.DNAExtractionProtocolFactory()
-            elif m == models.Tag:
-                obj = FactoryFloor.TagFactory()
+            if m == models.Probe:
+                obj = FactoryFloor.ProbeFactory()
+            elif m == models.Sampler:
+                obj = FactoryFloor.SamplerFactory()
+            elif m == models.WeatherConditions:
+                obj = FactoryFloor.WeatherConditionsFactory()
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
-            new_d["url"] = reverse_lazy("edna:" + d["url_name"], kwargs={"pk": obj.id})
+            new_d["url"] = reverse_lazy("grais:" + d["url_name"], kwargs={"pk": obj.id})
             self.test_dicts.append(new_d)
 
     @tag('hard_delete', "view")
     def test_view_class(self):
         for d in self.test_dicts:
-            self.assert_inheritance(d["view"], biofouling_views.eDNAAdminRequiredMixin)
+            self.assert_inheritance(d["view"], mixins.GraisAdminRequiredMixin)
             self.assert_inheritance(d["view"], CommonHardDeleteView)
 
     @tag('hard_delete', "access")

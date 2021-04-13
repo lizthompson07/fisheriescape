@@ -9,12 +9,12 @@ urlpatterns = [
     # SETTINGS
     path('', shared_views.IndexView.as_view(), name="index"),
 
-    path('settings/probes/', shared_views.ProbeFormsetView.as_view(), name="manage_probes"),
-    path('settings/probe/<int:pk>/delete/', shared_views.ProbeHardDeleteView.as_view(), name="delete_probe"),
-    path('settings/samplers/', shared_views.SamplerFormsetView.as_view(), name="manage_samplers"),
-    path('settings/sampler/<int:pk>/delete/', shared_views.SamplerHardDeleteView.as_view(), name="delete_sampler"),
-    path('settings/weather-conditions/', shared_views.WeatherConditionFormsetView.as_view(), name="manage_weather_conditions"),
-    path('settings/weather-condition/<int:pk>/delete/', shared_views.WeatherConditionHardDeleteView.as_view(), name="delete_weather_condition"),
+    path('settings/probes/', shared_views.ProbeFormsetView.as_view(), name="manage_probes"),  # tested
+    path('settings/probe/<int:pk>/delete/', shared_views.ProbeHardDeleteView.as_view(), name="delete_probe"),  # tested
+    path('settings/samplers/', shared_views.SamplerFormsetView.as_view(), name="manage_samplers"),  # tested
+    path('settings/sampler/<int:pk>/delete/', shared_views.SamplerHardDeleteView.as_view(), name="delete_sampler"),  # tested
+    path('settings/weather-conditions/', shared_views.WeatherConditionFormsetView.as_view(), name="manage_weather_conditions"),  # tested
+    path('settings/weather-condition/<int:pk>/delete/', shared_views.WeatherConditionHardDeleteView.as_view(), name="delete_weather_condition"),  # tested
 
     # species
     path('species/', shared_views.SpeciesListView.as_view(), name="species_list"),
@@ -101,9 +101,9 @@ urlpatterns = [
     path('sites/<int:pk>/view/', gc_views.SiteDetailView.as_view(), name="site_detail"),
     path('sites/<int:pk>/edit/', gc_views.SiteUpdateView.as_view(), name="site_edit"),
     path('sites/<int:pk>/delete/', gc_views.SiteDeleteView.as_view(), name="site_delete"),
-    #
+
     # GC SAMPLE #
-    ##########
+    #############
     path('green-crab-samples/', gc_views.GCSampleListView.as_view(), name="gcsample_list"),
     path('green-crab-samples/new/', gc_views.GCSampleCreateView.as_view(), name="gcsample_new"),
     path('green-crab-samples/<int:pk>/view/', gc_views.GCSampleDetailView.as_view(), name="gcsample_detail"),
