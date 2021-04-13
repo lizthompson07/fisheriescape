@@ -15,24 +15,24 @@ from shared_models.models import SimpleLookup, UnilingualSimpleLookup, Unilingua
 
 class Process(SimpleLookup, MetadataFields):
     ''' csas process '''
-    pass
+
+    # TODO: MAKE ME A CHOICE FIELD
+    type = models.ForeignKey(RetType, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Request Type"))
     assigned_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Assigned Request Number"))
     in_year_request = models.BooleanField(null=True, blank=True, verbose_name=_("In-Year Request"))
 
-    # not possible to have multiple regions ? (DJF)
+    # todo: not possible to have multiple regions ? (DJF)
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Region"))
-    # directorate_branch = models.ForeignKey(BraBranch, null=True, blank=True, on_delete=models.DO_NOTHING,
+
+    # todo: can we use Branch and Sector shared models? Masterlist has a model called sector. It is very problematic.
     directorate_branch = models.ManyToManyField(BraBranch, blank=True, verbose_name=_("Directorate Branch"))
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
+
+    # TODO: is this not already in the person table?
     client_title = models.CharField(max_length=255, verbose_name=_("Client Title"))
 
-    client_name = models.ManyToManyField('Person', blank=True, related_name="client_name", verbose_name=_("Client Name"))
-    manager_name = models.ManyToManyField('Person', blank=True, related_name="manager_name", verbose_name=_("Manager Name"))
-
-    # TODO: MAKE ME A CHOICE FIELD
-    request_type = models.ForeignKey(RetType, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Request Type"))
-
-    zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Zonal"))  # is this not implied by which regions are involved? can this be a prop?
+    # todo: is this not implied by which regions are involved? can this be a prop?
+    zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Zonal"))
     zonal_text = models.TextField(null=True, blank=True, verbose_name=_("Zonal Text"))
 
     issue = models.TextField(verbose_name=_("Issue"),
@@ -53,8 +53,7 @@ class Process(SimpleLookup, MetadataFields):
     # TODO: MAKE ME A CHOICE FIELD
     proposed_timing = models.ForeignKey(RetTiming, on_delete=models.DO_NOTHING, verbose_name=_("Proposed Timing"),
                                         help_text=_("Latest possible date to receive Science Advice."))
-    rationale_for_timing = models.TextField(verbose_name=_("Rationale for Timing"),
-                                            help_text=_("Explain rationale for proposed timing."))
+    rationale_for_timing = models.TextField(verbose_name=_("Rationale for Timing"), help_text=_("Explain rationale for proposed timing."))
 
     funding = models.BooleanField(help_text=_("Do you have funds to cover extra costs associated with this request?"))
     funding_notes = models.TextField(max_length=512, verbose_name=_("Funding Notes"))
@@ -65,24 +64,22 @@ class Process(SimpleLookup, MetadataFields):
                                                 help_text=_("If you have talked to Science about this request, "
                                                             "to whom have you talked?"))
 
-    coordinator_name = models.ManyToManyField('Person', blank=True, related_name="coordinator_name", verbose_name=_("Coordinator Name"))
-    director_name = models.ManyToManyField('Person', blank=True, related_name="director_name", verbose_name=_("Director Name"))
+    # section for links to people
+    clients = models.ManyToManyField('Person', blank=True, related_name="client_name", verbose_name=_("Client Name"))
+    managers = models.ManyToManyField('Person', blank=True, related_name="manager_name", verbose_name=_("Manager Name"))
+    coordinators = models.ManyToManyField('Person', blank=True, related_name="coordinator_name", verbose_name=_("Coordinator Name"))
+    # todo: needs clarification. Are we talking about sector heads? if so, could these data be stored in a different table? I suspect this is a redundant field
+    directors = models.ManyToManyField('Person', blank=True, related_name="director_name", verbose_name=_("Director Name"))
 
-    fiscal_year_text = models.TextField(null=True, blank=True, verbose_name=_("Fiscal Year Text"))
-    submission_date = models.DateField(null=True, blank=True, verbose_name=_("Submission Date"),
-                                       help_text=_("Format: YYYY-MM-DD."))
-
-    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"),
-                                          help_text=_("Format: YYYY-MM-DD."))
-    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"),
-                                     help_text=_("Format: YYYY-MM-DD."))
-
-    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"),
-                                     help_text=_("Format: YYYY-MM-DD."))
+    submission_date = models.DateField(null=True, blank=True, verbose_name=_("Submission Date"), help_text=_("Format: YYYY-MM-DD."))
+    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"), help_text=_("Format: YYYY-MM-DD."))
+    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"), help_text=_("Format: YYYY-MM-DD."))
+    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"), help_text=_("Format: YYYY-MM-DD."))
     signature = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Signature"))
 
     # TODO: MAKE ME A CHOICE FIELD
     status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
+    # TODO: what language? can we not just have title_en, title_fr ...
     trans_title = models.CharField(max_length=255, verbose_name=_("Translated Title"))
 
     # TODO: MAKE ME A CHOICE FIELD
@@ -91,8 +88,7 @@ class Process(SimpleLookup, MetadataFields):
     # TODO: MAKE ME A CHOICE FIELD - This is also a weird dropdown...
     decision_exp = models.ForeignKey(RdeDecisionExplanation, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Decision Explanation"))
     rationale_for_decision = models.TextField(null=True, blank=True, verbose_name=_("Rationale for Decision"))
-    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"),
-                                     help_text=_("Format: YYYY-MM-DD."))
+    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"), help_text=_("Format: YYYY-MM-DD."))
 
     def __str__(self):
         return "{}".format(self.title)
