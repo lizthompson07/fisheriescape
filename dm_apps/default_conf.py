@@ -44,6 +44,7 @@ APP_DICT = {
     'trapnet': dict(name="TrapNet", staff_ids=[50, ]),
     'whalesdb': dict(name="Whale Equipment Deployment Inventory", staff_ids=[382, ]),
     'csas': dict(name="Canadian Science Advisory Secretariat", staff_ids=[382, 581]),
+    'csas2': dict(name="Canadian Science Advisory Secretariat v2.0", staff_ids=[382, 581, 50, 1337]),
     'vault': dict(name="Marine Megafauna Media Vault", staff_ids=[452, ]),
     'whalebrary': dict(name="Whalebrary Marine Mammal Tools", staff_ids=[452, ]),
     # 'spring_cleanup': dict(name="Gulf Region Spring Cleanup", staff_ids=[50, ]),

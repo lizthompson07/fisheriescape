@@ -340,6 +340,19 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["csas2"] = {
+            "title": _("Canadian Science Advisory Secretariat (v2)"),
+            "description": _("Tool for tracking meetings, requests and publications."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('csas2:index'),
+            "icon_path": 'img/csas/csas_image.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["bio_diversity"] = {
             "title": _("Biodiversity"),
             "description": _("Tool for Biodiversity project"),

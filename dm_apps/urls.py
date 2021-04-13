@@ -221,6 +221,12 @@ if settings.INSTALLED_APPS.count("csas"):
 else:
     print("not connecting csas app")
 
+if settings.INSTALLED_APPS.count("csas2"):
+    urlpatterns += i18n_patterns(path('csas2/', include('csas2.urls')), prefix_default_language=True)
+else:
+    print("not connecting csas2 app")
+
+
 if settings.INSTALLED_APPS.count("bio_diversity"):
     urlpatterns += i18n_patterns(path('bio_diversity/', include('bio_diversity.urls')), prefix_default_language=True)
 else:
