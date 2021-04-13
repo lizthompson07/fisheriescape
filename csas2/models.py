@@ -19,18 +19,20 @@ class Process(SimpleLookup, MetadataFields):
     assigned_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Assigned Request Number"))
     in_year_request = models.BooleanField(null=True, blank=True, verbose_name=_("In-Year Request"))
 
+    # not possible to have multiple regions ? (DJF)
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Region"))
     # directorate_branch = models.ForeignKey(BraBranch, null=True, blank=True, on_delete=models.DO_NOTHING,
     directorate_branch = models.ManyToManyField(BraBranch, blank=True, verbose_name=_("Directorate Branch"))
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
     client_title = models.CharField(max_length=255, verbose_name=_("Client Title"))
 
-    client_name = models.ManyToManyField(ConContact, blank=True, related_name="client_name", verbose_name=_("Client Name"))
-    manager_name = models.ManyToManyField(ConContact, blank=True, related_name="manager_name", verbose_name=_("Manager Name"))
+    client_name = models.ManyToManyField('Person', blank=True, related_name="client_name", verbose_name=_("Client Name"))
+    manager_name = models.ManyToManyField('Person', blank=True, related_name="manager_name", verbose_name=_("Manager Name"))
 
+    # TODO: MAKE ME A CHOICE FIELD
     request_type = models.ForeignKey(RetType, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Request Type"))
 
-    zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Zonal")) # is this not implied by which regions are involved? can this be a prop?
+    zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Zonal"))  # is this not implied by which regions are involved? can this be a prop?
     zonal_text = models.TextField(null=True, blank=True, verbose_name=_("Zonal Text"))
 
     issue = models.TextField(verbose_name=_("Issue"),
@@ -41,12 +43,14 @@ class Process(SimpleLookup, MetadataFields):
     assistance = models.BooleanField(null=True, blank=True, verbose_name=_("Assistance"))
     assistance_text = models.TextField(null=True, blank=True, verbose_name=_("Assistance Text"))
 
+    # TODO: MAKE ME A CHOICE FIELD
     priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING, verbose_name=_("Priority"))
     rationale = models.TextField(verbose_name=_("Rationale for Request"),
                                  help_text=_("Rationale or context for the request: What will the information/advice "
                                              "be used for? Who will be the end user(s)? Will it impact other DFO "
                                              "programs or regions?"))
 
+    # TODO: MAKE ME A CHOICE FIELD
     proposed_timing = models.ForeignKey(RetTiming, on_delete=models.DO_NOTHING, verbose_name=_("Proposed Timing"),
                                         help_text=_("Latest possible date to receive Science Advice."))
     rationale_for_timing = models.TextField(verbose_name=_("Rationale for Timing"),
@@ -61,10 +65,8 @@ class Process(SimpleLookup, MetadataFields):
                                                 help_text=_("If you have talked to Science about this request, "
                                                             "to whom have you talked?"))
 
-    coordinator_name = models.ManyToManyField(ConContact, blank=True, related_name="coordinator_name",
-                                              verbose_name=_("Coordinator Name"))
-    director_name = models.ManyToManyField(ConContact, blank=True, related_name="director_name",
-                                           verbose_name=_("Director Name"))
+    coordinator_name = models.ManyToManyField('Person', blank=True, related_name="coordinator_name", verbose_name=_("Coordinator Name"))
+    director_name = models.ManyToManyField('Person', blank=True, related_name="director_name", verbose_name=_("Director Name"))
 
     fiscal_year_text = models.TextField(null=True, blank=True, verbose_name=_("Fiscal Year Text"))
     submission_date = models.DateField(null=True, blank=True, verbose_name=_("Submission Date"),
@@ -79,15 +81,15 @@ class Process(SimpleLookup, MetadataFields):
                                      help_text=_("Format: YYYY-MM-DD."))
     signature = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Signature"))
 
-    request = models.OneToOneField(ReqRequest, on_delete=models.CASCADE, primary_key=True, related_name="req_status")
-    # status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, blank=True, null=True,
-    #                            verbose_name=_("Status"))
+    # TODO: MAKE ME A CHOICE FIELD
     status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
     trans_title = models.CharField(max_length=255, verbose_name=_("Translated Title"))
-    decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                 verbose_name=_("Decision"))
-    decision_exp = models.ForeignKey(RdeDecisionExplanation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                     verbose_name=_("Decision Explanation"))
+
+    # TODO: MAKE ME A CHOICE FIELD
+    decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Decision"))
+
+    # TODO: MAKE ME A CHOICE FIELD - This is also a weird dropdown...
+    decision_exp = models.ForeignKey(RdeDecisionExplanation, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Decision Explanation"))
     rationale_for_decision = models.TextField(null=True, blank=True, verbose_name=_("Rationale for Decision"))
     decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"),
                                      help_text=_("Format: YYYY-MM-DD."))
@@ -115,7 +117,6 @@ class Meeting(SimpleLookup, MetadataFields):
     type = models.IntegerField(choices=type_choices, verbose_name=_("type of event"))
     start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
-    from_email = models.EmailField(default=settings.SITE_FROM_EMAIL, verbose_name=_("FROM email address (on invitation)"))
     rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))
 
     # calculated
