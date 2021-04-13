@@ -845,6 +845,10 @@ class Group(BioModel):
                     degree_days.extend(cont.degree_days(start_date, end_date))
                     start_date = False
 
+        if start_date and cont and not end_date:
+            # catch group's current tank
+            degree_days.extend(cont.degree_days(start_date, end_date))
+
         dev = sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
 
         return dev

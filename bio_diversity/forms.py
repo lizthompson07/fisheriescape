@@ -1388,11 +1388,12 @@ class DataForm(CreatePrams):
                         utils.create_picks_evnt(cleaned_data, row["trays"], row["grps"].pk, row[pick_key], pick_datetime, pick_code)
 
                     # Shocking:
-                    shock_date = row["Shocking Pick Date"]
+                    shock_date = datetime.strptime(row["Shocking Pick Date"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
                     shocking_cleaned_data = utils.create_new_evnt(cleaned_data, "Shocking", shock_date)
                     utils.enter_contx(row["trays"], shocking_cleaned_data, None, grp_pk=row["grps"].pk)
                     shock_anix = utils.enter_anix(shocking_cleaned_data, grp_pk=row["grps"].pk)
-                    utils.enter_grpd(shock_anix.pk, shocking_cleaned_data, shock_date, 17, "Development")
+                    dev_at_shocking = row["grps"].get_development(shock_date)
+                    utils.enter_grpd(shock_anix.pk, shocking_cleaned_data, shock_date, dev_at_shocking, "Development")
 
                     # HU Transfer:
                     move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
