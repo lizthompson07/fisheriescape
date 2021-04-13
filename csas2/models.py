@@ -10,10 +10,93 @@ from shared_models.models import SimpleLookup, UnilingualSimpleLookup, Unilingua
 # citations
 # person
 # organization
+# DFO ORGS (region, section etc.)
+
 
 class Process(SimpleLookup, MetadataFields):
     ''' csas process '''
     pass
+    assigned_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Assigned Request Number"))
+    in_year_request = models.BooleanField(null=True, blank=True, verbose_name=_("In-Year Request"))
+
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Region"))
+    # directorate_branch = models.ForeignKey(BraBranch, null=True, blank=True, on_delete=models.DO_NOTHING,
+    directorate_branch = models.ManyToManyField(BraBranch, blank=True, verbose_name=_("Directorate Branch"))
+    client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
+    client_title = models.CharField(max_length=255, verbose_name=_("Client Title"))
+
+    client_name = models.ManyToManyField(ConContact, blank=True, related_name="client_name", verbose_name=_("Client Name"))
+    manager_name = models.ManyToManyField(ConContact, blank=True, related_name="manager_name", verbose_name=_("Manager Name"))
+
+    request_type = models.ForeignKey(RetType, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Request Type"))
+
+    zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Zonal")) # is this not implied by which regions are involved? can this be a prop?
+    zonal_text = models.TextField(null=True, blank=True, verbose_name=_("Zonal Text"))
+
+    issue = models.TextField(verbose_name=_("Issue"),
+                             help_text=_("Issue requiring science information and/or advice. Posted as a question "
+                                         "to be answered by Science."))
+    consequence_text = models.TextField(null=True, blank=True, verbose_name=_("Consequence Text"))
+
+    assistance = models.BooleanField(null=True, blank=True, verbose_name=_("Assistance"))
+    assistance_text = models.TextField(null=True, blank=True, verbose_name=_("Assistance Text"))
+
+    priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING, verbose_name=_("Priority"))
+    rationale = models.TextField(verbose_name=_("Rationale for Request"),
+                                 help_text=_("Rationale or context for the request: What will the information/advice "
+                                             "be used for? Who will be the end user(s)? Will it impact other DFO "
+                                             "programs or regions?"))
+
+    proposed_timing = models.ForeignKey(RetTiming, on_delete=models.DO_NOTHING, verbose_name=_("Proposed Timing"),
+                                        help_text=_("Latest possible date to receive Science Advice."))
+    rationale_for_timing = models.TextField(verbose_name=_("Rationale for Timing"),
+                                            help_text=_("Explain rationale for proposed timing."))
+
+    funding = models.BooleanField(help_text=_("Do you have funds to cover extra costs associated with this request?"))
+    funding_notes = models.TextField(max_length=512, verbose_name=_("Funding Notes"))
+
+    science_discussion = models.BooleanField(verbose_name=_("Science Discussion"),
+                                             help_text=_("Have you talked to Science about this request?"))
+    science_discussion_notes = models.CharField(max_length=100, verbose_name=_("Science Discussion Notes"),
+                                                help_text=_("If you have talked to Science about this request, "
+                                                            "to whom have you talked?"))
+
+    coordinator_name = models.ManyToManyField(ConContact, blank=True, related_name="coordinator_name",
+                                              verbose_name=_("Coordinator Name"))
+    director_name = models.ManyToManyField(ConContact, blank=True, related_name="director_name",
+                                           verbose_name=_("Director Name"))
+
+    fiscal_year_text = models.TextField(null=True, blank=True, verbose_name=_("Fiscal Year Text"))
+    submission_date = models.DateField(null=True, blank=True, verbose_name=_("Submission Date"),
+                                       help_text=_("Format: YYYY-MM-DD."))
+
+    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"),
+                                          help_text=_("Format: YYYY-MM-DD."))
+    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
+
+    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
+    signature = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Signature"))
+
+    request = models.OneToOneField(ReqRequest, on_delete=models.CASCADE, primary_key=True, related_name="req_status")
+    # status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, blank=True, null=True,
+    #                            verbose_name=_("Status"))
+    status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
+    trans_title = models.CharField(max_length=255, verbose_name=_("Translated Title"))
+    decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                 verbose_name=_("Decision"))
+    decision_exp = models.ForeignKey(RdeDecisionExplanation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                     verbose_name=_("Decision Explanation"))
+    rationale_for_decision = models.TextField(null=True, blank=True, verbose_name=_("Rationale for Decision"))
+    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"),
+                                     help_text=_("Format: YYYY-MM-DD."))
+
+    def __str__(self):
+        return "{}".format(self.title)
+
+    class Meta:
+        ordering = ['-id']
 
 
 class Meeting(SimpleLookup, MetadataFields):
