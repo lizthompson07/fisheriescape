@@ -17,11 +17,11 @@ urlpatterns = [
     path('settings/weather-condition/<int:pk>/delete/', shared_views.WeatherConditionHardDeleteView.as_view(), name="delete_weather_condition"),  # tested
 
     # species
-    path('species/', shared_views.SpeciesListView.as_view(), name="species_list"),
-    path('species/new/', shared_views.SpeciesCreateView.as_view(), name="species_new"),
-    path('species/<int:pk>/edit/', shared_views.SpeciesUpdateView.as_view(), name="species_edit"),
-    path('species/<int:pk>/delete/', shared_views.SpeciesDeleteView.as_view(), name="species_delete"),
-    path('species/<int:pk>/view/', shared_views.SpeciesDetailView.as_view(), name="species_detail"),
+    path('species/', shared_views.SpeciesListView.as_view(), name="species_list"),  # tested
+    path('species/new/', shared_views.SpeciesCreateView.as_view(), name="species_new"),  # tested
+    path('species/<int:pk>/edit/', shared_views.SpeciesUpdateView.as_view(), name="species_edit"),  # tested
+    path('species/<int:pk>/delete/', shared_views.SpeciesDeleteView.as_view(), name="species_delete"),  # tested
+    path('species/<int:pk>/view/', shared_views.SpeciesDetailView.as_view(), name="species_detail"),  # tested
 
     # station #
     ###########

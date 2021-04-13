@@ -22,8 +22,8 @@ class SpeciesFactory(factory.django.DjangoModelFactory):
         return {
             'common_name': faker.word(),
             'common_name_fra': faker.word(),
-            'color_morph': faker.bybool(),
-            'invasive': faker.bybool(),
+            'color_morph': faker.pybool(),
+            'invasive': faker.pybool(),
         }
 
 
@@ -66,8 +66,6 @@ class SampleFactory(factory.django.DjangoModelFactory):
     station = factory.SubFactory(StationFactory)
     sample_type = 'full'
     date_deployed = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
-    var3 = factory.lazy_attribute(lambda o: faker.word())
-    var4 = factory.lazy_attribute(lambda o: faker.word())
 
     @staticmethod
     def get_valid_data():
