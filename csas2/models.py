@@ -1,286 +1,199 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import date
-from django.urls import reverse
-from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from shapely.geometry import Polygon, Point
 
-from lib.functions.custom_functions import listrify, nz, fiscal_year
-from shared_models import models as shared_models
-from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
-from shared_models.utils import format_coordinates
+from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language
 
 
-class FiltrationType(UnilingualLookup):
-    pass
-
-
-class DNAExtractionProtocol(UnilingualLookup):
-    pass
-
-
-class Tag(SimpleLookup):
-    pass
-
-
-class Species(models.Model):
-    common_name_en = models.CharField(max_length=255, verbose_name=_("common name (EN)"))
-    common_name_fr = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("common name (FR)"))
-    scientific_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("scientific name"))
-    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
-    aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
-
-    @property
-    def tcommon(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("common_name_en"))):
-            my_str = f'{getattr(self, str(_("common_name_en")))}'
-        # if there is no translated term, just pull from the english field
-        else:
-            my_str = self.common_name_en
-        return my_str
-
-    def __str__(self):
-        return self.tcommon
+class Person(models.Model):
+    # Choices for role
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    email = models.EmailField(verbose_name=_("email"), unique=True)
+    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
+    organization = models.CharField(max_length=50, verbose_name=_("association"), blank=True, null=True)
+    dmapps_user = models.ForeignKey(User, blank=True, null=True, verbose_name=_("linkage to DM Apps User"))
 
     class Meta:
-        ordering = ['id']
-        verbose_name_plural = _("Species")
-
-    def get_absolute_url(self):
-        return reverse('csas2:species_detail', kwargs={'pk': self.id})
+        ordering = ['first_name', "last_name"]
 
     @property
     def full_name(self):
-        return "{} (<em>{}</em>)".format(self.common_name_en, self.scientific_name)
-
-    @property
-    def formatted_scientific(self):
-        return f"<em>{self.scientific_name}</em>"
+        return "{} {}".format(self.first_name, self.last_name)
 
 
-class Collection(UnilingualSimpleLookup, MetadataFields):
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='csas2_collections', blank=True, null=True, verbose_name=_("DFO region"))
-    program_description = models.TextField(blank=True, null=True, verbose_name=_("program description"))
-    location_description = models.TextField(blank=True, null=True, verbose_name=_("area of operation"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='csas2_collections', blank=True, null=True)
-    contact_users = models.ManyToManyField(User, blank=True, verbose_name=_("contact DMApps user(s)"))
-    contact_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("contact name"))
-    contact_email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_("contact email"))
-    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("tags"))
+class Process(SimpleLookup, MetadataFields):
+    pass
+
+
+class Meeting(SimpleLookup, MetadataFields):
+    type_choices = (
+        (1, _("CSAS Regional Advisory Process (RAP)")),
+        (2, _("CSAS Science Management Meeting")),
+        (3, _("CSAS Steering Committee Meeting")),
+        (9, _("other")),
+    )
+
+    process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
+    # basic
+    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
+    proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
+    type = models.IntegerField(choices=type_choices, verbose_name=_("type of event"))
+    start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
+    end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
+    from_email = models.EmailField(default=settings.SITE_FROM_EMAIL, verbose_name=_("FROM email address (on invitation)"))
+    rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))
 
     # calculated
-    start_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("start date"))
-    end_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("end date"))
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="collections", blank=True, null=True, editable=False)
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="events",
+                                    editable=False)
 
-    def save(self, *args, **kwargs):
-        qs = self.samples.all()
-        if qs.exists():
-            self.start_date = qs.order_by("datetime").first().datetime
-            self.end_date = qs.order_by("datetime").last().datetime
-            self.fiscal_year_id = fiscal_year(self.end_date, sap_style=True)
-        super().save(*args, **kwargs)
+    class Meta:
+        ordering = ['-updated_at', ]
 
     @property
-    def dates(self):
-        my_str = date(self.start_date)
+    def attendees(self):
+        return Attendance.objects.filter(invitee__event=self).order_by("invitee").values("invitee").distinct()
+
+    @property
+    def length_days(self):
         if self.end_date:
-            my_str += f" &rarr; {date(self.end_date)}"
-        return mark_safe(my_str)
+            return (self.end_date - self.start_date).days + 1
+        return 1
 
     @property
-    def sample_count(self):
-        return self.samples.count()
+    def display_dates(self):
+        start = date(self.start_date) if self.start_date else "??"
+        dates = f'{start}'
+        if self.end_date and self.end_date != self.start_date:
+            end = date(self.end_date)
+            dates += f' &rarr; {end}'
+        days_display = "{} {}{}".format(self.length_days, gettext("day"), pluralize(self.length_days))
+        dates += f' ({days_display})'
+        return dates
+
+
+class Invitee(models.Model):
+    # Choices for role
+    role_choices = (
+        (1, 'Participant'),
+        (2, 'Chair'),
+        (3, 'Expert'),
+        (4, 'Steering Committee Member'),
+    )
+    status_choices = (
+        (0, 'Invited'),
+        (1, 'Accepted'),
+        (2, 'Declined'),
+        (9, 'No response'),
+    )
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="invitees")
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="meeting_invites")
+    role = models.IntegerField(choices=role_choices, verbose_name=_("Function"), default=1)
+    status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=0)
+    invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
+    resources_received = models.ManyToManyField("Resource", editable=False)
+
+    class Meta:
+        ordering = ['first_name', "last_name"]
+        unique_together = (("event", "email"),)
 
     @property
-    def contacts(self):
-        if self.contact_users.exists():
-            return mark_safe(listrify([f'<a href="mailto:{u.email}">{u.get_full_name()}</a>' for u in self.contact_users.all()]))
-        return mark_safe(f'<a href="mailto:{self.contact_email}">{self.contact_name}</a>')
-
-    def get_absolute_url(self):
-        return reverse("csas2:collection_detail", args=[self.pk])
-
-    def get_points(self):
-        poly_points = list()
-        for sample in self.samples.all():
-            point = sample.get_point()
-            if point:
-                poly_points.append(point)
-        return poly_points
-
-    def get_polygon(self):
-        points = self.get_points()
-        if len(points) >= 3:
-            return Polygon(points)
-
-    def get_centroid(self):
-        points = self.get_points()
-        if self.get_polygon():
-            p = self.get_polygon()
-            return p.centroid
-        elif len(points) > 0:
-            return points[-1]
+    def attendance_fraction(self):
+        return self.attendance.count() / self.meeting.length_days
 
 
-def file_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'csas2/{0}/{1}'.format(instance.collection.id, filename)
-
-
-class File(models.Model):
-    collection = models.ForeignKey(Collection, related_name="files", on_delete=models.CASCADE, editable=False)
-    caption = models.CharField(max_length=255)
-    file = models.FileField(upload_to=file_directory_path)
-    date_created = models.DateTimeField(auto_now=True, editable=False)
+class Attendance(models.Model):
+    invitee = models.ForeignKey(Invitee, on_delete=models.CASCADE, related_name="attendance", verbose_name=_("attendee"))
+    date = models.DateTimeField(verbose_name=_("date"))
 
     class Meta:
-        ordering = ['-date_created']
-
-    def __str__(self):
-        return self.caption
+        ordering = ['date']
+        unique_together = (("invitee", "date"),)
 
 
-class Sample(models.Model):
-    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"), editable=False)
-    unique_sample_identifier = models.CharField(max_length=255, unique=True, verbose_name=_("bottle unique identifier"))
-    site_identifier = models.CharField(max_length=255, verbose_name=_("site identifier"), blank=True, null=True)
-    site_description = models.TextField(verbose_name=_("site description"), blank=True, null=True)
-    samplers = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("sampler(s)"))
-    datetime = models.DateTimeField(verbose_name=_("collection date"), blank=False, null=True)
-    latitude = models.FloatField(blank=False, null=True, verbose_name=_("latitude"))
-    longitude = models.FloatField(blank=False, null=True, verbose_name=_("longitude"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
+class Note(models.Model):
+    # Choices for type
+    type_choices = (
+        (1, 'To Do'),
+        (2, 'Next step'),
+        (3, 'General comment'),
+    )
 
-    class Meta:
-        ordering = ["collection", "unique_sample_identifier"]
+    event = models.ForeignKey(Event, related_name='notes', on_delete=models.CASCADE)
+    type = models.IntegerField(choices=type_choices, verbose_name=_("type"))
+    note = models.TextField(verbose_name=_("note"))
+    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
 
-    def get_absolute_url(self):
-        return reverse("csas2:sample_detail", args=[self.pk])
-
-    def __str__(self):
-        return self.unique_sample_identifier
-
-    def get_point(self):
-        if self.latitude and self.longitude:
-            return Point(self.latitude, self.longitude)
+    # meta
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("last modified by"), editable=False,
+                                   related_name="user_event_notes_updated_by")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"), editable=False)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("created by"), editable=False,
+                                   related_name="user_event_notes_created_by")
 
     @property
-    def coordinates(self):
-        my_str = "---"
-        point = self.get_point()
-        if point:
-            my_str = format_coordinates(point.x, point.y, output_format="dd", sep="|")
-        return mark_safe(my_str)
-
-
-class Batch(models.Model):
-    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("start date/time"))
-    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+    def metadata(self):
+        return get_metadata_string(
+            self.created_at,
+            self.created_by,
+            self.updated_at,
+            self.updated_by,
+        )
 
     class Meta:
-        ordering = ["datetime"]
-        abstract = True
+        ordering = ["is_complete", "-updated_at", ]
 
 
-class FiltrationBatch(Batch):
-    class Meta:
-        verbose_name_plural = _("Filtration Batches")
-
-    def __str__(self):
-        return "{} {} ({})".format(_("Filtration Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
-
-    def get_absolute_url(self):
-        return reverse('csas2:filtration_batch_detail', kwargs={'pk': self.id})
+def resource_directory_path(instance, filename):
+    return 'events/{0}/{1}'.format(instance.event.id, filename)
 
 
-class Filter(MetadataFields):
-    """ the filter id of this table is effectively the tube id"""
-    filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("filtration batch"))
-    sample = models.ForeignKey(Sample, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("field sample"), blank=True, null=True)
-    filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="filters", verbose_name=_("filtration type"), default=1)
-    start_datetime = models.DateTimeField(verbose_name=_("start time"))
-    duration_min = models.IntegerField(verbose_name=_("duration (min)"), blank=True, null=True)
-    filtration_volume_ml = models.FloatField(blank=True, null=True, verbose_name=_("volume (ml)"))
-    storage_location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("storage location"))
-    comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
+class Resource(SimpleLookup):
+    event = models.ForeignKey(Event, related_name='resources', on_delete=models.CASCADE)
 
-    class Meta:
-        ordering = ["filtration_batch", "sample"]
+    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
+    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
+    # file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
+    # file_fr = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
 
-
-class ExtractionBatch(Batch):
-    class Meta:
-        verbose_name_plural = _("DNA Extraction Batches")
-
-    def __str__(self):
-        return "{} {} ({})".format(_("DNA Extraction Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
-
-    def get_absolute_url(self):
-        return reverse('csas2:extraction_batch_detail', kwargs={'pk': self.id})
-
-
-class DNAExtract(MetadataFields):
-    """ the filter id of this table is effectively the tube id"""
-    extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
-    filter = models.OneToOneField(Filter, on_delete=models.CASCADE, blank=True, null=True)
-    start_datetime = models.DateTimeField(verbose_name=_("start time"))
-    dna_extraction_protocol = models.ForeignKey(DNAExtractionProtocol, on_delete=models.DO_NOTHING, verbose_name=_("extraction protocol"))
-    storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("storage location"))
-    comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
-
-    class Meta:
-        ordering = ["extraction_batch", "filter_id"]
-
-
-class PCRBatch(Batch):
-    class Meta:
-        verbose_name_plural = _("PCR Batches")
-
-    def __str__(self):
-        return "{} {} ({})".format(_("PCR Batch"), self.id, self.datetime.strftime("%Y-%m-%d"))
-
-    def get_absolute_url(self):
-        return reverse('csas2:pcr_batch_detail', kwargs={'pk': self.id})
-
-
-class PCR(MetadataFields):
-    """ the filter id of this table is effectively the tube id"""
-    pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
-    extract = models.ForeignKey(DNAExtract, on_delete=models.CASCADE, blank=True, null=True, related_name="pcrs", verbose_name=_("extract Id"))
-    start_datetime = models.DateTimeField(verbose_name=_("start time"))
-    pcr_number_prefix = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("PCR number prefix"))
-    pcr_number_suffix = models.IntegerField(blank=True, null=True, verbose_name=_("PCR number suffix"))
-    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("plate Id"))
-    position = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("position"))
-    ipc_added = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("IPC added"))
-    qpcr_ipc = models.FloatField(blank=True, null=True, verbose_name=_("qPCR IPC"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
-
-    class Meta:
-        ordering = ["pcr_batch", "extract", "pcr_number_suffix"]
-
-    def save(self, *args, **kwargs):
-        # get the last PCR number suffix in the system
-        super().save(*args, **kwargs)
+    # meta
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date last modified"), editable=False)
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("last modified by"), editable=False,
+                                   related_name="user_event_resources_updated_by")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"), editable=False)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, verbose_name=_("created by"), related_name="user_event_resources_created_by",
+                                   editable=False)
 
     @property
-    def pcr_number(self):
-        return f'{nz(self.pcr_number_prefix, "")}:{nz(self.pcr_number_suffix, "")}'
+    def metadata(self):
+        return get_metadata_string(
+            self.created_at,
+            self.created_by,
+            self.updated_at,
+            self.updated_by,
+        )
 
+    @property
+    def tfile(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("file_en")):
+            return getattr(self, gettext("file_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.file_en
 
-class SpeciesObservation(MetadataFields):
-    pcr = models.ForeignKey(PCR, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
-    species = models.ForeignKey(Species, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("species"))
-    ct = models.FloatField(blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
-    csas2_conc = models.FloatField(blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"))
-    is_undetermined = models.BooleanField(default=False, verbose_name=_("undetermined?"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+    @property
+    def turl(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("url_en")):
+            return getattr(self, gettext("url_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.url_en
 
     class Meta:
-        ordering = ["pcr", "species"]
-        unique_together = (("pcr", "species"),)
+        ordering = [_("name")]
