@@ -839,6 +839,24 @@ class Organization(SimpleLookup):
         return self.tname + f", {self.full_address}"
 
 
+class Person(models.Model):
+    # Choices for role
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    email = models.EmailField(verbose_name=_("email"), unique=True)
+    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
+    organization = models.CharField(max_length=50, verbose_name=_("association"), blank=True, null=True)
+    dmapps_user = models.ForeignKey(User, blank=True, null=True, verbose_name=_("linkage to DM Apps User"))
+
+    class Meta:
+        ordering = ['first_name', "last_name"]
+
+    @property
+    def full_name(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+
 class Publication(SimpleLookup):
     pass
 

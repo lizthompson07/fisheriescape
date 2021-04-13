@@ -6,29 +6,18 @@ from django.utils.translation import gettext_lazy as _, gettext
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language
 
 
-class Person(models.Model):
-    # Choices for role
-    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
-    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
-    email = models.EmailField(verbose_name=_("email"), unique=True)
-    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
-    organization = models.CharField(max_length=50, verbose_name=_("association"), blank=True, null=True)
-    dmapps_user = models.ForeignKey(User, blank=True, null=True, verbose_name=_("linkage to DM Apps User"))
-
-    class Meta:
-        ordering = ['first_name', "last_name"]
-
-    @property
-    def full_name(self):
-        return "{} {}".format(self.first_name, self.last_name)
-
+# We will be using the following models from shared models:
+# citations
+# person
+# organization
 
 class Process(SimpleLookup, MetadataFields):
+    ''' csas process '''
     pass
 
 
 class Meeting(SimpleLookup, MetadataFields):
+    ''' meeting that is taking place under the umbrella of a csas process'''
     type_choices = (
         (1, _("CSAS Regional Advisory Process (RAP)")),
         (2, _("CSAS Science Management Meeting")),
@@ -75,7 +64,62 @@ class Meeting(SimpleLookup, MetadataFields):
         return dates
 
 
+class MeetingNote(MetadataFields):
+    ''' a note pertaining to a meeting'''
+    type_choices = (
+        (1, 'To Do'),
+        (2, 'Next step'),
+        (3, 'General comment'),
+    )
+    meeting = models.ForeignKey(Meeting, related_name='notes', on_delete=models.CASCADE)
+    type = models.IntegerField(choices=type_choices, verbose_name=_("type"))
+    note = models.TextField(verbose_name=_("note"))
+    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
+
+    class Meta:
+        ordering = ["is_complete", "-updated_at", ]
+
+
+def resource_directory_path(instance, filename):
+    return 'events/{0}/{1}'.format(instance.event.id, filename)
+
+
+class MeetingResource(SimpleLookup, MetadataFields):
+    ''' a file attached to to meeting'''
+    event = models.ForeignKey(Meeting, related_name='resources', on_delete=models.CASCADE)
+
+    # for an actual file hosted on dmapps
+    file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
+    file_fr = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
+
+    # for a file hosted somewhere else
+    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
+    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
+
+    @property
+    def tfile(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("file_en")):
+            return getattr(self, gettext("file_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.file_en
+
+    @property
+    def turl(self):
+        # check to see if a french value is given
+        if getattr(self, gettext("url_en")):
+            return getattr(self, gettext("url_en"))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.url_en
+
+    class Meta:
+        ordering = [_("name")]
+
+
 class Invitee(models.Model):
+    ''' a person that was invited to a meeting'''
     # Choices for role
     role_choices = (
         (1, 'Participant'),
@@ -106,58 +150,10 @@ class Invitee(models.Model):
 
 
 class Attendance(models.Model):
+    '''we will need to track on which days an invitee actually showed up'''
     invitee = models.ForeignKey(Invitee, on_delete=models.CASCADE, related_name="attendance", verbose_name=_("attendee"))
     date = models.DateTimeField(verbose_name=_("date"))
 
     class Meta:
         ordering = ['date']
         unique_together = (("invitee", "date"),)
-
-
-class MeetingNote(MetadataFields):
-    # Choices for type
-    type_choices = (
-        (1, 'To Do'),
-        (2, 'Next step'),
-        (3, 'General comment'),
-    )
-
-    meeting = models.ForeignKey(Meeting, related_name='notes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=type_choices, verbose_name=_("type"))
-    note = models.TextField(verbose_name=_("note"))
-    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
-
-    class Meta:
-        ordering = ["is_complete", "-updated_at", ]
-
-
-def resource_directory_path(instance, filename):
-    return 'events/{0}/{1}'.format(instance.event.id, filename)
-
-
-class MeetingResource(SimpleLookup, MetadataFields):
-    event = models.ForeignKey(Meeting, related_name='resources', on_delete=models.CASCADE)
-
-    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
-    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
-
-    @property
-    def tfile(self):
-        # check to see if a french value is given
-        if getattr(self, gettext("file_en")):
-            return getattr(self, gettext("file_en"))
-        # if there is no translated term, just pull from the english field
-        else:
-            return self.file_en
-
-    @property
-    def turl(self):
-        # check to see if a french value is given
-        if getattr(self, gettext("url_en")):
-            return getattr(self, gettext("url_en"))
-        # if there is no translated term, just pull from the english field
-        else:
-            return self.url_en
-
-    class Meta:
-        ordering = [_("name")]
