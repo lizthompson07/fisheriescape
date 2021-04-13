@@ -591,11 +591,9 @@ class GCSample(MetadataFields):
     )
 
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING)
-    traps_set = models.DateTimeField(verbose_name="Traps set (yyyy-mm-dd hh:mm)")
-    traps_fished = models.DateTimeField(blank=True, null=True, verbose_name="Traps fished (yyyy-mm-dd hh:mm)")
+    traps_set = models.DateTimeField(verbose_name="Traps set")
+    traps_fished = models.DateTimeField(blank=True, null=True, verbose_name="Traps fished")
     samplers = models.ManyToManyField(Sampler)
-    # bottom_type = models.CharField(max_length=100, blank=True, null=True)
-    # percent_vegetation_cover = models.IntegerField(blank=True, null=True, verbose_name="vegetation cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
     eelgrass_assessed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name="was eelgrass assessed?")
     eelgrass_percent_coverage = models.IntegerField(blank=True, null=True, verbose_name="eelgrass coverage (%)",
                                                     validators=[MinValueValidator(0), MaxValueValidator(100)])
