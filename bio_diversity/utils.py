@@ -155,7 +155,7 @@ def get_relc_from_point(shapely_geom):
     relc_qs = models.ReleaseSiteCode.objects.all()
     for relc in relc_qs:
         # need to add infinitesimal buffer to deal with rounding issue
-        if relc.bbox.buffer(1e-14).contains(shapely_geom):
+        if relc.bbox.buffer(1e-14).intersects(shapely_geom):
             return relc
     return None
 

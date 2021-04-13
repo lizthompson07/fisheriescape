@@ -62,28 +62,48 @@ class TestLocModel(CommonTest):
 
     def setUp(self):
         super().setUp()  # used to import fixtures
-        self.data = BioFactoryFloor.LocFactory()
-
+        self.loc = BioFactoryFloor.LocFactory()
+        self.loc.relc_id = None
+        models.ReleaseSiteCode.objects.all().delete()
+        self.relc = BioFactoryFloor.RelcFactory()
+    
     def test_find_relc_from_point(self):
         # test that given no relc_id one is set based off of location:
-        models.ReleaseSiteCode.objects.all().delete()
-        relc = BioFactoryFloor.RelcFactory()
-        loc = BioFactoryFloor.LocFactory()
-        loc.relc_id = None
-        loc.loc_lat = relc.min_lat
-        loc.loc_lon = relc.min_lon
-        loc.save()
-        self.assertEqual(loc.relc_id, relc)
+        self.loc.loc_lat = self.relc.min_lat
+        self.loc.loc_lon = self.relc.min_lon
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, self.relc)
 
     def test_no_relc_no_point(self):
         # test that given no relc_id one is not set based off of location:
-        models.ReleaseSiteCode.objects.all().delete()
-        relc = BioFactoryFloor.RelcFactory()
-        loc = BioFactoryFloor.LocFactory()
-        loc.relc_id = None
-        loc.loc_lat = None
-        loc.loc_lon = None
-        loc.save()
-        self.assertEqual(loc.relc_id, None)
+        self.loc.loc_lat = None
+        self.loc.loc_lon = None
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, None)
 
+    def test_find_relc_from_end_point(self):
+        # test that given only an endpoint inside the relc, it is still found:
+        self.loc.loc_lat = self.relc.min_lat - 1
+        self.loc.loc_lon = self.relc.min_lon - 1
+        self.loc.end_lat = self.relc.min_lat
+        self.loc.end_lon = self.relc.min_lon
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, self.relc)
 
+    def test_find_relc_from_line(self):
+        # test that with the line intersecting the relc, but with neither point inside, the relc is still found
+        self.loc.loc_lat = self.relc.min_lat - 1
+        self.loc.loc_lon = self.relc.min_lon - 1
+        self.loc.end_lat = self.relc.max_lat + 1
+        self.loc.end_lon = self.relc.max_lon + 1
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, self.relc)
+
+    def test_point_in_different_relc(self):
+        # test that with a relc declared and a point in a different relc, the relc is not replaced
+        self.loc.relc_id = self.relc
+        new_relc = BioFactoryFloor.RelcFactory()
+        self.loc.loc_lat = new_relc.min_lat
+        self.loc.loc_lon = new_relc.min_lon
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, self.relc)
