@@ -829,27 +829,36 @@ class Group(BioModel):
 
     def get_development(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
         dev = 0
+        start_date = utils.naive_to_aware(datetime.datetime.min).date()
+        dev_qs = GroupDet.objects.filter(anix_id__grp_id=self, grpd_valid=True, anidc_id__name="Development")
+        if len(dev_qs) == 1:
+            dev = float(dev_qs[0] .det_val)
+            start_date = utils.naive_to_aware(dev_qs[0].detail_date).date()
         degree_days = []
-        anix_set = AniDetailXref.objects.filter(grp_id=self, final_contx_flag__isnull=False, evnt_id__start_datetime__lte=at_date).order_by("evnt_id__start_datetime").select_related("contx_id", "evnt_id")
+        anix_set = AniDetailXref.objects.filter(grp_id=self,
+                                                final_contx_flag__isnull=False,
+                                                evnt_id__start_datetime__lte=at_date
+                                                ).order_by("evnt_id__start_datetime").select_related("contx_id", "evnt_id")
 
-        start_date = False
         end_date = 0
         cont = False
         for anix in anix_set:
             if anix.final_contx_flag:
-                start_date = anix.evnt_id.start_datetime.date()
+                # check to see if there is a detail that is more up to date than the anix
+                if anix.evnt_id.start_date > start_date:
+                    start_date = anix.evnt_id.start_datetime.date()
                 cont = utils.get_cont_from_anix(anix, None)
             else:
                 end_date = anix.evnt_id.start_datetime.date()
-                if start_date and cont:
+                if cont:
                     degree_days.extend(cont.degree_days(start_date, end_date))
-                    start_date = False
+                    end_date = False
 
-        if start_date and cont and not end_date:
+        if cont and not end_date:
             # catch group's current tank
-            degree_days.extend(cont.degree_days(start_date, end_date))
+            degree_days.extend(cont.degree_days(start_date, at_date))
 
-        dev = sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
+        dev += sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
 
         return dev
 
@@ -1706,15 +1715,17 @@ class Trough(BioCont):
         ordering = ['facic_id', 'name']
 
     def degree_days(self, start_date, end_date):
+        start_datetime = naive_to_aware(start_date)
+        end_datetime = naive_to_aware(end_date)
         env_qs = EnvCondition.objects.filter(contx_id__trof_id=self,
-                                             start_datetime__gte=naive_to_aware(start_date),
-                                             start_datetime__lte=naive_to_aware(end_date),
+                                             start_datetime__gte=start_datetime,
+                                             start_datetime__lte=end_datetime,
                                              envc_id__name="Temperature")
 
-        delta = end_date - start_date
+        delta = end_datetime - start_datetime
         temp_list = []
         for i in range(delta.days + 1):
-            day = start_date + datetime.timedelta(days=i)
+            day = start_datetime.date() + datetime.timedelta(days=i)
             day_temps = []
             for env in env_qs:
                 if env.start_datetime.date() == day:

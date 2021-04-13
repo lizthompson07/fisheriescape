@@ -1,24 +1,79 @@
 from datetime import timedelta
 from django.test import tag
-from datetime import datetime
+from datetime import datetime, timedelta
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.common_tests import CommonTest
-from bio_diversity import models
+from bio_diversity import models, utils
 
 
 @tag("Grp", 'models')
 class TestGrpModel(CommonTest):
-    fixtures = ["valid_test_data.json"]
+    fixtures = ["initial_data.json"]
 
     def setUp(self):
         super().setUp()  # used to import fixtures
-        self.data = BioFactoryFloor.GrpFactory.build_valid_data()
+        self.grp = BioFactoryFloor.GrpFactory()
+        self.trof = BioFactoryFloor.TrofFactory(name='1')
+        self.trof_two = BioFactoryFloor.TrofFactory(name='2', facic_id=self.trof.facic_id)
+        self.evnt_date = utils.naive_to_aware(datetime.today() - timedelta(days=100))
+        self.evnt = BioFactoryFloor.EvntFactory(start_datetime=self.evnt_date, facic_id=self.trof.facic_id)
+        self.cleaned_data = {
+            "facic_id": self.evnt.facic_id,
+            "evnt_id": self.evnt,
+            "created_by": self.evnt.created_by,
+            "created_date": self.evnt.created_date,
+        }
+        self.contx = utils.enter_contx(self.trof, self.cleaned_data, None, return_contx=True)
+        self.contx_two = utils.enter_contx(self.trof_two, self.cleaned_data, None, return_contx=True)
+        temp_envc = models.EnvCode.objects.filter(name="Temperature").get()
+        # add ten days worth of temp data to the trough
+        for temp in range(0, 10):
+            env_date = utils.naive_to_aware(self.evnt.start_date + timedelta(days=temp))
+            utils.enter_env(temp, env_date, self.cleaned_data, temp_envc, contx=self.contx)
+        for temp in range(10, 20):
+            env_date = utils.naive_to_aware(self.evnt.start_date + timedelta(days=temp))
+            utils.enter_env(temp, env_date, self.cleaned_data, temp_envc, contx=self.contx_two)
 
     def test_development(self):
-        # test that previous details with same code are made invalid
-        grp = models.Group.objects.filter(pk=46).get()
-        grp_dev = grp.get_development()
-        self.assertEqual(round(grp_dev, 3),  7.261)
+        # test grp placed in trof
+        entry_date = self.evnt_date - timedelta(days=1)
+        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+        grp_dev = self.grp.get_development()
+        self.assertEqual(round(grp_dev, 3),  5.826)
+
+    def test_movement_development(self):
+        # test grp placed in trof and moved to second trof
+        entry_date = self.evnt_date - timedelta(days=1)
+        move_date = self.evnt_date + timedelta(days=10)
+        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+        utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
+        grp_dev = self.grp.get_development()
+        self.assertEqual(round(grp_dev, 3), 28.101)
+
+    def test_development_after_detail(self):
+        # test grp placed in trof, has development recorded go off of that and don't double count
+        entry_date = self.evnt_date - timedelta(days=1)
+        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+
+        det_date = self.evnt_date + timedelta(days=5)
+        det_evnt_cleaned_data = utils.create_new_evnt(self.cleaned_data, "Picking", det_date)
+        anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk)
+        utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10, "Development")
+        grp_dev = self.grp.get_development()
+        self.assertEqual(round(grp_dev, 3), 14.015)
+
+    def test_move_and_detail_development(self):
+        # test grp placed in trof, get a detail recorded and then moved to second trof
+        entry_date = self.evnt_date - timedelta(days=1)
+        det_date = self.evnt_date + timedelta(days=5)
+        move_date = self.evnt_date + timedelta(days=10)
+        det_evnt_cleaned_data = utils.create_new_evnt(self.cleaned_data, "Picking", det_date)
+        anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk)
+        utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10, "Development")
+        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+        utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
+        grp_dev = self.grp.get_development()
+        self.assertEqual(round(grp_dev, 3), 36.291)
 
 
 @tag("Grpd", 'models')
