@@ -222,7 +222,6 @@ def species_sample_spreadsheet_export(request, species_list):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def biofouling_presence_absence_spreadsheet_export(request):
-    print(123)
     year = request.GET["year"] if request.GET["year"] != "None" else None
 
     file_url = reports.generate_biofouling_pa_spreadsheet(year)

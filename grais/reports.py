@@ -527,7 +527,6 @@ def generate_open_data_ver_1_report(year=None):
 
     samples = models.Sample.objects.all()
     # if there is a year provided, filter by only this year
-    print(year)
     if year and year != "None":
         samples = samples.filter(season=year)
 
