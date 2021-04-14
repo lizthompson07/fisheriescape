@@ -79,6 +79,14 @@
                 {% endfor %}
             </ul>
             <br>
+            <h3>Layer Toggles:</h3>
+
+            <ul>
+            <button class="btn btn-sm btn-primary", id="layer-button">Fishing Areas</button>
+
+
+            </ul>
+            <br>
         </div>
     </div>
 
@@ -93,6 +101,56 @@
             });
             var infowindow = new google.maps.InfoWindow();
             var bounds = new google.maps.LatLngBounds();
+
+            // add overlays:
+            map.data.loadGeoJson("{% static 'map_layers/salmon_fishing_areas.geojson' %}", {idPropertyName : "OBJECTID"},
+                function(features) {
+                    map.data.forEach(function(feature) {
+                        feature.setProperty("layer", "fishing_areas");
+                        feature.setProperty("visible", true);
+                    });
+                }
+            );
+
+            map.data.setStyle(function(feature){
+                if (feature.getProperty('layer') == 'fishing_areas') {
+                    return ({
+                        strokeColor: 'blue',
+                        strokeWeight: 3
+                    });
+                }
+                else {
+                     return ({
+                        strokeColor: 'red',
+                        strokeWeight: 3
+                    });
+                }
+            });
+
+            // add toggle listners
+            google.maps.event.addDomListener(document.getElementById('layer-button'), 'click', function() {
+                map.data.setStyle(function(feature) {
+                    if (feature.getProperty('layer') == 'fishing_areas' && feature.getProperty('visible') == true) {
+                        feature.setProperty('visible', false);
+                        return ({
+                          visible: false,
+                        });
+                    } else if (feature.getProperty('layer') == 'fishing_areas' && feature.getProperty('visible') == false) {
+                        feature.setProperty('visible', true);
+                        return ({
+                          strokeColor: 'blue',
+                          strokeWeight: 2,
+                          visible: true,
+                        });
+                    } else {
+                        return ({
+                          strokeColor: 'grey',
+                          strokeWeight: 2
+                        });
+                    }
+                });
+              });
+
 
             {% for location in locations %}
                 var myInfoText{{ location.id }} = '<b>Location:</b> <a href="{% url 'bio_diversity:details_loc' location.id %}">{{location.relc_id.name}}</a><br><b>Event:</b> <a href="{% url 'bio_diversity:details_evnt' location.evnt_id.id %}">{{location.evnt_id.evntc_id.name}}</a><br><b>Date:</b>{{location.evnt_id.start_date}}'
