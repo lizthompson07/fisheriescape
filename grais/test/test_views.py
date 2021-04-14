@@ -1754,7 +1754,6 @@ class TestReportViews(CommonTest):
         self.species = FactoryFloor.SpeciesFactory()
         for id in [24, 48, 23, 25, 47, 59, 26, 55]:
             FactoryFloor.SpeciesFactory(id=id)
-
         for i in range(1, 19):
             FactoryFloor.SampleFactory()
         self.test_urls = [

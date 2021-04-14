@@ -313,3 +313,85 @@ class CatchFactory(factory.django.DjangoModelFactory):
             'trap': TrapFactory().id,
             'species': SpeciesFactory().id,
         }
+
+
+class SampleSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SampleSpecies
+
+    species = factory.SubFactory(SpeciesFactory)
+    sample = factory.SubFactory(SampleFactory)
+    observation_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'sample': SampleFactory().id,
+            'observation_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).strftime("%Y-%m-%dT%H:%M"),
+        }
+
+
+class LineSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.LineSpecies
+
+    species = factory.SubFactory(SpeciesFactory)
+    line = factory.SubFactory(LineFactory)
+    observation_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'line': LineFactory().id,
+            'observation_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).strftime("%Y-%m-%dT%H:%M"),
+        }
+
+
+class SurfaceSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SurfaceSpecies
+
+    species = factory.SubFactory(SpeciesFactory)
+    surface = factory.SubFactory(SurfaceFactory)
+    percent_coverage = factory.lazy_attribute(lambda o: 0)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'surface': SurfaceFactory().id,
+            'percent_coverage': 0,
+        }
+
+
+class IncidentalReportSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.IncidentalReportSpecies
+
+    species = factory.SubFactory(SpeciesFactory)
+    incidental_report = factory.SubFactory(IncidentalReportFactory)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'incidental_report': IncidentalReportFactory().id,
+            'observation_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).strftime("%Y-%m-%dT%H:%M"),
+        }
+
+
+class CatchSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Catch
+
+    species = factory.SubFactory(SpeciesFactory)
+    trap = factory.SubFactory(TrapFactory)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'trap': TrapFactory().id,
+        }
