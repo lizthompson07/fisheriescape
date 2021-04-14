@@ -81,14 +81,14 @@ class SampleNoteFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SampleNote
 
-    sample = factory.SubFactory(SamplerFactory)
+    sample = factory.SubFactory(SampleFactory)
     note = factory.lazy_attribute(lambda o: faker.text())
     date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
     def get_valid_data():
         return {
-            'sample': SamplerFactory().id,
+            'sample': SampleFactory().id,
             'note': faker.text(),
             'date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
@@ -98,7 +98,7 @@ class LineFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Line
 
-    sample = factory.SubFactory(SamplerFactory)
+    sample = factory.SubFactory(SampleFactory)
     is_lost = factory.lazy_attribute(lambda o: faker.pybool())
 
     @staticmethod
@@ -114,7 +114,7 @@ class SurfaceFactory(factory.django.DjangoModelFactory):
         model = models.Surface
 
     line = factory.SubFactory(LineFactory)
-    surface_type = factory.lazy_attribute(lambda o: models.FK.objects.all()[faker.random_int(0, models.FK.objects.count() - 1)])
+    surface_type = factory.lazy_attribute(lambda o: models.Surface.SURFACE_TYPE_CHOICES[faker.random_int(0, len(models.Surface.SURFACE_TYPE_CHOICES) - 1)][0])
     label = factory.lazy_attribute(lambda o: faker.catch_phrase())
     is_lost = factory.lazy_attribute(lambda o: faker.pybool())
 
@@ -122,7 +122,7 @@ class SurfaceFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'line': LineFactory().id,
-            'surface_type': models.FK.objects.all()[faker.random_int(0, models.FK.objects.count() - 1)],
+            'surface_type': models.Surface.SURFACE_TYPE_CHOICES[faker.random_int(0, len(models.Surface.SURFACE_TYPE_CHOICES) - 1)][0],
             'label': faker.catch_phrase(),
             'is_lost': faker.pybool(),
         }
@@ -166,9 +166,10 @@ class IncidentalReportFactory(factory.django.DjangoModelFactory):
 
     report_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     date_of_occurrence = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
-    language_of_report = 1
+    language_of_report = factory.lazy_attribute(lambda o: faker.pyint())
     requestor_name = factory.lazy_attribute(lambda o: faker.word())
-    report_source = 1
+    report_source = factory.lazy_attribute(lambda o: faker.pyint())
+    observation_type = factory.lazy_attribute(lambda o: faker.pyint())
 
     @staticmethod
     def get_valid_data():
@@ -243,6 +244,8 @@ class GCSampleFactory(factory.django.DjangoModelFactory):
         return {
             'site': SiteFactory().id,
             'traps_set': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+            'samplers': [SamplerFactory().id, ]
+
         }
 
 

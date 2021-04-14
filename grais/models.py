@@ -482,12 +482,11 @@ class IncidentalReport(MetadataFields, LatLongFields):
     identified_by = models.CharField(max_length=150, null=True, blank=True, verbose_name=_("name of identifier"))
     observation_type = models.IntegerField(choices=OBSERVATION_TYPE_CHOICES, verbose_name=_("type of observation"))
     notes = models.TextField(null=True, blank=True)
-    season = models.IntegerField(editable=False)
+    season = models.IntegerField(editable=False, blank=True, null=True)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.season = self.report_date.year
-        self.date_last_modified = timezone.now()
-        return super().save()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("grais:ir_detail", kwargs={"pk": self.pk})
