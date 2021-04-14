@@ -73,6 +73,7 @@ class SampleFactory(factory.django.DjangoModelFactory):
             'station': StationFactory().id,
             'sample_type': 'full',
             'date_deployed': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+            'samplers': [SamplerFactory().id, ]
         }
 
 

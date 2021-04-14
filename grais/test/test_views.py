@@ -18,7 +18,7 @@ class TestSampleCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.site = FactoryFloor.SiteFactory()
-        self.test_url = reverse_lazy('grais:sample_new', args=[self.site.id])
+        self.test_url = reverse_lazy('grais:sample_new')
         self.expected_template = 'grais/form.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
 
@@ -39,7 +39,7 @@ class TestSampleCreateView(CommonTest):
     @tag("Sample", "sample_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("grais:sample_new", f"/en/grais/sites/{self.site.id}/new-sample/", test_url_args=[self.sample.id])
+        self.assert_correct_url("grais:sample_new", f"/en/grais/samples/new/")
 
 
 class TestSampleDeleteView(CommonTest):
@@ -78,7 +78,7 @@ class TestSampleDetailView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('grais:sample_detail', args=[self.instance.pk, ])
-        self.expected_template = 'grais/sample_detail.html'
+        self.expected_template = 'grais/biofouling/sample_detail/main.html'
         self.user = self.get_and_login_user(in_group="grais_admin")
 
     @tag("Sample", "sample_detail", "view")
