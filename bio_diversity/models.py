@@ -66,14 +66,14 @@ class BioContainerDet(BioModel):
         abstract = True
 
     contdc_id = models.ForeignKey("ContainerDetCode", on_delete=models.CASCADE,
-                                  verbose_name=_("Container Detail Code"))
-    det_value = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
+                                  verbose_name=_("Container Detail Code"), db_column="CONT_DET_ID")
+    det_value = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
     cdsc_id = models.ForeignKey("ContDetSubjCode", on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Container Detail Subjective Code"))
-    start_date = models.DateField(verbose_name=_("Date detail was recorded"))
-    end_date = models.DateField(null=True, blank=True, verbose_name=_("Last Date Detail is valid"))
-    det_valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+                                verbose_name=_("Container Detail Subjective Code"), db_column="CONT_DET_SUBJ_ID")
+    start_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DET_START")
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("Last Date Detail is valid"), db_column="DET_END")
+    det_valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"), db_column="STILL_VALID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def clean(self):
         super(BioContainerDet, self).clean()
@@ -90,19 +90,19 @@ class BioDateModel(BioModel):
     class Meta:
         abstract = True
 
-    start_date = models.DateField(verbose_name=_("Start Date"))
-    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
-    valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    start_date = models.DateField(verbose_name=_("Start Date"), db_column="START")
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"), db_column="END")
+    valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"), db_column="STILL_VALID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
 
 class BioDet(BioModel):
     class Meta:
         abstract = True
 
-    det_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
-    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    det_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
+    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"), db_column="QUAL_ID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
 
 class BioLookup(shared_models.Lookup):
@@ -148,8 +148,8 @@ class BioTimeModel(BioModel):
     class Meta:
         abstract = True
 
-    start_datetime = models.DateTimeField(verbose_name=_("Start date"))
-    end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End date"))
+    start_datetime = models.DateTimeField(verbose_name=_("Start date"), db_column="START")
+    end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End date"), db_column="END")
 
     @property
     def start_date(self):
@@ -185,8 +185,8 @@ class BioCont(BioLookup):
         abstract = True
 
     # Make name not unique, is unique together with facility code.
-    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), select_fields=[]):
         indv_list = []
@@ -225,10 +225,10 @@ class BioCont(BioLookup):
 
 class AnimalDetCode(BioLookup):
     # anidc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Minimum Value"))
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Maximum Value"))
-    unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"))
-    ani_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"), db_column="UNIT_ID")
+    ani_subj_flag = models.BooleanField(verbose_name=_("Subjective?"), db_column="ANI_SUBJ_FLAG")
 
     def __str__(self):
         return "{} ({})".format(self.name, self.unit_id.__str__())
@@ -236,7 +236,7 @@ class AnimalDetCode(BioLookup):
 
 class AniDetSubjCode(BioLookup):
     # adsc tag
-    anidc_id = models.ForeignKey("AnimalDetCode", on_delete=models.CASCADE, verbose_name=_("Type of measurement"))
+    anidc_id = models.ForeignKey("AnimalDetCode", on_delete=models.CASCADE, verbose_name=_("Type of measurement"), db_column="ANI_DET_ID")
 
     class Meta:
         ordering = ['name', ]
@@ -244,21 +244,22 @@ class AniDetSubjCode(BioLookup):
 
 class AniDetailXref(BioModel):
     # anix tag
-    evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"),
+    evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"), db_column="EVENT_ID",
                                 related_name="animal_details")
     contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
-                                 verbose_name=_("Container Cross Reference"))
-    final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), default=None, blank=True, null=True)
-    loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True,
+                                 verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    final_contx_flag = models.BooleanField(verbose_name=_("Final Container in movement"), default=None, blank=True,
+                                           null=True, db_column="FINAL_CONTAINER_FLAG")
+    loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, db_column="LOCATION_ID",
                                related_name="animal_details", verbose_name=_("Location"))
     indvt_id = models.ForeignKey("IndTreatment", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
-                                 verbose_name=_("Individual Treatment"))
-    indv_id = models.ForeignKey("Individual", on_delete=models.CASCADE, null=True, blank=True,
+                                 verbose_name=_("Individual Treatment"), db_column="IND_TREATMENT_ID")
+    indv_id = models.ForeignKey("Individual", on_delete=models.CASCADE, null=True, blank=True, db_column="INDIV_ID",
                                 related_name="animal_details", verbose_name=_("Individual"))
     pair_id = models.ForeignKey("Pairing", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
-                                verbose_name=_("Pairing"))
+                                verbose_name=_("Pairing"), db_column="PAIR_ID")
     grp_id = models.ForeignKey("Group", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Group"),
-                               related_name="animal_details")
+                               related_name="animal_details", db_column="GROUP_ID")
 
     class Meta:
         constraints = [
@@ -292,15 +293,15 @@ class CommentKeywords(models.Model):
 
 class ContainerDetCode(BioLookup):
     # contdc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
-    unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"))
-    cont_subj_flag = models.BooleanField(verbose_name=_("Subjective detail?"))
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"), db_column="UNIT_ID")
+    cont_subj_flag = models.BooleanField(verbose_name=_("Subjective detail?"), db_column="CONT_SUBJ_FLAG")
 
 
 class ContDetSubjCode(BioLookup):
     # cdsc tag
-    contdc_id = models.ForeignKey("ContainerDetCode", on_delete=models.CASCADE,
+    contdc_id = models.ForeignKey("ContainerDetCode", on_delete=models.CASCADE, db_column="CONT_DET_ID",
                                   verbose_name=_("Container detail code"))
 
     class Meta:
@@ -311,20 +312,20 @@ class ContDetSubjCode(BioLookup):
 
 class ContainerXRef(BioModel):
     # contx tag
-    evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"),
+    evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"), db_column="EVENT_ID",
                                 related_name="containers")
     tank_id = models.ForeignKey("Tank", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tank"),
-                                related_name="contxs")
+                                related_name="contxs", db_column="TANK_ID")
     trof_id = models.ForeignKey("Trough", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Trough"),
-                                related_name="contxs")
+                                related_name="contxs", db_column="TROUGH_ID")
     tray_id = models.ForeignKey("Tray", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Tray"),
-                                related_name="contxs")
-    heat_id = models.ForeignKey("HeathUnit", on_delete=models.CASCADE, null=True, blank=True,
+                                related_name="contxs", db_column="TRAY_ID")
+    heat_id = models.ForeignKey("HeathUnit", on_delete=models.CASCADE, null=True, blank=True, db_column="HEATH_UNIT_ID",
                                 verbose_name=_("Heath Unit"), related_name="contxs")
     draw_id = models.ForeignKey("Drawer", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Drawer"),
-                                related_name="contxs")
+                                related_name="contxs", db_column="DRAWER_ID")
     cup_id = models.ForeignKey("Cup", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Cup"),
-                               related_name="contxs")
+                               related_name="contxs", db_column="CUP_ID")
 
     class Meta:
         constraints = [
@@ -344,14 +345,14 @@ class ContainerXRef(BioModel):
 class Count(BioModel):
     # cnt tag
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Location"),
-                               related_name="counts")
+                               related_name="counts", db_column="LOCATION_ID")
     contx_id = models.ForeignKey("ContainerXRef", on_delete=models.CASCADE, null=True, blank=True, related_name="counts",
-                                 verbose_name=_("Container Cross Reference"))
-    cntc_id = models.ForeignKey("CountCode", on_delete=models.CASCADE, verbose_name=_("Count Code"))
-    spec_id = models.ForeignKey("SpeciesCode", on_delete=models.CASCADE, verbose_name=_("Species"))
-    cnt = models.DecimalField(max_digits=6, decimal_places=0, verbose_name=_("Count"))
-    est = models.BooleanField(verbose_name=_("Estimated?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+                                 verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    cntc_id = models.ForeignKey("CountCode", on_delete=models.CASCADE, verbose_name=_("Count Code"), db_column="CNT_ID")
+    spec_id = models.ForeignKey("SpeciesCode", on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
+    cnt = models.DecimalField(max_digits=6, decimal_places=0, verbose_name=_("Count"), db_column="COUNT")
+    est = models.BooleanField(verbose_name=_("Estimated?"), db_column="ESTIMATED")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
         constraints = [
@@ -377,10 +378,12 @@ class CountCode(BioLookup):
 
 class CountDet(BioDet):
     # cntd tag
-    cnt_id = models.ForeignKey("Count", on_delete=models.CASCADE, verbose_name=_("Count"), related_name="count_details")
-    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
+    cnt_id = models.ForeignKey("Count", on_delete=models.CASCADE, verbose_name=_("Count"), related_name="count_details",
+                               db_column="COUNT_ID")
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
+                                 db_column="ANI_DET_ID")
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Animal Detail Subjective Code"))
+                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -418,10 +421,10 @@ class Cup(BioCont):
 
     # Make name not unique, is unique together with drawer.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    draw_id = models.ForeignKey('Drawer', on_delete=models.CASCADE, related_name="cups", verbose_name=_("Drawer"))
+    draw_id = models.ForeignKey('Drawer', on_delete=models.CASCADE, related_name="cups", verbose_name=_("Drawer"), db_column="DRAWER_ID")
     facic_id = None
-    start_date = models.DateField(verbose_name=_("Start Date"))
-    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
+    start_date = models.DateField(verbose_name=_("Start Date"), db_column="START_DATE")
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"), db_column="END_DATE")
 
     def __str__(self):
         return "HU {}.{}.{}".format(self.draw_id.heat_id.__str__(), self.draw_id.name, self.name)
@@ -429,7 +432,7 @@ class Cup(BioCont):
 
 class CupDet(BioContainerDet):
     # cupd tag
-    cup_id = models.ForeignKey('Cup', on_delete=models.CASCADE, verbose_name=_("Cup"))
+    cup_id = models.ForeignKey('Cup', on_delete=models.CASCADE, verbose_name=_("Cup"), db_column="CUP_ID")
 
     class Meta:
         constraints = [
@@ -463,7 +466,8 @@ class Drawer(BioCont):
 
     # Make name not unique, is unique together with drawer.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    heat_id = models.ForeignKey('HeathUnit', on_delete=models.CASCADE, related_name="draws", verbose_name=_("Heath Unit"))
+    heat_id = models.ForeignKey('HeathUnit', on_delete=models.CASCADE, related_name="draws",
+                                verbose_name=_("Heath Unit"), db_column="HEATH_UNIT_ID")
     facic_id = None
 
     def __str__(self):
@@ -472,27 +476,32 @@ class Drawer(BioCont):
 
 class EnvCode(BioLookup):
     # envc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
-    unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"))
-    env_subj_flag = models.BooleanField(verbose_name=_("Objective observation?"))
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"),
+                                db_column="UNIT_ID")
+    env_subj_flag = models.BooleanField(verbose_name=_("Objective observation?"), db_column="ENV_SUBJ_FLAG")
 
 
 class EnvCondition(BioTimeModel):
     # env tag
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, null=True, blank=True,
-                                 related_name="env_condition", verbose_name=_("Container Cross Reference"))
-    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, null=True, blank=True,
+                                 related_name="env_condition", verbose_name=_("Container Cross Reference"),
+                                 db_column="CONTAINER_XREF_ID")
+    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, null=True, blank=True, db_column="LOCATION_ID",
                                verbose_name=_("Location"), related_name="env_condition")
-    inst_id = models.ForeignKey('Instrument', on_delete=models.CASCADE, null=True, blank=True,
+    inst_id = models.ForeignKey('Instrument', on_delete=models.CASCADE, null=True, blank=True, db_column="INSTRUM_ID",
                                 verbose_name=_("Instrument"))
-    envc_id = models.ForeignKey('EnvCode', on_delete=models.CASCADE, verbose_name=_("Environment variable"))
-    env_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
+    envc_id = models.ForeignKey('EnvCode', on_delete=models.CASCADE, verbose_name=_("Environment variable"),
+                                db_column="ENV_ID")
+    env_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"),
+                                  db_column="VAL")
     envsc_id = models.ForeignKey('EnvSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                 verbose_name=_("Environment Subjective Code"))
-    env_avg = models.BooleanField(default=False, verbose_name=_("Is value an average?"))
-    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality of observation"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+                                 verbose_name=_("Environment Subjective Code"), db_column="ENV_SUBJ_ID")
+    env_avg = models.BooleanField(default=False, verbose_name=_("Is value an average?"), db_column="AVERAGED")
+    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality of observation"),
+                                db_column="QUAL_ID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
         constraints = [
@@ -526,10 +535,10 @@ def envcf_directory_path(instance, filename):
 class EnvCondFile(BioModel):
     # envcf tag
     env_id = models.OneToOneField("EnvCondition", on_delete=models.CASCADE, verbose_name=_("Environment Condition"),
-                                  related_name="envcf_id")
-    env_pdf = models.FileField(upload_to=envcf_directory_path, null=True, blank=True,
+                                  related_name="envcf_id", db_column="ENV_COND_ID")
+    env_pdf = models.FileField(upload_to=envcf_directory_path, null=True, blank=True, db_column="RAW_FILE",
                                verbose_name=_("Environment Condition File"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{}".format(self.env_pdf)
@@ -567,29 +576,32 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 
 class EnvSubjCode(BioLookup):
     # envsc tag
-    envc_id = models.ForeignKey('EnvCode', null=True, blank=True, on_delete=models.CASCADE,
+    envc_id = models.ForeignKey('EnvCode', null=True, blank=True, on_delete=models.CASCADE, db_column="ENV_ID",
                                 verbose_name=_("Environment Code"))
 
 
 class EnvTreatCode(BioLookup):
     # envtc tag
-    rec_dose = models.CharField(max_length=400, blank=True, null=True, verbose_name=_("Recommended Dosage"))
-    manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"))
+    rec_dose = models.CharField(max_length=400, blank=True, null=True, verbose_name=_("Recommended Dosage"),
+                                db_column="ENV_REC_DOSAGE")
+    manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"), db_column="MANUFACTURER")
 
 
 class EnvTreatment(BioModel):
     # envt tag
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, related_name="env_treatment",
-                                 verbose_name=_("Container Cross Reference"))
-    envtc_id = models.ForeignKey('EnvTreatCode', on_delete=models.CASCADE,
+                                 verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    envtc_id = models.ForeignKey('EnvTreatCode', on_delete=models.CASCADE, db_column="ENV_TREAT_ID",
                                  verbose_name=_("Environment Treatment Code"))
-    lot_num = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Lot Number"))
-    amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"))
+    lot_num = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Lot Number"),
+                               db_column="LOT_NUMBER")
+    amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"), db_column="AMOUNT")
     concentration = models.DecimalField(max_digits=8, decimal_places=7, null=True, blank=True,
-                                        verbose_name=_("Concentration"))
-    unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"))
-    duration = models.DecimalField(max_digits=5, decimal_places=0, verbose_name=_("Duration (minutes)"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+                                        verbose_name=_("Concentration"), db_column="CONCENTRATION")
+    unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"), db_column="UNIT_ID")
+    duration = models.DecimalField(max_digits=5, decimal_places=0, verbose_name=_("Duration (minutes)"),
+                                   db_column="DURATION")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{}-{}".format(self.contx_id.__str__(), self.envtc_id.__str__())
@@ -610,15 +622,14 @@ class EnvTreatment(BioModel):
 
 class Event(BioTimeModel):
     # evnt tag
-    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility Code"))
-    evntc_id = models.ForeignKey('EventCode', on_delete=models.CASCADE, verbose_name=_("Event Code"))
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility Code"), db_column="FAC_ID")
+    evntc_id = models.ForeignKey('EventCode', on_delete=models.CASCADE, verbose_name=_("Event Code"), db_column="EVT_ID")
     perc_id = models.ForeignKey('PersonnelCode', on_delete=models.CASCADE, verbose_name=_("Personnel Code"),
-                                limit_choices_to={'perc_valid': True})
-    prog_id = models.ForeignKey('Program', on_delete=models.CASCADE, verbose_name=_("Program"),
+                                limit_choices_to={'perc_valid': True}, db_column="PER_ID")
+    prog_id = models.ForeignKey('Program', on_delete=models.CASCADE, verbose_name=_("Program"), db_column="PROGRAM_ID",
                                 limit_choices_to={'valid': True})
     team_id = models.ForeignKey('Team', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Team"))
-
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     @property
     def is_current(self):
@@ -656,12 +667,15 @@ def matp_directory_path(instance, filename):
 
 class EventFile(BioModel):
     # evntf tag
-    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"), related_name="event_files")
-    evntfc_id = models.ForeignKey('EventFileCode', on_delete=models.CASCADE, verbose_name=_("Event File Code"), related_name="event_files")
-    evntf_xls = models.FileField(upload_to=evntf_directory_path, null=True, blank=True, verbose_name=_("Event File"))
-    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, blank=True, null=True,
+    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"), related_name="event_files",
+                                db_column="EVENT_ID")
+    evntfc_id = models.ForeignKey('EventFileCode', on_delete=models.CASCADE, verbose_name=_("Event File Code"),
+                                  related_name="event_files", db_column="EVT_FILE_CODE_ID")
+    evntf_xls = models.FileField(upload_to=evntf_directory_path, null=True, blank=True, verbose_name=_("Event File"),
+                                 db_column="EVENT_FILE")
+    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, blank=True, null=True, db_column="STOCK_ID",
                                 verbose_name=_("Stock Code"), related_name="event_files")
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
         constraints = [
@@ -711,11 +725,12 @@ class FacilityCode(BioLookup):
 
 class Fecundity(BioDateModel):
     # fecu tag
-    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
-    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True,
+    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"),
+                                db_column="STOCK_ID")
+    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True, db_column="COLLECTION_ID",
                                 verbose_name=_("Collection"))
-    alpha = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("A"))
-    beta = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("B"))
+    alpha = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("A"), db_column="A")
+    beta = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("B"), db_column="B")
 
     class Meta:
         constraints = [
@@ -729,14 +744,19 @@ class Fecundity(BioDateModel):
 class Feeding(BioModel):
     # feed tag
     contx_id = models.OneToOneField('ContainerXRef', unique=True, on_delete=models.CASCADE,
-                                    verbose_name=_("Container Cross Reference"))
-    feedm_id = models.ForeignKey('FeedMethod', on_delete=models.CASCADE, verbose_name=_("Feeding Method"))
-    feedc_id = models.ForeignKey('FeedCode', on_delete=models.CASCADE, verbose_name=_("Feeding Code"))
-    lot_num = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("Lot Number"))
-    amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Amount of Feed"))
-    unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"))
-    freq = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("Description of frequency"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+                                    verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    feedm_id = models.ForeignKey('FeedMethod', on_delete=models.CASCADE, verbose_name=_("Feeding Method"),
+                                 db_column="FEEDMETHOD_ID")
+    feedc_id = models.ForeignKey('FeedCode', on_delete=models.CASCADE, verbose_name=_("Feeding Code"),
+                                 db_column="FEED_ID")
+    lot_num = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("Lot Number"),
+                               db_column="LOT_NUMBER")
+    amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Amount of Feed"), db_column="AMOUNT")
+    unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"), db_column="UNIT_ID")
+    freq = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("Description of frequency"),
+                            db_column="FREQUENCY")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"),
+                                db_column="COMMENTS")
 
     def __str__(self):
         return "{}-{}-{}".format(self.contx_id.__str__(), self.feedc_id.__str__(), self.feedm_id.__str__())
@@ -744,7 +764,7 @@ class Feeding(BioModel):
 
 class FeedCode(BioLookup):
     # feedc tag
-    manufacturer = models.CharField(max_length=50, verbose_name=_("Maufacturer"))
+    manufacturer = models.CharField(max_length=50, verbose_name=_("Maufacturer"), db_column="MANUFACTURER")
 
 
 class FeedMethod(BioLookup):
@@ -754,13 +774,15 @@ class FeedMethod(BioLookup):
 
 class Group(BioModel):
     # grp tag
-    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"))
-    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
-    grp_year = models.IntegerField(verbose_name=_("Collection year"), default=2000,
+    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
+    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"),
+                                db_column="STOCK_ID")
+    grp_year = models.IntegerField(verbose_name=_("Collection year"), default=2000, db_column="YEAR",
                                    validators=[MinValueValidator(2000), MaxValueValidator(2100)])
-    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"))
-    grp_valid = models.BooleanField(default="True", verbose_name=_("Group still valid?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"),
+                                db_column="COLLECTION_ID")
+    grp_valid = models.BooleanField(default="True", verbose_name=_("Group still valid?"), db_column="STILL_VALID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTTS")
 
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
@@ -866,15 +888,16 @@ class Group(BioModel):
 class GroupDet(BioDet):
     # grpd tag
     frm_grp_id = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True,
-                                   verbose_name=_("From Parent Group"))
-    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
-    grpd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
-    detail_date = models.DateField(verbose_name=_("Date detail was recorded"))
+                                   verbose_name=_("From Parent Group"), db_column="FROM_GROUP_ID")
+    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
+    grpd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"), db_column="STILL_VALID")
+    detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="group_details",
-                                verbose_name=_("Animal Detail Cross Reference"))
-    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
+                                verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
+                                 db_column="ANI_DET_ID")
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Animal Detail Subjective Code"))
+                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -933,9 +956,9 @@ class HeathUnit(BioCont):
     # heat tag
     key = "heat"
 
-    manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))
-    inservice_date = models.DateField(verbose_name=_("Date unit was put into service"))
-    serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"))
+    manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"), db_column="MANUFACTURER")
+    inservice_date = models.DateField(verbose_name=_("Date unit was put into service"), db_column="INSERVICE_DATE")
+    serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"), db_column="SERIAL_NUMBER")
 
     class Meta:
         constraints = [
@@ -946,7 +969,8 @@ class HeathUnit(BioCont):
 
 class HeathUnitDet(BioContainerDet):
     # heatd tag
-    heat_id = models.ForeignKey('HeathUnit', on_delete=models.CASCADE, verbose_name=_("Heath Unit"))
+    heat_id = models.ForeignKey('HeathUnit', on_delete=models.CASCADE, verbose_name=_("Heath Unit"),
+                                db_column="HEATH_UNIT_ID")
 
     class Meta:
         constraints = [
@@ -984,33 +1008,34 @@ def img_directory_path(instance, filename):
 
 class Image(BioModel):
     # img tag
-    imgc_id = models.ForeignKey("ImageCode", on_delete=models.CASCADE, verbose_name=_("Image Code"))
+    imgc_id = models.ForeignKey("ImageCode", on_delete=models.CASCADE, verbose_name=_("Image Code"), db_column="IMG_ID")
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                               verbose_name=_("Location"))
+                               verbose_name=_("Location"), db_column="LOCATION_ID")
     cntd_id = models.ForeignKey("CountDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                verbose_name=_("Count Detail"))
+                                verbose_name=_("Count Detail"), db_column="COUNT_ID")
     grpd_id = models.ForeignKey("GroupDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                verbose_name=_("Group Detail"))
+                                verbose_name=_("Group Detail"), db_column="GROUP_DET_ID")
     sampd_id = models.ForeignKey("SampleDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                 verbose_name=_("Sample Detail"))
+                                 verbose_name=_("Sample Detail"), db_column="SAMP_DET_ID")
     indvd_id = models.ForeignKey("IndividualDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                 verbose_name=_("Individual Detail"))
+                                 verbose_name=_("Individual Detail"), db_column="INDIV_DET_ID")
     spwnd_id = models.ForeignKey("SpawnDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                 verbose_name=_("Spawn Detail"))
+                                 verbose_name=_("Spawn Detail"), db_column="SPAWN_DETAIL_ID")
     tankd_id = models.ForeignKey("TankDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                 verbose_name=_("Tank Detail"))
+                                 verbose_name=_("Tank Detail"), db_column="TANK_DET_ID")
     heatd_id = models.ForeignKey("HeathUnitDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                 verbose_name=_("Heath Unit Detail"))
+                                 verbose_name=_("Heath Unit Detail"), db_column="HEATH_UNIT_DET_ID")
     draw_id = models.ForeignKey("Drawer", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                verbose_name=_("Drawer"))
+                                verbose_name=_("Drawer"), db_column="DRAWER_ID")
     trofd_id = models.ForeignKey("TroughDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                 verbose_name=_("Trough Detail"))
+                                 verbose_name=_("Trough Detail"), db_column="TROUGH_DET_ID")
     trayd_id = models.ForeignKey("TrayDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                 verbose_name=_("Tray Detail"))
+                                 verbose_name=_("Tray Detail"), db_column="TRAY_DET_ID")
     cupd_id = models.ForeignKey("CupDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
-                                verbose_name=_("Cup Detail"))
-    img_png = models.FileField(upload_to=img_directory_path, null=True, blank=True, verbose_name=_("Image File"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+                                verbose_name=_("Cup Detail"), db_column="CUP_DET_ID")
+    img_png = models.FileField(upload_to=img_directory_path, null=True, blank=True, verbose_name=_("Image File"),
+                               db_column="IMAGE")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{}".format(self.img_png)
@@ -1061,19 +1086,21 @@ class ImageCode(BioLookup):
 class Individual(BioModel):
     # indv tag
 
-    grp_id = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True,
+    grp_id = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True, db_column="GROUP_ID",
                                verbose_name=_("From Parent Group"), limit_choices_to={'grp_valid': True})
-    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"))
-    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"))
-    indv_year = models.IntegerField(verbose_name=_("Collection year"), default=2000,
+    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
+    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"), db_column="STOCK_ID")
+    indv_year = models.IntegerField(verbose_name=_("Collection year"), default=2000, db_column="YEAR",
                                     validators=[MinValueValidator(2000), MaxValueValidator(2100)])
-    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True,
+    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True, db_column="COLLECTION_ID",
                                 verbose_name=_("Collection"))
     # ufid = unique FISH id
-    ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("ABL Fish UFID"))
-    pit_tag = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("PIT tag ID"))
-    indv_valid = models.BooleanField(default="True", verbose_name=_("Entry still valid?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("ABL Fish UFID"),
+                            db_column="UFID")
+    pit_tag = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("PIT tag ID"),
+                               db_column="PIT_TAG")
+    indv_valid = models.BooleanField(default="True", verbose_name=_("Entry still valid?"), db_column="STILL_VALID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         if self.pit_tag:
@@ -1105,14 +1132,15 @@ class Individual(BioModel):
 
 class IndividualDet(BioDet):
     # indvd tag
-    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"))
-    indvd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
-    detail_date = models.DateField(verbose_name=_("Date detail was recorded"))
+    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
+    indvd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"), db_column="STILL_VALID")
+    detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_details",
-                                verbose_name=_("Animal Detail Cross Reference"))
-    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
+                                verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
+                                 db_column="ANI_DET_ID")
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Animal Detail Subjective Code"))
+                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -1171,18 +1199,18 @@ class IndividualDet(BioDet):
 
 class IndTreatCode(BioLookup):
     # indvtc tag
-    rec_dose = models.CharField(max_length=400, verbose_name=_("Recommended Dosage"))
-    manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"))
+    rec_dose = models.CharField(max_length=400, verbose_name=_("Recommended Dosage"), db_column="IND_REC_DOSAGE")
+    manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"), db_column="IND_MANUFACTURER")
 
 
 class IndTreatment(BioTimeModel):
     # indvt tag
-    indvtc_id = models.ForeignKey('IndTreatCode', on_delete=models.CASCADE,
+    indvtc_id = models.ForeignKey('IndTreatCode', on_delete=models.CASCADE, db_column="IND_TEART_ID",
                                   verbose_name=_("Individual Treatment Code"))
-    lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"))
-    dose = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"))
-    unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"), db_column="LOT_NUMBER")
+    dose = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"), db_column="DOSE")
+    unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"), db_column="UNIT_ID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{}-{}".format(self.indvtc_id.__str__(), self.lot_num)
@@ -1190,10 +1218,11 @@ class IndTreatment(BioTimeModel):
 
 class Instrument(BioModel):
     # inst tag
-    instc_id = models.ForeignKey('InstrumentCode', on_delete=models.CASCADE, verbose_name=_("Instrument Code"))
-    serial_number = models.CharField(null=True, unique=True, blank=True, max_length=250,
+    instc_id = models.ForeignKey('InstrumentCode', on_delete=models.CASCADE, verbose_name=_("Instrument Code"),
+                                 db_column="INST_ID")
+    serial_number = models.CharField(null=True, unique=True, blank=True, max_length=250, db_column="SERIAL_NUMBER",
                                      verbose_name=_("Serial Number"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{} - {}".format(self.instc_id.__str__(), self.serial_number)
@@ -1206,9 +1235,11 @@ class InstrumentCode(BioLookup):
 
 class InstrumentDet(BioDateModel):
     # instd tag
-    inst_id = models.ForeignKey('Instrument', on_delete=models.CASCADE, verbose_name=_("Instrument"))
-    instdc_id = models.ForeignKey('InstDetCode', on_delete=models.CASCADE, verbose_name=_("Instrument Detail Code"))
-    det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"))
+    inst_id = models.ForeignKey('Instrument', on_delete=models.CASCADE, verbose_name=_("Instrument"),
+                                db_column="INSTRUM_ID")
+    instdc_id = models.ForeignKey('InstDetCode', on_delete=models.CASCADE, verbose_name=_("Instrument Detail Code"),
+                                  db_column="INST_DET_ID")
+    det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"), db_column="VAL")
 
     class Meta:
         constraints = [
@@ -1226,27 +1257,27 @@ class InstDetCode(BioLookup):
 
 class Location(BioModel):
     # loc tag
-    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"), related_name="location")
-    locc_id = models.ForeignKey('LocCode', on_delete=models.CASCADE, verbose_name=_("Location Code"))
-    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, null=True, blank=True,
+    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"), related_name="location",
+                                db_column="EVENT_ID")
+    locc_id = models.ForeignKey('LocCode', on_delete=models.CASCADE, verbose_name=_("Location Code"), db_column="LOC_ID")
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, null=True, blank=True, db_column="RIVER_ID",
                                 verbose_name=_("River"))
-    trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True,
+    trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True, db_column="TRIB_ID",
                                 verbose_name=_("Tributary"))
-    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True,
+    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True, db_column="SUBRIVER_ID",
                                 verbose_name=_("SubRiver Code"))
     relc_id = models.ForeignKey('ReleaseSiteCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Site Code"), related_name="locations")
-    loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
-                                  verbose_name=_("Lattitude"))
-    loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
+                                verbose_name=_("Site Code"), related_name="locations", db_column="SITE_ID")
+    loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="LATITUDE",
+                                  verbose_name=_("Latitude"))
+    loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="LONGITUDE",
                                   verbose_name=_("Longitude"))
-    end_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
-                                  verbose_name=_("End Lattitude"))
-    end_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
+    end_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="END_LATITUDE",
+                                  verbose_name=_("End Latitude"))
+    end_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="END_LONGITUDE",
                                   verbose_name=_("End Longitude"))
-    loc_date = models.DateTimeField(verbose_name=_("Start date"))
-
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    loc_date = models.DateTimeField(verbose_name=_("Start date"), db_column="LOCATION_DATE")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     @property
     def start_date(self):
@@ -1310,11 +1341,13 @@ class Organization(BioLookup):
 
 class Pairing(BioDateModel):
     # pair tag
-    indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"),
+    indv_id = models.ForeignKey('Individual',  on_delete=models.CASCADE, verbose_name=_("Dam"), db_column="DAM",
                                 limit_choices_to={'pit_tag__isnull': False, 'indv_valid': True}, related_name="pairings")
-    prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Female"), related_name="female_priorities")
-    pair_prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Pair"), related_name="pair_priorities")
-    cross = models.IntegerField(verbose_name=_("Cross"))
+    prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Female"),
+                                related_name="female_priorities", db_column="PRIORITY_ID")
+    pair_prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority of Pair"),
+                                     related_name="pair_priorities", db_column="PAIR_PRIORITY_ID")
+    cross = models.IntegerField(verbose_name=_("Cross"), db_column="CROSS")
 
     def __str__(self):
         return "{}".format(self.indv_id.__str__())
@@ -1327,7 +1360,7 @@ class Pairing(BioDateModel):
 
 class PersonnelCode(BioModel):
     # perc tag
-    perc_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"))
+    perc_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"),)
     perc_first_name = models.CharField(max_length=32, verbose_name=_("First Name"))
     initials = models.CharField(max_length=4, verbose_name=_("Initials"), blank=True, null=True)
     perc_valid = models.BooleanField(default="False", verbose_name=_("Record still valid?"))
@@ -1349,10 +1382,12 @@ class PriorityCode(BioLookup):
 
 class Program(BioDateModel):
     # prog tag
-    prog_name = models.CharField(max_length=30, unique=True, verbose_name=_("Program Name"))
-    prog_desc = models.CharField(max_length=4000, verbose_name=_("Program Description"))
-    proga_id = models.ForeignKey('ProgAuthority', on_delete=models.CASCADE, verbose_name=_("Program Authority"))
-    orga_id = models.ForeignKey('Organization', on_delete=models.CASCADE, verbose_name=_("Organization"))
+    prog_name = models.CharField(max_length=30, unique=True, verbose_name=_("Program Name"), db_column="PROGRAM_NAME")
+    prog_desc = models.CharField(max_length=4000, verbose_name=_("Program Description"), db_column="PROGRAM_DESC")
+    proga_id = models.ForeignKey('ProgAuthority', on_delete=models.CASCADE, verbose_name=_("Program Authority"),
+                                 db_column="PROG_AUTH_ID")
+    orga_id = models.ForeignKey('Organization', on_delete=models.CASCADE, verbose_name=_("Organization"),
+                                db_column="ORG_ID")
 
     def __str__(self):
         return self.prog_name
@@ -1360,8 +1395,8 @@ class Program(BioDateModel):
 
 class ProgAuthority(BioModel):
     # proga tag
-    proga_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"))
-    proga_first_name = models.CharField(max_length=32, verbose_name=_("First Name"))
+    proga_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"), db_column="PROG_AUTH_LAST_NAME")
+    proga_first_name = models.CharField(max_length=32, verbose_name=_("First Name"), db_column="PROG_AUTH_FIRST_NAME")
 
     def __str__(self):
         return "{} {}".format(self.proga_first_name, self.proga_last_name)
@@ -1376,13 +1411,15 @@ class Protocol(BioDateModel):
     # prot tag
 
     prog_id = models.ForeignKey('Program', on_delete=models.CASCADE, verbose_name=_("Program"),
-                                limit_choices_to={'valid': True}, related_name="protocols")
-    protc_id = models.ForeignKey('ProtoCode', on_delete=models.CASCADE, verbose_name=_("Protocol Code"))
-    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"))
-    evntc_id = models.ForeignKey('EventCode', blank=True, null=True, on_delete=models.CASCADE,
+                                limit_choices_to={'valid': True}, related_name="protocols", db_column="PROGRAM_ID")
+    protc_id = models.ForeignKey('ProtoCode', on_delete=models.CASCADE, verbose_name=_("Protocol Code"),
+                                 db_column="PROTO_ID")
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"),
+                                 db_column="FAC_ID")
+    evntc_id = models.ForeignKey('EventCode', blank=True, null=True, on_delete=models.CASCADE, db_column="EVT_ID",
                                  verbose_name=_("Event Code"))
-    name = models.CharField(max_length=25, verbose_name=_("Protocol Name"))
-    prot_desc = models.CharField(max_length=4000, verbose_name=_("Protocol Description"))
+    name = models.CharField(max_length=25, verbose_name=_("Protocol Name"), db_column="PROTOCOL_NAME")
+    prot_desc = models.CharField(max_length=4000, verbose_name=_("Protocol Description"), db_column="PROTOCOL_DESC")
 
     def __str__(self):
         return self.name
@@ -1405,10 +1442,11 @@ def protf_directory_path(instance, filename):
 
 class Protofile(BioModel):
     # protf tag
-    prot_id = models.ForeignKey('Protocol', on_delete=models.CASCADE, related_name="protf_id",
+    prot_id = models.ForeignKey('Protocol', on_delete=models.CASCADE, related_name="protf_id", db_column="PROTOCOL_ID",
                                 verbose_name=_("Protocol"), limit_choices_to={'valid': True})
-    protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"),
+                                 db_column="PROTO_FILE")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{}".format(self.protf_pdf)
@@ -1451,18 +1489,19 @@ class QualCode(BioLookup):
 
 class ReleaseSiteCode(BioLookup):
     # relc tag
-    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), related_name="sites")
-    trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True,
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), related_name="sites",
+                                db_column="RIVER_ID")
+    trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True, db_column="TRIB_ID",
                                 verbose_name=_("Tributary"))
-    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True,
+    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True, db_column="SUBRIVER_ID",
                                 verbose_name=_("SubRiver Code"))
-    min_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
-                                  verbose_name=_("Min Lattitude"))
-    max_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
-                                  verbose_name=_("Max Lattitude"))
-    min_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
+    min_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="MIN_LATITUDE",
+                                  verbose_name=_("Min Latitude"))
+    max_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="MAX_LATITUDE",
+                                  verbose_name=_("Max Latitude"))
+    min_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MIN_LONGITUDE",
                                   verbose_name=_("Min Longitude"))
-    max_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
+    max_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MAX_LONGITUDE",
                                   verbose_name=_("Max Longitude"))
 
     @property
@@ -1489,11 +1528,13 @@ class RoleCode(BioLookup):
 
 class Sample(BioModel):
     # samp tag
-    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name=_("Location"))
-    samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"))
-    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"))
-    sampc_id = models.ForeignKey('SampleCode', on_delete=models.CASCADE, verbose_name=_("Sample Code"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name=_("Location"),
+                               db_column="LOCATION_ID")
+    samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")
+    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
+    sampc_id = models.ForeignKey('SampleCode', on_delete=models.CASCADE, verbose_name=_("Sample Code"),
+                                 db_column="SAMP_ID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{} - {}".format(self.sampc_id.__str__(), self.samp_num)
@@ -1510,10 +1551,11 @@ class SampleCode(BioLookup):
 
 
 class SampleDet(BioDet):
-    samp_id = models.ForeignKey('Sample', on_delete=models.CASCADE, verbose_name=_("Sample"))
-    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"))
+    samp_id = models.ForeignKey('Sample', on_delete=models.CASCADE, verbose_name=_("Sample"), db_column="SAMPLE_ID")
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
+                                 db_column="ANI_DET_ID")
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Animal Detail Subjective Code"))
+                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -1535,13 +1577,14 @@ class SampleDet(BioDet):
 
 class Sire(BioModel):
     # sire tag
-    prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority"))
+    prio_id = models.ForeignKey('PriorityCode', on_delete=models.CASCADE, verbose_name=_("Priority"),
+                                db_column="PRIORITY_ID")
     pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, verbose_name=_("Pairing"), related_name="sires",
-                                limit_choices_to={'valid': True})
-    indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Sire"),
+                                limit_choices_to={'valid': True}, db_column="PAIR_ID")
+    indv_id = models.ForeignKey('Individual', on_delete=models.CASCADE, verbose_name=_("Sire"), db_column="UFID",
                                 limit_choices_to={'pit_tag__isnull':  False, 'indv_valid': True}, related_name="sires")
-    choice = models.IntegerField(verbose_name=_("Choice"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    choice = models.IntegerField(verbose_name=_("Choice"), db_column="CHOICE")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "Sire {}".format(self.indv_id.__str__())
@@ -1554,10 +1597,12 @@ class Sire(BioModel):
 
 class SpawnDet(BioDet):
     # spwnd tag
-    pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, related_name="spawning_details", verbose_name=_("Pairing"))
-    spwndc_id = models.ForeignKey('SpawnDetCode', on_delete=models.CASCADE, verbose_name=_("Spawning Detail Code"))
+    pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, related_name="spawning_details",
+                                verbose_name=_("Pairing"), db_column="PAIR_ID")
+    spwndc_id = models.ForeignKey('SpawnDetCode', on_delete=models.CASCADE, verbose_name=_("Spawning Detail Code"),
+                                  db_column="SPAWN_DET_ID")
     spwnsc_id = models.ForeignKey('SpawnDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                  verbose_name=_("Spawning Detail Subjective Code"))
+                                  verbose_name=_("Spawning Detail Subjective Code"), db_column="SPAWN_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -1585,10 +1630,13 @@ class SpawnDet(BioDet):
 
 class SpawnDetCode(BioLookup):
     # spwndc tag
-    min_val = models.DecimalField(blank=True, null=True, max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
-    max_val = models.DecimalField(blank=True, null=True, max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
-    unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"))
-    spwn_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
+    min_val = models.DecimalField(blank=True, null=True, max_digits=11, decimal_places=5,
+                                  verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(blank=True, null=True, max_digits=11, decimal_places=5,
+                                  verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, db_column="UNIT_ID",
+                                verbose_name=_("Units"))
+    spwn_subj_flag = models.BooleanField(verbose_name=_("Subjective?"), db_column="SPAWN_SUBJ_FLAG")
 
 
 class SpawnDetSubjCode(BioLookup):
@@ -1598,9 +1646,10 @@ class SpawnDetSubjCode(BioLookup):
 
 class SpeciesCode(BioModel):
     # spec tag
-    name = models.CharField(max_length=10, verbose_name=_("Species Name"))
-    species = models.CharField(max_length=100, verbose_name=_("Species"))
-    com_name = models.CharField(max_length=35, null=True, blank=True, verbose_name=_("Species Common Name"))
+    name = models.CharField(max_length=10, verbose_name=_("Species Name"), db_column="SPEC_SHORT")
+    species = models.CharField(max_length=100, verbose_name=_("Species"), db_column="SPECIES")
+    com_name = models.CharField(max_length=35, null=True, blank=True, verbose_name=_("Species Common Name"),
+                                db_column="COMMON_NAME")
 
     def __str__(self):
         return self.name
@@ -1613,8 +1662,8 @@ class StockCode(BioLookup):
 
 class SubRiverCode(BioLookup):
     # subr tag
-    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"))
-    trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True,
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), db_column="RIVER_ID")
+    trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True, db_column="TRIB_ID",
                                 verbose_name=_("Tributary"))
 
 
@@ -1631,7 +1680,7 @@ class Tank(BioCont):
 
 class TankDet(BioContainerDet):
     # tankd tag
-    tank_id = models.ForeignKey('Tank', on_delete=models.CASCADE, verbose_name=_("Tank"))
+    tank_id = models.ForeignKey('Tank', on_delete=models.CASCADE, verbose_name=_("Tank"), db_column="TANK_ID")
 
     class Meta:
         constraints = [
@@ -1666,10 +1715,11 @@ class Tray(BioCont):
 
     # Make name not unique, is unique together with trough code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, related_name="trays", verbose_name=_("Trough"))
+    trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, related_name="trays", verbose_name=_("Trough"),
+                                db_column="TROUGH_ID")
     facic_id = None
-    start_date = models.DateField(verbose_name=_("Start Date"))
-    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
+    start_date = models.DateField(verbose_name=_("Start Date"), db_column="START_DATE")
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"), db_column="END_DATE")
 
     def degree_days(self, start_date=None, end_date=None):
         if not start_date:
@@ -1688,7 +1738,7 @@ class Tray(BioCont):
 
 class TrayDet(BioContainerDet):
     # trayd tag
-    tray_id = models.ForeignKey('Tray', on_delete=models.CASCADE, verbose_name=_("Tray"))
+    tray_id = models.ForeignKey('Tray', on_delete=models.CASCADE, verbose_name=_("Tray"), db_column="TRAY_ID")
 
     class Meta:
         constraints = [
@@ -1701,7 +1751,7 @@ class TrayDet(BioContainerDet):
 
 class Tributary(BioLookup):
     # trib tag
-    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"))
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), db_column="RIVER_ID")
 
 
 class Trough(BioCont):
@@ -1738,7 +1788,7 @@ class Trough(BioCont):
 
 class TroughDet(BioContainerDet):
     # trofd tag
-    trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, verbose_name=_("Trough"))
+    trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, verbose_name=_("Trough"), db_column="TROUGH_ID")
 
     class Meta:
         constraints = [
