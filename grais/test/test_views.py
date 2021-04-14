@@ -262,6 +262,120 @@ class TestSpeciesUpdateView(CommonTest):
         self.assert_correct_url("grais:species_edit", f"/en/grais/species/{self.instance.pk}/edit/", [self.instance.pk])
 
 
+
+
+
+class TestStationCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.site = FactoryFloor.SiteFactory()
+        self.test_url = reverse_lazy('grais:station_new')
+        self.expected_template = 'grais/form.html'
+        self.user = self.get_and_login_user(in_group="grais_admin")
+
+    @tag("Station", "station_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(biofouling_views.StationCreateView, CommonCreateView)
+
+    @tag("Station", "station_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Station", "station_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.StationFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Station", "station_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("grais:station_new", f"/en/grais/stations/new/")
+
+
+class TestStationDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.StationFactory()
+        self.test_url = reverse_lazy('grais:station_delete', args=[self.instance.pk, ])
+        self.expected_template = 'grais/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="grais_admin")
+
+    @tag("Station", "station_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(biofouling_views.StationDeleteView, CommonDeleteView)
+
+    @tag("Station", "station_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Station", "station_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.StationFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.Station.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("Station", "station_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("grais:station_delete", f"/en/grais/stations/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestStationDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.StationFactory()
+        self.test_url = reverse_lazy('grais:station_detail', args=[self.instance.pk, ])
+        self.expected_template = 'grais/biofouling/station_detail/main.html'
+        self.user = self.get_and_login_user(in_group="grais_admin")
+
+    @tag("Station", "station_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(biofouling_views.StationDetailView, CommonDetailView)
+
+    @tag("Station", "station_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Station", "station_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("grais:station_detail", f"/en/grais/stations/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestStationUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.StationFactory()
+        self.test_url = reverse_lazy('grais:station_edit', args=[self.instance.pk, ])
+        self.expected_template = 'grais/form.html'
+        self.user = self.get_and_login_user(in_group="grais_admin")
+
+    @tag("Station", "station_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(biofouling_views.StationUpdateView, CommonUpdateView)
+
+    @tag("Station", "station_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Station", "station_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.StationFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Station", "station_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("grais:station_edit", f"/en/grais/stations/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+
 # 
 # 
 # class TestCollectionCreateView(CommonTest):
@@ -902,30 +1016,29 @@ class TestSpeciesUpdateView(CommonTest):
 #         # use the 'en' locale prefix to url
 #         self.assert_correct_url("grais:pcr_batch_edit", f"/en/grais/pcrs/{self.instance.pk}/edit/", [self.instance.pk])
 # 
-# 
-# class TestReportSearchFormView(CommonTest):
-#     def setUp(self):
-#         super().setUp()
-#         self.test_url = reverse_lazy('grais:reports')
-#         self.expected_template = 'grais/report_search.html'
-#         self.user = self.get_and_login_user(in_group="grais_admin")
-# 
-#     @tag("ReportSearch", "reports", "view")
-#     def test_view_class(self):
-#         self.assert_inheritance(biofouling_views.ReportSearchFormView, CommonFormView)
-# 
-#     @tag("ReportSearch", "reports", "access")
-#     def test_view(self):
-#         self.assert_good_response(self.test_url)
-#         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-# 
-#     @tag("ReportSearch", "reports", "submit")
-#     def test_submit(self):
-#         data = dict(report=1)
-#         self.assert_success_url(self.test_url, data=data, user=self.user)
-# 
-#     @tag("ReportSearch", "reports", "correct_url")
-#     def test_correct_url(self):
-#         # use the 'en' locale prefix to url
-#         self.assert_correct_url("grais:reports", f"/en/grais/reports/")
-#
+
+class TestReportSearchFormView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('grais:reports')
+        self.expected_template = 'grais/report_search.html'
+        self.user = self.get_and_login_user(in_group="grais_admin")
+
+    @tag("ReportSearch", "reports", "view")
+    def test_view_class(self):
+        self.assert_inheritance(shared_views.ReportSearchFormView, CommonFormView)
+
+    @tag("ReportSearch", "reports", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReportSearch", "reports", "submit")
+    def test_submit(self):
+        data = dict(report=1)
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("ReportSearch", "reports", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("grais:reports", f"/en/grais/reports/")
