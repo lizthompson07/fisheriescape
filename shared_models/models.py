@@ -845,9 +845,30 @@ class Person(models.Model):
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     email = models.EmailField(verbose_name=_("email"), unique=True)
-    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
-    organization = models.CharField(max_length=50, verbose_name=_("association"), blank=True, null=True)
-    dmapps_user = models.ForeignKey(User, blank=True, null=True, verbose_name=_("linkage to DM Apps User"))
+    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"), related_name="people")
+    affiliation = models.CharField(max_length=255, verbose_name=_("affiliation"), blank=True, null=True)
+
+    dmapps_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="people")
+
+    # TODO: should be pulled from user profile, if available (use signals)
+    job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
+    job_title_fr = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
+
+    # TODO: make me a choice field
+    type = models.IntegerField(blank=True, null=True, verbose_name=_("Type"))
+
+    # TODO: is this necessary?
+    notification_preference = models.IntegerField(blank=True, null=True, verbose_name=_("Communication Preference"))
+
+    # TODO: make me a choice field??
+    expertise = models.IntegerField(blank=True, null=True, verbose_name=_("Expertise"))
+
+    # TODO: what is this?
+    cc_grad = models.BooleanField(null=True, blank=True, verbose_name=_("Chair Course Graduate"))
+    notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
+
+    def __str__(self):
+        return "{}, {}".format(self.last_name, self.first_name)
 
     class Meta:
         ordering = ['first_name', "last_name"]
