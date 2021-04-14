@@ -105,6 +105,9 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         'allocated_budget',
         'review_score_percentage',
         'last_modified',
+        'om_costs',
+        'salary_costs',
+        'capital_costs',
     ]
 
     def get_context_data(self, **kwargs):
