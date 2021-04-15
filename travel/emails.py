@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from dm_apps.emails import Email
+from travel import utils
 
 from_email = settings.SITE_FROM_EMAIL
 
@@ -176,15 +177,18 @@ class TripReviewEmail(Email):
     subject_fr = "L'examen de voyage par le SMA a commencé"
 
     def get_recipient_list(self):
-        return [self.recip]
+        return utils.get_all_admins(region=self.region)
 
     def get_context_data(self):
         context = super().get_context_data()
-        context.update({'due_date': timezone.now() + datetime.timedelta(days=7)})
+        context.update({
+            'due_date': timezone.now() + datetime.timedelta(days=7),
+            'request_list': self.instance.requests.filter(status__in=[17, 12, 16, ], section__division__branch__region=self.region)
+        })
         return context
 
-    def __init__(self, request, instance=None, recip=None):
+    def __init__(self, request, instance=None, region=None):
         super().__init__(request)
         self.request = request
         self.instance = instance
-        self.recip = recip
+        self.region = region

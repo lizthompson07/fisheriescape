@@ -778,11 +778,12 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
         else:
             # go and get approvals!!
             utils.start_trip_review_process(my_trip)
-            # send out a warning email to all DFO science admins --> have to send emails individually because of aws limit
-            to_list = utils.get_all_admins()
-            for recip in to_list:
-                email = emails.TripReviewEmail(self.request, my_trip, recip)
-                email.send()
+            # we will send out one email per region, provided that region has requests that are still under regional review
+            for region in shared_models.Region.objects.all():
+                qs = my_trip.requests.filter(status__in=[17, 12, 16, ], section__division__branch__region=region)
+                if qs.exists():
+                    email = emails.TripReviewEmail(self.request, my_trip, region)
+                    email.send()
 
         # No matter what business what done, we will call this function to sort through reviewer and request statuses
         utils.trip_approval_seeker(my_trip, self.request)
@@ -1135,10 +1136,10 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list") +
-                                        f'?fy={fy};region={region};trip={trip};user={user};from_date={from_date};to_date={to_date};')
+                                        f'?fy={fy}&region={region}&trip={trip}&user={user}&from_date={from_date}&to_date={to_date}&')
         elif report == 2:
             return HttpResponseRedirect(reverse("travel:export_trip_list") +
-                                        f'?fy={fy};region={region};adm={adm};from_date={from_date};to_date={to_date};')
+                                        f'?fy={fy}&region={region}&adm={adm}&from_date={from_date}&to_date={to_date}&')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:reports"))

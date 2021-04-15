@@ -1,22 +1,22 @@
 import os
 
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
-from django.views.generic import FormView
 
 from grais import filters
 from grais import forms
 from grais import models
 from grais import reports
 from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
-from grais.utils import is_grais_admin
+from grais.utils import is_grais_admin, has_grais_crud
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDetailView, CommonDeleteView
+    CommonDetailView, CommonDeleteView, CommonFormView
 
 
 class IndexView(GraisAccessRequiredMixin, CommonTemplateView):
@@ -31,7 +31,7 @@ class IndexView(GraisAccessRequiredMixin, CommonTemplateView):
 
 # SETTINGS
 class ProbeFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
-    template_name = 'shared_models/generic_formset.html'
+    template_name = 'grais/formset.html'
     h1 = "Manage Probes"
     queryset = models.Probe.objects.all()
     formset_class = forms.ProbeFormset
@@ -60,6 +60,21 @@ class SamplerHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("grais:manage_samplers")
 
 
+class WeatherConditionFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
+    template_name = 'grais/formset.html'
+    h1 = "Manage Weather Conditions"
+    queryset = models.WeatherConditions.objects.all()
+    formset_class = forms.WeatherConditionFormset
+    success_url_name = "grais:manage_weather_conditions"
+    home_url_name = "grais:index"
+    delete_url_name = "grais:delete_weather_condition"
+
+
+class WeatherConditionHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
+    model = models.WeatherConditions
+    success_url = reverse_lazy("grais:manage_weather_conditions")
+
+
 # SPECIES #
 ###########
 
@@ -80,6 +95,7 @@ class SpeciesListView(GraisAccessRequiredMixin, CommonFilterView):
         {"name": 'aphia_id|WoRMS Aphia ID', "class": "", "width": ""},
         {"name": 'color_morph', "class": "", "width": ""},
         {"name": 'invasive', "class": "", "width": ""},
+        {"name": 'green_crab_monitoring|green crab monitoring?', "class": "", "width": ""},
         {"name": 'Has occurred in db?', "class": "", "width": ""},
     ]
 
@@ -134,6 +150,7 @@ class SpeciesDetailView(GraisAccessRequiredMixin, CommonDetailView):
         'epibiont_type',
         'color_morph',
         'invasive',
+        'green_crab_monitoring',
         'database occurrences',
     ]
 
@@ -152,9 +169,10 @@ class SpeciesDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
+class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
     template_name = 'grais/reports.html'
     form_class = forms.ReportSearchForm
+    h1 = "grAIS Reports"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -189,6 +207,8 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("grais:report_search"))
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def species_sample_spreadsheet_export(request, species_list):
     file_url = reports.generate_species_sample_spreadsheet(species_list)
     if os.path.exists(file_url):
@@ -199,6 +219,8 @@ def species_sample_spreadsheet_export(request, species_list):
     raise Http404
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def biofouling_presence_absence_spreadsheet_export(request):
     year = request.GET["year"] if request.GET["year"] != "None" else None
 
@@ -211,21 +233,29 @@ def biofouling_presence_absence_spreadsheet_export(request):
     raise Http404
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def export_open_data_ver1(request, year=None):
     response = reports.generate_open_data_ver_1_report(year)
     return response
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def export_open_data_ver1_dictionary(request):
     response = reports.generate_open_data_ver_1_data_dictionary()
     return response
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def export_open_data_ver1_wms(request, year, lang):
     response = reports.generate_open_data_ver_1_wms_report(year, lang)
     return response
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def export_gc_cpue(request, year):
     file_url = reports.generate_gc_cpue_report(year)
 
@@ -237,6 +267,8 @@ def export_gc_cpue(request, year):
     raise Http404
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def export_gc_envr(request, year):
     file_url = reports.generate_gc_envr_report(year)
 
@@ -248,6 +280,8 @@ def export_gc_envr(request, year):
     raise Http404
 
 
+@login_required(login_url='/accounts/login/')
+@user_passes_test(has_grais_crud, login_url='/accounts/denied/')
 def export_gc_sites(request):
     file_url = reports.generate_gc_sites_report()
 

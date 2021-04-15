@@ -1,0 +1,22 @@
+{% load static %}
+
+
+{% if not object.followups.exists %}
+  <em>No followups are attached to this report.</em>
+{% else %}
+  {% for obj in object.followups.all %}
+    <div class="alert alert-warning" role="alert">
+      <p>{{ obj.date }} &rarr; {{ obj.note }}</p>
+      <hr>
+      <p class="mb-0 small text-muted">
+        <u>Author:</u> {{ obj.author }}<br>
+        {{ obj.metadata }}
+      </p>
+      <div class="mt-3">
+        <a class="btn btn-sm btn-outline-dark" @click="openPopout('{% url 'grais:followup_edit' obj.id %}')"><span class="mdi mdi-pencil h5"></span></a>
+        <a class="btn btn-sm btn-outline-dark" @click="openPopout('{% url 'grais:followup_delete' obj.id %}')"><span class="mdi mdi-delete h5"></span></a>
+      </div>
+    </div>
+  {% endfor %}
+{% endif %}
+

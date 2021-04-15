@@ -92,6 +92,11 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Tests for eDNA'
 
+  - script: |
+      python manage.py test -b grais.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for grAIS'
+
 #  - script: |
 #      python manage.py test -b fisheriescape.test
 #    condition: succeededOrFailed()

@@ -191,3 +191,16 @@ class ProjectFactory(factory.django.DjangoModelFactory):
             'name': faker.word(),
             'code': faker.word(),
         }
+
+
+class ProvinceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Province
+
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.word(),
+        }

@@ -1,25 +1,15 @@
-import os
-
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Value, TextField
-from django.db.models.functions import Concat
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.utils.translation import gettext_lazy
-from django.views.generic import FormView
 
-from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
 from grais import filters
 from grais import forms
 from grais import models
-from grais import reports
 from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
-from grais.utils import is_grais_admin
+from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreateView, \
+    CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
 
 
 # STATION #
@@ -427,6 +417,7 @@ class LineDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
     def get_success_url(self):
         return self.get_grandparent_crumb().get("url")
 
+
 # SURFACES #
 ############
 
@@ -529,5 +520,3 @@ class SurfaceDeleteView(GraisCRUDRequiredMixin, CommonDeleteView):
 
     def get_success_url(self):
         return reverse('grais:line_detail', args=[self.get_object().line.id])
-
-

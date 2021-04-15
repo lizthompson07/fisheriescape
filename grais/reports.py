@@ -57,8 +57,8 @@ def generate_species_sample_spreadsheet(species_list=None):
         "Observation day",
         verbose_field_name(my_sample, 'station'),
         verbose_field_name(my_sample.station, 'province'),
-        verbose_field_name(my_sample.station, 'latitude_n'),
-        verbose_field_name(my_sample.station, 'longitude_w'),
+        verbose_field_name(my_sample.station, 'latitude'),
+        verbose_field_name(my_sample.station, 'longitude'),
         "observed at station?",
         "observed on line?",
         "observed on collector surface?",
@@ -163,8 +163,8 @@ def generate_species_sample_spreadsheet(species_list=None):
                 obs_day,
                 sample.station.station_name,
                 sample.station.province.tabbrev,
-                sample.station.latitude_n,
-                sample.station.longitude_w,
+                sample.station.latitude,
+                sample.station.longitude,
                 at_station,
                 on_line,
                 on_surface,
@@ -269,8 +269,8 @@ def generate_biofouling_pa_spreadsheet(year=None):
                     year,
                     station.station_name,
                     station.province.abbrev_eng,
-                    station.latitude_n,
-                    station.longitude_w,
+                    station.latitude,
+                    station.longitude,
                 ]
 
                 for ais in ais_list:
@@ -527,7 +527,6 @@ def generate_open_data_ver_1_report(year=None):
 
     samples = models.Sample.objects.all()
     # if there is a year provided, filter by only this year
-    print(year)
     if year and year != "None":
         samples = samples.filter(season=year)
 
@@ -571,8 +570,8 @@ def generate_open_data_ver_1_report(year=None):
             surface.line.sample.date_retrieved.strftime("%Y-%m-%d") if surface.line.sample.date_retrieved else None,
             surface.line.sample.weeks_deployed,
             surface.line.sample.station.site_desc,
-            surface.line.latitude_n,
-            surface.line.longitude_w,
+            surface.line.latitude,
+            surface.line.longitude,
             surface.line.collector,
             surface.get_surface_type_display(),
             surface.label,
@@ -678,8 +677,8 @@ def generate_open_data_ver_1_wms_report(year, lang):
             station.station_name,
             station.province.abbrev_eng if lang == 1 else station.province.abbrev_fre,
             station.site_desc,
-            station.latitude_n,
-            station.longitude_w,
+            station.latitude,
+            station.longitude,
             other_spp,
         ]
 
@@ -878,8 +877,8 @@ def generate_gc_sites_report():
             obj.name,
             obj.code,
             obj.description,
-            obj.latitude_n,
-            obj.longitude_w,
+            obj.latitude,
+            obj.longitude,
         ]
 
         # adjust the width of the columns based on the max string length in each col
