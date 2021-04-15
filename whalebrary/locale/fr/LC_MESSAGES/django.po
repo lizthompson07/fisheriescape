@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-15 21:31-0300\n"
+"POT-Creation-Date: 2021-04-14 16:13-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,389 +13,384 @@ msgstr ""
 msgid "Name contains"
 msgstr ""
 
-#: .\whalebrary\models.py:18 .\whalebrary\models.py:32
-#: .\whalebrary\models.py:46 .\whalebrary\models.py:261
+#: .\whalebrary\models.py:16 .\whalebrary\models.py:30
+#: .\whalebrary\models.py:44 .\whalebrary\models.py:259
 msgid "english name"
 msgstr "nom anglais"
 
-#: .\whalebrary\models.py:19 .\whalebrary\models.py:33
-#: .\whalebrary\models.py:47 .\whalebrary\models.py:263
+#: .\whalebrary\models.py:17 .\whalebrary\models.py:31
+#: .\whalebrary\models.py:45 .\whalebrary\models.py:261
 msgid "french name"
 msgstr "nom anglais"
 
-#: .\whalebrary\models.py:23 .\whalebrary\models.py:25
-#: .\whalebrary\models.py:37 .\whalebrary\models.py:39
-#: .\whalebrary\models.py:51 .\whalebrary\models.py:53
-#: .\whalebrary\models.py:65 .\whalebrary\models.py:67
-#: .\whalebrary\models.py:268 .\whalebrary\models.py:270
-#: .\whalebrary\models.py:282 .\whalebrary\models.py:284
-#: .\whalebrary\models.py:297 .\whalebrary\models.py:306
-#: .\whalebrary\models.py:308
+#: .\whalebrary\models.py:21 .\whalebrary\models.py:23
+#: .\whalebrary\models.py:35 .\whalebrary\models.py:37
+#: .\whalebrary\models.py:49 .\whalebrary\models.py:51
+#: .\whalebrary\models.py:63 .\whalebrary\models.py:65
+#: .\whalebrary\models.py:266 .\whalebrary\models.py:268
+#: .\whalebrary\models.py:280 .\whalebrary\models.py:282
+#: .\whalebrary\models.py:295 .\whalebrary\models.py:304
+#: .\whalebrary\models.py:306
 msgid "name"
 msgstr "nom"
 
-#: .\whalebrary\models.py:60
+#: .\whalebrary\models.py:58
 #, fuzzy
 msgid "size"
 msgstr "Remarques:"
 
-#: .\whalebrary\models.py:61
+#: .\whalebrary\models.py:59
 #, fuzzy
 msgid "taille"
 msgstr "titre"
 
-#: .\whalebrary\models.py:74
+#: .\whalebrary\models.py:72
 msgid "supplier"
 msgstr ""
 
-#: .\whalebrary\models.py:75
+#: .\whalebrary\models.py:73
 #, fuzzy
 msgid "contact number"
 msgstr "numéro d'événement"
 
-#: .\whalebrary\models.py:76
+#: .\whalebrary\models.py:74
 msgid "email"
 msgstr "courriel"
 
-#: .\whalebrary\models.py:77
+#: .\whalebrary\models.py:75
 msgid "website"
 msgstr ""
 
-#: .\whalebrary\models.py:78 .\whalebrary\models.py:395
+#: .\whalebrary\models.py:76 .\whalebrary\models.py:396
 #, fuzzy
 msgid "comments/details"
 msgstr "Détails du projet"
 
-#: .\whalebrary\models.py:82 .\whalebrary\models.py:84
+#: .\whalebrary\models.py:80 .\whalebrary\models.py:82
 #, fuzzy
 msgid "supplier_name"
 msgstr "nom de site"
 
-#: .\whalebrary\models.py:94
+#: .\whalebrary\models.py:92
 #, fuzzy
 msgid "name of item"
 msgstr "la date de fin du voyage"
 
-#: .\whalebrary\models.py:95 .\whalebrary\models.py:439
-#: .\whalebrary\models.py:453
+#: .\whalebrary\models.py:93 .\whalebrary\models.py:448
+#: .\whalebrary\models.py:462
 msgid "description"
 msgstr "description"
 
-#: .\whalebrary\models.py:96
+#: .\whalebrary\models.py:94
 #, fuzzy
 msgid "note"
 msgstr "remarques"
 
-#: .\whalebrary\models.py:98
+#: .\whalebrary\models.py:96
 #, fuzzy
 msgid "owner of equipment"
 msgstr "Équipement de laboratoire"
 
-#: .\whalebrary\models.py:100
+#: .\whalebrary\models.py:98
 #, fuzzy
 msgid "size (if applicable)"
 msgstr "Nom de l'application (le cas échéant)"
 
-#: .\whalebrary\models.py:102
+#: .\whalebrary\models.py:100
 #, fuzzy
 msgid "category of equipment"
 msgstr "Équipement de laboratoire"
 
-#: .\whalebrary\models.py:104
+#: .\whalebrary\models.py:102
 #, fuzzy
 msgid "type of equipment"
 msgstr "Nouveau personne"
 
-#: .\whalebrary\models.py:105
+#: .\whalebrary\models.py:103
 msgid "suppliers"
 msgstr ""
 
-#: .\whalebrary\models.py:112 .\whalebrary\models.py:114
+#: .\whalebrary\models.py:110 .\whalebrary\models.py:112
 #, fuzzy
 msgid "item_name"
 msgstr "nom de site"
 
-#: .\whalebrary\models.py:182 .\whalebrary\models.py:192
-#: .\whalebrary\models.py:194 .\whalebrary\models.py:380
+#: .\whalebrary\models.py:180 .\whalebrary\models.py:190
+#: .\whalebrary\models.py:192 .\whalebrary\models.py:381
 msgid "location"
 msgstr "location"
 
-#: .\whalebrary\models.py:183
+#: .\whalebrary\models.py:181
 msgid "bin id"
 msgstr ""
 
-#: .\whalebrary\models.py:184
+#: .\whalebrary\models.py:182
 msgid "address"
 msgstr "adresse"
 
-#: .\whalebrary\models.py:186
+#: .\whalebrary\models.py:184
 msgid "is this item a container with more items inside it?"
 msgstr ""
 
-#: .\whalebrary\models.py:188
+#: .\whalebrary\models.py:186
 #, fuzzy
 msgid "container Space Available (if applicable)"
 msgstr "Nom de l'application (le cas échéant)"
 
-#: .\whalebrary\models.py:216
+#: .\whalebrary\models.py:214
 msgid "caption"
 msgstr "légende"
 
-#: .\whalebrary\models.py:217 .\whalebrary\models.py:466
-#: .\whalebrary\models.py:486 .\whalebrary\models.py:488
-#: .\whalebrary\models.py:524
+#: .\whalebrary\models.py:215 .\whalebrary\models.py:475
+#: .\whalebrary\models.py:495 .\whalebrary\models.py:497
+#: .\whalebrary\models.py:533
 #, fuzzy
 msgid "item"
 msgstr "Titre"
 
-#: .\whalebrary\models.py:218
+#: .\whalebrary\models.py:216
 msgid "file"
 msgstr ""
 
-#: .\whalebrary\models.py:219 .\whalebrary\models.py:414
+#: .\whalebrary\models.py:217 .\whalebrary\models.py:423
 msgid "date uploaded"
 msgstr ""
 
-#: .\whalebrary\models.py:262
+#: .\whalebrary\models.py:260
 #, fuzzy
 msgid "english abbreviated name"
 msgstr "nom anglais"
 
-#: .\whalebrary\models.py:264
+#: .\whalebrary\models.py:262
 #, fuzzy
 msgid "french abbreviated name"
 msgstr "nom anglais"
 
-#: .\whalebrary\models.py:292
+#: .\whalebrary\models.py:290
 msgid "No previous experience"
 msgstr ""
 
-#: .\whalebrary\models.py:293
+#: .\whalebrary\models.py:291
 msgid "1-2 Necropsies"
 msgstr ""
 
-#: .\whalebrary\models.py:294
+#: .\whalebrary\models.py:292
 msgid "3-5 Necropsies"
 msgstr ""
 
-#: .\whalebrary\models.py:295
+#: .\whalebrary\models.py:293
 msgid "More than 5 Necropsies"
 msgstr ""
 
-#: .\whalebrary\models.py:298
+#: .\whalebrary\models.py:296
 msgid "nom"
 msgstr ""
 
-#: .\whalebrary\models.py:299
+#: .\whalebrary\models.py:297
 msgid "english description"
 msgstr "description anglaise"
 
-#: .\whalebrary\models.py:300
+#: .\whalebrary\models.py:298
 msgid "french description"
 msgstr "description française"
 
-#: .\whalebrary\models.py:302 .\whalebrary\models.py:326
+#: .\whalebrary\models.py:300 .\whalebrary\models.py:324
 msgid "experience level"
 msgstr ""
 
-#: .\whalebrary\models.py:318
+#: .\whalebrary\models.py:316
 msgid "first name"
 msgstr "prénom"
 
-#: .\whalebrary\models.py:319
+#: .\whalebrary\models.py:317
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\whalebrary\models.py:321
+#: .\whalebrary\models.py:319
 #, fuzzy
 msgid "organisation"
 msgstr "Organisation"
 
-#: .\whalebrary\models.py:322
+#: .\whalebrary\models.py:320
 #, fuzzy
 msgid "email address"
 msgstr "Courriel"
 
-#: .\whalebrary\models.py:323
+#: .\whalebrary\models.py:321
 #, fuzzy
 msgid "phone number"
 msgstr "numéro d'événement"
 
-#: .\whalebrary\models.py:327
+#: .\whalebrary\models.py:325
 msgid "training"
 msgstr ""
 
-#: .\whalebrary\models.py:331 .\whalebrary\models.py:333
+#: .\whalebrary\models.py:329 .\whalebrary\models.py:331
 #, fuzzy
 msgid "first_name"
 msgstr "prénom"
 
-#: .\whalebrary\models.py:372
+#: .\whalebrary\models.py:341
+msgid "name (latin)"
+msgstr ""
+
+#: .\whalebrary\models.py:375
 #, fuzzy
 msgid "incident name"
 msgstr "Nom du personnel"
 
-#: .\whalebrary\models.py:373
+#: .\whalebrary\models.py:376
 #, fuzzy
 msgid "species count"
 msgstr "commentaire de chefde section"
 
-#: .\whalebrary\models.py:375
+#: .\whalebrary\models.py:378
 msgid "incident report submitted by Gulf?"
 msgstr ""
 
-#: .\whalebrary\models.py:377
+#: .\whalebrary\models.py:380
 msgid "date and time first reported"
 msgstr ""
 
-#: .\whalebrary\models.py:378
-#, fuzzy
-msgid "latitude (DD)"
-msgstr "titre"
-
-#: .\whalebrary\models.py:379
-msgid "longitude (DD)"
-msgstr ""
-
-#: .\whalebrary\models.py:381
+#: .\whalebrary\models.py:382
 msgid "region"
 msgstr ""
 
-#: .\whalebrary\models.py:382
+#: .\whalebrary\models.py:383
 msgid "species"
 msgstr ""
 
-#: .\whalebrary\models.py:383
+#: .\whalebrary\models.py:384
 msgid "sex"
 msgstr ""
 
-#: .\whalebrary\models.py:385
+#: .\whalebrary\models.py:386
 msgid "age group"
 msgstr ""
 
-#: .\whalebrary\models.py:387
+#: .\whalebrary\models.py:388
 #, fuzzy
 msgid "type of Incident"
 msgstr "Organisation"
 
-#: .\whalebrary\models.py:388
+#: .\whalebrary\models.py:389
 msgid "gear Presence?"
 msgstr ""
 
-#: .\whalebrary\models.py:389
+#: .\whalebrary\models.py:390
 #, fuzzy
 msgid "gear description"
 msgstr "description"
 
-#: .\whalebrary\models.py:390
+#: .\whalebrary\models.py:391
 #, fuzzy
 msgid "examination conducted?"
 msgstr "traduction nécessaire"
 
-#: .\whalebrary\models.py:391
+#: .\whalebrary\models.py:392
 msgid "necropsy conducted?"
 msgstr ""
 
-#: .\whalebrary\models.py:392
+#: .\whalebrary\models.py:393
 #, fuzzy
 msgid "results"
 msgstr "Commentaires"
 
-#: .\whalebrary\models.py:393
+#: .\whalebrary\models.py:394
 msgid "photos?"
 msgstr ""
 
-#: .\whalebrary\models.py:394
+#: .\whalebrary\models.py:395
 #, fuzzy
 msgid "data folder"
 msgstr "nom de famille"
 
-#: .\whalebrary\models.py:411
+#: .\whalebrary\models.py:420
 msgid "title"
 msgstr "titre"
 
-#: .\whalebrary\models.py:412
+#: .\whalebrary\models.py:421
 msgid "incident"
 msgstr ""
 
-#: .\whalebrary\models.py:413
+#: .\whalebrary\models.py:422
 #, fuzzy
 msgid "image"
 msgstr "Durée en semaines"
 
-#: .\whalebrary\models.py:424
+#: .\whalebrary\models.py:433
 #, fuzzy
 msgid "last audited on"
 msgstr "Dernière modification"
 
-#: .\whalebrary\models.py:425
+#: .\whalebrary\models.py:434
 #, fuzzy
 msgid "last audited by"
 msgstr "Dernière modification par"
 
-#: .\whalebrary\models.py:429 .\whalebrary\models.py:431
+#: .\whalebrary\models.py:438 .\whalebrary\models.py:440
 #, fuzzy
 msgid "date"
 msgstr "Mettre à jour"
 
-#: .\whalebrary\models.py:438 .\whalebrary\models.py:443
-#: .\whalebrary\models.py:445 .\whalebrary\models.py:452
+#: .\whalebrary\models.py:447 .\whalebrary\models.py:452
+#: .\whalebrary\models.py:454 .\whalebrary\models.py:461
 msgid "tag"
 msgstr ""
 
-#: .\whalebrary\models.py:457 .\whalebrary\models.py:459
+#: .\whalebrary\models.py:466 .\whalebrary\models.py:468
 msgid "type"
 msgstr "type"
 
-#: .\whalebrary\models.py:467 .\whalebrary\models.py:525
+#: .\whalebrary\models.py:476 .\whalebrary\models.py:534
 msgid "quantity"
 msgstr ""
 
-#: .\whalebrary\models.py:469
+#: .\whalebrary\models.py:478
 #, fuzzy
 msgid "transaction category"
 msgstr "Catégorie de coût"
 
-#: .\whalebrary\models.py:471
+#: .\whalebrary\models.py:480
 msgid "comments"
 msgstr ""
 
-#: .\whalebrary\models.py:473
+#: .\whalebrary\models.py:482
 #, fuzzy
 msgid "audits"
 msgstr "Modifier"
 
-#: .\whalebrary\models.py:476
+#: .\whalebrary\models.py:485
 #, fuzzy
 msgid "location stored"
 msgstr "location"
 
-#: .\whalebrary\models.py:478
+#: .\whalebrary\models.py:487
 #, fuzzy
 msgid "tags"
 msgstr "Mots clés"
 
-#: .\whalebrary\models.py:526
+#: .\whalebrary\models.py:535
 #, fuzzy
 msgid "order cost"
 msgstr "Ajouter un nouveau coût"
 
-#: .\whalebrary\models.py:527
+#: .\whalebrary\models.py:536
 #, fuzzy
 msgid "order date"
 msgstr "prénom"
 
-#: .\whalebrary\models.py:528
+#: .\whalebrary\models.py:537
 #, fuzzy
 msgid "received date"
 msgstr "Dates de voyage"
 
-#: .\whalebrary\models.py:531
+#: .\whalebrary\models.py:540
 #, fuzzy
 msgid "transaction"
 msgstr "Transactions"
 
-#: .\whalebrary\models.py:535 .\whalebrary\models.py:537
+#: .\whalebrary\models.py:544 .\whalebrary\models.py:546
 msgid "id"
 msgstr ""
 
@@ -578,11 +573,11 @@ msgid "New"
 msgstr "Nouveau"
 
 #: .\whalebrary\templates\whalebrary\supplier_list_popout.html:13
-#: .\whalebrary\views.py:448 .\whalebrary\views.py:547
-#: .\whalebrary\views.py:681 .\whalebrary\views.py:907
-#: .\whalebrary\views.py:1061 .\whalebrary\views.py:1190
-#: .\whalebrary\views.py:1308 .\whalebrary\views.py:1430
-#: .\whalebrary\views.py:1528
+#: .\whalebrary\views.py:454 .\whalebrary\views.py:553
+#: .\whalebrary\views.py:687 .\whalebrary\views.py:913
+#: .\whalebrary\views.py:1067 .\whalebrary\views.py:1196
+#: .\whalebrary\views.py:1314 .\whalebrary\views.py:1439
+#: .\whalebrary\views.py:1537
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -599,200 +594,204 @@ msgstr ""
 msgid "Whalebrary App Editors"
 msgstr "Salaire"
 
-#: .\whalebrary\views.py:118
+#: .\whalebrary\views.py:108
 msgid "Last login to DM Apps"
 msgstr ""
 
-#: .\whalebrary\views.py:324
+#: .\whalebrary\views.py:330
 #, fuzzy
 msgid "Item name (size)"
 msgstr "nom (fra)"
 
-#: .\whalebrary\views.py:331
+#: .\whalebrary\views.py:337
 msgid "Total on hand quantity"
 msgstr ""
 
-#: .\whalebrary\views.py:353 .\whalebrary\views.py:421
-#: .\whalebrary\views.py:470 .\whalebrary\views.py:479
-#: .\whalebrary\views.py:493
+#: .\whalebrary\views.py:359 .\whalebrary\views.py:427
+#: .\whalebrary\views.py:476 .\whalebrary\views.py:485
+#: .\whalebrary\views.py:499
 #, fuzzy
 msgid "Item List"
 msgstr "Utilisateur"
 
-#: .\whalebrary\views.py:440
+#: .\whalebrary\views.py:446
 #, fuzzy
 msgid "Detailed Transactions for "
 msgstr "Transactions"
 
-#: .\whalebrary\views.py:453
+#: .\whalebrary\views.py:459
 #, fuzzy
 msgid "Item record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:478
+#: .\whalebrary\views.py:484
 #, fuzzy
 msgid "Add New Item"
 msgstr "Ajouter un enregistrement"
 
-#: .\whalebrary\views.py:483
+#: .\whalebrary\views.py:489
 #, fuzzy
 msgid "Item record successfully created for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:540 .\whalebrary\views.py:569
-#: .\whalebrary\views.py:578 .\whalebrary\views.py:593
+#: .\whalebrary\views.py:546 .\whalebrary\views.py:575
+#: .\whalebrary\views.py:584 .\whalebrary\views.py:599
 #, fuzzy
 msgid "Location List"
 msgstr "Section"
 
-#: .\whalebrary\views.py:552
+#: .\whalebrary\views.py:558
 #, fuzzy
 msgid "Location record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:577
+#: .\whalebrary\views.py:583
 #, fuzzy
 msgid "Add New Location"
 msgstr "Section"
 
-#: .\whalebrary\views.py:582
+#: .\whalebrary\views.py:588
 #, fuzzy
 msgid "Location record successfully created for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:669 .\whalebrary\views.py:696
-#: .\whalebrary\views.py:716 .\whalebrary\views.py:761
+#: .\whalebrary\views.py:675 .\whalebrary\views.py:702
+#: .\whalebrary\views.py:722 .\whalebrary\views.py:767
 #, fuzzy
 msgid "Transaction List"
 msgstr "Transactions"
 
-#: .\whalebrary\views.py:700
+#: .\whalebrary\views.py:706
 #, fuzzy
 msgid "Transaction record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:726 .\whalebrary\views.py:745
+#: .\whalebrary\views.py:732 .\whalebrary\views.py:751
 #, fuzzy
 msgid "Transaction record successfully created for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:836
+#: .\whalebrary\views.py:842
 msgid "Item Quantities and Statuses"
 msgstr ""
 
-#: .\whalebrary\views.py:891 .\whalebrary\views.py:911
+#: .\whalebrary\views.py:897 .\whalebrary\views.py:917
 msgid "Order # "
 msgstr ""
 
-#: .\whalebrary\views.py:895 .\whalebrary\views.py:919
-#: .\whalebrary\views.py:970 .\whalebrary\views.py:1000
+#: .\whalebrary\views.py:901 .\whalebrary\views.py:925
+#: .\whalebrary\views.py:976 .\whalebrary\views.py:1006
 #, fuzzy
 msgid "Order List"
 msgstr "Utilisateur"
 
-#: .\whalebrary\views.py:923
+#: .\whalebrary\views.py:929
 #, fuzzy
 msgid "Order record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:980
+#: .\whalebrary\views.py:986
 #, fuzzy
 msgid "Order record successfully created for : Order # {str(my_object)}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1054 .\whalebrary\views.py:1083
-#: .\whalebrary\views.py:1092 .\whalebrary\views.py:1107
+#: .\whalebrary\views.py:1060 .\whalebrary\views.py:1089
+#: .\whalebrary\views.py:1098 .\whalebrary\views.py:1113
 #, fuzzy
 msgid "Personnel List"
 msgstr "titre du projet"
 
-#: .\whalebrary\views.py:1066
+#: .\whalebrary\views.py:1072
 #, fuzzy
 msgid "Personnel record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1091
+#: .\whalebrary\views.py:1097
 #, fuzzy
 msgid "Add New Personnel"
 msgstr "Nouveau personne"
 
-#: .\whalebrary\views.py:1096
+#: .\whalebrary\views.py:1102
 #, fuzzy
 msgid "Personnel record successfully created for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1124
+#: .\whalebrary\views.py:1130
 #, fuzzy
 msgid "Please select a supplier to add to item"
 msgstr "Veuillez sélectionner le rapport"
 
-#: .\whalebrary\views.py:1182 .\whalebrary\views.py:1205
-#: .\whalebrary\views.py:1221 .\whalebrary\views.py:1251
+#: .\whalebrary\views.py:1188 .\whalebrary\views.py:1211
+#: .\whalebrary\views.py:1227 .\whalebrary\views.py:1257
 #, fuzzy
 msgid "Supplier List"
 msgstr "Utilisateur"
 
-#: .\whalebrary\views.py:1209
+#: .\whalebrary\views.py:1215
 #, fuzzy
 msgid "Supplier record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1231
+#: .\whalebrary\views.py:1237
 #, fuzzy
 msgid "Supplier record successfully created for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1294
+#: .\whalebrary\views.py:1300
 #, fuzzy
 msgid "File successfully added for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1312
+#: .\whalebrary\views.py:1318
 #, fuzzy
 msgid "File record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1391 .\whalebrary\views.py:1452
-#: .\whalebrary\views.py:1461 .\whalebrary\views.py:1476
+#: .\whalebrary\views.py:1396 .\whalebrary\views.py:1461
+#: .\whalebrary\views.py:1470 .\whalebrary\views.py:1485
 #, fuzzy
 msgid "Incident List"
 msgstr "Équipement de laboratoire"
 
-#: .\whalebrary\views.py:1435
+#: .\whalebrary\views.py:1444
 #, fuzzy
 msgid "Incident record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1460
+#: .\whalebrary\views.py:1469
 #, fuzzy
 msgid "Add New Incident"
 msgstr "Ajouter un enregistrement"
 
-#: .\whalebrary\views.py:1465
+#: .\whalebrary\views.py:1474
 #, fuzzy
 msgid "Incident record successfully created for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1514
+#: .\whalebrary\views.py:1523
 #, fuzzy
 msgid "Image successfully added for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1532
+#: .\whalebrary\views.py:1541
 #, fuzzy
 msgid "Image record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\whalebrary\views.py:1584 .\whalebrary\views.py:1617
+#: .\whalebrary\views.py:1593 .\whalebrary\views.py:1626
 #, fuzzy
 msgid "Report Generator"
 msgstr "enregistrement"
 
-#: .\whalebrary\views.py:1592
+#: .\whalebrary\views.py:1601
 msgid "Container Summary for "
 msgstr ""
 
-#: .\whalebrary\views.py:1625
+#: .\whalebrary\views.py:1634
 #, fuzzy
 msgid "For search term "
 msgstr "Terme de recherche"
+
+#, fuzzy
+#~ msgid "latitude (DD)"
+#~ msgstr "titre"

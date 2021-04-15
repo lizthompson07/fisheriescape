@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils.translation import gettext as _
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
@@ -44,7 +45,6 @@ class SampleSpeciesViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
-
 class LineSpeciesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LineSpeciesSerializer
     permission_classes = [graisCRUDOrReadOnly]
@@ -64,7 +64,6 @@ class LineSpeciesViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
 
 
 class SurfaceSpeciesViewSet(viewsets.ModelViewSet):
@@ -88,6 +87,57 @@ class SurfaceSpeciesViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+class IncidentalReportSpeciesViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.IncidentalReportSpeciesSerializer
+    permission_classes = [graisCRUDOrReadOnly]
+    queryset = models.IncidentalReportSpecies.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("report"):
+            ir = get_object_or_404(models.IncidentalReport, pk=qp.get("report"))
+            qs = ir.ir_species.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a incidental report"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class CatchViewSet(viewsets.ModelViewSet):
+    permission_classes = [graisCRUDOrReadOnly]
+    queryset = models.Catch.objects.all()
+
+    def get_serializer_class(self):
+        qp = self.request.query_params
+        if qp.get("crab"):
+            return serializers.CrabSerializer
+        elif qp.get("bycatch"):
+            return serializers.BycatchSerializer
+        raise ValidationError(_("You need to specify crab or bycatch "))
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("trap"):
+            trap = get_object_or_404(models.Trap, pk=qp.get("trap"))
+            if qp.get("crab"):
+                qs = trap.get_crabs()
+            else:
+                qs = trap.get_bycatch()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a trap"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
 
 class SpeciesModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -96,7 +146,24 @@ class SpeciesModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = get_labels(self.model)
-        data['choices'] = [dict(text=item.choice_display, value=item.id) for item in self.model.objects.all()]
+        qp = request.query_params
+        if qp.get("crab"):
+            data['choices'] = [dict(text=item.choice_display, value=item.id) for item in self.model.objects.filter(green_crab_monitoring=True)]
+        elif qp.get("bycatch"):
+            data['choices'] = [dict(text=item.choice_display, value=item.id) for item in self.model.objects.filter(green_crab_monitoring=False)]
+        else:
+            data['choices'] = [dict(text=item.choice_display, value=item.id) for item in self.model.objects.all()]
+        return Response(data)
+
+
+class CatchModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Catch
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        data['sex_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.SEX_CHOICES]
         return Response(data)
 
 #
