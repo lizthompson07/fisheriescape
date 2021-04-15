@@ -32,6 +32,102 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
         return context
 
 
+
+# csas requests # 
+#################
+
+class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
+    template_name = 'csas2/list.html'
+    filterset_class = filters.CSASRequestFilter
+    home_url_name = "grais:index"
+    new_object_url = reverse_lazy("grais:species_new")
+    row_object_url_name = row_ = "grais:species_detail"
+    container_class = "container-fluid"
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'tname|{}'.format("common name"), "class": "", "width": ""},
+        {"name": 'formatted_scientific|{}'.format("scientific name"), "class": "", "width": ""},
+        {"name": 'abbrev', "class": "", "width": ""},
+        {"name": 'tsn|ITIS TSN', "class": "", "width": ""},
+        {"name": 'aphia_id|WoRMS Aphia ID', "class": "", "width": ""},
+        {"name": 'color_morph', "class": "", "width": ""},
+        {"name": 'invasive', "class": "", "width": ""},
+        {"name": 'green_crab_monitoring|green crab monitoring?', "class": "", "width": ""},
+        {"name": 'Has occurred in db?', "class": "", "width": ""},
+    ]
+
+    def get_queryset(self):
+        return models.CSASRequest.objects.annotate(
+            search_term=Concat('common_name', Value(" "), 'common_name_fra', Value(" "), 'scientific_name', output_field=TextField()))
+
+
+class CSASRequestUpdateView(GraisAdminRequiredMixin, CommonUpdateView):
+    model = models.CSASRequest
+    form_class = forms.CSASRequestForm
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": gettext_lazy("CSASRequest"), "url": reverse_lazy("grais:species_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:species_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class CSASRequestCreateView(GraisCRUDRequiredMixin, CommonCreateView):
+    model = models.CSASRequest
+    form_class = forms.CSASRequestForm
+    success_url = reverse_lazy('grais:species_list')
+    template_name = 'grais/form.html'
+    home_url_name = "grais:index"
+    parent_crumb = {"title": gettext_lazy("CSASRequest"), "url": reverse_lazy("grais:species_list")}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class CSASRequestDetailView(GraisAccessRequiredMixin, CommonDetailView):
+    model = models.CSASRequest
+    template_name = 'grais/biofouling/species_detail.html'
+    home_url_name = "grais:index"
+    parent_crumb = {"title": gettext_lazy("CSASRequest"), "url": reverse_lazy("grais:species_list")}
+    field_list = [
+        'id',
+        'common_name',
+        'common_name_fra',
+        'scientific_name',
+        'abbrev',
+        'tsn',
+        'aphia',
+        'epibiont_type',
+        'color_morph',
+        'invasive',
+        'green_crab_monitoring',
+        'database occurrences',
+    ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class CSASRequestDeleteView(GraisAdminRequiredMixin, CommonDeleteView):
+    model = models.CSASRequest
+    success_url = reverse_lazy('grais:species_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'grais/confirm_delete.html'
+
+
+
+
+
+
 # REPORTS #
 ###########
 

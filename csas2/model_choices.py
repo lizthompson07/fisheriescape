@@ -10,14 +10,17 @@ language_choices = (
     (2, _('French')),
 )
 
-
 request_status_choices = (
     (1,	_("draft")),
     (2,	_("submitted")),
     (3,	_("reviewed")),
-    (4,	_("approved")),
-    (5,	_("not approved")),
     (9,	_("withdrawn")),
+)
+
+request_decision_choices = (
+    (1,	_("on")),
+    (2,	_("off")),
+    (3,	_("tentative")),
 )
 
 
