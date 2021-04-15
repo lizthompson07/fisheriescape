@@ -27,7 +27,7 @@ WEB_APP_NAME = "DMApps"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
-LOGS_DIR = os.path.join('var', 'log', 'dmapps')
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 
 # some simple settings that we import from the .env file or the environmental variables
 ####################################################
