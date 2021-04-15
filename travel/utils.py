@@ -5,7 +5,7 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
@@ -789,11 +789,15 @@ def get_all_admins(region):
     division_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(divisions__isnull=False, divisions__branch__region=region)]
     branch_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(branches__isnull=False, branches__region=region)]
 
-    # to_list.extend(region_admins)
     to_list.extend(branch_admins)
     to_list.extend(division_admins)
     to_list.extend(section_admins)
     to_list.extend(section_special_reviewers)
     to_list.extend(division_special_reviewers)
     to_list.extend(branch_special_reviewers)
+    # just adding amelie to all emails for now.
+    try:
+        to_list.append(User.objects.get(email__iexact="amelie.robichaud@dfo-mpo.gc.ca").email)
+    except:
+        pass
     return set(to_list)
