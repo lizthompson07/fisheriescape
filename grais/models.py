@@ -303,6 +303,7 @@ class Surface(MetadataFields):
     label = models.CharField(max_length=255)
     image = models.ImageField(blank=True, null=True, upload_to=img_file_name)
     is_lost = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the surface lost?")
+    is_damaged = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the surface damaged?")
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SurfaceSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
