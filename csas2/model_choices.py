@@ -5,7 +5,18 @@ request_type_choices = (
     (2, _('Previous')),
 )
 
+language_choices = (
+    (1, _('English')),
+    (2, _('French')),
+)
 
+
+request_status_choices = (
+    (1,	_("draft")),
+    (2,	_("submitted")),
+    (3,	_("reviewed")),
+    (9,	_("withdrawn")),
+)
 
 
 priority_rating_choices = (

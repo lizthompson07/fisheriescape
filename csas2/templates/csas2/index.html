@@ -28,8 +28,8 @@
     <div class="text-center">
 
 
-      <div class="row">
-        <div class="col">
+      <div class="text-center">
+        <div class="neighbours mx-3">
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"> {% trans "Requests" %} </h5>
@@ -38,8 +38,7 @@
             </div>
           </div>
         </div>
-
-        <div class="col">
+        <div class="neighbours mx-3">
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title">{% trans "Processes" %}</h5>
@@ -48,27 +47,28 @@
             </div>
           </div>
         </div>
-
-        {#      #}
-        {#      #}
-        {#      <a href="" class="btn btn-primary">{% trans "CSAS Requests" %}</a>#}
-        {#      <div class="btn-group mr-5">#}
-        {#        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"#}
-        {#                aria-expanded="false">#}
-        {#          {% trans "Lab Services" %}#}
-        {#        </button>#}
-        {#        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">#}
-        {#          <a class="dropdown-item" href="{% url 'csas2:filtration_batch_list' %}">Sample Filtration</a>#}
-        {#          <a class="dropdown-item" href="{% url 'csas2:extraction_batch_list' %}">DNA Extraction</a>#}
-        {#          <a class="dropdown-item" href="{% url 'csas2:pcr_batch_list' %}">qPCR</a>#}
-        {#        </div>#}
-        {#      </div>#}
-        {#      <a href="#" class="btn btn-warning">{% trans "Start a Batch" %}</a>#}
-        {#      <a href="#" class="btn btn-dark mr-5">{% trans "Find a Batch" %}</a>#}
-        {#      <a href="{% static 'csas2/csas2_sampling_fieldsheet.docx' %}" class="btn btn-outline-primary"><span#}
-        {#        class="mdi mdi-file-document mr-1 text-primary"></span>{% trans "Download eDNA Fieldsheet" %}</a>#}
       </div>
+
+      {#      #}
+      {#      #}
+      {#      <a href="" class="btn btn-primary">{% trans "CSAS Requests" %}</a>#}
+      {#      <div class="btn-group mr-5">#}
+      {#        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"#}
+      {#                aria-expanded="false">#}
+      {#          {% trans "Lab Services" %}#}
+      {#        </button>#}
+      {#        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">#}
+      {#          <a class="dropdown-item" href="{% url 'csas2:filtration_batch_list' %}">Sample Filtration</a>#}
+      {#          <a class="dropdown-item" href="{% url 'csas2:extraction_batch_list' %}">DNA Extraction</a>#}
+      {#          <a class="dropdown-item" href="{% url 'csas2:pcr_batch_list' %}">qPCR</a>#}
+      {#        </div>#}
+      {#      </div>#}
+      {#      <a href="#" class="btn btn-warning">{% trans "Start a Batch" %}</a>#}
+      {#      <a href="#" class="btn btn-dark mr-5">{% trans "Find a Batch" %}</a>#}
+      {#      <a href="{% static 'csas2/csas2_sampling_fieldsheet.docx' %}" class="btn btn-outline-primary"><span#}
+      {#        class="mdi mdi-file-document mr-1 text-primary"></span>{% trans "Download eDNA Fieldsheet" %}</a>#}
     </div>
+  </div>
 
 
   </div>

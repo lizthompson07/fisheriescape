@@ -4,7 +4,8 @@ from django.template.defaultfilters import date
 from django.utils.translation import gettext_lazy as _, gettext
 
 from csas2 import model_choices
-from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person
+from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
+    SimpleLookupWithUUID
 
 
 # We will be using the following models from shared models:
@@ -14,65 +15,48 @@ from shared_models.models import SimpleLookup, UnilingualSimpleLookup, Unilingua
 # DFO ORGS (region, section etc.)
 
 
-class CSASRequest(SimpleLookup, MetadataFields):
+class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     ''' csas request '''
     type = models.IntegerField(blank=True, null=True, verbose_name=_("type"), choices=model_choices.request_type_choices)
-    title_en = models.CharField(max_length=1000, verbose_name=_("title (English)"), blank=True, null=True)
-    title_fr = models.CharField(max_length=1000, verbose_name=_("title (French)"), blank=True, null=True)
-
-    # client details
-    # client = models.ForeignKey(Person, blank=True, related_name="csas_requests", verbose_name=_("Client Name"))  # one name (always internal)
-
-    is_zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
-    zonal_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region."))
-
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("Region"))
-    issue = models.TextField(verbose_name=_("Issue"), help_text=_("Issue requiring science information and/or advice. Posted as a question "
-                                                                  "to be answered by Science."))
-    consequence_text = models.TextField(null=True, blank=True, verbose_name=_("Consequence Text"))
-    assistance = models.BooleanField(null=True, blank=True, verbose_name=_("Assistance"))
-    assistance_text = models.TextField(null=True, blank=True, verbose_name=_("Assistance Text"))
-
+    language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
+    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_coordinator_requests",
+                                    verbose_name=_("Regional CSAS coordinator"))
+    # DFO client details
+    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_client_requests",
+                               verbose_name=_("DFO client"))  # one name (always internal)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
+                                verbose_name=_("DFO Section / Team"))  # one name (always internal)
+    is_multiregional = models.BooleanField(default=False,
+                                           verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
+    multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region."))
+    issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice."),
+                             help_text=_("Should be phrased as a question to be answered by Science."))
+    had_assistance = models.BooleanField(default=False, verbose_name=_(
+        "Have you had assistance from Science in developing the question/request (with CSAS and/or DFO science staff)?"))
+    assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" If yes, please indicate with whom"))
+    request_rationale = models.TextField(verbose_name=_("Rationale for Request"),
+                                         help_text=_("Rationale or context for the request: What will the information/advice "
+                                                     "be used for? Who will be the end user(s)? Will it impact other DFO "
+                                                     "programs or regions?"))
+    risk_text = models.TextField(null=True, blank=True, verbose_name=_("What is the expected consequence if science advice is not provided?"))
+    advice_needed_by = models.DateTimeField(verbose_name=_("Latest Possible Date to Receive Science Advice"))
+    rationale_for_timeline = models.TextField(null=True, blank=True, verbose_name=_("Rationale for deadline?"),
+                                              help_text=_(
+                                                  "e.g., COSEWIC or consultation meetings, Environmental Assessments, legal or regulatory requirement, Treaty obligation, international commitments, etc). Please elaborate and provide anticipatory dates"))
+    client_has_funding = models.BooleanField(default=False, verbose_name=_("Do you have funds to cover any extra costs associated with this request?"),
+                                             help_text=_("i.e., special analysis, meeting costs, translation)?"))
+    client_funding_description = models.TextField(null=True, blank=True, verbose_name=_("If so, please elaborate."))
+    client_signed_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Date of client signature"))
 
     # admin stuff
+    received_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Date received by CSAS coordinator"))
     reference_number = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Assigned Request Number"))
-    # TODO: MAKE ME A CHOICE FIELD
-    # is this not a part of the review?
-    priority_rating = models.IntegerField(blank=True, null=True, verbose_name=_("Priority"))
 
-    rationale = models.TextField(verbose_name=_("Rationale for Request"),
-                                 help_text=_("Rationale or context for the request: What will the information/advice "
-                                             "be used for? Who will be the end user(s)? Will it impact other DFO "
-                                             "programs or regions?"))
-
-    # TODO: MAKE ME A CHOICE FIELD
-    proposed_timing = models.IntegerField(blank=True, null=True, verbose_name=_("Proposed Timing"),
-                                          help_text=_("Latest possible date to receive Science Advice."))
-    rationale_for_timing = models.TextField(verbose_name=_("Rationale for Timing"), help_text=_("Explain rationale for proposed timing."))
-
-    funding = models.BooleanField(help_text=_("Do you have funds to cover extra costs associated with this request?"))
-    funding_notes = models.TextField(max_length=512, verbose_name=_("Funding Notes"))
-
-    science_discussion = models.BooleanField(verbose_name=_("Science Discussion"),
-                                             help_text=_("Have you talked to Science about this request?"))
-    science_discussion_notes = models.CharField(max_length=100, verbose_name=_("Science Discussion Notes"),
-                                                help_text=_("If you have talked to Science about this request, to whom have you talked?"))
-
-    # section for links to people
-    client = models.ManyToManyField(Person, blank=True, related_name="client_name", verbose_name=_("Client Name"))  # one name (always internal)
-
-    coordinators = models.ManyToManyField(Person, blank=True, related_name="coordinator_name", verbose_name=_("Coordinator Name"))
-    # todo: needs clarification. Are we talking about sector heads? if so, could these data be stored in a different table? I suspect this is a redundant field
-
-    submission_date = models.DateField(null=True, blank=True, verbose_name=_("Submission Date"), help_text=_("Format: YYYY-MM-DD."))
-    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"), help_text=_("Format: YYYY-MM-DD."))
-    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"), help_text=_("Format: YYYY-MM-DD."))
-    received_date = models.DateField(null=True, blank=True, verbose_name=_("Received Date"), help_text=_("Format: YYYY-MM-DD."))
-    signature = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Signature"))
-
-    # TODO: MAKE ME A CHOICE FIELD
-    status = models.IntegerField(blank=True, null=True, verbose_name=_("Status"))
-    # TODO: what language? can we not just have title_en, title_fr ...
+    # non-editable fields
+    status = models.IntegerField( verbose_name=_("status"), editable=False)
+    status_date = models.IntegerField(blank=True, null=True, verbose_name=_("status date"), editable=False)
 
     # TODO: MAKE ME A CHOICE FIELD
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("Decision"))
@@ -83,23 +67,6 @@ class CSASRequest(SimpleLookup, MetadataFields):
     decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"), help_text=_("Format: YYYY-MM-DD."))
 
     old_id = models.IntegerField(blank=True, null=True, editable=False)
-
-    # NOT USED
-    # todo: can we use Branch and Sector shared models? Masterlist has a model called sector. It is very problematic.
-    # directorate_branch = models.ManyToManyField(BraBranch, blank=True, verbose_name=_("Directorate Branch"))
-    # client_sector = models.IntegerField(blank=True, null=True, verbose_name=_("Client Sector"))
-    # TODO: is this not already in the person table?
-    # client_title = models.CharField(max_length=255, verbose_name=_("Client Title"))
-    # todo: is this not implied by which regions are involved? can this be a prop?
-    #
-    # managers = models.ManyToManyField(Person, blank=True, related_name="manager_name", verbose_name=_("Manager Name"))
-    # directors = models.ManyToManyField(Person, blank=True, related_name="director_name", verbose_name=_("Director Name"))
-
-    def __str__(self):
-        return "{}".format(self.title)
-
-    class Meta:
-        ordering = ['-id']
 
 
 class Meeting(SimpleLookup, MetadataFields):
