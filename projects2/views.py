@@ -1107,19 +1107,19 @@ class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
         if report == 1:
             return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
         elif report == 2:
-            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list") + f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_csrf_submission_list") + f'?year={year}&region={region}')
         elif report == 3:
-            return HttpResponseRedirect(reverse("projects2:export_project_status_summary") + f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_project_status_summary") + f'?year={year}&region={region}')
         elif report == 4:
-            return HttpResponseRedirect(reverse("projects2:export_project_list") + f'?year={year};section={section};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_project_list") + f'?year={year}&section={section}&region={region}')
         elif report == 5:
-            return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_sar_workplan") + f'?year={year}&region={region}')
         elif report == 6:
-            return HttpResponseRedirect(reverse("projects2:export_rsa") + f'?year={year};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_rsa") + f'?year={year}&region={region}')
         elif report == 7:
-            return HttpResponseRedirect(reverse("projects2:export_ppa") + f'?year={year};section={section};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_ppa") + f'?year={year}&section={section}&region={region}')
         elif report == 8:
-            return HttpResponseRedirect(reverse("projects2:export_crc") + f'?year={year};section={section};division={division};region={region}')
+            return HttpResponseRedirect(reverse("projects2:export_crc") + f'?year={year}&section={section}&division={division}&region={region}')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects2:reports"))

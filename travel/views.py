@@ -1136,10 +1136,10 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list") +
-                                        f'?fy={fy};region={region};trip={trip};user={user};from_date={from_date};to_date={to_date};')
+                                        f'?fy={fy}&region={region}&trip={trip}&user={user}&from_date={from_date}&to_date={to_date}&')
         elif report == 2:
             return HttpResponseRedirect(reverse("travel:export_trip_list") +
-                                        f'?fy={fy};region={region};adm={adm};from_date={from_date};to_date={to_date};')
+                                        f'?fy={fy}&region={region}&adm={adm}&from_date={from_date}&to_date={to_date}&')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:reports"))
