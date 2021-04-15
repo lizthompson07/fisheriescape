@@ -3,6 +3,7 @@ from django.db import models
 from django.template.defaultfilters import date
 from django.utils.translation import gettext_lazy as _, gettext
 
+from csas2 import model_choices
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person
 
 
@@ -13,38 +14,32 @@ from shared_models.models import SimpleLookup, UnilingualSimpleLookup, Unilingua
 # DFO ORGS (region, section etc.)
 
 
-class Process(SimpleLookup, MetadataFields):
-    ''' csas process '''
+class CSASRequest(SimpleLookup, MetadataFields):
+    ''' csas request '''
+    type = models.IntegerField(blank=True, null=True, verbose_name=_("type"), choices=model_choices.request_type_choices)
+    title_en = models.CharField(max_length=1000, verbose_name=_("title (English)"), blank=True, null=True)
+    title_fr = models.CharField(max_length=1000, verbose_name=_("title (French)"), blank=True, null=True)
 
-    # TODO: MAKE ME A CHOICE FIELD
-    type = models.IntegerField(blank=True, null=True, verbose_name=_("Request Type"))
-    assigned_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Assigned Request Number"))
-    in_year_request = models.BooleanField(null=True, blank=True, verbose_name=_("In-Year Request"))
+    # client details
+    client = models.ForeignKey(Person, blank=True, related_name="csas_requests", verbose_name=_("Client Name"))  # one name (always internal)
 
-    # todo: not possible to have multiple regions ? (DJF)
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Region"))
+    is_zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
+    zonal_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region."))
 
-    # todo: can we use Branch and Sector shared models? Masterlist has a model called sector. It is very problematic.
-    # directorate_branch = models.ManyToManyField(BraBranch, blank=True, verbose_name=_("Directorate Branch"))
-    # client_sector = models.IntegerField(blank=True, null=True, verbose_name=_("Client Sector"))
-
-    # TODO: is this not already in the person table?
-    client_title = models.CharField(max_length=255, verbose_name=_("Client Title"))
-
-    # todo: is this not implied by which regions are involved? can this be a prop?
-    zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Zonal"))
-    zonal_text = models.TextField(null=True, blank=True, verbose_name=_("Zonal Text"))
-
-    issue = models.TextField(verbose_name=_("Issue"),
-                             help_text=_("Issue requiring science information and/or advice. Posted as a question "
-                                         "to be answered by Science."))
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("Region"))
+    issue = models.TextField(verbose_name=_("Issue"), help_text=_("Issue requiring science information and/or advice. Posted as a question "
+                                                                  "to be answered by Science."))
     consequence_text = models.TextField(null=True, blank=True, verbose_name=_("Consequence Text"))
-
     assistance = models.BooleanField(null=True, blank=True, verbose_name=_("Assistance"))
     assistance_text = models.TextField(null=True, blank=True, verbose_name=_("Assistance Text"))
 
+
+    # admin stuff
+    reference_number = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Assigned Request Number"))
     # TODO: MAKE ME A CHOICE FIELD
-    priority = models.IntegerField(blank=True, null=True, verbose_name=_("Priority"))
+    # is this not a part of the review?
+    priority_rating = models.IntegerField(blank=True, null=True, verbose_name=_("Priority"))
+
     rationale = models.TextField(verbose_name=_("Rationale for Request"),
                                  help_text=_("Rationale or context for the request: What will the information/advice "
                                              "be used for? Who will be the end user(s)? Will it impact other DFO "
@@ -52,7 +47,7 @@ class Process(SimpleLookup, MetadataFields):
 
     # TODO: MAKE ME A CHOICE FIELD
     proposed_timing = models.IntegerField(blank=True, null=True, verbose_name=_("Proposed Timing"),
-                                        help_text=_("Latest possible date to receive Science Advice."))
+                                          help_text=_("Latest possible date to receive Science Advice."))
     rationale_for_timing = models.TextField(verbose_name=_("Rationale for Timing"), help_text=_("Explain rationale for proposed timing."))
 
     funding = models.BooleanField(help_text=_("Do you have funds to cover extra costs associated with this request?"))
@@ -61,15 +56,13 @@ class Process(SimpleLookup, MetadataFields):
     science_discussion = models.BooleanField(verbose_name=_("Science Discussion"),
                                              help_text=_("Have you talked to Science about this request?"))
     science_discussion_notes = models.CharField(max_length=100, verbose_name=_("Science Discussion Notes"),
-                                                help_text=_("If you have talked to Science about this request, "
-                                                            "to whom have you talked?"))
+                                                help_text=_("If you have talked to Science about this request, to whom have you talked?"))
 
     # section for links to people
-    clients = models.ManyToManyField(Person, blank=True, related_name="client_name", verbose_name=_("Client Name"))
-    managers = models.ManyToManyField(Person, blank=True, related_name="manager_name", verbose_name=_("Manager Name"))
+    client = models.ManyToManyField(Person, blank=True, related_name="client_name", verbose_name=_("Client Name"))  # one name (always internal)
+
     coordinators = models.ManyToManyField(Person, blank=True, related_name="coordinator_name", verbose_name=_("Coordinator Name"))
     # todo: needs clarification. Are we talking about sector heads? if so, could these data be stored in a different table? I suspect this is a redundant field
-    directors = models.ManyToManyField(Person, blank=True, related_name="director_name", verbose_name=_("Director Name"))
 
     submission_date = models.DateField(null=True, blank=True, verbose_name=_("Submission Date"), help_text=_("Format: YYYY-MM-DD."))
     adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"), help_text=_("Format: YYYY-MM-DD."))
@@ -80,7 +73,6 @@ class Process(SimpleLookup, MetadataFields):
     # TODO: MAKE ME A CHOICE FIELD
     status = models.IntegerField(blank=True, null=True, verbose_name=_("Status"))
     # TODO: what language? can we not just have title_en, title_fr ...
-    trans_title = models.CharField(max_length=255, verbose_name=_("Translated Title"))
 
     # TODO: MAKE ME A CHOICE FIELD
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("Decision"))
@@ -89,6 +81,19 @@ class Process(SimpleLookup, MetadataFields):
     decision_exp = models.IntegerField(blank=True, null=True, verbose_name=_("Decision Explanation"))
     rationale_for_decision = models.TextField(null=True, blank=True, verbose_name=_("Rationale for Decision"))
     decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"), help_text=_("Format: YYYY-MM-DD."))
+
+    old_id = models.IntegerField(blank=True, null=True, editable=False)
+
+    # NOT USED
+    # todo: can we use Branch and Sector shared models? Masterlist has a model called sector. It is very problematic.
+    # directorate_branch = models.ManyToManyField(BraBranch, blank=True, verbose_name=_("Directorate Branch"))
+    # client_sector = models.IntegerField(blank=True, null=True, verbose_name=_("Client Sector"))
+    # TODO: is this not already in the person table?
+    # client_title = models.CharField(max_length=255, verbose_name=_("Client Title"))
+    # todo: is this not implied by which regions are involved? can this be a prop?
+    #
+    # managers = models.ManyToManyField(Person, blank=True, related_name="manager_name", verbose_name=_("Manager Name"))
+    # directors = models.ManyToManyField(Person, blank=True, related_name="director_name", verbose_name=_("Director Name"))
 
     def __str__(self):
         return "{}".format(self.title)
@@ -106,7 +111,7 @@ class Meeting(SimpleLookup, MetadataFields):
         (9, _("other")),
     )
 
-    process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
+    csas_request = models.ForeignKey(CSASRequest, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
     # basic
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
@@ -166,7 +171,7 @@ def resource_directory_path(instance, filename):
 
 class MeetingResource(SimpleLookup, MetadataFields):
     ''' a file attached to to meeting'''
-    event = models.ForeignKey(Meeting, related_name='resources', on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, related_name='resources', on_delete=models.CASCADE)
 
     # for an actual file hosted on dmapps
     file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)

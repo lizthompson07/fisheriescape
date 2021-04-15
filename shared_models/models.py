@@ -840,6 +840,13 @@ class Organization(SimpleLookup):
 
 
 class Person(models.Model):
+    type_choices = (
+        (1, ''),
+        (1, ''),
+        (1, ''),
+        (1, ''),
+        (1, ''),
+    )
     # Choices for role
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
@@ -848,7 +855,7 @@ class Person(models.Model):
     language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"), related_name="people")
     affiliation = models.CharField(max_length=255, verbose_name=_("affiliation"), blank=True, null=True)
 
-    dmapps_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="people")
+    dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="people")
 
     # TODO: should be pulled from user profile, if available (use signals)
     job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
@@ -866,6 +873,10 @@ class Person(models.Model):
     # TODO: what is this?
     cc_grad = models.BooleanField(null=True, blank=True, verbose_name=_("Chair Course Graduate"))
     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
+
+
+
+    old_id = models.IntegerField(blank=True, null=True, editable=False )
 
     def __str__(self):
         return "{}, {}".format(self.last_name, self.first_name)

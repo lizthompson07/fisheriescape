@@ -37,3 +37,6 @@ from django.dispatch import receiver
 #         if os.path.isfile(old_file.path):
 #             os.remove(old_file.path)
 #
+
+
+# TODO: add signal to create a person upon creating / updating a user
