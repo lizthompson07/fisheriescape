@@ -7,6 +7,7 @@ import pytz
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.db.models import Q
 from django.forms import modelformset_factory
 from django.utils.translation import gettext
 import pandas as pd
@@ -259,10 +260,19 @@ class DataForm(CreatePrams):
                 try:
                     row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
                                                      "%Y%b%d").replace(tzinfo=pytz.UTC)
+
+                    relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"])
+                    relc_id = None
+                    if len(relc_qs) == 1:
+                        relc_id = relc_qs.get()
                     loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                                           locc_id=models.LocCode.objects.filter(name__icontains="Electrofishing site").get(),
                                           rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
-                                          relc_id=models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
+                                          relc_id=relc_id,
+                                          loc_lat=utils.nan_to_none(row["Lat"]),
+                                          loc_lon=utils.nan_to_none(row["Long"]),
+                                          end_lat=utils.nan_to_none(row["End Lat"]),
+                                          end_lon=utils.nan_to_none(row["End Long"]),
                                           loc_date=row_datetime,
                                           comments=row["Comments"],
                                           created_by=cleaned_data["created_by"],
@@ -275,7 +285,9 @@ class DataForm(CreatePrams):
                     except ValidationError:
                         loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
-                                                             relc_id=loc.relc_id, loc_date=loc.loc_date).get()
+                                                             relc_id=loc.relc_id, loc_lat=loc.loc_lat,
+                                                             loc_lon=loc.loc_lon, end_lat=loc.end_lat,
+                                                             end_lon=loc.end_lon, loc_date=loc.loc_date).get()
 
                     if utils.enter_env(row["temp"], row_datetime, cleaned_data, temp_envc_id, loc_id=loc,):
                         row_entered = True
@@ -319,7 +331,7 @@ class DataForm(CreatePrams):
 
                         grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                            stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
-                                           coll_id=models.Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
+                                           coll_id=models.Collection.objects.filter(name__icontains=data["Collection"]).get(),
                                            grp_year=data["Year"][0],
                                            grp_valid=True,
                                            created_by=cleaned_data["created_by"],
@@ -340,7 +352,7 @@ class DataForm(CreatePrams):
 
                     contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
-                    utils.enter_cnt(cleaned_data,  data["# of salmon collected"].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
+                    utils.enter_cnt(cleaned_data, data["# of salmon collected"].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
 
                 except Exception as err:
                     log_data += "Error parsing common data: \n"
@@ -353,7 +365,8 @@ class DataForm(CreatePrams):
         elif cleaned_data["evntc_id"].__str__() == "Electrofishing" and \
                 cleaned_data["facic_id"].__str__() == "Mactaquac":
             try:
-                data = pd.read_excel(cleaned_data["data_csv"], header=1, engine='openpyxl').dropna(how="all")
+                data = pd.read_excel(cleaned_data["data_csv"], header=1, engine='openpyxl',
+                                     converters={'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
                 data_dict = data.to_dict('records')
             except Exception as err:
                 log_data += "\n File format not valid: {}".format(err.__str__())
@@ -363,41 +376,67 @@ class DataForm(CreatePrams):
 
             self.request.session["load_success"] = True
             temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+            rive_id = None
+            rive_qs = models.RiverCode.objects.filter(name__iexact=data["River"][0])
+            if len(rive_qs) == 1:
+                rive_id = rive_qs.get()
+            else:
+                log_data += "\n River code {} not found in system.".format(data["River"][0])
+                self.request.session["log_data"] = log_data
+                return
             for row in data_dict:
                 row_parsed = True
                 row_entered = False
                 row_date = datetime.strptime(str(row["Year"])+str(row["Month"])+str(row["Day"]), "%Y%b%d").replace(tzinfo=pytz.UTC)
+
+                relc_id = None
+                if utils.nan_to_none(row["Location Name"]):
+                    relc_qs = models.ReleaseSiteCode.objects.filter(name__icontains=row["Location Name"],
+                                                                    rive_id=rive_id)
+                    if len(relc_qs) == 1:
+                        relc_id = relc_qs.get()
                 try:
                     loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                                           locc_id=models.LocCode.objects.first(),
-                                          relc_id=models.ReleaseSiteCode.objects.filter(
-                                              name__iexact=row["Location Name"]).get(),
+                                          rive_id=rive_id,
+                                          relc_id=relc_id,
+                                          loc_lat=utils.round_no_nan(row["Lat"], 5),
+                                          loc_lon=utils.round_no_nan(row["Long"], 5),
+                                          end_lat=utils.round_no_nan(row["Lat.1"], 5),
+                                          end_lon=utils.round_no_nan(row["Long.1"], 5),
                                           loc_date=row_date,
                                           comments=row["Comments"],
                                           created_by=cleaned_data["created_by"],
                                           created_date=cleaned_data["created_date"],
                                           )
                     try:
+                        loc.set_relc_latlng()
                         loc.clean()
                         loc.save()
                         row_entered = True
                     except ValidationError:
                         loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
                                                              rive_id=loc.rive_id, subr_id=loc.subr_id,
-                                                             relc_id=loc.relc_id, loc_date=loc.loc_date).get()
+                                                             relc_id=loc.relc_id, loc_lat=loc.loc_lat,
+                                                             loc_lon=loc.loc_lon, end_lat=loc.end_lat,
+                                                             end_lon=loc.end_lon, loc_date=loc.loc_date).get()
 
                     if utils.enter_env(row["Temperature"], row_date, cleaned_data, temp_envc_id, loc_id=loc,):
                         row_entered = True
 
-                    cnt_caught = utils.enter_cnt(cleaned_data, cnt_value=row["# Parr Collected"], loc_pk=loc.pk, cnt_code="Fish Caught")
-                    cnt_obs = utils.enter_cnt(cleaned_data, cnt_value=row["# Parr Observed"], loc_pk=loc.pk, cnt_code="Fish Observed")
+                    cnt_caught = utils.enter_cnt(cleaned_data, cnt_value=row["# Fish Collected"], loc_pk=loc.pk, cnt_code="Fish Caught")
+                    cnt_obs = utils.enter_cnt(cleaned_data, cnt_value=row["# Fish Observed"], loc_pk=loc.pk, cnt_code="Fish Observed")
 
                     if cnt_caught:
+                        if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Fishing Settings"], "Electrofishing Settings"):
+                            row_entered = True
                         if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Fishing seconds"], "Electrofishing Seconds"):
                             row_entered = True
                         if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Voltage"], "Voltage"):
                             row_entered = True
                     if cnt_obs:
+                        if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Fishing seconds"], "Electrofishing Seconds"):
+                            row_entered = True
                         if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Fishing seconds"], "Electrofishing Seconds"):
                             row_entered = True
                         if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Voltage"], "Voltage"):
@@ -417,8 +456,6 @@ class DataForm(CreatePrams):
                     rows_parsed += 1
             if parsed:
                 try:
-                    relc = models.ReleaseSiteCode.objects.filter(name__iexact=data["Location Name"][0]).get()
-
                     anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                                       grp_id__isnull=False,
                                                                       indv_id__isnull=True,
@@ -429,8 +466,8 @@ class DataForm(CreatePrams):
 
                     if anix_grp_qs.count() == 0:
                         grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                           stok_id=models.StockCode.objects.filter(name__icontains=relc.rive_id.name).get(),
-                                           coll_id=models.Collection.objects.filter(name__icontains="Fall Parr").get(),
+                                           stok_id=models.StockCode.objects.filter(name__icontains=rive_id.name).get(),
+                                           coll_id=models.Collection.objects.filter(name__icontains=row["Collection"]).get(),
                                            grp_year=data["Year"][0],
                                            grp_valid=True,
                                            created_by=cleaned_data["created_by"],
@@ -449,7 +486,7 @@ class DataForm(CreatePrams):
 
                     contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
-                    utils.enter_cnt(cleaned_data,  data["# Parr Collected"].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
+                    utils.enter_cnt(cleaned_data,  data["# Fish Collected"].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
 
                 except Exception as err:
                     log_data += "Error parsing common data: \n"

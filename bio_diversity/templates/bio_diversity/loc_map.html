@@ -59,7 +59,7 @@
             <ul>
                 {% for loc in captured_locations_list %}
                     <li>
-                        <a href="{% url 'bio_diversity:details_loc' loc.id%}" target="_blank">{{ loc.evnt_id.evntc_id }} at {{ loc.relc_id }}</a>
+                        <a href="{% url 'bio_diversity:details_loc' loc.id%}" target="_blank">{{ loc.evnt_id.evntc_id }} at {{ loc.relc_id }} in {{loc.start_date.year}}</a>
                     </li>
                 {% empty %}
                     <em>No locations to display...</em>

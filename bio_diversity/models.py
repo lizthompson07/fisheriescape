@@ -1320,12 +1320,17 @@ class Location(BioModel):
         else:
             return Point()
 
-    def save(self, *args, **kwargs):
+    def set_relc_latlng(self):
         if not self.relc_id and self.point:
             self.relc_id = utils.get_relc_from_point(self.point)
             if not self.relc_id and self.end_point:
                 self.relc_id = utils.get_relc_from_point(self.linestring)
+        if self.relc_id and not self.point:
+            self.loc_lon = round(decimal.Decimal(self.relc_id.bbox.centroid.xy[0][0] + 0.0005), 5)
+            self.loc_lat = round(decimal.Decimal(self.relc_id.bbox.centroid.xy[1][0]), 5)
 
+    def save(self, *args, **kwargs):
+        self.set_relc_latlng()
         super(Location, self).save(*args, **kwargs)
 
 
@@ -1507,13 +1512,16 @@ class ReleaseSiteCode(BioLookup):
     @property
     def bbox(self):
         # lon = x, lat = y
-        bbox = box(
-                float(self.min_lon),
-                float(self.min_lat),
-                float(self.max_lon),
-                float(self.max_lat),
-            )
-        return bbox
+        if self.min_lat and self.min_lon and self.max_lat and self.max_lon:
+            bbox = box(
+                    float(self.min_lon),
+                    float(self.min_lat),
+                    float(self.max_lon),
+                    float(self.max_lat),
+                )
+            return bbox
+        else:
+            return
 
 
 class RiverCode(BioLookup):

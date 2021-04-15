@@ -155,8 +155,9 @@ def get_relc_from_point(shapely_geom):
     relc_qs = models.ReleaseSiteCode.objects.all()
     for relc in relc_qs:
         # need to add infinitesimal buffer to deal with rounding issue
-        if relc.bbox.buffer(1e-14).intersects(shapely_geom):
-            return relc
+        if relc.bbox:
+            if relc.bbox.buffer(1e-14).intersects(shapely_geom):
+                return relc
     return None
 
 
@@ -451,11 +452,14 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
 def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual="Good"):
     row_entered = False
     # checks for truthness of det_val and if its a nan. Fails for None and nan (nan == nan is false), passes for values
-    if det_val == det_val and det_val:
+    det_val = nan_to_none(det_val)
+    if type(det_val) != str:
+        det_val = round(decimal.Decimal(det_val), 5)
+    if det_val:
         if not det_subj_code:
             cntd = models.CountDet(cnt_id=cnt,
                                    anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),
-                                   det_val=round(decimal.Decimal(det_val), 5),
+                                   det_val=det_val,
                                    qual_id=models.QualCode.objects.filter(name=qual).get(),
                                    created_by=cleaned_data["created_by"],
                                    created_date=cleaned_data["created_date"],
@@ -464,7 +468,7 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
             cntd = models.CountDet(cnt_id=cnt,
                                    anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),
                                    adsc_id=models.AniDetSubjCode.objects.filter(name__iexact=det_subj_code).get(),
-                                   det_val=round(decimal.Decimal(det_val), 5),
+                                   det_val=det_val,
                                    qual_id=models.QualCode.objects.filter(name=qual).get(),
                                    created_by=cleaned_data["created_by"],
                                    created_date=cleaned_data["created_date"],
@@ -906,3 +910,21 @@ def ajax_get_fields(request):
 def naive_to_aware(naive_date, naive_time=datetime.datetime.min.time()):
     # adds null time and timezone to dates
     return datetime.datetime.combine(naive_date, naive_time).replace(tzinfo=pytz.UTC)
+
+
+def nan_to_none(test_item):
+    if type(test_item) == float:
+        if math.isnan(test_item):
+            return None
+    elif test_item == "nan":
+        return None
+
+    return test_item
+
+
+def round_no_nan(data, precision):
+    # data can be nan, decimal, float, etc.
+    if math.isnan(data) or data is None:
+        return None
+    else:
+        return round(decimal.Decimal(data), precision)
