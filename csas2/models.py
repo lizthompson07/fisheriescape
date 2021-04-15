@@ -14,6 +14,10 @@ from shared_models.models import SimpleLookup, UnilingualSimpleLookup, Unilingua
 # organization
 # DFO ORGS (region, section etc.)
 
+def file_directory_path(instance, filename):
+    return 'csas/request_{0}/{1}'.format(instance.request.id, filename)
+
+
 
 class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     ''' csas request '''
@@ -49,24 +53,25 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
                                              help_text=_("i.e., special analysis, meeting costs, translation)?"))
     client_funding_description = models.TextField(null=True, blank=True, verbose_name=_("If so, please elaborate."))
     client_signed_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Date of client signature"))
-
-    # admin stuff
-    received_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Date received by CSAS coordinator"))
-    reference_number = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Assigned Request Number"))
+    file_attachment = models.FileField(upload_to=file_directory_path, null=True, blank=True, verbose_name=_("attachment"))
 
     # non-editable fields
     status = models.IntegerField( verbose_name=_("status"), editable=False)
-    status_date = models.IntegerField(blank=True, null=True, verbose_name=_("status date"), editable=False)
-
-    # TODO: MAKE ME A CHOICE FIELD
-    decision = models.IntegerField(blank=True, null=True, verbose_name=_("Decision"))
-
-    # TODO: MAKE ME A CHOICE FIELD - This is also a weird dropdown...
-    decision_exp = models.IntegerField(blank=True, null=True, verbose_name=_("Decision Explanation"))
-    rationale_for_decision = models.TextField(null=True, blank=True, verbose_name=_("Rationale for Decision"))
-    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"), help_text=_("Format: YYYY-MM-DD."))
-
+    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+
+
+class CSASRequestReview(MetadataFields):
+    csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False)  # one name (always internal)
+    decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Date a decision was made"))
+    decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), editable=False)
+    decision_explanation = models.IntegerField(blank=True, null=True, verbose_name=_("Decision Explanation"))
+
+
+class Process(SimpleLookupWithUUID, MetadataFields):
+    csas_requests = models.ManyToManyField(CSASRequest, blank=False)
+    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
 
 
 class Meeting(SimpleLookup, MetadataFields):
@@ -209,3 +214,9 @@ class Attendance(models.Model):
     class Meta:
         ordering = ['date']
         unique_together = (("invitee", "date"),)
+
+
+class Document(MetadataFields):
+    process = models.ForeignKey(Process, on_delete=models.CASCADE, editable=False)
+    meetings = models.ManyToManyField(Meeting, blank=True)
+

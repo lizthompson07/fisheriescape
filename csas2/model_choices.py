@@ -15,6 +15,8 @@ request_status_choices = (
     (1,	_("draft")),
     (2,	_("submitted")),
     (3,	_("reviewed")),
+    (4,	_("approved")),
+    (5,	_("not approved")),
     (9,	_("withdrawn")),
 )
 
