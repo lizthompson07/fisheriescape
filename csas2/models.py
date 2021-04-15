@@ -21,7 +21,7 @@ class CSASRequest(SimpleLookup, MetadataFields):
     title_fr = models.CharField(max_length=1000, verbose_name=_("title (French)"), blank=True, null=True)
 
     # client details
-    client = models.ForeignKey(Person, blank=True, related_name="csas_requests", verbose_name=_("Client Name"))  # one name (always internal)
+    # client = models.ForeignKey(Person, blank=True, related_name="csas_requests", verbose_name=_("Client Name"))  # one name (always internal)
 
     is_zonal = models.BooleanField(null=True, blank=True, verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
     zonal_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region."))
