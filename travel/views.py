@@ -778,11 +778,12 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
         else:
             # go and get approvals!!
             utils.start_trip_review_process(my_trip)
-            # send out a warning email to all DFO science admins --> have to send emails individually because of aws limit
-            to_list = utils.get_all_admins()
-            for recip in to_list:
-                email = emails.TripReviewEmail(self.request, my_trip, recip)
-                email.send()
+            # we will send out one email per region, provided that region has requests that are still under regional review
+            for region in shared_models.Region.objects.all():
+                qs = my_trip.requests.filter(status__in=[17, 12, 16, ], section__division__branch__region=region)
+                if qs.exists():
+                    email = emails.TripReviewEmail(self.request, my_trip, region)
+                    email.send()
 
         # No matter what business what done, we will call this function to sort through reviewer and request statuses
         utils.trip_approval_seeker(my_trip, self.request)
@@ -828,7 +829,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         context["same_location_trips"] = base_qs.filter(
             id__in=[trip.id for trip in base_qs if trip.location and my_trip.location and
                     compare_strings(trip.location, my_trip.location) < 3]
-        )
+        ).order_by("name")
         similar_fr_name_trips = [trip.id for trip in base_qs if
                                  trip.nom and compare_strings(trip.nom, trip.name) < 15] if my_trip.nom else []
         similar_en_name_trips = [trip.id for trip in base_qs if compare_strings(trip.name, my_trip.name) < 15]
@@ -1135,10 +1136,10 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list") +
-                                        f'?fy={fy};region={region};trip={trip};user={user};from_date={from_date};to_date={to_date};')
+                                        f'?fy={fy}&region={region}&trip={trip}&user={user}&from_date={from_date}&to_date={to_date}&')
         elif report == 2:
             return HttpResponseRedirect(reverse("travel:export_trip_list") +
-                                        f'?fy={fy};region={region};adm={adm};from_date={from_date};to_date={to_date};')
+                                        f'?fy={fy}&region={region}&adm={adm}&from_date={from_date}&to_date={to_date}&')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:reports"))

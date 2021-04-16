@@ -73,6 +73,7 @@ class SampleFactory(factory.django.DjangoModelFactory):
             'station': StationFactory().id,
             'sample_type': 'full',
             'date_deployed': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+            'samplers': [SamplerFactory().id, ]
         }
 
 
@@ -80,14 +81,14 @@ class SampleNoteFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SampleNote
 
-    sample = factory.SubFactory(SamplerFactory)
+    sample = factory.SubFactory(SampleFactory)
     note = factory.lazy_attribute(lambda o: faker.text())
     date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
     def get_valid_data():
         return {
-            'sample': SamplerFactory().id,
+            'sample': SampleFactory().id,
             'note': faker.text(),
             'date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
@@ -97,7 +98,7 @@ class LineFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Line
 
-    sample = factory.SubFactory(SamplerFactory)
+    sample = factory.SubFactory(SampleFactory)
     is_lost = factory.lazy_attribute(lambda o: faker.pybool())
 
     @staticmethod
@@ -113,7 +114,7 @@ class SurfaceFactory(factory.django.DjangoModelFactory):
         model = models.Surface
 
     line = factory.SubFactory(LineFactory)
-    surface_type = factory.lazy_attribute(lambda o: models.FK.objects.all()[faker.random_int(0, models.FK.objects.count() - 1)])
+    surface_type = factory.lazy_attribute(lambda o: models.Surface.SURFACE_TYPE_CHOICES[faker.random_int(0, len(models.Surface.SURFACE_TYPE_CHOICES) - 1)][0])
     label = factory.lazy_attribute(lambda o: faker.catch_phrase())
     is_lost = factory.lazy_attribute(lambda o: faker.pybool())
 
@@ -121,7 +122,7 @@ class SurfaceFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'line': LineFactory().id,
-            'surface_type': models.FK.objects.all()[faker.random_int(0, models.FK.objects.count() - 1)],
+            'surface_type': models.Surface.SURFACE_TYPE_CHOICES[faker.random_int(0, len(models.Surface.SURFACE_TYPE_CHOICES) - 1)][0],
             'label': faker.catch_phrase(),
             'is_lost': faker.pybool(),
         }
@@ -165,9 +166,10 @@ class IncidentalReportFactory(factory.django.DjangoModelFactory):
 
     report_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     date_of_occurrence = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
-    language_of_report = 1
+    language_of_report = factory.lazy_attribute(lambda o: faker.pyint())
     requestor_name = factory.lazy_attribute(lambda o: faker.word())
-    report_source = 1
+    report_source = factory.lazy_attribute(lambda o: faker.pyint())
+    observation_type = factory.lazy_attribute(lambda o: faker.pyint())
 
     @staticmethod
     def get_valid_data():
@@ -242,6 +244,8 @@ class GCSampleFactory(factory.django.DjangoModelFactory):
         return {
             'site': SiteFactory().id,
             'traps_set': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+            'samplers': [SamplerFactory().id, ]
+
         }
 
 
@@ -308,4 +312,86 @@ class CatchFactory(factory.django.DjangoModelFactory):
         return {
             'trap': TrapFactory().id,
             'species': SpeciesFactory().id,
+        }
+
+
+class SampleSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SampleSpecies
+
+    species = factory.SubFactory(SpeciesFactory)
+    sample = factory.SubFactory(SampleFactory)
+    observation_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'sample': SampleFactory().id,
+            'observation_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).strftime("%Y-%m-%dT%H:%M"),
+        }
+
+
+class LineSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.LineSpecies
+
+    species = factory.SubFactory(SpeciesFactory)
+    line = factory.SubFactory(LineFactory)
+    observation_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'line': LineFactory().id,
+            'observation_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).strftime("%Y-%m-%dT%H:%M"),
+        }
+
+
+class SurfaceSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SurfaceSpecies
+
+    species = factory.SubFactory(SpeciesFactory)
+    surface = factory.SubFactory(SurfaceFactory)
+    percent_coverage = factory.lazy_attribute(lambda o: 0)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'surface': SurfaceFactory().id,
+            'percent_coverage': 0,
+        }
+
+
+class IncidentalReportSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.IncidentalReportSpecies
+
+    species = factory.SubFactory(SpeciesFactory)
+    incidental_report = factory.SubFactory(IncidentalReportFactory)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'incidental_report': IncidentalReportFactory().id,
+            'observation_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).strftime("%Y-%m-%dT%H:%M"),
+        }
+
+
+class CatchSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Catch
+
+    species = factory.SubFactory(SpeciesFactory)
+    trap = factory.SubFactory(TrapFactory)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'species': SpeciesFactory().id,
+            'trap': TrapFactory().id,
         }

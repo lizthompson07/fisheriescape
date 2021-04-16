@@ -70,13 +70,10 @@ class Station(MetadataFields, LatLongFields):
 
 class Species(MetadataFields):
     # choices for epibiont_type
-    UNK = None
-    SES = 'ses'
-    MOB = 'mob'
     EPIBIONT_TYPE_CHOICES = (
-        (UNK, "-----"),
-        (SES, "sessile"),
-        (MOB, "mobile"),
+        (None, "-----"),
+        ('ses', "sessile"),
+        ('mob', "mobile"),
     )
 
     common_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("common name (English)"))
@@ -143,18 +140,14 @@ class Species(MetadataFields):
 
 
 class Sample(MetadataFields):
-    # Choices for sample_type
-    FIRST = 'first'
-    SECOND = 'second'
-    FULL = 'full'
     sample_type_choices = (
-        (FIRST, "first"),
-        (SECOND, "second"),
-        (FULL, 'full'),
+        ('first', "first"),
+        ('second', "second"),
+        ('full', 'full'),
     )
 
     station = models.ForeignKey(Station, related_name='samples', on_delete=models.DO_NOTHING)
-    sample_type = models.CharField(max_length=10, default=FULL, choices=sample_type_choices, verbose_name="sample type")
+    sample_type = models.CharField(max_length=10, default='full', choices=sample_type_choices, verbose_name="sample type")
     date_deployed = models.DateTimeField()
     date_retrieved = models.DateTimeField(blank=True, null=True)
     days_deployed = models.IntegerField(blank=True, null=True)
@@ -300,11 +293,9 @@ class LineSpecies(MetadataFields):
 
 class Surface(MetadataFields):
     # Choices for surface_type
-    PETRI = 'pe'
-    PLATE = 'pl'
     SURFACE_TYPE_CHOICES = (
-        (PETRI, 'Petri dish'),
-        (PLATE, 'Plate'),
+        ('pe', 'Petri dish'),
+        ('pl', 'Plate'),
     )
 
     line = models.ForeignKey(Line, related_name='surfaces', on_delete=models.CASCADE, editable=False)
@@ -312,6 +303,7 @@ class Surface(MetadataFields):
     label = models.CharField(max_length=255)
     image = models.ImageField(blank=True, null=True, upload_to=img_file_name)
     is_lost = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the surface lost?")
+    is_damaged = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name="Was the surface damaged?")
     notes = models.TextField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SurfaceSpecies')
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
@@ -388,16 +380,11 @@ class Probe(models.Model):
 
 
 class ProbeMeasurement(MetadataFields):
-    # Choices for timezone
-    AST = 'AST'
-    ADT = 'ADT'
-    UTC = 'UTC'
     TIMEZONE_CHOICES = (
-        (AST, 'AST'),
-        (ADT, 'ADT'),
-        (UTC, 'UTC'),
+        ('AST', 'AST'),
+        ('ADT', 'ADT'),
+        ('UTC', 'UTC'),
     )
-
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="probe_data", editable=False)
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING, verbose_name="Probe name")
     time_date = models.DateTimeField(blank=True, null=True, verbose_name="Date / Time (yyyy-mm-dd hh:mm)")
@@ -482,12 +469,11 @@ class IncidentalReport(MetadataFields, LatLongFields):
     identified_by = models.CharField(max_length=150, null=True, blank=True, verbose_name=_("name of identifier"))
     observation_type = models.IntegerField(choices=OBSERVATION_TYPE_CHOICES, verbose_name=_("type of observation"))
     notes = models.TextField(null=True, blank=True)
-    season = models.IntegerField(editable=False)
+    season = models.IntegerField(editable=False, blank=True, null=True)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.season = self.report_date.year
-        self.date_last_modified = timezone.now()
-        return super().save()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("grais:ir_detail", kwargs={"pk": self.pk})
@@ -580,14 +566,10 @@ class Site(LatLongFields, MetadataFields):
 
 
 class GCSample(MetadataFields):
-    # Choices for sediment
-    SAND = 1
-    MUD = 2
-    BOTH = 3
     SEDIMENT_CHOICES = (
-        (SAND, 'Sand'),
-        (MUD, 'Mud'),
-        (BOTH, 'Sand / Mud'),
+        (1, 'Sand'),
+        (2, 'Mud'),
+        (3, 'Sand / Mud'),
     )
 
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING)
@@ -647,31 +629,23 @@ class WeatherConditions(UnilingualSimpleLookup):
 
 class GCProbeMeasurement(MetadataFields):
     # choice for tide_state
-    LOW = 'l'
-    MID = 'm'
-    HIGH = 'h'
     TIDE_STATE_CHOICES = (
-        (HIGH, "High"),
-        (MID, "Mid"),
-        (LOW, "Low"),
+        ('l', "High"),
+        ('m', "Mid"),
+        ('h', "Low"),
     )
 
     # choice for tide_direction
-    INCOMING = 'in'
-    OUTGOING = 'out'
     TIDE_DIR_CHOICES = (
-        (INCOMING, "Incoming"),
-        (OUTGOING, "Outgoing"),
+        ('in', "Incoming"),
+        ('out', "Outgoing"),
     )
 
     # Choices for timezone
-    AST = 'AST'
-    ADT = 'ADT'
-    UTC = 'UTC'
     TIMEZONE_CHOICES = (
-        (AST, 'AST'),
-        (ADT, 'ADT'),
-        (UTC, 'UTC'),
+        ('AST', 'AST'),
+        ('ADT', 'ADT'),
+        ('UTC', 'UTC'),
     )
 
     sample = models.ForeignKey(GCSample, on_delete=models.DO_NOTHING, related_name="probe_data", editable=False)
@@ -713,16 +687,13 @@ class GCProbeMeasurement(MetadataFields):
 
 class Trap(MetadataFields, LatLongFields):
     # Choices for trap_type
-    FUKUI = 1
-    MINNOW = 2
     TRAP_TYPE_CHOICES = (
-        (FUKUI, 'Fukui'),
-        (MINNOW, 'Minnow'),
+        (1, 'Fukui'),
+        (2, 'Minnow'),
     )
     # Choices for bait_type
-    HERR = 1
     BAIT_TYPE_CHOICES = (
-        (HERR, 'Herring'),
+        (1, 'Herring'),
     )
     sample = models.ForeignKey(GCSample, related_name='traps', on_delete=models.DO_NOTHING, editable=False)
     trap_number = models.IntegerField()
@@ -770,13 +741,10 @@ class Trap(MetadataFields, LatLongFields):
 
 class Catch(MetadataFields):
     # Choices for sex
-    MALE = 1
-    FEMALE = 2
-    UNK = 9
     SEX_CHOICES = (
-        (MALE, 'Male'),
-        (FEMALE, 'Female'),
-        (UNK, 'Unknown'),
+        (1, 'Male'),
+        (2, 'Female'),
+        (9, 'Unknown'),
     )
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="catch_spp")
     trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="catch_spp")

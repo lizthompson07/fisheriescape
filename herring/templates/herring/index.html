@@ -1,42 +1,85 @@
 {% extends "herring/herring_base.html" %}
 {% load bootstrap4 %}
+{% load static %}
+{% load i18n %}
 {% block content %}
+  {#  <img src="{% static 'herring/Herman_Hermann.png' %}" alt="" width="200px">#}
+  {##}
+  {##}
+  {#  <div class="container bg-light curvy mb-3 mt-5 shadowbox">#}
+  {#    <div class="float-left">#}
+  {#      <img src="{% static 'herring/Herman_Hermann.png' %}" alt="" width="200px">#}
+  {#    </div>#}
+  {#    <div class="">#}
+  {#      <h1 class="text-center mt-3 mb-5">#}
+  {#        {% trans "Welcome to eDNA Krabappel" %}#}
+  {#      </h1>#}
+  {#      <h3 class="text-center text-muted">#}
+  {#        {% trans "eDNA Sample Archive and Tracking Tool" %}#}
+  {#      </h3>#}
+  {#    </div>#}
+  {#    <div class="mb-5"></div>#}
+  {#    <div class="text-right">#}
+  {#      <a href="{% url 'edna:collection_list' %}" class="btn btn-primary">{% trans "Collections" %}</a>#}
+  {#      <div class="btn-group mr-5">#}
+  {#        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"#}
+  {#                aria-expanded="false">#}
+  {#          {% trans "Lab Services" %}#}
+  {#        </button>#}
+  {#        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">#}
+  {#          <a class="dropdown-item" href="{% url 'edna:filtration_batch_list' %}">Sample Filtration</a>#}
+  {#          <a class="dropdown-item" href="{% url 'edna:extraction_batch_list' %}">DNA Extraction</a>#}
+  {#          <a class="dropdown-item" href="{% url 'edna:pcr_batch_list' %}">qPCR</a>#}
+  {#        </div>#}
+  {#      </div>#}
+  {##}
+  {#      <a href="#" class="btn btn-warning">{% trans "Start a Batch" %}</a>#}
+  {#      <a href="#" class="btn btn-dark mr-5">{% trans "Find a Batch" %}</a>#}
+  {#    </div>#}
+  {#  </div>#}
 
-<div class="container">
-<br>
+
   <div class="container">
-    <div class="jumbotron">
-      <h1 class="three-em">HERmorrhage</h1>
-      <hr>
-      <h3>Gulf Region's Herring Sampling Application</h3>
-      {% if user.is_authenticated %}
-        <br>
-        <p>Welcome back, {{user.first_name}}!</p>
-      {% else %}
-      <br>
-        <p>You must be
-          <a href="{% url 'accounts:login' %}?next={% url 'herring:index' %}">signed in</a>
-          to use this application.</p>
-      {% endif %}
+    <br>
+    <div class="container">
+      <div class="jumbotron">
+
+        <div class="float-left mr-5">
+          <img src="{% static 'herring/Herman_Hermann.png' %}" alt="" width="200px">
+        </div>
+        <div class="">
+          <div class="float-right">
+            <img src="{% static "herring/herring.png" %}" width="300" alt="..." class="py-0">
+          </div>
+          <div class="mb-3">
+            <h1 class="three-em">HERMAN</h1>
+          </div>
+          <br>
+          <hr>
+          <h3>Gulf Region's <b>He</b>rring P<b>r</b>ogra<b>m</b> for D<b>a</b>ta E<b>n</b>try</h3>
+          <br>
+          <p>Welcome back, {{ user.first_name }}!</p>
+        </div>
+      </div>
+
     </div>
+    <div align="center">
+      <a href="{% url 'herring:sample_list' %}" class="btn btn-primary">Samples</a>
+    </div>
+
+    {% load static %}
+    <div align="center">
+      <table cellpadding="15px">
+        <tr>
+          <td></td>
+        </tr>
+
+      </table>
+
+    </div>
+
 
   </div>
-    <div align="center">
-        <h4>Click <a href="{% url 'herring:sample_list'  %}">HERE</a> to find a sample</h4>
-    </div>
-
-{% load static %}
-<div align="center">
-  <table cellpadding="15px">
-    <tr >
-      <td><img src="{% static "/img/herring/herring.jpg" %}" class="rounded" width="1000px" alt="..."></td>
-    </tr>
-
-  </table>
-
-</div>
-
-
-</div>
 
 {% endblock content %}
+

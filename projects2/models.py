@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.template.defaultfilters import date, slugify
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -484,6 +484,18 @@ class ProjectYear(models.Model):
         if staff_qry.exists():
             my_list.extend([c for c in staff_qry.all()])
         return my_list
+
+    @property
+    def om_costs(self):
+        return nz(self.omcost_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def salary_costs(self):
+        return nz(self.staff_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def capital_costs(self):
+        return nz(self.capitalcost_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
 
     def add_all_om_costs(self):
         for obj in OMCategory.objects.all():
