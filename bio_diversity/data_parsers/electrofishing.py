@@ -160,17 +160,14 @@ def mactaquac_electrofishing_parser(cleaned_data):
         return log_data, False
 
     # prepare rows before iterating:
-    rive_id = None
     try:
         temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
-        rive_qs = models.RiverCode.objects.filter(name__iexact=data["River"][0])
-        rive_id = rive_qs.get()
+        river_dict = {}
+        for river_name in data["River"].unique():
+            river_dict[river_name] = models.RiverCode.objects.filter(name__iexact=river_name).get()
 
     except Exception as err:
-        if rive_id:
-            log_data += "\n Error preparing data: {}".format(err.__str__())
-        else:
-            log_data += "\n Error setting river code. \n {} not in system\n".format(data["River"][0])
+        log_data += "\n Error preparing data: {}".format(err.__str__())
         return log_data, False
 
     # iterate over rows
@@ -182,6 +179,7 @@ def mactaquac_electrofishing_parser(cleaned_data):
                 tzinfo=pytz.UTC)
 
             relc_id = None
+            rive_id = river_dict[row["River"]]
             if utils.nan_to_none(row["Location Name"]):
                 relc_qs = models.ReleaseSiteCode.objects.filter(name__icontains=row["Location Name"],
                                                                 rive_id=rive_id)
@@ -250,38 +248,40 @@ def mactaquac_electrofishing_parser(cleaned_data):
     # enter general data once all rows are entered:
 
     try:
-        anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
-                                                          grp_id__isnull=False,
-                                                          indv_id__isnull=True,
-                                                          contx_id__isnull=True,
-                                                          indvt_id__isnull=True,
-                                                          loc_id__isnull=True,
-                                                          pair_id__isnull=True)
+        for key in river_dict:
+            stok_id = models.StockCode.objects.filter(name__icontains=key).get()
+            anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
+                                                              grp_id__stok_id=stok_id,
+                                                              indv_id__isnull=True,
+                                                              contx_id__isnull=True,
+                                                              indvt_id__isnull=True,
+                                                              loc_id__isnull=True,
+                                                              pair_id__isnull=True)
 
-        if anix_grp_qs.count() == 0:
-            grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                               stok_id=models.StockCode.objects.filter(name__icontains=rive_id.name).get(),
-                               coll_id=models.Collection.objects.filter(name__icontains=row["Collection"]).get(),
-                               grp_year=data["Year"][0],
-                               grp_valid=True,
-                               created_by=cleaned_data["created_by"],
-                               created_date=cleaned_data["created_date"],
-                               )
-            try:
-                grp.clean()
-                grp.save()
-            except ValidationError:
-                grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
-                                                  grp_year=grp.grp_year, coll_id=grp.coll_id).get()
-            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
-        elif anix_grp_qs.count() == 1:
-            anix_grp = anix_grp_qs.get()
-            grp = anix_grp.grp_id
+            if anix_grp_qs.count() == 0:
+                grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                   stok_id=stok_id,
+                                   coll_id=models.Collection.objects.filter(name__icontains=row["Collection"]).get(),
+                                   grp_year=data["Year"][0],
+                                   grp_valid=True,
+                                   created_by=cleaned_data["created_by"],
+                                   created_date=cleaned_data["created_date"],
+                                   )
+                try:
+                    grp.clean()
+                    grp.save()
+                except ValidationError:
+                    grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
+                                                      grp_year=grp.grp_year, coll_id=grp.coll_id).get()
+                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
+            elif anix_grp_qs.count() == 1:
+                anix_grp = anix_grp_qs.get()
+                grp = anix_grp.grp_id
 
-        contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
+            contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
-        utils.enter_cnt(cleaned_data, data["# Fish Collected"].sum(), contx_pk=contx.pk,
-                        cnt_code="Fish in Container", )
+            utils.enter_cnt(cleaned_data, data[data["River"] == key]["# Fish Collected"].sum(), contx_pk=contx.pk,
+                            cnt_code="Fish in Container", )
 
     except Exception as err:
         log_data += "Error parsing common data: \n"

@@ -284,7 +284,8 @@ class DataForm(CreatePrams):
                     log_data, sucess = mactaquac_treatment_parser(cleaned_data)
 
             # ---------------------------TROUGH TEMPERATURE----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature":
+            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and\
+                    cleaned_data["egg_data_type"] == "Temperature":
                 log_data, sucess = temperature_parser(cleaned_data)
 
             # ----------------------------------------PICKS----------------------------------------

@@ -102,6 +102,25 @@ class BioDet(BioModel):
     det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
     qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"), db_column="QUAL_ID")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
+                                 db_column="ANI_DET_ID")
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
+                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
+
+    def clean(self):
+        super(BioDet, self).clean()
+        if self.is_numeric() and self.det_val is not None:
+            if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
+                raise ValidationError({
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
+                })
+
+    def is_numeric(self):
+        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 class BioLookup(shared_models.Lookup):
@@ -379,10 +398,6 @@ class CountDet(BioDet):
     # cntd tag
     cnt_id = models.ForeignKey("Count", on_delete=models.CASCADE, verbose_name=_("Count"), related_name="count_details",
                                db_column="COUNT_ID")
-    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
-                                 db_column="ANI_DET_ID")
-    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -391,21 +406,6 @@ class CountDet(BioDet):
 
     def __str__(self):
         return "{} - {}".format(self.cnt_id.__str__(), self.anidc_id.__str__())
-
-    def clean(self):
-        super(CountDet, self).clean()
-        if self.is_numeric() and self.det_val is not None:
-            if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
-                raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
-                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
-                })
-
-    def is_numeric(self):
-        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
-            return True
-        else:
-            return False
 
 
 class Cup(BioCont):
@@ -892,10 +892,6 @@ class GroupDet(BioDet):
     detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="group_details",
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
-    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
-                                 db_column="ANI_DET_ID")
-    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -904,21 +900,6 @@ class GroupDet(BioDet):
 
     def __str__(self):
         return "{} Detail".format(self.anidc_id.name)
-
-    def clean(self):
-        super(GroupDet, self).clean()
-        if self.is_numeric() and self.det_val is not None:
-            try:
-                float(self.det_val)
-            except ValueError:
-                raise ValidationError({
-                    "det_val": ValidationError(_("Enter a numeric value"), code="detail_must_be_numeric")
-                })
-            if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
-                raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
-                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
-                })
 
     def save(self, *args, **kwargs):
         """ Need to set all earlier details with the same code to invalid"""
@@ -942,12 +923,6 @@ class GroupDet(BioDet):
                     self.grpd_valid = False
 
         super(GroupDet, self).save(*args, **kwargs)
-
-    def is_numeric(self):
-        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
-            return True
-        else:
-            return False
 
 
 class HeathUnit(BioCont):
@@ -1134,10 +1109,6 @@ class IndividualDet(BioDet):
     detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_details",
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
-    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
-                                 db_column="ANI_DET_ID")
-    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -1147,22 +1118,6 @@ class IndividualDet(BioDet):
 
     def __str__(self):
         return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
-
-    def clean(self):
-        super(IndividualDet, self).clean()
-        if self.is_numeric() and self.det_val is not None:
-            try:
-                float(self.det_val)
-            except ValueError:
-                raise ValidationError({
-                    "det_val": ValidationError(_("Enter a numeric value"), code="detail_must_be_numeric")
-                })
-
-            if float(self.det_val) > self.anidc_id.max_val or float(self.det_val) < self.anidc_id.min_val:
-                raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
-                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
-                })
 
     def save(self,  *args, **kwargs):
         """ Need to set all earlier details with the same code to invalid"""
@@ -1186,12 +1141,6 @@ class IndividualDet(BioDet):
                     self.indvd_valid = False
 
         super(IndividualDet, self).save(*args, **kwargs)
-
-    def is_numeric(self):
-        if self.anidc_id.min_val is not None and self.anidc_id.max_val is not None:
-            return True
-        else:
-            return False
 
 
 class IndTreatCode(BioLookup):
@@ -1557,10 +1506,6 @@ class SampleCode(BioLookup):
 
 class SampleDet(BioDet):
     samp_id = models.ForeignKey('Sample', on_delete=models.CASCADE, verbose_name=_("Sample"), db_column="SAMPLE_ID")
-    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
-                                 db_column="ANI_DET_ID")
-    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
-                                verbose_name=_("Animal Detail Subjective Code"), db_column="ANI_DET_SUBJ_ID")
 
     class Meta:
         constraints = [
@@ -1569,15 +1514,6 @@ class SampleDet(BioDet):
 
     def __str__(self):
         return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
-
-    def clean(self):
-        super(SampleDet, self).clean()
-        if self.det_val:
-            if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
-                raise ValidationError({
-                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
-                                               .format(self.det_val, self.anidc_id.max_val, self.anidc_id.min_val))
-                })
 
 
 class Sire(BioModel):
@@ -1600,7 +1536,7 @@ class Sire(BioModel):
         ]
 
 
-class SpawnDet(BioDet):
+class SpawnDet(BioModel):
     # spwnd tag
     pair_id = models.ForeignKey('Pairing', on_delete=models.CASCADE, related_name="spawning_details",
                                 verbose_name=_("Pairing"), db_column="PAIR_ID")
@@ -1608,6 +1544,10 @@ class SpawnDet(BioDet):
                                   db_column="SPAWN_DET_ID")
     spwnsc_id = models.ForeignKey('SpawnDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
                                   verbose_name=_("Spawning Detail Subjective Code"), db_column="SPAWN_DET_SUBJ_ID")
+    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
+    qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"), db_column="QUAL_ID")
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"),
+                                db_column="COMMENTS")
 
     class Meta:
         constraints = [
