@@ -165,6 +165,18 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     review_score_fraction = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
+    om_costs = serializers.SerializerMethodField()
+    salary_costs = serializers.SerializerMethodField()
+    capital_costs = serializers.SerializerMethodField()
+
+    def get_capital_costs(self, instance):
+        return instance.capital_costs
+
+    def get_salary_costs(self, instance):
+        return instance.salary_costs
+
+    def get_om_costs(self, instance):
+        return instance.om_costs
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())

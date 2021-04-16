@@ -5,7 +5,7 @@ from azure.storage.blob import BlockBlobService
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
@@ -777,19 +777,27 @@ def get_trip_field_list(trip=None):
     return my_list
 
 
-def get_all_admins():
+def get_all_admins(region):
     to_list = list()
-    region_admins = [obj.admin.email for obj in Region.objects.filter(admin__isnull=False, admin__email__isnull=False)]
-    branch_admins = [obj.admin.email for obj in Branch.objects.filter(admin__isnull=False, admin__email__isnull=False)]
-    division_admins = [obj.admin.email for obj in Division.objects.filter(admin__isnull=False, admin__email__isnull=False)]
-    section_admins = [obj.admin.email for obj in Section.objects.filter(admin__isnull=False, admin__email__isnull=False)]
+    # region_admins = [obj.admin.email for obj in Region.objects.filter(admin__isnull=False, admin__email__isnull=False)]
+    branch_admins = [obj.admin.email for obj in Branch.objects.filter(region=region, admin__isnull=False, admin__email__isnull=False)]
+    division_admins = [obj.admin.email for obj in Division.objects.filter(branch__region=region, admin__isnull=False, admin__email__isnull=False)]
+    section_admins = [obj.admin.email for obj in Section.objects.filter(division__branch__region=region, admin__isnull=False, admin__email__isnull=False)]
+
     # now we have to add special reviewers (but only in the reviewer role)
-    special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(
-        Q(sections__isnull=False) | Q(divisions__isnull=False) | Q(branches__isnull=False)
-    ).distinct()]
-    to_list.extend(region_admins)
+    section_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(sections__isnull=False, sections__division__branch__region=region)]
+    division_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(divisions__isnull=False, divisions__branch__region=region)]
+    branch_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(branches__isnull=False, branches__region=region)]
+
     to_list.extend(branch_admins)
     to_list.extend(division_admins)
     to_list.extend(section_admins)
-    to_list.extend(special_reviewers)
+    to_list.extend(section_special_reviewers)
+    to_list.extend(division_special_reviewers)
+    to_list.extend(branch_special_reviewers)
+    # just adding amelie to all emails for now.
+    try:
+        to_list.append(User.objects.get(email__iexact="amelie.robichaud@dfo-mpo.gc.ca").email)
+    except:
+        pass
     return set(to_list)

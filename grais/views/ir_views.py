@@ -1,16 +1,14 @@
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponseRedirect
+from django.conf import settings
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
 from grais import filters
 from grais import forms
 from grais import models
-from grais.mixins import GraisAccessRequiredMixin
-from grais.utils import is_grais_admin
+from grais.mixins import GraisAccessRequiredMixin, GraisCRUDRequiredMixin
 from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDetailView, CommonDeleteView
+    CommonDetailView, CommonDeleteView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView
 
 
 # INCIDENTAL REPORT #
@@ -19,8 +17,20 @@ from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreate
 class ReportListView(GraisAccessRequiredMixin, CommonFilterView):
     model = models.IncidentalReport
     filterset_class = filters.ReportFilter
+    paginate_by = 50
     template_name = "grais/list.html"
     home_url_name = "grais:index"
+    row_object_url_name = "grais:ir_detail"
+    new_object_url_name = "grais:ir_new"
+    field_list = [
+        {"name": 'season', "class": "", "width": ""},
+        {"name": 'report_source', "class": "", "width": ""},
+        {"name": 'requestor', "class": "", "width": ""},
+        {"name": 'report_date', "class": "", "width": ""},
+        {"name": 'species_list|species', "class": "", "width": ""},
+        {"name": 'coordinates', "class": "", "width": ""},
+        {"name": 'followup_count|follow-ups', "class": "", "width": ""},
+    ]
 
 
 class ReportUpdateView(GraisAccessRequiredMixin, CommonUpdateView):
@@ -28,9 +38,10 @@ class ReportUpdateView(GraisAccessRequiredMixin, CommonUpdateView):
     form_class = forms.ReportForm
     template_name = "grais/form.html"
     home_url_name = "grais:index"
+    grandparent_crumb = {"title": _("Reports"), "url": reverse_lazy("grais:ir_list")}
 
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:ir_detail", args=[self.get_object().id])}
 
 
 class ReportCreateView(GraisAccessRequiredMixin, CommonCreateView):
@@ -46,110 +57,79 @@ class ReportCreateView(GraisAccessRequiredMixin, CommonCreateView):
 
 class ReportDetailView(GraisAccessRequiredMixin, CommonDetailView):
     model = models.IncidentalReport
-
-    template_name = "grais/scratch/report_detail.html"
+    container_class = "container-fluid"
+    template_name = "grais/incidental_reports/report_detail.html"
+    home_url_name = "grais:index"
+    parent_crumb = {"title": _("Reports"), "url": reverse_lazy("grais:ir_list")}
+    field_list = [
+        'report_date',
+        'language_of_report',
+        'requestor_information|requestor information',
+        'coordinates',
+        'report_source',
+        'species_confirmation',
+        'gulf_ais_confirmed',
+        'seeking_general_info_ais',
+        'seeking_general_info_non_ais',
+        'management_related',
+        'dfo_it_related',
+        'incorrect_region',
+        'call_answered_by',
+        'call_returned_by',
+        'location_description',
+        'specimens_retained',
+        'sighting_description',
+        'identified_by',
+        'date_of_occurrence',
+        'observation_type',
+        'notes',
+        'season',
+    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context["field_list"] = [
-            "report_date",
-            "requestor_name",
-            "report_source",
-            "language_of_report",
-            "call_answered_by",
-            "call_returned_by",
-            "location_description",
-            "latitude_n",
-            "longitude_w",
-            "specimens_retained",
-            "sighting_description",
-            "identified_by",
-            "date_of_occurrence",
-            "observation_type",
-            "phone1",
-            "phone2",
-            "email",
-            "notes",
-            # "date_last_modified",
-            # "last_modified_by",
-        ]
-
-        # # get a list of species
-        # species_list = []
-        # for obj in models.Species.objects.all():
-        #     url = reverse("grais:report_species_add", kwargs={"report": self.object.id, "species": obj.id}),
-        #     html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
-        #         url[0],
-        #         static("admin/img/icon-addlink.svg"),
-        #         obj.common_name,
-        #         obj.scientific_name,
-        #         obj.abbrev
-        #     )
-        #     species_list.append(html_insert)
-        # context['species_list'] = species_list
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
 
 class ReportDeleteView(GraisAccessRequiredMixin, CommonDeleteView):
     model = models.IncidentalReport
-    success_url = reverse_lazy('grais:report_list')
-    success_message = 'The report was successfully deleted!'
     template_name = "grais/confirm_delete.html"
+    home_url_name = "grais:index"
+    grandparent_crumb = {"title": _("Reports"), "url": reverse_lazy("grais:ir_list")}
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-
-def report_species_observation_delete(request, report, species):
-    report = models.IncidentalReport.objects.get(pk=report)
-    species = models.Species.objects.get(pk=species)
-    report.species.remove(species)
-    messages.success(request, "The species has been successfully removed from this report.")
-    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("grais:ir_detail", args=[self.get_object().id])}
 
 
-def report_species_observation_add(request, report, species):
-    report = models.IncidentalReport.objects.get(pk=report)
-    species = models.Species.objects.get(pk=species)
-    report.species.add(species)
-    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": report.id}))
+# FOLLOW UPs #
+###############
 
-
-# FOLLOWUP #
-############
-
-class FollowUpUpdateView(GraisAccessRequiredMixin, CommonUpdateView):
+class FollowUpUpdateView(GraisCRUDRequiredMixin, CommonPopoutUpdateView):
     model = models.FollowUp
     form_class = forms.FollowUpForm
-    template_name = 'grais/followup_form_popout.html'
-    success_url = reverse_lazy("grais:close_me")
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
 
 
-class FollowUpCreateView(GraisAccessRequiredMixin, CommonCreateView):
+class FollowUpCreateView(GraisCRUDRequiredMixin, CommonPopoutCreateView):
     model = models.FollowUp
     form_class = forms.FollowUpForm
-    template_name = 'grais/followup_form_popout.html'
-    success_url = reverse_lazy("grais:close_me")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["report"] = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
-        return context
 
     def get_initial(self):
-        report = models.IncidentalReport.objects.get(pk=self.kwargs["report"])
-        return {
-            "incidental_report": report,
-            "author": self.request.user
-        }
+        return dict(author=self.request.user)
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.incidental_report = get_object_or_404(models.IncidentalReport, pk=self.kwargs.get("report"))
+        obj.created_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(is_grais_admin, login_url='/accounts/denied/')
-def follow_up_delete(request, pk):
-    followup = models.FollowUp.objects.get(pk=pk)
-    followup.delete()
-    messages.success(request, "The followup has been successfully deleted.")
-    return HttpResponseRedirect(reverse_lazy("grais:report_detail", kwargs={"pk": followup.incidental_report_id}))
+class FollowUpDeleteView(GraisCRUDRequiredMixin, CommonPopoutDeleteView):
+    model = models.FollowUp

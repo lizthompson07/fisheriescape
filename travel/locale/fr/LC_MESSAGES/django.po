@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-15 21:31-0300\n"
+"POT-Creation-Date: 2021-04-14 16:13-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -439,8 +439,8 @@ msgstr "nom (anglais)"
 
 #: .\travel\models.py:205 .\travel\models.py:301 .\travel\models.py:302
 #: .\travel\models.py:431 .\travel\models.py:432
-#: .\travel\templates\travel\trip_list\main.html:54 .\travel\utils.py:120
-#: .\travel\views.py:1411
+#: .\travel\templates\travel\trip_list\main.html:54 .\travel\utils.py:121
+#: .\travel\views.py:1416
 msgid "name"
 msgstr "nom"
 
@@ -571,7 +571,7 @@ msgstr "virtuel"
 msgid "to"
 msgstr "à"
 
-#: .\travel\models.py:369 .\travel\models.py:499 .\travel\views.py:132
+#: .\travel\models.py:369 .\travel\models.py:499 .\travel\views.py:131
 msgid "trip"
 msgstr "voyage"
 
@@ -918,7 +918,7 @@ msgstr "Application de voyage"
 #: .\travel\templates\travel\base\_nav_left_auth.html:4
 #: .\travel\templates\travel\default_reviewer\default_reviewer_confirm_delete.html:11
 #: .\travel\templates\travel\default_reviewer\default_reviewer_form.html:17
-#: .\travel\views.py:92
+#: .\travel\views.py:91
 msgid "Home"
 msgstr "Accueil"
 
@@ -992,7 +992,7 @@ msgid "Manage Physical Locations"
 msgstr "Gérer les lieux physiques"
 
 #: .\travel\templates\travel\base\_nav_left_auth.html:75
-#: .\travel\views.py:1111
+#: .\travel\views.py:1116
 msgid "Reports"
 msgstr "Rapports"
 
@@ -1064,8 +1064,8 @@ msgstr "jours"
 
 #: .\travel\templates\travel\common\_costs.html:85
 #: .\travel\templates\travel\common\_files.html:51
-#: .\travel\templates\travel\common\_travellers.html:45
-#: .\travel\templates\travel\common\_travellers.html:92
+#: .\travel\templates\travel\common\_travellers.html:46
+#: .\travel\templates\travel\common\_travellers.html:93
 #: .\travel\templates\travel\request_detail.html:119
 #: .\travel\templates\travel\trip_detail.html:44
 msgid "Edit"
@@ -1079,23 +1079,23 @@ msgstr "Modifier"
 #: .\travel\templates\travel\default_reviewer\default_reviewer_form.html:45
 #: .\travel\templates\travel\request_detail.html:124
 #: .\travel\templates\travel\trip_detail.html:65
-#: .\travel\templates\travel\trip_verification_form.html:256
+#: .\travel\templates\travel\trip_verification_form.html:255
 msgid "Delete"
 msgstr "Supprimer"
 
 #: .\travel\templates\travel\common\_costs.html:94
-#: .\travel\templates\travel\common\_files.html:60
+#: .\travel\templates\travel\common\_files.html:61
 #: .\travel\templates\travel\common\_request_admin_notes_button.html:13
-#: .\travel\templates\travel\common\_travellers.html:302
+#: .\travel\templates\travel\common\_travellers.html:303
 #: .\travel\templates\travel\common\_trip_admin_notes_button.html:13
 #: .\travel\templates\travel\request_form.html:90
 msgid "Save"
 msgstr "Sauvegarder"
 
 #: .\travel\templates\travel\common\_costs.html:97
-#: .\travel\templates\travel\common\_files.html:63
+#: .\travel\templates\travel\common\_files.html:64
 #: .\travel\templates\travel\common\_request_admin_notes_button.html:14
-#: .\travel\templates\travel\common\_travellers.html:303
+#: .\travel\templates\travel\common\_travellers.html:304
 #: .\travel\templates\travel\common\_trip_admin_notes_button.html:14
 #: .\travel\templates\travel\request_form.html:96
 #: .\travel\templates\travel\request_submit.html:53
@@ -1129,7 +1129,7 @@ msgstr "Ouvrir le fichier"
 msgid "missing file"
 msgstr "fichier manquant"
 
-#: .\travel\templates\travel\common\_files.html:72
+#: .\travel\templates\travel\common\_files.html:79
 msgid "No files have been attached to this request"
 msgstr "Aucun fichier n'a été joint à cette demande"
 
@@ -1138,7 +1138,7 @@ msgid "Other Travellers from ${request.region} Region"
 msgstr "Autres voyageurs de la région ${request.region}"
 
 #: .\travel\templates\travel\common\_other_travellers.html:12
-#: .\travel\templates\travel\common\_travellers.html:22
+#: .\travel\templates\travel\common\_travellers.html:23
 #: .\travel\templates\travel\common\_trip_detail.html:38
 #: .\travel\templates\travel\request_list\main.html:62
 #: .\travel\templates\travel\request_reviewer_list.html:42
@@ -1148,8 +1148,8 @@ msgstr "Voyageurs"
 
 #: .\travel\templates\travel\common\_other_travellers.html:30
 #: .\travel\templates\travel\common\_other_travellers.html:61
-#: .\travel\templates\travel\common\_travellers.html:50
-#: .\travel\templates\travel\common\_travellers.html:94
+#: .\travel\templates\travel\common\_travellers.html:51
+#: .\travel\templates\travel\common\_travellers.html:95
 msgid "Remove"
 msgstr "Retirer"
 
@@ -1159,25 +1159,25 @@ msgstr "replier"
 
 #: .\travel\templates\travel\common\_other_travellers.html:39
 #: .\travel\templates\travel\common\_other_travellers.html:45
-#: .\travel\templates\travel\common\_travellers.html:64
-#: .\travel\templates\travel\common\_travellers.html:71
+#: .\travel\templates\travel\common\_travellers.html:65
+#: .\travel\templates\travel\common\_travellers.html:72
 msgid "Research Scientist"
 msgstr "Chercheur(se) scientifique"
 
 #: .\travel\templates\travel\common\_other_travellers.html:40
 #: .\travel\templates\travel\common\_other_travellers.html:46
-#: .\travel\templates\travel\common\_travellers.html:65
-#: .\travel\templates\travel\common\_travellers.html:72
+#: .\travel\templates\travel\common\_travellers.html:66
+#: .\travel\templates\travel\common\_travellers.html:73
 msgid "EXTERNAL"
 msgstr "EXTERNE"
 
 #: .\travel\templates\travel\common\_other_travellers.html:53
-#: .\travel\templates\travel\common\_travellers.html:79
+#: .\travel\templates\travel\common\_travellers.html:80
 msgid "Request Information:"
 msgstr "Renseignements sur la demande:"
 
 #: .\travel\templates\travel\common\_other_travellers.html:58
-#: .\travel\templates\travel\common\_travellers.html:90
+#: .\travel\templates\travel\common\_travellers.html:91
 msgid "Open Request in Separate Window"
 msgstr "Ouvrir dans une nouvelle fenêtre"
 
@@ -1204,7 +1204,7 @@ msgid "Details"
 msgstr "Les détails"
 
 #: .\travel\templates\travel\common\_request_detail.html:39
-#: .\travel\templates\travel\request_list\main.html:58 .\travel\views.py:133
+#: .\travel\templates\travel\request_list\main.html:58 .\travel\views.py:132
 msgid "Destination"
 msgstr "Destination"
 
@@ -1245,7 +1245,7 @@ msgid "Notes"
 msgstr "Notes"
 
 #: .\travel\templates\travel\common\_request_detail.html:83
-#: .\travel\templates\travel\request_list\main.html:65 .\travel\views.py:137
+#: .\travel\templates\travel\request_list\main.html:65 .\travel\views.py:136
 msgid "Processing time"
 msgstr "Temps de traitement"
 
@@ -1357,7 +1357,7 @@ msgid "Skip"
 msgstr "Sauter"
 
 #: .\travel\templates\travel\common\_reviewers.html:83
-#: .\travel\templates\travel\common\_travellers.html:129
+#: .\travel\templates\travel\common\_travellers.html:130
 msgid "Start typing to search for a user"
 msgstr "Commencez à taper pour rechercher un utilisateur"
 
@@ -1490,74 +1490,80 @@ msgid "Regional Reviews and Recommendations:"
 msgstr "Notes de recommandation régionales:"
 
 #: .\travel\templates\travel\common\_traveller_request_detail.html:35
-#: .\travel\utils.py:682 .\travel\utils.py:760
+#: .\travel\utils.py:683 .\travel\utils.py:761
 msgid "Name"
 msgstr "Nom"
 
 #: .\travel\templates\travel\common\_travellers.html:11
 #: .\travel\templates\travel\common\_travellers.html:13
-#: .\travel\templates\travel\common\_travellers.html:322
+#: .\travel\templates\travel\common\_travellers.html:323
 msgid "Add traveller"
 msgstr "Ajouter un voyageur"
 
-#: .\travel\templates\travel\common\_travellers.html:18
+#: .\travel\templates\travel\common\_travellers.html:17
 msgid "Travellers Associated with this Request"
 msgstr "Voyageurs liés à cette demande"
 
-#: .\travel\templates\travel\common\_travellers.html:19
+#: .\travel\templates\travel\common\_travellers.html:18
+#, fuzzy
+#| msgid "Travellers Associated with this Request"
+msgid "Travellers Associated with this Trip"
+msgstr "Voyageurs liés à cette demande"
+
+#: .\travel\templates\travel\common\_travellers.html:20
 msgid "Traveller: "
 msgstr "Voyageur:"
 
-#: .\travel\templates\travel\common\_travellers.html:20
+#: .\travel\templates\travel\common\_travellers.html:21
 msgid "New Traveller"
 msgstr "Nouveau voyageur"
 
-#: .\travel\templates\travel\common\_travellers.html:48
-#: .\travel\templates\travel\common\_travellers.html:93
+#: .\travel\templates\travel\common\_travellers.html:49
+#: .\travel\templates\travel\common\_travellers.html:94
 #: .\travel\templates\travel\trip_detail.html:47
 msgid "Clone"
 msgstr "Clone"
 
-#: .\travel\templates\travel\common\_travellers.html:53
+#: .\travel\templates\travel\common\_travellers.html:54
 msgid "Cherry Pick"
 msgstr ""
 
-#: .\travel\templates\travel\common\_travellers.html:55
+#: .\travel\templates\travel\common\_travellers.html:56
 msgid "Expand"
 msgstr "Agrandir"
 
-#: .\travel\templates\travel\common\_travellers.html:58
-#: .\travel\templates\travel\common\_travellers.html:85
+#: .\travel\templates\travel\common\_travellers.html:59
+#: .\travel\templates\travel\common\_travellers.html:86
 msgid "Collapse"
 msgstr "Réduire"
 
-#: .\travel\templates\travel\common\_travellers.html:95
+#: .\travel\templates\travel\common\_travellers.html:96
 msgid "Cherry Pick Approval"
 msgstr ""
 
-#: .\travel\templates\travel\common\_travellers.html:109
+#: .\travel\templates\travel\common\_travellers.html:110
 msgid "CLONING: "
 msgstr "CLONAGE : "
 
-#: .\travel\templates\travel\common\_travellers.html:111
+#: .\travel\templates\travel\common\_travellers.html:112
 msgid "Please enter the new traveller information below."
 msgstr ""
 "Veuillez indiquer ci-dessous les nouvelles informations relatives au "
 "voyageur."
 
-#: .\travel\templates\travel\common\_travellers.html:182
+#: .\travel\templates\travel\common\_travellers.html:183
 msgid "Please enter address"
 msgstr "Veuillez indiquer l'adresse"
 
-#: .\travel\templates\travel\common\_travellers.html:316
+#: .\travel\templates\travel\common\_travellers.html:317
 msgid "There are no travellers associated with this trip"
 msgstr "Aucun voyageur n'est lié à ce voyage"
 
-#: .\travel\templates\travel\common\_travellers.html:320
+#: .\travel\templates\travel\common\_travellers.html:321
 msgid "There are no travellers associated with this request"
 msgstr "Aucun voyageur n'est lié à cette demande"
 
-#: .\travel\templates\travel\common\_travellers.html:324
+#: .\travel\templates\travel\common\_travellers.html:325
 msgid "Click here to add your first traveller!"
 msgstr "Cliquez ici pour ajouter votre premier voyageur!"
 
@@ -1748,7 +1754,7 @@ msgstr ""
 "Affichez et gérez les demandes de voyage pour lesquelles vous êtes des "
 "réviseurs"
 
-#: .\travel\templates\travel\index\_reviewer.html:14 .\travel\views.py:1058
+#: .\travel\templates\travel\index\_reviewer.html:14 .\travel\views.py:1063
 msgid "Trips Awaiting Review"
 msgstr "Voyages en attente d'un examen"
 
@@ -2881,23 +2887,23 @@ msgstr "Aucune demande n'est liée à ce voyage."
 msgid "Trip looks good!"
 msgstr "Oui, ça a l'air bien !"
 
-#: .\travel\templates\travel\trip_verification_form.html:241
-msgid "Make some changes"
-msgstr "Apportez vous-même des changements"
-
-#: .\travel\templates\travel\trip_verification_form.html:246
+#: .\travel\templates\travel\trip_verification_form.html:243
 msgid "Next Question!"
 msgstr "Question suivante!"
 
-#: .\travel\templates\travel\trip_verification_form.html:253
+#: .\travel\templates\travel\trip_verification_form.html:246
+msgid "Make some changes"
+msgstr "Apportez vous-même des changements"
+
+#: .\travel\templates\travel\trip_verification_form.html:252
 msgid "This trip is no good and I want to re-assign the requests."
 msgstr "Ce voyage n'est pas bon et je veux réassigner les demandes."
 
-#: .\travel\templates\travel\trip_verification_form.html:259
+#: .\travel\templates\travel\trip_verification_form.html:258
 msgid "Restart"
 msgstr "Réinitialiser"
 
-#: .\travel\templates\travel\trip_verification_form.html:262
+#: .\travel\templates\travel\trip_verification_form.html:261
 msgid "Open Trip Detail"
 msgstr "Détail du voyage"
 
@@ -2917,23 +2923,23 @@ msgstr "Coordonnateurs régionaux"
 msgid "National Coordinator"
 msgstr "Coordonnateur national"
 
-#: .\travel\utils.py:81
+#: .\travel\utils.py:82
 msgid "You can edit this record because you are the request owner."
 msgstr ""
 "Vous pouvez modifier cette fiche car vous êtes le propriétaire de la demande."
 
-#: .\travel\utils.py:85
+#: .\travel\utils.py:86
 msgid "You can edit this record because you are a traveller on this request."
 msgstr ""
 "Vous pouvez modifier cette fiche car vous êtes un voyageur sur cette demande."
 
-#: .\travel\utils.py:89
+#: .\travel\utils.py:90
 msgid "You can un-submit this request because you are the request owner."
 msgstr ""
 "Vous pouvez annuler cette demande car vous êtes le propriétaire de la "
 "demande."
 
-#: .\travel\utils.py:94
+#: .\travel\utils.py:95
 msgid ""
 "You can edit this record because you are the active reviewer for this "
 "request."
@@ -2941,7 +2947,7 @@ msgstr ""
 "Vous pouvez modifier cette fiche car vous êtes l'examinateur actif de cette "
 "demande."
 
-#: .\travel\utils.py:99
+#: .\travel\utils.py:100
 msgid ""
 "You can edit this record because you are the Regional director / NCR "
 "Director General."
@@ -2949,7 +2955,7 @@ msgstr ""
 "Vous pouvez modifier cette fiche parce que vous êtes le directeur régional / "
 "directeur general."
 
-#: .\travel\utils.py:104
+#: .\travel\utils.py:105
 msgid ""
 "You can edit this record because you are in the NCR National Coordinator "
 "Group."
@@ -2957,14 +2963,14 @@ msgstr ""
 "Vous pouvez modifier cette fiche parce que vous êtes dans le groupe des "
 "coordinateurs nationaux de la RCN."
 
-#: .\travel\utils.py:108
+#: .\travel\utils.py:109
 msgid ""
 "You can edit this record because you are in the Regional Administrator Group."
 msgstr ""
 "Vous pouvez modifier cette fiche parce que vous êtes dans le groupe des "
 "administrateurs régionaux."
 
-#: .\travel\utils.py:470
+#: .\travel\utils.py:471
 msgid ""
 "NJC rates for breakfast missing from database. Please let your system "
 "administrator know."
@@ -2972,7 +2978,7 @@ msgstr ""
 "Tarifs du CNM pour le petit déjeuner manquant dans la base de données. "
 "Veuillez en informer votre administrateur système."
 
-#: .\travel\utils.py:477
+#: .\travel\utils.py:478
 msgid ""
 "NJC rates for lunch missing from database. Please let your system "
 "administrator know."
@@ -2980,7 +2986,7 @@ msgstr ""
 "Les tarifs du CNM pour le dîner manquant dans la base de données. Veuillez "
 "en informer votre administrateur système."
 
-#: .\travel\utils.py:484
+#: .\travel\utils.py:485
 msgid ""
 "NJC rates for supper missing from database. Please let your system "
 "administrator know."
@@ -2988,7 +2994,7 @@ msgstr ""
 "Taux du CNM pour le souper manquant dans la base de données. Veuillez en "
 "informer votre administrateur système."
 
-#: .\travel\utils.py:492
+#: .\travel\utils.py:493
 msgid ""
 "NJC rates for incidentals missing from database. Please let your system "
 "administrator know."
@@ -2996,15 +3002,15 @@ msgstr ""
 "Taux du CNM pour les frais accessoires manquants dans la base de données. "
 "Veuillez en informer votre administrateur système."
 
-#: .\travel\utils.py:683
+#: .\travel\utils.py:684
 msgid "Total"
 msgstr "Total"
 
-#: .\travel\views.py:124 .\travel\views.py:128
+#: .\travel\views.py:123 .\travel\views.py:127
 msgid "Trip Requests"
 msgstr "Demandes de voyage"
 
-#: .\travel\views.py:134
+#: .\travel\views.py:133
 msgid "travellers"
 msgstr "voyageurs"
 
@@ -3033,7 +3039,7 @@ msgstr ""
 "de voyage avec le même utilisateur dans le système"
 
 #: .\travel\views.py:305 .\travel\views.py:311 .\travel\views.py:400
-#: .\travel\views.py:732 .\travel\views.py:857
+#: .\travel\views.py:732 .\travel\views.py:862
 msgid "Proceed"
 msgstr "Poursuivre"
 
@@ -3156,37 +3162,37 @@ msgstr "Commencer un examen"
 msgid "End a Review"
 msgstr "Terminer un examen"
 
-#: .\travel\views.py:799
+#: .\travel\views.py:805
 msgid "Verify Trip"
 msgstr "Vérification du voyage"
 
-#: .\travel\views.py:813 .\travel\views.py:870 .\travel\views.py:911
+#: .\travel\views.py:818 .\travel\views.py:875 .\travel\views.py:916
 msgid ""
 "Sorry, only ADMO administrators can verify trips that require ADM approval."
 msgstr ""
 "Désolé, seuls les administrateurs du bureau de la SMA peuvent vérifier les "
 "voyages qui nécessitent l'approbation de la SMA."
 
-#: .\travel\views.py:855
+#: .\travel\views.py:860
 msgid "Please select a trip to re-assign:"
 msgstr "Veuillez sélectionner un voyage à réassigner :"
 
-#: .\travel\views.py:856
+#: .\travel\views.py:861
 msgid ""
 "(You will have a chance to review this action before it is carried out.)"
 msgstr ""
 "(Vous aurez la possibilité d'examiner cette action avant qu'elle ne soit "
 "réalisée.)"
 
-#: .\travel\views.py:884
+#: .\travel\views.py:889
 msgid "Please confirm the following:"
 msgstr "Veuillez confirmer ce qui suit :"
 
-#: .\travel\views.py:885
+#: .\travel\views.py:890
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: .\travel\views.py:946
+#: .\travel\views.py:951
 msgid ""
 "All trips from {trip_a} have been reassigned to {trip_b}. You may now delete "
 "this trip."
@@ -3194,16 +3200,16 @@ msgstr ""
 "Tous les voyages de {trip_a} ont été réaffectés à {trip_b}. Vous pouvez "
 "maintenant supprimer ce voyage."
 
-#: .\travel\views.py:958
+#: .\travel\views.py:963
 msgid "Cancel the trip"
 msgstr "Annuler le voyage"
 
-#: .\travel\views.py:959
+#: .\travel\views.py:964
 msgid "Do you wish to undo your cancellation request for the following trip?"
 msgstr ""
 "Souhaitez-vous annuler votre demande d'annulation pour le voyage suivant ?"
 
-#: .\travel\views.py:961
+#: .\travel\views.py:966
 msgid ""
 "Cancelling this trip will result in all linked requests to be 'cancelled'. "
 "The list of associated trip requests can be viewed below in the trip detail."
@@ -3212,44 +3218,44 @@ msgstr ""
 "liées. La liste de demandes de voyage associées peut être consultée ci-"
 "dessous dans le détail du voyage."
 
-#: .\travel\views.py:965
+#: .\travel\views.py:970
 msgid "This action cannot be undone."
 msgstr "Cette action ne peut être annulée."
 
-#: .\travel\views.py:967
+#: .\travel\views.py:972
 msgid "Cancel Trip"
 msgstr "Annuler le voyage"
 
-#: .\travel\views.py:1038
+#: .\travel\views.py:1043
 msgid "Trip reviews"
 msgstr "Revues de voyage"
 
-#: .\travel\views.py:1055
+#: .\travel\views.py:1060
 msgid "Do you wish to approve the following trip?"
 msgstr "Souhaitez-vous approuver le voyage suivant ?"
 
-#: .\travel\views.py:1196
+#: .\travel\views.py:1201
 msgid "upcoming trips"
 msgstr "voyages a venir"
 
-#: .\travel\views.py:1412
+#: .\travel\views.py:1417
 msgid "URL"
 msgstr "Adresse URL"
 
-#: .\travel\views.py:1413
+#: .\travel\views.py:1418
 msgid "File"
 msgstr "Fichier"
 
-#: .\travel\views.py:1420 .\travel\views.py:1428 .\travel\views.py:1441
-#: .\travel\views.py:1451
+#: .\travel\views.py:1425 .\travel\views.py:1433 .\travel\views.py:1446
+#: .\travel\views.py:1456
 msgid "Reference Materials"
 msgstr "Documents de référence"
 
-#: .\travel\views.py:1462
+#: .\travel\views.py:1467
 msgid "Optional / Special Reviewers"
 msgstr "Facultatif / Examinateurs spéciaux"
 
-#: .\travel\views.py:1463
+#: .\travel\views.py:1468
 msgid ""
 "Use this module to set the default reviewers that get added to a trip "
 "request."
@@ -3257,7 +3263,7 @@ msgstr ""
 "Utilisez ce module pour définir les examinateurs par défaut qui sont ajoutés "
 "à une demande de voyage."
 
-#: .\travel\views.py:1522
+#: .\travel\views.py:1527
 msgid "Last login to DM Apps"
 msgstr "Dernière connexion à Applis GD"
 
