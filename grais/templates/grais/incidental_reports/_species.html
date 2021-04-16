@@ -1,0 +1,42 @@
+<div class="alert alert-danger" role="alert" v-if="obsErrorMsg">
+  <p class="mb-0 lead" v-html="obsErrorMsg"></p>
+</div>
+
+<div v-if="!observations.length">
+  <em>There are no species observations</em>
+</div>
+<div v-else>
+  <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
+    <thead>
+    <tr>
+      <th class="px-1 py-1" style="width: 25px">#</th>
+      <th>Species (English / French / Latin)</th>
+      <th>Notes</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr v-for="(obs, index) in observations" :key="index">
+      <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
+      <td class="px-0 py-0">
+        <v-select
+          v-model="obs.species"
+          @input="updateObservation(obs)"
+          :options="speciesChoices"
+          :reduce="choice => choice.value"
+          label="text"
+          class="no-borders"
+          :clearable=false
+          required
+        ></v-select>
+      </td>
+      <td class="px-0 py-0">
+        <input type="text" class="no-borders" v-model="obs.notes" @change="updateObservation(obs)" @keypress="unsavedChanges=true">
+      </td>
+      <td class="px-0 py-0">
+        <button class="btn py-0 px-0" @click="deleteObservation(obs)" tabindex="-1"><span class="h5 mdi mdi-delete"></span></button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<button @click="addObservation" class="btn btn-sm btn-primary py-0 mt-3">Add</button>

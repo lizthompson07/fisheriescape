@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
-from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin
+from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin, ScubaCRUDAccessRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonUpdateView, CommonCreateView, \
     CommonDeleteView, CommonDetailView, CommonFormView
 from . import models, forms, filters, reports
@@ -266,7 +266,7 @@ class TransectDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
 # SAMPLES #
 ###########
 
-class SampleListView(ScubaAdminRequiredMixin, CommonFilterView):
+class SampleListView(ScubaCRUDAccessRequiredMixin, CommonFilterView):
     model = models.Sample
     template_name = 'scuba/list.html'
     filterset_class = filters.SampleFilter
@@ -284,7 +284,7 @@ class SampleListView(ScubaAdminRequiredMixin, CommonFilterView):
     ]
 
 
-class SampleUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
+class SampleUpdateView(ScubaCRUDAccessRequiredMixin, CommonUpdateView):
     model = models.Sample
     form_class = forms.SampleForm
     template_name = 'scuba/form.html'
@@ -296,7 +296,7 @@ class SampleUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
         return {"title": self.get_object(), "url": reverse("scuba:sample_detail", args=[self.get_object().id])}
 
 
-class SampleCreateView(ScubaAdminRequiredMixin, CommonCreateView):
+class SampleCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
     template_name = 'scuba/form.html'
@@ -305,7 +305,7 @@ class SampleCreateView(ScubaAdminRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
 
 
-class SampleDetailView(ScubaAdminRequiredMixin, CommonDetailView):
+class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     model = models.Sample
     template_name = 'scuba/sample_detail.html'
     home_url_name = "scuba:index"
@@ -333,7 +333,7 @@ class SampleDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         return context
 
 
-class SampleDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
+class SampleDeleteView(ScubaCRUDAccessRequiredMixin, CommonDeleteView):
     model = models.Sample
     success_url = reverse_lazy('scuba:sample_list')
     home_url_name = "scuba:index"
@@ -349,7 +349,7 @@ class SampleDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
 # DIVES #
 #########
 
-class DiveCreateView(ScubaAdminRequiredMixin, CommonCreateView):
+class DiveCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
     model = models.Dive
     form_class = forms.DiveForm
     template_name = 'scuba/form.html'
@@ -382,7 +382,7 @@ class DiveCreateView(ScubaAdminRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class DiveUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
+class DiveUpdateView(ScubaCRUDAccessRequiredMixin, CommonUpdateView):
     model = models.Dive
     form_class = forms.DiveForm
     template_name = 'scuba/form.html'
@@ -397,7 +397,7 @@ class DiveUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
         return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
 
 
-class DiveDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
+class DiveDeleteView(ScubaCRUDAccessRequiredMixin, CommonDeleteView):
     model = models.Dive
     success_message = 'The functional group was successfully deleted!'
     template_name = 'scuba/confirm_delete.html'
@@ -412,7 +412,7 @@ class DiveDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
         return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
 
 
-class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
+class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     model = models.Dive
     template_name = 'scuba/dive_detail.html'
     home_url_name = "scuba:index"
@@ -460,7 +460,7 @@ class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         return context
 
 
-class DiveDataEntryDetailView(ScubaAdminRequiredMixin, CommonDetailView):
+class DiveDataEntryDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     model = models.Dive
     template_name = 'scuba/dive_data_entry/main.html'
     container_class = "container bg-light-green curvy"
@@ -507,7 +507,7 @@ class DiveDataEntryDetailView(ScubaAdminRequiredMixin, CommonDetailView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(ScubaAdminRequiredMixin, CommonFormView):
+class ReportSearchFormView(ScubaCRUDAccessRequiredMixin, CommonFormView):
     template_name = 'scuba/report_search.html'
     form_class = forms.ReportSearchForm
     h1 = gettext_lazy("Scuba Reports")

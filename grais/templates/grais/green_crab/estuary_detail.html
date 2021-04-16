@@ -1,0 +1,125 @@
+{% extends "grais/base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block header %}
+  {{ block.super }}
+  <style>
+  /* Set the size of the div element that contains the map */
+  #map {
+      height: 300px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+{% endblock header %}
+
+
+{% block subcontent %}
+
+  <div class="mb-3">
+    <a class="btn btn-warning" href="{% url 'grais:estuary_edit' object.id %}">Edit</a>
+    {% if object.samples.count == 0 %}
+      <a class="btn btn-danger" href="{% url 'grais:estuary_delete' object.id %}">Delete</a>
+    {% else %}
+      <a class="btn btn-danger disabled" href="{% url 'grais:estuary_delete' object.id %}">Delete</a>
+    {% endif %}
+    <a href="{% url 'grais:site_new' object.id %}" class="btn btn-primary">New Site</a>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col">
+      <table class="table table-sm">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="col">
+      <div id="map"></div>
+    </div>
+  </div>
+
+
+  <div class="">
+    <h4>
+      Sites:
+    </h4>
+    <div class="float-right">
+    </div>
+    {% if object.sites.exists %}
+      <table class="table table-sm table-hover" style="width: 50%">
+        <thead class="full-table">
+        <tr>
+          {% for field in site_field_list %}
+            <th>{% get_verbose_label object.sites.first field %}</th>
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for site in object.sites.all %}
+          <tr href="{% url 'grais:site_detail' site.id %}">
+            {% for field in site_field_list %}
+              <td>{% get_field_value site field %}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <em>This estuary has no associated sites</em>
+    {% endif %}
+
+
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+
+
+
+  <script type="application/javascript">
+  function initialize() {
+    let coords = [];
+    map = new L.Map("map", {
+      center: new L.LatLng(46.13845952180798, -64.7906431818189),
+      zoom: 6,
+    });
+
+    {% if object.sites.exists %}
+      {% for site in object.sites.all %}
+        {% if site.get_point %}
+          latLong = [{{site.get_point.x}}, {{ site.get_point.y }}]
+          coords.push(latLong)
+          L.marker(
+              latLong, {
+                title: '{{object}}',
+              }
+          ).addTo(map).bindPopup('<a href="{% url 'grais:site_detail' site.id %}">{{site}}</a>');
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox/satellite-streets-v10',
+      tileSize: 512,
+      zoomOffset: -1,
+      accessToken: '{{mapbox_api_key}}'
+    }).addTo(map);
+
+    map.fitBounds(coords);
+  }
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    initialize()
+
+  });
+  </script>
+
+{% endblock %}

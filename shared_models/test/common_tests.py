@@ -175,6 +175,7 @@ class CommonTest(TestCase):
         for l in locales:
             # make sure we use an anonymous user
             activate(l)
+            print(test_url)
             response = self.client.get(test_url)
             self.assertNotIn(response.status_code, [404, 500, ])
 

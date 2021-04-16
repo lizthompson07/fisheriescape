@@ -10,7 +10,7 @@
       <v-text-field v-model="eventToEdit.location" :label="labels.location"></v-text-field>
       <v-text-field v-model="eventToEdit.proponent" :label="labels.proponent"></v-text-field>
       <v-select v-model="eventToEdit.parent_event" :items="parentChoices" :label="labels.parent_event"></v-select>
-      <v-text-field v-model="eventToEdit.from_email" :label="labels.from_email" required></v-text-field>
+<!--      <v-text-field v-model="eventToEdit.from_email" :label="labels.from_email" required></v-text-field>-->
       <v-text-field v-model="eventToEdit.rsvp_email" :label="labels.rsvp_email" required></v-text-field>
 
       <div class="row">
@@ -93,7 +93,6 @@ export default {
         type: null,
         dates: [],
         parent_event: this.parent_id, // will either be null or it will already contain the correct value!
-        from_email: "DoNotReply@DMApps-Events-Planner.dfo-mpo.gc.ca",
         rsvp_email: this.currentUser.email
       };
     },
