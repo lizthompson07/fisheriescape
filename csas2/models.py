@@ -1,11 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import date
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
 from csas2 import model_choices
+from lib.functions.custom_functions import fiscal_year
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
 
@@ -20,16 +22,14 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_coordinator_requests",
-                                    verbose_name=_("Regional CSAS coordinator"))
-    # DFO client details
-    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_client_requests",
-                               verbose_name=_("DFO client"))  # one name (always internal)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
-                                verbose_name=_("DFO Section / Team"))  # one name (always internal)
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"))
+    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"))
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"))
+
     is_multiregional = models.BooleanField(default=False,
                                            verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
+
     issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice."),
                              help_text=_("Should be phrased as a question to be answered by Science."))
     had_assistance = models.BooleanField(default=False, verbose_name=_(
@@ -51,13 +51,23 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     file_attachment = models.FileField(upload_to=file_directory_path, null=True, blank=True, verbose_name=_("signed request form"))
 
     # non-editable fields
-    status = models.IntegerField(verbose_name=_("status"), editable=False)
+    status = models.IntegerField(default=1, verbose_name=_("status"), editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
 
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
                                     verbose_name=_("fiscal year"), editable=False)
+
+    class Meta:
+        ordering = ("fiscal_year", _("name"))
+
+    def save(self, *args, **kwargs):
+        self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("csas2:request_detail", args=[self.id])
 
     @property
     def issue_html(self):

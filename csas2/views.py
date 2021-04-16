@@ -28,7 +28,7 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 #################
 
 class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/list.html'
+    template_name = 'csas2/request_detail/main.html'
     filterset_class = filters.CSASRequestFilter
     paginate_by = 25
     home_url_name = "csas2:index"
@@ -37,9 +37,12 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
+        {"name": 'fiscal_year', "class": "", "width": ""},
         {"name": 'id|{}'.format("request id"), "class": "", "width": ""},
         {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'fiscal_year', "class": "", "width": ""},
+        {"name": 'coordinator', "class": "", "width": ""},
+        {"name": 'client', "class": "", "width": ""},
+        {"name": 'section.full_name', "class": "", "width": ""},
     ]
 
     def get_queryset(self):
@@ -51,7 +54,7 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     model = models.CSASRequest
     template_name = 'csas2/request_detail.html'
     home_url_name = "csas2:index"
-    parent_crumb = {"title": gettext_lazy("CSASRequest"), "url": reverse_lazy("csas2:request_list")}
+    parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     field_list = [
         'id',
         'common_name',
@@ -75,10 +78,9 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
 class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     model = models.CSASRequest
     form_class = forms.CSASRequestForm
-    success_url = reverse_lazy('csas2:request_list')
     template_name = 'csas2/request_form.html'
     home_url_name = "csas2:index"
-    parent_crumb = {"title": gettext_lazy("CSASRequest"), "url": reverse_lazy("csas2:request_list")}
+    parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -91,7 +93,7 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     form_class = forms.CSASRequestForm
     template_name = 'csas2/request_form.html'
     home_url_name = "csas2:index"
-    grandparent_crumb = {"title": gettext_lazy("CSASRequest"), "url": reverse_lazy("csas2:request_list")}
+    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
@@ -105,9 +107,12 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
 class CSASRequestDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
     model = models.CSASRequest
     success_url = reverse_lazy('csas2:request_list')
-    success_message = 'The functional group was successfully deleted!'
     template_name = 'csas2/confirm_delete.html'
+    delete_protection = False
+    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
 # REPORTS #
 ###########

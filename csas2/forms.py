@@ -53,6 +53,7 @@ class CSASRequestForm(forms.ModelForm):
             'multiregional_text': forms.Textarea(attrs=rows3),
             'assistance_text': forms.Textarea(attrs=rows3),
             'funding_text': forms.Textarea(attrs=rows3),
+            'risk_text': forms.Textarea(attrs=rows3),
             'rationale_for_timeline': forms.Textarea(attrs=rows3),
         }
 
@@ -66,8 +67,8 @@ class CSASRequestForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         # make sure there is at least an english or french title
-        name = cleaned_data.get("end_date")
-        nom = cleaned_data.get("det_valid")
+        name = cleaned_data.get("name")
+        nom = cleaned_data.get("nom")
         if not name and not nom:
             error_msg = gettext("Must have either an English title or a French title!")
             self.add_error('name', error_msg)
