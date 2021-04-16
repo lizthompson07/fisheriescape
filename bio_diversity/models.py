@@ -99,8 +99,7 @@ class BioDateModel(BioModel):
 class BioDet(BioModel):
     class Meta:
         abstract = True
-
-    det_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
+    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
     qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"), db_column="QUAL_ID")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
@@ -889,7 +888,6 @@ class GroupDet(BioDet):
     # grpd tag
     frm_grp_id = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True,
                                    verbose_name=_("From Parent Group"), db_column="FROM_GROUP_ID")
-    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
     grpd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"), db_column="STILL_VALID")
     detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="group_details",
@@ -1132,7 +1130,6 @@ class Individual(BioModel):
 
 class IndividualDet(BioDet):
     # indvd tag
-    det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
     indvd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"), db_column="STILL_VALID")
     detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_details",

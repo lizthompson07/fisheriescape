@@ -6,6 +6,61 @@ from bio_diversity import models
 from bio_diversity import utils
 
 
+def parser_template(cleaned_data):
+    log_data = "Loading Data Results: \n"
+    rows_parsed = 0
+    rows_entered = 0
+
+    # loading data:
+    try:
+        data = pd.read_excel(cleaned_data["data_csv"], header=1, engine='openpyxl',
+                             converters={'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
+        data_dict = data.to_dict('records')
+    except Exception as err:
+        log_data += "\n File format not valid: {}".format(err.__str__())
+        return log_data, False
+
+    # prepare rows before iterating:
+    try:
+        pass
+    except Exception as err:
+        log_data += "\n Error preparing data: {}".format(err.__str__())
+        return log_data, False
+
+    # iterate over rows
+    for row in data_dict:
+        row_parsed = True
+        row_entered = False
+        try:
+            pass
+        except Exception as err:
+            log_data += "Error parsing row: \n"
+            log_data += str(row)
+            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
+                        " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+            return log_data, False
+        if row_entered:
+            rows_entered += 1
+            rows_parsed += 1
+        elif row_parsed:
+            rows_parsed += 1
+
+    # enter general data once all rows are entered:
+    try:
+        pass
+    except Exception as err:
+        log_data += "Error parsing common data: \n"
+        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
+                    " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+        return log_data, False
+
+    log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
+                " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+    return log_data, True
+
+
 def generic_indv_parser(cleaned_data):
     log_data = "Loading Data Results: \n"
     rows_parsed = 0

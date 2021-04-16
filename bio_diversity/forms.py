@@ -244,103 +244,63 @@ class DataForm(CreatePrams):
 
         if not self.is_valid():
             return cleaned_data
+        log_data = ""
+        sucess = False
+        try:
+            # ----------------------------ELECTROFISHING-----------------------------------
+            if cleaned_data["evntc_id"].__str__() == "Electrofishing":
+                if cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    log_data, sucess = coldbrook_electrofishing_parser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    log_data, sucess = mactaquac_electrofishing_parser(cleaned_data)
 
-        log_data = "Loading Data Results: \n"
-        rows_parsed = 0
-        rows_entered = 0
+            # -------------------------------TAGGING----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "PIT Tagging":
+                if cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    log_data, sucess = coldbrook_tagging_parser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    log_data, sucess = mactaquac_tagging_parser(cleaned_data)
 
-        # ----------------------------ELECTROFISHING-----------------------------------
-        if cleaned_data["evntc_id"].__str__() == "Electrofishing" and cleaned_data["facic_id"].__str__() == "Coldbrook":
-            log_data, sucess = coldbrook_electrofishing_parser(cleaned_data)
+            # -----------------------------MATURITY SORTING----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    log_data, sucess = mactaquac_maturity_sorting_parser(cleaned_data)
 
-        elif cleaned_data["evntc_id"].__str__() == "Electrofishing" and \
-                cleaned_data["facic_id"].__str__() == "Mactaquac":
-            log_data, sucess = mactaquac_electrofishing_parser(cleaned_data)
+            # ---------------------------MACTAQUAC WATER QUALITY----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    log_data, sucess = mactaquac_water_quality_parser(cleaned_data)
 
-        # -------------------------------TAGGING----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Coldbrook":
-            log_data, sucess = coldbrook_tagging_parser(cleaned_data)
+            # -------------------------------SPAWNING----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Spawning":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    log_data, sucess = mactaquac_spawning_parser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    log_data, sucess = coldbrook_spawning_parser(cleaned_data)
 
-        elif cleaned_data["evntc_id"].__str__() == "PIT Tagging" and cleaned_data["facic_id"].__str__() == "Mactaquac":
-            log_data, sucess = mactaquac_tagging_parser(cleaned_data)
+            # -------------------------------TREATMENT----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Treatment":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    log_data, sucess = mactaquac_treatment_parser(cleaned_data)
 
-        # -----------------------------MATURITY SORTING----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting" and \
-                cleaned_data["facic_id"].__str__() == "Mactaquac":
-            log_data, sucess = mactaquac_maturity_sorting_parser(cleaned_data)
+            # ---------------------------TROUGH TEMPERATURE----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature":
+                log_data, sucess = temperature_parser(cleaned_data)
 
-        # ---------------------------MACTAQUAC WATER QUALITY----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Water Quality Record" and cleaned_data["facic_id"].__str__() == "Mactaquac":
-            log_data, sucess = mactaquac_water_quality_parser(cleaned_data)
+            # ----------------------------------------PICKS----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Picks":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    log_data, sucess = mactaquac_picks_parser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    log_data, sucess = coldbrook_picks_parser(cleaned_data)
 
-        # -------------------------------SPAWNING----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Mactaquac":
-            log_data, sucess = mactaquac_spawning_parser(cleaned_data)
+            # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
+            else:
+                log_data, sucess = generic_indv_parser(cleaned_data)
 
-        elif cleaned_data["evntc_id"].__str__() == "Spawning" and cleaned_data["facic_id"].__str__() == "Coldbrook":
-            log_data, sucess = coldbrook_spawning_parser(cleaned_data)
-
-        # -------------------------------TREATMENT----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Treatment" and cleaned_data["facic_id"].__str__() == "Mactaquac":
-            log_data, sucess = mactaquac_treatment_parser(cleaned_data)
-
-        # ---------------------------TROUGH TEMPERATURE----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Temperature":
-            log_data, sucess = temperature_parser(cleaned_data)
-
-        # ---------------------------CROSS TRAY MAPPING MACTAQUAC----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == \
-                "Cross Mapping" and cleaned_data["facic_id"].__str__() == "Mactaquac":
-            try:
-                data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0).dropna(how="all")
-            except Exception as err:
-                log_data += "\n File format not valid: {}".format(err.__str__())
-                self.request.session["log_data"] = log_data
-                return
-            parsed = True
-            self.request.session["load_success"] = True
-
-            pair_qs = models.Pairing.objects.all().select_related('indv_id__stok_id')
-            data["pairs"] = data.apply(lambda row: pair_qs.filter(cross=row["Cross"], indv_id__stok_id__name=row["Stock"]).get(), axis=1)
-
-            anix_qs = models.AniDetailXref.objects.filter(pair_id__in=data["pairs"], grp_id__isnull=False).select_related('grp_id')
-            data["grps"] = data.apply(lambda row: anix_qs.filter(pair_id=row["pairs"]).get().grp_id, axis=1)
-
-            trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
-            data["trofs"] = data.apply(lambda row: trof_qs.filter(name=row["Trough"]).get(), axis=1)
-
-            # trays, date from cross
-            data["trays"] = data.apply(lambda row: utils.create_tray(row["trofs"], row["Tray"], row["pairs"].start_date,
-                                                                     cleaned_data, save=True), axis=1)
-            data_dict = data.to_dict('records')
-            for row in data_dict:
-                contx = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
-                                          return_contx=True)
-                if contx:
-                    rows_entered += 1
-                    # fecu to count:
-                    spwn_qs = models.SpawnDet.objects.filter(pair_id=row["pairs"], spwndc_id__name="Fecundity")
-                    if spwn_qs.exists():
-                        fecu_est = int(spwn_qs.get().det_val)
-                        utils.enter_cnt(cleaned_data, fecu_est, contx.pk, cnt_code="Fecundity Estimate", est=True)
-
-            if not parsed:
-                self.request.session["load_success"] = False
-
-            log_data += "\n\n\n {} of {} rows entered to " \
-                        "database".format(rows_entered, len(data_dict))
-        # ----------------------------------------PICKS----------------------------------------
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == \
-                "Picks" and cleaned_data["facic_id"].__str__() == "Mactaquac":
-            log_data, sucess = mactaquac_picks_parser(cleaned_data)
-
-        elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == \
-                "Picks" and cleaned_data["facic_id"].__str__() == "Coldbrook":
-            log_data, sucess = coldbrook_picks_parser(cleaned_data)
-
-        # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
-        else:
-            log_data, sucess = generic_indv_parser(cleaned_data)
+        except Exception as err:
+            log_data += "Error parsing data: \n"
+            log_data += "\n Error: {}".format(err.__str__())
 
         self.request.session["log_data"] = log_data
         self.request.session["load_success"] = sucess
