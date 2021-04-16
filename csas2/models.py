@@ -1,27 +1,22 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import date
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
+from markdown import markdown
 
 from csas2 import model_choices
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
 
 
-# We will be using the following models from shared models:
-# citations
-# person
-# organization
-# DFO ORGS (region, section etc.)
-
 def file_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.request.id, filename)
 
 
-
 class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     ''' csas request '''
-    type = models.IntegerField(blank=True, null=True, verbose_name=_("type"), choices=model_choices.request_type_choices)
+    type = models.IntegerField(default=1, verbose_name=_("type"), choices=model_choices.request_type_choices)
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
@@ -34,31 +29,66 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
                                 verbose_name=_("DFO Section / Team"))  # one name (always internal)
     is_multiregional = models.BooleanField(default=False,
                                            verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
-    multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region."))
+    multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
     issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice."),
                              help_text=_("Should be phrased as a question to be answered by Science."))
     had_assistance = models.BooleanField(default=False, verbose_name=_(
-        "Have you had assistance from Science in developing the question/request (with CSAS and/or DFO science staff)?"))
-    assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" If yes, please indicate with whom"))
-    request_rationale = models.TextField(verbose_name=_("Rationale for Request"),
-                                         help_text=_("Rationale or context for the request: What will the information/advice "
-                                                     "be used for? Who will be the end user(s)? Will it impact other DFO "
-                                                     "programs or regions?"))
+        "Have you had assistance from Science in developing the question/request?"), help_text=_("E.g. with CSAS and/or DFO science staff."))
+    assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" Please provide details about the assistance received"))
+
+    rationale = models.TextField(verbose_name=_("Rationale or context for the request"),
+                                 help_text=_("What will the information/advice be used for? Who will be the end user(s)? Will it impact other DFO "
+                                             "programs or regions?"))
     risk_text = models.TextField(null=True, blank=True, verbose_name=_("What is the expected consequence if science advice is not provided?"))
     advice_needed_by = models.DateTimeField(verbose_name=_("Latest Possible Date to Receive Science Advice"))
     rationale_for_timeline = models.TextField(null=True, blank=True, verbose_name=_("Rationale for deadline?"),
-                                              help_text=_(
-                                                  "e.g., COSEWIC or consultation meetings, Environmental Assessments, legal or regulatory requirement, Treaty obligation, international commitments, etc). Please elaborate and provide anticipatory dates"))
-    client_has_funding = models.BooleanField(default=False, verbose_name=_("Do you have funds to cover any extra costs associated with this request?"),
-                                             help_text=_("i.e., special analysis, meeting costs, translation)?"))
-    client_funding_description = models.TextField(null=True, blank=True, verbose_name=_("If so, please elaborate."))
-    client_signed_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Date of client signature"))
-    file_attachment = models.FileField(upload_to=file_directory_path, null=True, blank=True, verbose_name=_("attachment"))
+                                              help_text=_("e.g., COSEWIC or consultation meetings, Environmental Assessments, legal or regulatory "
+                                                          "requirement, Treaty obligation, international commitments, etc)."
+                                                          "Please elaborate and provide anticipatory dates"))
+    has_funding = models.BooleanField(default=False, verbose_name=_("Do you have funds to cover any extra costs associated with this request?"),
+                                      help_text=_("i.e., special analysis, meeting costs, translation)?"), )
+    funding_text = models.TextField(null=True, blank=True, verbose_name=_("Please describe"))
+    file_attachment = models.FileField(upload_to=file_directory_path, null=True, blank=True, verbose_name=_("signed request form"))
 
     # non-editable fields
-    status = models.IntegerField( verbose_name=_("status"), editable=False)
+    status = models.IntegerField(verbose_name=_("status"), editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+
+    # calculated
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
+                                    verbose_name=_("fiscal year"), editable=False)
+
+    @property
+    def issue_html(self):
+        if self.issue:
+            return mark_safe(markdown(self.issue))
+
+    @property
+    def rationale_html(self):
+        if self.rationale:
+            return mark_safe(markdown(self.rationale))
+
+    @property
+    def multiregional_display(self):
+        if self.is_multiregional:
+            text = self.multiregional_text if self.multiregional_text else gettext("no further details provided.")
+            return "{} - {}".format(gettext("Yes"), text)
+        return gettext("No")
+
+    @property
+    def assistance_display(self):
+        if self.had_assistance:
+            text = self.assistance_text if self.assistance_text else gettext("no further details provided.")
+            return "{} - {}".format(gettext("Yes"), text)
+        return gettext("No")
+
+    @property
+    def funding_display(self):
+        if self.has_funding:
+            text = self.funding_text if self.funding_text else gettext("no further details provided.")
+            return "{} - {}".format(gettext("Yes"), text)
+        return gettext("No")
 
 
 class CSASRequestReview(MetadataFields):
@@ -219,4 +249,3 @@ class Attendance(models.Model):
 class Document(MetadataFields):
     process = models.ForeignKey(Process, on_delete=models.CASCADE, editable=False)
     meetings = models.ManyToManyField(Meeting, blank=True)
-

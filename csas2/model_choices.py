@@ -1,5 +1,10 @@
 from django.utils.translation import gettext_lazy as _
 
+yes_no_choices = (
+    (True, "Yes"),
+    (False, "No"),
+)
+
 request_type_choices = (
     (1, _('New')),
     (2, _('Previous')),
