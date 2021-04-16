@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy
 from lib.templatetags.custom_filters import nz
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView
-from . import models, forms, filters
+from . import models, forms, filters, utils
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin
 from .utils import in_csas_admin_group
 
@@ -28,7 +28,7 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 #################
 
 class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/request_detail/main.html'
+    template_name = 'csas2/list.html'
     filterset_class = filters.CSASRequestFilter
     paginate_by = 25
     home_url_name = "csas2:index"
@@ -52,7 +52,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
 
 class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     model = models.CSASRequest
-    template_name = 'csas2/request_detail.html'
+    template_name = 'csas2/request_detail/main.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     field_list = [
@@ -71,7 +71,9 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     ]
 
     def get_context_data(self, **kwargs):
+        obj = self.get_object()
         context = super().get_context_data(**kwargs)
+        context["request_field_list"] = utils.get_request_field_list(obj, self.request.user)
         return context
 
 

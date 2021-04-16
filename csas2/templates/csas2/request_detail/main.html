@@ -19,27 +19,37 @@
 
 {% block subcontent %}
   <div id="app" @keydown.esc.prevent="closeModals()" v-cloak>
-
-    <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar, 'no-print':true}">
-      <div style="padding-left: 30px">
-        {% include "shared_models/_generic_breadcrumbs.html" %}
-
-        <div class="mb-3">
-          <h2 class="">{{ h1|safe }}</h2>
-          <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
-        </div>
-
-
-        {% bootstrap_messages %}
-        <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
-          <p class="mb-0">
-            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
-          </p>
-        </div>
+    <div>
+      {% include "shared_models/_generic_breadcrumbs.html" %}
+      <div class="mb-3">
+        <h2 class="">{{ h1|safe }}</h2>
+        <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
       </div>
-
+      {% bootstrap_messages %}
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+        </p>
+      </div>
     </div>
+
+    <div class="mb-3">
+      <a class="btn btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+      <a class="btn btn-danger disabled" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+    </div>
+
+    <div class="mb-5">
+      <table class="table table-sm">
+        {% for field in request_field_list %}
+          {% verbose_td_display object field th_width="300px" %}
+        {% endfor %}
+      </table>
+    </div>
+
+    {# end #}
   </div>
+
+
 
 
 {% endblock %}
@@ -50,6 +60,105 @@
   <script type="application/javascript">
   var requestId = "{{ object.id }}"
 
+  // register vue-select
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      canModify: false,
+      loadingRequest: false,
+      request: {},
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/csas/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      getObservations() {
+        this.loadingObservations = true;
+        let endpoint;
+        if (this.pageType === "samples") endpoint = `${this.endpointPrefix}/?sample=${objectId}`;
+        else if (this.pageType === "lines") endpoint = `${this.endpointPrefix}/?line=${objectId}`;
+        else if (this.pageType === "surfaces") endpoint = `${this.endpointPrefix}/?surface=${objectId}`;
+        apiService(endpoint)
+            .then(response => {
+              if (response.length && response[0].id) {
+                for (var i = 0; i < response.length; i++) {
+                  if (response[i].observation_date) response[i].observation_date = response[i].observation_date.replace("Z", "")
+                }
+                this.observations = response;
+                this.loadingObservations = false;
+              }
+            })
+      },
+      updateObservation(obs) {
+        this.unsavedChanges = true;
+        this.obsErrorMsg = null;
+        let endpoint;
+        let method;
+        if (obs.id) {
+          endpoint = `${this.endpointPrefix}/${obs.id}/`;
+          method = "PUT";
+        } else {
+          endpoint = `${this.endpointPrefix}/`;
+          method = "POST";
+        }
+        apiService(endpoint, method, obs)
+            .then(response => {
+              if (!response.id) this.obsErrorMsg = this.groomJSON(response);
+              else {
+                if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
+                this.$set(this.observations, this.observations.indexOf(obs), response)
+                this.unsavedChanges = false;
+              }
+            })
+      },
+      deleteObservation(obs) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this observation?' %}");
+        if (userInput) {
+          if (obs.id) {
+            let endpoint = `${this.endpointPrefix}/${obs.id}/`;
+            apiService(endpoint, "DELETE")
+                .then(response => {
+                  this.$delete(this.observations, this.observations.indexOf(obs));
+                })
+          } else {
+            this.$delete(this.observations, this.observations.indexOf(obs));
+            this.unsavedChanges = false;
+          }
+        }
+      },
+      groomJSON(json) {
+        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
+      },
+
+    },
+    computed: {
+      endpointPrefix() {
+        return `/api/csas2/${this.pageType.slice(0, this.pageType.length - 1)}-species`
+      },
+      totalCoverage() {
+        let total = 0;
+        let obs;
+        for (var i = 0; i < this.observations.length; i++) {
+          obs = this.observations[i];
+          if (obs.percent_coverage) total += Number(obs.percent_coverage);
+        }
+        return total
+      }
+    },
+    created() {
+      {#this.getObservations();#}
+      {#this.getSpeciesMetadata();#}
+    },
+  });
 
 
   </script>

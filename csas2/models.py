@@ -30,8 +30,8 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
                                            verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
 
-    issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice."),
-                             help_text=_("Should be phrased as a question to be answered by Science."))
+    issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"),
+                             help_text=_("Should be phrased as a question to be answered by Science"))
     had_assistance = models.BooleanField(default=False, verbose_name=_(
         "Have you had assistance from Science in developing the question/request?"), help_text=_("E.g. with CSAS and/or DFO science staff."))
     assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" Please provide details about the assistance received"))

@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
 from csas2 import models
+from lib.templatetags.verbose_names import get_verbose_label
 from shared_models.models import Section, Division, Region
 
 
@@ -152,14 +153,14 @@ def get_request_field_list(csas_request, user):
         'section',
         'coordinator',
         'client',
-        'multiregional_display',
-        'issue_html|{}'.format(_("issue")),
-        'assistance_display',
-        'rationale_html|{}'.format(_("rationale")),
+        'multiregional_display|{}'.format(_("Multiregional / Multisector?")),
+        'issue_html|{}'.format(get_verbose_label(csas_request, "issue")),
+        'assistance_display|{}'.format(_("Assistance from DFO Science?")),
+        'rationale_html|{}'.format(get_verbose_label(csas_request, "rationale")),
         'risk_text',
         'advice_needed_by',
         'rationale_for_timeline',
-        'funding_display',
+        'funding_display|{}'.format(_("Client Funding?")),
         'file_attachment',
         'submission_date',
         'metadata|{}'.format(_("metadata")),
