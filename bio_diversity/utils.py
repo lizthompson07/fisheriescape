@@ -482,7 +482,7 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
 
         # update count total if needed:
         if det_code == "Program Group":
-            new_cnt = sum(models.CountDet.objects.filter(cnt_id=cnt, anidc_id__name__iexact=det_code).values_list('det_val', flat=True))
+            new_cnt = sum([float(cnt) for cnt in models.CountDet.objects.filter(cnt_id=cnt, anidc_id__name__iexact=det_code).values_list('det_val', flat=True)])
             if new_cnt > cnt.cnt:
                 cnt.cnt = int(new_cnt)
                 cnt.save()

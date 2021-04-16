@@ -21,11 +21,14 @@ def coldbrook_electrofishing_parser(cleaned_data):
     except Exception as err:
         log_data += "\n File format not valid: {}".format(err.__str__())
         return log_data, False
-    parsed = True
 
     # set up before iterating over rows:
     try:
         temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+        river_dict = {}
+        for river_name in data["River"].unique():
+            river_dict[river_name] = models.RiverCode.objects.filter(name__iexact=river_name).get()
+
     except Exception as err:
         log_data += "\n Error in preparing data: {}".format(err.__str__())
         return log_data, False
@@ -37,25 +40,27 @@ def coldbrook_electrofishing_parser(cleaned_data):
         try:
             row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
                                              "%Y%b%d").replace(tzinfo=pytz.UTC)
-
-            relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"])
             relc_id = None
-            if len(relc_qs) == 1:
-                relc_id = relc_qs.get()
+            rive_id = river_dict[row["River"]]
+            if utils.nan_to_none(row["site"]):
+                relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"])
+                if len(relc_qs) == 1:
+                    relc_id = relc_qs.get()
             loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                                   locc_id=models.LocCode.objects.filter(name__icontains="Electrofishing site").get(),
-                                  rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
+                                  rive_id=rive_id,
                                   relc_id=relc_id,
-                                  loc_lat=utils.nan_to_none(row["Lat"]),
-                                  loc_lon=utils.nan_to_none(row["Long"]),
-                                  end_lat=utils.nan_to_none(row["End Lat"]),
-                                  end_lon=utils.nan_to_none(row["End Long"]),
+                                  loc_lat=utils.round_no_nan(row["Lat"], 5),
+                                  loc_lon=utils.round_no_nan(row["Long"], 5),
+                                  end_lat=utils.round_no_nan(row["End Lat"], 5),
+                                  end_lon=utils.round_no_nan(row["End Long"], 5),
                                   loc_date=row_datetime,
                                   comments=row["Comments"],
                                   created_by=cleaned_data["created_by"],
                                   created_date=cleaned_data["created_date"],
                                   )
             try:
+                loc.set_relc_latlng()
                 loc.clean()
                 loc.save()
                 row_entered = True
@@ -74,11 +79,15 @@ def coldbrook_electrofishing_parser(cleaned_data):
                                       cnt_code="Fish Observed")
 
             if cnt_caught:
+                if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Settings"], "Electrofishing Settings"):
+                    row_entered = True
                 if utils.enter_cnt_det(cleaned_data, cnt_caught, row["fishing seconds"], "Electrofishing Seconds"):
                     row_entered = True
                 if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Voltage"], "Voltage"):
                     row_entered = True
             if cnt_obs:
+                if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Settings"], "Electrofishing Settings"):
+                    row_entered = True
                 if utils.enter_cnt_det(cleaned_data, cnt_obs, row["fishing seconds"], "Electrofishing Seconds"):
                     row_entered = True
                 if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Voltage"], "Voltage"):
@@ -99,39 +108,40 @@ def coldbrook_electrofishing_parser(cleaned_data):
 
     # do general actions on data
     try:
-        anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
-                                                          grp_id__isnull=False,
-                                                          indv_id__isnull=True,
-                                                          contx_id__isnull=True,
-                                                          indvt_id__isnull=True,
-                                                          loc_id__isnull=True,
-                                                          pair_id__isnull=True)
-        if anix_grp_qs.count() == 0:
-            grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                               stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
-                               coll_id=models.Collection.objects.filter(name__icontains=data["Collection"]).get(),
-                               grp_year=data["Year"][0],
-                               grp_valid=True,
-                               created_by=cleaned_data["created_by"],
-                               created_date=cleaned_data["created_date"],
-                               )
-            try:
-                grp.clean()
-                grp.save()
-            except ValidationError:
-                grp = models.Group.objects.filter(spec_id=grp.spec_id,
-                                                  stok_id=grp.stok_id,
-                                                  coll_id=grp.coll_id).get()
+        for key in river_dict:
+            stok_id = models.StockCode.objects.filter(name__icontains=key).get()
+            anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
+                                                              grp_id__stok_id=stok_id,
+                                                              indv_id__isnull=True,
+                                                              contx_id__isnull=True,
+                                                              indvt_id__isnull=True,
+                                                              loc_id__isnull=True,
+                                                              pair_id__isnull=True)
+            if anix_grp_qs.count() == 0:
+                grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                   stok_id=stok_id,
+                                   coll_id=models.Collection.objects.filter(name__icontains=data["Collection"]).get(),
+                                   grp_year=data["Year"][0],
+                                   grp_valid=True,
+                                   created_by=cleaned_data["created_by"],
+                                   created_date=cleaned_data["created_date"],
+                                   )
+                try:
+                    grp.clean()
+                    grp.save()
+                except ValidationError:
+                    grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
+                                                      grp_year=grp.grp_year, coll_id=grp.coll_id).get()
 
-            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
-        elif anix_grp_qs.count() == 1:
-            anix_grp = anix_grp_qs.get()
-            grp = anix_grp.grp_id
+                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
+            elif anix_grp_qs.count() == 1:
+                anix_grp = anix_grp_qs.get()
+                grp = anix_grp.grp_id
 
-        contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
+            contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
-        utils.enter_cnt(cleaned_data, data["# of salmon collected"].sum(), contx_pk=contx.pk,
-                        cnt_code="Fish in Container", )
+            utils.enter_cnt(cleaned_data, data[data["River"] == key]["# of salmon collected"].sum(), contx_pk=contx.pk,
+                            cnt_code="Fish in Container", )
 
     except Exception as err:
         log_data += "Error parsing common data (entering group, placing it in a location and recording the count): \n"

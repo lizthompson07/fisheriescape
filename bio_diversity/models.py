@@ -1560,7 +1560,7 @@ class SpawnDet(BioModel):
     def clean(self):
         super(SpawnDet, self).clean()
         if self.is_numeric() and self.det_val is not None:
-            if self.det_val > self.spwndc_id.max_val or self.det_val < self.spwndc_id.min_val:
+            if float(self.det_val) > self.spwndc_id.max_val or float(self.det_val) < self.spwndc_id.min_val:
                 raise ValidationError({
                     "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
                                                .format(self.det_val, self.spwndc_id.max_val, self.spwndc_id.min_val))
