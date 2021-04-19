@@ -8,6 +8,7 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from decimal import Decimal
 from bio_diversity import models
+from bio_diversity.static.calculation_constants import *
 
 
 def bio_diverisity_authorized(user):
@@ -53,7 +54,7 @@ def val_unit_splitter(full_str):
 
 
 def daily_dev(degree_day):
-    dev = 100 / math.exp(6.002994 * math.exp(-0.03070758 * degree_day))
+    dev = 100 / math.exp(DEVELOPMENT_ALPHA * math.exp(DEVELOPMENT_BETA * degree_day))
     return dev
 
 
@@ -379,7 +380,6 @@ def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None):
         return True
 
     return False
-
 
 
 def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
