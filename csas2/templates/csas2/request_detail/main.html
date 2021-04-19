@@ -34,15 +34,23 @@
     </div>
 
     <div class="mb-3 float-right">
-      {% if not object.review %}
+      {% if not object.review and object.submission_date %}
         <a class="btn btn-sm btn-dark" href="{% url 'csas2:review_new' object.id %}">{% trans "Start a Review" %}</a>
       {% endif %}
-      <a class="btn btn-sm btn-dark" href="#">{% trans "Start a Process" %}</a>
+      {% if not object.process.exist %}
+        <a class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
+      {% endif %}
     </div>
     <div class="mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
-      <a class="btn btn-sm btn-primary" href="{% url 'csas2:request_edit' object.id %}">{% trans "Submit" %}</a>
+      <a class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+        {% if object.submission_date %}{% trans "Un-Submit" %}{% else %}{% trans "Submit" %}{% endif %}
+      </a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+        <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
+          <span class="mdi mdi-file mr-3"></span>{% trans "Add a File" %}
+        </button>
+
     </div>
 
     <div class="mb-5">
@@ -50,16 +58,41 @@
         {% for field in request_field_list %}
           {% verbose_td_display object field th_width="300px" %}
         {% endfor %}
+        {# files #}
+        <tr>
+          <th>
+            {% trans "Files" %}
+          </th>
+          <td>
+            {% if object.files.exists %}
+                {% for file in object.files.all %}
+                  <div>
+                    <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
+                    <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">
+                      <span class="mdi mdi-pencil" style="font-size: large"></span>
+                    </button>
+                    <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">
+                      <span class="mdi mdi-delete" style="font-size: large"></span>
+                    </button>
+                  </div>
+                {% endfor %}
+            {% else %}
+              <em>{% trans "There are no files attached to this collection." %}</em>
+            {% endif %}
+          </td>
+        </tr>
+
+
       </table>
     </div>
 
     {% if object.review %}
       <div class="mb-5">
-      <h4>{% trans "Review" %}</h4>
-      <div class="mb-3">
-        <a class="btn btn-sm btn-warning" href="{% url 'csas2:review_edit' object.id %}">{% trans "Edit Review" %}</a>
-        <a class="btn btn-sm btn-danger" href="{% url 'csas2:review_delete' object.id %}">{% trans "Delete Review" %}</a>
-      </div>
+        <h4>{% trans "Review" %}</h4>
+        <div class="mb-3">
+          <a class="btn btn-sm btn-warning" href="{% url 'csas2:review_edit' object.review.id %}">{% trans "Edit Review" %}</a>
+          <a class="btn btn-sm btn-danger" href="{% url 'csas2:review_delete' object.review.id %}">{% trans "Delete Review" %}</a>
+        </div>
         <table class="table table-sm">
           {% for field in review_field_list %}
             {% verbose_td_display object.review field th_width="300px" %}
@@ -102,6 +135,9 @@
             .then(response => {
               this.currentUser = response;
             })
+      },
+      openPopout(url) {
+        popitup(url, 'popoutWindow'  + Date.now());
       },
       getObservations() {
         this.loadingObservations = true;

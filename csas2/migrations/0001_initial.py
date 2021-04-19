@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('client_has_funding', models.BooleanField(default=False, help_text='i.e., special analysis, meeting costs, translation)?', verbose_name='Do you have funds to cover any extra costs associated with this request?')),
                 ('client_funding_description', models.TextField(blank=True, null=True, verbose_name='If so, please elaborate.')),
                 ('client_signed_at', models.DateTimeField(blank=True, null=True, verbose_name='Date of client signature')),
-                ('file_attachment', models.FileField(blank=True, null=True, upload_to=csas2.models.file_directory_path, verbose_name='attachment')),
+                ('file_attachment', models.FileField(blank=True, null=True, upload_to=csas2.models.request_directory_path, verbose_name='attachment')),
                 ('status', models.IntegerField(editable=False, verbose_name='status')),
                 ('submission_date', models.DateTimeField(blank=True, editable=False, null=True, verbose_name='submission date')),
                 ('old_id', models.IntegerField(blank=True, editable=False, null=True)),

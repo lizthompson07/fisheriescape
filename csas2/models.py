@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date, slugify
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
@@ -13,8 +12,8 @@ from shared_models.models import SimpleLookup, UnilingualSimpleLookup, Unilingua
     SimpleLookupWithUUID
 
 
-def file_directory_path(instance, filename):
-    return 'csas/request_{0}/{1}'.format(instance.request.id, filename)
+def request_directory_path(instance, filename):
+    return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
 
 
 class CSASRequest(SimpleLookupWithUUID, MetadataFields):
@@ -49,10 +48,10 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     has_funding = models.BooleanField(default=False, verbose_name=_("Do you have funds to cover any extra costs associated with this request?"),
                                       help_text=_("i.e., special analysis, meeting costs, translation)?"), )
     funding_text = models.TextField(null=True, blank=True, verbose_name=_("Please describe"))
-    file_attachment = models.FileField(upload_to=file_directory_path, null=True, blank=True, verbose_name=_("signed request form"))
+    notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
     # non-editable fields
-    status = models.IntegerField(default=1, verbose_name=_("status"), editable=False)
+    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
 
@@ -62,9 +61,19 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
 
     class Meta:
         ordering = ("fiscal_year", _("name"))
+        verbose_name_plural = _("CSAS Requests")
 
     def save(self, *args, **kwargs):
         self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+        # look at the review to help determine the status
+        self.status = 1  # draft
+        if self.submission_date:
+            self.status = 2  # submitted
+        if hasattr(self, "review") and self.review.id:
+            self.status = 3  # under review
+            if self.review.decision:
+                self.status = self.review.decision + 10
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -88,6 +97,10 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
         return gettext("No")
 
     @property
+    def status_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+
+    @property
     def assistance_display(self):
         if self.had_assistance:
             text = self.assistance_text if self.assistance_text else gettext("no further details provided.")
@@ -107,7 +120,7 @@ class CSASRequestReview(MetadataFields):
     notes = models.TextField(blank=True, null=True, verbose_name=_("coordinator notes"))
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
     decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision Explanation"))
-    decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Date a decision was made"))
+    decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("decision date"))
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -123,13 +136,28 @@ class CSASRequestReview(MetadataFields):
         return gettext("---")
 
     @property
-    def decision_explanation_html(self):
-        if self.decision_explanation:
-            return mark_safe(markdown(self.decision_explanation))
+    def decision_text_html(self):
+        if self.decision_text:
+            return mark_safe(markdown(self.decision_text))
+
+
+
+class CSASRequestFile(models.Model):
+    csas_request = models.ForeignKey(CSASRequest, related_name="files", on_delete=models.CASCADE, editable=False)
+    caption = models.CharField(max_length=255)
+    file = models.FileField(upload_to=request_directory_path)
+    date_created = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return self.caption
+
 
 
 class Process(SimpleLookupWithUUID, MetadataFields):
-    csas_requests = models.ManyToManyField(CSASRequest, blank=False)
+    csas_requests = models.ManyToManyField(CSASRequest, blank=False, related_name="process")
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
 

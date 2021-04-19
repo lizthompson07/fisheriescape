@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='csasrequest',
             name='file_attachment',
-            field=models.FileField(blank=True, null=True, upload_to=csas2.models.file_directory_path, verbose_name='signed request form'),
+            field=models.FileField(blank=True, null=True, upload_to=csas2.models.request_directory_path, verbose_name='signed request form'),
         ),
         migrations.AlterField(
             model_name='csasrequest',

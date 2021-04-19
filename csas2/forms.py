@@ -13,6 +13,17 @@ YES_NO_CHOICES = (
 )
 
 
+
+class TripRequestTimestampUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.CSASRequest
+        fields = [
+            "notes",
+        ]
+        widgets = {
+            "notes": forms.HiddenInput()
+        }
+
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
@@ -85,3 +96,24 @@ class CSASRequestReviewForm(forms.ModelForm):
             'decision_date': forms.DateInput(attrs=attr_fp_date),
         }
 
+
+
+
+class CSASRequestFileForm(forms.ModelForm):
+    class Meta:
+        model = models.CSASRequestFile
+        fields = "__all__"
+
+
+class ProcessForm(forms.ModelForm):
+    class Meta:
+        model = models.Process
+        fields ="__all__"
+        widgets = {
+            'csas_requests': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)}") for obj in models.CSASRequest.objects.filter(process__isnull=True)]
+        super().__init__(*args, **kwargs)
+        self.fields["csas_requests"].choices = request_choices

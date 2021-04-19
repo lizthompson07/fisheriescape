@@ -1,1 +1,1 @@
-default_app_config = 'csas2.apps.eDNAConfig'
+default_app_config = 'csas2.apps.CsasConfig'

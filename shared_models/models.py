@@ -48,7 +48,7 @@ class SimpleLookupWithUUID(SimpleLookup):
     class Meta:
         abstract = True
 
-    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid.uuid4)
+    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
 
 
 class Lookup(SimpleLookup):

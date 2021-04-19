@@ -42,6 +42,10 @@ if settings.INSTALLED_APPS.count("travel"):
     urlpatterns.append(
         path('api/', include('travel.api.urls')),
     )
+if settings.INSTALLED_APPS.count("csas2"):
+    urlpatterns.append(
+        path('api/', include('csas2.api.urls')),
+    )
 if settings.INSTALLED_APPS.count("scuba"):
     urlpatterns.append(
         path('api/', include('scuba.api.urls')),

@@ -18,14 +18,18 @@ language_choices = (
 request_status_choices = (
     (1,	_("draft")),
     (2,	_("submitted")),
-    (3,	_("reviewed")),
-    (9,	_("withdrawn")),
+    (3,	_("under review")),
+    # all status below here should correspond to review decision choice + 10
+    (11,	_("on")),
+    (12,	_("off")),
+    (13,	_("withdrawn")),
 )
 
 request_decision_choices = (
     (1,	_("on")),
     (2,	_("off")),
-    (3,	_("tentative")),
+    (3,	_("withdrawn")),
+    # (4,	_("tentative")),
 )
 
 

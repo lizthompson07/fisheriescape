@@ -37,13 +37,13 @@ class CanModifyRequestRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             obj = self.get_object()
             if isinstance(obj, models.CSASRequest):
                 request_id = obj.id
-            elif isinstance(obj, models.CSASRequestReview):
+            elif isinstance(obj, models.CSASRequestReview) or isinstance(obj, models.CSASRequestFile):
                 request_id = obj.csas_request_id
 
         except AttributeError:
             pass
-            if self.kwargs.get("request"):
-                request_id = self.kwargs.get("project")
+            if self.kwargs.get("crequest"):
+                request_id = self.kwargs.get("crequest")
             # elif self.kwargs.get("project_year"):
             #     project_year = get_object_or_404(models.ProjectYear, pk=self.kwargs.get("project_year"))
             #     project_id = project_year.project_id

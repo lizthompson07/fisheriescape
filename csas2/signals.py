@@ -2,6 +2,16 @@ import os
 
 from django.db import models
 from django.dispatch import receiver
+
+from csas2.models import CSASRequestReview
+
+
+@receiver(models.signals.post_save, sender=CSASRequestReview)
+def save_request_on_review_save(sender, instance, created, **kwargs):
+    instance.csas_request.save()
+
+
+
 #
 # from csas2.models import File
 #

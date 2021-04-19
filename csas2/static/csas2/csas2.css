@@ -61,28 +61,29 @@ h1 {
     width: 30%
 }
 
+
 .draft {
-    background-color: #fff396;
+    background-color: #ffff9d;
 }
 
 .submitted {
-    background-color: #ffda84;
+    background-color: #84c6ff;
 }
 
-.reviewed {
-    background-color: #a2c4fa;
+.under-review {
+    background-color: #e3aefa;
 }
 
-.approved {
-    background-color: #a8ffb8;
+.off {
+    background-color: #f699a9;
 }
 
-.cancelled {
-    background-color: #c1c1c1;
+.on {
+    background-color: #d5faae;
 }
 
-.not-approved {
-    background-color: #ff9191;
+.withdrawn {
+    background-color: #cacaca;
 }
 
 
@@ -173,21 +174,6 @@ label.filter {
     }
 }
 
-.high {
-    background-color: pink;
-}
-
-.uncertain {
-    background-color: yellow;
-}
-
-.certain {
-    background-color: greenyellow;
-}
-
-.bg-light-green {
-    background-color: #ddfabe;
-}
 
 /*!* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) *!*/
 /*@media screen and (max-height: 450px) {*/
@@ -209,11 +195,11 @@ label.filter {
 /*    outline: none;*/
 /*}*/
 
-.saved-borders > thead > tr > th, .saved-borders > tbody > tr > td  {
+.saved-borders > thead > tr > th, .saved-borders > tbody > tr > td {
     border: green 1px solid;
 }
 
-.unsaved-borders > thead > tr > th, .unsaved-borders > tbody > tr > td  {
+.unsaved-borders > thead > tr > th, .unsaved-borders > tbody > tr > td {
     border: red 1px solid;
 }
 

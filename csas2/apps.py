@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class eDNAConfig(AppConfig):
+class CsasConfig(AppConfig):
     name = 'csas2'
 
     def ready(self):

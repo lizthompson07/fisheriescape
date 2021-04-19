@@ -147,7 +147,7 @@ def get_request_field_list(csas_request, user):
         'id|{}'.format(_("request Id")),
         'fiscal_year',
         'tname|{}'.format(_("title")),
-        'status',
+        'status_display|{}'.format(_("status")),
         'type',
         'language',
         'section',
@@ -163,6 +163,7 @@ def get_request_field_list(csas_request, user):
         'funding_display|{}'.format(_("Client Funding?")),
         'file_attachment',
         'submission_date',
+        'uuid',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)
