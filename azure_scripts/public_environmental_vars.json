@@ -45,6 +45,11 @@
     "test": "latest",
     "prod": "prod"
   },
+  "AWS_ACCESS_KEY_ID": {
+    "dev": "AKIA4DJHEGSUC66FCUMX",
+    "test": "AKIA4DJHEGSUC66FCUMX",
+    "prod": "AKIA4DJHEGSUC66FCUMX"
+  },
   "DB_HOST": {
     "dev": "dmapps-dev-mysql.mysql.database.azure.com",
     "test": "dmapps-dev-mysql.mysql.database.azure.com",

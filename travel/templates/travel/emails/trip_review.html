@@ -1,0 +1,46 @@
+{% load verbose_names %}
+{% load i18n %}
+
+{% language 'en' %}
+  <p>
+    The following trip, <a href="{{ SITE_FULL_URL }}{% url 'travel:trip_detail' object.id %}">{{ object.tname }}</a>, is now eligible for ADM review.
+  </p>
+  <p>
+    <b>IMPORTANT</b> – This is not a solicitation for new requests as the 90 day submission deadline has already passed. Any new requests submitted and this
+    point will
+    require a strong late justification as per the EOSS guidelines.
+  </p>
+  <p>
+    The following trip(s) require your attention as they are currently waiting in the regional approval queue. Please have your regional review process
+    completed by
+    {{ due_date|date }} to ensure requests from your region are submitted to the ADM for approval.
+  </p>
+  <ol>
+    {% for r in request_list %}
+      <li><a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' r.id %}">{{ r }}</a></li>
+    {% endfor %}
+  </ol>
+{% endlanguage %}
+
+<hr>
+
+{% language 'fr' %}
+  <p>
+    Le voyage suivant, <a href="{{ SITE_FULL_URL }}{% url 'travel:trip_detail' object.id %}">{{ object.tname }}</a>, est maintenant admissible à l'examen du
+    bureau du SMA.
+  </p>
+  <p>
+    <b>IMPORTANT</b> - Il ne s'agit pas d'une sollicitation pour de nouvelles demandes, le délai de soumission de 90 jours étant déjà dépassé. Toute nouvelle
+    demande soumise après ce délai nécessitera une justification tardive solide conformément aux directives SSEO.
+  </p>
+  <p>
+    Les demandes suivants requièrent votre attention car ils sont actuellement en attente d'approbation. Veuillez faire en sorte que votre processus d'examen
+    régional soit terminé d'ici le {{ due_date|date }} afin que les demandes de votre région soient soumises à l'approbation du SMA.
+  </p>
+  <ol>
+    {% for r in request_list %}
+      <li><a href="{{ SITE_FULL_URL }}{% url 'travel:request_detail' r.id %}">{{ r }}</a></li>
+    {% endfor %}
+  </ol>
+{% endlanguage %}
+

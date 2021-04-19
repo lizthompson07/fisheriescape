@@ -6,6 +6,7 @@ from . import models
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
+attr_fp_date_time = {"class": "fp-date-time-with-seconds", "placeholder": "Select Date and Time.."}
 
 
 class ItemForm(forms.ModelForm):
@@ -173,6 +174,19 @@ TrainingFormset = modelformset_factory(
 )
 
 
+class SpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.Species
+        fields = "__all__"
+
+
+SpeciesFormset = modelformset_factory(
+    model=models.Species,
+    form=SpeciesForm,
+    extra=1,
+)
+
+
 class PersonnelForm(forms.ModelForm):
     class Meta:
         model = models.Personnel
@@ -209,8 +223,7 @@ class IncidentForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'submitted': forms.CheckboxInput,
-            'first_report': forms.DateInput(
-                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'first_report': forms.TextInput(attrs=attr_fp_date_time),
             'gear_presence': forms.CheckboxInput,
             'exam': forms.CheckboxInput,
             'necropsy': forms.CheckboxInput,

@@ -36,6 +36,18 @@
           <th style="width: 100px" v-if="showColumnLastModified">
             {% trans "Last Modified" %}
           </th>
+        {% elif field == 'om_costs' %}
+          <th style="width: 100px" v-if="showColumnOM" @click="sort('{{ field }}')" class="clickable">
+            {% trans "O&M Costs" %}
+          </th>
+        {% elif "salary" in field %}
+          <th style="width: 100px" v-if="showColumnSalary" @click="sort('{{ field }}')" class="clickable">
+            {% trans "Salary Costs" %}
+          </th>
+        {% elif "capital" in field %}
+          <th style="width: 100px" v-if="showColumnCapital" @click="sort('{{ field }}')" class="clickable">
+            {% trans "Capital Costs" %}
+          </th>
         {% elif "lead" in field %}
           <th @click="sort('{{ field }}')" v-if="showColumnLeads" style="width: 150px" class="clickable">
             {% get_verbose_label random_project field %}
@@ -86,6 +98,15 @@
       <td v-if="showColumnLastModified">
         <span v-if="p.last_modified">${p.last_modified}</span>
         <span v-else>---</span>
+      </td>
+      <td v-if="showColumnOM">
+        <span>${p.om_costs|currencyFormat}</span>
+      </td>
+      <td v-if="showColumnSalary">
+        <span>${p.salary_costs|currencyFormat}</span>
+      </td>
+      <td v-if="showColumnCapital">
+        <span>${p.capital_costs|currencyFormat}</span>
       </td>
       <td v-if="isAdminOrMgmt && showColumnHidden">
         <span v-if="p.project.is_hidden" class="highlight">{% trans "Yes" %}</span>

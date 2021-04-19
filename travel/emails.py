@@ -1,8 +1,12 @@
+import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils import timezone
 
 from dm_apps.emails import Email
+from travel import utils
 
 from_email = settings.SITE_FROM_EMAIL
 
@@ -165,3 +169,26 @@ class TripCostWarningEmail(Email):
         context = super().get_context_data()
         context.update({'trip': self.instance, 'field_list': trip_field_list})
         return context
+
+
+class TripReviewEmail(Email):
+    email_template_path = 'travel/emails/trip_review.html'
+    subject_en = 'ADM trip review has commenced'
+    subject_fr = "L'examen de voyage par le SMA a commencé"
+
+    def get_recipient_list(self):
+        return utils.get_all_admins(region=self.region)
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context.update({
+            'due_date': timezone.now() + datetime.timedelta(days=7),
+            'request_list': self.instance.requests.filter(status__in=[17, 12, 16, ], section__division__branch__region=self.region)
+        })
+        return context
+
+    def __init__(self, request, instance=None, region=None):
+        super().__init__(request)
+        self.request = request
+        self.instance = instance
+        self.region = region

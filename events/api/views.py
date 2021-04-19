@@ -42,7 +42,9 @@ class EventModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = _get_labels(self.model)
         data['type_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.type_choices]
-        data['event_choices'] = [dict(text=obj.tname, value=obj.id) for obj in self.model.objects.all()]
+        event_choices = [dict(text=obj.tname, value=obj.id) for obj in self.model.objects.all()]
+        event_choices.insert(0, dict(text="------", value=None))
+        data['event_choices'] = event_choices
         return Response(data)
 
 

@@ -14,7 +14,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import UpdateView, DeleteView, CreateView
 ###
 from easy_pdf.views import PDFTemplateView
 from msrestazure.azure_active_directory import MSIAuthentication
@@ -33,7 +32,7 @@ from . import models
 from . import reports
 from . import utils
 from .mixins import TravelAccessRequiredMixin, CanModifyMixin, TravelAdminRequiredMixin, AdminOrApproverRequiredMixin, TravelADMAdminRequiredMixin
-from .utils import in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver, is_manager_or_assistant_or_admin, is_admin
+from .utils import in_travel_admin_group, in_adm_admin_group, can_modify_request, is_approver, is_trip_approver, is_manager_or_assistant_or_admin
 
 
 def get_file(request, file):
@@ -139,7 +138,8 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.TripRequest.status_choices] # when there is time, this should be replaced by api call
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in
+                                     models.TripRequest.status_choices]  # when there is time, this should be replaced by api call
         return context
 
     def get_new_object_url(self):
@@ -776,8 +776,14 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
             else:
                 utils.end_trip_review_process(my_trip, reset=False)
         else:
-            utils.start_trip_review_process(my_trip)
             # go and get approvals!!
+            utils.start_trip_review_process(my_trip)
+            # we will send out one email per region, provided that region has requests that are still under regional review
+            for region in shared_models.Region.objects.all():
+                qs = my_trip.requests.filter(status__in=[17, 12, 16, ], section__division__branch__region=region)
+                if qs.exists():
+                    email = emails.TripReviewEmail(self.request, my_trip, region)
+                    email.send()
 
         # No matter what business what done, we will call this function to sort through reviewer and request statuses
         utils.trip_approval_seeker(my_trip, self.request)
@@ -804,7 +810,6 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         if my_object.is_adm_approval_required:
             return utils.in_adm_admin_group(self.request.user)
         return utils.is_admin(self.request.user)
-
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -1131,10 +1136,10 @@ class ReportFormView(TravelAdminRequiredMixin, CommonFormView):
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list") +
-                                        f'?fy={fy};region={region};trip={trip};user={user};from_date={from_date};to_date={to_date};')
+                                        f'?fy={fy}&region={region}&trip={trip}&user={user}&from_date={from_date}&to_date={to_date}&')
         elif report == 2:
             return HttpResponseRedirect(reverse("travel:export_trip_list") +
-                                        f'?fy={fy};region={region};adm={adm};from_date={from_date};to_date={to_date};')
+                                        f'?fy={fy}&region={region}&adm={adm}&from_date={from_date}&to_date={to_date}&')
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:reports"))

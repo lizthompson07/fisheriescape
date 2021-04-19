@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, UserModel, _unicode_ci_compare
 from django.contrib.auth.models import User
 from django.template import loader
 from django.urls import reverse
@@ -115,7 +115,6 @@ class DMAppsPasswordResetForm(PasswordResetForm):
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
         body = loader.render_to_string(email_template_name, context)
-
         custom_send_mail(
             html_message=body,
             subject=subject,
@@ -123,9 +122,19 @@ class DMAppsPasswordResetForm(PasswordResetForm):
             recipient_list=[to_email]
         )
 
-        # email_message = EmailMultiAlternatives(subject, body, from_email, [to_email])
-        # if html_email_template_name is not None:
-        #     html_email = loader.render_to_string(html_email_template_name, context)
-        #     email_message.attach_alternative(html_email, 'text/html')
-        #
-        # email_message.send()
+    def get_users(self, email):
+        """Given an email, return matching user(s) who should receive a reset.
+
+        This allows subclasses to more easily customize the default policies
+        that prevent inactive users and users with unusable passwords from
+        resetting their password.
+        """
+        email_field_name = UserModel.get_email_field_name()
+        active_users = UserModel._default_manager.filter(**{
+            '%s__iexact' % email_field_name: email,
+        })
+        return (
+            u for u in active_users
+            if u.has_usable_password() and
+               _unicode_ci_compare(email, getattr(u, email_field_name))
+        )

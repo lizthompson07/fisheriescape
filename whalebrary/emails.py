@@ -1,143 +1,46 @@
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.template import loader
-
-from dm_apps.context_processor import my_envr
-
-from_email = settings.SITE_FROM_EMAIL
-admin_email = 'elizabeth.thompson@dfo-mpo.gc.ca'
+from dm_apps.emails import Email
 
 
-class NewIncidentEmail:
-    def __init__(self, incident_object, request):
-        self.request = request
-        self.subject = 'A new incident has been logged / un nouveau incident a été enregistré'
-        self.message = self.load_html_template(incident_object)
-        self.from_email = from_email
-        self.to_list = ["elizabeth.thompson@dfo-mpo.gc.ca"]
+class NewIncidentEmail(Email):
 
-    def load_html_template(self, incident_object):
-        t = loader.get_template('whalebrary/email_incident.html')
-        context = {'object': incident_object}
-        context.update(my_envr(self.request))
-        rendered = t.render(context)
-        return rendered
+    email_template_path = 'whalebrary/email_incident.html'
+    recipient_list = ["WhaleSightings.XMAR@dfo-mpo.gc.ca",
+                        "DFO.GLFWhales-BaleinesGLF.MPO@dfo-mpo.gc.ca"
+                    ]
 
-    def __str__(self):
-        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject,
-                                                                  self.message)
+    def get_subject(self):
+
+        return '{} - {} - {}'.format(self.instance.get_incident_type_display(), self.instance.species,
+                          self.instance.first_report.strftime("%B %d, %Y @ %I:%M %p %Z"))
+
+
+
+# class NewIncidentEmail:
 #
-#
-# class NewTicketEmail:
-#     def __init__(self, ticket_object, request):
+#     def __init__(self, incident_object, request):
 #         self.request = request
-#         self.subject = 'A new ticket has been created / un nouveau billet a été créé'
-#         self.message = self.load_html_template(ticket_object)
+#         # self.subject = self.subject_template(incident_object)
+#         self.message = self.load_html_template(incident_object)
 #         self.from_email = from_email
+#         self.to_list = ["WhaleSightings.XMAR@dfo-mpo.gc.ca",
+#                         "DFO.GLFWhales-BaleinesGLF.MPO@dfo-mpo.gc.ca"
+#                         ]
 #
-#         # decide on who should receive the email
-#         if ticket_object.dm_assigned.count() > 0:
-#             my_to_list = [user.email for user in ticket_object.dm_assigned.all()]
-#             my_to_list.append(ticket_object.primary_contact.email)
-#         else:
-#             # get a list of all staff email addresses
-#             my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
-#             my_to_list.append(ticket_object.primary_contact.email)
-#         self.to_list = my_to_list
+    # def load_html_template(self, incident_object):
+    #     t = loader.get_template('whalebrary/email_incident.html')
+    #     context = {'object': incident_object}
+    #     context.update(my_envr(self.request))
+    #     rendered = t.render(context)
+    #     return rendered
 #
-#     def load_html_template(self, ticket_object):
-#         t = loader.get_template('tickets/email_new_ticket.html')
-#         context = {'object': ticket_object}
+#
+#     def subject_template(self, incident_object):
+#         t = loader.get_template('whalebrary/email_incident_subject.html')
+#         context = {'object': incident_object}
 #         context.update(my_envr(self.request))
 #         rendered = t.render(context)
 #         return rendered
 #
 #     def __str__(self):
-#         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
-#
-#
-#
-# class NewFollowUpEmail:
-#     def __init__(self, object, request):
-#         self.request = request
-#         self.subject = 'A follow-up has been added to your ticket / un suivi a été ajouté à votre billet'
-#         self.message = self.load_html_template(object)
-#         self.from_email = from_email
-#
-#         # decide on who should receive the email
-#         if object.ticket.dm_assigned.count() > 0:
-#             my_to_list = [user.email for user in object.ticket.dm_assigned.all()]
-#             my_to_list.append(object.ticket.primary_contact.email)
-#         else:
-#             # get a list of all staff email addresses
-#             my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
-#             my_to_list.append(object.ticket.primary_contact.email)
-#         self.to_list = my_to_list
-#
-#     def load_html_template(self, object):
-#         t = loader.get_template('tickets/email_follow_up.html')
-#         context = {'object': object}
-#         context.update(my_envr(self.request))
-#         rendered = t.render(context)
-#         return rendered
-#
-#     def __str__(self):
-#         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
-#
-#
-#
-# class NewFileAddedEmail:
-#     def __init__(self, object, request):
-#         self.request = request
-#         self.subject = "A new file has been added to Ticket #{}".format(object.ticket.id)
-#         self.message = self.load_html_template(object)
-#         self.from_email = from_email
-#         if object.ticket.dm_assigned.count() > 0:
-#             my_to_list = [user.email for user in object.ticket.dm_assigned.all()]
-#             my_to_list.append(object.ticket.primary_contact.email)
-#         else:
-#             # get a list of all staff email addresses
-#             my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
-#             my_to_list.append(object.ticket.primary_contact.email)
-#         self.to_list = my_to_list
-#
-#     def load_html_template(self, object):
-#         t = loader.get_template('tickets/email_new_file.html')
-#         context = {'object': object}
-#         context.update(my_envr(self.request))
-#         rendered = t.render(context)
-#         return rendered
-#
-#     def __str__(self):
-#         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
-#
-#
-# class TicketResolvedEmail:
-#     def __init__(self, ticket_object, request):
-#         self.request = request
-#         self.ticket_object = ticket_object
-#         self.subject = 'Your ticket has been resolved / votre billet a été résolu'
-#         self.message = self.load_html_template()
-#         self.from_email = from_email
-#         # decide on who should receive the email
-#         if ticket_object.dm_assigned.count() > 0:
-#             my_to_list = [user.email for user in ticket_object.dm_assigned.all()]
-#             my_to_list.append(ticket_object.primary_contact.email)
-#         else:
-#             # get a list of all staff email addresses
-#             my_to_list = [user.email for user in User.objects.filter(is_staff=True)]
-#             my_to_list.append(ticket_object.primary_contact.email)
-#         self.to_list = my_to_list
-#
-#
-#     def load_html_template(self):
-#         t = loader.get_template('tickets/email_ticket_resolved.html')
-#         context = {
-#             'object': self.ticket_object,
-#         }
-#         context.update(my_envr(self.request))
-#         rendered = t.render(context)
-#         return rendered
-#
-#     def __str__(self):
-#         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+#         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject,
+#                                                                   self.message)

@@ -1,0 +1,221 @@
+{% extends "grais/base.html" %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block header %}
+  {{ block.super }}
+  <style>
+  /* Set the size of the div element that contains the map */
+  #map {
+      height: 300px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+{% endblock header %}
+
+
+{% block subcontent %}
+  <div id="app">
+    <div class="mb-3">
+      <a class="btn btn-warning" href="{% url 'grais:ir_edit' object.id %}">Edit</a>
+      <a class="btn btn-danger" href="{% url 'grais:ir_delete' object.id %}">Delete</a>
+      <button @click="openPopout('{% url 'grais:followup_new' object.id %}')" class="btn btn-primary"> New Follow-up </button>
+
+    </div>
+
+    <div class="row mb-5">
+      <div class="col">
+        <div class="mb-3">
+          <p class="lead">Report Detail:</p>
+        </div>
+        <table class="table table-sm">
+          {% for field in field_list %}
+            {% verbose_td_display object field %}
+          {% endfor %}
+        </table>
+        {% if object.get_point %}
+          <div id="map"></div>
+        {% endif %}
+      </div>
+
+      <div class="col">
+        <div class="mb-3">
+          <div class="mb-5">
+            <p class="lead">Associated Species:</p>
+            {% include "grais/incidental_reports/_species.html" %}
+          </div>
+          <div class="mb-3">
+            <p class="lead">Follow Ups:</p>
+            {% include "grais/incidental_reports/_followups.html" %}
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script type="application/javascript">
+
+  function initialize() {
+    {% if object.get_point %}
+      map = new L.Map("map", {
+        center: new L.LatLng({{ object.get_point.x }}, {{ object.get_point.y }}),
+        zoom: 14,
+      });
+    {% else %}
+      map = new L.Map("map", {
+        center: new L.LatLng(46.13845952180798, -64.7906431818189),
+        zoom: 6,
+      });
+    {% endif %}
+
+    L.marker(
+        [{{object.get_point.x}}, {{ object.get_point.y }}],
+        {
+          title: '{{object}}',
+        }
+    ).addTo(map).bindPopup("<b>Station:</b> {{object}}");
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox/satellite-streets-v10',
+      tileSize: 512,
+      zoomOffset: -1,
+      accessToken: '{{mapbox_api_key}}'
+    }).addTo(map);
+  }
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    initialize()
+
+  });
+  </script>
+  <script type="application/javascript">
+  // bring in from django
+  let objectId = {{ object.id }};
+
+  // register vue-select
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: null,
+      loadingObservations: false,
+      observations: [],
+      speciesChoices: [],
+      speciesLabels: [],
+      unsavedChanges: false,
+      obsErrorMsg: null,
+    },
+    methods: {
+      openPopout(url) {
+        popitup(url, 'popoutWindow'  + Date.now());
+      },
+      addObservation() {
+        this.unsavedChanges = true;
+        let dt = "";
+        if (this.observations.length && this.observations[this.observations.length - 1].observation_date) dt = this.observations[this.observations.length - 1].observation_date;
+        obj = {
+          species: "",
+          notes: "",
+          incidental_report: objectId,
+        }
+        this.observations.push(obj);
+      },
+
+      getSpeciesMetadata() {
+        let endpoint = `/api/grais/meta/models/species/`;
+        apiService(endpoint).then(data => {
+          this.speciesLabels = data.labels;
+          this.speciesChoices = data.choices;
+        });
+      },
+
+      getCurrentUser() {
+        let endpoint = `/api/grais/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+              this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
+            })
+      },
+      getObservations() {
+        this.loadingObservations = true;
+        let endpoint = `/api/grais/incidental-report-species/?report=${objectId}`;
+        apiService(endpoint)
+            .then(response => {
+              if (response.length && response[0].id) {
+                for (var i = 0; i < response.length; i++) {
+                  if (response[i].observation_date) response[i].observation_date = response[i].observation_date.replace("Z", "")
+                }
+                this.observations = response;
+                this.loadingObservations = false;
+              }
+            })
+      },
+      updateObservation(obs) {
+        this.unsavedChanges = true;
+        this.obsErrorMsg = null;
+        let endpoint;
+        let method;
+        if (obs.id) {
+          endpoint = `/api/grais/incidental-report-species/${obs.id}/`;
+          method = "PUT";
+        } else {
+          endpoint = `/api/grais/incidental-report-species/`;
+          method = "POST";
+        }
+        apiService(endpoint, method, obs)
+            .then(response => {
+              if (!response.id) this.obsErrorMsg = this.groomJSON(response);
+              else {
+                if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
+                this.$set(this.observations, this.observations.indexOf(obs), response)
+                this.unsavedChanges = false;
+              }
+            })
+      },
+      deleteObservation(obs) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this observation?' %}");
+        if (userInput) {
+          if (obs.id) {
+            let endpoint = `/api/grais/incidental-report-species/${obs.id}/`;
+            apiService(endpoint, "DELETE")
+                .then(response => {
+                  this.$delete(this.observations, this.observations.indexOf(obs));
+                })
+          } else {
+            this.$delete(this.observations, this.observations.indexOf(obs));
+            this.unsavedChanges = false;
+          }
+        }
+      },
+      groomJSON(json) {
+        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
+      },
+
+    },
+    computed: {},
+    created() {
+      this.getObservations();
+      this.getSpeciesMetadata();
+    },
+  });
+
+
+  </script>
+
+{% endblock %}

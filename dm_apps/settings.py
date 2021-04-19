@@ -42,7 +42,7 @@ LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
 # What is the path to the log file?
 LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR, 'error.log'))
 # the default 'from' email address used for system emails
-SITE_FROM_EMAIL = config("SITE_FROM_EMAIL", cast=str, default="DoNotReply-nepasrepondre.DMApps@dfo-mpo.gc.ca")
+SITE_FROM_EMAIL = config("SITE_FROM_EMAIL", cast=str, default="Donotreply-Nepasrepondre.DMApps@dfo-mpo.gc.ca")
 # google maps API key
 GOOGLE_API_KEY = config("GOOGLE_API_KEY", cast=str, default="")
 # mapbox API key
@@ -225,6 +225,7 @@ WSGI_APPLICATION = 'dm_apps.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 # DATABASE_ROUTERS = ['dm_apps.routers.WhaleDatabaseRouter', ]
 DATABASES = local_conf.DATABASES
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # This variable will describe the type of database we are connecting to (e.g PROD, DEV, TEST...)
 try:

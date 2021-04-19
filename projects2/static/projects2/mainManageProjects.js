@@ -50,7 +50,10 @@ var app = new Vue({
     showColumnLeads: true,
     showColumnHidden: true,
     showColumnScore: false,
-    showColumnLastModified: true,
+    showColumnLastModified: false,
+    showColumnOM: false,
+    showColumnSalary: false,
+    showColumnCapital: false,
 
     fiscalYears: [],
     tags: [],

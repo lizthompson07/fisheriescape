@@ -21,9 +21,6 @@ class StationForm(forms.ModelForm):
             'site_desc': "Site description",
             'depth': "Depth (m)",
         }
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
 
 
 class EstuaryForm(forms.ModelForm):
@@ -49,9 +46,6 @@ class SpeciesForm(forms.ModelForm):
     class Meta:
         model = models.Species
         fields = "__all__"
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
 
 
 class GCSampleForm(forms.ModelForm):
@@ -59,8 +53,8 @@ class GCSampleForm(forms.ModelForm):
         model = models.GCSample
         exclude = ['last_modified', 'season']
         widgets = {
-            'traps_set': forms.DateTimeInput(attrs=attr_fp_date_time),
-            'traps_fished': forms.DateTimeInput(attrs=attr_fp_date_time),
+            'traps_set': forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            'traps_fished': forms.DateTimeInput(attrs={"type": "datetime-local"}),
             'last_modified_by': forms.HiddenInput(),
             'samplers': forms.SelectMultiple(attrs=multi_select_js),
             'vegetation_species': forms.SelectMultiple(attrs=multi_select_js),
@@ -90,7 +84,6 @@ class SampleNoteForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'author': forms.HiddenInput(),
-            'sample': forms.HiddenInput(),
 
         }
 
@@ -118,12 +111,11 @@ class FollowUpForm(forms.ModelForm):
 
 class ProbeMeasurementForm(forms.ModelForm):
     class Meta:
-        fields = ("__all__")
+        fields = "__all__"
         model = models.ProbeMeasurement
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'sample': forms.HiddenInput(),
             # metadata fields
             'time_date': forms.DateTimeInput(attrs=attr_fp_date_time_metadata),
             'probe': forms.Select(attrs=attr_metadata),
@@ -136,11 +128,12 @@ class ProbeMeasurementForm(forms.ModelForm):
 
 class GCProbeMeasurementForm(forms.ModelForm):
     class Meta:
-        fields = ("__all__")
+        fields = "__all__"
         model = models.GCProbeMeasurement
         widgets = {
+            'time_date': forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            'weather_conditions': forms.SelectMultiple(attrs=multi_select_js),
             'last_modified_by': forms.HiddenInput(),
-            'sample': forms.HiddenInput(),
         }
 
 
@@ -188,19 +181,15 @@ class SurfaceForm(forms.ModelForm):
         model = models.Surface
         fields = "__all__"
         exclude = ['species']
-        widgets = {
-            'line': forms.HiddenInput(),
-            'last_modified_by': forms.HiddenInput(),
-        }
 
 
 class SurfaceImageForm(forms.ModelForm):
     class Meta:
         model = models.Surface
-        fields = ('image', 'last_modified_by')
-        widgets = {
-            'last_modified_by': forms.HiddenInput(),
-        }
+        fields = ('image',)
+        # widgets = {
+        #     'last_modified_by': forms.HiddenInput(),
+        # }
 
 
 class SurfaceSpeciesForm(forms.ModelForm):
@@ -331,37 +320,37 @@ class TrapForm(forms.ModelForm):
         }
 
 
-class CatchForm(forms.ModelForm):
-    class Meta:
-        model = models.Catch
-        fields = "__all__"
-        widgets = {
-            'species': forms.HiddenInput(),
-            'trap': forms.HiddenInput(),
-            # 'sex': forms.Select(attrs=chosen_js),
-            # 'percent_coverage': forms.TextInput(attrs={'placeholder': "Value bewteen 0 and 1"}),
-            'notes': forms.Textarea(attrs={"rows": "3", "placeholder": ""}),
-            'last_modified_by': forms.HiddenInput(),
-        }
+# class CatchForm(forms.ModelForm):
+#     class Meta:
+#         model = models.Catch
+#         fields = "__all__"
+#         widgets = {
+#             'species': forms.HiddenInput(),
+#             'trap': forms.HiddenInput(),
+#             # 'sex': forms.Select(attrs=chosen_js),
+#             # 'percent_coverage': forms.TextInput(attrs={'placeholder': "Value bewteen 0 and 1"}),
+#             'notes': forms.Textarea(attrs={"rows": "3", "placeholder": ""}),
+#             'last_modified_by': forms.HiddenInput(),
+#         }
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         if kwargs.get("instance"):
+#             if kwargs.get("instance").is_bycatch:
+#                 del self.fields["width"]
+#                 del self.fields["sex"]
+#                 del self.fields["carapace_color"]
+#                 del self.fields["abdomen_color"]
+#                 del self.fields["egg_color"]
+#             else:
+#                 del self.fields["count"]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if kwargs.get("instance"):
-            if kwargs.get("instance").is_bycatch:
-                del self.fields["width"]
-                del self.fields["sex"]
-                del self.fields["carapace_color"]
-                del self.fields["abdomen_color"]
-                del self.fields["egg_color"]
-            else:
-                del self.fields["count"]
 
-
-CatchFormSet = modelformset_factory(
-    model=models.Catch,
-    form=CatchForm,
-    extra=0,
-)
+# CatchFormSet = modelformset_factory(
+#     model=models.Catch,
+#     form=CatchForm,
+#     extra=0,
+# )
 
 
 class NewCatchForm(forms.Form):
@@ -387,5 +376,31 @@ class ProbeForm(forms.ModelForm):
 ProbeFormset = modelformset_factory(
     model=models.Probe,
     form=ProbeForm,
+    extra=1,
+)
+
+
+class SamplerForm(forms.ModelForm):
+    class Meta:
+        model = models.Sampler
+        fields = "__all__"
+
+
+SamplerFormset = modelformset_factory(
+    model=models.Sampler,
+    form=SamplerForm,
+    extra=1,
+)
+
+
+class WeatherConditionForm(forms.ModelForm):
+    class Meta:
+        model = models.WeatherConditions
+        fields = "__all__"
+
+
+WeatherConditionFormset = modelformset_factory(
+    model=models.WeatherConditions,
+    form=WeatherConditionForm,
     extra=1,
 )
