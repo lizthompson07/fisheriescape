@@ -424,6 +424,8 @@ class OutingDetailView(VaultAdminAccessRequired, CommonDetailView):
         'identifier_string',
         'created_by',
         'created_at',
+        'updated_by',
+        'updated_at',
         'verified_by',
         'verified_at',
     ]
@@ -455,9 +457,9 @@ class OutingUpdateView(VaultAdminAccessRequired, CommonUpdateView):
     home_url_name = "vault:index"
 
     def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Outing record successfully updated for : {my_object}"))
-        return HttpResponseRedirect(reverse("vault:outing_detail", kwargs=self.kwargs))
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
 
     def get_active_page_name_crumb(self):
         my_object = self.get_object()
@@ -485,12 +487,9 @@ class OutingCreateView(VaultAdminAccessRequired, CommonCreateView):
     parent_crumb = {"title": gettext_lazy("Outing List"), "url": reverse_lazy("vault:outing_list")}
 
     def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Outing record successfully created for : {my_object}"))
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
         return super().form_valid(form)
-
-    def get_initial(self):
-        return {'created_by': self.request.user}
 
 
 class OutingDeleteView(VaultAdminAccessRequired, CommonDeleteView):
