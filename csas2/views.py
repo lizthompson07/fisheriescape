@@ -245,7 +245,6 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'client', "class": "", "width": ""},
-        {"name": 'section.full_name', "class": "", "width": ""},
     ]
 
     def get_queryset(self):

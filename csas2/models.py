@@ -161,9 +161,13 @@ class CSASRequestFile(models.Model):
 
 
 class Process(SimpleLookupWithUUID, MetadataFields):
-    csas_requests = models.ManyToManyField(CSASRequest, blank=False, related_name="process")
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
+    type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
+    csas_requests = models.ManyToManyField(CSASRequest, blank=False, related_name="process")
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Lead coordinator"))
+    advisors = models.ManyToManyField(User, verbose_name=_("DFO Science advisors"))
+    # we should probably have the ToR fields right here
 
 
 class Meeting(SimpleLookup, MetadataFields):
