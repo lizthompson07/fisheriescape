@@ -627,7 +627,6 @@ class Event(BioTimeModel):
                                 limit_choices_to={'perc_valid': True}, db_column="PER_ID")
     prog_id = models.ForeignKey('Program', on_delete=models.CASCADE, verbose_name=_("Program"), db_column="PROGRAM_ID",
                                 limit_choices_to={'valid': True})
-    team_id = models.ForeignKey('Team', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Team"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     @property
@@ -1636,15 +1635,17 @@ class TankDet(BioContainerDet):
         return "{} - {}".format(self.tank_id.__str__(), self.contdc_id.__str__())
 
 
-class Team(BioModel):
+class TeamXRef(BioModel):
     # team tag
     perc_id = models.ForeignKey("PersonnelCode", on_delete=models.CASCADE, verbose_name=_("Team Member"),
                                 limit_choices_to={'perc_valid': True})
-    role_id = models.ForeignKey("RoleCode", on_delete=models.CASCADE, verbose_name=_("Role Code"))
+    role_id = models.ForeignKey("RoleCode", blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Role Code"))
+    evnt_id = models.ForeignKey("Event", on_delete=models.CASCADE, verbose_name=_("Event"))
+    loc_id = models.ForeignKey("Location", blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Location"))
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['perc_id', 'role_id'], name='Team_Uniqueness')
+            models.UniqueConstraint(fields=['perc_id', 'role_id', 'evnt_id', 'loc_id'], name='Team_Uniqueness')
         ]
 
 

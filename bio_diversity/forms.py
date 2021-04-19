@@ -366,10 +366,6 @@ class EvntForm(CreateTimePrams):
             "perc_id": forms.Select(attrs={"class": "chosen-select-contains"}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['team_id'].create_url = 'bio_diversity:create_team'
-
 
 class EvntcForm(CreatePrams):
     class Meta:
@@ -887,7 +883,7 @@ class TankdForm(CreateDatePrams):
 
 class TeamForm(CreatePrams):
     class Meta:
-        model = models.Team
+        model = models.TeamXRef
         exclude = []
 
 

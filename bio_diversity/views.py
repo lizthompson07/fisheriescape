@@ -911,7 +911,7 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
-    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "start_time|Start Time", "end_date|End Date",
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "start_time|Start Time", "end_date|End Date",
               "end_time|End Time", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
@@ -1502,7 +1502,7 @@ class TankdDetails(mixins.TankdMixin, CommonDetails):
 
 
 class TeamDetails(mixins.TeamMixin, CommonDetails):
-    fields = ["perc_id", "role_id", "created_by", "created_date", ]
+    fields = ["perc_id", "role_id", "evnt_id", "loc_id", "created_by", "created_date", ]
 
 
 class TrayDetails(mixins.TrayMixin, CommonContDetails):
@@ -1975,7 +1975,7 @@ class TankdList(mixins.TankdMixin, CommonList):
 
 class TeamList(mixins.TeamMixin, CommonList):
     filterset_class = filters.TeamFilter
-    fields = ["perc_id", "role_id", ]
+    fields = ["perc_id", "role_id", "evnt_id", "loc_id"]
 
 
 class TrayList(mixins.TrayMixin, CommonList):

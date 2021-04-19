@@ -2149,7 +2149,6 @@ class TestEvntDetailView(CommonTest):
             "evntc_id",
             "perc_id",
             "prog_id",
-            "team_id",
             "comments",
             "created_by",
             "created_date",

@@ -505,8 +505,8 @@ class TankdFilter(django_filters.FilterSet):
 class TeamFilter(django_filters.FilterSet):
 
     class Meta:
-        model = models.Team
-        fields = ["perc_id", "role_id", ]
+        model = models.TeamXRef
+        fields = ["perc_id", "role_id", "evnt_id", "loc_id"]
 
 
 class TrayFilter(django_filters.FilterSet):
