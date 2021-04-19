@@ -20,7 +20,18 @@
     <div class="col-4">
       <table class="table table-sm table-striped">
         {% for field in field_list %}
-          {% verbose_td_display object field %}
+            {% if field == "first_report" %}
+                <tr>
+                  <th>
+                    {% get_verbose_label instance=object field_name=field %}
+                  </th>
+                  <td>
+                     {{ object.first_report }}
+                  </td>
+                </tr>
+            {% else %}
+                {% verbose_td_display object field %}
+          {% endif %}
         {% endfor %}
       </table>
     </div>

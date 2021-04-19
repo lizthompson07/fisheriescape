@@ -4,9 +4,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
-from django.contrib.auth.models import User as AuthUser
 
-from shared_models.models import UnilingualSimpleLookup
+
+from shared_models.models import UnilingualSimpleLookup, MetadataFields
 
 
 class Species(models.Model):
@@ -258,7 +258,7 @@ class Purpose(models.Model):
 
 
 #TODO add track file presence/absence / spatial display? to outing
-class Outing(models.Model):
+class Outing(MetadataFields):
     observation_platform = models.ForeignKey(ObservationPlatform, on_delete=models.DO_NOTHING, related_name="outings",
                                              verbose_name=_("observation platform"))
     region = models.ManyToManyField(Region, blank=True, related_name="outings", verbose_name=_("region"))
@@ -266,9 +266,7 @@ class Outing(models.Model):
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("start date and time"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("end date and time"))
     identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("identifier string"))
-    created_by = models.ForeignKey(AuthUser, related_name="outings", on_delete=models.DO_NOTHING, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    verified_by = models.ForeignKey(AuthUser, blank=True, null=True, on_delete=models.DO_NOTHING, editable=False)
+    verified_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING, editable=False)
     verified_at = models.DateTimeField(blank=True, null=True, editable=False)
 
     def __str__(self):
