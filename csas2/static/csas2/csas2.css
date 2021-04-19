@@ -216,3 +216,7 @@ label.filter {
 .unsaved-borders > thead > tr > th, .unsaved-borders > tbody > tr > td  {
     border: red 1px solid;
 }
+
+.btn-primary {
+    background-color: #0d47a1;
+}

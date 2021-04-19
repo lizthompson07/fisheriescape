@@ -33,9 +33,16 @@
       </div>
     </div>
 
+    <div class="mb-3 float-right">
+      {% if not object.review %}
+        <a class="btn btn-sm btn-dark" href="{% url 'csas2:review_new' object.id %}">{% trans "Start a Review" %}</a>
+      {% endif %}
+      <a class="btn btn-sm btn-dark" href="#">{% trans "Start a Process" %}</a>
+    </div>
     <div class="mb-3">
-      <a class="btn btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
-      <a class="btn btn-danger disabled" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+      <a class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+      <a class="btn btn-sm btn-primary" href="{% url 'csas2:request_edit' object.id %}">{% trans "Submit" %}</a>
+      <a class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
     </div>
 
     <div class="mb-5">
@@ -45,6 +52,21 @@
         {% endfor %}
       </table>
     </div>
+
+    {% if object.review %}
+      <div class="mb-5">
+      <h4>{% trans "Review" %}</h4>
+      <div class="mb-3">
+        <a class="btn btn-sm btn-warning" href="{% url 'csas2:review_edit' object.id %}">{% trans "Edit Review" %}</a>
+        <a class="btn btn-sm btn-danger" href="{% url 'csas2:review_delete' object.id %}">{% trans "Delete Review" %}</a>
+      </div>
+        <table class="table table-sm">
+          {% for field in review_field_list %}
+            {% verbose_td_display object.review field th_width="300px" %}
+          {% endfor %}
+        </table>
+      </div>
+    {% endif %}
 
     {# end #}
   </div>

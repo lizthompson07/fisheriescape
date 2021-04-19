@@ -111,7 +111,7 @@ def can_modify_request(user, request_id, return_as_dict=False):
 
     if user.id:
 
-        my_dict["reason"] = "You are not a project lead or manager of this project"
+        my_dict["reason"] = "You do not have the permissions to modify this request"
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
 
         # check to see if a superuser or projects_admin -- both are allow to modify projects
@@ -135,8 +135,8 @@ def can_modify_request(user, request_id, return_as_dict=False):
         #     my_dict["can_modify"] = True
 
         # check to see if they are a project lead
-        elif is_project_lead(user, project_id=csas_request.id):
-            my_dict["reason"] = "You can modify this record because you are a project lead"
+        elif is_client(user, request_id=csas_request.id):
+            my_dict["reason"] = "You can modify this record because you are the request client"
             my_dict["can_modify"] = True
 
         return my_dict if return_as_dict else my_dict["can_modify"]
@@ -163,6 +163,17 @@ def get_request_field_list(csas_request, user):
         'funding_display|{}'.format(_("Client Funding?")),
         'file_attachment',
         'submission_date',
+        'metadata|{}'.format(_("metadata")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+
+def get_review_field_list():
+    my_list = [
+        'notes',
+        'decision_display|{}'.format(_("Decision")),
+        'decision_date',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)

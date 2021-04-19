@@ -6,8 +6,11 @@ register = template.Library()
 @register.filter
 def is_markdown_field(value):
     target_field_list = [
+        # request
         'issue',
         'rationale',
+        # review
+        'decision_explanation',
     ]
     return value in target_field_list
 

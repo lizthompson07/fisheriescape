@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import date
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
@@ -102,10 +103,29 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
 
 
 class CSASRequestReview(MetadataFields):
-    csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False)  # one name (always internal)
+    csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")
+    notes = models.TextField(blank=True, null=True, verbose_name=_("coordinator notes"))
+    decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
+    decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision Explanation"))
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Date a decision was made"))
-    decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), editable=False)
-    decision_explanation = models.IntegerField(blank=True, null=True, verbose_name=_("Decision Explanation"))
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{} {}".format(gettext("Review for CSAS Request #"), self.csas_request.id)
+
+    @property
+    def decision_display(self):
+        if self.decision:
+            text = self.decision_text if self.decision_text else gettext("no further explanation provided.")
+            return "{} - {}".format(self.get_decision_display(), text)
+        return gettext("---")
+
+    @property
+    def decision_explanation_html(self):
+        if self.decision_explanation:
+            return mark_safe(markdown(self.decision_explanation))
 
 
 class Process(SimpleLookupWithUUID, MetadataFields):

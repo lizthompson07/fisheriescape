@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy
 
@@ -55,25 +56,12 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     template_name = 'csas2/request_detail/main.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-    field_list = [
-        'id',
-        'common_name',
-        'common_name_fra',
-        'scientific_name',
-        'abbrev',
-        'tsn',
-        'aphia',
-        'epibiont_type',
-        'color_morph',
-        'invasive',
-        'green_crab_monitoring',
-        'database occurrences',
-    ]
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
         context["request_field_list"] = utils.get_request_field_list(obj, self.request.user)
+        context["review_field_list"] = utils.get_review_field_list()
         return context
 
 
@@ -115,6 +103,59 @@ class CSASRequestDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+
+
+# csas requests #
+#################
+
+
+class CSASRequestReviewCreateView(CanModifyRequestRequiredMixin, CommonCreateView):
+    model = models.CSASRequestReview
+    form_class = forms.CSASRequestReviewForm
+    template_name = 'csas2/form.html'
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+
+    def get_csas_request(self):
+        return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("crequest"))
+
+    def get_parent_crumb(self):
+        return {"title": self.get_csas_request(), "url": reverse_lazy("csas2:request_detail", args=[self.get_csas_request().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.csas_request = self.get_csas_request()
+        obj.created_by = self.request.user
+        return super().form_valid(form)
+
+
+class CSASRequestReviewUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
+    model = models.CSASRequestReview
+    form_class = forms.CSASRequestReviewForm
+    template_name = 'csas2/form.html'
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class CSASRequestReviewDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
+    model = models.CSASRequestReview
+    success_url = reverse_lazy('csas2:request_list')
+    template_name = 'csas2/confirm_delete.html'
+    delete_protection = False
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
+
 
 # REPORTS #
 ###########

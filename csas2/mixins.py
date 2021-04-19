@@ -32,22 +32,24 @@ class CsasAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 class CanModifyRequestRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         # the assumption is that either we are passing in a Project object or an object that has a project as an attribute
-        project_id = None
+        request_id = None
         try:
             obj = self.get_object()
             if isinstance(obj, models.CSASRequest):
                 request_id = obj.id
+            elif isinstance(obj, models.CSASRequestReview):
+                request_id = obj.csas_request_id
 
         except AttributeError:
             pass
-            # if self.kwargs.get("project"):
-            #     project_id = self.kwargs.get("project")
+            if self.kwargs.get("request"):
+                request_id = self.kwargs.get("project")
             # elif self.kwargs.get("project_year"):
             #     project_year = get_object_or_404(models.ProjectYear, pk=self.kwargs.get("project_year"))
             #     project_id = project_year.project_id
 
         finally:
-            if project_id:
+            if request_id:
                 return utils.can_modify_request(self.request.user, request_id)
 
     def dispatch(self, request, *args, **kwargs):

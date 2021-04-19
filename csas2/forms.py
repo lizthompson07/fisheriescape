@@ -75,3 +75,13 @@ class CSASRequestForm(forms.ModelForm):
             self.add_error('nom', error_msg)
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
+
+
+class CSASRequestReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.CSASRequestReview
+        fields ="__all__"
+        widgets = {
+            'decision_date': forms.DateInput(attrs=attr_fp_date),
+        }
+
