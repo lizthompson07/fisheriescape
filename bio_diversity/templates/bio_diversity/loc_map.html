@@ -83,6 +83,7 @@
 
             <ul>
             <button class="btn btn-sm btn-primary", id="layer-button">Fishing Areas</button>
+            <button class="btn btn-sm btn-primary", id="river-layer-button">Rivers</button>
 
 
             </ul>
@@ -107,6 +108,22 @@
                 function(features) {
                     map.data.forEach(function(feature) {
                         feature.setProperty("layer", "fishing_areas");
+                        feature.setProperty("visible", true);
+                    });
+                }
+            );
+            map.data.loadGeoJson("{% static 'map_layers/PWR.geojson' %}", {},
+                function(features) {
+                    map.data.forEach(function(feature) {
+                        feature.setProperty("layer", "river");
+                        feature.setProperty("visible", true);
+                    });
+                }
+            );
+            map.data.loadGeoJson("{% static 'map_layers/TOB.geojson' %}", {},
+                function(features) {
+                    map.data.forEach(function(feature) {
+                        feature.setProperty("layer", "river");
                         feature.setProperty("visible", true);
                     });
                 }
@@ -139,6 +156,29 @@
                         feature.setProperty('visible', true);
                         return ({
                           strokeColor: 'blue',
+                          strokeWeight: 2,
+                          visible: true,
+                        });
+                    } else {
+                        return ({
+                          strokeColor: 'grey',
+                          strokeWeight: 2
+                        });
+                    }
+                });
+              });
+            // add toggle listners
+            google.maps.event.addDomListener(document.getElementById('river-layer-button'), 'click', function() {
+                map.data.setStyle(function(feature) {
+                    if (feature.getProperty('layer') == 'river' && feature.getProperty('visible') == true) {
+                        feature.setProperty('visible', false);
+                        return ({
+                          visible: false,
+                        });
+                    } else if (feature.getProperty('layer') == 'river' && feature.getProperty('visible') == false) {
+                        feature.setProperty('visible', true);
+                        return ({
+                          strokeColor: 'red',
                           strokeWeight: 2,
                           visible: true,
                         });
