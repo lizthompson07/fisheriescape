@@ -1318,7 +1318,7 @@ class PersonnelCode(BioModel):
     # perc tag
     perc_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"),)
     perc_first_name = models.CharField(max_length=32, verbose_name=_("First Name"))
-    initials = models.CharField(max_length=4, verbose_name=_("Initials"), blank=True, null=True)
+    initials = models.CharField(max_length=4, unique=True, verbose_name=_("Initials"), blank=True, null=True)
     perc_valid = models.BooleanField(default="False", verbose_name=_("Record still valid?"))
 
     def __str__(self):

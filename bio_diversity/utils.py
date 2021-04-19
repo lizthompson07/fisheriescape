@@ -41,6 +41,21 @@ def get_help_text_dict(model=None, title=''):
     return my_dict
 
 
+def team_list_splitter(team_str, valid_only=True):
+    team_str_list = team_str.split(",")
+    team_str_list = [indv_str.strip() for indv_str in team_str_list]
+    all_perc_qs = models.PersonnelCode.objects.filter(perc_valid=True)
+    found_list = []
+    not_found_list = []
+    for inits in team_str_list:
+        perc_qs = all_perc_qs.filter(initials__icontains=inits)
+        if len(perc_qs) == 1:
+            found_list.append(perc_qs.get())
+        else:
+            not_found_list.append(inits)
+    return found_list, not_found_list
+
+
 def year_coll_splitter(full_str):
     coll = full_str.lstrip(' 0123456789')
     year = int(full_str[:len(full_str) - len(coll)])
