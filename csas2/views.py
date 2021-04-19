@@ -241,15 +241,15 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
 
     field_list = [
         {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'id|{}'.format("request id"), "class": "", "width": ""},
+        {"name": 'id|{}'.format("process id"), "class": "", "width": ""},
         {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'type', "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
-        {"name": 'client', "class": "", "width": ""},
     ]
 
     def get_queryset(self):
         return models.Process.objects.annotate(
-            search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+            search_term=Concat('name', Value(" "), 'nom', output_field=TextField())).order_by(_("name"))
 
 
 class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
@@ -261,7 +261,7 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
-        context["process_field_list"] = utils.get_process_field_list()
+        context["process_field_list"] = utils.get_process_field_list(obj)
         return context
 
 
@@ -286,7 +286,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
 class ProcessUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.Process
     form_class = forms.ProcessForm
-    template_name = 'csas2/process_form.html'
+    template_name = 'csas2/form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 

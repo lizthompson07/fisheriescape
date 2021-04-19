@@ -150,7 +150,7 @@ def can_modify_process(user, process_id, return_as_dict=False):
 
     if user.id:
         my_dict["reason"] = "You do not have the permissions to modify this process"
-        csas_request = get_object_or_404(models.CSASRequest, pk=process_id)
+        csas_request = get_object_or_404(models.Process, pk=process_id)
         # check to see if they are the client
 
         # are they a national administrator?
@@ -202,9 +202,16 @@ def get_review_field_list():
     return my_list
 
 
-def get_process_field_list():
+def get_process_field_list(process):
     my_list = [
         'tname|{}'.format(_("Title")),
+        'type',
+        'coordinator',
+        'advisors',
+        'context_html|{}'.format(get_verbose_label(process, "context")),
+        'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
+        'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
+        'type',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)

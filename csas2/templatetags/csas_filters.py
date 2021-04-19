@@ -9,6 +9,10 @@ def is_markdown_field(value):
         # request
         'issue',
         'rationale',
+        # process
+        'context',
+        'objectives',
+        'expected_publications',
     ]
     return value in target_field_list
 

@@ -120,9 +120,11 @@ class ProcessForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
+            'advisors': forms.SelectMultiple(attrs=chosen_js),
+            'coordinator': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
-        request_choices = [(obj.id, f"{obj.id} - {str(obj)}") for obj in models.CSASRequest.objects.filter(process__isnull=True)]
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)}") for obj in models.CSASRequest.objects.all()]
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices

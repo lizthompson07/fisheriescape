@@ -37,7 +37,7 @@
       {% if not object.review and object.submission_date %}
         <a class="btn btn-sm btn-dark" href="{% url 'csas2:review_new' object.id %}">{% trans "Start a Review" %}</a>
       {% endif %}
-      {% if not object.process.exists %}
+      {% if not object.processes.exists %}
         <a class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
       {% endif %}
     </div>
@@ -87,8 +87,8 @@
             {% trans "Connected processes" %}
           </th>
           <td>
-            {% if object.process.exists %}
-              {% for process in object.process.all %}
+            {% if object.processes.exists %}
+              {% for process in object.processes.all %}
                 <div>
                   <a href="{% url 'csas2:process_detail' object.id %}">{{ process }}</a>
                 </div>

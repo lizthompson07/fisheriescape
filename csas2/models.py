@@ -164,11 +164,28 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
-    csas_requests = models.ManyToManyField(CSASRequest, blank=False, related_name="process")
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Lead coordinator"))
-    advisors = models.ManyToManyField(User, verbose_name=_("DFO Science advisors"))
-    # we should probably have the ToR fields right here
+    csas_requests = models.ManyToManyField(CSASRequest, blank=False, related_name="processes")
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"))
+    advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
+    context = models.TextField(blank=True, null=True, verbose_name=_("context"))
+    objectives = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
+    expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
 
+    # we should probably have the ToR fields right here
+    @property
+    def context_html(self):
+        if self.context:
+            return mark_safe(markdown(self.context))
+
+    @property
+    def objectives_html(self):
+        if self.objectives:
+            return mark_safe(markdown(self.objectives))
+
+    @property
+    def expected_publications_html(self):
+        if self.expected_publications:
+            return mark_safe(markdown(self.expected_publications))
 
 class Meeting(SimpleLookup, MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
