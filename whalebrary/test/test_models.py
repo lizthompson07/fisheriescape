@@ -224,9 +224,10 @@ class TestIncidentModel(CommonTest):
     @tag('Incident', 'models', 'choices')
     def test_choices_age_group(self):
         actual_choices = (
+            ("N", "Newborn"),
             ("J", "Juvenile"),
-            ("YA", "Young Adult"),
             ("A", "Adult"),
+            ("UnK", "Unknown"),
         )
         expected_choices = [field.choices for field in models.Incident._meta.fields if field.name == "age_group"][0]
         self.assertEqual(actual_choices, expected_choices)
@@ -237,9 +238,7 @@ class TestIncidentModel(CommonTest):
             ("E", "Entangled"),
             ("DF", "DEAD - Floating"),
             ("DB", "DEAD - Beached"),
-            ("N", "Necropsy"),
             ("LS", "LIVE - Stranded"),
-            ("DS", "DEAD - Stranded"),
         )
         expected_choices = [field.choices for field in models.Incident._meta.fields if field.name == "incident_type"][0]
         self.assertEqual(actual_choices, expected_choices)
