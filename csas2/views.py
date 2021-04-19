@@ -11,7 +11,7 @@ from lib.templatetags.custom_filters import nz
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView
 from . import models, forms, filters, utils
-from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin
+from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin
 from .utils import in_csas_admin_group
 
 
@@ -262,12 +262,11 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
-        context["process_field_list"] = utils.get_process_field_list(obj, self.request.user)
-        context["review_field_list"] = utils.get_review_field_list()
+        context["process_field_list"] = utils.get_process_field_list()
         return context
 
 
-class ProcessCreateView(LoginAccessRequiredMixin, CommonCreateView):
+class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     model = models.Process
     form_class = forms.ProcessForm
     template_name = 'csas2/form.html'
@@ -285,7 +284,7 @@ class ProcessCreateView(LoginAccessRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class ProcessUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
+class ProcessUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.Process
     form_class = forms.ProcessForm
     template_name = 'csas2/process_form.html'
@@ -301,7 +300,7 @@ class ProcessUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class ProcessDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
+class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
     model = models.Process
     success_url = reverse_lazy('csas2:process_list')
     template_name = 'csas2/confirm_delete.html'

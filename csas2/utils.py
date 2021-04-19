@@ -8,18 +8,24 @@ from lib.templatetags.verbose_names import get_verbose_label
 from shared_models.models import Section, Division, Region
 
 
-def in_csas_admin_group(user):
+def in_csas_regional_admin_group(user):
     # make sure the following group exist:
-    admin_group, created = Group.objects.get_or_create(name="csas2_admin")
+    admin_group, created = Group.objects.get_or_create(name="csas_regional_admin")
     if user:
         return admin_group in user.groups.all()
 
 
-def in_csas_crud_group(user):
+def in_csas_national_admin_group(user):
     # make sure the following group exist:
-    crud_group, created = Group.objects.get_or_create(name="csas2_crud")
+    admin_group, created = Group.objects.get_or_create(name="csas_national_admin")
     if user:
-        return in_csas_admin_group(user) or crud_group in user.groups.all()
+        return admin_group in user.groups.all()
+
+
+def in_csas_admin_group(user):
+    # make sure the following group exist:
+    if user:
+        return in_csas_regional_admin_group(user) or in_csas_national_admin_group(user)
 
 
 def get_section_choices(with_requests=False, full_name=True, region_filter=None, division_filter=None):
@@ -81,21 +87,21 @@ def get_region_choices(with_requests=False):
 
 
 def is_coordinator(user, request_id):
-    """
-    returns True if user is among the project's project leads
-    """
     if user.id:
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         return csas_request.coordinator == user
 
 
 def is_client(user, request_id):
-    """
-    returns True if user is among the project's project leads
-    """
     if user.id:
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         return csas_request.client == user
+
+
+def is_creator(user, request_id):
+    if user.id:
+        csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
+        return csas_request.created_by == user
 
 
 def can_modify_request(user, request_id, return_as_dict=False):
@@ -110,35 +116,51 @@ def can_modify_request(user, request_id, return_as_dict=False):
     my_dict = dict(can_modify=False, reason=_("You are not logged in"))
 
     if user.id:
-
         my_dict["reason"] = "You do not have the permissions to modify this request"
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
-
-        # check to see if a superuser or projects_admin -- both are allow to modify projects
-        if in_csas_admin_group(user):
-            my_dict["reason"] = "You can modify this record because you are a system administrator"
-            my_dict["can_modify"] = True
-
-        # # check to see if they are a section head
-        # elif is_section_head(user, csas_request):
-        #     my_dict["reason"] = "You can modify this record because it falls under your section"
-        #     my_dict["can_modify"] = True
-
-        # # check to see if they are a div. manager
-        # elif is_division_manager(user, csas_request):
-        #     my_dict["reason"] = "You can modify this record because it falls under your division"
-        #     my_dict["can_modify"] = True
-
-        # # check to see if they are an RDS
-        # elif is_rds(user, csas_request):
-        #     my_dict["reason"] = "You can modify this record because it falls under your branch"
-        #     my_dict["can_modify"] = True
-
-        # check to see if they are a project lead
-        elif is_client(user, request_id=csas_request.id):
+        # check to see if they are the client
+        if is_client(user, request_id=csas_request.id):
             my_dict["reason"] = "You can modify this record because you are the request client"
             my_dict["can_modify"] = True
+        # check to see if they are the client
+        elif is_creator(user, request_id=csas_request.id):
+            my_dict["reason"] = "You can modify this record because you are the request client"
+            my_dict["can_modify"] = True
+        # check to see if they are the coordinator
+        elif is_coordinator(user, request_id=csas_request.id):
+            my_dict["reason"] = "You can modify this record because you are the CSAS coordinator"
+            my_dict["can_modify"] = True
+        # are they a national administrator?
+        elif in_csas_national_admin_group(user):
+            my_dict["reason"] = "You can modify this record because you are a national CSAS administrator"
+            my_dict["can_modify"] = True
+        # are they a regional administrator?
+        elif in_csas_regional_admin_group(user):
+            my_dict["reason"] = "You can modify this record because you are a regional CSAS administrator"
+            my_dict["can_modify"] = True
+        return my_dict if return_as_dict else my_dict["can_modify"]
 
+
+def can_modify_process(user, process_id, return_as_dict=False):
+    """
+    returns True if user has permissions to delete or modify a process
+    The answer of this question will depend on the business rules...
+    """
+    my_dict = dict(can_modify=False, reason=_("You are not logged in"))
+
+    if user.id:
+        my_dict["reason"] = "You do not have the permissions to modify this process"
+        csas_request = get_object_or_404(models.CSASRequest, pk=process_id)
+        # check to see if they are the client
+
+        # are they a national administrator?
+        if in_csas_national_admin_group(user):
+            my_dict["reason"] = "You can modify this record because you are a national CSAS administrator"
+            my_dict["can_modify"] = True
+        # are they a regional administrator?
+        elif in_csas_regional_admin_group(user):
+            my_dict["reason"] = "You can modify this record because you are a regional CSAS administrator"
+            my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
@@ -161,7 +183,6 @@ def get_request_field_list(csas_request, user):
         'advice_needed_by',
         'rationale_for_timeline',
         'funding_display|{}'.format(_("Client Funding?")),
-        'file_attachment',
         'submission_date',
         'uuid',
         'metadata|{}'.format(_("metadata")),
@@ -172,9 +193,18 @@ def get_request_field_list(csas_request, user):
 
 def get_review_field_list():
     my_list = [
+        'prioritization_display|{}'.format(_("prioritization")),
+        'decision_display|{}'.format(_("decision")),
         'notes',
-        'decision_display|{}'.format(_("Decision")),
-        'decision_date',
+        'metadata|{}'.format(_("metadata")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+
+def get_process_field_list():
+    my_list = [
+        'tname|{}'.format(_("Title")),
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)

@@ -23,7 +23,7 @@
       {% include "shared_models/_generic_breadcrumbs.html" %}
       <div class="mb-3">
         <h2 class="">{{ h1|safe }}</h2>
-        <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
+        <p class="lead text-muted mt-1 mb-0">{% trans "Process ID:" %} {{ object.id }}</p>
       </div>
       {% bootstrap_messages %}
       <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
@@ -33,68 +33,30 @@
       </div>
     </div>
 
-    <div class="mb-3 float-right">
-      {% if not object.review and object.submission_date %}
-        <a class="btn btn-sm btn-dark" href="{% url 'csas2:review_new' object.id %}">{% trans "Start a Review" %}</a>
-      {% endif %}
-      {% if not object.process.exists %}
-        <a class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
-      {% endif %}
-    </div>
     <div class="mb-3">
-      <a class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
-      <a class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
-        {% if object.submission_date %}{% trans "Un-Submit" %}{% else %}{% trans "Submit" %}{% endif %}
-      </a>
-      <a class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
-      <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
-        <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
-      </button>
-
+      <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
+      <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
     </div>
 
     <div class="mb-5">
       <table class="table table-sm">
-        {% for field in request_field_list %}
+        {% for field in process_field_list %}
           {% verbose_td_display object field th_width="300px" %}
         {% endfor %}
-        {# files #}
+        {# requests #}
         <tr>
           <th>
-            {% trans "Files" %}
+            {% trans "Connected requests" %}
           </th>
           <td>
-            {% if object.files.exists %}
-              {% for file in object.files.all %}
+            {% if object.csas_requests.exists %}
+              {% for obj in object.csas_requests.all %}
                 <div>
-                  <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
-                  <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">
-                    <span class="mdi mdi-pencil" style="font-size: large"></span>
-                  </button>
-                  <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">
-                    <span class="mdi mdi-delete" style="font-size: large"></span>
-                  </button>
+                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj }}</a>
                 </div>
               {% endfor %}
             {% else %}
-              <em>{% trans "There are no files attached to this request." %}</em>
-            {% endif %}
-          </td>
-        </tr>
-        {# files #}
-        <tr>
-          <th>
-            {% trans "Connected processes" %}
-          </th>
-          <td>
-            {% if object.process.exists %}
-              {% for process in object.process.all %}
-                <div>
-                  <a href="{% url 'csas2:process_detail' object.id %}">{{ process }}</a>
-                </div>
-              {% endfor %}
-            {% else %}
-              <em>{% trans "There are no processes attached to this request." %}</em>
+              <em>{% trans "There are no requests attached to this process." %}</em>
             {% endif %}
           </td>
         </tr>

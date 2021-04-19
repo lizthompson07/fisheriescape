@@ -13,7 +13,6 @@ YES_NO_CHOICES = (
 )
 
 
-
 class TripRequestTimestampUpdateForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
@@ -23,6 +22,7 @@ class TripRequestTimestampUpdateForm(forms.ModelForm):
         widgets = {
             "notes": forms.HiddenInput()
         }
+
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
@@ -82,8 +82,6 @@ class CSASRequestForm(forms.ModelForm):
         nom = cleaned_data.get("nom")
         if not name and not nom:
             error_msg = gettext("Must have either an English title or a French title!")
-            self.add_error('name', error_msg)
-            self.add_error('nom', error_msg)
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
 
@@ -91,12 +89,23 @@ class CSASRequestForm(forms.ModelForm):
 class CSASRequestReviewForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequestReview
-        fields ="__all__"
+        fields = "__all__"
         widgets = {
             'decision_date': forms.DateInput(attrs=attr_fp_date),
+            'prioritization_text': forms.Textarea(attrs=rows3),
+            'decision_text': forms.Textarea(attrs=rows3),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        # make sure that if a decision is given, there is a decision date as well
+        decision = cleaned_data.get("decision")
+        decision_date = cleaned_data.get("decision_date")
 
+        if decision and not decision_date:
+            error_msg = gettext("If a decision was made, a decision date must also be populated!")
+            self.add_error('decision_date', error_msg)
+        return self.cleaned_data
 
 
 class CSASRequestFileForm(forms.ModelForm):
@@ -108,7 +117,7 @@ class CSASRequestFileForm(forms.ModelForm):
 class ProcessForm(forms.ModelForm):
     class Meta:
         model = models.Process
-        fields ="__all__"
+        fields = "__all__"
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
         }

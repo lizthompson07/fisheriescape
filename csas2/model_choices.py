@@ -16,25 +16,26 @@ language_choices = (
 )
 
 request_status_choices = (
-    (1,	_("draft")),
-    (2,	_("submitted")),
-    (3,	_("under review")),
+    (1,	_("Draft")),
+    (2,	_("Submitted")),
+    (3,	_("Under review")),
     # all status below here should correspond to review decision choice + 10
-    (11,	_("on")),
-    (12,	_("off")),
-    (13,	_("withdrawn")),
+    (11,	_("On")),
+    (12,	_("Off")),
+    (13,	_("Withdrawn")),
 )
 
 request_decision_choices = (
-    (1,	_("on")),
-    (2,	_("off")),
-    (3,	_("withdrawn")),
-    # (4,	_("tentative")),
+    (1,	_("On")),
+    (2,	_("Off")),
+    (3,	_("Withdrawn")),
 )
 
 
-priority_rating_choices = (
-    (1, _('')),
+prioritization_choices = (
+    (1, _('High')),
+    (2, _('Medium')),
+    (3, _('Low')),
 )
 
 _choices = (

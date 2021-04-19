@@ -117,10 +117,12 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
 
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")
-    notes = models.TextField(blank=True, null=True, verbose_name=_("coordinator notes"))
+    prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("prioritization"), choices=model_choices.prioritization_choices)
+    prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("prioritization notes"))
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
-    decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision Explanation"))
+    decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision explanation"))
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("decision date"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -131,14 +133,16 @@ class CSASRequestReview(MetadataFields):
     @property
     def decision_display(self):
         if self.decision:
-            text = self.decision_text if self.decision_text else gettext("no further explanation provided.")
-            return "{} - {}".format(self.get_decision_display(), text)
+            text = self.decision_text if self.decision_text else gettext("no further detail provided.")
+            return "{} - {} ({})".format(self.get_decision_display(), text, date(self.decision_date))
         return gettext("---")
 
     @property
-    def decision_text_html(self):
-        if self.decision_text:
-            return mark_safe(markdown(self.decision_text))
+    def prioritization_display(self):
+        if self.prioritization:
+            text = self.prioritization_text if self.prioritization_text else gettext("no further detail provided.")
+            return "{} - {}".format(self.get_prioritization_display(), text)
+        return gettext("---")
 
 
 

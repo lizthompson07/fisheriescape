@@ -9,8 +9,6 @@ def is_markdown_field(value):
         # request
         'issue',
         'rationale',
-        # review
-        'decision_explanation',
     ]
     return value in target_field_list
 
