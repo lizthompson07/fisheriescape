@@ -9,8 +9,9 @@ class NewIncidentEmail(Email):
                     ]
 
     def get_subject(self):
+
         return '{} - {} - {}'.format(self.instance.get_incident_type_display(), self.instance.species,
-                          self.instance.first_report.strftime("%B %d, %Y @ %I:%M %p %Z")),
+                          self.instance.first_report.strftime("%B %d, %Y @ %I:%M %p %Z"))
 
 
 
