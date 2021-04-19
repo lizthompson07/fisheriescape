@@ -9,6 +9,7 @@ from collections import Counter
 import pytz
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from shapely.geometry import Point, box, LineString
@@ -647,6 +648,11 @@ class Event(BioTimeModel):
                                     name='Event_Uniqueness')
         ]
         ordering = ['-start_datetime']
+
+
+@receiver(post_save, sender=Event)
+def my_handler(sender, instance, **kwargs):
+    utils.add_team_member(instance.perc_id, instance)
 
 
 class EventCode(BioLookup):

@@ -360,6 +360,28 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
     return row_entered
 
 
+def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None):
+
+    team = models.TeamXRef(perc_id=perc_id,
+                           evnt_id=evnt_id,
+                           loc_id=loc_id,
+                           role_id=role_id,
+                           created_by=evnt_id.created_by,
+                           created_date=evnt_id.created_date,
+    )
+    try:
+        team.clean()
+        team.save()
+    except ValidationError:
+        team = models.TeamXRef.objects.filter(perc_id=team.perc_id, evnt_id=team.evnt_id, loc_id=team.loc_id,
+                                              role_id=team.role_id)
+    if team:
+        return True
+
+    return False
+
+
+
 def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
     tray = models.Tray(trof_id=trof,
                        name=tray_name,

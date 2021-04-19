@@ -992,6 +992,16 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "field_list": pair_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
+        obj_set = models.TeamXRef.objects.filter(evnt_id=self.object
+                                                  ).distinct().select_related("perc_id", "role_id")
+        obj_field_list = ["perc_id", "role_id"]
+        obj_mixin = mixins.TeamMixin
+        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": obj_set,
+                                           "field_list": obj_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
         evntf_set = self.object.event_files.all()
         evntf_field_list = ["evntf_xls", "evntfc_id", "stok_id", ]
         obj_mixin = mixins.EvntfMixin
@@ -1004,25 +1014,25 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
 
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing":
-            context["table_list"].extend(["data", "loc", "grp", "tank", "prot", "evntf"])
+            context["table_list"].extend(["data", "team", "loc", "grp", "tank", "prot", "evntf"])
         elif evnt_code == "PIT Tagging":
-            context["table_list"].extend(["data", "indv", "grp", "tank", "prot", "evntf"])
+            context["table_list"].extend(["data", "team", "indv", "grp", "tank", "prot", "evntf"])
         elif evnt_code == "Egg Development":
-            context["table_list"].extend(["data", "grp", "trof", "heat", "prot", "evntf"])
+            context["table_list"].extend(["data", "team", "grp", "trof", "heat", "prot", "evntf"])
         elif evnt_code == "Maturity Sorting":
-            context["table_list"].extend(["data", "indv", "tank", "prot", "evntf"])
+            context["table_list"].extend(["data", "team", "indv", "tank", "prot", "evntf"])
         elif evnt_code == "Water Quality Record":
-            context["table_list"].extend(["data", "tank", "prot", "evntf"])
+            context["table_list"].extend(["data", "team", "tank", "prot", "evntf"])
         elif evnt_code == "Spawning":
-            context["table_list"].extend(["data", "indv", "pair", "grp", "evntf", "prot", "evntf"])
+            context["table_list"].extend(["data", "team", "indv", "pair", "grp", "evntf", "prot", "evntf"])
         elif evnt_code == "Treatment":
-            context["table_list"].extend(["data", "tank", "trof", "prot", "evntf"])
+            context["table_list"].extend(["data", "team", "tank", "trof", "prot", "evntf"])
         elif evnt_code == "Movement":
-            context["table_list"].extend(["indv", "grp", "tank", "trof", "prot", "evntf"])
+            context["table_list"].extend(["indv", "team", "grp", "tank", "trof", "prot", "evntf"])
         elif evnt_code == "Mortality":
-            context["table_list"].extend(["indv", "grp", "evntf"])
+            context["table_list"].extend(["indv", "team", "grp", "evntf"])
         else:
-            context["table_list"].extend(["data", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf", "prot"])
+            context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf", "prot"])
 
         return context
 
