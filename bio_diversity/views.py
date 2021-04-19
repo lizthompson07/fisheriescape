@@ -993,8 +993,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         obj_set = models.TeamXRef.objects.filter(evnt_id=self.object
-                                                  ).distinct().select_related("perc_id", "role_id")
-        obj_field_list = ["perc_id", "role_id"]
+                                                 ).distinct().select_related("perc_id", "loc_id", "role_id")
+        obj_field_list = ["perc_id", "role_id", "loc_id"]
         obj_mixin = mixins.TeamMixin
         context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1291,7 +1291,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"].extend(["env", "cnt"])
+        context["table_list"].extend(["env", "team", "cnt"])
 
         env_set = self.object.env_condition.all()
         env_field_list = ["envc_id", "env_val", "start_datetime|Date", ]
@@ -1311,6 +1311,15 @@ class LocDetails(mixins.LocMixin, CommonDetails):
                                           "field_list": cnt_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
+        obj_set = models.TeamXRef.objects.filter(loc_id=self.object
+                                                 ).distinct().select_related("perc_id", "role_id")
+        obj_field_list = ["perc_id", "role_id"]
+        obj_mixin = mixins.TeamMixin
+        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": obj_set,
+                                           "field_list": obj_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
         return context
 
 
@@ -1779,7 +1788,7 @@ class FeedmList(mixins.FeedmMixin, CommonList):
 
 class GrpList(mixins.GrpMixin, CommonList):
     filterset_class = filters.GrpFilter
-    fields = ["spec_id", "stok_id", "grp_year"]
+    fields = ["stok_id", "grp_year", "coll_id"]
 
 
 class GrpdList(mixins.GrpdMixin, CommonList):
@@ -1809,7 +1818,7 @@ class ImgcList(mixins.ImgcMixin, CommonList):
 
 class IndvList(mixins.IndvMixin, CommonList):
     filterset_class = filters.IndvFilter
-    fields = ["pit_tag", "stok_id", "indv_year"]
+    fields = ["pit_tag", "stok_id", "indv_year", "coll_id"]
     delete_url = "bio_diversity:delete_indv"
 
 

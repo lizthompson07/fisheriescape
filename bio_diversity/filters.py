@@ -139,8 +139,7 @@ class EnvtcFilter(django_filters.FilterSet):
 class EvntFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
-        queryset = models.Event.objects.all().select_related("facic_id", "evntc_id")
-        kwargs["queryset"] = queryset
+        kwargs["queryset"] = models.Event.objects.all().select_related("facic_id", "evntc_id")
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -206,6 +205,10 @@ class FeedmFilter(django_filters.FilterSet):
 
 class GrpFilter(django_filters.FilterSet):
 
+    def __init__(self, *args, **kwargs):
+        kwargs["queryset"] = models.Group.objects.all().select_related("stok_id", "coll_id")
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = models.Group
         fields = ["spec_id", "stok_id", "grp_year", ]
@@ -252,8 +255,7 @@ class IndvFilter(django_filters.FilterSet):
     ufid = django_filters.CharFilter(field_name='ufid', lookup_expr='icontains')
 
     def __init__(self, *args, **kwargs):
-        queryset = models.Individual.objects.all().select_related("stok_id", "spec_id", "coll_id")
-        kwargs["queryset"] = queryset
+        kwargs["queryset"] = models.Individual.objects.all().select_related("stok_id", "coll_id")
         super().__init__(*args, **kwargs)
 
     class Meta:

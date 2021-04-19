@@ -3,7 +3,7 @@ import decimal
 import math
 
 import pytz
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import IntegrityError
 from django.http import JsonResponse
 from decimal import Decimal
@@ -48,10 +48,10 @@ def team_list_splitter(team_str, valid_only=True):
     found_list = []
     not_found_list = []
     for inits in team_str_list:
-        perc_qs = all_perc_qs.filter(initials__icontains=inits)
-        if len(perc_qs) == 1:
+        perc_qs = all_perc_qs.filter(initials__iexact=inits)
+        try:
             found_list.append(perc_qs.get())
-        else:
+        except (MultipleObjectsReturned, ObjectDoesNotExist):
             not_found_list.append(inits)
     return found_list, not_found_list
 
