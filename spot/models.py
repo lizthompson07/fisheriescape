@@ -8,6 +8,10 @@ from django.core.mail import send_mail
 from django.urls import reverse
 
 
+class PlanningMethod(UnilingualSimpleLookup):
+    pass
+
+
 class Province(UnilingualSimpleLookup):
     pass
 
@@ -24,11 +28,7 @@ class Role(UnilingualSimpleLookup):
     pass
 
 
-class DocumentCategory(UnilingualSimpleLookup):
-    pass
-
-
-class DocumentTopic(UnilingualSimpleLookup):
+class DocumentType(UnilingualSimpleLookup):
     pass
 
 
@@ -72,15 +72,23 @@ class Location(UnilingualSimpleLookup):
     pass
 
 
-class MethodCategory(UnilingualSimpleLookup):
+class FieldMethod(UnilingualSimpleLookup):
     pass
 
 
-class SpecificMethodType(UnilingualSimpleLookup):
+class SampleProcessingMethod(UnilingualSimpleLookup):
     pass
 
 
-class FormCategory(UnilingualSimpleLookup):
+class DataEntryMethod(UnilingualSimpleLookup):
+    pass
+
+
+class DataAnalysisMethod(UnilingualSimpleLookup):
+    pass
+
+
+class ReportingMethods(UnilingualSimpleLookup):
     pass
 
 
@@ -337,35 +345,30 @@ class Person(models.Model):
 
 
 class Method(models.Model):
-
-    method_section = models.ForeignKey(CoreComponent, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("method section"))
-    document_number = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("document number"))
-    document_category = models.ForeignKey(DocumentCategory, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='document_category', verbose_name=_("document category"))
-    document_topic = models.ForeignKey(DocumentTopic, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='document_topic', verbose_name=_("document topic"))
+    project_core_component = models.ForeignKey(CoreComponent, on_delete=models.DO_NOTHING, blank=True, null=True,verbose_name=_("project core component"))
+    document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="document_type", verbose_name=_("document type"))
 
     authors = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("author"))
     publication_year = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("year of publication"))
     title = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("title"))
     reference_number = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("reference number"))
     publisher = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("publisher"))
-
     #URLFIELD?
     document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document link"))
     ######
 
-    #DATABASE?
-    database = models.ForeignKey(Database, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='method_database', verbose_name=_("database"))
-    #######
-
-    method_category = models.ForeignKey(MethodCategory, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='method_category', verbose_name=_("method category"))
-    method_type = models.ForeignKey(SpecificMethodType, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='method_type', verbose_name=_("specific method type"))
-    form_name = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("form name"))
-    region = models.ForeignKey(Region, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='methods', verbose_name=_("region"))
-    form_category = models.ForeignKey(FormCategory, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='form_category', verbose_name=_("form category"))
+    planning_method = models.ForeignKey(PlanningMethod, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="planning_method", verbose_name=_("planning method"))
+    field_method = models.ForeignKey(FieldMethod, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='field_method', verbose_name=_("field work methods type/class"))
+    sample_processing_method = models.ForeignKey(SampleProcessingMethod, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='sample_processing_method', verbose_name=_("sample processing methods"))
+    data_entry_methods = models.ForeignKey(DataEntryMethod, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="data_entry_method", verbose_name="data entry methods")
+    data_analysis_methods = models.ForeignKey(DataAnalysisMethod, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="data_analysis_methods", verbose_name="data analysis methods")
+    reporting_methods = models.ForeignKey(ReportingMethods, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="reporting_methods", verbose_name="reporting methods")
 
     #URLFIELD?
     form_link = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("link to form"))
     ####
+
+
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
@@ -476,6 +479,7 @@ class Objective(models.Model):
 class Project(models.Model):
 
     agreement_number = models.ForeignKey(Objective, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("agreement number"))
+    #NEED TO MOVE LINEAGE
     agreement_lineage = models.ForeignKey(AgreementLineage, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='agreement_lineage', verbose_name=_("agreement lineage"))
     agreement_database = models.ForeignKey(AgreementDatabase, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='agreement_database', verbose_name=_("agreement database"))
     agreement_status = models.ForeignKey(AgreementStatus, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='agreement_status', verbose_name=_("agreement status"))
@@ -490,6 +494,9 @@ class Project(models.Model):
     end_date = models.DateField(blank=True, null=True, verbose_name=_("end date"))
 
     primary_river = models.ForeignKey(River, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='primary_river', verbose_name=_("primary river"))
+    secondary_river = models.ForeignKey(River, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='secondary_river', verbose_name=_("secondary river"))
+    lake_system = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_("lake system"))
+    watershed = models.CharField(max_length=1000, null=True, blank=True, verbose_name=("watershed"))
     management_area = models.IntegerField(null=True, blank=True, verbose_name=_("management area"))
 
     region = models.ForeignKey(Region, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("region"))

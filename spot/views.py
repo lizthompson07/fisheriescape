@@ -460,7 +460,8 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Method.objects.first()
         context["field_list"] = [
-            'method_section',
+            'project_core_component',
+            'field_method',
             'method_type',
             'document_topic',
             'author',
