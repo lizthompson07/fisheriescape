@@ -358,26 +358,24 @@ class Incident(LatLongFields):
     )
 
     AGE_CHOICES = (
+        ("N", "Newborn"),
         ("J", "Juvenile"),
-        ("YA", "Young Adult"),
         ("A", "Adult"),
+        ("UnK", "Unknown"),
     )
 
     INCIDENT_CHOICES = (
         ("E", "Entangled"),
         ("DF", "DEAD - Floating"),
         ("DB", "DEAD - Beached"),
-        ("N", "Necropsy"),
         ("LS", "LIVE - Stranded"),
-        ("DS", "DEAD - Stranded"),
     )
 
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("incident name"))
     species_count = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species count"))
     submitted = models.BooleanField(choices=BOOL_CHOICES, blank=True, null=True,
                                     verbose_name=_("incident report submitted by Gulf?"))
-    first_report = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                        verbose_name=_("date and time first reported"))
+    first_report = models.DateTimeField(blank=True, null=True, verbose_name=_("date and time first reported"))
     location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("location"))
     region = models.CharField(max_length=255, null=True, blank=True, choices=REGION_CHOICES, verbose_name=_("region"))
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="incidents", verbose_name=_("species"))

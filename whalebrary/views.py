@@ -1416,14 +1416,10 @@ def send_incident_email(request, pk):
     """simple function to send email with detail_view information"""
     # create a new email object
     incident = get_object_or_404(models.Incident, pk=pk)
-    email = emails.NewIncidentEmail(incident, request)
+    email = emails.NewIncidentEmail(request, incident)
     # send the email object
-    custom_send_mail(
-        subject=email.subject,
-        html_message=email.message,
-        from_email=email.from_email,
-        recipient_list=email.to_list
-    )
+    email.send()
+    # success message
     messages.success(request, "The new incident has been logged and a confirmation email has been sent!")
     # log when the email was sent
     incident.date_email_sent = timezone.now()
