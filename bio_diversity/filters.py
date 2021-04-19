@@ -138,9 +138,14 @@ class EnvtcFilter(django_filters.FilterSet):
 
 class EvntFilter(django_filters.FilterSet):
 
+    def __init__(self, *args, **kwargs):
+        queryset = models.Event.objects.all().select_related("facic_id", "evntc_id")
+        kwargs["queryset"] = queryset
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = models.Event
-        fields = ["facic_id", "evntc_id", "perc_id", "prog_id",]
+        fields = ["facic_id", "evntc_id", "perc_id", "prog_id", ]
 
 
 class EvntcFilter(django_filters.FilterSet):
@@ -245,6 +250,11 @@ class ImgcFilter(django_filters.FilterSet):
 class IndvFilter(django_filters.FilterSet):
 
     ufid = django_filters.CharFilter(field_name='ufid', lookup_expr='icontains')
+
+    def __init__(self, *args, **kwargs):
+        queryset = models.Individual.objects.all().select_related("stok_id", "spec_id", "coll_id")
+        kwargs["queryset"] = queryset
+        super().__init__(*args, **kwargs)
 
     class Meta:
         model = models.Individual
