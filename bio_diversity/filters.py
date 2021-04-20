@@ -254,13 +254,14 @@ class IndvFilter(django_filters.FilterSet):
 
     ufid = django_filters.CharFilter(field_name='ufid', lookup_expr='icontains')
 
-    def __init__(self, *args, **kwargs):
-        kwargs["queryset"] = models.Individual.objects.all().select_related("stok_id", "coll_id")
-        super().__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     kwargs["queryset"] = models.Individual.objects.all().select_related("stok_id", "coll_id")
+    #     super().__init__(*args, **kwargs)
 
     class Meta:
         model = models.Individual
-        fields = ["ufid", "spec_id", "stok_id", "indv_year", ]
+        fields = {"pit_tag": ["icontains"],
+                  } #"ufid", "spec_id", "stok_id", "indv_year", ]
 
 
 class IndvdFilter(django_filters.FilterSet):

@@ -5,13 +5,15 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import TextField
+from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
 from shapely.geometry import box
 
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
-    CommonFormsetView, CommonHardDeleteView, CommonFormView
+    CommonFormsetView, CommonHardDeleteView, CommonFormView, CommonFilterView
 from django.urls import reverse_lazy, reverse
 from django import forms
 from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
@@ -31,6 +33,17 @@ class IndexTemplateView(TemplateView):
 
     template_name = 'bio_diversity/index.html'
 
+
+class SiteLoginRequiredMixin(UserPassesTestMixin):
+
+    def test_func(self):
+        if not hasattr(self, "admin_only"):
+            self.admin_only = True
+
+        if self.admin_only:
+            return utils.bio_diverisity_admin(self.request.user)
+        else:
+            return utils.bio_diverisity_authorized(self.request.user)
 
 class AdminIndexTemplateView(TemplateView):
     nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
@@ -1567,464 +1580,728 @@ class UnitDetails(mixins.UnitMixin, CommonDetails):
 
 
 # ----------------------------LIST VIEWS-----------------------------
-class CommonList(CommonAuthFilterView):
-
-    nav_menu = 'bio_diversity/bio_diversity_nav.html'
-    site_css = 'bio_diversity/bio_diversity.css'
+class GenericList(SiteLoginRequiredMixin, CommonFilterView):
+    template_name = 'bio_diversity/bio_list.html'
     home_url_name = "bio_diversity:index"
 
-    # fields to be used as columns to display an object in the filter view table
-    fields = []
+    paginate_by = 20
+    new_object_url_name = None
+    row_object_url_name = row_ = None
+    h1 = None
 
-    # URL to use to create a new object to be added to the filter view
-    create_url = None
+    def get_new_object_url_name(self):
+        return self.new_object_url_name if self.new_object_url_name is not None else "bio_diversity:create_{}".format(self.key)
 
-    # URL to use for the details button element in the filter view's list
-    details_url = None
+    def get_row_object_url_name(self):
+        return self.new_object_url_name if self.new_object_url_name is not None else "bio_diversity:details_{}".format(self.key)
 
-    # URL to use for the update button element in the filter view's list
-    update_url = None
+    def get_h1(self):
+        return self.h1 if self.h1 is not None else self.title
 
-    # URL to use for the delete button element in the filter view's list
-    delete_url = False
-
-    # The height of the popup dialog used to display the creation/update form
-    # if not set by the extending class the default popup height will be used
-    creation_form_height = None
-
-    # By default Listed objects will have an update button, set editable to false in extending classes to disable
-    editable = True
-
-    def get_fields(self):
-        if self.fields:
-            return self.fields
-
-        return ['tname|Name', 'tdescription|Description']
-
-    def get_create_url(self):
-        return self.create_url if self.create_url is not None else "bio_diversity:create_{}".format(self.key)
-
-    def get_details_url(self):
-        return self.details_url if self.details_url is not None else "bio_diversity:details_{}".format(self.key)
-
-    def get_update_url(self):
-        return self.update_url if self.update_url is not None else "bio_diversity:update_{}".format(self.key)
-
-    def get_delete_url(self):
-        return self.delete_url if self.delete_url is not None else "bio_diversity:delete_{}".format(self.key)
-
-    def get_auth(self):
-        if self.admin_only:
-            return utils.bio_diverisity_admin(self.request.user)
+    def get_queryset(self):
+        if self.queryset:
+            return self.queryset
         else:
-            return utils.bio_diverisity_authorized(self.request.user)
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, object_list=object_list, **kwargs)
-
-        context['fields'] = self.get_fields()
-
-        # if the url is not None, use the value specified by the url variable.
-        # if the url is None, create a url using the views key
-        # this way if no URL, say details_url, is provided it's assumed the default RUL will be 'whalesdb:details_key'
-        # if the details_url = False in the extending view then False will be passed to the context['detials_url']
-        # variable and in the template where the variable is used for buttons and links the button and/or links can
-        # be left out without causing URL Not Found issues.
-        context['create_url'] = self.get_create_url()
-        context['details_url'] = self.get_details_url()
-        context['update_url'] = self.get_update_url()
-        context['delete_url'] = self.get_delete_url()
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = self.get_auth()
-        context['editable'] = context['auth'] and self.editable
-
-        if self.creation_form_height:
-            context['height'] = self.creation_form_height
-
-        return context
+            return self.model.objects.all()
 
 
-class AnidcList(mixins.AnidcMixin, CommonList):
+class AnidcList(mixins.AnidcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.AnidcFilter
-    fields = ["name", "nom", ]
 
 
-class AnixList(mixins.AnixMixin, CommonList):
+class AnixList(mixins.AnixMixin, GenericList):
+    field_list = [
+        {"name": 'evnt_id', "class": "", "width": ""},
+    ]
+    queryset = models.AniDetailXref.objects.select_related("evnt_id")
     filterset_class = filters.AnixFilter
-    fields = ["evnt_id", ]
 
 
-class AdscList(mixins.AdscMixin, CommonList):
+class AdscList(mixins.AdscMixin,  GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.AdscFilter
-    fields = ["name", "nom", ]
 
 
-class CntList(mixins.CntMixin, CommonList):
+class CntList(mixins.CntMixin, GenericList):
+    field_list = [
+        {"name": 'loc_id', "class": "", "width": ""},
+        {"name": 'spec_id', "class": "", "width": ""},
+    ]
+    queryset = models.Count.objects.select_related("loc_id", "spec_id")
     filterset_class = filters.CntFilter
-    fields = ["loc_id", "spec_id", ]
 
 
-class CntcList(mixins.CntcMixin, CommonList):
+class CntcList(mixins.CntcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.CntcFilter
-    fields = ["name", "nom", ]
 
 
-class CntdList(mixins.CntdMixin, CommonList):
+class CntdList(mixins.CntdMixin, GenericList):
+    field_list = [
+        {"name": 'cnt_id', "class": "", "width": ""},
+        {"name": 'anidc_id', "class": "", "width": ""},
+        {"name": 'qual_id', "class": "", "width": ""},
+    ]
+    queryset = models.CountDet.objects.select_related("cnt_id", "anidc_id", "qual_id")
     filterset_class = filters.CntdFilter
-    fields = ["cnt_id", "anidc_id", "qual_id", ]
 
 
-class CollList(mixins.CollMixin, CommonList):
+class CollList(mixins.CollMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.CollFilter
-    fields = ["name", "nom", ]
 
 
-class ContdcList(mixins.ContdcMixin, CommonList):
+class ContdcList(mixins.ContdcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'min_val', "class": "", "width": ""},
+        {"name": 'max_val', "class": "", "width": ""},
+    ]
     filterset_class = filters.ContdcFilter
-    fields = ["name", "nom", "min_val", "max_val", ]
 
 
-class ContxList(mixins.ContxMixin, CommonList):
+class ContxList(mixins.ContxMixin, GenericList):
+    field_list = [
+        {"name": 'evnt_id', "class": "", "width": ""},
+    ]
+    queryset = models.ContainerXRef.objects.select_related('evnt_id')
     filterset_class = filters.ContxFilter
-    fields = ["evnt_id", ]
 
 
-class CdscList(mixins.CdscMixin, CommonList):
+class CdscList(mixins.CdscMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'contdc_id', "class": "", "width": ""},
+    ]
+    queryset = models.ContDetSubjCode.objects.select_related("contdc_id")
     filterset_class = filters.CdscFilter
-    fields = ["contdc_id", "name", "nom", ]
 
 
-class CupList(mixins.CupMixin, CommonList):
+class CupList(mixins.CupMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'draw_id', "class": "", "width": ""},
+    ]
+    queryset = models.Cup.objects.select_related("draw_id", "draw_id__heat_id")
     filterset_class = filters.CupFilter
-    fields = ["name", "nom", "draw_id", ]
 
 
-class CupdList(mixins.CupdMixin, CommonList):
+class CupdList(mixins.CupdMixin, GenericList):
+    field_list = [
+        {"name": 'cup_id', "class": "", "width": ""},
+        {"name": 'cdsc_id', "class": "", "width": ""},
+        {"name": 'contdc_id', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+    ]
+    queryset = models.CupDet.objects.select_related("contdc_id", "cup_id", "cdsc_id")
     filterset_class = filters.CupdFilter
-    fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
-class DrawList(mixins.DrawMixin, CommonList):
+class DrawList(mixins.DrawMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'heat_id', "class": "", "width": ""},
+    ]
+    queryset = models.Drawer.objects.select_related("heat_id")
     filterset_class = filters.DrawFilter
-    fields = ["name", "nom", "heat_id"]
 
 
-class EnvList(mixins.EnvMixin, CommonList):
+class EnvList(mixins.EnvMixin, GenericList):
+    field_list = [
+        {"name": 'loc_id', "class": "", "width": ""},
+        {"name": 'inst_id', "class": "", "width": ""},
+        {"name": 'envc_id', "class": "", "width": ""},
+    ]
+    queryset = models.EnvCondition.objects.select_related("loc_id", "inst_id", "envc_id")
     filterset_class = filters.EnvFilter
-    fields = ["loc_id", "inst_id", "envc_id", ]
 
 
-class EnvcList(mixins.EnvcMixin, CommonList):
+class EnvcList(mixins.EnvcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.EnvcFilter
-    fields = ["name", "nom", ]
 
 
-class EnvcfList(mixins.EnvcfMixin, CommonList):
+class EnvcfList(mixins.EnvcfMixin, GenericList):
+    field_list = [
+        {"name": 'env_id', "class": "", "width": ""},
+    ]
+    queryset = models.EnvCondFile.objects.select_related("env")
     filterset_class = filters.EnvcfFilter
-    fields = ["env_id", ]
 
 
-class EnvscList(mixins.EnvscMixin, CommonList):
+class EnvscList(mixins.EnvscMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.EnvscFilter
-    fields = ["name", "nom", ]
 
 
-class EnvtList(mixins.EnvtMixin, CommonList):
+class EnvtList(mixins.EnvtMixin, GenericList):
+    field_list = [
+        {"name": 'envtc_id', "class": "", "width": ""},
+        {"name": 'lot_num', "class": "", "width": ""},
+    ]
+    queryset = models.EnvTreatment.objects.select_related("envtc_id")
     filterset_class = filters.EnvtFilter
-    fields = ["envtc_id", "lot_num", ]
 
 
-class EnvtcList(mixins.EnvtcMixin, CommonList):
+class EnvtcList(mixins.EnvtcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'rec_dose', "class": "", "width": ""},
+        {"name": 'manufacturer', "class": "", "width": ""},
+    ]
     filterset_class = filters.EnvtcFilter
-    fields = ["name", "nom", "rec_dose", "manufacturer", ]
 
 
-class EvntList(mixins.EvntMixin, CommonList):
+class EvntList(mixins.EvntMixin, GenericList):
+    field_list = [
+        {"name": 'facic_id', "class": "", "width": ""},
+        {"name": 'evntc_id', "class": "", "width": ""},
+        {"name": 'start_datetime', "class": "", "width": ""},
+    ]
+    queryset = models.Event.objects.select_related("facic_id", "evntc_id")
     filterset_class = filters.EvntFilter
-    fields = ["facic_id", "evntc_id", "start_datetime", ]
 
 
-class EvntcList(mixins.EvntcMixin, CommonList):
+class EvntcList(mixins.EvntcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.EvntcFilter
-    fields = ["name", "nom", ]
 
 
-class EvntfList(mixins.EvntfMixin, CommonList):
+class EvntfList(mixins.EvntfMixin, GenericList):
+    field_list = [
+        {"name": 'evnt_id', "class": "", "width": ""},
+        {"name": 'evntf_xls', "class": "", "width": ""},
+    ]
+    queryset = models.EventFile.objects.select_related("evnt_id")
     filterset_class = filters.EvntfFilter
-    fields = ["evnt_id", "evntf_xls", ]
 
 
-class EvntfcList(mixins.EvntfcMixin, CommonList):
+class EvntfcList(mixins.EvntfcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.EvntfcFilter
-    fields = ["name", "nom", ]
 
 
-class FacicList(mixins.FacicMixin, CommonList):
+class FacicList(mixins.FacicMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.FacicFilter
-    fields = ["name", "nom", ]
 
 
-class FecuList(mixins.FecuMixin, CommonList):
+class FecuList(mixins.FecuMixin, GenericList):
+    field_list = [
+        {"name": 'stok_id', "class": "", "width": ""},
+        {"name": 'coll_id', "class": "", "width": ""},
+        {"name": 'alpha_id', "class": "", "width": ""},
+        {"name": 'beta_id', "class": "", "width": ""},
+    ]
+    queryset = models.Fecundity.objects.select_related("stok_id", "coll_id")
     filterset_class = filters.FecuFilter
-    fields = ["stok_id", "coll_id", "alpha", "beta", ]
 
 
-class FeedList(mixins.FeedMixin, CommonList):
+class FeedList(mixins.FeedMixin, GenericList):
+    field_list = [
+        {"name": 'feedm_id', "class": "", "width": ""},
+        {"name": 'feedc_id', "class": "", "width": ""},
+    ]
+    queryset = models.Feeding.objects.select_related("feedm_id", "feedc_id")
     filterset_class = filters.FeedFilter
-    fields = ["feedm_id", "feedc_id", ]
 
 
-class FeedcList(mixins.FeedcMixin, CommonList):
+class FeedcList(mixins.FeedcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.FeedcFilter
-    fields = ["name", "nom", ]
 
 
-class FeedmList(mixins.FeedmMixin, CommonList):
+class FeedmList(mixins.FeedmMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.FeedmFilter
-    fields = ["name", "nom", ]
 
 
-class GrpList(mixins.GrpMixin, CommonList):
+class GrpList(mixins.GrpMixin, GenericList):
+    field_list = [
+        {"name": 'stok_id', "class": "", "width": ""},
+        {"name": 'coll_id', "class": "", "width": ""},
+        {"name": 'grp_year', "class": "", "width": ""},
+    ]
+    queryset = models.Group.objects.select_related("stok_id", "coll_id")
     filterset_class = filters.GrpFilter
-    fields = ["stok_id", "grp_year", "coll_id"]
 
 
-class GrpdList(mixins.GrpdMixin, CommonList):
+class GrpdList(mixins.GrpdMixin, GenericList):
+    field_list = [
+        {"name": 'anix_id', "class": "", "width": ""},
+        {"name": 'anidc_id', "class": "", "width": ""},
+    ]
+    queryset = models.GroupDet.objects.select_related("anix_id", "anidc_id")
     filterset_class = filters.GrpdFilter
-    fields = ["anix_id", "anidc_id", ]
 
 
-class HeatList(mixins.HeatMixin, CommonList):
+class HeatList(mixins.HeatMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'manufacturer', "class": "", "width": ""},
+        {"name": 'serial_number', "class": "", "width": ""},
+        {"name": 'inservice_date', "class": "", "width": ""},
+    ]
     filterset_class = filters.HeatFilter
-    fields = ["name", "nom",  "manufacturer", "serial_number", "inservice_date", ]
 
 
-class HeatdList(mixins.HeatdMixin, CommonList):
+class HeatdList(mixins.HeatdMixin, GenericList):
+    field_list = [
+        {"name": 'heat_id', "class": "", "width": ""},
+        {"name": 'contdc_id', "class": "", "width": ""},
+        {"name": 'cdsc_id', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+    ]
+    queryset = models.HeathUnitDet.objects.select_related("heat_id", "contdc_id", "cdsc_id")
     filterset_class = filters.HeatdFilter
-    fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
-class ImgList(mixins.ImgMixin, CommonList):
+class ImgList(mixins.ImgMixin, GenericList):
+    field_list = [
+        {"name": 'imgc_id', "class": "", "width": ""},
+    ]
+    queryset = models.Image.objects.select_related("imgc_id")
     filterset_class = filters.ImgFilter
     fields = ["imgc_id", ]
 
 
-class ImgcList(mixins.ImgcMixin, CommonList):
+class ImgcList(mixins.ImgcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.ImgcFilter
     fields = ["name", "nom", ]
 
 
-class IndvList(mixins.IndvMixin, CommonList):
+class IndvList(mixins.IndvMixin, GenericList):
+    field_list = [
+        {"name": 'pit_tag', "class": "", "width": ""},
+        {"name": 'ufid', "class": "", "width": ""},
+        {"name": 'stok_id', "class": "", "width": ""},
+        {"name": 'coll_id', "class": "", "width": ""},
+    ]
+    queryset = models.Individual.objects.all().select_related("stok_id", "coll_id")
     filterset_class = filters.IndvFilter
-    fields = ["pit_tag", "stok_id", "indv_year", "coll_id"]
-    delete_url = "bio_diversity:delete_indv"
 
 
-class IndvdList(mixins.IndvdMixin, CommonList):
+class IndvdList(mixins.IndvdMixin, GenericList):
+    field_list = [
+        {"name": 'anidc_id', "class": "", "width": ""},
+    ]
+    queryset = models.Individual.objects.all().select_related("anidc_id")
     filterset_class = filters.IndvdFilter
-    fields = ["anidc_id", ]
 
 
-class IndvtList(mixins.IndvtMixin, CommonList):
+class IndvtList(mixins.IndvtMixin, GenericList):
+    field_list = [
+        {"name": 'indvtc_id', "class": "", "width": ""},
+        {"name": 'lot_num', "class": "", "width": ""},
+    ]
+    queryset = models.IndTreatment.objects.all().select_related("indvtc_id")
     filterset_class = filters.IndvtFilter
-    fields = ["indvtc_id", "lot_num", ]
 
 
-class IndvtcList(mixins.IndvtcMixin, CommonList):
+class IndvtcList(mixins.IndvtcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'rec_dose', "class": "", "width": ""},
+        {"name": 'manufacturer', "class": "", "width": ""},
+    ]
     filterset_class = filters.IndvtcFilter
-    fields = ["name", "nom", "rec_dose", "manufacturer", ]
 
 
-class InstList(mixins.InstMixin, CommonList):
+class InstList(mixins.InstMixin, GenericList):
+    field_list = [
+        {"name": 'instc_id', "class": "", "width": ""},
+        {"name": 'serial_number', "class": "", "width": ""},
+    ]
+    queryset = models.Instrument.objects.all().select_related("instc_id")
     filterset_class = filters.InstFilter
-    fields = ["instc_id", "serial_number", "comments", ]
 
 
-class InstcList(mixins.InstcMixin, CommonList):
+class InstcList(mixins.InstcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
+    queryset = models.InstrumentCode.objects.all().select_related("a", "b")
     filterset_class = filters.InstcFilter
-    fields = ["name", "nom", ]
 
 
-class InstdList(mixins.InstdMixin, CommonList):
+class InstdList(mixins.InstdMixin, GenericList):
+    field_list = [
+        {"name": 'inst_id', "class": "", "width": ""},
+        {"name": 'instdc_id', "class": "", "width": ""},
+    ]
+    queryset = models.InstrumentDet.objects.all().select_related("inst_id", "instdc_id")
     filterset_class = filters.InstdFilter
-    fields = ["inst_id", "instdc_id", ]
 
 
-class InstdcList(mixins.InstdcMixin, CommonList):
+class InstdcList(mixins.InstdcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.InstdcFilter
-    fields = ["name", "nom", ]
 
 
-class LocList(mixins.LocMixin, CommonList):
+class LocList(mixins.LocMixin, GenericList):
+    field_list = [
+        {"name": 'evnt_id', "class": "", "width": ""},
+        {"name": 'rive_id', "class": "", "width": ""},
+        {"name": 'trib_id', "class": "", "width": ""},
+        {"name": 'relc_id', "class": "", "width": ""},
+        {"name": 'start_date|Date', "class": "", "width": ""},
+    ]
+    queryset = models.Location.objects.all().select_related("evnt_id", "rive_id", "trib_id", "relc_id")
     filterset_class = filters.LocFilter
-    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "start_date|Date", ]
 
 
-class LoccList(mixins.LoccMixin, CommonList):
+class LoccList(mixins.LoccMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.LoccFilter
-    fields = ["name", "nom", ]
 
 
-class OrgaList(mixins.OrgaMixin, CommonList):
+class OrgaList(mixins.OrgaMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.OrgaFilter
-    fields = ["name", "nom", ]
 
 
-class PairList(mixins.PairMixin, CommonList):
+class PairList(mixins.PairMixin, GenericList):
+    field_list = [
+        {"name": 'indv_id', "class": "", "width": ""},
+        {"name": 'prio_id', "class": "", "width": ""},
+    ]
+    queryset = models.Pairing.objects.all().select_related("indv_id", "prio_id")
     filterset_class = filters.PairFilter
-    fields = ["indv_id", ]
 
 
-class PercList(mixins.PercMixin, CommonList):
+class PercList(mixins.PercMixin, GenericList):
+    field_list = [
+        {"name": 'perc_first_name', "class": "", "width": ""},
+        {"name": 'perc_last_name', "class": "", "width": ""},
+        {"name": 'perc_valid', "class": "", "width": ""},
+    ]
     filterset_class = filters.PercFilter
-    fields = ["perc_first_name", "perc_last_name", "perc_valid", ]
 
 
-class PrioList(mixins.PrioMixin, CommonList):
+class PrioList(mixins.PrioMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.PrioFilter
     fields = ["name", "nom", ]
 
 
-class ProgList(mixins.ProgMixin, CommonList):
+class ProgList(mixins.ProgMixin, GenericList):
+    field_list = [
+        {"name": 'prog_name', "class": "", "width": ""},
+        {"name": 'proga_id', "class": "", "width": ""},
+        {"name": 'orga_id', "class": "", "width": ""},
+    ]
+    queryset = models.Program.objects.all().select_related("proga_id", "orga_id")
     filterset_class = filters.ProgFilter
-    fields = ["prog_name", "proga_id", "orga_id", ]
 
 
-class ProgaList(mixins.ProgaMixin, CommonList):
+class ProgaList(mixins.ProgaMixin, GenericList):
+    field_list = [
+        {"name": 'proga_first_name', "class": "", "width": ""},
+        {"name": 'proga_last_name', "class": "", "width": ""},
+    ]
     filterset_class = filters.ProgaFilter
-    fields = ["proga_last_name", "proga_first_name", ]
 
 
-class ProtList(mixins.ProtMixin, CommonList):
+class ProtList(mixins.ProtMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'prog_id', "class": "", "width": ""},
+        {"name": 'protc_id', "class": "", "width": ""},
+        {"name": 'facic_id', "class": "", "width": ""},
+    ]
+    queryset = models.Protocol.objects.all().select_related("prog_id", "protc_id", "facic_id")
     filterset_class = filters.ProtFilter
-    fields = ["prog_id", "protc_id", "facic_id", "name", ]
 
 
-class ProtcList(mixins.ProtcMixin, CommonList):
+class ProtcList(mixins.ProtcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.ProtcFilter
     fields = ["name", "nom", ]
 
 
-class ProtfList(mixins.ProtfMixin, CommonList):
+class ProtfList(mixins.ProtfMixin, GenericList):
+    field_list = [
+        {"name": 'prot_id', "class": "", "width": ""},
+    ]
+    queryset = models.Protofile.objects.all().select_related("prot_id")
     filterset_class = filters.ProtfFilter
-    fields = ["prot_id", "comments", ]
 
 
-class QualList(mixins.QualMixin, CommonList):
+class QualList(mixins.QualMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.QualFilter
-    fields = ["name", "nom", ]
 
 
-class RelcList(mixins.RelcMixin, CommonList):
+class RelcList(mixins.RelcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.RelcFilter
-    fields = ["name", "nom", ]
 
 
-class RiveList(mixins.RiveMixin, CommonList):
+class RiveList(mixins.RiveMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.RiveFilter
-    fields = ["name", "nom", ]
 
 
-class RoleList(mixins.RoleMixin, CommonList):
+class RoleList(mixins.RoleMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.RoleFilter
-    fields = ["name", "nom", ]
 
 
-class SampList(mixins.SampMixin, CommonList):
+class SampList(mixins.SampMixin, GenericList):
+    field_list = [
+        {"name": 'loc_id', "class": "", "width": ""},
+        {"name": 'samp_num', "class": "", "width": ""},
+        {"name": 'spec_id', "class": "", "width": ""},
+    ]
+    queryset = models.Sample.objects.all().select_related("loc_id", "spec_id")
     filterset_class = filters.SampFilter
-    fields = ["loc_id", "samp_num", "spec_id", ]
 
 
-class SampcList(mixins.SampcMixin, CommonList):
+class SampcList(mixins.SampcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.SampcFilter
-    fields = ["name", "nom", ]
 
 
-class SampdList(mixins.SampdMixin, CommonList):
+class SampdList(mixins.SampdMixin, GenericList):
+    field_list = [
+        {"name": 'samp_id', "class": "", "width": ""},
+        {"name": 'anidc_id', "class": "", "width": ""},
+    ]
+    queryset = models.SampleDet.objects.all().select_related("samp_id", "anidc_id")
     filterset_class = filters.SampdFilter
-    fields = ["samp_id", "anidc_id", ]
 
 
-class SireList(mixins.SireMixin, CommonList):
+class SireList(mixins.SireMixin, GenericList):
+    field_list = [
+        {"name": 'prio_id', "class": "", "width": ""},
+        {"name": 'pair_id', "class": "", "width": ""},
+    ]
+    queryset = models.Sire.objects.all().select_related("prio_id", "pair_id")
     filterset_class = filters.SireFilter
-    fields = ["prio_id", "pair_id", ]
 
 
-class SpwndList(mixins.SpwndMixin, CommonList):
+class SpwndList(mixins.SpwndMixin, GenericList):
+    field_list = [
+        {"name": 'pair_id', "class": "", "width": ""},
+        {"name": 'spwndc_id', "class": "", "width": ""},
+    ]
+    queryset = models.SpawnDet.objects.all().select_related("pair_id", "spwndc_id")
     filterset_class = filters.SpwndFilter
-    fields = ["pair_id", "spwndc_id", ]
 
 
-class SpwndcList(mixins.SpwndcMixin, CommonList):
+class SpwndcList(mixins.SpwndcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.SpwndcFilter
-    fields = ["name", "nom", ]
 
 
-class SpwnscList(mixins.SpwnscMixin, CommonList):
+class SpwnscList(mixins.SpwnscMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.SpwnscFilter
-    fields = ["name", "nom", ]
 
 
-class SpecList(mixins.SpecMixin, CommonList):
+class SpecList(mixins.SpecMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
+        {"name": 'com_name', "class": "", "width": ""},
+    ]
     filterset_class = filters.SpecFilter
-    fields = ["name", "species", "com_name", ]
 
 
-class StokList(mixins.StokMixin, CommonList):
+class StokList(mixins.StokMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.StokFilter
-    fields = ["name", "nom", ]
 
 
-class SubrList(mixins.SubrMixin, CommonList):
+class SubrList(mixins.SubrMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'rive_id', "class": "", "width": ""},
+        {"name": 'trib_id', "class": "", "width": ""},
+    ]
+    queryset = models.SubRiverCode.objects.all().select_related("rive_id", "trib_id")
     filterset_class = filters.SubrFilter
-    fields = ["name", "nom", "rive_id", "trib_id", ]
 
 
-class TankList(mixins.TankMixin, CommonList):
+class TankList(mixins.TankMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'facic_id', "class": "", "width": ""},
+    ]
+    queryset = models.Tank.objects.select_related("facic_id")
     filterset_class = filters.TankFilter
-    fields = ["name", "nom", ]
 
 
-class TankdList(mixins.TankdMixin, CommonList):
+class TankdList(mixins.TankdMixin, GenericList):
+    field_list = [
+        {"name": 'tank_id', "class": "", "width": ""},
+        {"name": 'contdc_id', "class": "", "width": ""},
+        {"name": 'cdsc_id', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+    ]
+    queryset = models.TankDet.objects.all().select_related("tank_id", "contdc_id", "cdsc_id")
     filterset_class = filters.TankdFilter
-    fields = ["tank_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
-class TeamList(mixins.TeamMixin, CommonList):
+class TeamList(mixins.TeamMixin, GenericList):
+    field_list = [
+        {"name": 'perc_id', "class": "", "width": ""},
+        {"name": 'role_id', "class": "", "width": ""},
+        {"name": 'evnt_id', "class": "", "width": ""},
+        {"name": 'loc_id', "class": "", "width": ""},
+    ]
+    queryset = models.TeamXRef.objects.all().select_related("perc_id", "role_id", "evnt_id", "loc_id")
     filterset_class = filters.TeamFilter
-    fields = ["perc_id", "role_id", "evnt_id", "loc_id"]
 
 
-class TrayList(mixins.TrayMixin, CommonList):
+class TrayList(mixins.TrayMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.TrayFilter
-    fields = ["name", "nom", ]
 
 
-class TraydList(mixins.TraydMixin, CommonList):
+class TraydList(mixins.TraydMixin, GenericList):
+    field_list = [
+        {"name": 'tray_id', "class": "", "width": ""},
+        {"name": 'contdc_id', "class": "", "width": ""},
+        {"name": 'cdsc_id', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+    ]
+    queryset = models.TrayDet.objects.all().select_related("tray_id", "contdc_id", "cdsc_id")
     filterset_class = filters.TraydFilter
-    fields = ["tray_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
-class TribList(mixins.TribMixin, CommonList):
+class TribList(mixins.TribMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'rive_id', "class": "", "width": ""},
+    ]
+    queryset = models.Tributary.objects.all().select_related("rive_id")
     filterset_class = filters.TribFilter
-    fields = ["name", "nom", "rive_id", ]
 
 
-class TrofList(mixins.TrofMixin, CommonList):
+class TrofList(mixins.TrofMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+        {"name": 'facic_id', "class": "", "width": ""},
+    ]
+    queryset = models.Trough.objects.all().select_related("facic_id")
     filterset_class = filters.TrofFilter
-    fields = ["name", "nom", "facic_id"]
 
 
-class TrofdList(mixins.TrofdMixin, CommonList):
+class TrofdList(mixins.TrofdMixin, GenericList):
+    field_list = [
+        {"name": 'trof_id', "class": "", "width": ""},
+        {"name": 'contdc_id', "class": "", "width": ""},
+        {"name": 'cdsc_id', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+    ]
+    queryset = models.TroughDet.objects.all().select_related("trof_id", "contdc_id", "cdsc_id")
     filterset_class = filters.TrofdFilter
-    fields = ["trof_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
-class UnitList(mixins.UnitMixin, CommonList):
+class UnitList(mixins.UnitMixin,  GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
     filterset_class = filters.UnitFilter
-    fields = ["name", "nom", ]
 
 
 # ---------------------------UPDATE VIEWS-----------------------------------
@@ -2431,7 +2708,7 @@ class DataLog(CommonLog):
     pass
 
 
-class CommonDelete(UserPassesTestMixin, DeleteView):
+class CommonDelete(SiteLoginRequiredMixin, DeleteView):
     success_url = reverse_lazy("shared_models:close_me")
     template_name = 'bio_diversity/delete_confirm.html'
     success_message = 'The dataset was successfully deleted!'
@@ -2444,9 +2721,6 @@ class CommonDelete(UserPassesTestMixin, DeleteView):
 
         return context
 
-    def test_func(self):
-        return utils.bio_diverisity_admin(self.request.user)
-
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
@@ -2456,7 +2730,7 @@ class IndvDelete(mixins.IndvMixin, CommonDelete):
     success_url = reverse_lazy("bio_diversity:list_indv")
 
 
-class CommentKeywordsFormsetView(UserPassesTestMixin, CommonFormsetView):
+class CommentKeywordsFormsetView(SiteLoginRequiredMixin, CommonFormsetView):
     template_name = 'bio_diversity/formset.html'
     title = _("Bio Diversity Comment Keywords")
     h1 = _("Manage Comment Keywords")
@@ -2466,19 +2740,13 @@ class CommentKeywordsFormsetView(UserPassesTestMixin, CommonFormsetView):
     home_url_name = "bio_diversity:index"
     delete_url_name = "bio_diversity:delete_comment_keywords"
 
-    def test_func(self):
-        return utils.bio_diverisity_admin(self.request.user)
 
-
-class CommentKeywordsHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
+class CommentKeywordsHardDeleteView(SiteLoginRequiredMixin, CommonHardDeleteView):
     model = models.CommentKeywords
     success_url = reverse_lazy("bio_diversity:manage_comment_keywords")
 
-    def test_func(self):
-        return utils.bio_diverisity_admin(self.request.user)
 
-
-class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
+class HelpTextFormsetView(SiteLoginRequiredMixin, CommonFormsetView):
     template_name = 'bio_diversity/formset.html'
     title = _("Bio Diversity Help Text")
     h1 = _("Manage Help Texts")
@@ -2488,19 +2756,13 @@ class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
     home_url_name = "bio_diversity:index"
     delete_url_name = "bio_diversity:delete_help_text"
 
-    def test_func(self):
-        return utils.bio_diverisity_admin(self.request.user)
 
-
-class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
+class HelpTextHardDeleteView(SiteLoginRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
     success_url = reverse_lazy("bio_diversity:manage_help_texts")
 
-    def test_func(self):
-        return utils.bio_diverisity_admin(self.request.user)
 
-
-class MortFormView(mixins.MortMixin, UserPassesTestMixin, CommonFormView):
+class MortFormView(mixins.MortMixin, SiteLoginRequiredMixin, CommonFormView):
     template_name = 'shared_models/shared_entry_form.html'
 
     nav_menu = 'bio_diversity/bio_diversity_nav.html'
@@ -2535,13 +2797,6 @@ class MortFormView(mixins.MortMixin, UserPassesTestMixin, CommonFormView):
 
         return success_url
 
-    # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
-    def test_func(self):
-        if self.admin_only:
-            return utils.bio_diverisity_admin(self.request.user)
-        else:
-            return utils.bio_diverisity_authorized(self.request.user)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
@@ -2550,7 +2805,7 @@ class MortFormView(mixins.MortMixin, UserPassesTestMixin, CommonFormView):
         return super().form_valid(form)
 
 
-class ReportFormView(mixins.ReportMixin, UserPassesTestMixin, CommonFormView):
+class ReportFormView(mixins.ReportMixin, SiteLoginRequiredMixin, CommonFormView):
     template_name = 'shared_models/shared_entry_form.html'
 
     nav_menu = 'bio_diversity/bio_diversity_nav.html'
@@ -2579,13 +2834,6 @@ class ReportFormView(mixins.ReportMixin, UserPassesTestMixin, CommonFormView):
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("bio_diversity:reports"))
-
-    # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
-    def test_func(self):
-        if self.admin_only:
-            return utils.bio_diverisity_admin(self.request.user)
-        else:
-            return utils.bio_diverisity_authorized(self.request.user)
 
 
 @login_required()
@@ -2705,11 +2953,9 @@ class PlotTempData(PlotView):
         return context
 
 
-class LocMapTemplateView(mixins.MapMixin, UserPassesTestMixin, CommonFormView):
+class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView):
     template_name = 'bio_diversity/loc_map.html'
-
-    def test_func(self):
-        return utils.bio_diverisity_authorized(self.request.user)
+    admin_only = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

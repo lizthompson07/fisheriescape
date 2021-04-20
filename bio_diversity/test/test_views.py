@@ -6,7 +6,7 @@ from datetime import date
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.common_tests import CommonTest
 
-from bio_diversity.views import CommonCreate, CommonDetails, CommonList, CommonUpdate
+from bio_diversity.views import CommonCreate, CommonDetails, CommonUpdate, GenericList
 from .. import views
 
 faker = Faker()
@@ -120,7 +120,7 @@ class TestAnidcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.AnidcList, CommonList)
+        self.assert_inheritance(views.AnidcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -226,7 +226,7 @@ class TestAnixListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.AnixList, CommonList)
+        self.assert_inheritance(views.AnixList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -331,7 +331,7 @@ class TestAdscListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.AdscList, CommonList)
+        self.assert_inheritance(views.AdscList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -437,7 +437,7 @@ class TestCntListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.CntList, CommonList)
+        self.assert_inheritance(views.CntList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -541,7 +541,7 @@ class TestCntcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.CntcList, CommonList)
+        self.assert_inheritance(views.CntcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -648,7 +648,7 @@ class TestCntdListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -754,7 +754,7 @@ class TestCollListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.CollList, CommonList)
+        self.assert_inheritance(views.CollList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -862,7 +862,7 @@ class TestContdcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.ContdcList, CommonList)
+        self.assert_inheritance(views.ContdcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -969,7 +969,7 @@ class TestContxListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.ContxList, CommonList)
+        self.assert_inheritance(views.ContxList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1074,7 +1074,7 @@ class TestCdscListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.CdscList, CommonList)
+        self.assert_inheritance(views.CdscList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1178,7 +1178,7 @@ class TestCupListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.CupList, CommonList)
+        self.assert_inheritance(views.CupList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1286,7 +1286,7 @@ class TestCupdListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.CupdList, CommonList)
+        self.assert_inheritance(views.CupdList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1431,7 +1431,7 @@ class TestDrawListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.DrawList, CommonList)
+        self.assert_inheritance(views.DrawList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1538,7 +1538,7 @@ class TestEnvListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EnvList, CommonList)
+        self.assert_inheritance(views.EnvList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1646,7 +1646,7 @@ class TestEnvcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EnvcList, CommonList)
+        self.assert_inheritance(views.EnvcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1748,7 +1748,7 @@ class TestEnvcfListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EnvcfList, CommonList)
+        self.assert_inheritance(views.EnvcfList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1853,7 +1853,7 @@ class TestEnvscListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EnvscList, CommonList)
+        self.assert_inheritance(views.EnvscList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -1959,7 +1959,7 @@ class TestEnvtListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EnvtList, CommonList)
+        self.assert_inheritance(views.EnvtList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2065,7 +2065,7 @@ class TestEnvtcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EnvtcList, CommonList)
+        self.assert_inheritance(views.EnvtcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2170,7 +2170,7 @@ class TestEvntListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EvntList, CommonList)
+        self.assert_inheritance(views.EvntList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2274,7 +2274,7 @@ class TestEvntcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EvntcList, CommonList)
+        self.assert_inheritance(views.EvntcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2378,7 +2378,7 @@ class TestEvntfListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EvntfList, CommonList)
+        self.assert_inheritance(views.EvntfList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2482,7 +2482,7 @@ class TestEvntfcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.EvntfcList, CommonList)
+        self.assert_inheritance(views.EvntfcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2586,7 +2586,7 @@ class TestFacicListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.FacicList, CommonList)
+        self.assert_inheritance(views.FacicList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2694,7 +2694,7 @@ class TestFecuListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.FecuList, CommonList)
+        self.assert_inheritance(views.FecuList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2801,7 +2801,7 @@ class TestFeedListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.FeedList, CommonList)
+        self.assert_inheritance(views.FeedList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -2906,7 +2906,7 @@ class TestFeedcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.FeedcList, CommonList)
+        self.assert_inheritance(views.FeedcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3010,7 +3010,7 @@ class TestFeedmListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.FeedmList, CommonList)
+        self.assert_inheritance(views.FeedmList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3115,7 +3115,7 @@ class TestGrpListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.GrpList, CommonList)
+        self.assert_inheritance(views.GrpList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3220,7 +3220,7 @@ class TestGrpdListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.GrpdList, CommonList)
+        self.assert_inheritance(views.GrpdList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3327,7 +3327,7 @@ class TestHeatListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.HeatList, CommonList)
+        self.assert_inheritance(views.HeatList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3435,7 +3435,7 @@ class TestHeatdListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.HeatdList, CommonList)
+        self.assert_inheritance(views.HeatdList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3538,7 +3538,7 @@ class TestImgListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.ImgList, CommonList)
+        self.assert_inheritance(views.ImgList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3642,7 +3642,7 @@ class TestImgcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.ImgcList, CommonList)
+        self.assert_inheritance(views.ImgcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3749,7 +3749,7 @@ class TestIndvListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.IndvList, CommonList)
+        self.assert_inheritance(views.IndvList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3854,7 +3854,7 @@ class TestIndvdListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.IndvdList, CommonList)
+        self.assert_inheritance(views.IndvdList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -3959,7 +3959,7 @@ class TestIndvtListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.IndvtList, CommonList)
+        self.assert_inheritance(views.IndvtList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -4065,7 +4065,7 @@ class TestIndvtcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.IndvtcList, CommonList)
+        self.assert_inheritance(views.IndvtcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -4168,7 +4168,7 @@ class TestInstListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.InstList, CommonList)
+        self.assert_inheritance(views.InstList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -4272,7 +4272,7 @@ class TestInstcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -4379,7 +4379,7 @@ class TestInstdListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.InstdList, CommonList)
+        self.assert_inheritance(views.InstdList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -4484,7 +4484,7 @@ class TestInstdcListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -4596,7 +4596,7 @@ class TestLocListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -4703,7 +4703,7 @@ class TestLoccListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -4810,7 +4810,7 @@ class TestOrgaListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -4918,7 +4918,7 @@ class TestPairListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -5024,7 +5024,7 @@ class TestPercListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -5130,7 +5130,7 @@ class TestPrioListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.PrioList, CommonList)
+        self.assert_inheritance(views.PrioList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -5239,7 +5239,7 @@ class TestProgListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -5344,7 +5344,7 @@ class TestProgaListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -5454,7 +5454,7 @@ class TestProtListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -5561,7 +5561,7 @@ class TestProtcListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -5667,7 +5667,7 @@ class TestProtfListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -5773,7 +5773,7 @@ class TestQualListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.QualList, CommonList)
+        self.assert_inheritance(views.QualList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -5878,7 +5878,7 @@ class TestRelcListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -5985,7 +5985,7 @@ class TestRiveListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -6092,7 +6092,7 @@ class TestRoleListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -6200,7 +6200,7 @@ class TestSampListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -6307,7 +6307,7 @@ class TestSampcListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -6416,7 +6416,7 @@ class TestSampdListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -6524,7 +6524,7 @@ class TestSireListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -6633,7 +6633,7 @@ class TestSpwndListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.SpwndList, CommonList)
+        self.assert_inheritance(views.SpwndList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -6742,7 +6742,7 @@ class TestSpwndcListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.SpwndcList, CommonList)
+        self.assert_inheritance(views.SpwndcList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -6847,7 +6847,7 @@ class TestSpwnscListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.SpwnscList, CommonList)
+        self.assert_inheritance(views.SpwnscList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -6951,7 +6951,7 @@ class TestSpecListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -7057,7 +7057,7 @@ class TestStokListView(CommonTest):
         self.user = self.get_and_login_user()
 
     def test_view_class(self):
-        self.assert_inheritance(views.StokList, CommonList)
+        self.assert_inheritance(views.StokList, GenericList)
 
     def test_view(self):
         self.assert_good_response(self.test_url)
@@ -7164,7 +7164,7 @@ class TestSubrListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -7272,7 +7272,7 @@ class TestTankListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -7385,7 +7385,7 @@ class TestTankdListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -7491,7 +7491,7 @@ class TestTeamListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -7599,7 +7599,7 @@ class TestTrayListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -7710,7 +7710,7 @@ class TestTraydListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -7818,7 +7818,7 @@ class TestTribListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -7925,7 +7925,7 @@ class TestTrofListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -8036,7 +8036,7 @@ class TestTrofdListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
@@ -8143,7 +8143,7 @@ class TestUnitListView(CommonTest):
 
     def test_view_class(self):
         # view
-        self.assert_inheritance(views.InstcList, CommonList)
+        self.assert_inheritance(views.InstcList, GenericList)
 
     def test_view(self):
         # access
