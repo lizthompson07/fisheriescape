@@ -40,7 +40,7 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
                                  help_text=_("What will the information/advice be used for? Who will be the end user(s)? Will it impact other DFO "
                                              "programs or regions?"))
     risk_text = models.TextField(null=True, blank=True, verbose_name=_("What is the expected consequence if science advice is not provided?"))
-    advice_needed_by = models.DateTimeField(verbose_name=_("Latest Possible Date to Receive Science Advice"))
+    advice_needed_by = models.DateTimeField(verbose_name=_("Latest possible date to receive Science advice"))
     rationale_for_timeline = models.TextField(null=True, blank=True, verbose_name=_("Rationale for deadline?"),
                                               help_text=_("e.g., COSEWIC or consultation meetings, Environmental Assessments, legal or regulatory "
                                                           "requirement, Treaty obligation, international commitments, etc)."
@@ -48,6 +48,9 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     has_funding = models.BooleanField(default=False, verbose_name=_("Do you have funds to cover any extra costs associated with this request?"),
                                       help_text=_("i.e., special analysis, meeting costs, translation)?"), )
     funding_text = models.TextField(null=True, blank=True, verbose_name=_("Please describe"))
+    prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"), choices=model_choices.prioritization_choices)
+    prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
+
     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
     # non-editable fields
@@ -114,6 +117,12 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
             return "{} - {}".format(gettext("Yes"), text)
         return gettext("No")
 
+    @property
+    def prioritization_display(self):
+        if self.prioritization:
+            text = self.prioritization_text if self.prioritization_text else gettext("no further detail provided.")
+            return "{} - {}".format(self.get_prioritization_display(), text)
+        return gettext("---")
 
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")

@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 
 from csas2 import models
 from lib.templatetags.verbose_names import get_verbose_label
-from shared_models.models import Section, Division, Region
+from shared_models.models import Section, Division, Region, Branch
 
 
 def in_csas_regional_admin_group(user):
@@ -78,6 +78,11 @@ def get_division_choices(with_requests=False, region_filter=None):
     return [(d.id, str(d)) for d in
             Division.objects.filter(id__in=division_list).order_by("branch__region", "name")]
 
+def get_branch_choices(with_requests=False, region_filter=None):
+    branch_list = set(
+        [Division.objects.get(pk=d[0]).branch_id for d in get_division_choices(with_requests=with_requests, region_filter=region_filter)])
+    return [(b.id, str(b)) for b in
+            Branch.objects.filter(id__in=branch_list).order_by("region", "name")]
 
 def get_region_choices(with_requests=False):
     region_list = set(
@@ -182,7 +187,8 @@ def get_request_field_list(csas_request, user):
         'risk_text',
         'advice_needed_by',
         'rationale_for_timeline',
-        'funding_display|{}'.format(_("Client Funding?")),
+        'funding_display|{}'.format(_("client funding?")),
+        'prioritization_display|{}'.format(_("client prioritization")),
         'submission_date',
         'uuid',
         'metadata|{}'.format(_("metadata")),

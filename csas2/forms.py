@@ -55,6 +55,8 @@ class CSASRequestForm(forms.ModelForm):
             'rationale_for_timeline',
             'has_funding',
             'funding_text',
+            'prioritization',
+            'prioritization_text',
         ]
         widgets = {
             'client': forms.Select(attrs=chosen_js),
@@ -66,6 +68,7 @@ class CSASRequestForm(forms.ModelForm):
             'funding_text': forms.Textarea(attrs=rows3),
             'risk_text': forms.Textarea(attrs=rows3),
             'rationale_for_timeline': forms.Textarea(attrs=rows3),
+            'prioritization_text': forms.Textarea(attrs=rows3),
         }
 
     def __init__(self, *args, **kwargs):
