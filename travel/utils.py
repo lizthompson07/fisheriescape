@@ -800,4 +800,4 @@ def get_all_admins(region):
         to_list.append(User.objects.get(email__iexact="amelie.robichaud@dfo-mpo.gc.ca").email)
     except:
         pass
-    return set(to_list)
+    return list(set(to_list))

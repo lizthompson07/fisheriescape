@@ -829,7 +829,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
         context["same_location_trips"] = base_qs.filter(
             id__in=[trip.id for trip in base_qs if trip.location and my_trip.location and
                     compare_strings(trip.location, my_trip.location) < 3]
-        )
+        ).order_by("name")
         similar_fr_name_trips = [trip.id for trip in base_qs if
                                  trip.nom and compare_strings(trip.nom, trip.name) < 15] if my_trip.nom else []
         similar_en_name_trips = [trip.id for trip in base_qs if compare_strings(trip.name, my_trip.name) < 15]

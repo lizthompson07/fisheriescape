@@ -391,6 +391,7 @@ class LineDetailView(GraisCRUDRequiredMixin, CommonDetailView):
             'species_list|species',
             'has_invasive_spp|has invasive spp?',
             'is_lost',
+            'is_damaged',
             'thumbnail',
         ]
         context["species_obs_field_list"] = [
@@ -481,6 +482,7 @@ class SurfaceDetailView(GraisCRUDRequiredMixin, CommonDetailView):
         'has_invasive_spp|has invasive spp?',
         'notes',
         'is_lost',
+        'is_damaged',
         'metadata',
 
     ]

@@ -43,6 +43,11 @@ def eda_delete(request, pk):
 def dep_delete(request, pk):
     dep = models.DepDeployment.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
+        edas = dep.attachments.all()
+        for eda in edas:
+            recs = eda.dataset.all()
+            recs.delete()
+            eda.delete()
         dep.delete()
         messages.success(request, _("The deployment has been successfully deleted."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -715,6 +720,26 @@ class CommonList(CommonAuthFilterView):
         return context
 
 
+class CruList(mixins.CruMixin, CommonList):
+    queryset = shared_models.Cruise.objects.all().order_by("-season", "mission_number")
+
+    filterset_class = filters.CruFilter
+    fields = ["mission_number", "description", "chief_scientist", "samplers", "start_date", "end_date", "notes",
+              "season", "vessel" ]
+
+    details_url = "whalesdb:details_cru"
+    delete_url = "whalesdb:delete_cru"
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class DepList(mixins.DepMixin, CommonList):
     filterset_class = filters.DepFilter
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
@@ -786,26 +811,6 @@ class TeaList(mixins.TeaMixin, CommonList):
     fields = ["tea_abb", "tea_last_name", "tea_first_name"]
 
     details_url = False
-
-
-class CruList(mixins.CruMixin, CommonList):
-    queryset = shared_models.Cruise.objects.all().order_by("-season", "mission_number")
-
-    filterset_class = filters.CruFilter
-    fields = ["mission_number", "description", "chief_scientist", "samplers", "start_date", "end_date", "notes",
-              "season", "vessel" ]
-
-    details_url = "whalesdb:details_cru"
-    delete_url = "whalesdb:delete_cru"
-
-    def test_func(self):
-        return utils.whales_authorized(self.request.user)
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/')
-        return super().dispatch(request, *args, **kwargs)
 
 
 class CommonDelete(UserPassesTestMixin, DeleteView):
@@ -897,6 +902,12 @@ class EheMangedView(ManagedFormsetViewMixin):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:managed_ehe", kwargs=self.kwargs)
+
+    def get_cancel_url(self):
+        if self.kwargs and self.kwargs['rec']:
+            return reverse_lazy("whalesdb:details_eqp", args=[self.kwargs['rec']])
+
+        return reverse_lazy("whalesdb:list_eqp")
 
 
 class EqtMangedView(ManagedFormsetViewMixin):
