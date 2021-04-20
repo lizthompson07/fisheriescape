@@ -328,7 +328,7 @@ class TravellerSerializer(serializers.ModelSerializer):
             if end_date < start_date:
                 msg = _('The start date of the trip must occur before the end date.')
                 raise ValidationError(msg)
-            if abs((start_date - end_date).days) > 180:
+            if abs((start_date - end_date).days) > 270:
                 msg = _('The length of this trip is unrealistic.')
                 raise ValidationError(msg)
             # is the start date of the travel request equal to or before the start date of the trip?
