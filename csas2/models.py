@@ -48,7 +48,8 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     has_funding = models.BooleanField(default=False, verbose_name=_("Do you have funds to cover any extra costs associated with this request?"),
                                       help_text=_("i.e., special analysis, meeting costs, translation)?"), )
     funding_text = models.TextField(null=True, blank=True, verbose_name=_("Please describe"))
-    prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"), choices=model_choices.prioritization_choices)
+    prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
+                                         choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
 
     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
@@ -124,6 +125,7 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
             return "{} - {}".format(self.get_prioritization_display(), text)
         return gettext("---")
 
+
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("prioritization"), choices=model_choices.prioritization_choices)
@@ -154,7 +156,6 @@ class CSASRequestReview(MetadataFields):
         return gettext("---")
 
 
-
 class CSASRequestFile(models.Model):
     csas_request = models.ForeignKey(CSASRequest, related_name="files", on_delete=models.CASCADE, editable=False)
     caption = models.CharField(max_length=255)
@@ -168,11 +169,14 @@ class CSASRequestFile(models.Model):
         return self.caption
 
 
-
 class Process(SimpleLookupWithUUID, MetadataFields):
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
+    scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
+    lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
+    other_region = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
+
     csas_requests = models.ManyToManyField(CSASRequest, blank=False, related_name="processes")
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"))
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
@@ -196,20 +200,16 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         if self.expected_publications:
             return mark_safe(markdown(self.expected_publications))
 
+
 class Meeting(SimpleLookup, MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
-    type_choices = (
-        (1, _("CSAS Regional Advisory Process (RAP)")),
-        (2, _("CSAS Science Management Meeting")),
-        (3, _("CSAS Steering Committee Meeting")),
-        (9, _("other")),
-    )
 
-    csas_request = models.ForeignKey(CSASRequest, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
+
+    process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
     # basic
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
-    type = models.IntegerField(choices=type_choices, verbose_name=_("type of event"))
+    type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
     start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
     rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))

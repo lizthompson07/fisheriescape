@@ -37,10 +37,23 @@ prioritization_choices = (
     (3, _('Low')),
 )
 
-process_type_choices = (
+process_scope_choices = (
     (1, _('Regional')),
-    (1, _('Zonal')),
-    (1, _('National')),
+    (2, _('Zonal')),
+    (3, _('National')),
+)
+
+process_type_choices = (
+    (1, _('This process')),
+    (2, _('That process')),
+    (2, _('The other')),
+)
+
+meeting_type_choices = (
+    (1, _("CSAS Regional Advisory Process (RAP)")),
+    (2, _("CSAS Science Management Meeting")),
+    (3, _("CSAS Steering Committee Meeting")),
+    (9, _("other")),
 )
 
 _choices = (
