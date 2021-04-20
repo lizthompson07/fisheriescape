@@ -1,13 +1,11 @@
 {% load static %}
-<style>
-    body {
-        background-image: url("{% static 'img/bio_diversity/bio_diversity_bg.jpg' %}");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-attachment: fixed;
-    }
-    .card, .jumbotron {
-        background-color: rgba(255, 255, 255, 0.8);
-    }
-</style>
+body {
+    background-image: url("{% static 'img/bio_diversity/bio_diversity_bg.jpg' %}");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+.card, .jumbotron {
+    background-color: rgba(255, 255, 255, 0.8);
+}
 

@@ -1,19 +1,10 @@
-import inspect
-import math
-import os
-from datetime import date, datetime, timedelta
+
+from datetime import  datetime
 
 import pytz
-from django import forms
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.db.models import Q
-from django.forms import modelformset_factory
-from django.utils.translation import gettext
 import pandas as pd
-from decimal import Decimal
-from django.utils.translation import gettext_lazy as _
-import numpy as np
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -31,8 +22,14 @@ def coldbrook_tagging_parser(cleaned_data):
     except Exception as err:
         log_data += "\n File format not valid: {}".format(err.__str__())
         return log_data, False
+
+    # prepare data:
     grp_id = False
     try:
+        if len(data["Group"].unique()) > 1 or len(data["Stock"].unique()) > 1:
+            log_data += "\n WARNING: Form only designed for use with single group. Check \"Group\" column and split" \
+                        " sheet if needed. \n"
+
         year, coll = utils.year_coll_splitter(data["Group"][0])
         grp_qs = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
                                              coll_id__name__icontains=coll,
@@ -45,13 +42,18 @@ def coldbrook_tagging_parser(cleaned_data):
                 if str(data["from Tank"][0]) in [tank.name for tank in tank_list]:
                     grp_id = grp.pk
 
+        if grp_id:
+            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp_id)
+
+        salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
+        stok_id = models.StockCode.objects.filter(name=data["Stock"][0]).get()
+        coll_id = models.Collection.objects.filter(name__icontains=coll).get()
+        tagger_code = models.RoleCode.objects.filter(name__iexact="Tagger").get()
+
     except Exception as err:
         log_data += "Error finding origin group (check first row): \n"
         log_data += "Error: {}\n\n".format(err.__str__())
         return log_data, False
-
-    if grp_id:
-        anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp_id)
 
     for row in data_dict:
         row_parsed = True
@@ -61,14 +63,11 @@ def coldbrook_tagging_parser(cleaned_data):
             row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
                                              "%Y%b%d").replace(tzinfo=pytz.UTC)
             row_date = row_datetime.date()
-            if type(row["Universal Fish ID"]) == float:
-                indv_ufid = None
-            else:
-                indv_ufid = row["Universal Fish ID"]
+            indv_ufid = utils.nan_to_none(row["Universal Fish ID"])
             indv = models.Individual(grp_id_id=grp_id,
-                                     spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                     stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
-                                     coll_id=models.Collection.objects.filter(name__icontains=coll).get(),
+                                     spec_id=salmon_id,
+                                     stok_id=stok_id,
+                                     coll_id=coll_id,
                                      indv_year=year,
                                      pit_tag=row["PIT tag"],
                                      ufid=indv_ufid,
@@ -93,8 +92,6 @@ def coldbrook_tagging_parser(cleaned_data):
 
             anix_indv = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
 
-            utils.enter_anix(cleaned_data, indv_pk=indv.pk, grp_pk=grp_id)
-
             if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                 row_entered = True
 
@@ -110,6 +107,14 @@ def coldbrook_tagging_parser(cleaned_data):
             if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["location"], "Box Location", None):
                 row_entered = True
 
+            if utils.nan_to_none(row["Tagger"]):
+                perc_list, inits_not_found = utils.team_list_splitter(row["Tagger"])
+                for perc_id in perc_list:
+                    if utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code):
+                        row_entered = True
+                for inits in inits_not_found:
+                    log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits, row)
+
         except Exception as err:
             log_data += "Error parsing row: \n"
             log_data += str(row)
@@ -124,12 +129,21 @@ def coldbrook_tagging_parser(cleaned_data):
         elif row_parsed:
             rows_parsed += 1
 
-    from_tanks = data["from Tank"].value_counts()
-    for tank_name in from_tanks.keys():
-        fish_tagged_from_tank = int(from_tanks[tank_name])
-        contx = utils.enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
-        if contx:
-            utils.enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
+    # handle general data:
+    try:
+        from_tanks = data["from Tank"].value_counts()
+        for tank_name in from_tanks.keys():
+            fish_tagged_from_tank = int(from_tanks[tank_name])
+            contx = utils.enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
+            if contx:
+                utils.enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
+
+    except Exception as err:
+                log_data += "Error parsing common data (recording counts on tank movements)\n "
+                log_data += "\n Error: {}".format(err.__str__())
+                log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
+                            " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+                return log_data, False
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
