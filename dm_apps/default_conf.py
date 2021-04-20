@@ -24,7 +24,7 @@ APP_DICT = {
     'inventory': dict(name='Metadata Inventory', staff_ids=[]),
     'grais': dict(name='grAIS', staff_ids=[50, ]),
     'cruises': dict(name='Cruises', staff_ids=[50, 382, ]),
-    'herring': dict(name='HerMorrhage', staff_ids=[50, ]),
+    'herring': dict(name='HERMAN', staff_ids=[50, ]),
     'camp': dict(name='CAMP db', staff_ids=[50, ]),
     'scuba': dict(name='SCUBA survey', staff_ids=[50, ]),
     'edna': dict(name='eDNA Krabappel', staff_ids=[50, ]),

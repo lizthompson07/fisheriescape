@@ -107,9 +107,9 @@ else:
     print("not connecting grais app")
 
 if settings.INSTALLED_APPS.count("herring"):
-    urlpatterns += i18n_patterns(path('hermorrhage/', include('herring.urls')), prefix_default_language=True)
+    urlpatterns += i18n_patterns(path('herman/', include('herring.urls')), prefix_default_language=True)
 else:
-    print("not connecting hermorrhage app")
+    print("not connecting herman app")
 
 if settings.INSTALLED_APPS.count("camp"):
     urlpatterns += i18n_patterns(path('camp/', include('camp.urls')), prefix_default_language=True)
