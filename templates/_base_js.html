@@ -40,93 +40,96 @@
 <script type="application/javascript">
 
 
-    // Internet Explorer 6-11
-    var isIE = /*@cc_on!@*/false || !!document.documentMode;
-    if (isIE) {
-        $("#browser-warning").removeClass("gone")
+// Internet Explorer 6-11
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+if (isIE) {
+  $("#browser-warning").removeClass("gone")
+}
+
+
+var config = {
+  '.chosen-select': {placeholder_text_multiple: "{% trans 'Select multiple' %}", search_contains: false},
+  '.chosen-select-contains': {placeholder_text_multiple: "{% trans 'Select multiple' %}", search_contains: true},
+  '.chosen-select-deselect': {allow_single_deselect: true},
+  '.chosen-select-no-single': {disable_search_threshold: 10},
+  '.chosen-select-no-results': {no_results_text: '{% trans 'Oops, nothing found!' %}'},
+  '.chosen-select-rtl': {rtl: true},
+  '.chosen-select-width': {width: '95%'}
+};
+for (var selector in config) {
+  $(selector).chosen(config[selector]);
+}
+$("select.chosen-select-contains").attr("tabindex", -1);
+$("select.chosen-select").attr("tabindex", -1);
+$(".chosen-container").css("width", "100%");
+
+var fpConfig = {
+  '.fp-date': {},
+  '.fp-time': {enableTime: true, noCalendar: true, dateFormat: "H:i"},
+  '.fp-date-time': {enableTime: true, time_24hr: true},
+  '.fp-date-time-with-seconds': {enableTime: true, time_24hr: true, enableSeconds: true},
+  '.fp-date-range': {mode: "range", dateFormat: "Y-m-d", conjunction: ", "},
+  '.fp-date-multiple': {mode: "multiple", dateFormat: "Y-m-d", conjunction: ", ",},
+
+};
+for (var selector in fpConfig) {
+  $(selector).flatpickr(fpConfig[selector]);
+  $(selector).css("background-color", "#f0ebff");
+  // gives a way for the user to clear the field!
+  $(selector).keydown(function (event) {
+    if (event.key == "Delete" || event.key == "Escape") {
+      event.preventDefault()
+      $(this).val("");
     }
+  });
+}
 
+var msConfig = {
+  '.multi-select': {},
+};
+for (var selector in msConfig) {
+  $(selector).multiSelect(msConfig[selector]);
+}
 
-    var config = {
-        '.chosen-select': {placeholder_text_multiple: "{% trans 'Select multiple' %}", search_contains: false},
-        '.chosen-select-contains': {placeholder_text_multiple: "{% trans 'Select multiple' %}", search_contains: true},
-        '.chosen-select-deselect': {allow_single_deselect: true},
-        '.chosen-select-no-single': {disable_search_threshold: 10},
-        '.chosen-select-no-results': {no_results_text: '{% trans 'Oops, nothing found!' %}'},
-        '.chosen-select-rtl': {rtl: true},
-        '.chosen-select-width': {width: '95%'}
-    };
-    for (var selector in config) {
-        $(selector).chosen(config[selector]);
-    }
-    $("select.chosen-select-contains").attr("tabindex", -1);
-    $("select.chosen-select").attr("tabindex", -1);
-    $(".chosen-container").css("width", "100%");
+if ($(".input-phone").length) {
+  var cleaveConfig = {
+    numeral: false,
+    delimiter: '-',
+    blocks: [3, 3, 25],
+  };
+  var cleave = new Cleave('.input-phone', cleaveConfig);
+}
 
-    var fpConfig = {
-        '.fp-date': {},
-        '.fp-time': {enableTime: true, noCalendar: true, dateFormat: "H:i"},
-        '.fp-date-time': {enableTime: true, time_24hr: true},
-        '.fp-date-time-with-seconds': {enableTime: true, time_24hr: true, enableSeconds: true},
-    };
-    for (var selector in fpConfig) {
-        $(selector).flatpickr(fpConfig[selector]);
-        $(selector).css("background-color", "#f0ebff");
-        // gives a way for the user to clear the field!
-        $(selector).keydown(function (event) {
-            if (event.key == "Delete" || event.key == "Escape") {
-                event.preventDefault()
-                $(this).val("");
-            }
-        });
-    }
+// for . editable things i.e. medium-editor / medium-editor-table
+//var editor = new MediumEditor('.editable', {
+//   buttonLabels: 'fontawesome',
+//  extensions: {
+//     table: new MediumEditorTable()
+//},
+//    toolbar: {
+//        buttons: [
+//            'h2',
+//            'bold',
+//            'italic',
+//            'unorderedlist',
+//            'orderedlist',
+//            'table'
+//        ],
+//        static: true,
+//        sticky: true
+//    }
+//});
 
-    var msConfig = {
-        '.multi-select': {},
-    };
-    for (var selector in msConfig) {
-        $(selector).multiSelect(msConfig[selector]);
-    }
+// enable popovers everywhere
+$(function () {
+  var options = {
+    'html': true,
+  };
 
-    if ($(".input-phone").length) {
-        var cleaveConfig = {
-            numeral: false,
-            delimiter: '-',
-            blocks: [3, 3, 25],
-        };
-        var cleave = new Cleave('.input-phone', cleaveConfig);
-    }
-
-    // for . editable things i.e. medium-editor / medium-editor-table
-    //var editor = new MediumEditor('.editable', {
-    //   buttonLabels: 'fontawesome',
-    //  extensions: {
-    //     table: new MediumEditorTable()
-    //},
-    //    toolbar: {
-    //        buttons: [
-    //            'h2',
-    //            'bold',
-    //            'italic',
-    //            'unorderedlist',
-    //            'orderedlist',
-    //            'table'
-    //        ],
-    //        static: true,
-    //        sticky: true
-    //    }
-    //});
-
-    // enable popovers everywhere
-    $(function () {
-        var options = {
-            'html': true,
-        };
-
-        $('[data-toggle="popover"]').popover(options);
-        if($('[data-toggle="popover"]')[0] && $('[data-toggle="popover"]')[0].style) {
-            $('[data-toggle="popover"]')[0].style.cursor = "pointer";
-        }
-    });
+  $('[data-toggle="popover"]').popover(options);
+  if ($('[data-toggle="popover"]')[0] && $('[data-toggle="popover"]')[0].style) {
+    $('[data-toggle="popover"]')[0].style.cursor = "pointer";
+  }
+});
 
 </script>

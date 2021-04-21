@@ -129,6 +129,10 @@ h1 {
     width: 300px;
 }
 
+.pointy {
+    cursor: pointer;
+}
+
 .clickable {
     cursor: pointer;
 }

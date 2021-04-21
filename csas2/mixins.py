@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from . import models
-from .utils import in_csas_admin_group, can_modify_request, can_modify_process
+from .utils import in_csas_admin_group, can_modify_request, can_modify_process, in_csas_national_admin_group
 
 
 class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -16,6 +16,18 @@ class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
+
+
+class CsasNationalAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return in_csas_national_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
 
 
 class CsasAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -68,9 +80,9 @@ class CanModifyProcessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             obj = self.get_object()
             if isinstance(obj, models.Process):
                 process_id = obj.id
-
+            elif isinstance(obj, models.Meeting) or isinstance(obj, models.Document):
+                process_id = obj.process.id
         except AttributeError:
-            pass
             if self.kwargs.get("process"):
                 process_id = self.kwargs.get("process")
             # elif self.kwargs.get("project_year"):
@@ -86,3 +98,4 @@ class CanModifyProcessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:denied_access'))
         return super().dispatch(request, *args, **kwargs)
+

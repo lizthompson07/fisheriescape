@@ -44,26 +44,60 @@ process_scope_choices = (
 )
 
 process_type_choices = (
-    (1, _('This process')),
-    (2, _('That process')),
-    (2, _('The other')),
+    (1, _('Advisory Meeting')),
+    (2, _('Science Response Process')),
+    (3, _('Peer Review')),
 )
 
 meeting_type_choices = (
-    (1, _("CSAS Regional Advisory Process (RAP)")),
-    (2, _("CSAS Science Management Meeting")),
-    (3, _("CSAS Steering Committee Meeting")),
-    (9, _("other")),
+    (1, _("Steering Committee Meeting")),
+    (2, _("Science Management Meeting")),
+    (3, _("Advisory Process Meeting (RAP)")),
 )
 
-_choices = (
-    (1, _('')),
+meeting_note_type_choices = (
+    (1, 'To Do'),
+    (2, 'Next step'),
+    (3, 'General comment'),
 )
 
-_choices = (
-    (1, _('')),
+document_type_choices = (
+    (1, _("Meeting Minutes")),
+    (2, _("Science Advisory Report")),
+    (3, _("Research Document")),
+    (4, _("Proceedings")),
+    (5, _("Science Response")),
+    (6, _("Working Paper")),
 )
 
-_choices = (
-    (1, _('')),
+document_status_choices = (
+    (1, _("Draft")),
+    (2, _("Submitted")),
+    (3, _("Under review")),
 )
+
+invitee_role_choices = (
+    (1, 'Participant'),
+    (2, 'Chair'),
+    (3, 'Expert'),
+    (4, 'Steering Committee Member'),
+)
+
+invitee_status_choices = (
+    (0, 'Invited'),
+    (1, 'Accepted'),
+    (2, 'Declined'),
+    (9, 'No response'),
+)
+#
+# _choices = (
+#     (1, _('')),
+# )
+#
+# _choices = (
+#     (1, _('')),
+# )
+#
+# _choices = (
+#     (1, _('')),
+# )

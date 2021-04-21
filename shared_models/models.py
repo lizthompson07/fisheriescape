@@ -840,13 +840,6 @@ class Organization(SimpleLookup):
 
 
 class Person(models.Model):
-    type_choices = (
-        (1, ''),
-        (1, ''),
-        (1, ''),
-        (1, ''),
-        (1, ''),
-    )
     # Choices for role
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
@@ -860,21 +853,6 @@ class Person(models.Model):
     # TODO: should be pulled from user profile, if available (use signals)
     job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
     job_title_fr = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
-
-    # TODO: make me a choice field
-    type = models.IntegerField(blank=True, null=True, verbose_name=_("Type"))
-
-    # TODO: is this necessary?
-    notification_preference = models.IntegerField(blank=True, null=True, verbose_name=_("Communication Preference"))
-
-    # TODO: make me a choice field??
-    expertise = models.IntegerField(blank=True, null=True, verbose_name=_("Expertise"))
-
-    # TODO: what is this?
-    cc_grad = models.BooleanField(null=True, blank=True, verbose_name=_("Chair Course Graduate"))
-    notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
-
-
 
     old_id = models.IntegerField(blank=True, null=True, editable=False )
 

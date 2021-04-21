@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib import messages
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
@@ -9,9 +11,11 @@ from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
-    CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView
+    CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
+    CommonHardDeleteView
 from . import models, forms, filters, utils
-from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin
+from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
+    CsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group
 
 
@@ -24,6 +28,24 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = in_csas_admin_group(self.request.user)
         return context
+
+
+# settings
+##########
+
+class SeriesFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'csas2/formset.html'
+    h1 = "Manage Publication Series"
+    queryset = models.Series.objects.all()
+    formset_class = forms.SeriesFormset
+    success_url_name = "csas2:manage_series"
+    home_url_name = "csas2:index"
+    delete_url_name = "csas2:delete_series"
+
+
+class SeriesHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Series
+    success_url = reverse_lazy("csas2:manage_series")
 
 
 # csas requests #
@@ -48,9 +70,18 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     ]
 
     def get_queryset(self):
-        return models.CSASRequest.objects.annotate(
-            search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qp = self.request.GET
+        qs = models.CSASRequest.objects.all()
+        if qp.get("personalized"):
+            qs = utils.get_related_requests(self.request.user)
+        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        return qs
 
+    def get_h1(self):
+        qp = self.request.GET
+        if qp.get("personalized"):
+            return _("Your CSAS Requests")
+        return _("CSAS Requests")
 
 class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     model = models.CSASRequest
@@ -201,7 +232,6 @@ class CSASRequestReviewDeleteView(CanModifyRequestRequiredMixin, CommonDeleteVie
         return HttpResponseRedirect(success_url)
 
 
-
 # request files #
 #################
 
@@ -240,11 +270,13 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'id|{}'.format("process id"), "class": "", "width": ""},
+        {"name": 'id|{}'.format("process Id"), "class": "", "width": ""},
         {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'type', "class": "", "width": ""},
+        {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
+        {"name": 'lead_region', "class": "", "width": ""},
+        {"name": 'other_regions', "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
+        {"name": 'advisors|{}'.format(_("science advisors")), "class": "", "width": ""},
     ]
 
     def get_queryset(self):
@@ -262,6 +294,16 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
         context["process_field_list"] = utils.get_process_field_list(obj)
+        context["meeting_field_list"] = [
+            'type',
+            'location',
+            'display_dates|{}'.format(_("dates")),
+        ]
+        context["document_field_list"] = [
+            'ttitle|{}'.format(_("title")),
+            'type',
+            'status',
+        ]
         return context
 
 
@@ -310,21 +352,20 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
 
 
-
 # meetings #
 ############
 
 class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     template_name = 'csas2/list.html'
-    # filterset_class = filters.MeetingFilter
+    filterset_class = filters.MeetingFilter
     paginate_by = 25
     home_url_name = "csas2:index"
     row_object_url_name = row_ = "csas2:meeting_detail"
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'id|{}'.format("request id"), "class": "", "width": ""},
+        {"name": 'process', "class": "", "width": ""},
+        {"name": 'type', "class": "", "width": ""},
         {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'client', "class": "", "width": ""},
@@ -332,30 +373,212 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     ]
 
     def get_queryset(self):
-        return models.Meeting.objects.annotate(
+        return models.Meeting.objects.filter(hide_from_list=False).annotate(
             search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
 
 
 class MeetingDetailView(LoginAccessRequiredMixin, CommonDetailView):
     model = models.Meeting
-    template_name = 'csas2/request_detail/main.html'
+    template_name = 'csas2/meeting_detail/main.html'
     home_url_name = "csas2:index"
-    parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:meeting_list")}
+    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().process, "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
-        context["request_field_list"] = utils.get_request_field_list(obj, self.request.user)
-        context["review_field_list"] = utils.get_review_field_list()
+        context["meeting_field_list"] = utils.get_meeting_field_list()
         return context
 
 
-class MeetingCreateView(LoginAccessRequiredMixin, CommonCreateView):
+class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     model = models.Meeting
     form_class = forms.MeetingForm
     template_name = 'csas2/request_form.html'
     home_url_name = "csas2:index"
-    parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:meeting_list")}
+    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_process(), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
+
+    def get_process(self):
+        return get_object_or_404(models.Process, pk=self.kwargs.get("process"))
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        range = form.cleaned_data["date_range"].split("to")
+        start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
+        obj.start_date = start_date
+        if len(range) > 1:
+            end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
+            obj.end_date = end_date
+        else:
+            obj.end_date = start_date
+        obj.created_by = self.request.user
+        obj.process = self.get_process()
+        return super().form_valid(form)
+
+
+class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
+    model = models.Meeting
+    form_class = forms.MeetingForm
+    template_name = 'csas2/request_form.html'
+    home_url_name = "csas2:index"
+    greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_initial(self):
+        obj = self.get_object()
+        return dict(date_range=f"{obj.start_date.strftime('%Y-%m-%d')} to {obj.end_date.strftime('%Y-%m-%d')}")
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().process, "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("csas2:meeting_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        range = form.cleaned_data["date_range"].split("to")
+        start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
+        obj.start_date = start_date
+        if len(range) > 1:
+            end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
+            obj.end_date = end_date
+        else:
+            obj.end_date = start_date
+
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
+    model = models.Meeting
+    template_name = 'csas2/confirm_delete.html'
+    delete_protection = False
+    greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().process, "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("csas2:meeting_detail", args=[self.get_object().id])}
+
+    def get_success_url(self):
+        return self.get_grandparent_crumb()["url"]
+
+
+# # invitee #
+# ###########
+# 
+# class InviteeCreateView(CanModifyRequestRequiredMixin, CommonCreateView):
+#     model = models.Invitee
+#     form_class = forms.InviteeForm
+#     template_name = 'csas2/form.html'
+#     home_url_name = "csas2:index"
+#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+#     submit_text = gettext_lazy("Start a Review")
+# 
+#     def get_csas_request(self):
+#         return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("crequest"))
+# 
+#     def get_parent_crumb(self):
+#         return {"title": self.get_csas_request(), "url": reverse_lazy("csas2:request_detail", args=[self.get_csas_request().id])}
+# 
+#     def form_valid(self, form):
+#         obj = form.save(commit=False)
+#         obj.csas_request = self.get_csas_request()
+#         obj.created_by = self.request.user
+#         return super().form_valid(form)
+# 
+# 
+# class InviteeUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
+#     model = models.Invitee
+#     form_class = forms.InviteeForm
+#     template_name = 'csas2/form.html'
+#     home_url_name = "csas2:index"
+#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+# 
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
+# 
+#     def form_valid(self, form):
+#         obj = form.save(commit=False)
+#         obj.updated_by = self.request.user
+#         return super().form_valid(form)
+# 
+# 
+# class InviteeDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
+#     model = models.Invitee
+#     template_name = 'csas2/confirm_delete.html'
+#     delete_protection = False
+#     home_url_name = "csas2:index"
+#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+# 
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
+# 
+#     def delete(self, request, *args, **kwargs):
+#         # a little bit of gymnastics here in order to save the csas request truely following the deletion of the review (not working with signals)
+#         obj = self.get_object()
+#         csas_request = obj.csas_request
+#         success_url = self.get_parent_crumb().get("url")
+#         obj.delete()
+#         csas_request.save()
+#         return HttpResponseRedirect(success_url)
+
+
+# documents #
+############
+
+class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
+    template_name = 'csas2/list.html'
+    filterset_class = filters.DocumentFilter
+    paginate_by = 25
+    home_url_name = "csas2:index"
+    row_object_url_name = row_ = "csas2:document_detail"
+    container_class = "container-fluid"
+
+    field_list = [
+        {"name": 'process', "class": "", "width": ""},
+        {"name": 'type', "class": "", "width": ""},
+        {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'coordinator', "class": "", "width": ""},
+        {"name": 'client', "class": "", "width": ""},
+        {"name": 'section.full_name', "class": "", "width": ""},
+    ]
+
+    def get_queryset(self):
+        return models.Document.objects.filter(hide_from_list=False).annotate(
+            search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+
+
+class DocumentDetailView(LoginAccessRequiredMixin, CommonDetailView):
+    model = models.Document
+    template_name = 'csas2/document_detail/main.html'
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().process, "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+
+    def get_context_data(self, **kwargs):
+        obj = self.get_object()
+        context = super().get_context_data(**kwargs)
+        context["document_field_list"] = utils.get_document_field_list()
+        return context
+
+
+class DocumentCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
+    model = models.Document
+    form_class = forms.DocumentForm
+    template_name = 'csas2/request_form.html'
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_process(), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
 
     def get_process(self):
         return get_object_or_404(models.Process, pk=self.kwargs.get("process"))
@@ -367,15 +590,18 @@ class MeetingCreateView(LoginAccessRequiredMixin, CommonCreateView):
         return super().form_valid(form)
 
 
-class MeetingUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
-    model = models.Meeting
-    form_class = forms.MeetingForm
+class DocumentUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
+    model = models.Document
+    form_class = forms.DocumentForm
     template_name = 'csas2/request_form.html'
     home_url_name = "csas2:index"
-    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:meeting_list")}
+    greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().process, "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("csas2:meeting_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("csas2:document_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -383,53 +609,18 @@ class MeetingUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class MeetingDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
-    model = models.Meeting
-    success_url = reverse_lazy('csas2:meeting_list')
+class DocumentDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
+    model = models.Document
+    success_url = reverse_lazy('csas2:document_list')
     template_name = 'csas2/confirm_delete.html'
     delete_protection = False
-    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:meeting_list")}
+    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:document_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("csas2:meeting_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("csas2:document_detail", args=[self.get_object().id])}
 
 
-class MeetingSubmitView(MeetingUpdateView):
-    template_name = 'csas2/request_submit.html'
-    form_class = forms.TripRequestTimestampUpdateForm
-    submit_text = gettext_lazy("Proceed")
-
-    def get_active_page_name_crumb(self):
-        my_object = self.get_object()
-        return _("Un-submit request") if my_object.submission_date else _("Submit request")
-
-    def get_h1(self):
-        my_object = self.get_object()
-        if my_object.submission_date:
-            return _("Do you wish to un-submit the following request?")
-        else:
-            return _("Do you wish to submit the following request?")
-
-    def get_h3(self):
-        my_object = self.get_object()
-        if not my_object.submission_date:
-            return _("Please ensure the following items have been completed:")
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("csas2:meeting_detail", args=[self.get_object().id])}
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.updated_by = self.request.user
-        if obj.submission_date:
-            obj.submission_date = None
-        else:
-            obj.submission_date = timezone.now()
-        return super().form_valid(form)
-
-
-
-# REPORTS #
+# reports #
 ###########
 
 class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):

@@ -5,6 +5,11 @@ from . import views
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
+    # settings
+    path('settings/series/', views.SeriesFormsetView.as_view(), name="manage_series"),
+    path('settings/series/<int:pk>/delete/', views.SeriesHardDeleteView.as_view(), name="delete_series"),
+
+
     # requests
     path('requests/', views.CSASRequestListView.as_view(), name="request_list"),
     path('requests/new/', views.CSASRequestCreateView.as_view(), name="request_new"),
@@ -31,10 +36,21 @@ urlpatterns = [
     path('processes/<int:pk>/delete/', views.ProcessDeleteView.as_view(), name="process_delete"),
 
     # meetings
-    path('processes/<int:pk>/new-meeting/', views.MeetingCreateView.as_view(), name="meeting_new"),
+    path('processes/<int:process>/new-meeting/', views.MeetingCreateView.as_view(), name="meeting_new"),
     path('meetings/<int:pk>/view/', views.MeetingDetailView.as_view(), name="meeting_detail"),
     path('meetings/<int:pk>/edit/', views.MeetingUpdateView.as_view(), name="meeting_edit"),
     path('meetings/<int:pk>/delete/', views.MeetingDeleteView.as_view(), name="meeting_delete"),
+    #
+    # # invitees
+    # path('meetings/<int:meeting>/new-invitee/', views.InviteeCreateView.as_view(), name="invitee_new"),
+    # path('invitees/<int:pk>/edit/', views.InviteeUpdateView.as_view(), name="invitee_edit"),
+    # path('invitees/<int:pk>/delete/', views.InviteeDeleteView.as_view(), name="invitee_delete"),
+
+    # docs
+    path('processes/<int:process>/new-document/', views.DocumentCreateView.as_view(), name="document_new"),
+    path('documents/<int:pk>/view/', views.DocumentDetailView.as_view(), name="document_detail"),
+    path('documents/<int:pk>/edit/', views.DocumentUpdateView.as_view(), name="document_edit"),
+    path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name="document_delete"),
 
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested

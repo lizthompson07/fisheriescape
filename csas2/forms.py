@@ -1,10 +1,14 @@
 from django import forms
+from django.forms import modelformset_factory
 from django.utils.translation import gettext_lazy, gettext
 
 from shared_models.models import Section
 from . import models
 
 attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
+attr_fp_date_range = {"class": "fp-date-range", "placeholder": gettext_lazy("Click to select a range of dates..")}
+multi_select_js = {"class": "multi-select"}
+attr_fp_date_multiple = {"class": "fp-date-multiple", "placeholder": gettext_lazy("Click to select all applicable dates..")}
 chosen_js = {"class": "chosen-select-contains"}
 rows3 = {"rows": "3"}
 YES_NO_CHOICES = (
@@ -125,6 +129,8 @@ class ProcessForm(forms.ModelForm):
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
             'coordinator': forms.Select(attrs=chosen_js),
+            'lead_region': forms.Select(attrs=chosen_js),
+            'other_regions': forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
@@ -132,19 +138,51 @@ class ProcessForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices
 
+    def clean(self):
+        cleaned_data = super().clean()
+        # make sure that the lead_region is not also listed in the other_regions field
+        lead_region = cleaned_data.get("lead_region")
+        other_regions = cleaned_data.get("other_regions")
+
+        if lead_region in other_regions:
+            error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
+            self.add_error('other_regions', error_msg)
+        return self.cleaned_data
 
 
 class MeetingForm(forms.ModelForm):
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Meeting dates"))
+
     class Meta:
         model = models.Meeting
+        exclude = ["start_date", "end_date"]
+
+
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = models.Document
         fields = "__all__"
-        # widgets = {
-        #     'csas_requests': forms.SelectMultiple(attrs=chosen_js),
-        #     'advisors': forms.SelectMultiple(attrs=chosen_js),
-        #     'coordinator': forms.Select(attrs=chosen_js),
-        # }
-    #
-    # def __init__(self, *args, **kwargs):
-    #     request_choices = [(obj.id, f"{obj.id} - {str(obj)}") for obj in models.CSASRequest.objects.all()]
-    #     super().__init__(*args, **kwargs)
-    #     self.fields["csas_requests"].choices = request_choices
+        widgets = {
+            'meetings': forms.SelectMultiple(attrs=multi_select_js),
+
+        }
+
+
+
+
+
+class SeriesForm(forms.ModelForm):
+    class Meta:
+        model = models.Series
+        fields = "__all__"
+        widgets = {
+            # 'name': forms.Textarea(attrs={"rows": 3}),
+            # 'nom': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+SeriesFormset = modelformset_factory(
+    model=models.Series,
+    form=SeriesForm,
+    extra=1,
+)

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
 from django.db import models
-from django.template.defaultfilters import date, slugify
+from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
@@ -175,16 +176,14 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
     lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
-    other_region = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
-
-    csas_requests = models.ManyToManyField(CSASRequest, blank=False, related_name="processes")
+    other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
+    csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"))
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
     context = models.TextField(blank=True, null=True, verbose_name=_("context"))
     objectives = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
     expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
 
-    # we should probably have the ToR fields right here
     @property
     def context_html(self):
         if self.context:
@@ -200,26 +199,30 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         if self.expected_publications:
             return mark_safe(markdown(self.expected_publications))
 
+    @property
+    def scope_type(self):
+        return f"{self.get_scope_display()} {self.get_type_display()}"
 
-class Meeting(SimpleLookup, MetadataFields):
+
+class Meeting(MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
-
-
     process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
-    # basic
-    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
-    proponent = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("proponent"))
     type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
-    start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
-    end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
-    rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))
+    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"), help_text=_("City, State/Province, Country"))
+    start_date = models.DateTimeField(verbose_name=_("initial activity date"))
+    end_date = models.DateTimeField(verbose_name=_("anticipated end date"))
+    # rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))
+    hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
 
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="meetings",
                                     editable=False)
 
+    def __str__(self):
+        return self.get_type_display() + f" ({self.start_date.strftime('%Y-%m-%d')})"
+
     class Meta:
-        ordering = ['-updated_at', ]
+        ordering = ['start_date', ]
 
     @property
     def attendees(self):
@@ -245,13 +248,8 @@ class Meeting(SimpleLookup, MetadataFields):
 
 class MeetingNote(MetadataFields):
     ''' a note pertaining to a meeting'''
-    type_choices = (
-        (1, 'To Do'),
-        (2, 'Next step'),
-        (3, 'General comment'),
-    )
     meeting = models.ForeignKey(Meeting, related_name='notes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=type_choices, verbose_name=_("type"))
+    type = models.IntegerField(choices=model_choices.meeting_note_type_choices, verbose_name=_("type"))
     note = models.TextField(verbose_name=_("note"))
     is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
 
@@ -259,30 +257,11 @@ class MeetingNote(MetadataFields):
         ordering = ["is_complete", "-updated_at", ]
 
 
-def resource_directory_path(instance, filename):
-    return 'events/{0}/{1}'.format(instance.event.id, filename)
-
-
 class MeetingResource(SimpleLookup, MetadataFields):
     ''' a file attached to to meeting'''
     meeting = models.ForeignKey(Meeting, related_name='resources', on_delete=models.CASCADE)
-
-    # for an actual file hosted on dmapps
-    file_en = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (English)"), blank=True, null=True)
-    file_fr = models.FileField(upload_to=resource_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
-
-    # for a file hosted somewhere else
     url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
     url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
-
-    @property
-    def tfile(self):
-        # check to see if a french value is given
-        if getattr(self, gettext("file_en")):
-            return getattr(self, gettext("file_en"))
-        # if there is no translated term, just pull from the english field
-        else:
-            return self.file_en
 
     @property
     def turl(self):
@@ -299,23 +278,10 @@ class MeetingResource(SimpleLookup, MetadataFields):
 
 class Invitee(models.Model):
     ''' a person that was invited to a meeting'''
-    # Choices for role
-    role_choices = (
-        (1, 'Participant'),
-        (2, 'Chair'),
-        (3, 'Expert'),
-        (4, 'Steering Committee Member'),
-    )
-    status_choices = (
-        (0, 'Invited'),
-        (1, 'Accepted'),
-        (2, 'Declined'),
-        (9, 'No response'),
-    )
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="invitees")
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="meeting_invites")
-    role = models.IntegerField(choices=role_choices, verbose_name=_("Function"), default=1)
-    status = models.IntegerField(choices=status_choices, verbose_name=_("status"), default=0)
+    role = models.IntegerField(choices=model_choices.invitee_role_choices, verbose_name=_("Function"), default=1)
+    status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=0)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("MeetingResource", editable=False)
 
@@ -338,6 +304,121 @@ class Attendance(models.Model):
         unique_together = (("invitee", "date"),)
 
 
+class Series(SimpleLookup):
+    pass
+
+
 class Document(MetadataFields):
-    process = models.ForeignKey(Process, on_delete=models.CASCADE, editable=False)
-    meetings = models.ManyToManyField(Meeting, blank=True)
+    process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False)
+    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"))
+    type = models.IntegerField(choices=model_choices.document_type_choices, verbose_name=_("type"))
+    series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("series"))
+    title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
+    title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
+    title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
+    year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
+    pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True)
+    pages = models.IntegerField(null=True, blank=True, verbose_name=_("pages"))
+    hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
+
+    # description_en = models.TextField(null=True, blank=True, verbose_name=_("description"))
+    # description_fr = models.TextField(null=True, blank=True, verbose_name=_("description"))
+
+    # non-editable
+    people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
+    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.document_status_choices, editable=False)
+    old_id = models.IntegerField(blank=True, null=True, editable=False)
+
+    @property
+    def ttitle(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("title_en"))):
+            my_str = "{}".format(getattr(self, str(_("title_en"))))
+        else:
+            my_str = self.title_en
+        return my_str
+
+    def __str__(self):
+        return self.ttitle
+
+# class DocumentTracking(MetadataFields):
+#     ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
+#     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="authors")
+#     # administrative
+#     date_due = models.DateField(null=True, blank=True, verbose_name=_("due date"))
+#     date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"), )
+#     submitted_by = models.ManyToManyField(ConContact, blank=True, related_name="submitted_by", verbose_name=_("Submitted By"))
+#     date_appr_by_chair = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Chair"), )
+#     appr_by_chair = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_chair", verbose_name=_("Approved By (Chair)"))
+#     data_appr_by_CSAS = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by CSAS"), )
+#     appr_by_CSAS = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_CSAS", verbose_name=_("Approved By (CSAS Contact)"))
+#     date_appr_by_dir = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Director"), )
+#     appr_by_dir = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_dir", verbose_name=_("Approved By Director"))
+#     date_num_req = models.DateField(null=True, blank=True, verbose_name=_("Date Number Requested"), )
+#     date_doc_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Document Submitted to CSAS"), )
+#     date_pdf_proof = models.DateField(null=True, blank=True, verbose_name=_("Date PDF Proof Sent to Author"), )
+#     appr_by = models.ManyToManyField(ConContact, blank=True, related_name="appr_by", verbose_name=_("Approved by (PDF Proof)"))
+#     date_anti = models.DateField(null=True, blank=True, verbose_name=_("Date of Anticipated Posting"), )
+#     date_posted = models.DateField(null=True, blank=True, verbose_name=_("Date Posted"), )
+#     date_modify = models.DateField(null=True, blank=True, verbose_name=_("Date Modified"), )
+#     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
+#
+#     trans_status = models.ForeignKey(PtsPublicationTransStatus, on_delete=models.DO_NOTHING, verbose_name=_("Translation Status"))
+#     date_to_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Sent to Translation"), )
+#     client_ref_num = models.CharField(default="NA", max_length=255, verbose_name=_("Client Reference Number"))
+#     target_lang = models.ForeignKey(PtlPublicationTargetLanguage, on_delete=models.DO_NOTHING, verbose_name=_("Target Language"))
+#     trans_ref_num = models.CharField(default="NA", max_length=255, verbose_name=_("Translator Reference Number"))
+#     urgent_req = models.ForeignKey(PurPublicationUrgentRequest, on_delete=models.DO_NOTHING, verbose_name=_("Urgent Request"))
+#     date_fr_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Back from Translation"), )
+#     invoice_num = models.CharField(default="NA", max_length=255, verbose_name=_("Invoice Number"))
+#     attach = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment(s)"))
+#     trans_note = models.TextField(null=True, blank=True, verbose_name=_("Translation Notes"))
+#
+#     p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
+#     attach_en_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) File"))
+#     attach_en_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) Size"))
+#     attach_fr_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) File"))
+#     attach_fr_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) Size"))
+#
+#     url_e_file = models.URLField(_("URL (English)"), max_length=255, db_index=True, unique=True, blank=True)
+#     url_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("URL (English) Size"))
+#     url_f_file = models.URLField(_("URL (French)"), max_length=255, db_index=True, unique=True, blank=True)
+#     url_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("URL (French) Size"))
+#
+#     dev_link_e_file = models.URLField(_("Dev Link (English)"), max_length=255, db_index=True, unique=True, blank=True)
+#     dev_link_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Dev Link (English) Size"))
+#     dev_link_f_file = models.URLField(_("Dev Link (French)"), max_length=255, db_index=True, unique=True, blank=True)
+#     dev_link_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Dev Link (French) Size"))
+#
+#     ekme_gcdocs_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (English)"))
+#     ekme_gcdocs_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (English) Size"))
+#     ekme_gcdocs_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (French)"))
+#     ekme_gcdocs_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (French) Size"))
+#
+#     lib_cat_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English)"))
+#     lib_cat_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English) Size"))
+#     lib_cat_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French)"))
+#     lib_cat_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French) Size"))
+#
+#     lib_link_e_file = models.URLField(_("Library Link (English)"), max_length=255, db_index=True, unique=True, blank=True)
+#     lib_link_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Link (English) Size"))
+#     lib_link_f_file = models.URLField(_("Library Link (French)"), max_length=255, db_index=True, unique=True, blank=True)
+#     lib_link_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Link (French) Size"))
+#
+#     # tracking
+#
+#     class Meta:
+#         ordering = ['-id']
+
+
+
+
+class Author(models.Model):
+    ''' a person that was invited to a meeting'''
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="authors")
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="authorship")
+    is_lead = models.BooleanField(default=False, verbose_name=_("lead author?"))
+
+    class Meta:
+        ordering = ['person__first_name', "person__last_name"]
+        unique_together = (("document", "person"),)

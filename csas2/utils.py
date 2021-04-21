@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group
 # open basic access up to anybody who is logged in
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
@@ -78,11 +79,13 @@ def get_division_choices(with_requests=False, region_filter=None):
     return [(d.id, str(d)) for d in
             Division.objects.filter(id__in=division_list).order_by("branch__region", "name")]
 
+
 def get_branch_choices(with_requests=False, region_filter=None):
     branch_list = set(
         [Division.objects.get(pk=d[0]).branch_id for d in get_division_choices(with_requests=with_requests, region_filter=region_filter)])
     return [(b.id, str(b)) for b in
             Branch.objects.filter(id__in=branch_list).order_by("region", "name")]
+
 
 def get_region_choices(with_requests=False):
     region_list = set(
@@ -180,7 +183,7 @@ def get_request_field_list(csas_request, user):
         'section',
         'coordinator',
         'client',
-        'multiregional_display|{}'.format(_("Multiregional / Multisector?")),
+        'multiregional_display|{}'.format(_("Multiregional / multisector?")),
         'issue_html|{}'.format(get_verbose_label(csas_request, "issue")),
         'assistance_display|{}'.format(_("Assistance from DFO Science?")),
         'rationale_html|{}'.format(get_verbose_label(csas_request, "rationale")),
@@ -211,9 +214,11 @@ def get_review_field_list():
 def get_process_field_list(process):
     my_list = [
         'tname|{}'.format(_("Title")),
-        'type',
+        'scope_type|{}'.format(_("advisory process type")),
         'coordinator',
         'advisors',
+        'lead_region',
+        'other_regions',
         'context_html|{}'.format(get_verbose_label(process, "context")),
         'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
         'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
@@ -222,3 +227,41 @@ def get_process_field_list(process):
     ]
     while None in my_list: my_list.remove(None)
     return my_list
+
+
+def get_meeting_field_list():
+    my_list = [
+        'process',
+        'type',
+        'location',
+        'display_dates|{}'.format(_("dates")),
+        'metadata|{}'.format(_("metadata")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+
+def get_document_field_list():
+    my_list = [
+        'process',
+        'title_en',
+        'title_fr',
+        'title_in',
+        'type',
+        'series',
+        'year',
+        'pub_number',
+        'pages',
+        'hide_from_list',
+        'metadata|{}'.format(_("metadata")),
+
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list
+
+
+def get_related_requests(user):
+    """give me a user and I'll send back a queryset with all related requests, i.e.
+     they are a client || they are a coordinator || they are the request.created_by"""
+    qs = models.CSASRequest.objects.filter(Q(created_by=user) | Q(coordinator=user)).distinct()
+    return qs

@@ -23,7 +23,6 @@
       {% include "shared_models/_generic_breadcrumbs.html" %}
       <div class="mb-3">
         <h2 class="">{{ h1|safe }}</h2>
-        <p class="lead text-muted mt-1 mb-0">{% trans "Process ID:" %} {{ object.id }}</p>
       </div>
       {% bootstrap_messages %}
       <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
@@ -34,30 +33,28 @@
     </div>
 
     <div class="mb-3">
-      <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
-      <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
-      <a class="btn btn-sm btn-primary ml-3" href=""><span class="mdi mdi-file-document text-light mr-1"></span>{% trans "Export ToR" %}</a>
+      <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
+      <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
     </div>
 
     <div class="mb-5">
-      <table class="table table-sm" style="width: auto">
-        {% for field in process_field_list %}
+      <table class="table table-sm">
+        {% for field in document_field_list %}
           {% verbose_td_display object field th_width="300px" %}
         {% endfor %}
-        {# requests #}
         <tr>
           <th>
-            {% trans "Connected requests" %}
+            {% trans "Meeting linkages" %}
           </th>
           <td>
-            {% if object.csas_requests.exists %}
-              {% for obj in object.csas_requests.all %}
+            {% if object.meetings.exists %}
+              {% for obj in object.meetings.all %}
                 <div>
-                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj }}</a>
+                  <a href="{% url 'csas2:meeting_detail' obj.id %}">{{ obj }}</a>
                 </div>
               {% endfor %}
             {% else %}
-              <em>{% trans "There are no requests attached to this process." %}</em>
+              <em>{% trans "There are no meetings linked to this document." %}</em>
             {% endif %}
           </td>
         </tr>
@@ -65,86 +62,67 @@
       </table>
     </div>
 
-
     <div class="mb-5">
       <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="{% url 'csas2:meeting_new' object.id %}">{% trans "Add Meeting" %}</a>
+        <a class="btn btn-sm btn-success" href="#">{% trans "Add Author" %}</a>
       </div>
-      <h4>{% trans "Meetings" %}</h4>
-      {% if object.meetings.exists %}
+      <h4>{% trans "Authors" %}</h4>
+      {% if object.invitees.exists %}
 
-        <table class="table table-bordered table-hover table-sm">
-          <thead>
-          <tr>
-{#          #}
-            {% for field in meeting_field_list %}
-              <th>{% get_verbose_label object.meetings.first field %}</th>
-            {% endfor %}
-          </tr>
-          </thead>
-          <tbody>
-          {% for obj in object.meetings.all %}
-            <tr @click="followLink('{% url 'csas2:meeting_detail' obj.id %}')" class="pointy">
-              {% for field in meeting_field_list %}
-                <td>{% get_field_value obj field safe=True %}</td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <em>{% trans "There are no meetings associated with this process." %}</em>
-      {% endif %}
-    </div>
-
-    <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="{% url 'csas2:document_new' object.id %}">{% trans "Add Document" %}</a>
-      </div>
-      <h4>{% trans "Documents" %}</h4>
-      {% if object.documents.exists %}
-
-        <table class="table table-bordered table-hover table-sm">
+        <table class="table table-sm">
           <thead>
           <tr>
             {% for field in document_field_list %}
-              <th rowspan="2">{% get_verbose_label object.documents.first field %}</th>
-            {% endfor %}
-            {% if object.meetings.exists %}
-              <th class="text-center" colspan="{{ object.meetings.count }}">{% trans "Meeting Linkages" %}</th>
-            {% endif %}
-          </tr>
-          <tr>
-            {% for meeting in object.meetings.all %}
-              <th class="text-center text-muted">{{ meeting.get_type_display }}</th>
+              <th>{% get_verbose_label object.documents.first field %}</th>
             {% endfor %}
           </tr>
           </thead>
           <tbody>
           {% for obj in object.documents.all %}
-            <tr @click="followLink('{% url 'csas2:document_detail' obj.id %}')" class="pointy">
+            <tr href="" @click="followLink('{% url 'csas2:document_detail' obj.id %}')" class="pointy">
               {% for field in document_field_list %}
-                <td>{% get_field_value obj field safe=True %}</td>
-              {% endfor %}
-              {% for meeting in object.meetings.all %}
-                <td class="text-center py-0">
-                {% if meeting in obj.meetings.all %}
-                  <button @click="stopPropagation" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span> </button>
-                {% else %}
-                  <button @click="stopPropagation" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span> </button>
-                {% endif %}
-                </td>
+                <td>{% get_field_value obj field %}</td>
               {% endfor %}
             </tr>
           {% endfor %}
           </tbody>
         </table>
       {% else %}
-        <em>{% trans "There are no documents associated with this process." %}</em>
+        <em>{% trans "There are no authors associated with this document." %}</em>
       {% endif %}
     </div>
 
-    {# end #}
+    <div class="mb-5">
+      <div class="mb-3 float-right">
+        <a class="btn btn-sm btn-success" href="#">{% trans "Add Cost" %}</a>
+      </div>
+      <h4>{% trans "Costs" %}</h4>
+      {% if object.invitees.exists %}
+
+        <table class="table table-sm">
+          <thead>
+          <tr>
+            {% for field in document_field_list %}
+              <th>{% get_verbose_label object.documents.first field %}</th>
+            {% endfor %}
+          </tr>
+          </thead>
+          <tbody>
+          {% for obj in object.documents.all %}
+            <tr href="" @click="followLink('{% url 'csas2:document_detail' obj.id %}')" class="pointy">
+              {% for field in document_field_list %}
+                <td>{% get_field_value obj field %}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <em>{% trans "There are no costs associated with this document." %}</em>
+      {% endif %}
+    </div>
+
+
   </div>
 
 
@@ -181,12 +159,6 @@
       },
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
-      },
-      followLink(url) {
-        window.location.href = url;
-      },
-      stopPropagation(event){
-        event.stopPropagation()
       },
       getObservations() {
         this.loadingObservations = true;

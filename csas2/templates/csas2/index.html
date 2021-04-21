@@ -34,7 +34,8 @@
             <div class="card-body">
               <h5 class="card-title"> {% trans "Requests" %} </h5>
               <p class="card-text">{% trans "Create modify or view the status of a CSAS Request" %}</p>
-              <a href="{% url 'csas2:request_list'  %}" class="btn btn-primary">Go</a>
+              <a href="{% url 'csas2:request_list'  %}?personalized=true" class="btn btn-warning">{% trans "My" %}</a>
+              <a href="{% url 'csas2:request_list'  %}" class="btn btn-primary">{% trans "All" %}</a>
             </div>
           </div>
         </div>
@@ -43,39 +44,41 @@
             <div class="card-body">
               <h5 class="card-title">{% trans "Processes" %}</h5>
               <p class="card-text">{% trans "Create modify or view the status of a CSAS Processes" %}</p>
-              <a href="{% url 'csas2:process_list'  %}" class="btn btn-primary">Go</a>
+              <a href="{% url 'csas2:process_list'  %}" class="btn btn-warning disabled">{% trans "My" %}</a>
+              <a href="{% url 'csas2:process_list'  %}" class="btn btn-primary">{% trans "All" %}</a>
             </div>
           </div>
         </div>
-        <div class="neighbours mx-3 my-3">
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title">{% trans "Meetings" %}</h5>
-              <p class="card-text">{% trans "Find a CSAS meeting" %}</p>
-              <a href="#" class="btn btn-primary disabled">Go</a>
-            </div>
-          </div>
-        </div>
+{#        <div class="neighbours mx-3 my-3">#}
+{#          <div class="card" style="width: 18rem;">#}
+{#            <div class="card-body">#}
+{#              <h5 class="card-title">{% trans "Meetings" %}</h5>#}
+{#              <p class="card-text">{% trans "Find a CSAS meeting" %}</p>#}
+{#              <a href="#" class="btn btn-primary disabled">{% trans "All" %}</a>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
 
         <div class="neighbours mx-3 my-3">
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title">{% trans "Documents" %}</h5>
               <p class="card-text">{% trans "Find a CSAS Document" %}</p>
-              <a href="#" class="btn btn-primary disabled">Go</a>
+              <a href="#" class="btn btn-warning disabled">{% trans "My" %}</a>
+              <a href="#" class="btn btn-primary disabled">{% trans "All" %}</a>
             </div>
           </div>
         </div>
 
-        <div class="neighbours mx-3">
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title">{% trans "Contacts" %}</h5>
-              <p class="card-text">{% trans "Manage Contacts and Meeting Invitees" %}</p>
-              <a href="#" class="btn btn-primary disabled">Go</a>
-            </div>
-          </div>
-        </div>
+{#        <div class="neighbours mx-3">#}
+{#          <div class="card" style="width: 18rem;">#}
+{#            <div class="card-body">#}
+{#              <h5 class="card-title">{% trans "Contacts" %}</h5>#}
+{#              <p class="card-text">{% trans "Manage Contacts and Meeting Invitees" %}</p>#}
+{#              <a href="#" class="btn btn-primary disabled">{% trans "All" %}</a>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
       </div>
 
       {#      #}
