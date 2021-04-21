@@ -177,6 +177,7 @@ class EqtEquipmentTypeCode(shared_models.Lookup):
 
 class EtrTechnicalRepairEvent(models.Model):
     eqp = models.ForeignKey("EqpEquipment", on_delete=models.DO_NOTHING, verbose_name=_("Equipment"))
+    hyd = models.ForeignKey("EqpEquipment", on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Hydrophone"), related_name="etr_hydrophones")
     etr_date = models.DateField(blank=True, null=True, verbose_name=_("Date"))
     etr_issue_desc = models.TextField(blank=True, null=True, verbose_name=_("Issue"))
     etr_repair_desc = models.TextField(blank=True, null=True, verbose_name=_("Repair"))
