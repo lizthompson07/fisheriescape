@@ -29,6 +29,8 @@ def coldbrook_electrofishing_parser(cleaned_data):
         for river_name in data["River"].unique():
             river_dict[river_name] = models.RiverCode.objects.filter(name__iexact=river_name).get()
 
+        leader_code = models.RoleCode.objects.filter(name__iexact="Crew Lead").get()
+
     except Exception as err:
         log_data += "\n Error in preparing data: {}".format(err.__str__())
         return log_data, False
@@ -69,6 +71,22 @@ def coldbrook_electrofishing_parser(cleaned_data):
                                                      rive_id=loc.rive_id, subr_id=loc.subr_id,
                                                      relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                      loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
+
+            if utils.nan_to_none(row["Crew"]):
+                row_percs, inits_not_found = utils.team_list_splitter(row["Crew"])
+                for perc in row_percs:
+                    utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc)
+                for inits in inits_not_found:
+                    log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
+                                                                                                              row)
+
+            if utils.nan_to_none(row["crew lead"]):
+                row_percs, inits_not_found = utils.team_list_splitter(row["crew lead"])
+                for perc in row_percs:
+                    utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc, role_id=leader_code)
+                for inits in inits_not_found:
+                    log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
+                                                                                                              row)
 
             if utils.enter_env(row["temp"], row_datetime, cleaned_data, temp_envc_id, loc_id=loc, ):
                 row_entered = True
