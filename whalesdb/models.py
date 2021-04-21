@@ -87,9 +87,9 @@ class EcpChannelProperty(models.Model):
     ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', on_delete=models.DO_NOTHING, db_column='eqa_adc_bits',
                                      verbose_name=_("ADC Bits"))
-    ecp_voltage_range_min = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True,
+    ecp_voltage_range_min = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
                                                 verbose_name=_("Maximum voltage"))
-    ecp_voltage_range_max = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True,
+    ecp_voltage_range_max = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
                                                 verbose_name=_("Minimum voltage"))
 
     class Meta:
