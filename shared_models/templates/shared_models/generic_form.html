@@ -10,7 +10,7 @@
   </div>
 
   {% block form %}
-    <form method="post" class="form" {% if is_multipart_form_data %}enctype="multipart/form-data"{% endif %}>
+    <form method="post" class="form" {% if is_multipart_form_data %}enctype="multipart/form-data"{% endif %} onsubmit="switchButtons();">
       {% csrf_token %}
       {% if form %}
         {% bootstrap_form_errors form %}
@@ -56,10 +56,10 @@
   </div>
 
   <script type="application/javascript">
-  $("#submit-btn").click(function () {
-    $(this).addClass("gone")
+  function switchButtons() {
+    $("#submit-btn").addClass("gone")
     $("#thinking-btn").removeClass("gone")
-  })
+  }
   </script>
 
 {% endblock %}
