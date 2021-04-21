@@ -591,7 +591,7 @@ class EmmDetails(mixins.EmmMixin, CommonDetails):
 
 
 class EtrDetails(mixins.EtrMixin, CommonDetails):
-    fields = ['eqp', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
+    fields = ['eqp', 'hyd', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
 
 
 class EqpDetails(mixins.EqpMixin, CommonDetails):
@@ -827,6 +827,7 @@ class EtrList(mixins.EtrMixin, CommonList):
     field_list = [
         {"name": "etr_date"},
         {"name": "eqp"},
+        {"name": "hyd"},
         {"name": "etr_issue_desc"},
         {"name": "etr_repair_desc"},
         {"name": "etr_repaired_by"},
