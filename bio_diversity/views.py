@@ -924,8 +924,8 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
-    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "start_time|Start Time", "end_date|End Date",
-              "end_time|End Time", "comments", "created_by", "created_date", ]
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "start_date|Start Date", "start_time|Start Time",
+              "end_date|End Date", "end_time|End Time", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template

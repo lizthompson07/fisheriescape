@@ -181,8 +181,10 @@ def comment_parser(comment_str, anix_indv, det_date):
     coke_dict = get_comment_keywords_dict()
     parser_list = coke_dict.keys()
     mortality = False
+    parsed = False
     for term in parser_list:
         if term.lower() in comment_str.lower():
+            parsed = True
             adsc = coke_dict[term]
             if adsc.name == "Mortality":
                 mortality = True
@@ -201,8 +203,10 @@ def comment_parser(comment_str, anix_indv, det_date):
             except (ValidationError, IntegrityError):
                 pass
     if mortality:
+        parsed = True
         anix_indv.indv_id.indv_valid = False
         anix_indv.indv_id.save()
+    return parsed
 
 
 def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None, return_end_contx=False):
