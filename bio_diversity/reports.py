@@ -57,7 +57,8 @@ def generate_facility_tank_report(facic_id):
 
             cnt = 0
             year_coll_set = set()
-            indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id","indv_id__grp_id__coll_id"])
+            indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
+                                                                   "indv_id__grp_id__coll_id"])
             if indv_list:
                 ws['B' + str(row_count)].value = "Y"
                 cnt += len(indv_list)

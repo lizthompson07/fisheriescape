@@ -1,4 +1,4 @@
-from datetime import  datetime
+from datetime import datetime
 
 import pytz
 from django.core.exceptions import ValidationError
@@ -242,7 +242,8 @@ def mactaquac_electrofishing_parser(cleaned_data):
                 for perc in row_percs:
                     utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc)
                 for inits in inits_not_found:
-                    log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits, row)
+                    log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
+                                                                                                              row)
 
             if utils.enter_env(row["Temperature"], row_date, cleaned_data, temp_envc_id, loc_id=loc, ):
                 row_entered = True

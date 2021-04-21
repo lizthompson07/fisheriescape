@@ -138,10 +138,6 @@ class EnvtcFilter(django_filters.FilterSet):
 
 class EvntFilter(django_filters.FilterSet):
 
-    def __init__(self, *args, **kwargs):
-        kwargs["queryset"] = models.Event.objects.all().select_related("facic_id", "evntc_id")
-        super().__init__(*args, **kwargs)
-
     class Meta:
         model = models.Event
         fields = ["facic_id", "evntc_id", "perc_id", "prog_id", ]
@@ -205,10 +201,6 @@ class FeedmFilter(django_filters.FilterSet):
 
 class GrpFilter(django_filters.FilterSet):
 
-    def __init__(self, *args, **kwargs):
-        kwargs["queryset"] = models.Group.objects.all().select_related("stok_id", "coll_id")
-        super().__init__(*args, **kwargs)
-
     class Meta:
         model = models.Group
         fields = ["spec_id", "stok_id", "grp_year", ]
@@ -254,14 +246,10 @@ class IndvFilter(django_filters.FilterSet):
 
     ufid = django_filters.CharFilter(field_name='ufid', lookup_expr='icontains')
 
-    # def __init__(self, *args, **kwargs):
-    #     kwargs["queryset"] = models.Individual.objects.all().select_related("stok_id", "coll_id")
-    #     super().__init__(*args, **kwargs)
-
     class Meta:
         model = models.Individual
         fields = {"pit_tag": ["icontains"],
-                  } #"ufid", "spec_id", "stok_id", "indv_year", ]
+                  }
 
 
 class IndvdFilter(django_filters.FilterSet):
@@ -375,7 +363,7 @@ class ProtFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Protocol
-        fields = ["prog_id", "protc_id", "facic_id",]
+        fields = ["prog_id", "protc_id", "facic_id", ]
 
 
 class ProtcFilter(django_filters.FilterSet):
@@ -516,7 +504,7 @@ class TrayFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Tray
-        fields = ["name", "nom", "trof_id" ]
+        fields = ["name", "nom", "trof_id"]
 
 
 class TraydFilter(django_filters.FilterSet):
@@ -537,7 +525,7 @@ class TrofFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Trough
-        fields = ["name", "nom", "facic_id",]
+        fields = ["name", "nom", "facic_id", ]
 
 
 class TrofdFilter(django_filters.FilterSet):

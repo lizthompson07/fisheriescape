@@ -5,14 +5,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models import TextField
-from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
 from shapely.geometry import box
 
-from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView, \
+from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, CommonTemplateView, \
     CommonFormsetView, CommonHardDeleteView, CommonFormView, CommonFilterView
 from django.urls import reverse_lazy, reverse
 from django import forms
@@ -44,6 +42,7 @@ class SiteLoginRequiredMixin(UserPassesTestMixin):
             return utils.bio_diverisity_admin(self.request.user)
         else:
             return utils.bio_diverisity_authorized(self.request.user)
+
 
 class AdminIndexTemplateView(TemplateView):
     nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
@@ -876,10 +875,10 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
         cup_field_list = ["name", ]
         obj_mixin = mixins.CupMixin
         context["context_dict"]["cup"] = {"div_title": "Cups in Drawer",
-                                           "sub_model_key": obj_mixin.key,
-                                           "objects_list": cup_set,
-                                           "field_list": cup_field_list,
-                                           "single_object": obj_mixin.model.objects.first()}
+                                          "sub_model_key": obj_mixin.key,
+                                          "objects_list": cup_set,
+                                          "field_list": cup_field_list,
+                                          "single_object": obj_mixin.model.objects.first()}
         return context
 
 
@@ -1452,10 +1451,10 @@ class RelcDetails(mixins.RelcMixin, CommonDetails):
         obj_field_list = ["locc_id", "start_date|Date"]
         obj_mixin = mixins.LocMixin
         context["context_dict"]["loc"] = {"div_title": "{} Details".format(obj_mixin.title),
-                                           "sub_model_key": obj_mixin.key,
-                                           "objects_list": obj_set,
-                                           "field_list": obj_field_list,
-                                           "single_object": obj_mixin.model.objects.first()}
+                                          "sub_model_key": obj_mixin.key,
+                                          "objects_list": obj_set,
+                                          "field_list": obj_field_list,
+                                          "single_object": obj_mixin.model.objects.first()}
 
         return context
 

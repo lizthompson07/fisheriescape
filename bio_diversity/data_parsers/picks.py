@@ -1,18 +1,10 @@
-import inspect
 import math
-import os
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 import pytz
-from django import forms
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.db.models import Q
-from django.forms import modelformset_factory
-from django.utils.translation import gettext
 import pandas as pd
-from decimal import Decimal
-from django.utils.translation import gettext_lazy as _
 import numpy as np
 
 from bio_diversity import models

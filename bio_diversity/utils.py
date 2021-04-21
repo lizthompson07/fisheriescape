@@ -388,7 +388,7 @@ def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None):
                            role_id=role_id,
                            created_by=evnt_id.created_by,
                            created_date=evnt_id.created_date,
-    )
+                           )
     try:
         team.clean()
         team.save()

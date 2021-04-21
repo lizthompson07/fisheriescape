@@ -381,7 +381,6 @@ class Count(BioModel):
     def __str__(self):
         return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
 
-
     @property
     def date(self):
         if self.contx_id:

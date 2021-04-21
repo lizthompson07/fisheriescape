@@ -1,5 +1,5 @@
 
-from datetime import  datetime
+from datetime import datetime
 
 import pytz
 from django.core.exceptions import ValidationError
@@ -114,12 +114,14 @@ def coldbrook_tagging_parser(cleaned_data):
                     if utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code):
                         row_entered = True
                 for inits in inits_not_found:
-                    log_data += "No valid personnel with initials ({}) from row with pit tag {}\n".format(inits, row["PIT tag"])
+                    log_data += "No valid personnel with initials ({}) for row with pit tag {}\n".format(inits,
+                                                                                                         row["PIT tag"])
 
             if utils.nan_to_none(row["comments"]):
                 comments_parsed = utils.comment_parser(row["comments"], anix_indv, det_date=row_datetime.date())
                 if not comments_parsed:
-                    log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row["PIT tag"], row["comments"])
+                    log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row["PIT tag"],
+                                                                                            row["comments"])
 
         except Exception as err:
             log_data += "Error parsing row: \n"
@@ -145,11 +147,11 @@ def coldbrook_tagging_parser(cleaned_data):
                 utils.enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
 
     except Exception as err:
-                log_data += "Error parsing common data (recording counts on tank movements)\n "
-                log_data += "\n Error: {}".format(err.__str__())
-                log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                            " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-                return log_data, False
+        log_data += "Error parsing common data (recording counts on tank movements)\n "
+        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
+                    " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+        return log_data, False
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
@@ -174,8 +176,8 @@ def mactaquac_tagging_parser(cleaned_data):
     grp_id = False
     try:
         if len(data["Collection"].unique()) > 1 or len(data["Stock"].unique()) > 1:
-            log_data += "\n WARNING: Form only designed for use with single group. Check \"Collection\" column and split" \
-                        " sheet if needed. \n"
+            log_data += "\n WARNING: Form only designed for use with single group. Check \"Collection\"" \
+                        " column and split sheet if needed. \n"
 
         year, coll = utils.year_coll_splitter(data["Collection"][0])
         grp_qs = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"],
@@ -288,11 +290,11 @@ def mactaquac_tagging_parser(cleaned_data):
                 utils.enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
 
     except Exception as err:
-                log_data += "Error parsing common data (recording counts on tank movements)\n "
-                log_data += "\n Error: {}".format(err.__str__())
-                log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                            " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-                return log_data, False
+        log_data += "Error parsing common data (recording counts on tank movements)\n "
+        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
+                    " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+        return log_data, False
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
     return log_data, True
