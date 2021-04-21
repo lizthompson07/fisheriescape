@@ -535,6 +535,7 @@ def generate_open_data_ver_1_report(year=None):
         line__sample_id__in=[obj["id"] for obj in samples.order_by("id").values("id").distinct()],
         line__is_lost=False,
         is_lost=False,
+        is_damaged=False,
     ).order_by("line__sample__date_deployed")
 
     for surface in surfaces:
@@ -661,6 +662,7 @@ def generate_open_data_ver_1_wms_report(year, lang):
         surface__line__sample_id__in=[obj["id"] for obj in samples.order_by("id").values("id").distinct()],
         surface__line__is_lost=False,
         surface__is_lost=False,
+        surface__is_damaged=False,
     )
 
     for station in stations:
