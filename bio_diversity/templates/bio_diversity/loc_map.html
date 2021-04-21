@@ -181,6 +181,30 @@
                 });
               });
 
+            // add label listners:
+            let riverInfoWindow = new google.maps.InfoWindow();
+
+            riverLayer.addListener("click", (mapsMouseEvent) => {
+            riverInfoWindow.close();
+
+            riverInfoWindow = new google.maps.InfoWindow({position: mapsMouseEvent.latLng,});
+
+            riverInfoWindow.setContent(mapsMouseEvent.feature.getProperty('NAME1'));
+            riverInfoWindow.open(map);
+            });
+
+
+            riverLayer.addListener('mouseover', function(event) {
+              riverLayer.revertStyle();
+              riverLayer.overrideStyle(event.feature, {strokeWeight: 8});
+              riverLayer.overrideStyle(event.feature, {strokeColor: 'red'});
+            });
+
+            riverLayer.addListener('mouseout', function(event) {
+              riverLayer.revertStyle();
+            });
+
+
 
             {% for location in locations %}
                 var myInfoText{{ location.id }} = '<b>Location:</b> <a href="{% url 'bio_diversity:details_loc' location.id %}">{{location.relc_id.name}}</a><br><b>Event:</b> <a href="{% url 'bio_diversity:details_evnt' location.evnt_id.id %}">{{location.evnt_id.evntc_id.name}}</a><br><b>Date:</b>{{location.evnt_id.start_date}}'
