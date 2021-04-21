@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shared_models.api.views import _get_labels
+from shared_models.models import Person
 from . import serializers
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly
 from .. import models, emails, model_choices
@@ -122,16 +123,16 @@ class MeetingResourceViewSet(viewsets.ModelViewSet):
         resource = serializer.save(created_by=self.request.user)
 
         # decide on who should receive an update
-        for invitee in resource.event.invitees.all():
+        for invitee in resource.meeting.invitees.all():
             # only send the email to those who already received an invitation (and where this happened in the past... redundant? )
             if invitee.invitation_sent_date and invitee.invitation_sent_date < resource.created_at:
                 email = emails.NewResourceEmail(invitee, resource, self.request)
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
+                # custom_send_mail(
+                #     subject=email.subject,
+                #     html_message=email.message,
+                #     from_email=email.from_email,
+                #     recipient_list=email.to_list
+                # )
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
@@ -202,6 +203,7 @@ class InviteeSendInvitationAPIView(APIView):
         email = emails.InvitationEmail(invitee, request)
         return Response(email.to_dict(), status=status.HTTP_200_OK)
 
+
 # class MeetingModelMetaAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 #     model = models.Meeting
@@ -225,26 +227,26 @@ class NoteModelMetaAPIView(APIView):
         data['labels'] = _get_labels(self.model)
         data['type_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.meeting_note_type_choices]
         return Response(data)
-#
-#
-# class InviteeModelMetaAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-#     model = models.Invitee
-#
-#     def get(self, request):
-#         data = dict()
-#         data['labels'] = _get_labels(self.model)
-#         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.status_choices]
-#         data['role_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.role_choices]
-#         return Response(data)
-#
-#
-# class ResourceModelMetaAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-#     model = models.Resource
-#
-#     def get(self, request):
-#         data = dict()
-#         data['labels'] = _get_labels(self.model)
-#         return Response(data)
-#
+
+
+class InviteeModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Invitee
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        data['person_choices'] = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
+        data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_status_choices]
+        data['role_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_role_choices]
+        return Response(data)
+
+
+class ResourceModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.MeetingResource
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)

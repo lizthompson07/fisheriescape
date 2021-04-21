@@ -24,7 +24,7 @@
                 <div class="form-group">
                   <label for="">${labels.type}</label>
                   <v-select
-                    v-model="note.type"
+                    v-model="noteToEdit.type"
                     :options="typeChoices"
                     :reduce="choice => choice.value"
                     label="text"
@@ -36,13 +36,13 @@
                 <div class="form-group">
                   <label for="">${labels.note}</label>
                   <textarea
-                    v-model="note.note"
+                    v-model="noteToEdit.note"
                     class="form-control"
                     rows="5"
                   ></textarea>
                 </div>
                 <div class="form-group">
-                  <input v-model="note.is_complete" class="" type="checkbox" id="is_complete">
+                  <input v-model="noteToEdit.is_complete" class="" type="checkbox" id="is_complete">
                   <label class="form-check-label" for="is_complete"> ${labels.is_complete} </label>
                 </div>
               </div>
@@ -75,11 +75,8 @@ Vue.component("note-editor", {
   delimiters: ["${", "}"],
   name: "note-editor",
   props: {
-    meeting: {
-      required: false,
-      default: function () {
-        return {}
-      }
+    meeting_id: {
+      required: false
     },
     note: {
       required: false,
@@ -93,22 +90,26 @@ Vue.component("note-editor", {
       overlay: false,
       labels: {},
       typeChoices: [],
-      error: null
+      error: null,
+      noteToEdit: {}
     };
   },
   methods: {
     openOverlay() {
+      this.error = null;
       this.overlay = true;
       if (!this.note.id) {
-        this.primeNote()
+        this.primeNote();
+      } else {
+        this.noteToEdit = JSON.parse(JSON.stringify(this.note)); // deep copy;
       }
     },
     primeNote() {
-      this.note = {
+      this.noteToEdit = {
         type: null,
         note: null,
         is_complete: false,
-        meeting: this.meeting.id
+        meeting: this.meeting_id
       };
     },
     getNoteMetadata() {
@@ -132,10 +133,10 @@ Vue.component("note-editor", {
         endpoint = "/api/csas/notes/";
         method = "POST";
       }
-      apiService(endpoint, method, this.note).then(response => {
+      apiService(endpoint, method, this.noteToEdit).then(response => {
         if (response.id) {
           this.$emit("update-notes");
-          if (!this.note.id) this.primeNote();
+          if (!this.noteToEdit.id) this.primeNote();
           this.overlay = false;
         } else {
           this.error = this.groomJSON(response)

@@ -1,0 +1,61 @@
+{% load i18n %}
+
+
+<div class="mb-3">
+  <div class="neighbours">
+    <h4>{% trans "Invitees" %}</h4>
+  </div>
+  <div class="mb-3 neighbours">
+    <invitee-editor v-if="meeting" :meeting_id="meeting.id" @update-invitees="getInvitees"></invitee-editor>
+  </div>
+</div>
+
+<div v-if="invitees && invitees.length">
+  <table class="table table-sm">
+    <thead>
+    <tr>
+      <th class="text-left"> {% trans "Name" %}</th>
+      <th class="text-left"> {% trans "Association" %}</th>
+      <th class="text-left"> {% trans "Function" %}</th>
+      <th class="text-left"> {% trans "Status" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr v-for="(invitee, index) in invitees" :key="invitee.id">
+      <td> ${ invitee.full_name }</td>
+      <td> ${ invitee.organization }</td>
+      <td>${ invitee.role_display }</td>
+      <td v-if="!invitee.attendance.length">
+        <button @click="toggleInviteeStatus(invitee)" :class="{'badge badge-pill':true, 'badge-success':invitee.status ===1,'badge-warning':invitee.status ===9,'badge-danger':invitee.status ===2,  }">
+          ${ invitee.status_display }
+        </button>
+      </td>
+      <td v-else>
+        Attended (${ invitee.attendance_percentage })
+      </td>
+{#      <td>#}
+{#        <EventEmailOverlay v-if="!invitee.invitation_sent_date" :invitee="invitee" @update-invitees="$emit('update-invitees')">#}
+{#        </EventEmailOverlay>#}
+{#      </td>#}
+{##}
+{#      <td v-if="invitee.event_object.start_date">#}
+{#        <InviteeAttendanceOverlay :invitee="invitee" @update-invitees="$emit('update-invitees')"#}
+{#        ></InviteeAttendanceOverlay>#}
+{#      </td>#}
+{#      <td>#}
+{#        <InviteeEditorOverlay :invitee="invitee" @update-invitees="$emit('update-invitees')"></InviteeEditorOverlay>#}
+{#      </td>#}
+{#      <td>#}
+{#        <DeleteInviteeDialogBox#}
+{#          @delete-confirmation="deleteInvitee"#}
+{#        ></DeleteInviteeDialogBox>#}
+{#      </td>#}
+    </tr>
+
+
+    </tbody>
+  </table>
+</div>
+<div v-else>
+  <em>{% trans "No one has been invited to this meeting." %}</em>
+</div>

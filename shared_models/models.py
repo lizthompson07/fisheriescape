@@ -848,7 +848,7 @@ class Person(models.Model):
     language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"), related_name="people")
     affiliation = models.CharField(max_length=255, verbose_name=_("affiliation"), blank=True, null=True)
 
-    dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="people")
+    dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="contact")
 
     # TODO: should be pulled from user profile, if available (use signals)
     job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
@@ -865,6 +865,19 @@ class Person(models.Model):
     @property
     def full_name(self):
         return "{} {}".format(self.first_name, self.last_name)
+
+    def save(self, *args, **kwargs):
+        if self.dmapps_user:
+            self.first_name = self.dmapps_user.first_name
+            self.last_name = self.dmapps_user.last_name
+            self.email = self.dmapps_user.email
+            if hasattr(self.dmapps_user, "profile"):
+                self.phone = self.dmapps_user.profile.phone
+                self.language = self.dmapps_user.profile.language
+                self.affiliation = "DFO / MPO"
+                self.job_title_en = self.dmapps_user.profile.position_eng
+                self.job_title_fr = self.dmapps_user.profile.position_fre
+        super().save(*args, **kwargs)
 
 
 class Publication(SimpleLookup):

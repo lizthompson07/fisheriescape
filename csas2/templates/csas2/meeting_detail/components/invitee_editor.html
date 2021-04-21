@@ -1,0 +1,205 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="invitee-editor-template">
+<div class="">
+  <button @click="openOverlay" v-if="!invitee.id" class="btn btn-sm btn-primary py-0 px-1">
+    <span class="h5 mdi mdi-plus text-light"></span>
+  </button>
+  <button class="btn btn-sm" @click="openOverlay" v-else>
+    <span class="mdi mdi-pencil"></span>
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 800px">
+          <div class="modal-header">
+            <h4 v-if="!invitee.id"> Add Invitee </h4>
+            <h4 v-else> Edit Invitee </h4>
+          </div>
+          <div class="modal-body">
+
+            <form @submit.prevent="onSubmit">
+              <div class="mb-3">
+
+
+                <div class="form-group">
+                  <label for="">${labels.person}</label>
+                  <v-select
+                    v-model="inviteeToEdit.person"
+                    :options="personChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+                <div class="form-group">
+                  <label for="">${labels.role}</label>
+                  <v-select
+                    v-model="inviteeToEdit.role"
+                    :options="roleChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div><div class="form-group">
+                  <label for="">${labels.status}</label>
+                  <v-select
+                    v-model="inviteeToEdit.status"
+                    :options="statusChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+{#                <div class="form-group">#}
+{#                  <label for="">${labels.url_en}</label>#}
+{#                  <input type="text" v-model="inviteeToEdit.phone" class="form-control"/>#}
+{#                </div>#}
+{#                <div class="form-group">#}
+{#                  <label for="">${labels.url_fr}</label>#}
+{#                  <input type="text" v-model="inviteeToEdit.email" class="form-control"/>#}
+{#                </div>#}
+              </div>
+              <div class="alert alert-danger mb-3" role="alert" v-if="error">
+                <p class="lead">
+                  ${ error }
+                </p>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-success">
+                  <span v-if="invitee.id">{% trans "Update" %}</span>
+                  <span v-else>{% trans "Create" %}</span>
+                </button>
+                <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+
+</script>
+<script type="application/javascript">
+
+Vue.component("invitee-editor", {
+  template: "#invitee-editor-template",
+  delimiters: ["${", "}"],
+  name: "invitee-editor",
+  props: {
+    meeting_id: {
+      required: false
+    },
+    invitee: {
+      required: false,
+      default: function () {
+        return {};
+      }
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      inviteeToEdit: {},
+      labels: {},
+      statusChoices: [],
+      roleChoices: [],
+      error: null,
+      personChoices: [],
+      loadingPersons: false,
+      search: null,
+      user: null,
+      dates: null
+    };
+  },
+  methods: {
+    openOverlay() {
+      this.error = null;
+      this.overlay = true;
+      if (!this.invitee.id) {
+        this.primeInvitee();
+      } else {
+        this.inviteeToEdit = JSON.parse(JSON.stringify(this.invitee)); // deep copy
+;
+      }
+    },
+    closeOverlay() {
+      this.error = null;
+      if (this.invitee.id) {
+        this.primeInvitee();
+        this.inviteeToEdit = this.invitee;
+      }
+      this.overlay = false;
+    },
+    primeInvitee() {
+      this.inviteeToEdit = {
+        first_name: null,
+        last_name: null,
+        phone: null,
+        email: "@dfo-mpo.gc.ca",
+        status: 0,
+        role: 1,
+        organization: null,
+        meeting: this.meeting_id
+      };
+    },
+    updateInvitee() {
+      if (this.user) {
+        this.inviteeToEdit.first_name = this.user.first_name;
+        this.inviteeToEdit.last_name = this.user.last_name;
+        this.inviteeToEdit.email = this.user.email;
+        this.inviteeToEdit.organization = "DFO-MPO";
+        this.search = null;
+        console.log(this.$refs.phone.focus());
+      }
+    },
+    getInviteeMetadata() {
+      let endpoint = `/api/csas/meta/models/invitee/`;
+      apiService(endpoint).then(data => {
+        this.labels = data.labels;
+        this.roleChoices = data.role_choices;
+        this.personChoices = data.person_choices;
+        this.statusChoices = data.status_choices;
+      });
+    },
+    groomJSON(json) {
+      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
+    },
+    onSubmit() {
+      this.error = null;
+      var method;
+      var endpoint;
+      if (this.invitee.id) {
+        endpoint = `/api/csas/invitees/${this.invitee.id}/`;
+        method = "PUT";
+      } else {
+        endpoint = "/api/csas/invitees/";
+        method = "POST";
+      }
+      apiService(endpoint, method, this.inviteeToEdit).then(response => {
+        if (response.id) {
+          this.$emit("update-invitees");
+          if (!this.inviteeToEdit.id) this.primeInvitee();
+          this.overlay = false;
+        } else {
+          this.error = this.groomJSON(response)
+        }
+      });
+    }
+  },
+  created() {
+    this.getInviteeMetadata();
+  },
+  computed: {}
+});
+</script>

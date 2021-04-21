@@ -4,7 +4,7 @@
   <h4>{% trans "Notes" %}</h4>
 </div>
 <div class="mb-3 neighbours">
-  <note-editor v-if="meeting" :meeting="meeting" @update-notes="getNotes"></note-editor>
+  <note-editor v-if="meeting" :meeting_id="meeting.id" @update-notes="getNotes"></note-editor>
 </div>
 
 <div v-if="notes && !notes.length">

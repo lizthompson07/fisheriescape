@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from lib.functions.custom_functions import listrify
+from lib.templatetags.custom_filters import percentage
 from .. import models
 
 
@@ -161,8 +162,8 @@ class InviteeSerializer(serializers.ModelSerializer):
     event_object = serializers.SerializerMethodField()
 
     def get_event_object(self, instance):
-        if instance.event:
-            return MeetingSerializerLITE(instance.event, read_only=True).data
+        if instance.meeting:
+            return MeetingSerializerLITE(instance.meeting, read_only=True).data
 
     def get_attendance_percentage(self, instance):
         return percentage(instance.attendance_fraction, 0)
@@ -171,17 +172,17 @@ class InviteeSerializer(serializers.ModelSerializer):
         return [a.date.strftime("%Y-%m-%d") for a in instance.attendance.all()]
 
     def get_min_date(self, instance):
-        if instance.event.start_date:
-            return instance.event.start_date.strftime("%Y-%m-%d")
+        if instance.meeting.start_date:
+            return instance.meeting.start_date.strftime("%Y-%m-%d")
 
     def get_max_date(self, instance):
-        if instance.event.end_date:
-            return instance.event.end_date.strftime("%Y-%m-%d")
-        elif instance.event.start_date:
-            return instance.event.start_date.strftime("%Y-%m-%d")
+        if instance.meeting.end_date:
+            return instance.meeting.end_date.strftime("%Y-%m-%d")
+        elif instance.meeting.start_date:
+            return instance.meeting.start_date.strftime("%Y-%m-%d")
 
     def get_full_name(self, instance):
-        return instance.full_name
+        return instance.person.full_name
 
     def get_status_display(self, instance):
         return instance.get_status_display()
