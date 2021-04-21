@@ -9,9 +9,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from shared_models.api.views import _get_labels
 from . import serializers
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly
-from .. import models, emails
+from .. import models, emails, model_choices
 
 
 # USER
@@ -104,7 +105,7 @@ class InviteeViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         if qp.get("meeting"):
             meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
-            qs = meeting.notes.all()
+            qs = meeting.invitees.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a meeting"))
@@ -139,7 +140,7 @@ class MeetingResourceViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         if qp.get("meeting"):
             meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
-            qs = meeting.notes.all()
+            qs = meeting.resources.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a meeting"))
@@ -215,15 +216,15 @@ class InviteeSendInvitationAPIView(APIView):
 #         return Response(data)
 #
 #
-# class NoteModelMetaAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-#     model = models.Note
-#
-#     def get(self, request):
-#         data = dict()
-#         data['labels'] = _get_labels(self.model)
-#         data['type_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.type_choices]
-#         return Response(data)
+class NoteModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.MeetingNote
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        data['type_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.meeting_note_type_choices]
+        return Response(data)
 #
 #
 # class InviteeModelMetaAPIView(APIView):

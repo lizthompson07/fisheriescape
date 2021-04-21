@@ -1,20 +1,18 @@
 {% load i18n %}
 
-<div class="mb-3 float-right">
-  <button @click="openNoteEditor()" class="btn btn-sm btn-success" href="#"><span class="h5 mdi mdi-plus text-light"></span></button>
+<div class="neighbours">
+  <h4>{% trans "Notes" %}</h4>
 </div>
-<h4>{% trans "Notes" %}</h4>
+<div class="mb-3 neighbours">
+  <note-editor v-if="meeting" :meeting="meeting" @update-notes="getNotes"></note-editor>
+</div>
 
 <div v-if="notes && !notes.length">
   <em>{% trans "This meeting has no notes." %}</em>
 </div>
 <div v-else>
-  <div class="card" style="width: 18rem;">
-    <img class="card-img-top" src="" alt="Card image cap">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
-    </div>
+  <div v-for="n, index in notes" :key="n.id">
+    <note-card :note="n" @update-notes="getNotes"></note-card>
+
   </div>
 </div>

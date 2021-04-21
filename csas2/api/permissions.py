@@ -38,4 +38,6 @@ class CanModifyProcessOrReadOnly(permissions.BasePermission):
                 process_id = obj.id
             elif isinstance(obj, models.Meeting) or isinstance(obj, models.Document):
                 process_id = obj.process.id
+            elif isinstance(obj, models.MeetingNote) or isinstance(obj, models.MeetingResource):
+                process_id = obj.meeting.process.id
             return can_modify_process(request.user, process_id)

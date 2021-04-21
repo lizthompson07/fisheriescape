@@ -1,0 +1,91 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="note-card-template">
+<div class="mb-3">
+  <div class="card" style="width: 18rem;" :style='{backgroundColor : color}'>
+    <div class="card-body">
+      <h5 class="card-title">${ note.type_display }:</h5>
+      <div class="card-text mb-3">
+        ${ note.note }
+      </div>
+      <div class="float-right btn-group">
+        <note-editor :note="note"></note-editor>
+        <button class="btn btn-sm btn-outline-dark" @click="deleteNote">
+          <span class="mdi mdi-delete"></span>
+        </button>
+      </div>
+      <div>
+        <button class="badge badge-pill badge-success" v-if="!note.is_complete" @click="toggleComplete">
+          {% trans "Done!" %}
+        </button>
+        <button class="badge badge-pill badge-warning" v-else @click="toggleComplete">
+          {% trans "Re-open" %}
+        </button>
+      </div>
+
+
+    </div>
+  </div>
+
+</div>
+
+
+</script>
+<script type="application/javascript">
+
+Vue.component("note-card", {
+  template: "#note-card-template",
+  delimiters: ["${", "}"],
+  name: "note-card",
+  props: {
+    note: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      labels: {},
+
+    };
+  },
+  computed: {
+    color() {
+      var color = "#fffff1"
+      if (this.note.is_complete) color = "#e4e5e4"
+      else if (this.note.type === 1) color = "#d3ead3"
+      else if (this.note.type === 2) color = "#cbd3f6"
+      else if (this.note.type === 3) color = "#fdeed0"
+      return color
+    }
+
+  },
+  methods: {
+    getNoteMetadata() {
+      let endpoint = `/api/csas/meta/models/note/`;
+      apiService(endpoint).then(data => {
+        this.labels = data.labels;
+      });
+    },
+    async deleteNote() {
+      let userInput = confirm("{% trans 'Are you certain you want to delete this Note?' %}")
+      if (userInput) {
+        let endpoint = `/api/csas/notes/${this.note.id}/`;
+        await apiService(endpoint, "DELETE");
+        this.$emit("update-notes");
+      }
+    },
+    async toggleComplete() {
+      let endpoint = `/api/csas/notes/${this.note.id}/`;
+      await apiService(endpoint, "PATCH", {
+        is_complete: !this.note.is_complete
+      });
+      this.$emit("update-notes");
+    }
+  },
+  created() {
+    this.getNoteMetadata()
+  }
+});
+</script>
