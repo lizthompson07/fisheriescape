@@ -104,88 +104,78 @@
             var bounds = new google.maps.LatLngBounds();
 
             // add overlays:
-            map.data.loadGeoJson("{% static 'map_layers/salmon_fishing_areas.geojson' %}", {idPropertyName : "OBJECTID"},
+
+            var fishingAreasLayer = new google.maps.Data({map:map});
+            var riverLayer =  new google.maps.Data({map:map});
+
+            fishingAreasLayer.loadGeoJson("{% static 'map_layers/salmon_fishing_areas.geojson' %}", {idPropertyName : "OBJECTID"},
                 function(features) {
-                    map.data.forEach(function(feature) {
-                        feature.setProperty("layer", "fishing_areas");
+                    fishingAreasLayer.forEach(function(feature) {
                         feature.setProperty("visible", true);
                     });
                 }
             );
-            map.data.loadGeoJson("{% static 'map_layers/PWR.geojson' %}", {},
+            riverLayer.loadGeoJson("{% static 'map_layers/PWR.geojson' %}", {},
                 function(features) {
-                    map.data.forEach(function(feature) {
-                        feature.setProperty("layer", "river");
+                    riverLayer.forEach(function(feature) {
                         feature.setProperty("visible", true);
                     });
                 }
             );
-            map.data.loadGeoJson("{% static 'map_layers/TOB.geojson' %}", {},
+            riverLayer.loadGeoJson("{% static 'map_layers/TOB.geojson' %}", {},
                 function(features) {
-                    map.data.forEach(function(feature) {
-                        feature.setProperty("layer", "river");
+                    riverLayer.forEach(function(feature) {
                         feature.setProperty("visible", true);
                     });
                 }
             );
 
-            map.data.setStyle(function(feature){
-                if (feature.getProperty('layer') == 'fishing_areas') {
-                    return ({
-                        strokeColor: 'blue',
-                        strokeWeight: 3
-                    });
-                }
-                else {
-                     return ({
-                        strokeColor: 'red',
-                        strokeWeight: 3
-                    });
-                }
+            fishingAreasLayer.setStyle(function(feature){
+                return ({
+                    strokeColor: 'red',
+                    strokeWeight: 2
+                });
+            });
+
+            riverLayer.setStyle(function(feature){
+                return ({
+                    strokeColor: 'blue',
+                    strokeWeight: 2
+                });
             });
 
             // add toggle listners
             google.maps.event.addDomListener(document.getElementById('layer-button'), 'click', function() {
-                map.data.setStyle(function(feature) {
-                    if (feature.getProperty('layer') == 'fishing_areas' && feature.getProperty('visible') == true) {
+                fishingAreasLayer.setStyle(function(feature) {
+                    if (feature.getProperty('visible') == true) {
                         feature.setProperty('visible', false);
                         return ({
                           visible: false,
                         });
-                    } else if (feature.getProperty('layer') == 'fishing_areas' && feature.getProperty('visible') == false) {
-                        feature.setProperty('visible', true);
-                        return ({
-                          strokeColor: 'blue',
-                          strokeWeight: 2,
-                          visible: true,
-                        });
-                    } else {
-                        return ({
-                          strokeColor: 'grey',
-                          strokeWeight: 2
-                        });
-                    }
-                });
-              });
-            // add toggle listners
-            google.maps.event.addDomListener(document.getElementById('river-layer-button'), 'click', function() {
-                map.data.setStyle(function(feature) {
-                    if (feature.getProperty('layer') == 'river' && feature.getProperty('visible') == true) {
-                        feature.setProperty('visible', false);
-                        return ({
-                          visible: false,
-                        });
-                    } else if (feature.getProperty('layer') == 'river' && feature.getProperty('visible') == false) {
+                    } else if (feature.getProperty('visible') == false) {
                         feature.setProperty('visible', true);
                         return ({
                           strokeColor: 'red',
                           strokeWeight: 2,
                           visible: true,
                         });
-                    } else {
+                    }
+                });
+              });
+            // add toggle listners
+            google.maps.event.addDomListener(document.getElementById('river-layer-button'), 'click', function() {
+                riverLayer.setStyle(function(feature) {
+                    if (feature.getProperty('visible') == true) {
+                        feature.setProperty('visible', false);
                         return ({
-                          strokeColor: 'grey',
-                          strokeWeight: 2
+                          visible: false,
+                        });
+                    } else if (feature.getProperty('visible') == false) {
+                        feature.setProperty('visible', true);
+                        return ({
+                          strokeColor: 'blue',
+                          strokeWeight: 2,
+                          visible: true,
                         });
                     }
                 });
