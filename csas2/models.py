@@ -226,7 +226,7 @@ class Meeting(MetadataFields):
 
     @property
     def attendees(self):
-        return Attendance.objects.filter(invitee__event=self).order_by("invitee").values("invitee").distinct()
+        return Attendance.objects.filter(invitee__meeting=self).order_by("invitee").values("invitee").distinct()
 
     @property
     def length_days(self):
@@ -310,7 +310,6 @@ class Series(SimpleLookup):
 
 class Document(MetadataFields):
     process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False)
-    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"))
     type = models.IntegerField(choices=model_choices.document_type_choices, verbose_name=_("type"))
     series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("series"))
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
@@ -325,6 +324,7 @@ class Document(MetadataFields):
     # description_fr = models.TextField(null=True, blank=True, verbose_name=_("description"))
 
     # non-editable
+    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
     people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.document_status_choices, editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)

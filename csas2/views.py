@@ -64,6 +64,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'fiscal_year', "class": "", "width": ""},
         {"name": 'id|{}'.format("request id"), "class": "", "width": ""},
         {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'client', "class": "", "width": ""},
         {"name": 'section.full_name', "class": "", "width": ""},

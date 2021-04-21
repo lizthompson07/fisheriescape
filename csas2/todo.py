@@ -8,3 +8,10 @@
 
 # meeting
 # TODO: re-create functionality of events app into csas app (vueJS)
+# TODO: switch over emails to new Email class
+
+# unit testing
+# todo: write all basic unit test for regular views
+# todo: write all basic unit test for api views
+
+

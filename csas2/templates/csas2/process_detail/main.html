@@ -76,7 +76,7 @@
         <table class="table table-bordered table-hover table-sm">
           <thead>
           <tr>
-{#          #}
+            {#          #}
             {% for field in meeting_field_list %}
               <th>{% get_verbose_label object.meetings.first field %}</th>
             {% endfor %}
@@ -107,36 +107,28 @@
         <table class="table table-bordered table-hover table-sm">
           <thead>
           <tr>
-            {% for field in document_field_list %}
-              <th rowspan="2">{% get_verbose_label object.documents.first field %}</th>
-            {% endfor %}
-            {% if object.meetings.exists %}
-              <th class="text-center" colspan="{{ object.meetings.count }}">{% trans "Meeting Linkages" %}</th>
-            {% endif %}
+            <th rowspan="2">{% trans "Title" %}</th>
+            <th rowspan="2">{% trans "Type" %}</th>
+            <th rowspan="2">{% trans "Status" %}</th>
+            <th class="text-center" :colspan="meetings.length">{% trans "Meeting Linkages" %}</th>
           </tr>
           <tr>
-            {% for meeting in object.meetings.all %}
-              <th class="text-center text-muted">{{ meeting.get_type_display }}</th>
-            {% endfor %}
+            <th v-for="m, index in meetings" :key="m.id" class="text-center text-muted">${m.type_display}</th>
           </tr>
           </thead>
           <tbody>
-          {% for obj in object.documents.all %}
-            <tr @click="followLink('{% url 'csas2:document_detail' obj.id %}')" class="pointy">
-              {% for field in document_field_list %}
-                <td>{% get_field_value obj field safe=True %}</td>
-              {% endfor %}
-              {% for meeting in object.meetings.all %}
-                <td class="text-center py-0">
-                {% if meeting in obj.meetings.all %}
-                  <button @click="stopPropagation" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span> </button>
-                {% else %}
-                  <button @click="stopPropagation" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span> </button>
-                {% endif %}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
+          <tr v-for="d, index in docs" :key="d.id" @click="goDocumentDetail(d)" class="pointy">
+            <td>${d.ttitle}</td>
+            <td>${d.type_display}</td>
+            <td>${d.status_display}</td>
+            <td v-for="m, index in meetings" :key="m.id" class="text-center">
+              <button v-if="d.meetings.includes(m.id)" @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span
+                class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span></button>
+              <button v-else @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span>
+              </button>
+            </td>
+
+          </tr>
           </tbody>
         </table>
       {% else %}
@@ -156,7 +148,7 @@
 {% block body_js %}
   {{ block.super }}
   <script type="application/javascript">
-  var requestId = "{{ object.id }}"
+  var processId = "{{ object.id }}"
 
   // register vue-select
   Vue.component('v-select', VueSelect.VueSelect);
@@ -168,8 +160,10 @@
     data: {
       currentUser: {},
       canModify: false,
-      loadingRequest: false,
-      request: {},
+      loadingDocs: false,
+      loadingMeetings: false,
+      docs: [],
+      meetings: [],
     },
     methods: {
       getCurrentUser() {
@@ -185,23 +179,38 @@
       followLink(url) {
         window.location.href = url;
       },
-      stopPropagation(event){
-        event.stopPropagation()
+      goDocumentDetail(document) {
+        window.location.href = `/csas2/documents/${document.id}/view/`;
       },
-      getObservations() {
-        this.loadingObservations = true;
-        let endpoint;
-        if (this.pageType === "samples") endpoint = `${this.endpointPrefix}/?sample=${objectId}`;
-        else if (this.pageType === "lines") endpoint = `${this.endpointPrefix}/?line=${objectId}`;
-        else if (this.pageType === "surfaces") endpoint = `${this.endpointPrefix}/?surface=${objectId}`;
+      toggleMeetingLinkage(doc, meeting, event) {
+        console.log(event)
+        // stop propagation of window change
+        event.stopPropagation()
+        let endpoint = `/api/csas/documents/${doc.id}/?meeting=${meeting.id}`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              this.getDocuments()
+            })
+      },
+      getDocuments() {
+        this.loadingDocs = true;
+        let endpoint = `/api/csas/documents/?process=${processId}`;
         apiService(endpoint)
             .then(response => {
               if (response.length && response[0].id) {
-                for (var i = 0; i < response.length; i++) {
-                  if (response[i].observation_date) response[i].observation_date = response[i].observation_date.replace("Z", "")
-                }
-                this.observations = response;
-                this.loadingObservations = false;
+                this.docs = response;
+                this.loadingDocs = false;
+              }
+            })
+      },
+      getMeetings() {
+        this.loadingMeetings = true;
+        let endpoint = `/api/csas/meetings/?process=${processId}`;
+        apiService(endpoint)
+            .then(response => {
+              if (response.length && response[0].id) {
+                this.meetings = response;
+                this.loadingMeetings = false;
               }
             })
       },
@@ -247,23 +256,10 @@
       },
 
     },
-    computed: {
-      endpointPrefix() {
-        return `/api/csas2/${this.pageType.slice(0, this.pageType.length - 1)}-species`
-      },
-      totalCoverage() {
-        let total = 0;
-        let obs;
-        for (var i = 0; i < this.observations.length; i++) {
-          obs = this.observations[i];
-          if (obs.percent_coverage) total += Number(obs.percent_coverage);
-        }
-        return total
-      }
-    },
+    computed: {},
     created() {
-      {#this.getObservations();#}
-      {#this.getSpeciesMetadata();#}
+      this.getDocuments();
+      this.getMeetings();
     },
   });
 

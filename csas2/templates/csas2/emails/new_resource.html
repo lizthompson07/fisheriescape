@@ -1,0 +1,84 @@
+{% load verbose_names %}
+{% load i18n %}
+<style media="screen">
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+{% language 'en' %}
+  <p>
+    Hello {{ invitee.first_name }},
+  </p>
+  <p>
+    This is an automated message to notify you that a new resource, <a href="{{ resource.turl }}">{{ resource.tname }}</a>, has been added to the following
+    event:
+  </p>
+  <p>
+  <table class="email-table">
+    {% for field in field_list %}
+      {% verbose_td_display invitee.event field %}
+    {% endfor %}
+  </table>
+  </p>
+{% endlanguage %}
+
+<p>
+  Question or comments can be directed to the following email: <a href="mailto:{{ invitee.event.rsvp_email }}">{{ invitee.event.rsvp_email }}</a>.
+</p>
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps Events Planner
+</p>
+
+<p>
+  ********************************************************************
+</p>
+
+<p>
+  Bonjour {{ invitee.first_name }},
+</p>
+{% language 'fr' %}
+  <p>
+    Ceci est un message automatisé pour vous informer qu'une nouvelle ressource, <a href="{{ resource.turl }}"> {{ resource.tname }} </a>,
+    a été ajoutée à l'événement suivant:
+  </p>
+
+  <p>
+  <table class="email-table">
+    {% for field in field_list %}
+      {% verbose_td_display invitee.event field %}
+    {% endfor %}
+  </table>
+  </p>
+{% endlanguage %}
+
+<p>
+  Les questions ou commentaires peuvent être dirigés vers le courriel suivant: <a href="mailto:{{ invitee.event.rsvp_email }}"> {{ invitee.event.rsvp_email }} </a>.
+</p>
+
+<p>
+  Cordialement,
+  <br><br>
+  Planificateur d'événements - Applis GD
+</p>
+
+
+
+
+
+
+
+
