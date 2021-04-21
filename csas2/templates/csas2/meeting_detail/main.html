@@ -37,91 +37,107 @@
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:meeting_delete' object.id %}">{% trans "Delete" %}</a>
     </div>
 
-    <div class="mb-5">
-      <table class="table table-sm">
-        {% for field in meeting_field_list %}
-          {% verbose_td_display object field th_width="300px" %}
-        {% endfor %}
-        <tr>
-          <th>
-            {% trans "Linked documents" %}
-          </th>
-          <td>
-            {% if object.documents.exists %}
-              {% for obj in object.documents.all %}
-                <div>
-                  <a href="{% url 'csas2:document_detail' obj.id %}">{{ obj }}</a>
-                </div>
-              {% endfor %}
-            {% else %}
-              <em>{% trans "There are no documents linked to this meeting." %}</em>
-            {% endif %}
-          </td>
-        </tr>
+    <div class="row">
+      <div class="col-8">
 
-      </table>
-    </div>
 
-    <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="#">{% trans "Add Invitee" %}</a>
-      </div>
-      <h4>{% trans "Invitees" %}</h4>
-      {% if object.invitees.exists %}
-
-        <table class="table table-sm">
-          <thead>
-          <tr>
+        <div class="mb-5">
+          <table class="table table-sm">
             {% for field in meeting_field_list %}
-              <th>{% get_verbose_label object.meetings.first field %}</th>
+              {% verbose_td_display object field th_width="300px" %}
             {% endfor %}
-          </tr>
-          </thead>
-          <tbody>
-          {% for obj in object.meetings.all %}
-            <tr href="" @click="followLink('{% url 'csas2:meeting_detail' obj.id %}')" class="pointy">
-              {% for field in meeting_field_list %}
-                <td>{% get_field_value obj field %}</td>
-              {% endfor %}
+            <tr>
+              <th>
+                {% trans "Linked documents" %}
+              </th>
+              <td>
+                {% if object.documents.exists %}
+                  {% for obj in object.documents.all %}
+                    <div>
+                      <a href="{% url 'csas2:document_detail' obj.id %}">{{ obj }}</a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <em>{% trans "There are no documents linked to this meeting." %}</em>
+                {% endif %}
+              </td>
             </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <em>{% trans "There are no meetings associated with this process." %}</em>
-      {% endif %}
-    </div>
 
-    <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="#">{% trans "Add Resource" %}</a>
+          </table>
+        </div>
+
+        <div class="mb-5">
+          <div class="mb-3 float-right">
+            <a class="btn btn-sm btn-success" href="#"><span class="h5 mdi mdi-plus text-light"></span></a>
+          </div>
+          <h4>{% trans "Invitees" %}</h4>
+          {% if object.invitees.exists %}
+
+            <table class="table table-sm">
+              <thead>
+              <tr>
+                {% for field in meeting_field_list %}
+                  <th>{% get_verbose_label object.meetings.first field %}</th>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for obj in object.meetings.all %}
+                <tr href="" @click="followLink('{% url 'csas2:meeting_detail' obj.id %}')" class="pointy">
+                  {% for field in meeting_field_list %}
+                    <td>{% get_field_value obj field %}</td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <em>{% trans "No one has been invited to this meeting :(" %}</em>
+          {% endif %}
+        </div>
+
+        <div class="mb-5">
+          <div class="mb-3 float-right">
+            <a class="btn btn-sm btn-success" href="#"><span class="h5 mdi mdi-plus text-light"></span></a>
+          </div>
+          <h4>{% trans "Resources" %}</h4>
+          {% if object.invitees.exists %}
+
+            <table class="table table-sm">
+              <thead>
+              <tr>
+                {% for field in meeting_field_list %}
+                  <th>{% get_verbose_label object.meetings.first field %}</th>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for obj in object.meetings.all %}
+                <tr href="" @click="followLink('{% url 'csas2:meeting_detail' obj.id %}')" class="pointy">
+                  {% for field in meeting_field_list %}
+                    <td>{% get_field_value obj field %}</td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <em>{% trans "This meeting has no associated resources." %}</em>
+          {% endif %}
+        </div>
       </div>
-      <h4>{% trans "Resources" %}</h4>
-      {% if object.invitees.exists %}
 
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            {% for field in meeting_field_list %}
-              <th>{% get_verbose_label object.meetings.first field %}</th>
-            {% endfor %}
-          </tr>
-          </thead>
-          <tbody>
-          {% for obj in object.meetings.all %}
-            <tr href="" @click="followLink('{% url 'csas2:meeting_detail' obj.id %}')" class="pointy">
-              {% for field in meeting_field_list %}
-                <td>{% get_field_value obj field %}</td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <em>{% trans "There are no meetings associated with this process." %}</em>
-      {% endif %}
+      {# Notes #}
+      <div class="col">
+        {% include "csas2/meeting_detail/_notes.html" %}
+      </div>
+
+
     </div>
 
+    {# Modals #}
+
+    {% include "csas2/meeting_detail/_note_modal.html" %}
 
   </div>
 
@@ -134,7 +150,7 @@
 {% block body_js %}
   {{ block.super }}
   <script type="application/javascript">
-  var requestId = "{{ object.id }}"
+  var meetingId = "{{ object.id }}"
 
   // register vue-select
   Vue.component('v-select', VueSelect.VueSelect);
@@ -146,8 +162,18 @@
     data: {
       currentUser: {},
       canModify: false,
-      loadingRequest: false,
-      request: {},
+      loadingMeeting: false,
+
+      meeting: {},
+      notes: [],
+      invitees: [],
+      resources: [],
+
+      showNoteModal: false,
+      showInviteeModal: false,
+      showResourceModal: false,
+      meetingId: meetingId,
+
     },
     methods: {
       getCurrentUser() {
@@ -160,6 +186,51 @@
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
       },
+      openNoteEditor(note) {
+        if (!note.id) {
+
+        }
+
+      },
+      primeNote() {
+        this.note = {
+          type: null,
+          note: null,
+          is_complete: false,
+          event: this.event_id
+        };
+      },
+      getNotes() {
+        let endpoint = `/api/csas/notes/?meeting=${this.meeting.id}`;
+        apiService(endpoint).then(data => {
+          this.notes = data;
+        });
+      },
+      getInvitees() {
+        let endpoint = `/api/csas/invitees/?meeting=${this.meeting.id}`;
+        apiService(endpoint).then(data => {
+          this.invitees = data;
+        });
+      },
+      getResources() {
+        let endpoint = `/api/csas/resources/?meeting=${this.meeting.id}`;
+        apiService(endpoint).then(data => {
+          this.resources = data;
+        });
+      },
+      getMeeting(update_notes) {
+        let endpoint = `/api/csas/meetings/${this.meetingId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.meeting = data;
+            if (update_notes) this.notes = this.getNotes();
+            this.invitees = this.getInvitees();
+            this.resources = this.getResources();
+          }
+        });
+      },
+
+
       getObservations() {
         this.loadingObservations = true;
         let endpoint;
@@ -234,6 +305,8 @@
       }
     },
     created() {
+      this.getMeeting(true);
+
       {#this.getObservations();#}
       {#this.getSpeciesMetadata();#}
     },

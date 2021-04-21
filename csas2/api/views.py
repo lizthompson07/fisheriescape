@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from django.utils.translation import gettext as _, gettext_lazy
-
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -10,7 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from shared_models.api.views import _get_labels
 from . import serializers
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly
 from .. import models, emails
@@ -62,14 +60,17 @@ class MeetingNoteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.MeetingNoteSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
 
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("meeting"):
+            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
+            qs = meeting.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a meeting"))
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
-
-    def get_queryset(self):
-        qs = self.queryset
-        if self.request.query_params.get("event"):
-            qs = qs.filter(event_id=self.request.query_params.get("event"))
-        return qs
 
 
 class InviteeViewSet(viewsets.ModelViewSet):
@@ -99,11 +100,14 @@ class InviteeViewSet(viewsets.ModelViewSet):
                 dt = timezone.make_aware(dt, timezone.get_current_timezone())
                 models.Attendance.objects.create(invitee=obj, date=dt)
 
-    def get_queryset(self):
-        qs = self.queryset
-        if self.request.query_params.get("event"):
-            qs = qs.filter(event_id=self.request.query_params.get("event"))
-        return qs
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("meeting"):
+            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
+            qs = meeting.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a meeting"))
 
 
 class MeetingResourceViewSet(viewsets.ModelViewSet):
@@ -131,13 +135,14 @@ class MeetingResourceViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
 
-    def get_queryset(self):
-        qs = self.queryset
-        if self.request.query_params.get("event"):
-            qs = qs.filter(event_id=self.request.query_params.get("event"))
-        return qs
-
-
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("meeting"):
+            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
+            qs = meeting.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a meeting"))
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -165,7 +170,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 doc.meetings.add(meeting)
             return Response(None, status.HTTP_204_NO_CONTENT)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
-
 
 
 # this can probably be combined into the Invitee viewset
@@ -196,11 +200,6 @@ class InviteeSendInvitationAPIView(APIView):
         # send email
         email = emails.InvitationEmail(invitee, request)
         return Response(email.to_dict(), status=status.HTTP_200_OK)
-
-
-
-
-
 
 # class MeetingModelMetaAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
