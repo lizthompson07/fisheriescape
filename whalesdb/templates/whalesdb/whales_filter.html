@@ -18,8 +18,20 @@
 {% include "whalesdb/base/whales_nav_menu.html" %}
 {% endblock left_all %}
 
+{% block new_object_button %}
+{% if auth %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
+
+{% block crumbs %}
+<div class="container card border border-dark mb-1 pt-2">
+{{ block.super }}
+</div>
+{% endblock %}
+
 {% block title_area %}
-<div class="container card border border-dark mb-1">
+<div class="container card border border-dark mb-1 pt-3">
 {{ block.super }}
 </div>
 {% endblock %}

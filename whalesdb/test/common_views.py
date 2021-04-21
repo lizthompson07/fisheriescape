@@ -126,7 +126,7 @@ class CommonListTest(CommonTest):
     def setUp(self):
         super().setUp()
 
-        self.test_expected_template = 'shared_models/shared_filter.html'
+        self.test_expected_template = 'whalesdb/whales_filter.html'
 
     # login required
     def test_view_en(self):

@@ -117,7 +117,7 @@ def report_deployment_summary(request):
     return response
 
 
-class ReportView(AdminRequiredMixin, CommonFormView):
+class ReportView(CommonFormView):
     nav_menu = 'whalesdb/base/whales_nav_menu.html'
     site_css = 'whalesdb/base/whales_css.css'
     title = _("Whale Equipment Metadata Database Reports")
@@ -682,6 +682,9 @@ class CommonList(CommonAuthFilterView):
     # By default Listed objects will have an update button, set editable to false in extending classes to disable
     editable = True
 
+    def get_h1(self):
+        return self.get_title()
+    
     def get_fields(self):
         if self.fields:
             return self.fields
@@ -711,8 +714,9 @@ class CommonList(CommonAuthFilterView):
         # if the details_url = False in the extending view then False will be passed to the context['detials_url']
         # variable and in the template where the variable is used for buttons and links the button and/or links can
         # be left out without causing URL Not Found issues.
-        context['new_object_url'] = self.get_create_url()
-        context['row_object_url_name'] = self.get_details_url()
+        context['create_url'] = self.get_create_url()
+        context['new_object_url'] = reverse_lazy(context['create_url'])
+        context['row_object_url_name'] = context['details_url'] = self.get_details_url()
         context['update_url'] = self.get_update_url()
         context['delete_url'] = self.get_delete_url()
 
@@ -774,6 +778,8 @@ class DepList(mixins.DepMixin, CommonList):
     ]
 
     delete_url = "whalesdb:delete_dep"
+
+    queryset = models.DepDeployment.objects.all().select_related("stn", "prj", "mor")
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
