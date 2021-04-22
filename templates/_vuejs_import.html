@@ -12,6 +12,7 @@ for (var i = 0; i < Object.keys(vueFiltersObject).length; i++) {
   val = vueFiltersObject[key]
   Vue.filter(key, val)
 }
+Vue.use(groomJSON)
 </script>
 
 <script type="text/javascript" src="{% static "vue-select/vue-select.js" %}"></script>
