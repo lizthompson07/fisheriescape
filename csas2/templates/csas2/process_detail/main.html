@@ -67,10 +67,15 @@
 
 
     <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="{% url 'csas2:meeting_new' object.id %}">{% trans "Add Meeting" %}</a>
+      <div class="neighbours">
+        <h4>{% trans "Meetings" %}</h4>
       </div>
-      <h4>{% trans "Meetings" %}</h4>
+      <div class="mb-2 neighbours">
+        <a class="btn btn-sm btn-primary py-0 px-1" href="{% url 'csas2:meeting_new' object.id %}">
+          <span class="h5 mdi mdi-plus text-light"></span>
+        </a>
+      </div>
+
       {% if object.meetings.exists %}
 
         <table class="table table-bordered table-hover table-sm">
@@ -98,10 +103,15 @@
     </div>
 
     <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="{% url 'csas2:document_new' object.id %}">{% trans "Add Document" %}</a>
+      <div class="neighbours">
+        <h4>{% trans "Documents" %}</h4>
       </div>
-      <h4>{% trans "Documents" %}</h4>
+      <div class="mb-2 neighbours">
+        <a class="btn btn-sm btn-primary py-0 px-1" href="{% url 'csas2:document_new' object.id %}">
+          <span class="h5 mdi mdi-plus text-light"></span>
+        </a>
+      </div>
+
       {% if object.documents.exists %}
 
         <table class="table table-bordered table-hover table-sm">
@@ -228,7 +238,7 @@
         }
         apiService(endpoint, method, obs)
             .then(response => {
-              if (!response.id) this.obsErrorMsg = this.groomJSON(response);
+              if (!response.id) this.obsErrorMsg = groomJSON(response);
               else {
                 if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
                 this.$set(this.observations, this.observations.indexOf(obs), response)
@@ -251,10 +261,6 @@
           }
         }
       },
-      groomJSON(json) {
-        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-      },
-
     },
     computed: {},
     created() {

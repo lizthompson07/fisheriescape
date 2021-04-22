@@ -183,13 +183,8 @@ class InviteeSendInvitationAPIView(APIView):
         invitee = get_object_or_404(models.Invitee, pk=pk)
         if not invitee.invitation_sent_date:
             # send email
-            email = emails.InvitationEmail(invitee, request)
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
+            email = emails.InvitationEmail(request, invitee)
+            email.send()
             invitee.invitation_sent_date = timezone.now()
             invitee.save()
 
@@ -200,8 +195,8 @@ class InviteeSendInvitationAPIView(APIView):
         """ get a preview of the email to be sent"""
         invitee = get_object_or_404(models.Invitee, pk=pk)
         # send email
-        email = emails.InvitationEmail(invitee, request)
-        return Response(email.to_dict(), status=status.HTTP_200_OK)
+        email = emails.InvitationEmail(request, invitee)
+        return Response(email.as_dict(), status=status.HTTP_200_OK)
 
 
 # class MeetingModelMetaAPIView(APIView):

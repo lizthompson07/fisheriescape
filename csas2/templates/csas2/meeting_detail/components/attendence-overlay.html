@@ -1,0 +1,77 @@
+<!-- template for the modal component -->
+{% load i18n %}
+
+<script type="text/x-template" id="attendence-overlay-template">
+<div class="">
+  <button class="btn btn-sm" title="Edit Invitation Email" @click="openDialog">
+    <span class="mdi mdi-email"></span>
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 1000px">
+          <div class="modal-header">
+            <h4> {% trans "Event Invitation Email" %}</h4>
+          </div>
+          <div class="modal-body">
+            <p><u class="font-weight-bold">{% trans "FROM:" %}</u><br><span v-html="email.from"></span></p>
+            <p><u class="font-weight-bold">{% trans "TO:" %}</u><br><span v-html="email.to"></span></p>
+            <p><u class="font-weight-bold">{% trans "SUBJECT:" %}</u><br><span v-html="email.subject"></span></p>
+            <p><u class="font-weight-bold">{% trans "MESSAGE:" %}</u><br><span v-html="email.message"></span></p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="overlay = false">{% trans "Back" %}</button>
+            <button class="btn btn-primary" @click="sendInvitation">{% trans "Send Invitation" %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+</script>
+
+<script type="application/javascript">
+
+Vue.component("attendence-overlay", {
+  template: "#attendence-overlay-template",
+  delimiters: ["${", "}"],
+  name: "attendence-overlay",
+  props: {
+    invitee: {
+      required: true
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      error: null,
+      email: {}
+    };
+  },
+  methods: {
+    openDialog() {
+      this.error = null;
+      this.overlay = true;
+      this.getEmailPreview();
+    },
+    onSubmit() {
+      this.error = null;
+      var method;
+      var endpoint;
+      endpoint = `/api/csas/invitees/${this.invitee.id}/`;
+      method = "PATCH";
+      apiService(endpoint, method, {dates: this.dates}).then(response => {
+        if (response.id) {
+          this.$emit("update-invitees");
+          this.overlay = false;
+        } else {
+          this.error = groomJSON(response)
+        }
+      });
+    },
+    created() {
+    },
+    computed: {}
+  });
+</script>

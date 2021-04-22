@@ -1,11 +1,11 @@
 {% load i18n %}
 
 
-<div class="mb-3">
+<div class="mb-2">
   <div class="neighbours">
     <h4>{% trans "Resources" %}</h4>
   </div>
-  <div class="mb-3 neighbours">
+  <div class="mb-2 neighbours">
     <resource-editor v-if="meeting" :meeting_id="meeting.id" @update-resources="getResources"></resource-editor>
   </div>
 </div>
@@ -23,9 +23,12 @@
     <tr v-for="(r, index) in resources">
       <td> ${ r.tname}</td>
       <td>
-        <a v-if="r.url_en" :href="r.url_en">English URL</a>
-        <br>
-        <a v-if="r.url_fr" :href="r.url_fr">French URL</a>
+        <div v-if="r.url_en || r.url_fr">
+          <a v-if="r.url_en" :href="r.url_en">English URL</a>
+          <br>
+          <a v-if="r.url_fr" :href="r.url_fr">French URL</a>
+        </div>
+        <span v-else> ---</span>
       </td>
       <td>${ r.date_added }</td>
 

@@ -17,28 +17,28 @@
 <br><br>
 
 <p>
-  Hello {{ invitee.first_name }},
+  Hello {{ object.first_name }},
 </p>
 <p>
-  You have been invited to the following event:
+  You have been invited to the following meeting:
 </p>
 
 {% language 'en' %}
   <p>
   <table class="email-table">
     {% for field in field_list %}
-      {% verbose_td_display invitee.event field %}
+      {% verbose_td_display object.meeting field %}
     {% endfor %}
   </table>
   </p>
 
-  {% if invitee.event.resources.exists %}
+  {% if object.meeting.resources.exists %}
     <p>
-      There {{ invitee.event.resources.count|pluralize:"is,are" }} currently {{ invitee.event.resources.count }}
-      resource{{ invitee.event.resources.count|pluralize }} available for this event:
+      There {{ object.meeting.resources.count|pluralize:"is,are" }} currently {{ object.meeting.resources.count }}
+      resource{{ object.meeting.resources.count|pluralize }} available for this meeting:
     </p>
     <ol>
-      {% for r in invitee.event.resources.all %}
+      {% for r in object.meeting.resources.all %}
         <li><a href="{{ r.turl }}">{{ r.tname }}</a></li>
       {% endfor %}
     </ol>
@@ -46,7 +46,7 @@
 {% endlanguage %}
 
 <p>
-  Please send your RSVP to the following email: <a href="mailto:{{ invitee.event.rsvp_email }}">{{ invitee.event.rsvp_email }}</a>.
+  Please send your RSVP to the following email: <a href="mailto:{{ object.meeting.rsvp_email }}">{{ object.meeting.rsvp_email }}</a>.
 </p>
 
 <p>
@@ -60,7 +60,7 @@
 </p>
 
 <p>
-  Bonjour {{ invitee.first_name }},
+  Bonjour {{ object.first_name }},
 </p>
 <p>
   Vous avez été invité à l'événement suivant :
@@ -70,17 +70,17 @@
   <p>
   <table class="email-table">
     {% for field in field_list %}
-      {% verbose_td_display invitee.event field %}
+      {% verbose_td_display object.meeting field %}
     {% endfor %}
   </table>
   </p>
-   {% if invitee.event.resources.exists %}
+   {% if object.meeting.resources.exists %}
     <p>
-      Il y a actuellement {{ invitee.event.resources.count }} ressource{{ invitee.event.resources.count|pluralize }} disponible{{ invitee.event.resources.count|pluralize }}
+      Il y a actuellement {{ object.meeting.resources.count }} ressource{{ object.meeting.resources.count|pluralize }} disponible{{ object.meeting.resources.count|pluralize }}
       pour cet événement:
     </p>
     <ol>
-      {% for r in invitee.event.resources.all %}
+      {% for r in object.meeting.resources.all %}
         <li><a href="{{ r.turl }}">{{ r.tname }}</a></li>
       {% endfor %}
     </ol>
@@ -88,7 +88,7 @@
 {% endlanguage %}
 
 <p>
-  Veuillez envoyer votre RSVP à l'adresse e-mail suivante: <a href="mailto:{{ invitee.event.rsvp_email }}"> {{ invitee.event.rsvp_email }} </a>.
+  Veuillez envoyer votre RSVP à l'adresse e-mail suivante: <a href="mailto:{{ object.meeting.rsvp_email }}"> {{ object.meeting.rsvp_email }} </a>.
 </p>
 
 <p>

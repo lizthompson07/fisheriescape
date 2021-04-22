@@ -119,9 +119,6 @@ Vue.component("resource-editor", {
         this.labels = data.labels;
       });
     },
-    groomJSON(json) {
-      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-    },
     onSubmit() {
       this.error = null;
       var method;
@@ -139,7 +136,7 @@ Vue.component("resource-editor", {
           if (!this.resourceToEdit.id) this.primeResource();
           this.overlay = false;
         } else {
-          this.error = this.groomJSON(response)
+          this.error = groomJSON(response)
         }
       });
     }

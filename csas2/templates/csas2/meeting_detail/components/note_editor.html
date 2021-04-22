@@ -119,9 +119,6 @@ Vue.component("note-editor", {
         this.typeChoices = data.type_choices;
       });
     },
-    groomJSON(json) {
-      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-    },
     onSubmit() {
       this.error = null;
       var method;
@@ -139,7 +136,7 @@ Vue.component("note-editor", {
           if (!this.noteToEdit.id) this.primeNote();
           this.overlay = false;
         } else {
-          this.error = this.groomJSON(response)
+          this.error = groomJSON(response)
         }
       });
     },

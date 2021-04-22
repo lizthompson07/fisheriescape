@@ -96,7 +96,7 @@ invitee_status_choices = (
     (0, 'Invited'),
     (1, 'Accepted'),
     (2, 'Declined'),
-    (3, 'Maybe'),
+    (3, 'Tentative'),
     (9, 'No response'),
 )
 #

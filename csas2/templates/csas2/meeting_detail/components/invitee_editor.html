@@ -172,9 +172,6 @@ Vue.component("invitee-editor", {
         this.statusChoices = data.status_choices;
       });
     },
-    groomJSON(json) {
-      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-    },
     onSubmit() {
       this.error = null;
       var method;
@@ -192,7 +189,7 @@ Vue.component("invitee-editor", {
           if (!this.inviteeToEdit.id) this.primeInvitee();
           this.overlay = false;
         } else {
-          this.error = this.groomJSON(response)
+          this.error = groomJSON(response)
         }
       });
     }

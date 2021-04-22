@@ -103,6 +103,8 @@
   {% include "csas2/meeting_detail/components/note_card.html" %}
   {% include "csas2/meeting_detail/components/resource_editor.html" %}
   {% include "csas2/meeting_detail/components/invitee_editor.html" %}
+  {% include "csas2/meeting_detail/components/email-overlay.html" %}
+  {% include "csas2/meeting_detail/components/attendence-overlay.html" %}
 
   <script type="application/javascript">
   var meetingId = "{{ object.id }}";
@@ -155,16 +157,16 @@
         if (userInput) {
           let endpoint = `/api/csas/invitees/${invitee.id}/`;
           apiService(endpoint, "DELETE").then(() => {
-            this.getInvitee();
+            this.getInvitees();
           })
         }
       },
       toggleInviteeStatus(invitee) {
         let nextStatus = 0;
-        let statusArray = [0, 1, 2, 9];
+        let statusArray = [0, 1, 2, 3, 9];
         let currentStatusPos = statusArray.indexOf(invitee.status) + 1;
-        if (currentStatusPos >= 4) {
-          nextStatus = currentStatusPos % 4;
+        if (currentStatusPos >= 5) {
+          nextStatus = currentStatusPos % 5;
         } else {
           nextStatus = statusArray[currentStatusPos];
         }
@@ -212,9 +214,7 @@
       },
 
 
-      groomJSON(json) {
-        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-      },
+
 
     },
     computed: {

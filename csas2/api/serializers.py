@@ -6,6 +6,7 @@ from rest_framework.generics import get_object_or_404
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import percentage
+from shared_models.api.serializers import PersonSerializer
 from .. import models
 
 
@@ -147,6 +148,8 @@ class MeetingNoteSerializer(serializers.ModelSerializer):
 
 
 class InviteeSerializer(serializers.ModelSerializer):
+    person = PersonSerializer(read_only=True)
+
     class Meta:
         model = models.Invitee
         fields = "__all__"
