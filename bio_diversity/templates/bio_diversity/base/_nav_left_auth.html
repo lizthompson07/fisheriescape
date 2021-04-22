@@ -1,0 +1,43 @@
+<!-- Create a navigation bar on the top (black color): "Home CSAS (Site Admin) Login/Logout ..." -->
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'bio_diversity:index' %}"> Home</a></li>
+{% for group in user.groups.all %}
+  {% if group.name == "bio_diversity_admin" %}
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+         aria-haspopup="true" aria-expanded="false">
+        {% trans "Settings" %}
+      </a>
+      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+        <a class="dropdown-item" href="{% url 'bio_diversity:manage_help_texts' %}">
+          {% trans "Help Text" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'bio_diversity:manage_comment_keywords' %}">
+          {% trans "Comment Keywords" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'bio_diversity:admin_index' %}">
+          {% trans "Admin Page" %}
+        </a>
+      </div>
+    </li>
+
+  {% endif %}
+{% endfor %}
+
+<!-- EXAMPLE FOR CREATING NEW TOP LEVEL MENU -->
+<!--  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        TOP LEVEL MENU LABEL HERE
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="#">
+            first sub-menu label here
+        </a>
+        <a class="dropdown-item" href="#">
+            Second sub-menu label here
+        </a>
+    </div>
+</li> -->
