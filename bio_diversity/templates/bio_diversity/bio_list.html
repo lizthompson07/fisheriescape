@@ -1,0 +1,50 @@
+{% extends "shared_models/generic_filter.html" %}
+{% load static %}
+
+{% block bug_create %}
+  {% include "bio_diversity/base/_bug_url.html" %}
+{% endblock bug_create %}
+
+{% block left_auth %}
+  {% include "bio_diversity/base/_nav_left_auth.html" %}
+{% endblock left_auth %}
+
+{% block title %}
+  {% include "bio_diversity/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block header %}
+<style>
+  {% include "bio_diversity/bio_diversity.css" %}
+ </style>
+{% endblock %}
+
+{% block title_area %}
+<div class="container card border border-dark mb-1">
+{{ block.super }}
+</div>
+{% endblock %}
+
+{% block filter %}
+<div class="container card border border-dark mb-n3">
+{{ block.super }}
+</div>
+{% endblock %}
+
+{% block body %}
+  {{ block.super }}
+{% endblock body %}
+
+
+{% block table_header %}
+<div class="container card border border-dark pt-3 mb-1 mt-n1">
+{{ block.super }}
+</div>
+{% endblock %}
+
+{% block table %}
+<div class="container card border border-dark">
+{{ block.super }}
+</div>
+{% endblock %}
