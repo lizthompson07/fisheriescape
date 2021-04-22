@@ -97,8 +97,8 @@ class InviteeViewSet(viewsets.ModelViewSet):
         else:
             # delete any existing attendance
             obj.attendance.all().delete()
-            for date in dates:
-                dt = datetime.strptime(date, "%Y-%m-%d")
+            for date in dates.split(", "):
+                dt = datetime.strptime(date.strip(), "%Y-%m-%d")
                 dt = timezone.make_aware(dt, timezone.get_current_timezone())
                 models.Attendance.objects.create(invitee=obj, date=dt)
 
@@ -199,20 +199,16 @@ class InviteeSendInvitationAPIView(APIView):
         return Response(email.as_dict(), status=status.HTTP_200_OK)
 
 
-# class MeetingModelMetaAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-#     model = models.Meeting
-#
-#     def get(self, request):
-#         data = dict()
-#         data['labels'] = _get_labels(self.model)
-#         data['type_choices'] = [dict(text=c[1], value=c[0]) for c in self.model.type_choices]
-#         event_choices = [dict(text=obj.tname, value=obj.id) for obj in self.model.objects.all()]
-#         event_choices.insert(0, dict(text="------", value=None))
-#         data['event_choices'] = event_choices
-#         return Response(data)
-#
-#
+class MeetingModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Meeting
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
 class NoteModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.MeetingNote

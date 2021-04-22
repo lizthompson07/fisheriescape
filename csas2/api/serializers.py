@@ -98,6 +98,7 @@ class MeetingSerializer(serializers.ModelSerializer):
     start_date_display = serializers.SerializerMethodField()
     attendees = serializers.SerializerMethodField()
     length_days = serializers.SerializerMethodField()
+    process = serializers.StringRelatedField()
 
     def get_length_days(self, instance):
         return instance.length_days
@@ -106,7 +107,7 @@ class MeetingSerializer(serializers.ModelSerializer):
         my_list = list()
         for a in instance.attendees:
             my_list.append(
-                get_object_or_404(models.Invitee, pk=a["invitee"]).full_name
+                get_object_or_404(models.Invitee, pk=a["invitee"]).person.full_name
             )
         if len(my_list):
             return listrify(my_list)
@@ -148,35 +149,32 @@ class MeetingNoteSerializer(serializers.ModelSerializer):
 
 
 class InviteeSerializer(serializers.ModelSerializer):
-    person = PersonSerializer(read_only=True)
-
     class Meta:
         model = models.Invitee
         fields = "__all__"
 
-    status_display = serializers.SerializerMethodField()
-    role_display = serializers.SerializerMethodField()
-    full_name = serializers.SerializerMethodField()
-
-    min_date = serializers.SerializerMethodField()
-    max_date = serializers.SerializerMethodField()
     attendance = serializers.SerializerMethodField()
     attendance_percentage = serializers.SerializerMethodField()
-    event_object = serializers.SerializerMethodField()
+    meeting_object = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
+    max_date = serializers.SerializerMethodField()
+    min_date = serializers.SerializerMethodField()
+    person_object = serializers.SerializerMethodField()
+    role_display = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
 
-    def get_event_object(self, instance):
-        if instance.meeting:
-            return MeetingSerializerLITE(instance.meeting, read_only=True).data
+    def get_attendance(self, instance):
+        return listrify([a.date.strftime("%Y-%m-%d") for a in instance.attendance.all()])
 
     def get_attendance_percentage(self, instance):
         return percentage(instance.attendance_fraction, 0)
 
-    def get_attendance(self, instance):
-        return [a.date.strftime("%Y-%m-%d") for a in instance.attendance.all()]
+    def get_meeting_object(self, instance):
+        if instance.meeting:
+            return MeetingSerializerLITE(instance.meeting, read_only=True).data
 
-    def get_min_date(self, instance):
-        if instance.meeting.start_date:
-            return instance.meeting.start_date.strftime("%Y-%m-%d")
+    def get_full_name(self, instance):
+        return instance.person.full_name
 
     def get_max_date(self, instance):
         if instance.meeting.end_date:
@@ -184,14 +182,18 @@ class InviteeSerializer(serializers.ModelSerializer):
         elif instance.meeting.start_date:
             return instance.meeting.start_date.strftime("%Y-%m-%d")
 
-    def get_full_name(self, instance):
-        return instance.person.full_name
+    def get_min_date(self, instance):
+        if instance.meeting.start_date:
+            return instance.meeting.start_date.strftime("%Y-%m-%d")
 
-    def get_status_display(self, instance):
-        return instance.get_status_display()
+    def get_person_object(self, instance):
+        return PersonSerializer(instance.person).data
 
     def get_role_display(self, instance):
         return instance.get_role_display()
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
 
 
 class MeetingResourceSerializer(serializers.ModelSerializer):

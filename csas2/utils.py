@@ -235,6 +235,7 @@ def get_meeting_field_list():
         'process',
         'type',
         'location',
+        'attendees',
         'display_dates|{}'.format(_("dates")),
         'metadata|{}'.format(_("metadata")),
     ]

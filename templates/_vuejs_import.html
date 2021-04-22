@@ -12,10 +12,10 @@ for (var i = 0; i < Object.keys(vueFiltersObject).length; i++) {
   val = vueFiltersObject[key]
   Vue.filter(key, val)
 }
-Vue.use(groomJSON)
 </script>
 
 <script type="text/javascript" src="{% static "vue-select/vue-select.js" %}"></script>
 <link rel="stylesheet" href="{% static "vue-select/vue-select.css" %}">
 
-
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/vuejs-datepicker"></script>

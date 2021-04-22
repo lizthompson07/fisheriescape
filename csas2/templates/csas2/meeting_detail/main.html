@@ -22,7 +22,7 @@
 
 
 
-  <div id="app" @keydown.esc.prevent="closeModals()" v-cloak>
+  <div id="app" v-cloak>
     <div>
       {% include "shared_models/_generic_breadcrumbs.html" %}
       <div class="mb-3">
@@ -47,13 +47,33 @@
 
         <div class="mb-5">
           <table class="table table-sm">
-            {% for field in meeting_field_list %}
-              {% verbose_td_display object field th_width="300px" %}
-            {% endfor %}
             <tr>
-              <th>
-                {% trans "Linked documents" %}
-              </th>
+              <th class="text-left" v-html="meetingLabels.process"></th>
+              <td class="text-left" v-html="meeting.process"></td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="meetingLabels.type"></th>
+              <td class="text-left" v-html="meeting.type_display"></td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="meetingLabels.location"></th>
+              <td class="text-left" v-html="meeting.location"></td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Dates" %}</th>
+              <td class="text-left" v-html="meeting.display_dates"></td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Attendees" %}</th>
+              <td class="text-left" v-html="meeting.attendees"></td>
+            </tr>
+
+            <tr>
+              <th class="text-left">{% trans "Distinct attendees" %}</th>
+              <td class="text-left" v-html="attendeeCount"></td>
+            </tr>
+            <tr>
+              <th>{% trans "Linked documents" %}</th>
               <td>
                 {% if object.documents.exists %}
                   {% for obj in object.documents.all %}
@@ -66,7 +86,10 @@
                 {% endif %}
               </td>
             </tr>
-
+            <tr>
+              <th class="text-left">{% trans "Metadata" %}</th>
+              <td class="text-left" v-html="meeting.metadata"></td>
+            </tr>
           </table>
         </div>
 
@@ -104,7 +127,7 @@
   {% include "csas2/meeting_detail/components/resource_editor.html" %}
   {% include "csas2/meeting_detail/components/invitee_editor.html" %}
   {% include "csas2/meeting_detail/components/email-overlay.html" %}
-  {% include "csas2/meeting_detail/components/attendence-overlay.html" %}
+  {% include "csas2/meeting_detail/components/attendance-overlay.html" %}
 
   <script type="application/javascript">
   var meetingId = "{{ object.id }}";
@@ -130,7 +153,7 @@
       showInviteeModal: false,
       showResourceModal: false,
       meetingId: meetingId,
-
+      meetingLabels: {}
     },
     methods: {
       getCurrentUser() {
@@ -151,6 +174,12 @@
             this.getResources();
           })
         }
+      },
+      getMeetingMetadata() {
+        let endpoint = `/api/csas/meta/models/meeting/`;
+        apiService(endpoint).then(data => {
+          this.meetingLabels = data.labels;
+        });
       },
       deleteInvitee(invitee) {
         let userInput = confirm("{% trans 'Are you certain you want to delete this invitee?' %}")
@@ -177,11 +206,19 @@
           this.getInvitees()
         })
       },
-      sendInvitation() {
-        let endpoint = `/api/csas/invitees/${invitee.id}/send-invitation/`;
-        apiService(endpoint, "POST").then(data => {
-          if (data === "email sent.") this.invitee.invitation_sent_date = true;
-        });
+      sendAllInvitations() {
+        let userInput = confirm("{% trans 'Are you certain you want to send out invitations to all invitees? \n\nInvitees who have already received invitations will not receive duplicates.' %}")
+        if (userInput) {
+          if (this.invitees.length) {
+            for (var i = 0; i < this.invitees.length; i++) {
+              this.error = null;
+              let endpoint = `/api/csas/invitees/${this.invitees[i].id}/invitation/`;
+              apiService(endpoint, "POST").then(() => {
+                this.getInvitees();
+              });
+            }
+          }
+        }
       },
       getNotes() {
         let endpoint = `/api/csas/notes/?meeting=${this.meeting.id}`;
@@ -214,12 +251,17 @@
       },
 
 
-
-
     },
     computed: {
+      attendeeCount() {
+        if (this.meeting && this.meeting.attendees && this.meeting.attendees.length) {
+          return this.meeting.attendees.split(",").length;
+        }
+        return 0;
+      },
     },
     created() {
+      this.getMeetingMetadata();
       this.getMeeting(true);
 
       {#this.getObservations();#}

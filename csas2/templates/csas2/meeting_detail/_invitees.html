@@ -8,42 +8,44 @@
   <div class="mb-2 neighbours">
     <invitee-editor v-if="meeting" :meeting_id="meeting.id" @update-invitees="getInvitees"></invitee-editor>
   </div>
+  <div class="mb-2 neighbours">
+    <button @click="sendAllInvitations" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip" title="{% trans "Send invitation to all invitees who have not already received an invitation" %}">
+      <span class="h5 mdi mdi-email text-light"></span>
+    </button>
+  </div>
 </div>
 
 <div v-if="invitees && invitees.length">
   <table class="table table-sm">
     <thead>
     <tr>
-      <th class="text-left"> {% trans "Name" %}</th>
-      <th class="text-left"> {% trans "Email address" %}</th>
-      <th class="text-left"> {% trans "Affiliation" %}</th>
+      <th class="text-left"> {% trans "Person" %}</th>
       <th class="text-left"> {% trans "Function" %}</th>
-      <th class="text-left"> {% trans "Status" %}</th>
+      <th class="text-left"> {% trans "RSVP Status" %}</th>
+      <th class="text-left"> {% trans "Attendance" %}</th>
     </tr>
     </thead>
     <tbody>
     <tr v-for="(invitee, index) in invitees" :key="invitee.id" @click="">
-      <td> ${ invitee.full_name }</td>
-      <td> ${ invitee.person.email }</td>
-      <td> ${ invitee.person.affiliation }</td>
+      <td> ${ invitee.full_name } (${ invitee.person_object.affiliation }) <br>
+        <a href="mailto:${ invitee.person_object.email }">${ invitee.person_object.email}</a>
+      </td>
       <td>${ invitee.role_display }</td>
-      <td v-if="!invitee.attendance.length">
+      <td>
         <button @click="toggleInviteeStatus(invitee)"
                 :class="{'badge badge-pill':true, 'badge-success':invitee.status ===1,'badge-warning':invitee.status ===9,'badge-danger':invitee.status ===2,'badge-info':invitee.status ===3,  }">
           ${ invitee.status_display }
         </button>
       </td>
-      <td v-else>
+      <td>
         {% trans "Attended" %} (${ invitee.attendance_percentage })
       </td>
       <td>
         <email-overlay v-if="!invitee.invitation_sent_date" :invitee="invitee" @update-invitees="getInvitees"></email-overlay>
       </td>
       <td>
-        <attendence-overlay :invitee="invitee" @update-invitees="getInvitees"></attendence-overlay>
-      </td>
-      <td>
         <div class="btn-group">
+          <attendance-overlay :invitee="invitee" @update-invitees="getInvitees"></attendance-overlay>
           <invitee-editor :invitee="invitee" @update-invitees="getInvitees"></invitee-editor>
           <button class="btn btn-sm" @click="deleteInvitee(invitee)">
             <span class="mdi mdi-delete"></span>

@@ -16,7 +16,7 @@ urlpatterns = [
     path("csas/", include(router.urls)),  # tested
     path("csas/user/", views.CurrentUserAPIView.as_view(), name="csas-current-user"),
 
-    # path("csas/meta/models/event/", views.EventModelMetaAPIView.as_view(), name="event-model-meta"),
+    path("csas/meta/models/meeting/", views.MeetingModelMetaAPIView.as_view(), name="event-model-meta"),
     path("csas/meta/models/note/", views.NoteModelMetaAPIView.as_view(), name="note-model-meta"),
     path("csas/meta/models/invitee/", views.InviteeModelMetaAPIView.as_view(), name="invitee-model-meta"),
     path("csas/meta/models/resource/", views.ResourceModelMetaAPIView.as_view(), name="resource-model-meta"),
