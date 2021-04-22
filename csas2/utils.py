@@ -213,6 +213,7 @@ def get_review_field_list():
 
 def get_process_field_list(process):
     my_list = [
+        'fiscal_year',
         'tname|{}'.format(_("Title")),
         'scope_type|{}'.format(_("advisory process type")),
         'coordinator',

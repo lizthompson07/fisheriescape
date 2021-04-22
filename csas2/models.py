@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
@@ -173,6 +174,7 @@ class CSASRequestFile(models.Model):
 class Process(SimpleLookupWithUUID, MetadataFields):
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
+    status = models.IntegerField(choices=model_choices.process_status_choices, verbose_name=_("status"), default=1)
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
     lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
@@ -183,6 +185,25 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     context = models.TextField(blank=True, null=True, verbose_name=_("context"))
     objectives = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
     expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
+
+    # calculated
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="processes",
+                                    verbose_name=_("fiscal year"), editable=False)
+
+    def save(self, *args, **kwargs):
+        # the fiscal year of a process is determined by the fiscal year of the earliest request associated with it.
+        if not self.fiscal_year:
+            self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
+        elif self.csas_requests.exists():
+            self.fiscal_year = self.csas_requests.order_by("fiscal_year").first().fiscal_year
+        else:
+            self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
+
+        super().save(*args, **kwargs)
+
+
+    def get_absolute_url(self):
+        return reverse("csas2:process_detail", args=[self.pk])
 
     @property
     def context_html(self):
@@ -223,6 +244,9 @@ class Meeting(MetadataFields):
 
     class Meta:
         ordering = ['start_date', ]
+
+    def get_absolute_url(self):
+        return reverse("csas2:meeting_detail", args=[self.pk])
 
     @property
     def attendees(self):
@@ -329,6 +353,9 @@ class Document(MetadataFields):
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.document_status_choices, editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
 
+    def get_absolute_url(self):
+        return reverse("csas2:document_detail", args=[self.pk])
+
     @property
     def ttitle(self):
         # check to see if a french value is given
@@ -340,6 +367,7 @@ class Document(MetadataFields):
 
     def __str__(self):
         return self.ttitle
+
 
 # class DocumentTracking(MetadataFields):
 #     ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
@@ -381,36 +409,22 @@ class Document(MetadataFields):
 #     attach_fr_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) Size"))
 #
 #     url_e_file = models.URLField(_("URL (English)"), max_length=255, db_index=True, unique=True, blank=True)
-#     url_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("URL (English) Size"))
 #     url_f_file = models.URLField(_("URL (French)"), max_length=255, db_index=True, unique=True, blank=True)
-#     url_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("URL (French) Size"))
 #
 #     dev_link_e_file = models.URLField(_("Dev Link (English)"), max_length=255, db_index=True, unique=True, blank=True)
-#     dev_link_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Dev Link (English) Size"))
 #     dev_link_f_file = models.URLField(_("Dev Link (French)"), max_length=255, db_index=True, unique=True, blank=True)
-#     dev_link_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Dev Link (French) Size"))
 #
 #     ekme_gcdocs_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (English)"))
-#     ekme_gcdocs_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (English) Size"))
 #     ekme_gcdocs_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (French)"))
-#     ekme_gcdocs_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (French) Size"))
 #
 #     lib_cat_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English)"))
-#     lib_cat_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English) Size"))
 #     lib_cat_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French)"))
-#     lib_cat_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French) Size"))
 #
-#     lib_link_e_file = models.URLField(_("Library Link (English)"), max_length=255, db_index=True, unique=True, blank=True)
-#     lib_link_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Link (English) Size"))
-#     lib_link_f_file = models.URLField(_("Library Link (French)"), max_length=255, db_index=True, unique=True, blank=True)
-#     lib_link_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Link (French) Size"))
 #
 #     # tracking
 #
 #     class Meta:
 #         ordering = ['-id']
-
-
 
 
 class Author(models.Model):

@@ -53,7 +53,7 @@
             {% if object.csas_requests.exists %}
               {% for obj in object.csas_requests.all %}
                 <div>
-                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj }}</a>
+                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj.id }} - {{ obj }} ({{ obj.fiscal_year }})</a>
                 </div>
               {% endfor %}
             {% else %}

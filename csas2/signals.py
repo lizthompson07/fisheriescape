@@ -3,12 +3,37 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from csas2.models import CSASRequestReview, CSASRequestFile
+from csas2.models import CSASRequestReview, CSASRequestFile, CSASRequest, Process
+from lib.functions.custom_functions import fiscal_year
 
 
 @receiver(models.signals.post_save, sender=CSASRequestReview)
 def save_request_on_review_save(sender, instance, created, **kwargs):
     instance.csas_request.save()
+
+
+
+# @receiver(models.signals.post_save, sender=Process)
+# def update_fiscal_year_on_process_save(sender, instance, created, **kwargs):
+#
+#     instance.save()
+
+@receiver(models.signals.m2m_changed, sender=Process.csas_requests.through)
+def csas_request_change(sender, action, pk_set, instance=None, **kwargs):
+    if action in ['post_add', 'post_remove']:
+        instance.save()
+
+
+@receiver(models.signals.post_delete, sender=CSASRequest)
+def update_process_on_request_delete(sender, instance, **kwargs):
+    for p in instance.processes.all():
+        p.save()
+
+
+@receiver(models.signals.post_save, sender=CSASRequest)
+def update_process_on_request_change_or_create(sender, instance, **kwargs):
+    for p in instance.processes.all():
+        p.save()
 
 
 

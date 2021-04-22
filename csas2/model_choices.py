@@ -49,6 +49,15 @@ process_type_choices = (
     (3, _('Peer Review')),
 )
 
+
+process_status_choices = (
+    (1, _('Active')),
+    (2, _('Complete')),
+    (3, _('Deferred')),
+    (4, _('Delayed')),
+)
+
+
 meeting_type_choices = (
     (1, _("Steering Committee Meeting")),
     (2, _("Science Management Meeting")),
@@ -87,6 +96,7 @@ invitee_status_choices = (
     (0, 'Invited'),
     (1, 'Accepted'),
     (2, 'Declined'),
+    (3, 'Maybe'),
     (9, 'No response'),
 )
 #
