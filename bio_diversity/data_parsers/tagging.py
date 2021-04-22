@@ -16,7 +16,7 @@ def coldbrook_tagging_parser(cleaned_data):
     rows_entered = 0
     try:
         data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                             converters={'to tank': str, 'from tank': str, 'Year': str,
+                             converters={'To Tank': str, 'From Tank': str, 'Year': str,
                                          'Month': str, 'Day': str})
         data = data.mask(data == 'None', None).mask(data == '', None).dropna(how="all")
         data_dict = data.to_dict('records')
@@ -40,7 +40,7 @@ def coldbrook_tagging_parser(cleaned_data):
         elif len(grp_qs) > 1:
             for grp in grp_qs:
                 tank_list = grp.current_tank()
-                if str(data["from Tank"][0]) in [tank.name for tank in tank_list]:
+                if str(data["From Tank"][0]) in [tank.name for tank in tank_list]:
                     grp_id = grp.pk
 
         if grp_id:
@@ -73,7 +73,7 @@ def coldbrook_tagging_parser(cleaned_data):
                                      pit_tag=row["PIT tag"],
                                      ufid=indv_ufid,
                                      indv_valid=True,
-                                     comments=row["comments"],
+                                     comments=row["Comments"],
                                      created_by=cleaned_data["created_by"],
                                      created_date=cleaned_data["created_date"],
                                      )
@@ -84,9 +84,9 @@ def coldbrook_tagging_parser(cleaned_data):
             except (ValidationError, IntegrityError):
                 indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
-            if not row["from Tank"] == "nan" and not row["to tank"] == "nan":
-                in_tank = models.Tank.objects.filter(name=row["from Tank"]).get()
-                out_tank = models.Tank.objects.filter(name=row["to tank"]).get()
+            if not row["From Tank"] == "nan" and not row["To Tank"] == "nan":
+                in_tank = models.Tank.objects.filter(name=row["From Tank"]).get()
+                out_tank = models.Tank.objects.filter(name=row["To Tank"]).get()
                 if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
                                               indv_pk=indv.pk):
                     row_entered = True
@@ -105,7 +105,7 @@ def coldbrook_tagging_parser(cleaned_data):
             if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Box"], "Box", None):
                 row_entered = True
 
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["location"], "Box Location", None):
+            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Location"], "Box Location", None):
                 row_entered = True
 
             if utils.nan_to_none(row["Tagger"]):
@@ -117,11 +117,11 @@ def coldbrook_tagging_parser(cleaned_data):
                     log_data += "No valid personnel with initials ({}) for row with pit tag {}\n".format(inits,
                                                                                                          row["PIT tag"])
 
-            if utils.nan_to_none(row["comments"]):
-                comments_parsed = utils.comment_parser(row["comments"], anix_indv, det_date=row_datetime.date())
+            if utils.nan_to_none(row["Comments"]):
+                comments_parsed = utils.comment_parser(row["Comments"], anix_indv, det_date=row_datetime.date())
                 if not comments_parsed:
                     log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row["PIT tag"],
-                                                                                            row["comments"])
+                                                                                            row["Comments"])
 
         except Exception as err:
             log_data += "Error parsing row: \n"
@@ -139,7 +139,7 @@ def coldbrook_tagging_parser(cleaned_data):
 
     # handle general data:
     try:
-        from_tanks = data["from Tank"].value_counts()
+        from_tanks = data["From Tank"].value_counts()
         for tank_name in from_tanks.keys():
             fish_tagged_from_tank = int(from_tanks[tank_name])
             contx = utils.enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
