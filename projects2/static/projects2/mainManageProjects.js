@@ -315,6 +315,11 @@ var app = new Vue({
       staff.showRelatedProjects = !staff.showRelatedProjects
       this.$forceUpdate()
     },
+    generateReport() {
+        console.log(this.count)
+        console.log(this.projectYears)
+        console.log(this.next)
+    },
   },
 
   filters: {
