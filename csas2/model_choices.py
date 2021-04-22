@@ -51,7 +51,7 @@ process_type_choices = (
 
 
 process_status_choices = (
-    (1, _('Active')),
+    (1, _('In-progress')),
     (2, _('Complete')),
     (3, _('Deferred')),
     (4, _('Delayed')),

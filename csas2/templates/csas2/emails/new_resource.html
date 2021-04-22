@@ -18,23 +18,23 @@
 
 {% language 'en' %}
   <p>
-    Hello {{ invitee.first_name }},
+    Hello {{ object.first_name }},
   </p>
   <p>
     This is an automated message to notify you that a new resource, <a href="{{ resource.turl }}">{{ resource.tname }}</a>, has been added to the following
-    event:
+    meeting:
   </p>
   <p>
   <table class="email-table">
     {% for field in field_list %}
-      {% verbose_td_display invitee.event field %}
+      {% verbose_td_display object.meeting field %}
     {% endfor %}
   </table>
   </p>
 {% endlanguage %}
 
 <p>
-  Question or comments can be directed to the following email: <a href="mailto:{{ invitee.event.rsvp_email }}">{{ invitee.event.rsvp_email }}</a>.
+  Question or comments can be directed to the following email: <a href="mailto:{{ object.meeting.coordinator.email }}">{{ object.meeting.coordinator.email }}</a>.
 </p>
 
 <p>
@@ -48,7 +48,7 @@
 </p>
 
 <p>
-  Bonjour {{ invitee.first_name }},
+  Bonjour {{ object.first_name }},
 </p>
 {% language 'fr' %}
   <p>
@@ -59,14 +59,14 @@
   <p>
   <table class="email-table">
     {% for field in field_list %}
-      {% verbose_td_display invitee.event field %}
+      {% verbose_td_display object.meeting field %}
     {% endfor %}
   </table>
   </p>
 {% endlanguage %}
 
 <p>
-  Les questions ou commentaires peuvent être dirigés vers le courriel suivant: <a href="mailto:{{ invitee.event.rsvp_email }}"> {{ invitee.event.rsvp_email }} </a>.
+  Les questions ou commentaires peuvent être dirigés vers le courriel suivant: <a href="mailto:{{ object.meeting.coordinator.email }}"> {{ object.meeting.coordinator.email }} </a>.
 </p>
 
 <p>

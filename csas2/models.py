@@ -201,6 +201,9 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
         super().save(*args, **kwargs)
 
+    @property
+    def status_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])

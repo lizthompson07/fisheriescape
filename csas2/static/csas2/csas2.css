@@ -66,7 +66,7 @@ h1 {
     background-color: #ffff9d;
 }
 
-.submitted {
+.submitted, .complete {
     background-color: #84c6ff;
 }
 
@@ -74,11 +74,11 @@ h1 {
     background-color: #e3aefa;
 }
 
-.off {
+.off, .deferred, .delayed {
     background-color: #f699a9;
 }
 
-.on {
+.on, .in-progress {
     background-color: #d5faae;
 }
 

@@ -215,6 +215,7 @@ def get_process_field_list(process):
     my_list = [
         'fiscal_year',
         'tname|{}'.format(_("Title")),
+        'status_display|{}'.format(_("status")),
         'scope_type|{}'.format(_("advisory process type")),
         'coordinator',
         'advisors',

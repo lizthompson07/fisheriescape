@@ -14,16 +14,16 @@
     <div class="modal-mask">
       <div class="modal-wrapper">
         <div class="modal-container" style="width: 800px">
-          <div class="modal-header">
-            <h4 v-if="!invitee.id"> Add Invitee </h4>
-            <h4 v-else> Edit Invitee </h4>
+          <div v-if="!personEditMode" class="modal-header">
+            <h4 v-if="!invitee.id"> {% trans "Add Invitee" %}</h4>
+            <h4 v-else> {% trans "Edit Invitee" %} </h4>
+          </div>
+          <div v-else class="modal-header">
+            <h4> {% trans "Add a Person" %}</h4>
           </div>
           <div class="modal-body">
-
-            <form @submit.prevent="onSubmit">
+            <form v-if="!personEditMode" @submit.prevent="onSubmit">
               <div class="mb-3">
-
-
                 <div class="form-group">
                   <label for="">${labels.person}</label>
                   <v-select
@@ -36,6 +36,9 @@
                     required
                   ></v-select>
                 </div>
+                <div class="mb-3">
+                  <button @click="openPersonEditMode" class="badge badge-pill badge-primary">{% trans "Add a person" %}</button>
+                </div>
                 <div class="form-group">
                   <label for="">${labels.role}</label>
                   <v-select
@@ -47,7 +50,8 @@
                     :clearable=false
                     required
                   ></v-select>
-                </div><div class="form-group">
+                </div>
+                <div class="form-group">
                   <label for="">${labels.status}</label>
                   <v-select
                     v-model="inviteeToEdit.status"
@@ -58,6 +62,42 @@
                     :clearable=false
                     required
                   ></v-select>
+                </div>
+              </div>
+              <div class="alert alert-danger mb-3" role="alert" v-if="error">
+                <p class="lead">
+                  ${ error }
+                </p>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-success">
+                  <span v-if="invitee.id">{% trans "Update" %}</span>
+                  <span v-else>{% trans "Create" %}</span>
+                </button>
+                <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
+              </div>
+            </form>
+            <form v-else @submit.prevent="addPerson">
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="">${personLabels.first_name}</label>
+                  <input type="text" v-model="person.first_name" class="form-control"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.last_name}</label>
+                  <input type="text" v-model="person.last_name" class="form-control"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.email}</label>
+                  <input type="email" v-model="person.email" class="form-control"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.phone}</label>
+                  <input type="text" v-model="person.phone" class="form-control"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.affiliation}</label>
+                  <input type="text" v-model="person.affiliation" class="form-control"/>
                 </div>
               </div>
               <div class="alert alert-danger mb-3" role="alert" v-if="error">
@@ -111,7 +151,10 @@ Vue.component("invitee-editor", {
       loadingPersons: false,
       search: null,
       user: null,
-      dates: null
+      dates: null,
+      personEditMode: false,
+      person: {},
+      personLabels: {}
     };
   },
   methods: {
@@ -122,8 +165,12 @@ Vue.component("invitee-editor", {
         this.primeInvitee();
       } else {
         this.inviteeToEdit = JSON.parse(JSON.stringify(this.invitee)); // deep copy
-;
       }
+    },
+    openPersonEditMode() {
+      this.error = null;
+      this.primeInvitee();
+      this.personEditMode = true;
     },
     closeOverlay() {
       this.error = null;
@@ -164,6 +211,12 @@ Vue.component("invitee-editor", {
         this.statusChoices = data.status_choices;
       });
     },
+    getPersonMetadata() {
+      let endpoint = `/api/csas/meta/models/person/`;
+      apiService(endpoint).then(data => {
+        this.personLabels = data.labels;
+      });
+    },
     onSubmit() {
       this.error = null;
       var method;
@@ -184,10 +237,26 @@ Vue.component("invitee-editor", {
           this.error = groomJSON(response)
         }
       });
+    },
+    addPerson() {
+      this.error = null;
+        let endpoint = "/api/csas/people/";
+        let method = "POST";
+      apiService(endpoint, method, this.person).then(response => {
+        if (response.id) {
+          this.getInviteeMetadata()
+          this.personEditMode = false;
+          this.inviteeToEdit.person = response.id
+        } else {
+          this.error = groomJSON(response)
+        }
+      });
     }
+
   },
   created() {
     this.getInviteeMetadata();
+    this.getPersonMetadata();
   },
   computed: {}
 });

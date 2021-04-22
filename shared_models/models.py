@@ -846,7 +846,7 @@ class Person(models.Model):
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     email = models.EmailField(verbose_name=_("email"), unique=True)
     language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"), related_name="people")
-    affiliation = models.CharField(max_length=255, verbose_name=_("affiliation"), blank=True, null=True)
+    affiliation = models.CharField(max_length=255, verbose_name=_("affiliation"), blank=False, null=True)
 
     dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="contact")
 

@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
 from shared_models.models import Person
 from . import serializers
@@ -51,10 +52,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        parent_event = serializer.validated_data.get("parent_event")
-        if parent_event == serializer.instance:
-            raise ValidationError("An event cannot be it's own parent, silly. ")
-        serializer.save()
+        serializer.save(updated_by=self.request.user)
 
 
 class MeetingNoteViewSet(viewsets.ModelViewSet):
@@ -74,6 +72,9 @@ class MeetingNoteViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
 
 class InviteeViewSet(viewsets.ModelViewSet):
     queryset = models.Invitee.objects.all()
@@ -86,7 +87,7 @@ class InviteeViewSet(viewsets.ModelViewSet):
         serializer.save()
 
     def perform_update(self, serializer):
-        obj = serializer.save()
+        obj = serializer.save(updated_by=self.request.user)
 
         # it is important to use the try/except approach because this way
         # it can differentiate between  1) no dates value being passed or 2) a null value (i.e. clear all attendance)
@@ -126,13 +127,8 @@ class MeetingResourceViewSet(viewsets.ModelViewSet):
         for invitee in resource.meeting.invitees.all():
             # only send the email to those who already received an invitation (and where this happened in the past... redundant? )
             if invitee.invitation_sent_date and invitee.invitation_sent_date < resource.created_at:
-                email = emails.NewResourceEmail(invitee, resource, self.request)
-                # custom_send_mail(
-                #     subject=email.subject,
-                #     html_message=email.message,
-                #     from_email=email.from_email,
-                #     recipient_list=email.to_list
-                # )
+                email = emails.NewResourceEmail(self.request, invitee, resource)
+                email.send()
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
@@ -172,6 +168,12 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 doc.meetings.add(meeting)
             return Response(None, status.HTTP_204_NO_CONTENT)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
+
+
+class PersonViewSet(viewsets.ModelViewSet):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    permission_classes = [IsAuthenticated]
 
 
 # this can probably be combined into the Invitee viewset
@@ -230,6 +232,16 @@ class InviteeModelMetaAPIView(APIView):
         data['person_choices'] = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_status_choices]
         data['role_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_role_choices]
+        return Response(data)
+
+
+class PersonModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = Person
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
         return Response(data)
 
 
