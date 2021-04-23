@@ -1,6 +1,9 @@
 
 # DFO Organization Manager!!
 # should permissions detail on request, process, meeting etc...
+
+# in the meeting invitee menu, show if they are a connected user
+
 # process
 # TODO: "my" view.. must create function to apply business rules
 # TODO: ToR export function

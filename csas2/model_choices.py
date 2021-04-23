@@ -86,10 +86,10 @@ document_status_choices = (
 )
 
 invitee_role_choices = (
-    (1, 'Participant'),
-    (2, 'Chair'),
+    (1, 'Chair'),
+    (2, 'Participant'),
     (3, 'Expert'),
-    (4, 'Steering Committee Member'),
+    (4, 'Steering Committee Member (is this is good category?)'),
 )
 
 invitee_status_choices = (
@@ -97,7 +97,6 @@ invitee_status_choices = (
     (1, 'Accepted'),
     (2, 'Declined'),
     (3, 'Tentative'),
-    (9, 'No response'),
 )
 #
 # _choices = (
