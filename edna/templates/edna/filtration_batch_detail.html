@@ -223,9 +223,6 @@
         // return the results array
         return myArray;
       },
-      groomJSON(json) {
-        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-      },
       newFilter(sample) {
         endpoint = `/api/edna/filters/`;
         data = this.getBlankFilter(sample)
@@ -245,7 +242,7 @@
         endpoint = `/api/edna/filters/${filter.id}/`;
         apiService(endpoint, "PUT", filter)
             .then(response => {
-              if (!response.id) this.filterErrorMsg = this.groomJSON(response);
+              if (!response.id) this.filterErrorMsg = groomJSON(response);
               else this.unsavedChanges = false;
             })
       },

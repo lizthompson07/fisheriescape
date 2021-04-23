@@ -176,9 +176,6 @@ var app = new Vue({
       let url = `/travel-plans/requests/${request.id}/view/`;
       let win = window.open(url, '_blank');
     },
-    groomJSON(json) {
-      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-    },
     moveReviewer(reviewer, direction) {
       if (direction === 'up') reviewer.order -= 1.5;
       else if (direction === 'down') reviewer.order += 1.5;
@@ -216,7 +213,7 @@ var app = new Vue({
                 this.getTrip();
               } else {
                 console.log(response)
-                this.errorMsgReviewer = this.groomJSON(response)
+                this.errorMsgReviewer = groomJSON(response)
               }
             })
       }
@@ -236,7 +233,7 @@ var app = new Vue({
                 this.errorMsgReviewer = null;
               } else {
                 console.log(response)
-                this.errorMsgReviewer = this.groomJSON(response)
+                this.errorMsgReviewer = groomJSON(response)
               }
 
             })
@@ -250,7 +247,7 @@ var app = new Vue({
                 this.trip.reviewers.push(response)
                 this.errorMsgReviewer = null;
               } else {
-                this.errorMsgReviewer = this.groomJSON(response)
+                this.errorMsgReviewer = groomJSON(response)
               }
             })
       }

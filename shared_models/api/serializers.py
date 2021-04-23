@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from shared_models.models import FiscalYear, Region, Division, Section
+from shared_models.models import FiscalYear, Region, Division, Section, Person
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -79,3 +79,9 @@ class SectionSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, instance):
         return instance.full_name
+
+
+class PersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        fields = "__all__"

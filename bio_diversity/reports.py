@@ -9,6 +9,7 @@ from bokeh.layouts import column
 from bokeh.models import Title
 from bokeh.plotting import figure
 from bokeh.resources import CDN
+from django.db.models.functions import Concat
 from openpyxl import load_workbook
 from bio_diversity import models
 from dm_apps import settings
@@ -26,41 +27,50 @@ def generate_facility_tank_report(facic_id):
 
     facic = models.FacilityCode.objects.filter(pk=facic_id).get()
 
-    qs = models.Tank.objects.filter(facic_id=facic)
+    tank_qs = models.Tank.objects.filter(facic_id=facic).order_by('name')
+    tray_qs = models.Tray.objects.filter(trof_id__facic_id=facic, end_date__isnull=True).order_by(Concat('trof_id__name', 'name'))
+
+    draw_qs = models.Drawer.objects.filter(heat_id__facic_id=facic).order_by(Concat('heat_id__name', 'name'))
+    cup_qs = models.Cup.objects.filter(draw_id__heat_id__facic_id=facic, end_date__isnull=True).order_by(Concat('draw_id__heat_id__name', 'draw_id__name', 'name'))
+
+    qs_list = [("Tank", tank_qs), ("Trough", tray_qs), ("Drawer", draw_qs), ("Cup", cup_qs)]
 
     wb = load_workbook(filename=template_file_path)
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
-    ws = wb['template']
-    ws.title = facic.name
-    wb.copy_worksheet(ws).title = str("template")
-    try:
-        ws = wb[facic.name]
-    except KeyError:
-        print(facic.name, "is not a valid name of a worksheet")
 
-    # start writing data at row 3 in the sheet
-    row_count = 3
-    for item in qs:
+    for sheet_name, qs in qs_list:
+        ws = wb['template']
+        ws.title = sheet_name
+        wb.copy_worksheet(ws).title = str("template")
+        try:
+            ws = wb[sheet_name]
+        except KeyError:
+            print(sheet_name, "is not a valid name of a worksheet")
 
-        ws['A' + str(row_count)].value = item.name
+        # start writing data at row 3 in the sheet
+        row_count = 3
+        for item in qs:
 
-        cnt = 0
-        year_coll_set = set()
-        indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id","indv_id__grp_id__coll_id"])
-        if indv_list:
-            ws['B' + str(row_count)].value = "Y"
-            cnt += len(indv_list)
-            year_coll_set |= set([indv.stok_year_coll_str() for indv in indv_list])
-        if grp_list:
-            for grp in grp_list:
-                cnt += grp.count_fish_in_group()
-                year_coll_set |= {grp.__str__()}
-        ws['C' + str(row_count)].value = cnt
-        ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
+            ws['A' + str(row_count)].value = item.__str__()
 
-        row_count += 1
+            cnt = 0
+            year_coll_set = set()
+            indv_list, grp_list = item.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
+                                                                   "indv_id__grp_id__coll_id"])
+            if indv_list:
+                ws['B' + str(row_count)].value = "Y"
+                cnt += len(indv_list)
+                year_coll_set |= set([indv.stok_year_coll_str() for indv in indv_list])
+            if grp_list:
+                for grp in grp_list:
+                    cnt += grp.count_fish_in_group()
+                    year_coll_set |= {grp.__str__()}
+            ws['C' + str(row_count)].value = cnt
+            ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
+
+            row_count += 1
 
     wb.save(target_file_path)
 
