@@ -111,8 +111,11 @@ def coldbrook_tagging_parser(cleaned_data):
             if utils.nan_to_none(row["Tagger"]):
                 perc_list, inits_not_found = utils.team_list_splitter(row["Tagger"])
                 for perc_id in perc_list:
-                    if utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code):
+                    team_id = utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code,
+                                                    return_team=True)
+                    if team_id:
                         row_entered = True
+                        utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk)
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) for row with pit tag {}\n".format(inits,
                                                                                                          row["PIT tag"])
@@ -255,8 +258,11 @@ def mactaquac_tagging_parser(cleaned_data):
             if utils.nan_to_none(row["Crew"]):
                 perc_list, inits_not_found = utils.team_list_splitter(row["Crew"])
                 for perc_id in perc_list:
-                    if utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code):
+                    team_id = utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code,
+                                                    return_team=True)
+                    if team_id:
                         row_entered = True
+                        utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk)
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) from row with pit tag {}\n".format(inits, row[
                         "PIT"])

@@ -115,7 +115,7 @@
                     });
                 }
             );
-            riverLayer.loadGeoJson("{% static 'map_layers/PWR.geojson' %}", {},
+            riverLayer.loadGeoJson("{% static 'map_layers/big_PWR.geojson' %}", {},
                 function(features) {
                     riverLayer.forEach(function(feature) {
                         feature.setProperty("visible", true);
@@ -174,7 +174,7 @@
                         feature.setProperty('visible', true);
                         return ({
                           strokeColor: 'blue',
-                          strokeWeight: 2,
+                          strokeWeight: 4,
                           visible: true,
                         });
                     }

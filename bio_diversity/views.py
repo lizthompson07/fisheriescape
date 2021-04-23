@@ -1207,7 +1207,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         # use this to pass fields/sample object to template
         context = super().get_context_data(**kwargs)
         context["title"] = "Individual: {}".format(self.object.__str__())
-        context["table_list"].extend(["evnt", "indvd", "pair", "cont", "sire"])
+        context["table_list"].extend(["evnt", "indvd", "pair", "team", "cont", "sire"])
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
                                                           indvt_id__isnull=True, pair_id__isnull=True)\
@@ -1240,6 +1240,17 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": pair_list,
                                            "field_list": pair_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
+        anix_set = self.object.animal_details.filter(team_id__isnull=False)\
+            .select_related('team_id__role_id', 'team_id__perc_id', 'team_id__evnt_id')
+        obj_list = list(dict.fromkeys([anix.team_id for anix in anix_set]))
+        obj_field_list = ["perc_id", "role_id", "evnt_id"]
+        obj_mixin = mixins.TeamMixin
+        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": obj_list,
+                                           "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
         sire_set = self.object.sires.all().select_related('prio_id', 'indv_id')

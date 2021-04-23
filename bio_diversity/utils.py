@@ -381,7 +381,7 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
     return row_entered
 
 
-def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None):
+def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None, return_team=False):
 
     team = models.TeamXRef(perc_id=perc_id,
                            evnt_id=evnt_id,
@@ -395,7 +395,10 @@ def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None):
         team.save()
     except ValidationError:
         team = models.TeamXRef.objects.filter(perc_id=team.perc_id, evnt_id=team.evnt_id, loc_id=team.loc_id,
-                                              role_id=team.role_id)
+                                              role_id=team.role_id).get()
+    if return_team:
+        return team
+
     if team:
         return True
 
@@ -419,8 +422,8 @@ def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
     return tray
 
 
-def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, final_flag=None):
-    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk]):
+def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, team_pk=None, final_flag=None):
+    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk, team_pk]):
         anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                     indv_id_id=indv_pk,
                                     contx_id_id=contx_pk,
@@ -428,6 +431,7 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
                                     pair_id_id=pair_pk,
                                     grp_id_id=grp_pk,
                                     indvt_id_id=indvt_pk,
+                                    team_id_id=team_pk,
                                     final_contx_flag=final_flag,
                                     created_by=cleaned_data["created_by"],
                                     created_date=cleaned_data["created_date"],
@@ -443,6 +447,7 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
                                                        loc_id=anix.loc_id,
                                                        pair_id=anix.pair_id,
                                                        grp_id=anix.grp_id,
+                                                       team_id=anix.team_id,
                                                        indvt_id=anix.indvt_id,
                                                        ).get()
             return anix

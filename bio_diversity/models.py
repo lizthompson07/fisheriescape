@@ -279,11 +279,13 @@ class AniDetailXref(BioModel):
                                 verbose_name=_("Pairing"), db_column="PAIR_ID")
     grp_id = models.ForeignKey("Group", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Group"),
                                related_name="animal_details", db_column="GROUP_ID")
+    team_id = models.ForeignKey("TeamXRef", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Team"),
+                                related_name="animal_details", db_column="TEAM_ID")
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indvt_id', 'indv_id', 'pair_id',
-                                            'grp_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
+                                            'grp_id', 'team_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
         ]
 
     def clean(self):
