@@ -239,7 +239,7 @@ class DataForm(CreatePrams):
         sucess = False
         try:
             # ----------------------------ELECTROFISHING-----------------------------------
-            if cleaned_data["evntc_id"].__str__() == "Electrofishing":
+            if cleaned_data["evntc_id"].__str__() in ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:
                 if cleaned_data["facic_id"].__str__() == "Coldbrook":
                     log_data, sucess = coldbrook_electrofishing_parser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":

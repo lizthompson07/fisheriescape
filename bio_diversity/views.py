@@ -277,7 +277,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
-            if evntc.__str__() == "Electrofishing":
+            if evntc.__str__() in ["Electrofishing", "Smolt Wheel Collection", "Bypass Collection"]:
                 self.get_form_class().base_fields["tank_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["tank_id"].required = True
             else:
@@ -1025,7 +1025,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                             "single_object": obj_mixin.model.objects.first()}
 
         evnt_code = self.object.evntc_id.__str__()
-        if evnt_code == "Electrofishing":
+        if evnt_code == "Electrofishing" or evnt_code == "Bypass Collection" or evnt_code == "Smolt Wheel Collection":
             context["table_list"].extend(["data", "team", "loc", "grp", "tank", "prot", "evntf"])
         elif evnt_code == "PIT Tagging":
             context["table_list"].extend(["data", "team", "indv", "grp", "tank", "prot", "evntf"])

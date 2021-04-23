@@ -30,6 +30,12 @@ def coldbrook_electrofishing_parser(cleaned_data):
             river_dict[river_name] = models.RiverCode.objects.filter(name__iexact=river_name).get()
 
         leader_code = models.RoleCode.objects.filter(name__iexact="Crew Lead").get()
+        if cleaned_data["evntc_id"].__str__() == "Electrofishing":
+            locc_id = models.LocCode.objects.filter(name__icontains="Electrofishing site").get()
+        elif cleaned_data["evntc_id"].__str__() == "Smolt Wheel Collection":
+            locc_id = models.LocCode.objects.filter(name__icontains="Smolt Wheel site").get()
+        elif cleaned_data["evntc_id"].__str__() == "Bypass Collection":
+            locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
 
     except Exception as err:
         log_data += "\n Error in preparing data: {}".format(err.__str__())
@@ -49,7 +55,7 @@ def coldbrook_electrofishing_parser(cleaned_data):
                 if len(relc_qs) == 1:
                     relc_id = relc_qs.get()
             loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                  locc_id=models.LocCode.objects.filter(name__icontains="Electrofishing site").get(),
+                                  locc_id=locc_id,
                                   rive_id=rive_id,
                                   relc_id=relc_id,
                                   loc_lat=utils.round_no_nan(row["Lat"], 5),
@@ -193,6 +199,12 @@ def mactaquac_electrofishing_parser(cleaned_data):
         river_dict = {}
         for river_name in data["River"].unique():
             river_dict[river_name] = models.RiverCode.objects.filter(name__iexact=river_name).get()
+        if cleaned_data["evntc_id"].__str__() == "Electrofishing":
+            locc_id = models.LocCode.objects.filter(name__icontains="Electrofishing site").get()
+        elif cleaned_data["evntc_id"].__str__() == "Smolt Wheel Collection":
+            locc_id = models.LocCode.objects.filter(name__icontains="Smolt Wheel site").get()
+        elif cleaned_data["evntc_id"].__str__() == "Bypass Collection":
+            locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
 
     except Exception as err:
         log_data += "\n Error preparing data: {}".format(err.__str__())
@@ -214,7 +226,7 @@ def mactaquac_electrofishing_parser(cleaned_data):
                 if len(relc_qs) == 1:
                     relc_id = relc_qs.get()
             loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                  locc_id=models.LocCode.objects.first(),
+                                  locc_id=locc_id,
                                   rive_id=rive_id,
                                   relc_id=relc_id,
                                   loc_lat=utils.round_no_nan(row["Lat"], 5),
