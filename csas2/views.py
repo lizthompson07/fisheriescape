@@ -425,7 +425,11 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     def get_initial(self):
         qp = self.request.GET
         if qp.get("request"):
-            return dict(csas_requests=[qp.get("request"), ])
+            csas_request = get_object_or_404(models.CSASRequest, pk=qp.get("request"))
+            return dict(
+                csas_requests=[csas_request.id, ],
+                coordinator=csas_request.coordinator,
+            )
 
     def form_valid(self, form):
         obj = form.save(commit=False)
