@@ -268,3 +268,13 @@ def get_related_requests(user):
      they are a client || they are a coordinator || they are the request.created_by"""
     qs = models.CSASRequest.objects.filter(Q(created_by=user) | Q(coordinator=user)).distinct()
     return qs
+
+
+def get_related_processes(user):
+    """give me a user and I'll send back a queryset with all related processes, i.e.
+     they are a client on a request ||
+     they are a coordinator ||
+     they are an advisor
+     """
+    qs = models.Process.objects.filter(Q(coordinator=user) | Q(advisors=user) | Q(csas_requests__client=user)).distinct()
+    return qs

@@ -1,8 +1,25 @@
 import django_filters
+from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from shared_models.models import FiscalYear, Division, Section, Branch, Region
+from shared_models.models import FiscalYear, Division, Section, Branch, Region, Person
 from . import models, utils
+
+
+
+class PersonFilter(django_filters.FilterSet):
+    class Meta:
+        model = Person
+        fields = {
+            'last_name': ['exact'],
+            'affiliation': ['icontains'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["last_name"] = django_filters.CharFilter(field_name='search_term', label=_("Any part of name or email"),
+                                                              lookup_expr='icontains', widget=forms.TextInput())
+
 
 
 class CSASRequestFilter(django_filters.FilterSet):

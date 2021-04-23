@@ -879,6 +879,9 @@ class Person(models.Model):
                 self.job_title_fr = self.dmapps_user.profile.position_fre
         super().save(*args, **kwargs)
 
+    @property
+    def has_linked_user(self):
+        return bool(self.dmapps_user)
 
 class Publication(SimpleLookup):
     pass

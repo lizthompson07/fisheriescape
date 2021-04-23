@@ -2,7 +2,7 @@ from django import forms
 from django.forms import modelformset_factory
 from django.utils.translation import gettext_lazy, gettext
 
-from shared_models.models import Section
+from shared_models.models import Section, Person
 from . import models
 
 attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
@@ -15,6 +15,23 @@ YES_NO_CHOICES = (
     (True, "Yes"),
     (False, "No"),
 )
+
+
+class PersonForm(forms.ModelForm):
+    class Meta:
+        model = Person
+        fields = [
+            "first_name",
+            "last_name",
+            "phone",
+            "email",
+            "affiliation",
+            "language",
+            "dmapps_user",
+        ]
+        widgets = {
+            'dmapps_user': forms.Select(attrs=chosen_js),
+        }
 
 
 class TripRequestTimestampUpdateForm(forms.ModelForm):
@@ -166,9 +183,6 @@ class DocumentForm(forms.ModelForm):
             'meetings': forms.SelectMultiple(attrs=multi_select_js),
 
         }
-
-
-
 
 
 class SeriesForm(forms.ModelForm):

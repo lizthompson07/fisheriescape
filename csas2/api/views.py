@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
-from shared_models.models import Person
+from shared_models.models import Person, Language
 from . import serializers
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly
 from .. import models, emails, model_choices
@@ -242,6 +242,7 @@ class PersonModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+        data['language_choices'] = [dict(text=str(p), value=p.id) for p in Language.objects.all()]
         return Response(data)
 
 

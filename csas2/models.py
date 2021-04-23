@@ -10,6 +10,7 @@ from markdown import markdown
 
 from csas2 import model_choices
 from lib.functions.custom_functions import fiscal_year
+from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
 
@@ -190,6 +191,9 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="processes",
                                     verbose_name=_("fiscal year"), editable=False)
 
+    class Meta:
+        ordering = ["fiscal_year", _("name")]
+
     def save(self, *args, **kwargs):
         # the fiscal year of a process is determined by the fiscal year of the earliest request associated with it.
         if not self.fiscal_year:
@@ -241,6 +245,10 @@ class Meeting(MetadataFields):
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="meetings",
                                     editable=False)
+
+    def save(self, *args, **kwargs):
+        self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.get_type_display() + f" ({self.start_date.strftime('%Y-%m-%d')})"
@@ -320,6 +328,13 @@ class Invitee(models.Model):
     def attendance_fraction(self):
         return self.attendance.count() / self.meeting.length_days
 
+    @property
+    def attendance_display(self):
+        if not self.attendance.exists():
+            return "---"
+        else:
+            days = self.attendance.count()
+            return "{} {}{} ({})".format(days, gettext("day"), pluralize(days), percentage(self.attendance_fraction, 0))
 
 class Attendance(models.Model):
     '''we will need to track on which days an invitee actually showed up'''

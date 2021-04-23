@@ -9,6 +9,13 @@ urlpatterns = [
     path('settings/series/', views.SeriesFormsetView.as_view(), name="manage_series"),
     path('settings/series/<int:pk>/delete/', views.SeriesHardDeleteView.as_view(), name="delete_series"),
 
+    # people #
+    ##########
+    path('people/', views.PersonListView.as_view(), name="person_list"),  # TESTED
+    path('people/new/', views.PersonCreateView.as_view(), name="person_new"),  # TESTED
+    path('people/<int:pk>/view/', views.PersonDetailView.as_view(), name="person_detail"),  # TESTED
+    path('people/<int:pk>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),  # TESTED
+    path('people/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),  # TESTED
 
     # requests
     path('requests/', views.CSASRequestListView.as_view(), name="request_list"),

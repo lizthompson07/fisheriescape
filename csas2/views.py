@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.templatetags.custom_filters import nz
+from shared_models.models import Person
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView
@@ -46,6 +47,100 @@ class SeriesFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
 class SeriesHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
     model = models.Series
     success_url = reverse_lazy("csas2:manage_series")
+
+
+# people #
+##########
+
+class PersonListView(CsasAdminRequiredMixin, CommonFilterView):
+    template_name = 'csas2/list.html'
+    filterset_class = filters.PersonFilter
+    model = Person
+    queryset = Person.objects.annotate(
+        search_term=Concat('first_name',
+                           Value(" "),
+                           'last_name',
+                           Value(" "),
+                           'email', output_field=TextField()))
+    field_list = [
+        {"name": 'full_name|{}'.format(gettext_lazy("name")), "class": "", "width": ""},
+        {"name": 'phone', "class": "", "width": ""},
+        {"name": 'email', "class": "", "width": ""},
+        {"name": 'affiliation', "class": "", "width": ""},
+        {"name": 'has_linked_user|{}'.format(_("Linked to DM Apps user?")), "class": "", "width": ""},
+    ]
+    new_object_url_name = "csas2:person_new"
+    row_object_url_name = "csas2:person_detail"
+    home_url_name = "csas2:index"
+    paginate_by = 25
+    h1 = gettext_lazy("Contacts")
+    # container_class = "container-fluid"
+
+
+class PersonDetailView(CsasAdminRequiredMixin, CommonDetailView):
+    model = Person
+    template_name = 'csas2/person_detail.html'
+    field_list = [
+        "designation",
+        "first_name",
+        "last_name",
+        "phone_1",
+        "phone_2",
+        "email_1",
+        "email_2",
+        "cell",
+        "fax",
+        "language",
+        "notes",
+        "metadata|{}".format(gettext_lazy("metadata")),
+    ]
+    home_url_name = "csas2:index"
+    parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("csas2:person_list")}
+
+
+class PersonUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
+    model = Person
+    template_name = 'csas2/form.html'
+    form_class = forms.PersonForm
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("csas2:person_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("csas2:person_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_csas2 = True
+        object.save()
+        return super().form_valid(form)
+
+
+class PersonCreateView(CsasAdminRequiredMixin, CommonCreateView):
+    model = Person
+    template_name = 'csas2/form.html'
+    form_class = forms.PersonForm
+    home_url_name = "csas2:index"
+    parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("csas2:person_list")}
+    h1 = gettext_lazy("New Contact")
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.last_modified_by = self.request.user
+        object.locked_by_csas2 = True
+        object.save()
+        return super().form_valid(form)
+
+
+class PersonDeleteView(CsasAdminRequiredMixin, CommonDeleteView):
+    model = Person
+    template_name = 'csas2/confirm_delete.html'
+    success_url = reverse_lazy('csas2:person_list')
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("csas2:person_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("csas2:person_detail", args=[self.get_object().id])}
 
 
 # csas requests #
@@ -283,8 +378,18 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     ]
 
     def get_queryset(self):
-        return models.Process.objects.annotate(
-            search_term=Concat('name', Value(" "), 'nom', output_field=TextField())).order_by(_("name"))
+        qp = self.request.GET
+        qs = models.Process.objects.all()
+        if qp.get("personalized"):
+            qs = utils.get_related_processes(self.request.user)
+        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        return qs
+
+    def get_h1(self):
+        qp = self.request.GET
+        if qp.get("personalized"):
+            return _("My CSAS Processes")
+        return _("CSAS Processes")
 
 
 class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
