@@ -12,7 +12,7 @@ def save_person_on_user_save(sender, instance, created, **kwargs):
     if not qs.exists():
         person = Person.objects.create(email=instance.email)
     elif qs.count() == 1:
-        person = Person.objects.get(email=instance.email)
+        person = Person.objects.get(email__iexact=instance.email)
     else:
         print("warning! duplicate email in system:", instance.email, instance.username)
 
