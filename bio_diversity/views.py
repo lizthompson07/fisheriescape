@@ -283,15 +283,18 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             else:
                 self.get_form_class().base_fields["tank_id"].required = False
                 self.get_form_class().base_fields["tank_id"].widget = forms.HiddenInput()
-            if evntc.__str__() == "Egg Development":
+            if evntc.__str__() in ["Egg Development", "Measuring"]:
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
-                self.get_form_class().base_fields["egg_data_type"].required = True
-                egg_data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
-                self.get_form_class().base_fields["egg_data_type"] = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
+                self.get_form_class().base_fields["data_type"].required = True
+                if evntc.__str__() == "Egg Development":
+                    data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
+                elif evntc.__str__() == "Measuring":
+                    data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
+                self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
             else:
-                self.get_form_class().base_fields["egg_data_type"].required = False
-                self.get_form_class().base_fields["egg_data_type"].widget = forms.HiddenInput()
+                self.get_form_class().base_fields["data_type"].required = False
+                self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
         return init
 
     def get_context_data(self, **kwargs):

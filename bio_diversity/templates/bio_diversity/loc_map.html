@@ -140,43 +140,31 @@
             riverLayer.setStyle(function(feature){
                 return ({
                     strokeColor: 'blue',
-                    strokeWeight: 2
+                    strokeWeight: 4
                 });
             });
 
             // add toggle listners
             google.maps.event.addDomListener(document.getElementById('layer-button'), 'click', function() {
-                fishingAreasLayer.setStyle(function(feature) {
+                 fishingAreasLayer.forEach(function(feature){
                     if (feature.getProperty('visible') == true) {
                         feature.setProperty('visible', false);
-                        return ({
-                          visible: false,
-                        });
+                        fishingAreasLayer.overrideStyle(feature, {visible: false});
                     } else if (feature.getProperty('visible') == false) {
                         feature.setProperty('visible', true);
-                        return ({
-                          strokeColor: 'red',
-                          strokeWeight: 2,
-                          visible: true,
-                        });
+                        fishingAreasLayer.overrideStyle(feature, {visible: true});
                     }
                 });
               });
             // add toggle listners
             google.maps.event.addDomListener(document.getElementById('river-layer-button'), 'click', function() {
-                riverLayer.setStyle(function(feature) {
+                riverLayer.forEach(function(feature){
                     if (feature.getProperty('visible') == true) {
                         feature.setProperty('visible', false);
-                        return ({
-                          visible: false,
-                        });
+                        riverLayer.overrideStyle(feature, {visible: false});
                     } else if (feature.getProperty('visible') == false) {
                         feature.setProperty('visible', true);
-                        return ({
-                          strokeColor: 'blue',
-                          strokeWeight: 4,
-                          visible: true,
-                        });
+                        riverLayer.overrideStyle(feature, {visible: true});
                     }
                 });
               });

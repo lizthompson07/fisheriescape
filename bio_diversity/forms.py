@@ -9,7 +9,7 @@ from bio_diversity.data_parsers.electrofishing import coldbrook_electrofishing_p
 
 from bio_diversity import models
 from bio_diversity import utils
-from bio_diversity.data_parsers.generic import generic_indv_parser
+from bio_diversity.data_parsers.generic import generic_indv_parser, generic_grp_parser
 from bio_diversity.data_parsers.maturity_sorting import mactaquac_maturity_sorting_parser
 from bio_diversity.data_parsers.picks import mactaquac_picks_parser, coldbrook_picks_parser
 from bio_diversity.data_parsers.spawning import mactaquac_spawning_parser, coldbrook_spawning_parser
@@ -218,8 +218,8 @@ class DataForm(CreatePrams):
         model = models.DataLoader
         exclude = []
 
-    egg_data_types = ((None, '---------'), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
-    egg_data_type = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
+    data_types = (None, '---------')
+    data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
 
     def __init__(self, request=None, *args, **kwargs):
@@ -276,15 +276,22 @@ class DataForm(CreatePrams):
 
             # ---------------------------TROUGH TEMPERATURE----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Egg Development" and\
-                    cleaned_data["egg_data_type"] == "Temperature":
+                    cleaned_data["data_type"] == "Temperature":
                 log_data, sucess = temperature_parser(cleaned_data)
 
             # ----------------------------------------PICKS----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Picks":
+            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Picks":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
                     log_data, sucess = mactaquac_picks_parser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
                     log_data, sucess = coldbrook_picks_parser(cleaned_data)
+
+            # ----------------------------------------PICKS----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Measuring":
+                if cleaned_data["data_type"].__str__() == "Individuals":
+                    log_data, sucess = generic_indv_parser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Group":
+                    log_data, sucess = generic_grp_parser(cleaned_data)
 
             # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
             else:
