@@ -7,7 +7,7 @@ from .models import Person
 
 @receiver(models.signals.post_save, sender=User)
 def save_person_on_user_save(sender, instance, created, **kwargs):
-    qs = Person.objects.filter(email__icontains=instance.email)
+    qs = Person.objects.filter(email__iexact=instance.email)
     person = None
     if not qs.exists():
         person = Person.objects.create(email=instance.email)
