@@ -1,3 +1,8 @@
+function groomJSON(json) {
+  return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
+}
+
+
 vueFiltersObject = {
   floatformat: function (value, precision = 2) {
     if (!value) return '---';

@@ -428,8 +428,8 @@ urlpatterns = [
     path('update/tankd/<int:pk>/', views.TankdUpdate.as_view(), name="update_tankd"),
 
     path('create/team/', views.TeamCreate.as_view(), name="create_team"),
-    path('create/team/<str:pop>/', views.TeamCreate.as_view(), name="create_team"),
     path('details/team/<int:pk>/', views.TeamDetails.as_view(), name="details_team"),
+    path('details/team/<str:back>/<int:back_id>/<int:pk>/', views.TeamDetails.as_view(), name="details_team"),
     path('list/team/', views.TeamList.as_view(), name="list_team"),
     path('update/team/<int:pk>/', views.TeamUpdate.as_view(), name="update_team"),
 

@@ -1,0 +1,112 @@
+<!-- template for the modal component -->
+{% load i18n %}
+
+<script type="text/x-template" id="attendance-overlay-template">
+<div class="">
+  <button class="btn btn-sm" title="Edit invitee attendance" @click="openDialog">
+    <span class="mdi mdi-calendar"></span>
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 600px">
+          <div class="modal-header">
+            <h4> {% trans "Invitee Attendance" %}</h4>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="onSubmit">
+              <div class="mb-3" style="height: 300px ">
+                <div class="form-group">
+                  <input v-model="dates" type="text" class="fp-date-multiple form-control" style="width: 50%;"
+                         placeholder="{% trans "Click to select dates" %}">
+                </div>
+                <div class="mb-3 float-right">
+                  <button type="submit" class="btn btn-primary">{% trans "Done" %}</button>
+                </div>
+              </div>
+              <div class="alert alert-danger mb-3" role="alert" v-if="error">
+                <p class="lead">
+                  ${ error }
+                </p>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+</script>
+
+<script type="application/javascript">
+
+Vue.component("attendance-overlay", {
+  template: "#attendance-overlay-template",
+  delimiters: ["${", "}"],
+  name: "attendance-overlay",
+  components: {
+    vuejsDatepicker
+  },
+  props: {
+    invitee: {
+      required: true
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      error: null,
+      email: {},
+      dates: null
+    };
+  },
+  methods: {
+    openDialog() {
+      this.error = null;
+      this.overlay = true;
+      this.dates = this.invitee.attendance;
+      this.$nextTick(() => {
+        $(".fp-date-multiple").flatpickr({
+          mode: "multiple",
+          dateFormat: "Y-m-d",
+          conjunction: ", ",
+          enable: [
+            {
+              from: this.invitee.meeting_object.dates[0],
+              to: this.invitee.meeting_object.dates[1]
+            }
+          ]
+        }).open();
+        $(".fp-date-multiple").keydown(function (event) {
+          if (event.key == "Delete" || event.key == "Escape") {
+            event.preventDefault()
+            $(this).val("");
+          }
+        })
+      })
+    },
+    onSubmit() {
+      this.error = null;
+      var method;
+      var endpoint;
+      endpoint = `/api/csas/invitees/${this.invitee.id}/`;
+      method = "PATCH";
+      apiService(endpoint, method, {dates: this.dates}).then(response => {
+        if (response.id) {
+          this.$emit("update-invitees");
+          this.overlay = false;
+        } else {
+          this.error = groomJSON(response)
+        }
+      });
+    }
+  },
+  created() {
+
+
+  },
+  computed: {}
+});
+</script>

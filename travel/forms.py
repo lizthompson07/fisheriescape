@@ -165,7 +165,7 @@ class TripRequestForm(forms.ModelForm):
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
                 raise forms.ValidationError(_('The start date of the trip must occur before the end date.'))
-            if abs((request_start_date - request_end_date).days) > 180:
+            if abs((request_start_date - request_end_date).days) > 270:
                 msg = _('The length of this trip is unrealistic.')
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
@@ -246,7 +246,7 @@ class TripForm(forms.ModelForm):
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
                 raise forms.ValidationError(_('The start date of the trip must occur before the end date.'))
-            if abs((start_date - end_date).days) > 180:
+            if abs((start_date - end_date).days) > 270:
                 msg = _('The length of this trip is unrealistic.')
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)

@@ -224,6 +224,22 @@
     }
 },
 {
+    "model": "bio_diversity.animaldetcode",
+    "pk": 15,
+    "fields": {
+        "name": "Development",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-15",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": false
+    }
+},
+{
     "model": "bio_diversity.anidetsubjcode",
     "pk": 2,
     "fields": {
@@ -890,6 +906,18 @@
     }
 },
 {
+    "model": "bio_diversity.eventcode",
+    "pk": 12,
+    "fields": {
+        "name": "Picking",
+        "nom": null,
+        "description_en": "Egg mortalities collected from a tray",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-02-15"
+    }
+},
+{
     "model": "bio_diversity.eventfilecode",
     "pk": 1,
     "fields": {
@@ -1092,7 +1120,7 @@
         "created_date": "2021-02-25",
         "perc_last_name": "Stoyel",
         "perc_first_name": "Quentin",
-        "initials": "QCS",
+        "initials": "QS",
         "perc_valid": true
     }
 },

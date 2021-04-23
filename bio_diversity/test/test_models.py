@@ -1,11 +1,80 @@
 from datetime import timedelta
-
-
 from django.test import tag
-from datetime import datetime
+from datetime import datetime, timedelta
 from bio_diversity.test import BioFactoryFloor
-from bio_diversity.test.common_views import CommonTest
-from bio_diversity import models
+from shared_models.test.common_tests import CommonTest
+from bio_diversity import models, utils
+
+
+@tag("Grp", 'models')
+class TestGrpModel(CommonTest):
+    fixtures = ["initial_data.json"]
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.grp = BioFactoryFloor.GrpFactory()
+        self.trof = BioFactoryFloor.TrofFactory(name='1')
+        self.trof_two = BioFactoryFloor.TrofFactory(name='2', facic_id=self.trof.facic_id)
+        self.evnt_date = utils.naive_to_aware(datetime.today() - timedelta(days=100))
+        self.evnt = BioFactoryFloor.EvntFactory(start_datetime=self.evnt_date, facic_id=self.trof.facic_id)
+        self.cleaned_data = {
+            "facic_id": self.evnt.facic_id,
+            "evnt_id": self.evnt,
+            "created_by": self.evnt.created_by,
+            "created_date": self.evnt.created_date,
+        }
+        self.contx = utils.enter_contx(self.trof, self.cleaned_data, None, return_contx=True)
+        self.contx_two = utils.enter_contx(self.trof_two, self.cleaned_data, None, return_contx=True)
+        temp_envc = models.EnvCode.objects.filter(name="Temperature").get()
+        # add ten days worth of temp data to the trough
+        for temp in range(0, 10):
+            env_date = utils.naive_to_aware(self.evnt.start_date + timedelta(days=temp))
+            utils.enter_env(temp, env_date, self.cleaned_data, temp_envc, contx=self.contx)
+        for temp in range(10, 20):
+            env_date = utils.naive_to_aware(self.evnt.start_date + timedelta(days=temp))
+            utils.enter_env(temp, env_date, self.cleaned_data, temp_envc, contx=self.contx_two)
+
+    def test_development(self):
+        # test grp placed in trof
+        entry_date = self.evnt_date - timedelta(days=1)
+        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+        grp_dev = self.grp.get_development()
+        # compare to hard coded value corresponding to 10 days of sequential temperature increases:
+        self.assertEqual(round(grp_dev, 3),  5.826)
+
+    def test_movement_development(self):
+        # test grp placed in trof and moved to second trof
+        entry_date = self.evnt_date - timedelta(days=1)
+        move_date = self.evnt_date + timedelta(days=10)
+        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+        utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
+        grp_dev = self.grp.get_development()
+        self.assertEqual(round(grp_dev, 3), 28.101)
+
+    def test_development_after_detail(self):
+        # test grp placed in trof, has development recorded go off of that and don't double count
+        entry_date = self.evnt_date - timedelta(days=1)
+        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+
+        det_date = self.evnt_date + timedelta(days=5)
+        det_evnt_cleaned_data = utils.create_new_evnt(self.cleaned_data, "Picking", det_date)
+        anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk)
+        utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10, "Development")
+        grp_dev = self.grp.get_development()
+        self.assertEqual(round(grp_dev, 3), 14.015)
+
+    def test_move_and_detail_development(self):
+        # test grp placed in trof, get a detail recorded and then moved to second trof
+        entry_date = self.evnt_date - timedelta(days=1)
+        det_date = self.evnt_date + timedelta(days=5)
+        move_date = self.evnt_date + timedelta(days=10)
+        det_evnt_cleaned_data = utils.create_new_evnt(self.cleaned_data, "Picking", det_date)
+        anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk)
+        utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10, "Development")
+        utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
+        utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
+        grp_dev = self.grp.get_development()
+        self.assertEqual(round(grp_dev, 3), 36.291)
 
 
 @tag("Grpd", 'models')
@@ -44,3 +113,53 @@ class TestIndvdModel(CommonTest):
         self.assertFalse(models.IndividualDet.objects.filter(pk=initial_id).get().indvd_valid)
 
 
+@tag("Loc", 'models')
+class TestLocModel(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.loc = BioFactoryFloor.LocFactory()
+        self.loc.relc_id = None
+        models.ReleaseSiteCode.objects.all().delete()
+        self.relc = BioFactoryFloor.RelcFactory()
+    
+    def test_find_relc_from_point(self):
+        # test that given no relc_id one is set based off of location:
+        self.loc.loc_lat = self.relc.min_lat
+        self.loc.loc_lon = self.relc.min_lon
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, self.relc)
+
+    def test_no_relc_no_point(self):
+        # test that given no relc_id one is not set based off of location:
+        self.loc.loc_lat = None
+        self.loc.loc_lon = None
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, None)
+
+    def test_find_relc_from_end_point(self):
+        # test that given only an endpoint inside the relc, it is still found:
+        self.loc.loc_lat = self.relc.min_lat - 1
+        self.loc.loc_lon = self.relc.min_lon - 1
+        self.loc.end_lat = self.relc.min_lat
+        self.loc.end_lon = self.relc.min_lon
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, self.relc)
+
+    def test_find_relc_from_line(self):
+        # test that with the line intersecting the relc, but with neither point inside, the relc is still found
+        self.loc.loc_lat = self.relc.min_lat - 1
+        self.loc.loc_lon = self.relc.min_lon - 1
+        self.loc.end_lat = self.relc.max_lat + 1
+        self.loc.end_lon = self.relc.max_lon + 1
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, self.relc)
+
+    def test_point_in_different_relc(self):
+        # test that with a relc declared and a point in a different relc, the relc is not replaced
+        self.loc.relc_id = self.relc
+        new_relc = BioFactoryFloor.RelcFactory()
+        self.loc.loc_lat = new_relc.min_lat
+        self.loc.loc_lon = new_relc.min_lon
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, self.relc)
