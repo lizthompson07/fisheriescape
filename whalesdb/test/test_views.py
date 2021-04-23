@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import datetime
 
 from django.test import tag
 from django.urls import reverse_lazy
@@ -10,6 +10,8 @@ from lib.functions.custom_functions import fiscal_year
 
 from whalesdb.test.common_views import CommonTest
 from shared_models.test.common_tests import CommonTest as SharedCommonTest
+
+from whalesdb.views import EheMangedView
 
 faker = Factory.create()
 
@@ -58,3 +60,15 @@ class TestIndexView(CommonTest):
             self.test_url = reverse_lazy('whalesdb:report_deployment_summary') + f'?year={year}'
 
             self.user = self.get_and_login_user()
+
+
+@tag("ehe-managed")
+class TestEHEManaged(SharedCommonTest):
+
+    view = EheMangedView
+    def setUp(self):
+        super().setUp()
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalesdb:managed_ehe", f"/en/whalesdb/managed/ehe/1/1/", (1, 1, ))

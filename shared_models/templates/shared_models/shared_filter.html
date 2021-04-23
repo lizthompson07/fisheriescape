@@ -93,7 +93,7 @@
                                 {% endif %}
                             {% endif %}
                             {% if auth and delete_url %}
-                            <a class="btn btn-danger btn-sm my-1" href="{% url ''|add:delete_url obj.id %}">Delete</a>
+                            <button type="button" class="btn btn-danger delete-btn btn-sm my-1" object-name="{{obj}}" delete_url="{% url ''|add:delete_url obj.id %}">Delete</button>
                             {% endif %}
                             </td>
                             {% endif %}
@@ -122,6 +122,13 @@ function pop(url, tag) {
 
     return false;
 }
+
+$(".delete-btn").click(function () {
+    input = confirm("Are you sure you want to delete: " + $(this).attr("object-name") + "?");
+    if (input) {
+      window.location.href = $(this).attr("delete_url");
+    }
+});
 
 function refreshTag(tag) {
     console.log("refresh called on: '" + tag + "'");
