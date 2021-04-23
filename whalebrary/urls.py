@@ -140,8 +140,12 @@ urlpatterns = [
     path('reports/container_summary/location/<int:location>/', views.ContainerSummaryListView.as_view(), name="report_container"),
     path('reports/sized_item_summary/item_name/<slug:item_name>/', views.SizedItemSummaryListView.as_view(), name="report_sized_item"),
 
+    # PLANNING LINKS #
 
-
+    path('planning_list/', views.PlanningLinkListView.as_view(), name="planning_link_list"),
+    path('planning_list/new/', views.PlanningLinkCreateView.as_view(), name="planning_link_new"),
+    path('planning_list/<int:pk>/edit/', views.PlanningLinkUpdateView.as_view(), name="planning_link_edit"),
+    path('planning_list/<int:pk>/delete/', views.PlanningLinkDeleteView.as_view(), name="planning_link_delete"),
 
 ]
 

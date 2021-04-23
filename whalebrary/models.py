@@ -554,3 +554,13 @@ class Order(models.Model):
         else:
             no_str = "---"
             return no_str
+
+#TODO unpluralize model
+class PlanningLinks(models.Model):
+    year = models.IntegerField(verbose_name=_("planning year"))
+    client = models.CharField(max_length=250, verbose_name=_("client"))
+    description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
+    link = models.URLField(max_length=250, blank=True, null=True, verbose_name=_("link"))
+
+    def __str__(self):
+        return '{} ({})'.format(self.client, self.year)

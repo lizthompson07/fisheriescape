@@ -267,3 +267,9 @@ class ReportGeneratorForm(forms.Form):
         self.fields['report'].choices = report_choices
         self.fields['location'].choices = location_choices
         self.fields['item_name'].choices = item_name_choices
+
+
+class PlanningLinkForm(forms.ModelForm):
+    class Meta:
+        model = models.PlanningLinks
+        fields = "__all__"

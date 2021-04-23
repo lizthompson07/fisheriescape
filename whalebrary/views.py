@@ -18,10 +18,9 @@ from django.utils.translation import gettext as _
 from django.utils.translation.trans_null import gettext_lazy
 from django.views.generic import TemplateView
 
-from dm_apps.utils import custom_send_mail
 from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, \
     CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutDeleteView, \
-    CommonFormView, CommonHardDeleteView, CommonFormsetView
+    CommonFormView, CommonHardDeleteView, CommonFormsetView, CommonPopoutCreateView
 from . import filters
 from . import forms
 from . import models, emails
@@ -1643,3 +1642,39 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
         {"name": 'tags', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
     ]
+
+
+## PLANNING LINKS ##
+
+class PlanningLinkListView(WhalebraryAdminAccessRequired, CommonListView):
+    template_name = "whalebrary/planning_link_list.html"
+    model = models.PlanningLinks
+    h1 = "Planning Link List"
+    home_url_name = "whalebrary:index"
+    # new_btn_text = "New Planning Link"
+    # new_object_url_name = "whalebrary:planning_link_new"
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'year', "class": "", "width": ""},
+        {"name": 'client', "class": "", "width": ""},
+        {"name": 'description', "class": "", "width": ""},
+        {"name": 'link', "class": "", "width": ""},
+
+        ]
+
+
+class PlanningLinkCreateView(WhalebraryAdminAccessRequired, CommonPopoutCreateView):
+    model = models.PlanningLinks
+    form_class = forms.PlanningLinkForm
+    success_url = reverse_lazy("whalebrary:planning_link_list")
+
+
+class PlanningLinkUpdateView(WhalebraryAdminAccessRequired, CommonPopoutUpdateView):
+    model = models.PlanningLinks
+    form_class = forms.PlanningLinkForm
+    template_name = 'whalebrary/form.html'
+
+
+class PlanningLinkDeleteView(WhalebraryAdminAccessRequired, CommonPopoutDeleteView):
+    model = models.PlanningLinks
