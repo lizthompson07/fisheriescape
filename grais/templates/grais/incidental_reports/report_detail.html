@@ -180,7 +180,7 @@
         }
         apiService(endpoint, method, obs)
             .then(response => {
-              if (!response.id) this.obsErrorMsg = this.groomJSON(response);
+              if (!response.id) this.obsErrorMsg = groomJSON(response);
               else {
                 if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
                 this.$set(this.observations, this.observations.indexOf(obs), response)
@@ -203,10 +203,6 @@
           }
         }
       },
-      groomJSON(json) {
-        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-      },
-
     },
     computed: {},
     created() {
