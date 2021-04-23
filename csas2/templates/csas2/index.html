@@ -1,0 +1,114 @@
+{% extends "csas2/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load custom_tags %}
+
+{% block header %}
+  {{ block.super }}
+  {% include "csas2/_background_img.html" %}
+{% endblock %}
+
+{% block content %}
+
+  {% echo "btn btn-outline-dark " as btn_class %}
+  {% echo "btn btn-outline-secondary " as admin_btn_class %}
+  <br>
+  <div class="container bg-light curvy mb-3 mt-5 shadowbox">
+    <div class="float-left">
+    </div>
+    <div class="">
+      <h1 class="text-center mt-3 mb-3">
+        {% trans "Canadian Science Advisory Secretariat" %}
+      </h1>
+      <h3 class="text-center text-muted">
+        {% trans "DFO Science Tracking Tool" %}
+      </h3>
+    </div>
+    <div class="mb-5"></div>
+    <div class="text-center">
+
+
+      <div class="text-center">
+        <div class="neighbours mx-3 my-3">
+          <div class="card" style="width: 18rem; height: 170px">
+            <div class="card-body">
+              <h5 class="card-title"> {% trans "Requests" %} </h5>
+              <p class="card-text">{% trans "Create modify or view the status of a CSAS Request" %}</p>
+              <a href="{% url 'csas2:request_list' %}?personalized=true" class="btn btn-warning">{% trans "My" %}</a>
+              <a href="{% url 'csas2:request_list' %}" class="btn btn-primary">{% trans "All" %}</a>
+              <a href="{% url 'csas2:request_new' %}" class="btn btn-success">{% trans "New" %}</a>
+            </div>
+          </div>
+        </div>
+        <div class="neighbours mx-3 my-3">
+          <div class="card" style="width: 18rem; height: 170px">
+            <div class="card-body">
+              <h5 class="card-title">{% trans "Processes" %}</h5>
+              <p class="card-text">{% trans "Create modify or view the status of a CSAS Processes" %}</p>
+              <a href="{% url 'csas2:process_list' %}?personalized=true" class="btn btn-warning">{% trans "My" %}</a>
+              <a href="{% url 'csas2:process_list' %}" class="btn btn-primary">{% trans "All" %}</a>
+              <a href="{% url 'csas2:process_new' %}" class="btn btn-success">{% trans "New" %}</a>
+            </div>
+          </div>
+        </div>
+        {#        <div class="neighbours mx-3 my-3">#}
+        {#          <div class="card" style="width: 18rem; height: 170px">#}
+        {#            <div class="card-body">#}
+        {#              <h5 class="card-title">{% trans "Meetings" %}</h5>#}
+        {#              <p class="card-text">{% trans "Find a CSAS meeting" %}</p>#}
+        {#              <a href="#" class="btn btn-primary disabled">{% trans "All" %}</a>#}
+        {#            </div>#}
+        {#          </div>#}
+        {#        </div>#}
+
+        <div class="neighbours mx-3 my-3">
+          <div class="card" style="width: 18rem; height: 170px">
+            <div class="card-body">
+              <h5 class="card-title">{% trans "Documents" %}</h5>
+              <p class="card-text">{% trans "Find a CSAS Document" %}</p>
+              <a href="#" class="btn btn-warning disabled">{% trans "My" %}</a>
+              <a href="#" class="btn btn-primary disabled">{% trans "All" %}</a>
+            </div>
+          </div>
+        </div>
+        {% if is_admin %}
+          <div class="neighbours mx-3">
+            <div class="card" style="width: 18rem; height: 170px">
+              <div class="card-body">
+                <h5 class="card-title">{% trans "Contacts" %}</h5>
+                <p class="card-text">{% trans "Contact management module. Visible only to system administrators." %}</p>
+                <a href="{% url 'csas2:person_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+              </div>
+            </div>
+          </div>
+          </div>
+        {% endif %}
+
+      {#      #}
+      {#      #}
+      {#      <a href="" class="btn btn-primary">{% trans "CSAS Requests" %}</a>#}
+      {#      <div class="btn-group mr-5">#}
+      {#        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"#}
+      {#                aria-expanded="false">#}
+      {#          {% trans "Lab Services" %}#}
+      {#        </button>#}
+      {#        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">#}
+      {#          <a class="dropdown-item" href="{% url 'csas2:filtration_batch_list' %}">Sample Filtration</a>#}
+      {#          <a class="dropdown-item" href="{% url 'csas2:extraction_batch_list' %}">DNA Extraction</a>#}
+      {#          <a class="dropdown-item" href="{% url 'csas2:pcr_batch_list' %}">qPCR</a>#}
+      {#        </div>#}
+      {#      </div>#}
+      {#      <a href="#" class="btn btn-warning">{% trans "Start a Batch" %}</a>#}
+      {#      <a href="#" class="btn btn-dark mr-5">{% trans "Find a Batch" %}</a>#}
+      {#      <a href="{% static 'csas2/csas2_sampling_fieldsheet.docx' %}" class="btn btn-outline-primary"><span#}
+      {#        class="mdi mdi-file-document mr-1 text-primary"></span>{% trans "Download eDNA Fieldsheet" %}</a>#}
+    </div>
+  </div>
+
+
+  </div>
+
+
+{% endblock %}
+
+

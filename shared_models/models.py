@@ -48,7 +48,7 @@ class SimpleLookupWithUUID(SimpleLookup):
     class Meta:
         abstract = True
 
-    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid.uuid4)
+    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
 
 
 class Lookup(SimpleLookup):
@@ -838,6 +838,54 @@ class Organization(SimpleLookup):
     def get_full_name_and_address(self):
         return self.tname + f", {self.full_address}"
 
+
+class Person(MetadataFields):
+    # Choices for role
+    first_name = models.CharField(max_length=100, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
+    phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
+    email = models.EmailField(verbose_name=_("email"), unique=True)
+    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"), related_name="people")
+    affiliation = models.CharField(max_length=255, verbose_name=_("affiliation"), blank=False, null=True)
+    job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
+    job_title_fr = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
+
+    dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="contact")
+    old_id = models.IntegerField(blank=True, null=True, editable=False )
+
+    def __str__(self):
+        return "{}, {}".format(self.last_name, self.first_name)
+
+    class Meta:
+        ordering = ['first_name', "last_name"]
+
+    @property
+    def full_name(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+    def save(self, *args, **kwargs):
+        if self.dmapps_user:
+            self.first_name = self.dmapps_user.first_name
+            self.last_name = self.dmapps_user.last_name
+            self.email = self.dmapps_user.email
+            if hasattr(self.dmapps_user, "profile"):
+                self.phone = self.dmapps_user.profile.phone
+                self.language = self.dmapps_user.profile.language
+                self.affiliation = "DFO / MPO"
+                self.job_title_en = self.dmapps_user.profile.position_eng
+                self.job_title_fr = self.dmapps_user.profile.position_fre
+        super().save(*args, **kwargs)
+
+    @property
+    def tposition(self):
+        my_str = self.job_title_en
+        if getattr(self, str(_("job_title_en"))):
+            my_str = "{}".format(getattr(self, str(_("job_title_en"))))
+        return my_str
+
+    @property
+    def has_linked_user(self):
+        return bool(self.dmapps_user)
 
 class Publication(SimpleLookup):
     pass

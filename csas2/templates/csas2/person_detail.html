@@ -1,0 +1,94 @@
+{% extends "csas2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load i18n %}
+
+
+{% block subcontent %}
+
+
+  <div class="btns mb-3">
+    <a class="btn btn-sm btn-warning" href="{% url 'csas2:person_edit' object.id %}">{% trans "Edit" %}</a>
+    <a class="btn btn-sm btn-danger " href="{% url 'csas2:person_delete' object.id %}">{% trans "Delete" %}</a>
+  </div>
+  <div class="mb-5">
+    <h4>{% trans "Contact Details" %}</h4>
+    <table class="table table-sm">
+      {% for field in field_list %}
+        {% verbose_td_display object field %}
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="mb-5">
+    <h4>{% trans "Meeting Invitations & Attendance" %}</h4>
+    {% if object.meeting_invites.exists %}
+      <table class="table table-sm table-hover">
+        <thead>
+        <tr>
+          <th>{% get_verbose_label object.meeting_invites.first.meeting 'fiscal_year' %}</th>
+          <th>{% get_verbose_label object.meeting_invites.first.meeting 'process' %}</th>
+          <th>{% get_verbose_label object.meeting_invites.first.meeting 'type' %}</th>
+          <th>{% get_verbose_label object.meeting_invites.first.meeting 'location' %}</th>
+          <th>{% get_verbose_label object.meeting_invites.first 'role' %}</th>
+          <th>{% trans "Attendance" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for invitation in object.meeting_invites.all %}
+          <tr newtab href="{% url 'csas2:meeting_detail'  invitation.meeting.id %}">
+            <td>{% get_field_value invitation.meeting 'fiscal_year' %}</td>
+            <td>{% get_field_value invitation.meeting 'process' %}</td>
+            <td>{% get_field_value invitation.meeting 'type' %}</td>
+            <td>{% get_field_value invitation.meeting 'location' %}</td>
+            <td>{% get_field_value invitation 'role' %}</td>
+            <td>{% get_field_value invitation 'attendance_display' %}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <em>{% trans "This person has not been invited to any meetings." %}</em>
+    {% endif %}
+  </div>
+
+
+  <div class="mb-5">
+    <h4>{% trans "Authorship" %}</h4>
+    {% if object.authorship.exists %}
+      <table class="table table-sm table-hover">
+        <thead>
+        <tr>
+{#          <th>{% get_verbose_label object.meeting_invites.first.meeting 'fiscal_year' %}</th>#}
+{#          <th>{% get_verbose_label object.meeting_invites.first.meeting 'process' %}</th>#}
+{#          <th>{% get_verbose_label object.meeting_invites.first.meeting 'type' %}</th>#}
+{#          <th>{% get_verbose_label object.meeting_invites.first.meeting 'location' %}</th>#}
+{#          <th>{% get_verbose_label object.meeting_invites.first 'role' %}</th>#}
+{#          <th>{% trans "Attendance" %}</th>#}
+        </tr>
+        </thead>
+        <tbody>
+{#        {% for document in object.authorship.all %}#}
+{#          <tr newtab href="{% url 'csas2:document_detail'  document.id %}">#}
+{#            <td>{% get_field_value invitation.meeting 'fiscal_year' %}</td>#}
+{#            <td>{% get_field_value invitation.meeting 'process' %}</td>#}
+{#            <td>{% get_field_value invitation.meeting 'type' %}</td>#}
+{#            <td>{% get_field_value invitation.meeting 'location' %}</td>#}
+{#            <td>{% get_field_value invitation 'role' %}</td>#}
+{#            <td>{% get_field_value invitation 'attendance_display' %}</td>#}
+{#          </tr>#}
+{#        {% endfor %}#}
+        </tbody>
+      </table>
+    {% else %}
+      <em>{% trans "This person has not authorship in the system." %}</em>
+    {% endif %}
+  </div>
+
+
+
+
+{% endblock %}
