@@ -1,4 +1,8 @@
-# contact manager!!
+
+# DFO Organization Manager!!
+# should permissions detail on request, process, meeting etc...
+
+# in the meeting invitee menu, show if they are a connected user
 
 # process
 # TODO: "my" view.. must create function to apply business rules
@@ -26,3 +30,6 @@
 # unit testing
 # todo: write all basic unit test for regular views
 # todo: write all basic unit test for api views
+
+
+# USer permissions console

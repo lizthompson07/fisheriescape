@@ -839,7 +839,7 @@ class Organization(SimpleLookup):
         return self.tname + f", {self.full_address}"
 
 
-class Person(models.Model):
+class Person(MetadataFields):
     # Choices for role
     first_name = models.CharField(max_length=100, verbose_name=_("first name"))
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
@@ -847,13 +847,10 @@ class Person(models.Model):
     email = models.EmailField(verbose_name=_("email"), unique=True)
     language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"), related_name="people")
     affiliation = models.CharField(max_length=255, verbose_name=_("affiliation"), blank=False, null=True)
-
-    dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="contact")
-
-    # TODO: should be pulled from user profile, if available (use signals)
     job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
     job_title_fr = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
 
+    dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="contact")
     old_id = models.IntegerField(blank=True, null=True, editable=False )
 
     def __str__(self):
@@ -878,6 +875,13 @@ class Person(models.Model):
                 self.job_title_en = self.dmapps_user.profile.position_eng
                 self.job_title_fr = self.dmapps_user.profile.position_fre
         super().save(*args, **kwargs)
+
+    @property
+    def tposition(self):
+        my_str = self.job_title_en
+        if getattr(self, str(_("job_title_en"))):
+            my_str = "{}".format(getattr(self, str(_("job_title_en"))))
+        return my_str
 
     @property
     def has_linked_user(self):
