@@ -109,7 +109,7 @@ def is_process_coordinator(user, process_id):
 def is_advisor(user, process_id):
     if user.id:
         process = get_object_or_404(models.Process, pk=process_id)
-        return process.advisors.filter(id__in=user.id).exists()
+        return process.advisors.filter(id=user.id).exists()
 
 
 def is_client(user, request_id):
