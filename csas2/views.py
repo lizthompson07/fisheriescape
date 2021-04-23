@@ -74,26 +74,12 @@ class PersonListView(CsasAdminRequiredMixin, CommonFilterView):
     home_url_name = "csas2:index"
     paginate_by = 25
     h1 = gettext_lazy("Contacts")
-    # container_class = "container-fluid"
 
 
 class PersonDetailView(CsasAdminRequiredMixin, CommonDetailView):
     model = Person
     template_name = 'csas2/person_detail.html'
-    field_list = [
-        "designation",
-        "first_name",
-        "last_name",
-        "phone_1",
-        "phone_2",
-        "email_1",
-        "email_2",
-        "cell",
-        "fax",
-        "language",
-        "notes",
-        "metadata|{}".format(gettext_lazy("metadata")),
-    ]
+    field_list = utils.get_person_field_list()
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("Contacts"), "url": reverse_lazy("csas2:person_list")}
 
@@ -109,10 +95,9 @@ class PersonUpdateView(CsasAdminRequiredMixin, CommonUpdateView):
         return {"title": self.get_object(), "url": reverse("csas2:person_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
-        object = form.save(commit=False)
-        object.last_modified_by = self.request.user
-        object.locked_by_csas2 = True
-        object.save()
+        obj = form.save(commit=False)
+        obj.upated_by = self.request.user
+        obj.save()
         return super().form_valid(form)
 
 
@@ -125,10 +110,9 @@ class PersonCreateView(CsasAdminRequiredMixin, CommonCreateView):
     h1 = gettext_lazy("New Contact")
 
     def form_valid(self, form):
-        object = form.save(commit=False)
-        object.last_modified_by = self.request.user
-        object.locked_by_csas2 = True
-        object.save()
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obj.save()
         return super().form_valid(form)
 
 

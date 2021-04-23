@@ -298,3 +298,18 @@ def get_related_processes(user):
      """
     qs = models.Process.objects.filter(Q(coordinator=user) | Q(advisors=user) | Q(csas_requests__client=user)).distinct()
     return qs
+
+
+def get_person_field_list():
+    my_list = [
+        'full_name|{}'.format(_("Full name")),
+        'phone',
+        'email',
+        'language',
+        'affiliation',
+        'tposition|{}'.format(_("job title")),
+        'dmapps_user',
+        'metadata|{}'.format(_("metadata")),
+    ]
+    while None in my_list: my_list.remove(None)
+    return my_list
