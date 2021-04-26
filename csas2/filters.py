@@ -25,7 +25,7 @@ class PersonFilter(django_filters.FilterSet):
 class CSASRequestFilter(django_filters.FilterSet):
     request_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title"))
+    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
     has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
@@ -61,7 +61,7 @@ class CSASRequestFilter(django_filters.FilterSet):
 class ProcessFilter(django_filters.FilterSet):
     process_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title"))
+    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
     lead_region = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact')
 
     def __init__(self, *args, **kwargs):
@@ -76,7 +76,7 @@ class ProcessFilter(django_filters.FilterSet):
 
 class MeetingFilter(django_filters.FilterSet):
     process = django_filters.ChoiceFilter(field_name='process', lookup_expr='exact')
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title"))
+    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
     has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
@@ -84,8 +84,19 @@ class MeetingFilter(django_filters.FilterSet):
 
 
 class DocumentFilter(django_filters.FilterSet):
-    process = django_filters.ChoiceFilter(field_name='process', lookup_expr='exact')
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title"))
-    region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
-    branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
-    has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
+    class Meta:
+        model = models.Document
+        fields = {
+            'id': ['exact'],
+            'type': ['exact'],
+            'status': ['exact'],
+            'process': ['exact'],
+            'series': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["id"] = django_filters.CharFilter(field_name='search_term', label=_("Title contains"),
+                                                              lookup_expr='icontains', widget=forms.TextInput())
+
+

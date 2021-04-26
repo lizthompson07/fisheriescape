@@ -49,7 +49,6 @@ class SeriesHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView)
     success_url = reverse_lazy("csas2:manage_series")
 
 
-
 # people #
 ##########
 
@@ -566,66 +565,6 @@ class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
-# # invitee #
-# ###########
-# 
-# class InviteeCreateView(CanModifyRequestRequiredMixin, CommonCreateView):
-#     model = models.Invitee
-#     form_class = forms.InviteeForm
-#     template_name = 'csas2/form.html'
-#     home_url_name = "csas2:index"
-#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-#     submit_text = gettext_lazy("Start a Review")
-# 
-#     def get_csas_request(self):
-#         return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("crequest"))
-# 
-#     def get_parent_crumb(self):
-#         return {"title": self.get_csas_request(), "url": reverse_lazy("csas2:request_detail", args=[self.get_csas_request().id])}
-# 
-#     def form_valid(self, form):
-#         obj = form.save(commit=False)
-#         obj.csas_request = self.get_csas_request()
-#         obj.created_by = self.request.user
-#         return super().form_valid(form)
-# 
-# 
-# class InviteeUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
-#     model = models.Invitee
-#     form_class = forms.InviteeForm
-#     template_name = 'csas2/form.html'
-#     home_url_name = "csas2:index"
-#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-# 
-#     def get_parent_crumb(self):
-#         return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
-# 
-#     def form_valid(self, form):
-#         obj = form.save(commit=False)
-#         obj.updated_by = self.request.user
-#         return super().form_valid(form)
-# 
-# 
-# class InviteeDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
-#     model = models.Invitee
-#     template_name = 'csas2/confirm_delete.html'
-#     delete_protection = False
-#     home_url_name = "csas2:index"
-#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-# 
-#     def get_parent_crumb(self):
-#         return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
-# 
-#     def delete(self, request, *args, **kwargs):
-#         # a little bit of gymnastics here in order to save the csas request truely following the deletion of the review (not working with signals)
-#         obj = self.get_object()
-#         csas_request = obj.csas_request
-#         success_url = self.get_parent_crumb().get("url")
-#         obj.delete()
-#         csas_request.save()
-#         return HttpResponseRedirect(success_url)
-
-
 # documents #
 ############
 
@@ -638,17 +577,26 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
+        {"name": 'ttitle|{}'.format("title"), "class": "", "width": ""},
         {"name": 'process', "class": "", "width": ""},
         {"name": 'type', "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'coordinator', "class": "", "width": ""},
-        {"name": 'client', "class": "", "width": ""},
-        {"name": 'section.full_name', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'series', "class": "", "width": ""},
     ]
 
     def get_queryset(self):
-        return models.Document.objects.filter(hide_from_list=False).annotate(
-            search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qp = self.request.GET
+        qs = models.Document.objects.all()
+        if qp.get("personalized"):
+            qs = utils.get_related_docs(self.request.user)
+        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        return qs
+
+    def get_h1(self):
+        qp = self.request.GET
+        if qp.get("personalized"):
+            return _("My Docs")
+        return _("Documents")
 
 
 class DocumentDetailView(LoginAccessRequiredMixin, CommonDetailView):
@@ -663,7 +611,6 @@ class DocumentDetailView(LoginAccessRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
-        context["document_field_list"] = utils.get_document_field_list()
         return context
 
 
