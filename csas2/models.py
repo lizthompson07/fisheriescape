@@ -332,6 +332,10 @@ class MeetingResource(SimpleLookup, MetadataFields):
         ordering = [_("name")]
 
 
+class MeetingCost(GenericCost):
+    meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE)
+
+
 class Invitee(models.Model):
     ''' a person that was invited to a meeting'''
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="invitees")

@@ -179,16 +179,16 @@ class AuthorViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         if qp.get("document"):
             document = get_object_or_404(models.Document, pk=qp.get("document"))
-            qs = document.notes.all()
+            qs = document.authors.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a document"))
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save()
 
     def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+        serializer.save()
 
 
 class DocumentNoteViewSet(viewsets.ModelViewSet):

@@ -174,6 +174,11 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = models.Author
         fields = "__all__"
 
+    person_object = serializers.SerializerMethodField()
+
+    def get_person_object(self, instance):
+        return PersonSerializer(instance.person).data
+
     # type_display = serializers.SerializerMethodField()
     #
     # def get_type_display(self, instance):

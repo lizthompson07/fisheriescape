@@ -23,7 +23,7 @@
       <td> ${ author.person_object.full_name } (${ author.person_object.affiliation }) <br>
         <a :href="`mailto:${ author.person_object.email }`">${ author.person_object.email}</a>
       </td>
-      <td>${ author.is_lead }</td>
+      <td>${ author.is_lead|yesNo }</td>
       <td>
         <div class="btn-group">
           <author-editor :author="author" @update-authors="getAuthors"></author-editor>
