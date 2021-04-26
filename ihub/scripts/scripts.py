@@ -5,11 +5,12 @@ import os
 from django.conf import settings
 from django.core import serializers
 from django.core.files import File
-from django.urls import reverse
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import activate
 
 from ihub import models
+from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
@@ -55,11 +56,11 @@ def clean_masterlist():
 
 def digest_qc_data():
     # open the csv we want to read
-    my_target_data_file = os.path.join(settings.BASE_DIR, 'ihub', 'quebec_data.csv')
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'ihub', 'qc_data_april_23_2021.csv')
     with open(my_target_data_file, 'r') as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
 
-        # stuff that has to happen for running the loop
+        # stuff that has to happen before running the loop
         qc_region = shared_models.Region.objects.get(name="Quebec")
         models.Status.objects.get_or_create(name="cancelled")  # make sure the cancelled status exists
         activate("fr")
@@ -67,67 +68,67 @@ def digest_qc_data():
 
             # title
             entry, created = models.Entry.objects.get_or_create(
-                title=row["title"],
+                title=row["title"].strip(),
             )
             if created:
                 entry.old_id = entry.id
                 entry.save()
+
             entry.regions.add(qc_region)
 
             # Org...
-            org_txt = nz(row["org"], None) # smythe
-            if org_txt:
-                org = None
-                qs = ml_models.Organization.objects.filter(name_eng__icontains=org_txt) # in term "David Fishman" et "David Smith" --> d == True | avid == True ishm
-                if not qs.exists(): # pas resultat
-                    # then we just create a new org
-                    org = ml_models.Organization.objects.create(name_eng=org_txt)
-                    print(f"Creating new organization: {org.name_eng} ({org.id}) --> http://dmapps{reverse('ihub:org_detail', args=[org.id])}")
-                elif qs.count() == 1:
-                    # means we have a direct hit
-                    org = qs.first()
-                else:
-                    # means we have multiple hits. sharpen the filter
-                    qs = ml_models.Organization.objects.filter(name_eng__iexact=row["org"])
-                    if not qs.exists():
+            # there can be up to 9 organizations
+            org_cols = ["org1", "org2", "org3", "org4", "org5", "org6", "org7", "org8", "org9", ]
+            for org_col in org_cols:
+                org_txt = nz(row[org_col].strip(), None)
+                if org_txt and org_txt != "":
+                    org = None
+                    qs = ml_models.Organization.objects.filter(Q(name_eng__icontains=org_txt) | Q(
+                        abbrev__icontains=org_txt))  # in term "David Fishman" et "David Smith" --> d == True | avid == True ishm
+                    if not qs.exists():  # pas resultat
                         # then we just create a new org
                         org = ml_models.Organization.objects.create(name_eng=org_txt)
-                        print(f"Creating new organization: {org.name_eng} ({org.id}) --> {reverse('ihub:org_detail', args=[org.id])}")
+                        print(f"Creating new organization: {org.name_eng} ({org.id})")  # --> http://dmapps{reverse('ihub:org_detail', args=[org.id])}")
                     elif qs.count() == 1:
                         # means we have a direct hit
                         org = qs.first()
                     else:
-                        print(f"Cannot add organization {org_txt} to Entry #{entry.id} :(")
-                if org:
-                    org.regions.add(qc_region)
-                    org.grouping.add(7)
-                    entry.organizations.add(org)
+                        print(f"Found multiple organizations for {org_txt}: {listrify([str(o) for o in qs])}")
+                    if org:
+                        org.regions.add(qc_region)
+                        org.grouping.add(7)
+                        entry.organizations.add(org)
 
             # Sector
             sector, created = ml_models.Sector.objects.get_or_create(
-                name=row["sector"],
+                name=row["sector"].strip(),
                 region=qc_region,
             )
             entry.sectors.add(sector)
 
             # type
             try:
-                type = models.EntryType.objects.get(name__iexact=row["type"])
+                type = models.EntryType.objects.get(name__iexact=row["type"].strip())
             except:
                 type = None
                 if row["type"] == 'Mobilisation':
                     type = models.EntryType.objects.get(name__iexact="engagement")
                 else:
-                    print("can't find: ", row["type"])
+                    print("can't find type: ", row["type"].strip())
             entry.entry_type = type
 
             # status
-            try:
-                status = models.Status.objects.get(name__icontains=row["status"])
-            except:
-                print("can't find: ", row["status"])
-
-            entry.status = status
+            status_txt = nz(row["status"].strip(), None)
+            if status_txt:
+                try:
+                    status = models.Status.objects.get(name__icontains=status_txt)
+                except:
+                    if 'active' in status_txt.lower():
+                        status = models.Status.objects.get(pk=1)
+                    else:
+                        status = None
+                        print("can't find status: ", row["status"].strip())
+                entry.status = status
 
             # date1
             dt = None
@@ -139,8 +140,6 @@ def digest_qc_data():
                     entry.initial_date = dt
                 else:
                     print(f'Cannot parse start date for Entry #{entry.id}: {date1}')
-            else:
-                print(f'No start date in spreadsheet for Entry #{entry.id}: {date1}')
 
             # date2
             dt = None
@@ -149,31 +148,45 @@ def digest_qc_data():
                 if len(date2.split("/")) == 3:
                     dt = datetime.datetime.strptime(date2, "%m/%d/%Y")
                     dt = timezone.make_aware(dt, timezone.get_current_timezone())
-                    entry.initial_date = dt
+                    entry.anticipated_end_date = dt
                 else:
                     print(f'Cannot parse start date for Entry #{entry.id}: {date2}')
-            else:
-                print(f'No start date in spreadsheet for Entry #{entry.id}: {date2}')
+
+            proponent = nz(row['promoteur'], None)
+            if proponent:
+                entry.proponent = proponent
 
             entry.save()
 
             # contact
-            person, created = models.EntryPerson.objects.get_or_create(
-                entry=entry,
-                name=row['contact'],
-                organization=nz(row['contact_org'], "DFO-MPO"),
-                role=2
-            )
-
-            i_list = [1, 2, 3]
+            i_list = [1, 2, 3, 4]
             for i in i_list:
-                comment = f"{org.tname.upper()}: \n {nz(row['comment' + str(i)], None)}"
+                name = nz(row['contact' + str(i)], None)
+                if name:
+                    person, created = models.EntryPerson.objects.get_or_create(
+                        entry=entry,
+                        name=name,
+                        organization=nz(row['contact_org' + str(i)], "DFO-MPO"),
+                        role=2
+                    )
+
+            i_list = [1, 2, 3, 4, 5, 6]
+            for i in i_list:
+                comment = nz(row['comment' + str(i)], None)
                 if comment:
                     models.EntryNote.objects.get_or_create(
                         entry=entry,
                         type=3,
                         note=comment,
                     )
+
+            suivi = nz(row["suivi"], None)
+            if suivi:
+                models.EntryNote.objects.get_or_create(
+                    entry=entry,
+                    type=4,
+                    note=suivi,
+                )
 
 
 def delete_all_data():

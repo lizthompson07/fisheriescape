@@ -200,3 +200,4 @@ SeriesFormset = modelformset_factory(
     form=SeriesForm,
     extra=1,
 )
+

@@ -54,6 +54,7 @@ urlpatterns = [
     # path('invitees/<int:pk>/delete/', views.InviteeDeleteView.as_view(), name="invitee_delete"),
 
     # docs
+    path('documents/', views.DocumentListView.as_view(), name="document_list"),
     path('processes/<int:process>/new-document/', views.DocumentCreateView.as_view(), name="document_new"),
     path('documents/<int:pk>/view/', views.DocumentDetailView.as_view(), name="document_detail"),
     path('documents/<int:pk>/edit/', views.DocumentUpdateView.as_view(), name="document_edit"),
