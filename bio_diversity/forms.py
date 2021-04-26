@@ -5,6 +5,8 @@ from django import forms
 from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+
+from bio_diversity.data_parsers.distributions import mactaquac_distribution_parser, coldbrook_distribution_parser
 from bio_diversity.data_parsers.electrofishing import coldbrook_electrofishing_parser, mactaquac_electrofishing_parser
 
 from bio_diversity import models
@@ -292,6 +294,15 @@ class DataForm(CreatePrams):
                     log_data, sucess = generic_indv_parser(cleaned_data)
                 elif cleaned_data["data_type"].__str__() == "Group":
                     log_data, sucess = generic_grp_parser(cleaned_data)
+
+
+            # -------------------------------DISTRIBUTION----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Distribution":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    log_data, sucess = mactaquac_distribution_parser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    log_data, sucess = coldbrook_distribution_parser(cleaned_data)
+
 
             # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
             else:

@@ -19,6 +19,7 @@ from bio_diversity.utils import naive_to_aware
 from shared_models import models as shared_models
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+# from django.contrib.gis.db import models
 
 
 class BioModel(models.Model):
@@ -1481,6 +1482,8 @@ class ReleaseSiteCode(BioLookup):
 
 class RiverCode(BioLookup):
     # rive tag
+    # GeoDjango-specific: a geometry field (MultiPolygonField)
+    # mpoly = models.MultiPolygonField()
     pass
 
 
