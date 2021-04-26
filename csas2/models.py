@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
 from django.utils import timezone
@@ -232,14 +233,11 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         return f"{self.get_scope_display()} {self.get_type_display()}"
 
 
-class CostCategory(SimpleLookup):
-    pass
-
-
 class GenericCost(models.Model):
-    cost_category = models.ForeignKey(CostCategory, on_delete=models.CASCADE, verbose_name=_("project year"))
+    cost_category = models.IntegerField(choices=model_choices.cost_category_choices, verbose_name=_("cost category"))
+    description = models.CharField(max_length=1000, blank=True, null=True)
     funding_source = models.CharField(max_length=255, blank=True, null=True)
-    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
+    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
 
     def save(self, *args, **kwargs):
         if not self.amount: self.amount = 0
@@ -306,6 +304,10 @@ class Meeting(MetadataFields):
         days_display = "{} {}{}".format(self.length_days, gettext("day"), pluralize(self.length_days))
         dates += f' ({days_display})'
         return dates
+
+    @property
+    def total_cost(self):
+        return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
 
 
 class MeetingNote(GenericNote):
@@ -411,6 +413,10 @@ class Document(MetadataFields):
 
     def __str__(self):
         return self.ttitle
+
+    @property
+    def total_cost(self):
+        return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
 
 
 class DocumentNote(GenericNote):

@@ -49,14 +49,12 @@ process_type_choices = (
     (3, _('Peer Review')),
 )
 
-
 process_status_choices = (
     (1, _('In-progress')),
     (2, _('Complete')),
     (3, _('Deferred')),
     (4, _('Delayed')),
 )
-
 
 meeting_type_choices = (
     (1, _("Steering Committee Meeting")),
@@ -98,15 +96,11 @@ invitee_status_choices = (
     (2, 'Declined'),
     (3, 'Tentative'),
 )
-#
-# _choices = (
-#     (1, _('')),
-# )
-#
-# _choices = (
-#     (1, _('')),
-# )
-#
-# _choices = (
-#     (1, _('')),
-# )
+
+cost_category_choices = (
+    (1, 'Translation'),
+    (2, 'Travel'),
+    (3, 'Hospitality'),
+    (4, 'Space rental'),
+    (9, 'Other'),
+)

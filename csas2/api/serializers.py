@@ -72,9 +72,14 @@ class DocumentSerializer(serializers.ModelSerializer):
     status_display = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
+    total_cost = serializers.SerializerMethodField()
+
+    def get_total_cost(self, instance):
+        return instance.total_cost
 
     def get_metadata(self, instance):
         return instance.metadata
+
     def get_status_display(self, instance):
         return instance.get_status_display()
 
@@ -103,6 +108,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     attendees = serializers.SerializerMethodField()
     length_days = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
+    total_cost = serializers.SerializerMethodField()
+
+    def get_total_cost(self, instance):
+        return instance.total_cost
 
     def get_length_days(self, instance):
         return instance.length_days
@@ -167,6 +176,22 @@ class DocumentCostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.DocumentCost
         fields = "__all__"
+
+    cost_category_display = serializers.SerializerMethodField()
+
+    def get_cost_category_display(self, instance):
+        return instance.get_cost_category_display()
+
+
+class MeetingCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.MeetingCost
+        fields = "__all__"
+
+    cost_category_display = serializers.SerializerMethodField()
+
+    def get_cost_category_display(self, instance):
+        return instance.get_cost_category_display()
 
 
 class AuthorSerializer(serializers.ModelSerializer):

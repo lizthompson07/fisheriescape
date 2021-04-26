@@ -6,7 +6,7 @@
     <h4>{% trans "Costs" %}</h4>
   </div>
   <div class="mb-2 neighbours">
-    <cost-editor v-if="document" :document_id="document.id" @update-costs="getCosts"></cost-editor>
+    <cost-editor v-if="meeting" :meeting_id="meeting.id" @update-costs="getCosts"></cost-editor>
   </div>
 </div>
 
@@ -47,5 +47,5 @@
   </table>
 </div>
 <div v-else>
-  <em>{% trans "This document has no associated costs." %}</em>
+  <em>{% trans "This meeting has no associated costs." %}</em>
 </div>

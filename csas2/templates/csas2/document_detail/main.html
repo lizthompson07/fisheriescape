@@ -51,7 +51,9 @@
           <table class="table table-sm">
             <tr>
               <th class="text-left" v-html="documentLabels.process"></th>
-              <td class="text-left" v-html="document.process"></td>
+              <td class="text-left">
+                <a href="{% url 'csas2:process_detail' object.process.id %}">${ document.process }</a>
+              </td>
             </tr>
             <tr>
               <th class="text-left" v-html="documentLabels.title_en"></th>
@@ -186,10 +188,10 @@
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
       },
-      deleteCost(resource) {
-        let userInput = confirm("{% trans 'Are you certain you want to delete this resource?' %}")
+      deleteCost(cost) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this cost?' %}")
         if (userInput) {
-          let endpoint = `/api/csas/costs/${resource.id}/`;
+          let endpoint = `/api/csas/doc-costs/${cost.id}/`;
           apiService(endpoint, "DELETE").then(() => {
             this.getCosts();
           })
@@ -201,10 +203,10 @@
           this.documentLabels = data.labels;
         });
       },
-      deleteAuthor(invitee) {
-        let userInput = confirm("{% trans 'Are you certain you want to delete this invitee?' %}")
+      deleteAuthor(author) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this author?' %}")
         if (userInput) {
-          let endpoint = `/api/csas/authors/${invitee.id}/`;
+          let endpoint = `/api/csas/authors/${author.id}/`;
           apiService(endpoint, "DELETE").then(() => {
             this.getAuthors();
           })
@@ -240,10 +242,19 @@
         });
       },
     },
-    computed: {},
+    computed: {
+      totalCost() {
+        let total = 0;
+        for (var i = 0; i < this.costs.length; i++) {
+          total += Number(this.costs[i].amount)
+        }
+        return total
+      }
+    },
     filters: {
       yesNo: vueFiltersObject["yesNo"],
       nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
     },
     created() {
       this.getDocumentMetadata();

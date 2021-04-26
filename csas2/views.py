@@ -49,6 +49,7 @@ class SeriesHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView)
     success_url = reverse_lazy("csas2:manage_series")
 
 
+
 # people #
 ##########
 

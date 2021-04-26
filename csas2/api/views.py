@@ -76,6 +76,27 @@ class MeetingNoteViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+class MeetingCostViewSet(viewsets.ModelViewSet):
+    queryset = models.MeetingCost.objects.all()
+    serializer_class = serializers.MeetingCostSerializer
+    permission_classes = [CanModifyProcessOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("meeting"):
+            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
+            qs = meeting.costs.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a meeting"))
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+
 class InviteeViewSet(viewsets.ModelViewSet):
     queryset = models.Invitee.objects.all()
     serializer_class = serializers.InviteeSerializer
@@ -228,10 +249,10 @@ class DocumentCostViewSet(viewsets.ModelViewSet):
         raise ValidationError(_("You need to specify a document"))
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save()
 
     def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+        serializer.save()
 
 
 
@@ -350,4 +371,5 @@ class GenericCostModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+        data['cost_category_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.cost_category_choices]
         return Response(data)
