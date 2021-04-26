@@ -64,7 +64,7 @@ meeting_type_choices = (
     (3, _("Advisory Process Meeting (RAP)")),
 )
 
-meeting_note_type_choices = (
+note_type_choices = (
     (1, 'To Do'),
     (2, 'Next step'),
     (3, 'General comment'),

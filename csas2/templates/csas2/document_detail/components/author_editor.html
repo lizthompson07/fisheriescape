@@ -1,9 +1,9 @@
 {% load i18n %}
 
 <!-- template for the modal component -->
-<script type="text/x-template" id="invitee-editor-template">
+<script type="text/x-template" id="author-editor-template">
 <div class="">
-  <button @click="openOverlay" v-if="!invitee.id" class="btn btn-sm btn-primary py-0 px-1">
+  <button @click="openOverlay" v-if="!author.id" class="btn btn-sm btn-primary py-0 px-1">
     <span class="h5 mdi mdi-plus text-light"></span>
   </button>
   <button class="btn btn-sm" @click="openOverlay" v-else>
@@ -15,8 +15,8 @@
       <div class="modal-wrapper">
         <div class="modal-container" style="width: 800px">
           <div v-if="!personEditMode" class="modal-header">
-            <h4 v-if="!invitee.id"> {% trans "Add Invitee" %}</h4>
-            <h4 v-else> {% trans "Edit Invitee" %} </h4>
+            <h4 v-if="!author.id"> {% trans "Add Author" %}</h4>
+            <h4 v-else> {% trans "Edit Author" %} </h4>
           </div>
           <div v-else class="modal-header">
             <h4> {% trans "Add a Person" %}</h4>
@@ -27,7 +27,7 @@
                 <div class="form-group">
                   <label for="">${labels.person}</label>
                   <v-select
-                    v-model="inviteeToEdit.person"
+                    v-model="authorToEdit.person"
                     :options="personChoices"
                     :reduce="choice => choice.value"
                     label="text"
@@ -37,31 +37,11 @@
                   ></v-select>
                 </div>
                 <div class="mb-3">
-                  <button @click="openPersonEditMode" class="badge badge-pill badge-primary" tabindex="-1">{% trans "Add a person" %}</button>
+                  <button @click="openPersonEditMode" class="badge badge-pill badge-primary">{% trans "Add a person" %}</button>
                 </div>
                 <div class="form-group">
-                  <label for="">${labels.role}</label>
-                  <v-select
-                    v-model="inviteeToEdit.role"
-                    :options="roleChoices"
-                    :reduce="choice => choice.value"
-                    label="text"
-                    class="no-borders"
-                    :clearable=false
-                    required
-                  ></v-select>
-                </div>
-                <div class="form-group">
-                  <label for="">${labels.status}</label>
-                  <v-select
-                    v-model="inviteeToEdit.status"
-                    :options="statusChoices"
-                    :reduce="choice => choice.value"
-                    label="text"
-                    class="no-borders"
-                    :clearable=false
-                    required
-                  ></v-select>
+                  <input v-model="authorToEdit.is_lead" class="" type="checkbox" id="is_lead">
+                  <label class="form-check-label" for="is_complete"> {% trans "Is lead?" %} </label>
                 </div>
               </div>
               <div class="alert alert-danger mb-3" role="alert" v-if="error">
@@ -71,7 +51,7 @@
               </div>
               <div class="mb-3">
                 <button type="submit" class="btn btn-success">
-                  <span v-if="invitee.id">{% trans "Update" %}</span>
+                  <span v-if="author.id">{% trans "Update" %}</span>
                   <span v-else>{% trans "Create" %}</span>
                 </button>
                 <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
@@ -119,7 +99,7 @@
               </div>
               <div class="mb-3">
                 <button type="submit" class="btn btn-success">
-                  <span v-if="invitee.id">{% trans "Update" %}</span>
+                  <span v-if="author.id">{% trans "Update" %}</span>
                   <span v-else>{% trans "Create" %}</span>
                 </button>
                 <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
@@ -136,15 +116,15 @@
 </script>
 <script type="application/javascript">
 
-Vue.component("invitee-editor", {
-  template: "#invitee-editor-template",
+Vue.component("author-editor", {
+  template: "#author-editor-template",
   delimiters: ["${", "}"],
-  name: "invitee-editor",
+  name: "author-editor",
   props: {
-    meeting_id: {
+    document_id: {
       required: false
     },
-    invitee: {
+    author: {
       required: false,
       default: function () {
         return {};
@@ -155,7 +135,7 @@ Vue.component("invitee-editor", {
     return {
       dates: null,
       error: null,
-      inviteeToEdit: {},
+      authorToEdit: {},
       labels: {},
       languageChoices: [],
       loadingPersons: false,
@@ -164,9 +144,7 @@ Vue.component("invitee-editor", {
       personChoices: [],
       personEditMode: false,
       personLabels: {},
-      roleChoices: [],
       search: null,
-      statusChoices: [],
       user: null,
     };
   },
@@ -177,9 +155,9 @@ Vue.component("invitee-editor", {
       let method = "POST";
       apiService(endpoint, method, this.person).then(response => {
         if (response.id) {
-          this.getInviteeMetadata()
+          this.getAuthorMetadata()
           this.personEditMode = false;
-          this.inviteeToEdit.person = response.id
+          this.authorToEdit.person = response.id
         } else {
           this.error = groomJSON(response)
         }
@@ -187,19 +165,17 @@ Vue.component("invitee-editor", {
     },
     closeOverlay() {
       this.error = null;
-      if (this.invitee.id) {
-        this.primeInvitee();
-        this.inviteeToEdit = this.invitee;
+      if (this.author.id) {
+        this.primeAuthor();
+        this.authorToEdit = this.author;
       }
       this.overlay = false;
     },
-    getInviteeMetadata() {
-      let endpoint = `/api/csas/meta/models/invitee/`;
+    getAuthorMetadata() {
+      let endpoint = `/api/csas/meta/models/author/`;
       apiService(endpoint).then(data => {
         this.labels = data.labels;
-        this.roleChoices = data.role_choices;
         this.personChoices = data.person_choices;
-        this.statusChoices = data.status_choices;
       });
     },
     getPersonMetadata() {
@@ -213,17 +189,17 @@ Vue.component("invitee-editor", {
       this.error = null;
       var method;
       var endpoint;
-      if (this.invitee.id) {
-        endpoint = `/api/csas/invitees/${this.invitee.id}/`;
+      if (this.author.id) {
+        endpoint = `/api/csas/authors/${this.author.id}/`;
         method = "PUT";
       } else {
-        endpoint = "/api/csas/invitees/";
+        endpoint = "/api/csas/authors/";
         method = "POST";
       }
-      apiService(endpoint, method, this.inviteeToEdit).then(response => {
+      apiService(endpoint, method, this.authorToEdit).then(response => {
         if (response.id) {
-          this.$emit("update-invitees");
-          if (!this.inviteeToEdit.id) this.primeInvitee();
+          this.$emit("update-authors");
+          if (!this.authorToEdit.id) this.primeAuthor();
           this.overlay = false;
         } else {
           this.error = groomJSON(response)
@@ -233,28 +209,26 @@ Vue.component("invitee-editor", {
     openOverlay() {
       this.error = null;
       this.overlay = true;
-      if (!this.invitee.id) {
-        this.primeInvitee();
+      if (!this.author.id) {
+        this.primeAuthor();
       } else {
-        this.inviteeToEdit = JSON.parse(JSON.stringify(this.invitee)); // deep copy
+        this.authorToEdit = JSON.parse(JSON.stringify(this.author)); // deep copy
       }
     },
     openPersonEditMode() {
       this.error = null;
-      this.primeInvitee();
+      this.primeAuthor();
       this.personEditMode = true;
     },
-    primeInvitee() {
-      this.inviteeToEdit = {
-        status: 0,
-        role: null,
+    primeAuthor() {
+      this.authorToEdit = {
         person: null,
-        meeting: this.meeting_id
+        document: this.document_id
       };
     },
   },
   created() {
-    this.getInviteeMetadata();
+    this.getAuthorMetadata();
     this.getPersonMetadata();
   },
   computed: {}

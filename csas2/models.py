@@ -232,6 +232,33 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         return f"{self.get_scope_display()} {self.get_type_display()}"
 
 
+class CostCategory(SimpleLookup):
+    pass
+
+
+class GenericCost(models.Model):
+    cost_category = models.ForeignKey(CostCategory, on_delete=models.CASCADE, verbose_name=_("project year"))
+    funding_source = models.CharField(max_length=255, blank=True, null=True)
+    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.amount: self.amount = 0
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+
+class GenericNote(MetadataFields):
+    type = models.IntegerField(choices=model_choices.note_type_choices, verbose_name=_("type"))
+    note = models.TextField(verbose_name=_("note"))
+    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
+
+    class Meta:
+        abstract = True
+        ordering = ["is_complete", "-updated_at", ]
+
+
 class Meeting(MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
     process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
@@ -281,15 +308,9 @@ class Meeting(MetadataFields):
         return dates
 
 
-class MeetingNote(MetadataFields):
+class MeetingNote(GenericNote):
     ''' a note pertaining to a meeting'''
     meeting = models.ForeignKey(Meeting, related_name='notes', on_delete=models.CASCADE)
-    type = models.IntegerField(choices=model_choices.meeting_note_type_choices, verbose_name=_("type"))
-    note = models.TextField(verbose_name=_("note"))
-    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
-
-    class Meta:
-        ordering = ["is_complete", "-updated_at", ]
 
 
 class MeetingResource(SimpleLookup, MetadataFields):
@@ -335,6 +356,7 @@ class Invitee(models.Model):
         else:
             days = self.attendance.count()
             return "{} {}{} ({})".format(days, gettext("day"), pluralize(days), percentage(self.attendance_fraction, 0))
+
 
 class Attendance(models.Model):
     '''we will need to track on which days an invitee actually showed up'''
@@ -385,6 +407,15 @@ class Document(MetadataFields):
 
     def __str__(self):
         return self.ttitle
+
+
+class DocumentNote(GenericNote):
+    ''' a note pertaining to a meeting'''
+    document = models.ForeignKey(Document, related_name='notes', on_delete=models.CASCADE)
+
+
+class DocumentCost(GenericCost):
+    document = models.ForeignKey(Document, related_name='costs', on_delete=models.CASCADE)
 
 
 # class DocumentTracking(MetadataFields):

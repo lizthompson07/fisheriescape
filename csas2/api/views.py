@@ -170,6 +170,72 @@ class DocumentViewSet(viewsets.ModelViewSet):
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
+class AuthorViewSet(viewsets.ModelViewSet):
+    queryset = models.Author.objects.all()
+    serializer_class = serializers.AuthorSerializer
+    permission_classes = [CanModifyProcessOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("document"):
+            document = get_object_or_404(models.Document, pk=qp.get("document"))
+            qs = document.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a document"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class DocumentNoteViewSet(viewsets.ModelViewSet):
+    queryset = models.DocumentNote.objects.all()
+    serializer_class = serializers.DocumentNoteSerializer
+    permission_classes = [CanModifyProcessOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("document"):
+            document = get_object_or_404(models.Document, pk=qp.get("document"))
+            qs = document.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a document"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+
+class DocumentCostViewSet(viewsets.ModelViewSet):
+    queryset = models.DocumentCost.objects.all()
+    serializer_class = serializers.DocumentCostSerializer
+    permission_classes = [CanModifyProcessOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("document"):
+            document = get_object_or_404(models.Document, pk=qp.get("document"))
+            qs = document.costs.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a document"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+
+
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
@@ -211,14 +277,14 @@ class MeetingModelMetaAPIView(APIView):
         return Response(data)
 
 
-class NoteModelMetaAPIView(APIView):
+class GenericNoteModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    model = models.MeetingNote
+    model = models.GenericNote
 
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        data['type_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.meeting_note_type_choices]
+        data['type_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.note_type_choices]
         return Response(data)
 
 
@@ -249,6 +315,37 @@ class PersonModelMetaAPIView(APIView):
 class ResourceModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.MeetingResource
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
+class DocumentModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Document
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
+class AuthorModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Author
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        data['person_choices'] = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
+        return Response(data)
+
+
+class GenericCostModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.GenericCost
 
     def get(self, request):
         data = dict()

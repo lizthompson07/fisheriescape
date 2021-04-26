@@ -70,7 +70,11 @@ class DocumentSerializer(serializers.ModelSerializer):
     ttitle = serializers.SerializerMethodField()
     type_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
+    process = serializers.StringRelatedField()
+    metadata = serializers.SerializerMethodField()
 
+    def get_metadata(self, instance):
+        return instance.metadata
     def get_status_display(self, instance):
         return instance.get_status_display()
 
@@ -148,6 +152,34 @@ class MeetingNoteSerializer(serializers.ModelSerializer):
         return instance.get_type_display()
 
 
+class DocumentNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DocumentNote
+        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+
+    type_display = serializers.SerializerMethodField()
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
+
+class DocumentCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DocumentCost
+        fields = "__all__"
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Author
+        fields = "__all__"
+
+    # type_display = serializers.SerializerMethodField()
+    #
+    # def get_type_display(self, instance):
+    #     return instance.get_type_display()
+
+
 class InviteeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Invitee
@@ -156,7 +188,6 @@ class InviteeSerializer(serializers.ModelSerializer):
     attendance = serializers.SerializerMethodField()
     attendance_percentage = serializers.SerializerMethodField()
     meeting_object = serializers.SerializerMethodField()
-    full_name = serializers.SerializerMethodField()
     max_date = serializers.SerializerMethodField()
     min_date = serializers.SerializerMethodField()
     person_object = serializers.SerializerMethodField()
@@ -172,9 +203,6 @@ class InviteeSerializer(serializers.ModelSerializer):
     def get_meeting_object(self, instance):
         if instance.meeting:
             return MeetingSerializerLITE(instance.meeting, read_only=True).data
-
-    def get_full_name(self, instance):
-        return instance.person.full_name
 
     def get_max_date(self, instance):
         if instance.meeting.end_date:
