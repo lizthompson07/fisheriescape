@@ -6,7 +6,7 @@ router = DefaultRouter()
 router.register(r'requests', views.CSASRequestViewSet)
 
 router.register(r'meetings', views.MeetingViewSet)
-router.register(r'notes', views.MeetingNoteViewSet)
+router.register(r'meeting-notes', views.MeetingNoteViewSet)
 router.register(r'invitees', views.InviteeViewSet)
 router.register(r'resources', views.MeetingResourceViewSet)
 router.register(r'documents', views.DocumentViewSet)

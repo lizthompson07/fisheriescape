@@ -124,10 +124,10 @@ Vue.component("note-editor", {
       var method;
       var endpoint;
       if (this.note.id) {
-        endpoint = `/api/csas/notes/${this.note.id}/`;
+        endpoint = `/api/csas/meeting-notes/${this.note.id}/`;
         method = "PUT";
       } else {
-        endpoint = "/api/csas/notes/";
+        endpoint = "/api/csas/meeting-notes/";
         method = "POST";
       }
       apiService(endpoint, method, this.noteToEdit).then(response => {

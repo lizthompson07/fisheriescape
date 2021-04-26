@@ -124,10 +124,10 @@ Vue.component("cost-editor", {
       var method;
       var endpoint;
       if (this.cost.id) {
-        endpoint = `/api/csas/costs/${this.cost.id}/`;
+        endpoint = `/api/csas/doc-costs/${this.cost.id}/`;
         method = "PUT";
       } else {
-        endpoint = "/api/csas/costs/";
+        endpoint = "/api/csas/doc-costs/";
         method = "POST";
       }
       apiService(endpoint, method, this.costToEdit).then(response => {

@@ -74,13 +74,13 @@ Vue.component("note-card", {
     async deleteNote() {
       let userInput = confirm("{% trans 'Are you certain you want to delete this Note?' %}")
       if (userInput) {
-        let endpoint = `/api/csas/notes/${this.note.id}/`;
+        let endpoint = `/api/csas/meeting-notes/${this.note.id}/`;
         await apiService(endpoint, "DELETE");
         this.$emit("update-notes");
       }
     },
     async toggleComplete() {
-      let endpoint = `/api/csas/notes/${this.note.id}/`;
+      let endpoint = `/api/csas/meeting-notes/${this.note.id}/`;
       await apiService(endpoint, "PATCH", {
         is_complete: !this.note.is_complete
       });

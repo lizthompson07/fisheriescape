@@ -224,7 +224,7 @@
         }
       },
       getNotes() {
-        let endpoint = `/api/csas/notes/?meeting=${this.meeting.id}`;
+        let endpoint = `/api/csas/meeting-notes/?meeting=${this.meeting.id}`;
         apiService(endpoint).then(data => {
           this.notes = data;
         });
@@ -266,9 +266,6 @@
     created() {
       this.getMeetingMetadata();
       this.getMeeting(true);
-
-      {#this.getObservations();#}
-      {#this.getSpeciesMetadata();#}
     },
   });
 
