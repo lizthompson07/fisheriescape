@@ -30,6 +30,19 @@ def ecc_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
+def ecp_delete(request, emm, ecp):
+    if utils.whales_authorized(request.user):
+        ecp_channel = models.EcpChannelProperty.objects.get(eqr=emm, ecp_channel_no=ecp)
+        ehe_list = models.EheHydrophoneEvent.objects.filter(rec__emm=emm, ecp_channel_no=ecp)
+        for ehe in ehe_list:
+            ehe.delete()
+        ecp_channel.delete()
+        messages.success(request, _("The make/model channel has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 def eda_delete(request, pk):
     eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
@@ -438,6 +451,10 @@ class DepUpdate(mixins.DepMixin, CommonUpdate):
 class EcaUpdate(mixins.EcaMixin, CommonUpdate):
     def get_success_url(self):
         return reverse_lazy("whalesdb:details_eca", args=(self.kwargs['pk'],))
+
+
+class EcpUpdate(mixins.EcpMixin, CommonUpdate):
+    pass
 
 
 class EmmUpdate(mixins.EmmMixin, CommonUpdate):
