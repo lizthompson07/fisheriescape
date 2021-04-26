@@ -139,16 +139,12 @@ export default {
               .replace("]", "");
         }
       });
-    }
-    ,
+    },
 
-  }
-  ,
+  },
   created() {
     this.getNoteMetadata();
-  }
-  ,
+  },
   computed: {}
-}
-;
+};
 </script>

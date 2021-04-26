@@ -1,0 +1,277 @@
+{% extends "csas2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block crumbs %}
+{% endblock %}
+
+{% block messages %}{% endblock %}
+{% block title_area %}
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+{% endblock %}
+
+{% block subcontent %}
+
+
+
+
+  <div id="app" v-cloak>
+    <div>
+      {% include "shared_models/_generic_breadcrumbs.html" %}
+      <div class="mb-3">
+        <h2 class="">{{ h1|safe }}</h2>
+      </div>
+      {% bootstrap_messages %}
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <a class="btn btn-sm btn-warning" href="{% url 'csas2:meeting_edit' object.id %}">{% trans "Edit" %}</a>
+      <a class="btn btn-sm btn-danger" href="{% url 'csas2:meeting_delete' object.id %}">{% trans "Delete" %}</a>
+    </div>
+
+    <div class="row">
+      <div class="col-8">
+
+
+        <div class="mb-5">
+          <table class="table table-sm">
+            <tr>
+              <th class="text-left" v-html="meetingLabels.process"></th>
+              <td class="text-left" v-html="meeting.process"></td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="meetingLabels.type"></th>
+              <td class="text-left" v-html="meeting.type_display"></td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="meetingLabels.location"></th>
+              <td class="text-left" v-html="meeting.location"></td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Dates" %}</th>
+              <td class="text-left" v-html="meeting.display_dates"></td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Attendees" %}</th>
+              <td class="text-left" v-html="meeting.attendees"></td>
+            </tr>
+
+            <tr>
+              <th class="text-left">{% trans "Distinct attendees" %}</th>
+              <td class="text-left" v-html="attendeeCount"></td>
+            </tr>
+            <tr>
+              <th>{% trans "Linked documents" %}</th>
+              <td>
+                {% if object.documents.exists %}
+                  {% for obj in object.documents.all %}
+                    <div>
+                      <a href="{% url 'csas2:document_detail' obj.id %}">{{ obj }}</a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <em>{% trans "There are no documents linked to this meeting." %}</em>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Metadata" %}</th>
+              <td class="text-left" v-html="meeting.metadata"></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="mb-5">
+          {% include "csas2/meeting_detail/_invitees.html" %}
+        </div>
+
+
+        <div class="mb-5">
+          {% include "csas2/meeting_detail/_resources.html" %}
+        </div>
+      </div>
+
+      {# Notes #}
+      <div class="col">
+        {% include "csas2/meeting_detail/_notes.html" %}
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+  {% include "csas2/meeting_detail/components/note_editor.html" %}
+  {% include "csas2/meeting_detail/components/note_card.html" %}
+  {% include "csas2/meeting_detail/components/resource_editor.html" %}
+  {% include "csas2/meeting_detail/components/invitee_editor.html" %}
+  {% include "csas2/meeting_detail/components/email-overlay.html" %}
+  {% include "csas2/meeting_detail/components/attendance-overlay.html" %}
+
+  <script type="application/javascript">
+  var meetingId = "{{ object.id }}";
+
+  // register components
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      canModify: false,
+      loadingMeeting: false,
+
+      meeting: {},
+      notes: [],
+      invitees: [],
+      resources: [],
+
+      showNoteModal: false,
+      showInviteeModal: false,
+      showResourceModal: false,
+      meetingId: meetingId,
+      meetingLabels: {}
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/csas/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      openPopout(url) {
+        popitup(url, 'popoutWindow' + Date.now());
+      },
+      deleteResource(resource) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this resource?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/resources/${resource.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getResources();
+          })
+        }
+      },
+      getMeetingMetadata() {
+        let endpoint = `/api/csas/meta/models/meeting/`;
+        apiService(endpoint).then(data => {
+          this.meetingLabels = data.labels;
+        });
+      },
+      deleteInvitee(invitee) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this invitee?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/invitees/${invitee.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getInvitees();
+          })
+        }
+      },
+      toggleInviteeStatus(invitee) {
+        let nextStatus = 0;
+        let statusArray = [0, 1, 2, 3];
+        let currentStatusPos = statusArray.indexOf(invitee.status) + 1;
+        if (currentStatusPos >= statusArray.length) {
+          nextStatus = currentStatusPos % statusArray.length;
+        } else {
+          nextStatus = statusArray[currentStatusPos];
+        }
+        let endpoint = `/api/csas/invitees/${invitee.id}/`;
+        apiService(endpoint, "PATCH", {
+          status: nextStatus
+        }).then(() => {
+          this.getInvitees()
+        })
+      },
+      sendAllInvitations() {
+        let userInput = confirm("{% trans 'Are you certain you want to send out invitations to all invitees? \n\nInvitees who have already received invitations will not receive duplicates.' %}")
+        if (userInput) {
+          if (this.invitees.length) {
+            for (var i = 0; i < this.invitees.length; i++) {
+              this.error = null;
+              let endpoint = `/api/csas/invitees/${this.invitees[i].id}/invitation/`;
+              apiService(endpoint, "POST").then(() => {
+                this.getInvitees();
+              });
+            }
+          }
+        }
+      },
+      getNotes() {
+        let endpoint = `/api/csas/notes/?meeting=${this.meeting.id}`;
+        apiService(endpoint).then(data => {
+          this.notes = data;
+        });
+      },
+      getInvitees() {
+        let endpoint = `/api/csas/invitees/?meeting=${this.meeting.id}`;
+        apiService(endpoint).then(data => {
+          this.invitees = data;
+        });
+      },
+      getResources() {
+        let endpoint = `/api/csas/resources/?meeting=${this.meeting.id}`;
+        apiService(endpoint).then(data => {
+          this.resources = data;
+        });
+      },
+      getMeeting(update_notes) {
+        let endpoint = `/api/csas/meetings/${this.meetingId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.meeting = data;
+            if (update_notes) this.notes = this.getNotes();
+            this.invitees = this.getInvitees();
+            this.resources = this.getResources();
+          }
+        });
+      },
+
+
+    },
+    computed: {
+      attendeeCount() {
+        if (this.meeting && this.meeting.attendees && this.meeting.attendees.length) {
+          return this.meeting.attendees.split(",").length;
+        }
+        return 0;
+      },
+    },
+    created() {
+      this.getMeetingMetadata();
+      this.getMeeting(true);
+
+      {#this.getObservations();#}
+      {#this.getSpeciesMetadata();#}
+    },
+  });
+
+
+  </script>
+
+  {# Modals #}
+
+{% endblock %}

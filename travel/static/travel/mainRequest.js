@@ -309,9 +309,6 @@ var app = new Vue({
       let url = `/travel-plans/trips/${trip.id}/view/`;
       let win = window.open(url, '_blank');
     },
-    groomJSON(json) {
-      return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-    },
     moveReviewer(reviewer, direction) {
       if (direction === 'up') reviewer.order -= 1.5;
       else if (direction === 'down') reviewer.order += 1.5;
@@ -361,7 +358,7 @@ var app = new Vue({
                 this.getRequest();
               } else {
                 console.log(response)
-                this.errorMsgReviewer = this.groomJSON(response)
+                this.errorMsgReviewer = groomJSON(response)
               }
             })
       }
@@ -391,7 +388,7 @@ var app = new Vue({
           }
           this.inCostEditMode = false;
         } else {
-          this.errorMsgCost = this.groomJSON(response)
+          this.errorMsgCost = groomJSON(response)
         }
       })
     },
@@ -444,7 +441,7 @@ var app = new Vue({
                 this.errorMsgReviewer = null;
               } else {
                 console.log(response)
-                this.errorMsgReviewer = this.groomJSON(response)
+                this.errorMsgReviewer = groomJSON(response)
               }
 
             })
@@ -458,7 +455,7 @@ var app = new Vue({
                 this.request.reviewers.push(response)
                 this.errorMsgReviewer = null;
               } else {
-                this.errorMsgReviewer = this.groomJSON(response)
+                this.errorMsgReviewer = groomJSON(response)
               }
             })
       }
@@ -510,7 +507,7 @@ var app = new Vue({
           if (this.travellerToEdit.start_date) this.travellerToEdit.start_date = this.travellerToEdit.start_date.split("T")[0]
           if (this.travellerToEdit.end_date) this.travellerToEdit.end_date = this.travellerToEdit.end_date.split("T")[0]
           console.log(response)
-          this.errorMsgTraveller = this.groomJSON(response)
+          this.errorMsgTraveller = groomJSON(response)
         }
       })
     },

@@ -1,5 +1,4 @@
 {% load static %}
-
 body {
     background-image: url("{% static 'img/bio_diversity/bio_diversity_bg.jpg' %}");
     background-repeat: no-repeat;
@@ -9,3 +8,4 @@ body {
 .card, .jumbotron {
     background-color: rgba(255, 255, 255, 0.8);
 }
+

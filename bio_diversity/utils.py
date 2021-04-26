@@ -3,11 +3,12 @@ import decimal
 import math
 
 import pytz
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import IntegrityError
 from django.http import JsonResponse
 from decimal import Decimal
 from bio_diversity import models
+from bio_diversity.static.calculation_constants import *
 
 
 def bio_diverisity_authorized(user):
@@ -40,6 +41,21 @@ def get_help_text_dict(model=None, title=''):
     return my_dict
 
 
+def team_list_splitter(team_str, valid_only=True):
+    team_str_list = team_str.split(",")
+    team_str_list = [indv_str.strip() for indv_str in team_str_list]
+    all_perc_qs = models.PersonnelCode.objects.filter(perc_valid=True)
+    found_list = []
+    not_found_list = []
+    for inits in team_str_list:
+        perc_qs = all_perc_qs.filter(initials__iexact=inits)
+        try:
+            found_list.append(perc_qs.get())
+        except (MultipleObjectsReturned, ObjectDoesNotExist):
+            not_found_list.append(inits)
+    return found_list, not_found_list
+
+
 def year_coll_splitter(full_str):
     coll = full_str.lstrip(' 0123456789')
     year = int(full_str[:len(full_str) - len(coll)])
@@ -50,6 +66,11 @@ def val_unit_splitter(full_str):
     unit_str = full_str.lstrip(' 0123456789.')
     val = float(full_str[:len(full_str) - len(unit_str)])
     return val, unit_str.strip()
+
+
+def daily_dev(degree_day):
+    dev = 100 / math.exp(DEVELOPMENT_ALPHA * math.exp(DEVELOPMENT_BETA * degree_day))
+    return dev
 
 
 def parse_concentration(concentration_str):
@@ -88,6 +109,9 @@ def get_cont_from_anix(anix, cont_key):
         return anix.contx_id.heat_id
     elif cont_key == "draw":
         return anix.contx_id.draw_id
+    elif cont_key is None:
+        all_conts = [anix.contx_id.tank_id, anix.contx_id.tray_id, anix.contx_id.trof_id, anix.contx_id.cup_id, anix.contx_id.heat_id, anix.contx_id.draw_id]
+        return [cont for cont in all_conts if cont][0]
     else:
         return None
 
@@ -143,12 +167,24 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
+def get_relc_from_point(shapely_geom):
+    relc_qs = models.ReleaseSiteCode.objects.all()
+    for relc in relc_qs:
+        # need to add infinitesimal buffer to deal with rounding issue
+        if relc.bbox:
+            if relc.bbox.buffer(1e-14).intersects(shapely_geom):
+                return relc
+    return None
+
+
 def comment_parser(comment_str, anix_indv, det_date):
     coke_dict = get_comment_keywords_dict()
     parser_list = coke_dict.keys()
     mortality = False
+    parsed = False
     for term in parser_list:
         if term.lower() in comment_str.lower():
+            parsed = True
             adsc = coke_dict[term]
             if adsc.name == "Mortality":
                 mortality = True
@@ -167,8 +203,10 @@ def comment_parser(comment_str, anix_indv, det_date):
             except (ValidationError, IntegrityError):
                 pass
     if mortality:
+        parsed = True
         anix_indv.indv_id.indv_valid = False
         anix_indv.indv_id.save()
+    return parsed
 
 
 def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None, return_end_contx=False):
@@ -180,18 +218,19 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
     if origin == destination:
         row_entered = False
         return row_entered
+    if cleaned_data["evnt_id"]:
+        # link containers to parent event
+        if not origin:
+            # move indvidual or group to destination and clean up previous contx's
+            if grp_pk:
+                grp = models.Group.objects.filter(pk=grp_pk).get()
+                origin_conts = grp.current_cont(movement_date)
+        else:
+            if enter_contx(origin, cleaned_data, None):
+                row_entered = True
 
-    if not origin:
-        # move indvidual or group to destination and clean up previous contx's
-        if grp_pk:
-            grp = models.Group.objects.filter(pk=grp_pk).get()
-            origin_conts = grp.current_cont(movement_date)
-    else:
-        if enter_contx(origin, cleaned_data, None):
+        if enter_contx(destination, cleaned_data, None):
             row_entered = True
-
-    if enter_contx(destination, cleaned_data, None):
-        row_entered = True
 
     if destination:
         movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
@@ -342,6 +381,27 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
     return row_entered
 
 
+def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None):
+
+    team = models.TeamXRef(perc_id=perc_id,
+                           evnt_id=evnt_id,
+                           loc_id=loc_id,
+                           role_id=role_id,
+                           created_by=evnt_id.created_by,
+                           created_date=evnt_id.created_date,
+                           )
+    try:
+        team.clean()
+        team.save()
+    except ValidationError:
+        team = models.TeamXRef.objects.filter(perc_id=team.perc_id, evnt_id=team.evnt_id, loc_id=team.loc_id,
+                                              role_id=team.role_id)
+    if team:
+        return True
+
+    return False
+
+
 def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
     tray = models.Tray(trof_id=trof,
                        name=tray_name,
@@ -434,11 +494,14 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
 def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual="Good"):
     row_entered = False
     # checks for truthness of det_val and if its a nan. Fails for None and nan (nan == nan is false), passes for values
-    if det_val == det_val and det_val:
+    det_val = nan_to_none(det_val)
+    if type(det_val) != str:
+        det_val = round(decimal.Decimal(det_val), 5)
+    if det_val:
         if not det_subj_code:
             cntd = models.CountDet(cnt_id=cnt,
                                    anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),
-                                   det_val=round(decimal.Decimal(det_val), 5),
+                                   det_val=det_val,
                                    qual_id=models.QualCode.objects.filter(name=qual).get(),
                                    created_by=cleaned_data["created_by"],
                                    created_date=cleaned_data["created_date"],
@@ -447,7 +510,7 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
             cntd = models.CountDet(cnt_id=cnt,
                                    anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),
                                    adsc_id=models.AniDetSubjCode.objects.filter(name__iexact=det_subj_code).get(),
-                                   det_val=round(decimal.Decimal(det_val), 5),
+                                   det_val=det_val,
                                    qual_id=models.QualCode.objects.filter(name=qual).get(),
                                    created_by=cleaned_data["created_by"],
                                    created_date=cleaned_data["created_date"],
@@ -461,7 +524,7 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
 
         # update count total if needed:
         if det_code == "Program Group":
-            new_cnt = sum(models.CountDet.objects.filter(cnt_id=cnt, anidc_id__name__iexact=det_code).values_list('det_val', flat=True))
+            new_cnt = sum([float(cnt) for cnt in models.CountDet.objects.filter(cnt_id=cnt, anidc_id__name__iexact=det_code).values_list('det_val', flat=True)])
             if new_cnt > cnt.cnt:
                 cnt.cnt = int(new_cnt)
                 cnt.save()
@@ -889,3 +952,21 @@ def ajax_get_fields(request):
 def naive_to_aware(naive_date, naive_time=datetime.datetime.min.time()):
     # adds null time and timezone to dates
     return datetime.datetime.combine(naive_date, naive_time).replace(tzinfo=pytz.UTC)
+
+
+def nan_to_none(test_item):
+    if type(test_item) == float:
+        if math.isnan(test_item):
+            return None
+    elif test_item == "nan":
+        return None
+
+    return test_item
+
+
+def round_no_nan(data, precision):
+    # data can be nan, decimal, float, etc.
+    if math.isnan(data) or data is None:
+        return None
+    else:
+        return round(decimal.Decimal(data), precision)

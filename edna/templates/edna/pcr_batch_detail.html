@@ -371,9 +371,6 @@
         // return the results array
         return myArray;
       },
-      groomJSON(json) {
-        return JSON.stringify(json).replaceAll("{", "").replaceAll("}", "").replaceAll("[", " ").replaceAll("]", " ").replaceAll('"', "").replaceAll("non_field_errors:", "")
-      },
       newPCR(extract) {
         let endpoint = `/api/edna/pcrs/`;
         let data = this.getBlankPCR(extract);
@@ -404,7 +401,7 @@
         endpoint = `/api/edna/pcrs/${pcr.id}/`;
         apiService(endpoint, "PUT", pcr)
             .then(response => {
-              if (!response.id) this.pcrErrorMsg = this.groomJSON(response);
+              if (!response.id) this.pcrErrorMsg = groomJSON(response);
               else this.unsavedChanges = false;
             })
       },
@@ -421,7 +418,7 @@
         }
         apiService(endpoint, method, obs)
             .then(response => {
-              if (!response.id) this.obsErrorMsg = this.groomJSON(response);
+              if (!response.id) this.obsErrorMsg = groomJSON(response);
               else this.unsavedChanges = false;
             })
       },
