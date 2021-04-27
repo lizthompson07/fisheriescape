@@ -280,9 +280,6 @@ class CSASRequestReviewCreateView(CanModifyRequestRequiredMixin, CommonCreateVie
     def get_csas_request(self):
         return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("crequest"))
 
-    def get_initial(self):
-        return dict(advice_date=self.get_csas_request().advice_needed_by)
-
     def get_parent_crumb(self):
         return {"title": self.get_csas_request(), "url": reverse_lazy("csas2:request_detail", args=[self.get_csas_request().id])}
 
