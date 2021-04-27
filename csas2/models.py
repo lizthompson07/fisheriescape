@@ -145,9 +145,15 @@ class CSASRequest(MetadataFields):
     def region(self):
         return self.section.division.branch.region.tname
 
+    @property
+    def ref_number(self):
+        if hasattr(self, "review") and self.review.ref_number:
+            return self.review.ref_number
+
 
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")
+    ref_number = models.CharField(max_length=50, verbose_name=_("reference number (optional)"), blank=True, null=True)
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("prioritization"), choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("prioritization notes"))
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)

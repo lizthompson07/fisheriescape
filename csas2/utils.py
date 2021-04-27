@@ -221,6 +221,7 @@ def get_request_field_list(csas_request, user):
 
 def get_review_field_list():
     my_list = [
+        'ref_number|{}'.format(_("reference number")),
         'prioritization_display|{}'.format(_("prioritization")),
         'decision_display|{}'.format(_("decision")),
         'advice_date',
