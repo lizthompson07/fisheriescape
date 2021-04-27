@@ -115,6 +115,7 @@ class CSASRequestReviewForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'decision_date': forms.DateInput(attrs=attr_fp_date),
+            'advice_date': forms.DateInput(attrs=attr_fp_date),
             'prioritization_text': forms.Textarea(attrs=rows3),
             'decision_text': forms.Textarea(attrs=rows3),
         }

@@ -186,6 +186,7 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = in_csas_admin_group(self.request.user)
@@ -270,13 +271,16 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
 class CSASRequestReviewCreateView(CanModifyRequestRequiredMixin, CommonCreateView):
     model = models.CSASRequestReview
     form_class = forms.CSASRequestReviewForm
-    template_name = 'csas2/form.html'
+    template_name = 'csas2/request_form.html' #  shared js_body
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     submit_text = gettext_lazy("Start a Review")
 
     def get_csas_request(self):
         return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("crequest"))
+
+    def get_initial(self):
+        return dict(advice_date=self.get_csas_request().advice_needed_by)
 
     def get_parent_crumb(self):
         return {"title": self.get_csas_request(), "url": reverse_lazy("csas2:request_detail", args=[self.get_csas_request().id])}
@@ -291,7 +295,7 @@ class CSASRequestReviewCreateView(CanModifyRequestRequiredMixin, CommonCreateVie
 class CSASRequestReviewUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     model = models.CSASRequestReview
     form_class = forms.CSASRequestReviewForm
-    template_name = 'csas2/form.html'
+    template_name = 'csas2/request_form.html'  #  shared js_body
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 

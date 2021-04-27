@@ -77,7 +77,10 @@ class CSASRequest(MetadataFields):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+        if hasattr(self, "review") and self.review.advice_date:
+            self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
+        else:
+            self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
         # look at the review to help determine the status
         self.status = 1  # draft
         if self.submission_date:
@@ -142,6 +145,7 @@ class CSASRequest(MetadataFields):
     def region(self):
         return self.section.division.branch.region.tname
 
+
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("prioritization"), choices=model_choices.prioritization_choices)
@@ -149,6 +153,9 @@ class CSASRequestReview(MetadataFields):
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
     decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision explanation"))
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("decision date"))
+    advice_date = models.DateTimeField(verbose_name=_("date to receive Science advice"), blank=True, null=True)
+    is_deferred = models.BooleanField(default=False, verbose_name=_("was the original request date deferred?"))
+    deferred_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide rationale for the deferred date"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     def save(self, *args, **kwargs):
@@ -170,6 +177,13 @@ class CSASRequestReview(MetadataFields):
             text = self.prioritization_text if self.prioritization_text else gettext("no further detail provided.")
             return "{} - {}".format(self.get_prioritization_display(), text)
         return gettext("---")
+
+    @property
+    def deferred_display(self):
+        if self.is_deferred:
+            text = self.deferred_text if self.deferred_text else gettext("no further details provided.")
+            return "{} - {}".format(gettext("Yes"), text)
+        return gettext("No")
 
 
 class CSASRequestFile(models.Model):
