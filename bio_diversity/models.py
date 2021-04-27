@@ -917,10 +917,9 @@ class GroupDet(BioDet):
                                                  group_details__anidc_id=self.anidc_id,
                                                  group_details__adsc_id=self.adsc_id,
                                                  )
-            old_grpd_set = [anix.group_details.filter(detail_date__lte=self.detail_date) for anix in anix_set]
-            for old_grpd in old_grpd_set:
-                if old_grpd:
-                    old_grpd = old_grpd.get()
+            old_grpd_set = [anix.group_details.filter(detail_date__lte=self.detail_date, grpd_valid=True) for anix in anix_set]
+            for old_grpd_qs in old_grpd_set:
+                for old_grpd in old_grpd_qs:
                     old_grpd.grpd_valid = False
                     old_grpd.save()
 

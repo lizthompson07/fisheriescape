@@ -295,7 +295,6 @@ class DataForm(CreatePrams):
                 elif cleaned_data["data_type"].__str__() == "Group":
                     log_data, sucess = generic_grp_parser(cleaned_data)
 
-
             # -------------------------------DISTRIBUTION----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Distribution":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
@@ -303,12 +302,11 @@ class DataForm(CreatePrams):
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
                     log_data, sucess = coldbrook_distribution_parser(cleaned_data)
 
-
             # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
             else:
                 log_data, sucess = generic_indv_parser(cleaned_data)
 
-        except Exception as err:
+        except ValueError as err: # Exception as err:
             log_data += "Error parsing data: \n"
             log_data += "\n Error: {}".format(err.__str__())
 
@@ -882,6 +880,8 @@ class TankForm(CreatePrams):
     class Meta:
         model = models.Tank
         exclude = []
+        # to set the ordering:
+        fields = ['name', 'nom', 'facic_id', 'description_en', 'description_fr', 'created_date', 'created_by']
 
 
 class TankdForm(CreateDatePrams):

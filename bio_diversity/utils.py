@@ -126,7 +126,11 @@ def get_cont_from_dot(dot_string, cleaned_data, start_date):
         if draw:
             return draw
         else:
-            return None
+            tank_qs = models.Tank.objects.filter(name__icontains=dot_string)
+            if len(tank_qs) == 1:
+                return tank_qs.get()
+            else:
+                return None
 
 
 def get_cup_from_dot(dot_string, cleaned_data, start_date):
@@ -500,9 +504,10 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
     row_entered = False
     # checks for truthness of det_val and if its a nan. Fails for None and nan (nan == nan is false), passes for values
     det_val = nan_to_none(det_val)
-    if type(det_val) != str:
-        det_val = round(decimal.Decimal(det_val), 5)
+
     if det_val:
+        if type(det_val) != str:
+            det_val = round(decimal.Decimal(det_val), 5)
         if not det_subj_code:
             cntd = models.CountDet(cnt_id=cnt,
                                    anidc_id=models.AnimalDetCode.objects.filter(name__iexact=det_code).get(),

@@ -124,11 +124,13 @@ def coldbrook_picks_parser(cleaned_data):
                 utils.enter_cnt_det(hu_cleaned_data, hu_pick_cnt, row[pick_cnt], "Mortality Observation", pick_code)
 
             # HU selections:
-            # list of movement column headers
+            # list of movement column headers: count, cup, weight, and code
             move_tuples = [
                 ("EQU A #", "EQU A Location", "Weight 1 (g)", "EQU A"),
                 ("EQU B #", "EQU B Location", "Weight 2 (g)", "EQU B"),
-                ("# of PEQUs", "PEQU Location stack.tray", "Actual PEQU Wt (g)", "PEQU")
+                ("# of PEQUs", "PEQU Location stack.tray", "Actual PEQU Wt (g)", "PEQU"),
+                ("AB Pools", "A Pool", None, "A Pool"),
+                ("AB Pools", "B Pool", None, "B Pool"),
             ]
 
             # track eggs moving out:
@@ -175,7 +177,8 @@ def coldbrook_picks_parser(cleaned_data):
 
                 # add the positive counts
                 cnt = utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Eggs Added", )
-                utils.enter_cnt_det(cleaned_data, cnt, row[move_weight], "Weight")
+                if utils.nan_to_none(move_weight):
+                    utils.enter_cnt_det(cleaned_data, cnt, row[move_weight], "Weight")
                 utils.enter_cnt_det(cleaned_data, cnt, row[move_cnt], "Program Group", cnt_code)
 
                 # link cup to egg development event
