@@ -364,6 +364,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'fiscal_year', "class": "", "width": ""},
         {"name": 'id|{}'.format("process Id"), "class": "", "width": ""},
         {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'lead_region', "class": "", "width": ""},
         {"name": 'other_regions', "class": "", "width": ""},
@@ -588,9 +589,9 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
 
     field_list = [
         {"name": 'ttitle|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'process', "class": "", "width": ""},
         {"name": 'type', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
+        {"name": 'process', "class": "", "width": ""},
         {"name": 'series', "class": "", "width": ""},
     ]
 
@@ -599,7 +600,12 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.Document.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_docs(self.request.user)
-        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qs = qs.annotate(search_term=Concat(
+            'title_en',
+            Value(" "),
+            'title_fr',
+            output_field=TextField())
+        )
         return qs
 
     def get_h1(self):
