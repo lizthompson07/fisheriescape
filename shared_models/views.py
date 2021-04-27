@@ -523,6 +523,13 @@ class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
     active_page_name_crumb = gettext_lazy("DM Apps Shared Settings")
 
 
+class OrgSpreadsheetTemplateView(AdminRequiredMixin, CommonTemplateView):
+    template_name = 'shared_models/org_spreadsheet.html'
+    h1 = gettext_lazy("DFO Organization Spreadsheet")
+    h2 = "<span class='red-font'>{}</span>".format(gettext_lazy("Please be careful when editing."))
+    active_page_name_crumb = gettext_lazy("DFO Organization Spreadsheet")
+    container_class = "container-fluid"
+
 # SECTION #
 ###########
 

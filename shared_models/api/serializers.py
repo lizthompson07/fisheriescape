@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from shared_models.models import FiscalYear, Region, Division, Section, Person
+from shared_models.models import FiscalYear, Region, Division, Section, Person, Branch
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -55,12 +55,47 @@ class RegionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class BranchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Branch
+        fields = "__all__"
+
+    region_obj = serializers.SerializerMethodField()
+    head_display = serializers.SerializerMethodField()
+    admin_display = serializers.SerializerMethodField()
+
+    def get_admin_display(self, instance):
+        if instance.admin:
+            return instance.admin.get_full_name()
+
+    def get_head_display(self, instance):
+        if instance.head:
+            return instance.head.get_full_name()
+
+    def get_region_obj(self, instance):
+        return RegionSerializer(instance.region).data
+
+
 class DivisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Division
         fields = "__all__"
 
     display = serializers.SerializerMethodField()
+    branch_obj = serializers.SerializerMethodField()
+    head_display = serializers.SerializerMethodField()
+    admin_display = serializers.SerializerMethodField()
+
+    def get_admin_display(self, instance):
+        if instance.admin:
+            return instance.admin.get_full_name()
+
+    def get_head_display(self, instance):
+        if instance.head:
+            return instance.head.get_full_name()
+
+    def get_branch_obj(self, instance):
+        return BranchSerializer(instance.branch).data
 
     def get_display(self, instance):
         return str(instance)
@@ -73,6 +108,20 @@ class SectionSerializer(serializers.ModelSerializer):
 
     full_name = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
+    division_obj = serializers.SerializerMethodField()
+    head_display = serializers.SerializerMethodField()
+    admin_display = serializers.SerializerMethodField()
+
+    def get_admin_display(self, instance):
+        if instance.admin:
+            return instance.admin.get_full_name()
+
+    def get_head_display(self, instance):
+        if instance.head:
+            return instance.head.get_full_name()
+
+    def get_division_obj(self, instance):
+        return DivisionSerializer(instance.division).data
 
     def get_tname(self, instance):
         return instance.tname
