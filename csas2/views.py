@@ -145,9 +145,10 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'ref_number|{}'.format(_("reference number")), "class": "", "width": "150px"},
         {"name": 'title|{}'.format("title"), "class": "", "width": ""},
         {"name": 'status', "class": "", "width": "150px"},
-        {"name": 'region|{}'.format(_("region")), "class": "", "width": "150px"},
-        {"name": 'branch|{}'.format(_("Branch/Sector")), "class": "", "width": "350px"},
         {"name": 'coordinator', "class": "", "width": "250px"},
+        {"name": 'section.full_name|{}'.format(_("Region/Sector")), "class": "", "width": "40%"},
+        # {"name": 'region|{}'.format(_("region")), "class": "", "width": "150px"},
+        # {"name": 'branch|{}'.format(_("Branch/Sector")), "class": "", "width": "350px"},
         # {"name": 'client', "class": "", "width": ""},
     ]
 
