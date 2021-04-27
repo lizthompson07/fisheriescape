@@ -87,6 +87,10 @@
           </select>
         </div>
         <div class="form-group">
+          <label for="">{% trans "Abbreviation" %}</label>
+          <textarea v-model="sectionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
           <label for="">{% trans "Name" %}</label>
           <textarea v-model="sectionToEdit.name" class="form-control form-control-sm" style="font-size: small"></textarea>
         </div>
@@ -140,6 +144,10 @@
               :value="b.id">
             </option>
           </select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Abbreviation" %}</label>
+          <textarea v-model="divisionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
         </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
@@ -197,6 +205,10 @@
           </select>
         </div>
         <div class="form-group">
+          <label for="">{% trans "Abbreviation" %}</label>
+          <textarea v-model="branchToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
           <label for="">{% trans "Name" %}</label>
           <textarea v-model="branchToEdit.name" class="form-control form-control-sm" style="font-size: small"></textarea>
         </div>
@@ -240,6 +252,10 @@
 
       </form>
       <form v-else-if="regionToEdit" @submit.prevent="updateRegion">
+        <div class="form-group">
+          <label for="">{% trans "Abbreviation" %}</label>
+          <textarea v-model="regionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
         <div class="form-group">
           <label for="">{% trans "Name" %}</label>
           <textarea v-model="regionToEdit.name" class="form-control form-control-sm" style="font-size: small"></textarea>
@@ -300,6 +316,7 @@
               <th style="width: 250px">{% trans "Division" %}</th>
               <th>{% trans "Name" %}</th>
               <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
             </tr>
@@ -314,6 +331,7 @@
               <td v-else>---</td>
               <td>${obj.name}</td>
               <td>${obj.nom}</td>
+              <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
               <td>
@@ -342,6 +360,7 @@
               <th style="width: 200px">{% trans "Branch" %}</th>
               <th>{% trans "Name" %}</th>
               <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
             </tr>
@@ -354,6 +373,7 @@
               <td v-else>---</td>
               <td>${obj.name}</td>
               <td>${obj.nom}</td>
+              <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
               <td>
@@ -381,6 +401,7 @@
               <th style="width: 100px">{% trans "Region" %}</th>
               <th>{% trans "Name" %}</th>
               <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
             </tr>
@@ -391,6 +412,7 @@
               <td v-else>---</td>
               <td>${obj.name}</td>
               <td>${obj.nom}</td>
+              <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
               <td>
@@ -418,6 +440,7 @@
             <tr>
               <th>{% trans "Name" %}</th>
               <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
             </tr>
@@ -426,6 +449,7 @@
             <tr v-for="obj, index in regions" :key="obj.id" :ref="`region_${obj.id}`">
               <td>${obj.name}</td>
               <td>${obj.nom}</td>
+              <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
               <td>
