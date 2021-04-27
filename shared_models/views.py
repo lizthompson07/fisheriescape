@@ -38,7 +38,9 @@ def in_admin_group(user):
         if user.groups.filter(name='travel_admin').count() != 0 or \
                 user.groups.filter(name='projects_admin').count() or \
                 user.groups.filter(name='scifi_admin').count() or \
-                user.groups.filter(name='travel_adm_admin').count():
+                user.groups.filter(name='travel_adm_admin').count() or \
+                user.groups.filter(name='csas_regional_admin').count() or \
+                user.groups.filter(name='csas_national_admin').count():
             return True
 
 

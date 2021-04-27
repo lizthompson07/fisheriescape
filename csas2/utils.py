@@ -196,7 +196,6 @@ def get_request_field_list(csas_request, user):
     my_list = [
         'id|{}'.format(_("request Id")),
         'fiscal_year',
-        'tname|{}'.format(_("title")),
         'status_display|{}'.format(_("status")),
         'is_carry_over|{}'.format(_("is carry over?")),
         'language',
