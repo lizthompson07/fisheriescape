@@ -136,8 +136,11 @@ class CSASRequest(MetadataFields):
 
     @property
     def branch(self):
-        return self.section.division.branch
+        return self.section.division.branch.tname
 
+    @property
+    def region(self):
+        return self.section.division.branch.region.tname
 
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")

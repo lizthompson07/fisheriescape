@@ -140,13 +140,14 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'id|{}'.format("request id"), "class": "", "width": ""},
-        {"name": 'title|{}'.format("title"), "class": "", "width": "350px"},
-        {"name": 'status', "class": "", "width": ""},
-        {"name": 'coordinator', "class": "", "width": ""},
-        {"name": 'client', "class": "", "width": ""},
-        {"name": 'branch|Branch/Sector', "class": "", "width": "300px"},
+        {"name": 'id', "class": "", "width": "100px"},
+        {"name": 'fiscal_year', "class": "", "width": "150px"},
+        {"name": 'title|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": "150px"},
+        {"name": 'region|{}'.format(_("region")), "class": "", "width": "150px"},
+        {"name": 'branch|{}'.format(_("Branch/Sector")), "class": "", "width": "350px"},
+        {"name": 'coordinator', "class": "", "width": "250px"},
+        # {"name": 'client', "class": "", "width": ""},
     ]
 
     def get_queryset(self):
@@ -361,8 +362,8 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'id|{}'.format("process Id"), "class": "", "width": ""},
         {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
