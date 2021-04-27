@@ -75,7 +75,7 @@ Vue.component("note-editor", {
   delimiters: ["${", "}"],
   name: "note-editor",
   props: {
-    meeting_id: {
+    document_id: {
       required: false
     },
     note: {
@@ -109,7 +109,7 @@ Vue.component("note-editor", {
         type: null,
         note: null,
         is_complete: false,
-        meeting: this.meeting_id
+        document: this.document_id
       };
     },
     getNoteMetadata() {
@@ -124,10 +124,10 @@ Vue.component("note-editor", {
       var method;
       var endpoint;
       if (this.note.id) {
-        endpoint = `/api/csas/meeting-notes/${this.note.id}/`;
+        endpoint = `/api/csas/doc-notes/${this.note.id}/`;
         method = "PUT";
       } else {
-        endpoint = "/api/csas/meeting-notes/";
+        endpoint = "/api/csas/doc-notes/";
         method = "POST";
       }
       apiService(endpoint, method, this.noteToEdit).then(response => {

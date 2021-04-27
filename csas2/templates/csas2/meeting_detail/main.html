@@ -25,6 +25,9 @@
   <div id="app" v-cloak>
     <div>
       {% include "shared_models/_generic_breadcrumbs.html" %}
+      <div class="float-left">
+        <span class="mdi mdi-account-group mr-3 h2"></span>
+      </div>
       <div class="mb-3">
         <h2 class="">{{ h1|safe }}</h2>
       </div>
@@ -49,7 +52,9 @@
           <table class="table table-sm">
             <tr>
               <th class="text-left" v-html="meetingLabels.process"></th>
-              <td class="text-left" v-html="meeting.process"></td>
+              <td class="text-left">
+                <a href="{% url 'csas2:process_detail' object.process.id %}">${ meeting.process }</a>
+              </td>
             </tr>
             <tr>
               <th class="text-left" v-html="meetingLabels.type"></th>
@@ -97,9 +102,12 @@
           {% include "csas2/meeting_detail/_invitees.html" %}
         </div>
 
-
         <div class="mb-5">
           {% include "csas2/meeting_detail/_resources.html" %}
+        </div>
+
+        <div class="mb-5">
+          {% include "csas2/meeting_detail/_costs.html" %}
         </div>
       </div>
 
@@ -128,6 +136,7 @@
   {% include "csas2/meeting_detail/components/invitee_editor.html" %}
   {% include "csas2/meeting_detail/components/email-overlay.html" %}
   {% include "csas2/meeting_detail/components/attendance-overlay.html" %}
+  {% include "csas2/meeting_detail/components/cost_editor.html" %}
 
   <script type="application/javascript">
   var meetingId = "{{ object.id }}";
@@ -148,6 +157,7 @@
       notes: [],
       invitees: [],
       resources: [],
+      costs: [],
 
       showNoteModal: false,
       showInviteeModal: false,
@@ -190,6 +200,21 @@
           })
         }
       },
+      getCosts() {
+        let endpoint = `/api/csas/meeting-costs/?meeting=${this.meeting.id}`;
+        apiService(endpoint).then(data => {
+          this.costs = data;
+        });
+      },
+      deleteCost(cost) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this cost?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/meeting-costs/${cost.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getCosts();
+          })
+        }
+      },
       toggleInviteeStatus(invitee) {
         let nextStatus = 0;
         let statusArray = [0, 1, 2, 3];
@@ -221,7 +246,7 @@
         }
       },
       getNotes() {
-        let endpoint = `/api/csas/notes/?meeting=${this.meeting.id}`;
+        let endpoint = `/api/csas/meeting-notes/?meeting=${this.meeting.id}`;
         apiService(endpoint).then(data => {
           this.notes = data;
         });
@@ -246,6 +271,7 @@
             if (update_notes) this.notes = this.getNotes();
             this.invitees = this.getInvitees();
             this.resources = this.getResources();
+            this.costs = this.getCosts();
           }
         });
       },
@@ -259,13 +285,20 @@
         }
         return 0;
       },
+      totalCost(){
+        let total = 0;
+        for (var i = 0; i < this.costs.length; i++) {
+          total += Number(this.costs[i].amount)
+        }
+        return total
+      }
+    },
+    filters: {
+      floatformat: vueFiltersObject["floatformat"],
     },
     created() {
       this.getMeetingMetadata();
       this.getMeeting(true);
-
-      {#this.getObservations();#}
-      {#this.getSpeciesMetadata();#}
     },
   });
 

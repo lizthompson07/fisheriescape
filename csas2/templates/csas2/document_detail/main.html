@@ -18,9 +18,16 @@
 {% endblock %}
 
 {% block subcontent %}
+
+
+
+
   <div id="app" v-cloak>
     <div>
       {% include "shared_models/_generic_breadcrumbs.html" %}
+      <div class="float-left">
+        <span class="mdi mdi-file-document mr-3 h2"></span>
+      </div>
       <div class="mb-3">
         <h2 class="">{{ h1|safe }}</h2>
       </div>
@@ -37,91 +44,96 @@
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
     </div>
 
-    <div class="mb-5">
-      <table class="table table-sm">
-        {% for field in document_field_list %}
-          {% verbose_td_display object field th_width="300px" %}
-        {% endfor %}
-        <tr>
-          <th>
-            {% trans "Meeting linkages" %}
-          </th>
-          <td>
-            {% if object.meetings.exists %}
-              {% for obj in object.meetings.all %}
-                <div>
-                  <a href="{% url 'csas2:meeting_detail' obj.id %}">{{ obj }}</a>
-                </div>
-              {% endfor %}
-            {% else %}
-              <em>{% trans "There are no meetings linked to this document." %}</em>
-            {% endif %}
-          </td>
-        </tr>
+    <div class="row">
+      <div class="col-8">
 
-      </table>
-    </div>
-
-    <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="#">{% trans "Add Author" %}</a>
-      </div>
-      <h4>{% trans "Authors" %}</h4>
-      {% if object.invitees.exists %}
-
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            {% for field in document_field_list %}
-              <th>{% get_verbose_label object.documents.first field %}</th>
-            {% endfor %}
-          </tr>
-          </thead>
-          <tbody>
-          {% for obj in object.documents.all %}
-            <tr href="" @click="followLink('{% url 'csas2:document_detail' obj.id %}')" class="pointy">
-              {% for field in document_field_list %}
-                <td>{% get_field_value obj field %}</td>
-              {% endfor %}
+        <div class="mb-5">
+          <table class="table table-sm">
+            <tr>
+              <th class="text-left" v-html="documentLabels.process"></th>
+              <td class="text-left">
+                <a href="{% url 'csas2:process_detail' object.process.id %}">${ document.process }</a>
+              </td>
             </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <em>{% trans "There are no authors associated with this document." %}</em>
-      {% endif %}
-    </div>
-
-    <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="#">{% trans "Add Cost" %}</a>
-      </div>
-      <h4>{% trans "Costs" %}</h4>
-      {% if object.invitees.exists %}
-
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            {% for field in document_field_list %}
-              <th>{% get_verbose_label object.documents.first field %}</th>
-            {% endfor %}
-          </tr>
-          </thead>
-          <tbody>
-          {% for obj in object.documents.all %}
-            <tr href="" @click="followLink('{% url 'csas2:document_detail' obj.id %}')" class="pointy">
-              {% for field in document_field_list %}
-                <td>{% get_field_value obj field %}</td>
-              {% endfor %}
+            <tr>
+              <th class="text-left" v-html="documentLabels.title_en"></th>
+              <td class="text-left">${document.title_en|nz}</td>
             </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <em>{% trans "There are no costs associated with this document." %}</em>
-      {% endif %}
-    </div>
+            <tr>
+              <th class="text-left" v-html="documentLabels.title_fr"></th>
+              <td class="text-left">${document.title_fr|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.title_in"></th>
+              <td class="text-left">${document.title_in|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Type" %}</th>
+              <td class="text-left" v-html="document.type_display"></td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Status" %}</th>
+              <td class="text-left" v-html="document.status_display"></td>
+            </tr>
 
+            <tr>
+              <th class="text-left" v-html="documentLabels.series"></th>
+              <td class="text-left">${document.series|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.year"></th>
+              <td class="text-left">${document.year|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.pub_number"></th>
+              <td class="text-left">${document.pub_number|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.pages"></th>
+              <td class="text-left">${document.pages|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.hide_from_list"></th>
+              <td class="text-left">${document.hide_from_list|yesNo}</td>
+            </tr>
+            <tr>
+              <th>{% trans "Linked meetings" %}</th>
+              <td>
+                {% if object.meetings.exists %}
+                  {% for obj in object.meetings.all %}
+                    <div>
+                      <a href="{% url 'csas2:meeting_detail' obj.id %}">{{ obj }}</a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <em>{% trans "There are no meetings linked to this document." %}</em>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Metadata" %}</th>
+              <td class="text-left" v-html="document.metadata"></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="mb-5">
+          {% include "csas2/document_detail/_authors.html" %}
+        </div>
+
+
+        <div class="mb-5">
+          {% include "csas2/document_detail/_costs.html" %}
+        </div>
+      </div>
+
+      {# Notes #}
+      <div class="col">
+        {% include "csas2/document_detail/_notes.html" %}
+      </div>
+
+
+    </div>
 
   </div>
 
@@ -133,10 +145,16 @@
 
 {% block body_js %}
   {{ block.super }}
-  <script type="application/javascript">
-  var requestId = "{{ object.id }}"
 
-  // register vue-select
+  {% include "csas2/document_detail/components/note_editor.html" %}
+  {% include "csas2/document_detail/components/note_card.html" %}
+  {% include "csas2/document_detail/components/cost_editor.html" %}
+  {% include "csas2/document_detail/components/author_editor.html" %}
+
+  <script type="application/javascript">
+  var documentId = "{{ object.id }}";
+
+  // register components
   Vue.component('v-select', VueSelect.VueSelect);
 
   // vuejs instance
@@ -146,8 +164,18 @@
     data: {
       currentUser: {},
       canModify: false,
-      loadingRequest: false,
-      request: {},
+      loadingDocument: false,
+
+      document: {},
+      notes: [],
+      authors: [],
+      costs: [],
+
+      showNoteModal: false,
+      showAuthorModal: false,
+      showCostModal: false,
+      documentId: documentId,
+      documentLabels: {}
     },
     methods: {
       getCurrentUser() {
@@ -160,82 +188,83 @@
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
       },
-      getObservations() {
-        this.loadingObservations = true;
-        let endpoint;
-        if (this.pageType === "samples") endpoint = `${this.endpointPrefix}/?sample=${objectId}`;
-        else if (this.pageType === "lines") endpoint = `${this.endpointPrefix}/?line=${objectId}`;
-        else if (this.pageType === "surfaces") endpoint = `${this.endpointPrefix}/?surface=${objectId}`;
-        apiService(endpoint)
-            .then(response => {
-              if (response.length && response[0].id) {
-                for (var i = 0; i < response.length; i++) {
-                  if (response[i].observation_date) response[i].observation_date = response[i].observation_date.replace("Z", "")
-                }
-                this.observations = response;
-                this.loadingObservations = false;
-              }
-            })
-      },
-      updateObservation(obs) {
-        this.unsavedChanges = true;
-        this.obsErrorMsg = null;
-        let endpoint;
-        let method;
-        if (obs.id) {
-          endpoint = `${this.endpointPrefix}/${obs.id}/`;
-          method = "PUT";
-        } else {
-          endpoint = `${this.endpointPrefix}/`;
-          method = "POST";
-        }
-        apiService(endpoint, method, obs)
-            .then(response => {
-              if (!response.id) this.obsErrorMsg = groomJSON(response);
-              else {
-                if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
-                this.$set(this.observations, this.observations.indexOf(obs), response)
-                this.unsavedChanges = false;
-              }
-            })
-      },
-      deleteObservation(obs) {
-        userInput = confirm("{% trans 'Are you sure you want to delete this observation?' %}");
+      deleteCost(cost) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this cost?' %}")
         if (userInput) {
-          if (obs.id) {
-            let endpoint = `${this.endpointPrefix}/${obs.id}/`;
-            apiService(endpoint, "DELETE")
-                .then(response => {
-                  this.$delete(this.observations, this.observations.indexOf(obs));
-                })
-          } else {
-            this.$delete(this.observations, this.observations.indexOf(obs));
-            this.unsavedChanges = false;
-          }
+          let endpoint = `/api/csas/doc-costs/${cost.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getCosts();
+          })
         }
+      },
+      getDocumentMetadata() {
+        let endpoint = `/api/csas/meta/models/document/`;
+        apiService(endpoint).then(data => {
+          this.documentLabels = data.labels;
+        });
+      },
+      deleteAuthor(author) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this author?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/authors/${author.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getAuthors();
+          })
+        }
+      },
+      getNotes() {
+        let endpoint = `/api/csas/doc-notes/?document=${this.document.id}`;
+        apiService(endpoint).then(data => {
+          this.notes = data;
+        });
+      },
+      getAuthors() {
+        let endpoint = `/api/csas/authors/?document=${this.document.id}`;
+        apiService(endpoint).then(data => {
+          this.authors = data;
+        });
+      },
+      getCosts() {
+        let endpoint = `/api/csas/doc-costs/?document=${this.document.id}`;
+        apiService(endpoint).then(data => {
+          this.costs = data;
+        });
+      },
+      getDocument(update_notes) {
+        let endpoint = `/api/csas/documents/${this.documentId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.document = data;
+            if (update_notes) this.notes = this.getNotes();
+            this.authors = this.getAuthors();
+            this.costs = this.getCosts();
+          }
+        });
       },
     },
     computed: {
-      endpointPrefix() {
-        return `/api/csas2/${this.pageType.slice(0, this.pageType.length - 1)}-species`
-      },
-      totalCoverage() {
+      totalCost() {
         let total = 0;
-        let obs;
-        for (var i = 0; i < this.observations.length; i++) {
-          obs = this.observations[i];
-          if (obs.percent_coverage) total += Number(obs.percent_coverage);
+        for (var i = 0; i < this.costs.length; i++) {
+          total += Number(this.costs[i].amount)
         }
         return total
       }
     },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+    },
     created() {
-      {#this.getObservations();#}
-      {#this.getSpeciesMetadata();#}
+      this.getDocumentMetadata();
+      this.getDocument(true);
     },
   });
 
 
   </script>
+
+  {# Modals #}
 
 {% endblock %}
