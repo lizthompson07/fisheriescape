@@ -70,6 +70,9 @@ class CSASRequest(MetadataFields):
         ordering = ("fiscal_year", "title")
         verbose_name_plural = _("CSAS Requests")
 
+    def __str__(self):
+        return "{} {}".format(_("Request ID"), self.id)
+
     def save(self, *args, **kwargs):
         self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
         # look at the review to help determine the status

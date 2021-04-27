@@ -6,8 +6,7 @@
 {% load custom_filters %}
 {% load csas_filters %}
 
-{% block form_field %}
-  {% bootstrap_field field placeholder="" %}
+{% block post_input %}
   {% if is_admin %}
     {% if field.name == "client" %}
       <div class="mb-4">
@@ -19,15 +18,12 @@
       </div>
     {% endif %}
   {% endif %}
-
 {% endblock %}
 
 {% block body_js %}
   {{ block.super }}
 
   <script type="application/javascript">
-
-
   var $is_multiregional = $("#id_is_multiregional");
   var $had_assistance = $("#id_had_assistance");
   var $has_funding = $("#id_has_funding");
