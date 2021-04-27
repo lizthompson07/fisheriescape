@@ -58,10 +58,9 @@ class CSASRequestForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
         fields = [
-            'type',
             'language',
             'title',
-            # 'translated_title',
+            'is_carry_over',
             'coordinator',
             'client',
             'section',

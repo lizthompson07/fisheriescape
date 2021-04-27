@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -14,7 +16,7 @@ from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
-from uuid import uuid4
+
 
 def request_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
@@ -22,7 +24,8 @@ def request_directory_path(instance, filename):
 
 class CSASRequest(MetadataFields):
     ''' csas request '''
-    type = models.IntegerField(default=1, verbose_name=_("type"), choices=model_choices.request_type_choices)
+    is_carry_over = models.BooleanField(default=False, choices=model_choices.yes_no_choices,
+                                        verbose_name=_("Is this request a carry-over from a previous year?"))
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
@@ -71,7 +74,7 @@ class CSASRequest(MetadataFields):
         verbose_name_plural = _("CSAS Requests")
 
     def __str__(self):
-        return "{} {}".format(_("Request ID"), self.id)
+        return self.title
 
     def save(self, *args, **kwargs):
         self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
@@ -134,6 +137,7 @@ class CSASRequest(MetadataFields):
     @property
     def branch(self):
         return self.section.division.branch
+
 
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")

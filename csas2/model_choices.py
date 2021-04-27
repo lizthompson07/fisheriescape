@@ -5,11 +5,6 @@ yes_no_choices = (
     (False, "No"),
 )
 
-request_type_choices = (
-    (1, _('New')),
-    (2, _('Carry-over)')),
-)
-
 language_choices = (
     (1, _('English')),
     (2, _('French')),

@@ -24,11 +24,17 @@ class PersonFilter(django_filters.FilterSet):
 
 class CSASRequestFilter(django_filters.FilterSet):
     request_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
-    fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
+    fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
     has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
+
+    class Meta:
+        model = models.CSASRequest
+        fields = {
+            'status': ['exact'],
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
