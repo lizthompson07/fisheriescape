@@ -7,7 +7,7 @@ yes_no_choices = (
 
 request_type_choices = (
     (1, _('New')),
-    (2, _('Previous')),
+    (2, _('Previous (carry-over)')),
 )
 
 language_choices = (
