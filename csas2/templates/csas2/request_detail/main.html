@@ -34,11 +34,13 @@
     </div>
 
     <div class="mb-3 float-right">
-      {% if not object.review and object.submission_date %}
-        <a class="btn btn-sm btn-dark" href="{% url 'csas2:review_new' object.id %}">{% trans "Start a Review" %}</a>
-      {% endif %}
-      {% if not object.processes.exists %}
-        <a class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
+      {% if object.submission_date %}
+        {% if not object.review %}
+          <a class="btn btn-sm btn-dark" href="{% url 'csas2:review_new' object.id %}">{% trans "Start a Review" %}</a>
+        {% endif %}
+        {% if not object.processes.exists %}
+          <a class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
+        {% endif %}
       {% endif %}
     </div>
     <div class="mb-3">

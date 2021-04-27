@@ -198,7 +198,7 @@ def get_request_field_list(csas_request, user):
         'fiscal_year',
         'tname|{}'.format(_("title")),
         'status_display|{}'.format(_("status")),
-        'type',
+        'is_carry_over|{}'.format(_("is carry over?")),
         'language',
         'section',
         'coordinator',
