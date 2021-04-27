@@ -27,7 +27,7 @@ def coldbrook_electrofishing_parser(cleaned_data):
         temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
         river_dict = {}
         for river_name in data["River"].unique():
-            river_dict[river_name] = models.RiverCode.objects.filter(name__iexact=river_name).get()
+            river_dict[river_name] = models.RiverCode.objects.filter(name__icontains=river_name).get()
 
         leader_code = models.RoleCode.objects.filter(name__iexact="Crew Lead").get()
         if cleaned_data["evntc_id"].__str__() == "Electrofishing":
@@ -132,8 +132,9 @@ def coldbrook_electrofishing_parser(cleaned_data):
 
     # do general actions on data
     try:
-        for key in river_dict:
-            stok_id = models.StockCode.objects.filter(name__icontains=key).get()
+        river_group_data = data.groupby(["River", "Group"], dropna=False).size().reset_index()
+        for row in river_group_data:
+            stok_id = models.StockCode.objects.filter(name__icontains=row["River"]).get()
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                               grp_id__stok_id=stok_id,
                                                               indv_id__isnull=True,
@@ -164,7 +165,11 @@ def coldbrook_electrofishing_parser(cleaned_data):
 
             contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
-            utils.enter_cnt(cleaned_data, data[data["River"] == key]["# of salmon collected"].sum(), contx_pk=contx.pk,
+            if utils.nan_to_none(row["Group"]):
+                utils.enter_grpd(anix_grp, cleaned_data, cleaned_data["start_date"], None, "Program Group",
+                                 row["Group"])
+
+            utils.enter_cnt(cleaned_data, data[data["River"] == row["River"]]["# of salmon collected"].sum(), contx_pk=contx.pk,
                             cnt_code="Fish in Container", )
 
     except Exception as err:
@@ -296,8 +301,9 @@ def mactaquac_electrofishing_parser(cleaned_data):
     # enter general data once all rows are entered:
 
     try:
-        for key in river_dict:
-            stok_id = models.StockCode.objects.filter(name__icontains=key).get()
+        river_group_data = data.groupby(["River", "Group"], dropna=False).size().reset_index()
+        for row in river_group_data:
+            stok_id = models.StockCode.objects.filter(name__icontains=row["River"]).get()
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                               grp_id__stok_id=stok_id,
                                                               indv_id__isnull=True,
@@ -328,7 +334,11 @@ def mactaquac_electrofishing_parser(cleaned_data):
 
             contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
-            utils.enter_cnt(cleaned_data, data[data["River"] == key]["# Fish Collected"].sum(), contx_pk=contx.pk,
+            if utils.nan_to_none(row["Group"]):
+                utils.enter_grpd(anix_grp, cleaned_data, cleaned_data["start_date"], None, "Program Group",
+                                 row["Group"])
+
+            utils.enter_cnt(cleaned_data, data[data["River"] == row["River"]]["# Fish Collected"].sum(), contx_pk=contx.pk,
                             cnt_code="Fish in Container", )
 
     except Exception as err:

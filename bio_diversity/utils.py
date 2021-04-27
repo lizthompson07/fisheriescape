@@ -171,6 +171,31 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
+def get_grp(stock_str, grp_year, coll_str, cont=None, prog_grp=None):
+    grp_qs = models.Group.objects.filter(stok_id__name=stock_str,
+                                         coll_id__name__icontains=coll_str,
+                                         grp_year=grp_year)
+
+    grp_list = [grp for grp in grp_qs]
+    new_grp_list = grp_list.copy()
+    if cont:
+        new_grp_list = []
+        for grp in grp_list:
+            cont_list = grp.current_cont()
+            if cont in cont_list:
+                new_grp_list.append(grp)
+
+    final_grp_list = new_grp_list.copy()
+    if prog_grp:
+        final_grp_list = []
+        for grp in new_grp_list:
+            if prog_grp in grp.prog_grp():
+                final_grp_list.append(grp)
+    return final_grp_list
+
+    return grp_list
+
+
 def get_relc_from_point(shapely_geom):
     relc_qs = models.ReleaseSiteCode.objects.all()
     for relc in relc_qs:

@@ -169,20 +169,27 @@ def generic_grp_parser(cleaned_data):
     sex_dict = {"M": "Male",
                 "F": "Female",
                 "I": "Immature"}
+
+    # iterate through the rows:
     for row in data_dict:
         row_parsed = True
         row_entered = False
         try:
-            indv_qs = models.Individual.objects.filter(pit_tag=row["PIT"])
-            if len(indv_qs) == 1:
-                indv = indv_qs.get()
+            tank_id = models.Tank.objects.filter(name__iexact=row["Origin Pond"]).get()
+            year, coll = utils.year_coll_splitter(row["Year Class"])
+            if utils.nan_to_none(row["Group"]):
+                prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=row["Group"]).get()
+            grps = utils.get_grp(row["River"], year, coll, tank_id, prog_grp=prog_grp)
+            if len(grps) == 1:
+                grp_id = grps[0]
             else:
                 row_entered = False
                 row_parsed = False
                 indv = False
                 log_data += "Error parsing row: \n"
                 log_data += str(row)
-                log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
+                log_data += "\nGroup {}-{}-{} in container: {} and program group {} not found in" \
+                            " db\n".format(row["River"], year, coll, tank_id.name, row["Group"])
 
             if indv:
                 anix = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
