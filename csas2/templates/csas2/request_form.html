@@ -6,7 +6,21 @@
 {% load custom_filters %}
 {% load csas_filters %}
 
+{% block form_field %}
+  {% bootstrap_field field placeholder="" %}
+  {% if is_admin %}
+    {% if field.name == "client" %}
+      <div class="mb-4">
+        <a href="#" pop-href="{% url 'shared_models:user_new' %}" class="badge badge-pill badge-primary py-2 px-3">{% trans "Add New User" %}</a>
+      </div>
+    {% elif field.name == "section" %}
+      <div class="mb-4">
+        <a href="{% url 'shared_models:section_new' %}" target="_blank" class="badge badge-pill badge-primary py-2 px-3">{% trans "Add New Section" %}</a>
+      </div>
+    {% endif %}
+  {% endif %}
 
+{% endblock %}
 
 {% block body_js %}
   {{ block.super }}

@@ -142,11 +142,11 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'fiscal_year', "class": "", "width": ""},
         {"name": 'id|{}'.format("request id"), "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": "300px"},
+        {"name": 'title|{}'.format("title"), "class": "", "width": "350px"},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'client', "class": "", "width": ""},
-        {"name": 'section.full_name', "class": "", "width": "300px"},
+        {"name": 'branch|Branch/Sector', "class": "", "width": "300px"},
     ]
 
     def get_queryset(self):
@@ -154,7 +154,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.CSASRequest.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_requests(self.request.user)
-        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qs = qs.annotate(search_term=Concat('title', Value(" "), 'translated_title', output_field=TextField()))
         return qs
 
     def get_h1(self):
@@ -185,6 +185,11 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_csas_admin_group(self.request.user)
+        return context
+
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
@@ -197,6 +202,11 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     template_name = 'csas2/request_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_csas_admin_group(self.request.user)
+        return context
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}

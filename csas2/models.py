@@ -14,33 +14,32 @@ from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
-
+from uuid import uuid4
 
 def request_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
 
 
-class CSASRequest(SimpleLookupWithUUID, MetadataFields):
+class CSASRequest(MetadataFields):
     ''' csas request '''
     type = models.IntegerField(default=1, verbose_name=_("type"), choices=model_choices.request_type_choices)
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
-    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
-    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
+    title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title"))
+    translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"))
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"))
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"))
-
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=True)
     is_multiregional = models.BooleanField(default=False,
                                            verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
 
-    issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"),
+    issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"), blank=True, null=True,
                              help_text=_("Should be phrased as a question to be answered by Science"))
     had_assistance = models.BooleanField(default=False, verbose_name=_(
         "Have you had assistance from Science in developing the question/request?"), help_text=_("E.g. with CSAS and/or DFO science staff."))
     assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" Please provide details about the assistance received"))
 
-    rationale = models.TextField(verbose_name=_("Rationale or context for the request"),
+    rationale = models.TextField(verbose_name=_("Rationale or context for the request"), blank=True, null=True,
                                  help_text=_("What will the information/advice be used for? Who will be the end user(s)? Will it impact other DFO "
                                              "programs or regions?"))
     risk_text = models.TextField(null=True, blank=True, verbose_name=_("What is the expected consequence if science advice is not provided?"))
@@ -55,7 +54,6 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
-
     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
     # non-editable fields
@@ -66,9 +64,10 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
                                     verbose_name=_("fiscal year"), editable=False)
+    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid4, verbose_name=_("unique identifier"))
 
     class Meta:
-        ordering = ("fiscal_year", _("name"))
+        ordering = ("fiscal_year", "title")
         verbose_name_plural = _("CSAS Requests")
 
     def save(self, *args, **kwargs):
@@ -129,6 +128,9 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
             return "{} - {}".format(self.get_prioritization_display(), text)
         return gettext("---")
 
+    @property
+    def branch(self):
+        return self.section.division.branch
 
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")

@@ -60,8 +60,8 @@ class CSASRequestForm(forms.ModelForm):
         fields = [
             'type',
             'language',
-            'name',
-            'nom',
+            'title',
+            # 'translated_title',
             'coordinator',
             'client',
             'section',
