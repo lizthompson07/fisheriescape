@@ -86,7 +86,7 @@ class CSASRequestForm(forms.ModelForm):
             'multiregional_text': forms.Textarea(attrs=rows3),
             'assistance_text': forms.Textarea(attrs=rows3),
             'funding_text': forms.Textarea(attrs=rows3),
-            'risk_text': forms.Textarea(attrs=rows3),
+            'risk_text': forms.Textarea(),
             'rationale_for_timeline': forms.Textarea(attrs=rows3),
             'prioritization_text': forms.Textarea(attrs=rows3),
         }
