@@ -29,7 +29,7 @@ class CSASRequest(MetadataFields):
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     title = models.CharField(max_length=1000, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"), blank=True, null=True)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=True)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=True)
     is_multiregional = models.BooleanField(default=False,

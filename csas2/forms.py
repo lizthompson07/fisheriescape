@@ -98,15 +98,22 @@ class CSASRequestForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['section'].choices = section_choices
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     # make sure there is at least an english or french title
-    #     name = cleaned_data.get("name")
-    #     nom = cleaned_data.get("nom")
-    #     if not name and not nom:
-    #         error_msg = gettext("Must have either an English title or a French title!")
-    #         raise forms.ValidationError(error_msg)
-    #     return self.cleaned_data
+    def clean(self):
+        cleaned_data = super().clean()
+        # make sure there is at least an english or french title
+        client = cleaned_data.get("client")
+        coordinator = cleaned_data.get("coordinator")
+        section = cleaned_data.get("section")
+        if not client:
+            error_msg = gettext("Must enter a client for this request!")
+            raise forms.ValidationError(error_msg)
+        if not coordinator:
+            error_msg = gettext("Must enter a coordinator for this request!")
+            raise forms.ValidationError(error_msg)
+        if not section:
+            error_msg = gettext("Must enter a section for this request!")
+            raise forms.ValidationError(error_msg)
+        return self.cleaned_data
 
 
 class CSASRequestReviewForm(forms.ModelForm):
