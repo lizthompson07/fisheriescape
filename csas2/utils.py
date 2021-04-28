@@ -271,6 +271,7 @@ def get_document_field_list():
         'title_fr',
         'title_in',
         'type',
+        'status',
         'series',
         'year',
         'pub_number',
@@ -297,6 +298,17 @@ def get_related_processes(user):
      they are an advisor
      """
     qs = models.Process.objects.filter(Q(coordinator=user) | Q(advisors=user) | Q(csas_requests__client=user)).distinct()
+    return qs
+
+
+
+def get_related_docs(user):
+    """give me a user and I'll send back a queryset with all related docs, i.e.
+     they are an author ||
+     they are a process coordinator ||
+     they are a process advisor
+     """
+    qs = models.Process.objects.filter(Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors=user)).distinct()
     return qs
 
 

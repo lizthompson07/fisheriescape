@@ -291,7 +291,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
             "whalesdb",
             "csas",
             "grais",
-            "hermorrhage",
+            "herman",
             "diets",
             "inventory",
             # "cruises",
