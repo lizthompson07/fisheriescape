@@ -671,6 +671,7 @@ class DocumentDetailView(LoginAccessRequiredMixin, CommonDetailView):
     template_name = 'csas2/document_detail/main.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    container_class = ""
 
     def get_parent_crumb(self):
         return {"title": self.get_object().process, "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
