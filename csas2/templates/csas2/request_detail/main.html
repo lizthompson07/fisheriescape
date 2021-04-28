@@ -50,6 +50,7 @@
             {% if object.submission_date %}{% trans "Un-Submit" %}{% else %}{% trans "Submit" %}{% endif %}
           </a>
           <a class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+          <a class="btn btn-sm btn-secondary" href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
           <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
             <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
           </button>

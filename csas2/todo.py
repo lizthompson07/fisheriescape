@@ -1,18 +1,13 @@
-
-# DFO Organization Manager!!
-# should permissions detail on request, process, meeting etc...
-
+# issue with french and date input in browser
 # in the meeting invitee menu, show if they are a connected user
 
 # process
 # TODO: "my" view.. must create function to apply business rules
 # TODO: ToR export function
 
-
 # documents
 # TODO: "my" view.. must create function to apply business rules
 # TODO: connection to index page
-
 
 # request
 # email to dfo coordinator
@@ -25,7 +20,6 @@
 # first email = meeting invite, second email = resource email
 # click here to add this to your calendar!!! (this would be an awesome link in the email!)
 # there should also be a link the email for people to confirm their attendace (this would happen based on whether or not a DM Apps user)!!
-
 
 # unit testing
 # todo: write all basic unit test for regular views

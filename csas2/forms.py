@@ -60,10 +60,10 @@ class CSASRequestForm(forms.ModelForm):
         fields = [
             'client',
             'section',
+            'coordinator',
             'language',
             'title',
             'is_carry_over',
-            'coordinator',
             'is_multiregional',
             'multiregional_text',
             'issue',

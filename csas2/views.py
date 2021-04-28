@@ -276,6 +276,37 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
         return super().form_valid(form)
 
 
+class CSASRequestCloneUpdateView(CSASRequestUpdateView):
+    h1 = gettext_lazy("Clone a CSAS Request")
+    h2 = gettext_lazy("Please update the request details")
+
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def get_initial(self):
+        my_object = models.CSASRequest.objects.get(pk=self.kwargs["pk"])
+        data = dict(
+            title=f"COPY OF: {my_object.title}",
+            client=self.request.user,
+            advice_needed_by=None,
+        )
+        return data
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        new_obj.pk = None
+        new_obj.status = 1
+        new_obj.submission_date = None
+        new_obj.old_id = None
+        new_obj.uuid = None
+        new_obj.ref_number = None
+        new_obj.created_by = self.request.user
+        new_obj.notes = None
+        new_obj.save()
+        return HttpResponseRedirect(reverse_lazy("csas2:request_detail", args=[new_obj.id]))
+
+
 # csas request reviews #
 ########################
 
@@ -377,7 +408,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'tname|{}'.format("title"), "class": "", "width": "300px"},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'lead_region', "class": "", "width": ""},
