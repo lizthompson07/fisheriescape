@@ -616,7 +616,7 @@
       },
       editDivision(division) {
         this.errors = null;
-        if (!division) this.divisionToEdit = {};
+        if (!division) this.divisionToEdit = {branch: this.branchFilter}
         else this.divisionToEdit = division;
         this.$nextTick(() => {
           this.$refs.form_start.focus()
@@ -656,7 +656,7 @@
       },
       editBranch(branch) {
         this.errors = null;
-        if (!branch) this.branchToEdit = {};
+        if (!branch) this.branchToEdit = {region: this.regionFilter};
         else this.branchToEdit = branch;
         this.$nextTick(() => {
           this.$refs.form_start.focus()
