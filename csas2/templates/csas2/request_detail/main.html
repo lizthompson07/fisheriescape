@@ -236,10 +236,12 @@
       },
       updateReview() {
         this.errors = null;
-        this.request.review.advice_date = this.request.review.advice_date_display + "T12:00:00"
-        this.request.review.decision_date = this.request.review.decision_date_display + "T12:00:00"
+        if (this.request.review.advice_date_display) this.request.review.advice_date = this.request.review.advice_date_display + "T12:00:00";
+        else this.request.review.advice_date = null;
+        if (this.request.review.decision_date_display) this.request.review.decision_date = this.request.review.decision_date_display + "T12:00:00"
+        else this.request.review.decision_date = null;
         let endpoint = `/api/csas/request-reviews/${this.request.review.id}/`;
-        apiService(endpoint, "PATCH", this.request.review).then(data => {
+        apiService(endpoint, "PUT", this.request.review).then(data => {
           if (!data.id) this.errors = groomJSON(data);
           else this.getRequest();
         });
