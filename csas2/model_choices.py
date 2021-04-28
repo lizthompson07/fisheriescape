@@ -18,12 +18,14 @@ request_status_choices = (
     (11, _("On")),
     (12, _("Off")),
     (13, _("Withdrawn")),
+    (14, _("Deferred")),
 )
 
 request_decision_choices = (
     (1, _("On")),
     (2, _("Off")),
     (3, _("Withdrawn")),
+    (4, _("Deferred")),
 )
 
 prioritization_choices = (
