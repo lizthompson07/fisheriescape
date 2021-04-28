@@ -169,7 +169,7 @@ class ProcessForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request_choices = [(obj.id, f"{obj.id} - {str(obj)} ({obj.fiscal_year})") for obj in models.CSASRequest.objects.filter(submission_date__isnull=False)]
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {obj.ref_number} ({obj.fiscal_year})") for obj in models.CSASRequest.objects.filter(submission_date__isnull=False)]
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices
 
