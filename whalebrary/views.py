@@ -1667,7 +1667,6 @@ class PlanningLinkListView(WhalebraryAdminAccessRequired, CommonListView):
 class PlanningLinkCreateView(WhalebraryAdminAccessRequired, CommonPopoutCreateView):
     model = models.PlanningLinks
     form_class = forms.PlanningLinkForm
-    success_url = reverse_lazy("whalebrary:planning_link_list")
 
 
 class PlanningLinkUpdateView(WhalebraryAdminAccessRequired, CommonPopoutUpdateView):
