@@ -68,7 +68,7 @@ class CSASRequest(MetadataFields):
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
                                     verbose_name=_("fiscal year"), editable=False)
-    ref_number = models.CharField(blank=True, null=True, editable=False, verbose_name=_("reference number"))
+    ref_number = models.CharField(blank=True, null=True, editable=False, verbose_name=_("reference number"), max_length=255)
 
 
     class Meta:
