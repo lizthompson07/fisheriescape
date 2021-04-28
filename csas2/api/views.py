@@ -204,9 +204,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
 
 class DocumentTrackingViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.CSASRequestReviewSerializer
-    permission_classes = [CanModifyRequestOrReadOnly]
-    queryset = models.CSASRequestReview.objects.all()
+    serializer_class = serializers.DocumentTrackingSerializer
+    # permission_classes = [CanModifyProcessOrReadOnly]
+    queryset = models.DocumentTracking.objects.all()
 
 
 class AuthorViewSet(viewsets.ModelViewSet):

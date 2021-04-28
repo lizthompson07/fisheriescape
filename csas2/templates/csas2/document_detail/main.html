@@ -43,6 +43,7 @@
       <div class="mb-3">
         <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
         <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
+        <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
       </div>
 
       <div class="row">
@@ -239,7 +240,12 @@
           }
         });
       },
-
+      primeTracking() {
+        let endpoint = `/api/csas/doc-tracking/`;
+        apiService(endpoint, "POST", {document: this.document.id}).then(() => {
+          this.getDocument();
+        })
+      },
       updateTracking() {
         this.errors = null;
         //if (this.request.review.advice_date_display) this.request.review.advice_date = this.request.review.advice_date_display + "T12:00:00";
@@ -255,9 +261,9 @@
       deleteTracking() {
         let userInput = confirm("{% trans 'Are you certain you want to delete the document tracking?' %}")
         if (userInput) {
-          let endpoint = `/api/csas/doc-tracking/${this.request.review.id}/`;
+          let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
           apiService(endpoint, "DELETE").then(() => {
-            this.getRequest();
+            this.getDocument();
           })
         }
       },
