@@ -894,9 +894,9 @@ class Group(BioModel):
         # gets program groups this group may be a part of.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
                                            anidc_id__name="Program Group",
-                                           asdc_id__isnull=False,
-                                           ).select_related("asdc_id")
-        return [grpd.asdc_id for grpd in grpd_set]
+                                           adsc_id__isnull=False,
+                                           ).select_related("adsc_id")
+        return [grpd.adsc_id for grpd in grpd_set]
 
 
 class GroupDet(BioDet):

@@ -132,7 +132,7 @@ def coldbrook_electrofishing_parser(cleaned_data):
 
     # do general actions on data
     try:
-        river_group_data = data.groupby(["River", "Group"], dropna=False).size().reset_index()
+        river_group_data = data.groupby(["River", "Group", "Collection"], dropna=False).size().reset_index()
         for row in river_group_data:
             stok_id = models.StockCode.objects.filter(name__icontains=row["River"]).get()
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
@@ -142,10 +142,23 @@ def coldbrook_electrofishing_parser(cleaned_data):
                                                               indvt_id__isnull=True,
                                                               loc_id__isnull=True,
                                                               pair_id__isnull=True)
-            if anix_grp_qs.count() == 0:
+
+            grp_found = False
+            grp = None
+            for anix in anix_grp_qs:
+                anix_prog_grp_names = [adsc.name for adsc in anix.grp_id.prog_group()]
+                if utils.nan_to_none(row["Group"]) and row["Group"] in anix_prog_grp_names:
+                    grp_found = True
+                    grp = anix.grp_id
+                    break
+                elif not utils.nan_to_none(row["Group"]) and not anix_prog_grp_names:
+                    grp_found = True
+                    grp = anix.grp_id
+                    break
+            if not grp_found:
                 grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                    stok_id=stok_id,
-                                   coll_id=models.Collection.objects.filter(name__icontains=data["Collection"]).get(),
+                                   coll_id=models.Collection.objects.filter(name__icontains=row["Collection"]).get(),
                                    grp_year=data["Year"][0],
                                    grp_valid=True,
                                    created_by=cleaned_data["created_by"],
@@ -159,18 +172,19 @@ def coldbrook_electrofishing_parser(cleaned_data):
                                                       grp_year=grp.grp_year, coll_id=grp.coll_id).get()
 
                 anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
-            elif anix_grp_qs.count() == 1:
-                anix_grp = anix_grp_qs.get()
-                grp = anix_grp.grp_id
+                if utils.nan_to_none(row["Group"]):
+                    utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None,
+                                     "Program Group", row["Group"])
 
             contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
             if utils.nan_to_none(row["Group"]):
-                utils.enter_grpd(anix_grp, cleaned_data, cleaned_data["start_date"], None, "Program Group",
-                                 row["Group"])
-
-            utils.enter_cnt(cleaned_data, data[data["River"] == row["River"]]["# of salmon collected"].sum(), contx_pk=contx.pk,
-                            cnt_code="Fish in Container", )
+                utils.enter_cnt(cleaned_data, data[(data["River"] == row["River"]) & (data["Group"] == row["Group"])][
+                    "# of salmon collected"].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
+            else:
+                utils.enter_cnt(cleaned_data, data[(data["River"] == row["River"]) & (data["Group"].isnull())][
+                    "# of salmon collected"].sum(), contx_pk=contx.pk,
+                                cnt_code="Fish in Container", )
 
     except Exception as err:
         log_data += "Error parsing common data (entering group, placing it in a location and recording the count): \n"
@@ -301,8 +315,8 @@ def mactaquac_electrofishing_parser(cleaned_data):
     # enter general data once all rows are entered:
 
     try:
-        river_group_data = data.groupby(["River", "Group"], dropna=False).size().reset_index()
-        for row in river_group_data:
+        river_group_data = data.groupby(["River", "Group", "Collection"], dropna=False).size().reset_index()
+        for row in river_group_data.to_dict("records"):
             stok_id = models.StockCode.objects.filter(name__icontains=row["River"]).get()
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                               grp_id__stok_id=stok_id,
@@ -312,7 +326,19 @@ def mactaquac_electrofishing_parser(cleaned_data):
                                                               loc_id__isnull=True,
                                                               pair_id__isnull=True)
 
-            if anix_grp_qs.count() == 0:
+            grp_found = False
+            grp = None
+            for anix in anix_grp_qs:
+                anix_prog_grp_names = [adsc.name for adsc in anix.grp_id.prog_group()]
+                if utils.nan_to_none(row["Group"]) and row["Group"] in anix_prog_grp_names:
+                    grp_found = True
+                    grp = anix.grp_id
+                    break
+                elif not utils.nan_to_none(row["Group"]) and not anix_prog_grp_names:
+                    grp_found = True
+                    grp = anix.grp_id
+                    break
+            if not grp_found:
                 grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                    stok_id=stok_id,
                                    coll_id=models.Collection.objects.filter(name__icontains=row["Collection"]).get(),
@@ -325,21 +351,22 @@ def mactaquac_electrofishing_parser(cleaned_data):
                     grp.clean()
                     grp.save()
                 except ValidationError:
-                    grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
-                                                      grp_year=grp.grp_year, coll_id=grp.coll_id).get()
+                    # no way to get the groups here, should only be here if there are no groups already
+                    pass
                 anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
-            elif anix_grp_qs.count() == 1:
-                anix_grp = anix_grp_qs.get()
-                grp = anix_grp.grp_id
+                if utils.nan_to_none(row["Group"]):
+                    utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None, "Program Group",
+                                     row["Group"])
 
             contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
 
             if utils.nan_to_none(row["Group"]):
-                utils.enter_grpd(anix_grp, cleaned_data, cleaned_data["start_date"], None, "Program Group",
-                                 row["Group"])
-
-            utils.enter_cnt(cleaned_data, data[data["River"] == row["River"]]["# Fish Collected"].sum(), contx_pk=contx.pk,
-                            cnt_code="Fish in Container", )
+                utils.enter_cnt(cleaned_data, data[(data["River"] == row["River"]) & (data["Group"] == row["Group"])][
+                    "# Fish Collected"].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
+            else:
+                utils.enter_cnt(cleaned_data, data[(data["River"] == row["River"]) & (data["Group"].isnull())][
+                    "# Fish Collected"].sum(), contx_pk=contx.pk,
+                                cnt_code="Fish in Container", )
 
     except Exception as err:
         log_data += "Error parsing common data: \n"
