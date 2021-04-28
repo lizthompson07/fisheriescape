@@ -101,20 +101,20 @@ class EcpFactory(factory.django.DjangoModelFactory):
     eqr = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqrFactory")
     ecp_channel_no = factory.lazy_attribute(lambda o: faker.random_int(1, 9))
     eqa_adc_bits = factory.lazy_attribute(lambda o: models.EqaAdcBitsCode.objects.get(pk=faker.random_int(1, 3)))
-    ecp_voltage_range_min = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
-    ecp_voltage_range_max = factory.lazy_attribute(lambda o: o.ecp_voltage_range_min + faker.random_int(1, 1000))
+    ecp_voltage_range_min = factory.lazy_attribute(lambda o: faker.random_int(-99, 0))
+    ecp_voltage_range_max = factory.lazy_attribute(lambda o: o.ecp_voltage_range_min + faker.random_int(0, 99))
 
     @staticmethod
     def get_valid_data():
         # specifically testing when an equipment is an Acoustic Recorder
         eqr = EqrFactory()
-        min_volt = faker.random_int(1, 1000)
+        min_volt = faker.random_int(-99, 0)
         valid_data = {
             'eqr': eqr.pk,
             'ecp_channel_no': faker.random_int(1, 9),
             'eqa_adc_bits': models.EqaAdcBitsCode.objects.get(pk=faker.random_int(1, 3)),
             'ecp_voltage_range_min': min_volt,
-            'ecp_voltage_range_max': min_volt + faker.random_int(1, 1000),
+            'ecp_voltage_range_max': min_volt + faker.random_int(0, 99),
         }
 
         return valid_data
