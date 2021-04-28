@@ -306,66 +306,66 @@ class CSASRequestCloneUpdateView(CSASRequestUpdateView):
         new_obj.save()
         return HttpResponseRedirect(reverse_lazy("csas2:request_detail", args=[new_obj.id]))
 
-
-# csas request reviews #
-########################
-
-
-class CSASRequestReviewCreateView(CanModifyRequestRequiredMixin, CommonCreateView):
-    model = models.CSASRequestReview
-    form_class = forms.CSASRequestReviewForm
-    template_name = 'csas2/request_form.html'  # shared js_body
-    home_url_name = "csas2:index"
-    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-    submit_text = gettext_lazy("Start a Review")
-
-    def get_csas_request(self):
-        return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("crequest"))
-
-    def get_parent_crumb(self):
-        return {"title": self.get_csas_request(), "url": reverse_lazy("csas2:request_detail", args=[self.get_csas_request().id])}
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.csas_request = self.get_csas_request()
-        obj.created_by = self.request.user
-        return super().form_valid(form)
-
-
-class CSASRequestReviewUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
-    model = models.CSASRequestReview
-    form_class = forms.CSASRequestReviewForm
-    template_name = 'csas2/request_form.html'  # shared js_body
-    home_url_name = "csas2:index"
-    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.updated_by = self.request.user
-        return super().form_valid(form)
-
-
-class CSASRequestReviewDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
-    model = models.CSASRequestReview
-    template_name = 'csas2/confirm_delete.html'
-    delete_protection = False
-    home_url_name = "csas2:index"
-    grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
-
-    def delete(self, request, *args, **kwargs):
-        # a little bit of gymnastics here in order to save the csas request truely following the deletion of the review (not working with signals)
-        obj = self.get_object()
-        csas_request = obj.csas_request
-        success_url = self.get_parent_crumb().get("url")
-        obj.delete()
-        csas_request.save()
-        return HttpResponseRedirect(success_url)
+#
+# # csas request reviews #
+# ########################
+#
+#
+# class CSASRequestReviewCreateView(CanModifyRequestRequiredMixin, CommonCreateView):
+#     model = models.CSASRequestReview
+#     form_class = forms.CSASRequestReviewForm
+#     template_name = 'csas2/request_form.html'  # shared js_body
+#     home_url_name = "csas2:index"
+#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+#     submit_text = gettext_lazy("Start a Review")
+#
+#     def get_csas_request(self):
+#         return get_object_or_404(models.CSASRequest, pk=self.kwargs.get("crequest"))
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_csas_request(), "url": reverse_lazy("csas2:request_detail", args=[self.get_csas_request().id])}
+#
+#     def form_valid(self, form):
+#         obj = form.save(commit=False)
+#         obj.csas_request = self.get_csas_request()
+#         obj.created_by = self.request.user
+#         return super().form_valid(form)
+#
+#
+# class CSASRequestReviewUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
+#     model = models.CSASRequestReview
+#     form_class = forms.CSASRequestReviewForm
+#     template_name = 'csas2/request_form.html'  # shared js_body
+#     home_url_name = "csas2:index"
+#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
+#
+#     def form_valid(self, form):
+#         obj = form.save(commit=False)
+#         obj.updated_by = self.request.user
+#         return super().form_valid(form)
+#
+#
+# class CSASRequestReviewDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
+#     model = models.CSASRequestReview
+#     template_name = 'csas2/confirm_delete.html'
+#     delete_protection = False
+#     home_url_name = "csas2:index"
+#     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object().csas_request, "url": reverse_lazy("csas2:request_detail", args=[self.get_object().csas_request.id])}
+#
+#     def delete(self, request, *args, **kwargs):
+#         # a little bit of gymnastics here in order to save the csas request truely following the deletion of the review (not working with signals)
+#         obj = self.get_object()
+#         csas_request = obj.csas_request
+#         success_url = self.get_parent_crumb().get("url")
+#         obj.delete()
+#         csas_request.save()
+#         return HttpResponseRedirect(success_url)
 
 
 # request files #

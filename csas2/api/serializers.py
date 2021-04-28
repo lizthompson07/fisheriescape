@@ -152,6 +152,11 @@ class DocumentSerializer(serializers.ModelSerializer):
     process = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
+    tracking = serializers.SerializerMethodField()
+
+    def get_tracking(self, instance):
+        if hasattr(instance, "tracking"):
+            return DocumentTrackingSerializer(instance.tracking).data
 
     def get_total_cost(self, instance):
         return instance.total_cost
@@ -171,6 +176,23 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Document
         fields = "__all__"
+
+
+class DocumentTrackingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DocumentTracking
+        fields = "__all__"
+
+    # advice_date_display = serializers.SerializerMethodField()
+    # decision_date_display = serializers.SerializerMethodField()
+    #
+    # def get_advice_date_display(self, instance):
+    #     if instance.advice_date:
+    #         return instance.advice_date.strftime("%Y-%m-%d")
+    #
+    # def get_decision_date_display(self, instance):
+    #     if instance.decision_date:
+    #         return instance.decision_date.strftime("%Y-%m-%d")
 
 
 class MeetingSerializer(serializers.ModelSerializer):

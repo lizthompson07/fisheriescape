@@ -359,8 +359,8 @@ class MeetingNote(GenericNote):
 class MeetingResource(SimpleLookup, MetadataFields):
     ''' a file attached to to meeting'''
     meeting = models.ForeignKey(Meeting, related_name='resources', on_delete=models.CASCADE)
-    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
-    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
+    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True, max_length=2000)
+    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True, max_length=2000)
 
     @property
     def turl(self):
@@ -469,9 +469,9 @@ class DocumentCost(GenericCost):
     document = models.ForeignKey(Document, related_name='costs', on_delete=models.CASCADE)
 
 
-# class DocumentTracking(MetadataFields):
-#     ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
-#     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="authors")
+class DocumentTracking(MetadataFields):
+    ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
+    document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name="tracking")
 #     # administrative
 #     date_due = models.DateField(null=True, blank=True, verbose_name=_("due date"))
 #     date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"), )

@@ -21,7 +21,7 @@
 
   <div id="app" v-cloak>
 
-    <div class="sidebar">
+    <div v-if="canModify && document.tracking && document.tracking.id" class="sidebar">
       {% include "csas2/document_detail/_tracking.html" %}
     </div>
     <div id="">
@@ -36,7 +36,7 @@
         {% bootstrap_messages %}
         <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
           <p class="mb-0">
-            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
           </p>
         </div>
       </div>
@@ -46,7 +46,7 @@
       </div>
 
       <div class="row">
-        <div class="col-8">
+        <div class="col-10">
 
           <div class="mb-5">
             <table class="table table-sm">
@@ -129,9 +129,9 @@
         </div>
 
         {# Notes #}
-{#        <div class="col">#}
-{#          {% include "csas2/document_detail/_notes.html" %}#}
-{#        </div>#}
+        {#        <div class="col">#}
+        {#          {% include "csas2/document_detail/_notes.html" %}#}
+        {#        </div>#}
       </div>
     </div>
   </div>
@@ -159,7 +159,6 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      canModify: false,
       loadingDocument: false,
 
       document: {},
@@ -171,11 +170,14 @@
       showAuthorModal: false,
       showCostModal: false,
       documentId: documentId,
-      documentLabels: {}
+      documentLabels: {},
+
+      trackingLabels: {},
+      errors: null,
     },
     methods: {
       getCurrentUser() {
-        let endpoint = `/api/csas/user/`;
+        let endpoint = `/api/csas/user/?document=${documentId}`;
         apiService(endpoint)
             .then(response => {
               this.currentUser = response;
@@ -237,6 +239,36 @@
           }
         });
       },
+
+      updateTracking() {
+        this.errors = null;
+        //if (this.request.review.advice_date_display) this.request.review.advice_date = this.request.review.advice_date_display + "T12:00:00";
+        //else this.request.review.advice_date = null;
+        //if (this.request.review.decision_date_display) this.request.review.decision_date = this.request.review.decision_date_display + "T12:00:00"
+        //else this.request.review.decision_date = null;
+        let endpoint = `/api/csas/doc-tracking/${this.request.review.id}/`;
+        apiService(endpoint, "PUT", this.document.tracking).then(data => {
+          if (!data.id) this.errors = groomJSON(data);
+          else this.getDocument();
+        });
+      },
+      deleteTracking() {
+        let userInput = confirm("{% trans 'Are you certain you want to delete the document tracking?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/doc-tracking/${this.request.review.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getRequest();
+          })
+        }
+      },
+      getTrackingMetadata() {
+        let endpoint = `/api/csas/meta/models/document-tracking/`;
+        apiService(endpoint).then(data => {
+          this.trackingLabels = data.labels;
+          {#this.prioritizationChoices = data.prioritization_choices;#}
+          {#this.decisionChoices = data.decision_choices;#}
+        });
+      },
     },
     computed: {
       totalCost() {
@@ -245,6 +277,9 @@
           total += Number(this.costs[i].amount)
         }
         return total
+      },
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
       }
     },
     filters: {
@@ -255,6 +290,7 @@
     created() {
       this.getDocumentMetadata();
       this.getDocument(true);
+      this.getCurrentUser(true);
     },
   });
 

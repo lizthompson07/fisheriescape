@@ -28,6 +28,9 @@ class CurrentUserAPIView(APIView):
         qp = request.GET
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
+        if qp.get("document"):
+            doc = get_object_or_404(models.Document, pk=qp.get("document"))
+            data["can_modify"] = utils.can_modify_process(request.user, doc.process_id, return_as_dict=True)
         return Response(data)
 
 
@@ -200,6 +203,12 @@ class DocumentViewSet(viewsets.ModelViewSet):
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
+class DocumentTrackingViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CSASRequestReviewSerializer
+    permission_classes = [CanModifyRequestOrReadOnly]
+    queryset = models.CSASRequestReview.objects.all()
+
+
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = models.Author.objects.all()
     serializer_class = serializers.AuthorSerializer
@@ -352,6 +361,16 @@ class ResourceModelMetaAPIView(APIView):
 class DocumentModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Document
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
+class DocumentTrackingModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.DocumentTracking
 
     def get(self, request):
         data = dict()
