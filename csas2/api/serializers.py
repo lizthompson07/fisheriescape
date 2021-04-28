@@ -22,6 +22,9 @@ class CSASRequestSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     fiscal_year = serializers.StringRelatedField()
+    client = serializers.StringRelatedField()
+    coordinator = serializers.StringRelatedField()
+
     review = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     multiregional_display = serializers.SerializerMethodField()
@@ -34,6 +37,10 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     language_display = serializers.SerializerMethodField()
     section_display = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()
+    funding_display = serializers.SerializerMethodField()
+
+    def get_funding_display(self, instance):
+        return instance.funding_display
 
     def get_metadata(self, instance):
         return instance.metadata
