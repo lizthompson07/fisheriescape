@@ -1,0 +1,41 @@
+{% load i18n %}
+
+
+<div class="mb-2">
+  <div class="neighbours">
+    <h4>{% trans "Authors" %}</h4>
+  </div>
+  <div class="mb-2 neighbours">
+    <author-editor v-if="document" :document_id="document.id" @update-authors="getAuthors"></author-editor>
+  </div>
+</div>
+
+<div v-if="authors && authors.length">
+  <table class="table table-sm">
+    <thead>
+    <tr>
+      <th class="text-left"> {% trans "Person" %}</th>
+      <th class="text-left"> {% trans "Is lead?" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr v-for="(author, index) in authors" :key="author.id" @click="">
+      <td> ${ author.person_object.full_name } (${ author.person_object.affiliation }) <br>
+        <a :href="`mailto:${ author.person_object.email }`">${ author.person_object.email}</a>
+      </td>
+      <td>${ author.is_lead|yesNo }</td>
+      <td>
+        <div class="btn-group">
+          <author-editor :author="author" @update-authors="getAuthors"></author-editor>
+          <button class="btn btn-sm" @click="deleteAuthor(author)">
+            <span class="mdi mdi-delete"></span>
+          </button>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div v-else>
+  <em>{% trans "No one has been invited to this document." %}</em>
+</div>

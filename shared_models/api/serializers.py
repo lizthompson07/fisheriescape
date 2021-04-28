@@ -82,6 +82,11 @@ class SectionSerializer(serializers.ModelSerializer):
 
 
 class PersonSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Person
         fields = "__all__"
+
+    def get_full_name(self, instance):
+        return instance.full_name
