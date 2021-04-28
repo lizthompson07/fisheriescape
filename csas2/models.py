@@ -153,11 +153,6 @@ class CSASRequest(MetadataFields):
     def region(self):
         return self.section.division.branch.region.tname
 
-    @property
-    def ref_number(self):
-        if hasattr(self, "review") and self.review.ref_number:
-            return self.review.ref_number
-
 
 class CSASRequestReview(MetadataFields):
     csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, related_name="review")
