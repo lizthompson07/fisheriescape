@@ -174,7 +174,7 @@
           </tr>
         </table>
       </div>
-      <div v-if="request.review && request.review.id" class="col-4">
+      <div v-if="canModify && request.review && request.review.id" class="col-4">
         {% include "csas2/request_detail/_review.html" %}
       </div>
     </div>
