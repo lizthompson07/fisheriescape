@@ -40,15 +40,16 @@
                   <button @click="openPersonEditMode" class="badge badge-pill badge-primary" tabindex="-1">{% trans "Add a person" %}</button>
                 </div>
                 <div class="form-group">
-                  <label for="">${labels.role}</label>
+                  <label for="">${labels.roles}</label>
                   <v-select
-                    v-model="inviteeToEdit.role"
+                    v-model="inviteeToEdit.roles"
                     :options="roleChoices"
                     :reduce="choice => choice.value"
                     label="text"
                     class="no-borders"
                     :clearable=false
                     required
+                    multiple
                   ></v-select>
                 </div>
                 <div class="form-group">

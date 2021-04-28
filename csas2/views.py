@@ -48,6 +48,19 @@ class SeriesHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView)
     model = models.Series
     success_url = reverse_lazy("csas2:manage_series")
 
+class InviteeRoleFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+    template_name = 'csas2/formset.html'
+    h1 = "Manage Invitee Roles"
+    queryset = models.InviteeRole.objects.all()
+    formset_class = forms.InviteeRoleFormset
+    success_url_name = "csas2:manage_invitee_roles"
+    home_url_name = "csas2:index"
+    delete_url_name = "csas2:delete_invitee_role"
+
+class InviteeRoleHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.InviteeRole
+    success_url = reverse_lazy("csas2:manage_invitee_roles")
+
 
 # people #
 ##########

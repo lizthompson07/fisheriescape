@@ -20,7 +20,7 @@
     <thead>
     <tr>
       <th class="text-left"> {% trans "Person" %}</th>
-      <th class="text-left"> {% trans "Function" %}</th>
+      <th class="text-left"> {% trans "Function(s)" %}</th>
       <th class="text-left"> {% trans "RSVP Status" %}</th>
       <th class="text-left"> {% trans "Attendance" %}</th>
     </tr>
@@ -30,7 +30,7 @@
       <td> ${ invitee.person_object.full_name } (${ invitee.person_object.affiliation }) <br>
         <a :href="`mailto:${ invitee.person_object.email }`">${ invitee.person_object.email}</a>
       </td>
-      <td>${ invitee.role_display }</td>
+      <td>${ invitee.roles_display }</td>
       <td>
         <button @click="toggleInviteeStatus(invitee)"
                 :class="{'badge badge-pill':true, 'badge-success':invitee.status ===1,'badge-warning':invitee.status ===9,'badge-danger':invitee.status ===2,'badge-info':invitee.status ===3,  }">

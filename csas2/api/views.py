@@ -333,7 +333,7 @@ class InviteeModelMetaAPIView(APIView):
         data['labels'] = _get_labels(self.model)
         data['person_choices'] = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_status_choices]
-        data['role_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_role_choices]
+        data['role_choices'] = [dict(text=str(obj), value=obj.id) for obj in models.InviteeRole.objects.all()]
         return Response(data)
 
 

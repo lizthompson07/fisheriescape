@@ -8,6 +8,8 @@ urlpatterns = [
     # settings
     path('settings/series/', views.SeriesFormsetView.as_view(), name="manage_series"),
     path('settings/series/<int:pk>/delete/', views.SeriesHardDeleteView.as_view(), name="delete_series"),
+    path('settings/invitee-roles/', views.InviteeRoleFormsetView.as_view(), name="manage_invitee_roles"),
+    path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
 
     # people #
     ##########

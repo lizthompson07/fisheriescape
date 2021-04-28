@@ -80,17 +80,17 @@ document_status_choices = (
     (3, _("Under review")),
 )
 
-invitee_role_choices = (
-    (1, 'Chair'),
-    (7, 'CSAS coordinator'),
-    (3, 'Expert'),
-    (6, 'External reviewer'),
-    (5, 'Internal reviewer'),
-    (2, 'Participant'),
-    (8, 'Rapporteur'),
-    (9, 'Science advisor'),
-    (4, 'Steering Committee Member'),
-)
+# invitee_role_choices = (
+#     (1, 'Chair'),
+#     (7, 'CSAS coordinator'),
+#     (3, 'Expert'),
+#     (6, 'External reviewer'),
+#     (5, 'Internal reviewer'),
+#     (2, 'Participant'),
+#     (8, 'Rapporteur'),
+#     (9, 'Science advisor'),
+#     (4, 'Steering Committee Member'),
+# )
 
 invitee_status_choices = (
     (0, 'Invited'),

@@ -235,3 +235,20 @@ SeriesFormset = modelformset_factory(
     form=SeriesForm,
     extra=1,
 )
+
+
+class InviteeRoleForm(forms.ModelForm):
+    class Meta:
+        model = models.InviteeRole
+        fields = "__all__"
+        widgets = {
+            # 'name': forms.Textarea(attrs={"rows": 3}),
+            # 'nom': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+InviteeRoleFormset = modelformset_factory(
+    model=models.InviteeRole,
+    form=InviteeRoleForm,
+    extra=1,
+)

@@ -379,11 +379,15 @@ class MeetingCost(GenericCost):
     meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE)
 
 
+class InviteeRole(SimpleLookup):
+    pass
+
 class Invitee(models.Model):
     ''' a person that was invited to a meeting'''
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="invitees")
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="meeting_invites")
-    role = models.IntegerField(choices=model_choices.invitee_role_choices, verbose_name=_("Function"), default=1)
+    roles = models.ManyToManyField(InviteeRole, verbose_name=_("Function(s)"))
+    # role = models.IntegerField(choices=model_choices.invitee_role_choices, verbose_name=_("Function"), default=1)
     status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=0)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("MeetingResource", editable=False)

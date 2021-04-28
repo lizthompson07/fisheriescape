@@ -322,7 +322,7 @@ class InviteeSerializer(serializers.ModelSerializer):
     max_date = serializers.SerializerMethodField()
     min_date = serializers.SerializerMethodField()
     person_object = serializers.SerializerMethodField()
-    role_display = serializers.SerializerMethodField()
+    roles_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
 
     def get_attendance(self, instance):
@@ -348,8 +348,9 @@ class InviteeSerializer(serializers.ModelSerializer):
     def get_person_object(self, instance):
         return PersonSerializer(instance.person).data
 
-    def get_role_display(self, instance):
-        return instance.get_role_display()
+    def get_roles_display(self, instance):
+        if instance.roles.exists():
+            return listrify(instance.roles.all())
 
     def get_status_display(self, instance):
         return instance.get_status_display()
