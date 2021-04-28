@@ -87,7 +87,9 @@ invitee_role_choices = (
     (6, 'External reviewer'),
     (5, 'Internal reviewer'),
     (2, 'Participant'),
-    # (4, 'Steering Committee Member (is this is good category?)'),
+    (8, 'Rapporteur'),
+    (9, 'Science advisor'),
+    (4, 'Steering Committee Member'),
 )
 
 invitee_status_choices = (
