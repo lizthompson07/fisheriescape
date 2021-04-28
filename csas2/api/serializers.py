@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.template.defaultfilters import date, pluralize
+from django.template.defaultfilters import date, pluralize, slugify
 from django.utils.translation import gettext
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
@@ -20,6 +20,74 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CSASRequest
         fields = "__all__"
+
+    fiscal_year = serializers.StringRelatedField()
+    review = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    multiregional_display = serializers.SerializerMethodField()
+    issue_html = serializers.SerializerMethodField()
+    assistance_display = serializers.SerializerMethodField()
+    rationale_html = serializers.SerializerMethodField()
+    advice_needed_by_display = serializers.SerializerMethodField()
+    prioritization_display = serializers.SerializerMethodField()
+    submission_date_display = serializers.SerializerMethodField()
+    language_display = serializers.SerializerMethodField()
+    section_display = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_section_display(self, instance):
+        return instance.section.full_name
+
+    def get_language_display(self, instance):
+        return instance.get_language_display()
+
+    def get_submission_date_display(self, instance):
+        return date(instance.submission_date)
+
+    def get_prioritization_display(self, instance):
+        return instance.prioritization_display
+
+    def get_advice_needed_by_display(self, instance):
+        return date(instance.advice_needed_by)
+
+    def get_rationale_html(self, instance):
+        return instance.rationale_html
+
+    def get_assistance_display(self, instance):
+        return instance.assistance_display
+
+    def get_issue_html(self, instance):
+        return instance.issue_html
+
+    def get_multiregional_display(self, instance):
+        return instance.multiregional_display
+
+    def get_status_display(self, instance):
+        return f'<span class=" px-1 py-1 {slugify(instance.get_status_display())}">{instance.get_status_display()}</span>'
+
+    def get_review(self, instance):
+        if hasattr(instance, "review"):
+            return CSASRequestReviewSerializer(instance.review).data
+
+
+class CSASRequestReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CSASRequestReview
+        fields = "__all__"
+
+    advice_date_display = serializers.SerializerMethodField()
+    decision_date_display = serializers.SerializerMethodField()
+
+    def get_advice_date_display(self, instance):
+        if instance.advice_date:
+            return instance.advice_date.strftime("%Y-%m-%d")
+
+    def get_decision_date_display(self, instance):
+        if instance.decision_date:
+            return instance.decision_date.strftime("%Y-%m-%d")
 
 
 class MeetingSerializerLITE(serializers.ModelSerializer):

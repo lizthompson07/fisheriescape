@@ -14,7 +14,7 @@ from shared_models.api.views import _get_labels
 from shared_models.models import Person, Language
 from . import serializers
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly
-from .. import models, emails, model_choices
+from .. import models, emails, model_choices, utils
 
 
 # USER
@@ -25,6 +25,9 @@ class CurrentUserAPIView(APIView):
     def get(self, request):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
+        qp = request.GET
+        if qp.get("request"):
+            data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
         return Response(data)
 
 
@@ -32,6 +35,12 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
     queryset = models.CSASRequest.objects.all()
+
+
+class CSASRequestReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CSASRequestReviewSerializer
+    permission_classes = [CanModifyRequestOrReadOnly]
+    queryset = models.CSASRequestReview.objects.all()
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -233,7 +242,6 @@ class DocumentNoteViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
-
 class DocumentCostViewSet(viewsets.ModelViewSet):
     queryset = models.DocumentCost.objects.all()
     serializer_class = serializers.DocumentCostSerializer
@@ -253,8 +261,6 @@ class DocumentCostViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save()
-
-
 
 
 class PersonViewSet(viewsets.ModelViewSet):
@@ -372,4 +378,31 @@ class GenericCostModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = _get_labels(self.model)
         data['cost_category_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.cost_category_choices]
+        return Response(data)
+
+
+class RequestModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.CSASRequest
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
+class RequestReviewModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.CSASRequestReview
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+
+        prioritization_choices = [dict(text=c[1], value=c[0]) for c in model_choices.prioritization_choices]
+        decision_choices = [dict(text=c[1], value=c[0]) for c in model_choices.request_decision_choices]
+        prioritization_choices.insert(0, dict(text="-----", value=None))
+        decision_choices.insert(0, dict(text="-----", value=None))
+        data['prioritization_choices'] = prioritization_choices
+        data['decision_choices'] = decision_choices
         return Response(data)

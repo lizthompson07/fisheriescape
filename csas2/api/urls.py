@@ -4,6 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'requests', views.CSASRequestViewSet)
+router.register(r'request-reviews', views.CSASRequestReviewViewSet)
 router.register(r'meetings', views.MeetingViewSet)
 router.register(r'meeting-notes', views.MeetingNoteViewSet)
 router.register(r'meeting-costs', views.MeetingCostViewSet)
@@ -20,6 +21,8 @@ urlpatterns = [
     path("csas/", include(router.urls)),  # tested
     path("csas/user/", views.CurrentUserAPIView.as_view(), name="csas-current-user"),
 
+    path("csas/meta/models/request/", views.RequestModelMetaAPIView.as_view(), name="csas-request-review-model-meta"),
+    path("csas/meta/models/request-review/", views.RequestReviewModelMetaAPIView.as_view(), name="csas-request-review-model-meta"),
     path("csas/meta/models/cost/", views.GenericCostModelMetaAPIView.as_view(), name="csas-cost-model-meta"),
     path("csas/meta/models/note/", views.GenericNoteModelMetaAPIView.as_view(), name="note-model-meta"),
 

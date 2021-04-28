@@ -6,6 +6,11 @@
 
 {% if is_admin %}
   <li class="nav-item">
+    <a class="nav-link" href="{% url 'csas2:person_list' %}">
+      {% trans "Contacts" %}
+    </a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link" href="{% url 'csas2:reports' %}">
       {% trans "Reports" %}
     </a>

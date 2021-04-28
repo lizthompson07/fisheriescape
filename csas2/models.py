@@ -81,14 +81,19 @@ class CSASRequest(MetadataFields):
             self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
-        # look at the review to help determine the status
-        self.status = 1  # draft
-        if self.submission_date:
-            self.status = 2  # submitted
-        if hasattr(self, "review") and self.review.id:
-            self.status = 3  # under review
-            if self.review.decision:
-                self.status = self.review.decision + 10
+
+        # if there is a process, the request is on
+        if self.processes.exists():
+            self.status = 11
+        else:
+            # look at the review to help determine the status
+            self.status = 1  # draft
+            if self.submission_date:
+                self.status = 2  # submitted
+            if hasattr(self, "review") and self.review.id:
+                self.status = 3  # under review
+                if self.review.decision:
+                    self.status = self.review.decision + 10
 
         super().save(*args, **kwargs)
 
@@ -152,14 +157,14 @@ class CSASRequest(MetadataFields):
 
 
 class CSASRequestReview(MetadataFields):
-    csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")
+    csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, related_name="review")
     ref_number = models.CharField(max_length=50, verbose_name=_("reference number (optional)"), blank=True, null=True)
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("prioritization"), choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("prioritization notes"))
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
     decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision explanation"))
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("decision date"))
-    advice_date = models.DateTimeField(verbose_name=_("date to receive Science advice"), blank=True, null=True)
+    advice_date = models.DateTimeField(verbose_name=_("date to provide Science advice"), blank=True, null=True)
     is_deferred = models.BooleanField(default=False, verbose_name=_("was the original request date deferred?"))
     deferred_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide rationale for the deferred date"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))

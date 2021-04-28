@@ -269,3 +269,10 @@ label.filter {
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
 }
+
+.admin-panel{
+    background-color: #e7e6e6;
+    border: 1px black solid;
+    box-shadow: 0 4px 8px 0 rgba(93, 93, 93, 0.95);
+
+}

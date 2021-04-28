@@ -139,12 +139,12 @@ def can_modify_request(user, request_id, return_as_dict=False):
         my_dict["reason"] = "You do not have the permissions to modify this request"
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         # check to see if they are the client
-        if is_client(user, request_id=csas_request.id):
+        if is_client(user, request_id=csas_request.id) and not csas_request.submission_date:
             my_dict["reason"] = "You can modify this record because you are the request client"
             my_dict["can_modify"] = True
         # check to see if they are the client
-        elif is_creator(user, request_id=csas_request.id):
-            my_dict["reason"] = "You can modify this record because you are the request client"
+        elif is_creator(user, request_id=csas_request.id) and not csas_request.submission_date:
+            my_dict["reason"] = "You can modify this record because you are the record creator"
             my_dict["can_modify"] = True
         # check to see if they are the coordinator
         elif is_request_coordinator(user, request_id=csas_request.id):
