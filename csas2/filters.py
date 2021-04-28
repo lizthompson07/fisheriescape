@@ -2,9 +2,8 @@ import django_filters
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from shared_models.models import FiscalYear, Division, Section, Branch, Region, Person
+from shared_models.models import FiscalYear, Section, Branch, Region, Person
 from . import models, utils
-
 
 
 class PersonFilter(django_filters.FilterSet):
@@ -21,10 +20,9 @@ class PersonFilter(django_filters.FilterSet):
                                                               lookup_expr='icontains', widget=forms.TextInput())
 
 
-
 class CSASRequestFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title / Reference Number"))
     request_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title, Reference Number"))
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
@@ -47,21 +45,20 @@ class CSASRequestFilter(django_filters.FilterSet):
         self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact',
                                                              choices=region_choices)
         self.filters['branch'] = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact',
-                                                               choices=branch_choices)
+                                                             choices=branch_choices)
 
         try:
             if self.data["region"] != "":
                 my_region_id = int(self.data["region"])
                 branch_choices = [my_set for my_set in utils.get_branch_choices() if Branch.objects.get(pk=my_set[0]).region_id == my_region_id]
                 self.filters['branch'] = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact',
-                                                                       choices=branch_choices)
+                                                                     choices=branch_choices)
 
                 section_choices = [my_set for my_set in utils.get_section_choices() if
                                    Section.objects.get(pk=my_set[0]).division.branch.region_id == my_region_id]
 
         except KeyError:
             print('no data in filter')
-
 
 
 class ProcessFilter(django_filters.FilterSet):
@@ -88,7 +85,6 @@ class MeetingFilter(django_filters.FilterSet):
     has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
 
 
-
 class DocumentFilter(django_filters.FilterSet):
     class Meta:
         model = models.Document
@@ -103,6 +99,4 @@ class DocumentFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["id"] = django_filters.CharFilter(field_name='search_term', label=_("Title contains"),
-                                                              lookup_expr='icontains', widget=forms.TextInput())
-
-
+                                                       lookup_expr='icontains', widget=forms.TextInput())

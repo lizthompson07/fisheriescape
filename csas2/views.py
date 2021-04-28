@@ -448,10 +448,16 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
 
 class ProcessUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.Process
-    form_class = forms.ProcessForm
     template_name = 'csas2/form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_form_class(self):
+        qp = self.request.GET
+        if qp.get("tor"):
+            return forms.ProcessTORForm
+        else:
+            return forms.ProcessForm
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}

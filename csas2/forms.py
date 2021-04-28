@@ -141,7 +141,18 @@ class CSASRequestFileForm(forms.ModelForm):
 class ProcessForm(forms.ModelForm):
     class Meta:
         model = models.Process
-        fields = "__all__"
+        fields = [
+            'name',
+            'nom',
+            'status',
+            'scope',
+            'type',
+            'lead_region',
+            'other_regions',
+            'csas_requests',
+            'coordinator',
+            'advisors',
+        ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
@@ -165,6 +176,23 @@ class ProcessForm(forms.ModelForm):
             error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
             self.add_error('other_regions', error_msg)
         return self.cleaned_data
+
+
+class ProcessTORForm(forms.ModelForm):
+    class Meta:
+        model = models.Process
+        fields = [
+            'context',
+            'objectives',
+            'expected_publications',
+        ]
+        widgets = {
+            'csas_requests': forms.SelectMultiple(attrs=chosen_js),
+            'advisors': forms.SelectMultiple(attrs=chosen_js),
+            'coordinator': forms.Select(attrs=chosen_js),
+            'lead_region': forms.Select(attrs=chosen_js),
+            'other_regions': forms.SelectMultiple(attrs=chosen_js),
+        }
 
 
 class MeetingForm(forms.ModelForm):
@@ -200,4 +228,3 @@ SeriesFormset = modelformset_factory(
     form=SeriesForm,
     extra=1,
 )
-

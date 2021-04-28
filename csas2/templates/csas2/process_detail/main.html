@@ -34,9 +34,11 @@
     </div>
 
     <div class="mb-3">
-      <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
+      <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit Basics" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
-      <a class="btn btn-sm btn-primary ml-3" href=""><span class="mdi mdi-file-document text-light mr-1"></span>{% trans "Export ToR" %}</a>
+      <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:process_edit' object.id %}?tor=true"><span
+        class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}</a>
+      <a class="btn btn-sm btn-primary" href=""><span class="mdi mdi-file-document text-light mr-1"></span>{% trans "Export ToR" %}</a>
     </div>
 
     <div class="mb-5">
