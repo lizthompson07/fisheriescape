@@ -5,13 +5,16 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from shared_models.utils import special_capitalize
 from . import serializers
 # USER
 #######
 from .pagination import StandardResultsSetPagination
+from .permissions import IsAdminOrReadOnly
 from .. import models
+from ..models import Region
 
 
 def _get_labels(model):
@@ -40,6 +43,54 @@ class CurrentUserAPIView(APIView):
         serializer = serializers.CurrentUserSerializer(instance=request.user)
         data = serializer.data
         return Response(data, status=status.HTTP_200_OK)
+
+
+class RegionViewSet(ModelViewSet):
+    queryset = models.Region.objects.order_by("name")
+    serializer_class = serializers.RegionSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+
+class BranchViewSet(ModelViewSet):
+    queryset = models.Branch.objects.order_by("region__name", "name")
+    serializer_class = serializers.BranchSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+
+class DivisionViewSet(ModelViewSet):
+    queryset = models.Division.objects.order_by("branch__region__name", "branch__name", "name")
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+
+class SectionViewSet(ModelViewSet):
+    queryset = models.Section.objects.order_by("division__branch__region__name", "division__branch__name", "division__name", "name")
+    serializer_class = serializers.SectionSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(last_modified_by=self.request.user)
 
 
 # LOOKUPS

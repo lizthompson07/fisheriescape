@@ -16,8 +16,13 @@ class CanModifyRequestOrReadOnly(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        elif can_modify_request(request.user, obj.id):
-            return True
+        else:
+            request_id = None
+            if isinstance(obj, models.CSASRequest):
+                request_id = obj.id
+            elif isinstance(obj, models.CSASRequestReview):
+                request_id = obj.csas_request.id
+            return can_modify_request(request.user, request_id)
 
 
 class CanModifyProcessOrReadOnly(permissions.BasePermission):

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -20,27 +22,28 @@ def request_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
 
 
-class CSASRequest(SimpleLookupWithUUID, MetadataFields):
+class CSASRequest(MetadataFields):
     ''' csas request '''
-    type = models.IntegerField(default=1, verbose_name=_("type"), choices=model_choices.request_type_choices)
+    is_carry_over = models.BooleanField(default=False, choices=model_choices.yes_no_choices,
+                                        verbose_name=_("Is this request a carry-over from a previous year?"))
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
-    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
-    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"))
-    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"))
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"))
-
+    title = models.CharField(max_length=1000, verbose_name=_("title"))
+    translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"),
+                                    blank=True, null=True)
+    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=True)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=True)
     is_multiregional = models.BooleanField(default=False,
                                            verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
 
-    issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"),
+    issue = models.TextField(verbose_name=_("Issue requiring science information and/or advice"), blank=True, null=True,
                              help_text=_("Should be phrased as a question to be answered by Science"))
     had_assistance = models.BooleanField(default=False, verbose_name=_(
         "Have you had assistance from Science in developing the question/request?"), help_text=_("E.g. with CSAS and/or DFO science staff."))
     assistance_text = models.TextField(null=True, blank=True, verbose_name=_(" Please provide details about the assistance received"))
 
-    rationale = models.TextField(verbose_name=_("Rationale or context for the request"),
+    rationale = models.TextField(verbose_name=_("Rationale or context for the request"), blank=True, null=True,
                                  help_text=_("What will the information/advice be used for? Who will be the end user(s)? Will it impact other DFO "
                                              "programs or regions?"))
     risk_text = models.TextField(null=True, blank=True, verbose_name=_("What is the expected consequence if science advice is not provided?"))
@@ -55,32 +58,46 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
-
     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
     # non-editable fields
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid4, verbose_name=_("unique identifier"))
 
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
                                     verbose_name=_("fiscal year"), editable=False)
+    ref_number = models.CharField(blank=True, null=True, editable=False, verbose_name=_("reference number"), max_length=255)
 
     class Meta:
-        ordering = ("fiscal_year", _("name"))
+        ordering = ("fiscal_year", "title")
         verbose_name_plural = _("CSAS Requests")
 
+    def __str__(self):
+        return self.title
+
     def save(self, *args, **kwargs):
-        self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
-        # look at the review to help determine the status
-        self.status = 1  # draft
-        if self.submission_date:
-            self.status = 2  # submitted
-        if hasattr(self, "review") and self.review.id:
-            self.status = 3  # under review
-            if self.review.decision:
-                self.status = self.review.decision + 10
+        if hasattr(self, "review"):
+            self.ref_number = self.review.ref_number
+            if self.review.advice_date:
+                self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
+        else:
+            self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
+
+        # if there is a process, the request is on
+        if self.id and self.processes.exists():
+            self.status = 11
+        else:
+            # look at the review to help determine the status
+            self.status = 1  # draft
+            if self.submission_date:
+                self.status = 2  # submitted
+            if hasattr(self, "review") and self.review.id:
+                self.status = 3  # under review
+                if self.review.decision:
+                    self.status = self.review.decision + 10
 
         super().save(*args, **kwargs)
 
@@ -96,6 +113,11 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
     def rationale_html(self):
         if self.rationale:
             return mark_safe(markdown(self.rationale))
+
+    @property
+    def risk_text_html(self):
+        if self.risk_text:
+            return mark_safe(markdown(self.risk_text))
 
     @property
     def multiregional_display(self):
@@ -129,14 +151,26 @@ class CSASRequest(SimpleLookupWithUUID, MetadataFields):
             return "{} - {}".format(self.get_prioritization_display(), text)
         return gettext("---")
 
+    @property
+    def branch(self):
+        return self.section.division.branch.tname
+
+    @property
+    def region(self):
+        return self.section.division.branch.region.tname
+
 
 class CSASRequestReview(MetadataFields):
-    csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, editable=False, related_name="review")
+    csas_request = models.OneToOneField(CSASRequest, on_delete=models.CASCADE, related_name="review")
+    ref_number = models.CharField(max_length=50, verbose_name=_("reference number (optional)"), blank=True, null=True)
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("prioritization"), choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("prioritization notes"))
     decision = models.IntegerField(blank=True, null=True, verbose_name=_("decision"), choices=model_choices.request_decision_choices)
     decision_text = models.TextField(blank=True, null=True, verbose_name=_("Decision explanation"))
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("decision date"))
+    advice_date = models.DateTimeField(verbose_name=_("date to provide Science advice"), blank=True, null=True)
+    is_deferred = models.BooleanField(default=False, verbose_name=_("was the original request date deferred?"))
+    deferred_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide rationale for the deferred date"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     def save(self, *args, **kwargs):
@@ -158,6 +192,13 @@ class CSASRequestReview(MetadataFields):
             text = self.prioritization_text if self.prioritization_text else gettext("no further detail provided.")
             return "{} - {}".format(self.get_prioritization_display(), text)
         return gettext("---")
+
+    @property
+    def deferred_display(self):
+        if self.is_deferred:
+            text = self.deferred_text if self.deferred_text else gettext("no further details provided.")
+            return "{} - {}".format(gettext("Yes"), text)
+        return gettext("No")
 
 
 class CSASRequestFile(models.Model):
