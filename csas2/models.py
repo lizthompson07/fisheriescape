@@ -29,7 +29,8 @@ class CSASRequest(MetadataFields):
     language = models.IntegerField(default=1, verbose_name=_("language of request"), choices=model_choices.language_choices)
     title = models.CharField(max_length=1000, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"), blank=True, null=True)
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"),
+                                    blank=True, null=True)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=True)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=True)
     is_multiregional = models.BooleanField(default=False,
@@ -69,7 +70,6 @@ class CSASRequest(MetadataFields):
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
                                     verbose_name=_("fiscal year"), editable=False)
     ref_number = models.CharField(blank=True, null=True, editable=False, verbose_name=_("reference number"), max_length=255)
-
 
     class Meta:
         ordering = ("fiscal_year", "title")
@@ -113,6 +113,11 @@ class CSASRequest(MetadataFields):
     def rationale_html(self):
         if self.rationale:
             return mark_safe(markdown(self.rationale))
+
+    @property
+    def risk_text_html(self):
+        if self.risk_text:
+            return mark_safe(markdown(self.risk_text))
 
     @property
     def multiregional_display(self):

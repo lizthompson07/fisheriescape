@@ -38,6 +38,10 @@ class CSASRequestSerializer(serializers.ModelSerializer):
     section_display = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()
     funding_display = serializers.SerializerMethodField()
+    risk_text_html = serializers.SerializerMethodField()
+
+    def get_risk_text_html(self, instance):
+        return instance.risk_text_html
 
     def get_funding_display(self, instance):
         return instance.funding_display

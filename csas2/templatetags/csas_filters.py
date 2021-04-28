@@ -9,6 +9,7 @@ def is_markdown_field(value):
         # request
         'issue',
         'rationale',
+        'risk_text',
         # process
         'context',
         'objectives',
