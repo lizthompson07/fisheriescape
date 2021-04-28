@@ -63,11 +63,13 @@ class CSASRequest(MetadataFields):
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid4, verbose_name=_("unique identifier"))
 
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_requests",
                                     verbose_name=_("fiscal year"), editable=False)
-    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid4, verbose_name=_("unique identifier"))
+    ref_number = models.CharField(blank=True, null=True, editable=False, verbose_name=_("reference number"))
+
 
     class Meta:
         ordering = ("fiscal_year", "title")
@@ -79,6 +81,7 @@ class CSASRequest(MetadataFields):
     def save(self, *args, **kwargs):
         if hasattr(self, "review") and self.review.advice_date:
             self.fiscal_year_id = fiscal_year(self.review.advice_date, sap_style=True)
+            self.ref_number = self.review.ref_number
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 

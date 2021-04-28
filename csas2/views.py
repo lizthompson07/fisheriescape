@@ -154,7 +154,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.CSASRequest.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_requests(self.request.user)
-        qs = qs.annotate(search_term=Concat('title', Value(" "), 'translated_title', output_field=TextField()))
+        qs = qs.annotate(search_term=Concat('title', Value(" "), 'translated_title', Value(" "), 'reference_number', output_field=TextField()))
         return qs
 
     def get_h1(self):
