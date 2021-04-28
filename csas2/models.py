@@ -87,7 +87,7 @@ class CSASRequest(MetadataFields):
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 
         # if there is a process, the request is on
-        if self.processes.exists():
+        if self.id and self.processes.exists():
             self.status = 11
         else:
             # look at the review to help determine the status
