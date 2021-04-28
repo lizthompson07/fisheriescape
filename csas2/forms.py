@@ -82,7 +82,7 @@ class CSASRequestForm(forms.ModelForm):
             'client': forms.Select(attrs=chosen_js),
             'coordinator': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
-            'advice_needed_by': forms.DateInput(attrs=attr_fp_date),
+            'advice_needed_by': forms.DateInput(attrs=dict(type="date")),
             'multiregional_text': forms.Textarea(attrs=rows3),
             'assistance_text': forms.Textarea(attrs=rows3),
             'funding_text': forms.Textarea(attrs=rows3),
