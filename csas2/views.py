@@ -188,6 +188,11 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
+    def get_initial(self):
+        return dict(
+            client=self.request.user
+        )
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = in_csas_admin_group(self.request.user)
