@@ -82,11 +82,12 @@ document_status_choices = (
 
 invitee_role_choices = (
     (1, 'Chair'),
-    (2, 'Participant'),
+    (7, 'CSAS coordinator'),
     (3, 'Expert'),
-    (4, 'Steering Committee Member (is this is good category?)'),
-    (5, 'Internal reviewer'),
     (6, 'External reviewer'),
+    (5, 'Internal reviewer'),
+    (2, 'Participant'),
+    # (4, 'Steering Committee Member (is this is good category?)'),
 )
 
 invitee_status_choices = (
