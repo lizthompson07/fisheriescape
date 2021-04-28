@@ -57,6 +57,7 @@ meeting_type_choices = (
     (1, _("Steering Committee Meeting")),
     (2, _("Science Management Meeting")),
     (3, _("Advisory Process Meeting (RAP)")),
+    (4, _("Science Response Meeting")),
 )
 
 note_type_choices = (
