@@ -142,7 +142,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": "", "width": "100px"},
-        {"name": 'ref_number|{}'.format(_("reference number")), "class": "", "width": "150px"},
+        {"name": 'ref_number', "class": "", "width": "150px"},
         {"name": 'title|{}'.format("title"), "class": "", "width": ""},
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'coordinator', "class": "", "width": "150px"},
