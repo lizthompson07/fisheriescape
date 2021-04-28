@@ -46,7 +46,7 @@ class CurrentUserAPIView(APIView):
 
 
 class RegionViewSet(ModelViewSet):
-    queryset = models.Region.objects.all()
+    queryset = models.Region.objects.order_by("name")
     serializer_class = serializers.RegionSerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -58,7 +58,7 @@ class RegionViewSet(ModelViewSet):
 
 
 class BranchViewSet(ModelViewSet):
-    queryset = models.Branch.objects.all()
+    queryset = models.Branch.objects.order_by("region__name", "name")
     serializer_class = serializers.BranchSerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -70,7 +70,7 @@ class BranchViewSet(ModelViewSet):
 
 
 class DivisionViewSet(ModelViewSet):
-    queryset = models.Division.objects.all()
+    queryset = models.Division.objects.order_by("branch__region__name", "branch__name", "name")
     serializer_class = serializers.DivisionSerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -82,7 +82,7 @@ class DivisionViewSet(ModelViewSet):
 
 
 class SectionViewSet(ModelViewSet):
-    queryset = models.Section.objects.all()
+    queryset = models.Section.objects.order_by("division__branch__region__name", "division__branch__name", "division__name", "name")
     serializer_class = serializers.SectionSerializer
     permission_classes = [IsAdminOrReadOnly]
 

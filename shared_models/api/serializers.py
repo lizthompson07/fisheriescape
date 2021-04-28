@@ -54,6 +54,11 @@ class RegionSerializer(serializers.ModelSerializer):
         model = Region
         fields = "__all__"
 
+    metadata = serializers.SerializerMethodField()
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
 
 class BranchSerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,6 +68,10 @@ class BranchSerializer(serializers.ModelSerializer):
     region_obj = serializers.SerializerMethodField()
     head_display = serializers.SerializerMethodField()
     admin_display = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+
+    def get_metadata(self, instance):
+        return instance.metadata
 
     def get_admin_display(self, instance):
         if instance.admin:
@@ -85,6 +94,10 @@ class DivisionSerializer(serializers.ModelSerializer):
     branch_obj = serializers.SerializerMethodField()
     head_display = serializers.SerializerMethodField()
     admin_display = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+
+    def get_metadata(self, instance):
+        return instance.metadata
 
     def get_admin_display(self, instance):
         if instance.admin:
@@ -111,6 +124,10 @@ class SectionSerializer(serializers.ModelSerializer):
     division_obj = serializers.SerializerMethodField()
     head_display = serializers.SerializerMethodField()
     admin_display = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
+
+    def get_metadata(self, instance):
+        return instance.metadata
 
     def get_admin_display(self, instance):
         if instance.admin:

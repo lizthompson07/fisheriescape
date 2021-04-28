@@ -22,26 +22,26 @@
     <div v-else>
 
       <div class="btns mb-5" v-if="!sectionToEdit && !divisionToEdit && !branchToEdit">
-        <button @click="changeTab('sections')" :class="{'btn btn-lg':true, 'btn-success':showSections, 'btn-primary':!showSections}">
-          {% trans "Sections" %}
-        </button>
-        <button @click="changeTab('divisions')" :class="{'btn btn-lg':true, 'btn-success':showDivisions, 'btn-primary':!showDivisions}">
-          {% trans "Divisions" %}
+        <button @click="changeTab('regions')" :class="{'btn btn-lg':true, 'btn-success':showRegions, 'btn-primary':!showRegions}">
+          {% trans "Regions" %}
         </button>
         <button @click="changeTab('branches')" :class="{'btn btn-lg':true, 'btn-success':showBranches, 'btn-primary':!showBranches}">
           {% trans "Branches" %}
         </button>
-        <button @click="changeTab('regions')" :class="{'btn btn-lg':true, 'btn-success':showRegions, 'btn-primary':!showRegions}">
-          {% trans "Regions" %}
+        <button @click="changeTab('divisions')" :class="{'btn btn-lg':true, 'btn-success':showDivisions, 'btn-primary':!showDivisions}">
+          {% trans "Divisions" %}
+        </button>
+        <button @click="changeTab('sections')" :class="{'btn btn-lg':true, 'btn-success':showSections, 'btn-primary':!showSections}">
+          {% trans "Sections" %}
         </button>
       </div>
 
       {# fitlers #}
-      <div v-if="(showSections || showDivisions || showBranches) && (!sectionToEdit && !divisionToEdit && !branchToEdit)" class="row mb-3">
+      <div v-if="(showSections || showDivisions || showBranches) && (!sectionToEdit && !divisionToEdit && !branchToEdit)" class="row mb-3 table-bordered py-3">
         <div class="col-2">
           <label for="">{% trans "Region" %}</label>
-          <select v-model="regionFilter" style="font-size: small" class="form-control form-control-sm">
-            <option value="" label="----"></option>
+          <select v-model="regionFilter" style="font-size: small" class="form-control form-control-sm" @change="branchFilter=null;divisionFilter=null;">
+            <option :value="null" label="----"></option>
             <option
               v-for="r, index in regions"
               :key=r.id
@@ -49,25 +49,25 @@
               :value="r.id"></option>
           </select>
         </div>
-        <div class="col-2">
+        <div class="col-2" v-if="showDivisions || showSections">
           <label for="">{% trans "Branch" %}</label>
-          <select v-model="branchFilter" style="font-size: small" class="form-control form-control-sm">
-            <option value="" label="----"></option>
+          <select v-model="branchFilter" style="font-size: small" class="form-control form-control-sm" @change="divisionFilter=null;">
+            <option :value="null" label="----"></option>
             <option
               v-for="b, index in filteredBranches"
               :key=b.id
-              :label="b.name"
+              :label="`${b.region_obj.name} - ${b.name}`"
               :value="b.id"></option>
           </select>
         </div>
-        <div class="col-2">
+        <div class="col-2" v-if="showSections">
           <label for="">{% trans "Division" %}</label>
           <select v-model="divisionFilter" style="font-size: small" class="form-control form-control-sm">
-            <option value="" label="----"></option>
+            <option :value="null" label="----"></option>
             <option
               v-for="d, index in filteredDivisions"
               :key=d.id
-              :label="d.name"
+              :label="`${d.branch_obj.region_obj.name} - ${d.branch_obj.name} - ${d.name}`"
               :value="d.id"></option>
           </select>
         </div>
@@ -122,7 +122,13 @@
           >
           </v-select>
         </div>
-
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <button @click="popLink('{{ new_user_url }}')" class="btn btn-link">this form</button>.
+          {% endblocktrans %}
+        </div>
         <input type="submit" value="Submit" class="btn btn-warning">
         <button @click="sectionToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
 
@@ -181,7 +187,13 @@
           >
           </v-select>
         </div>
-
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <a href="#" pop-href="{{ new_user_url }}">this form</a>.
+          {% endblocktrans %}
+        </div>
         <input type="submit" value="Submit" class="btn btn-warning">
         <button @click="divisionToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
 
@@ -240,7 +252,13 @@
           >
           </v-select>
         </div>
-
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <a href="#" pop-href="{{ new_user_url }}">this form</a>.
+          {% endblocktrans %}
+        </div>
         <input type="submit" value="Submit" class="btn btn-warning">
         <button @click="branchToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
 
@@ -288,7 +306,13 @@
           >
           </v-select>
         </div>
-
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <a href="#" pop-href="{{ new_user_url }}">this form</a>.
+          {% endblocktrans %}
+        </div>
         <input type="submit" value="Submit" class="btn btn-warning">
         <button @click="regionToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
 
@@ -299,6 +323,7 @@
         </div>
 
       </form>
+
       {# table #}
       <div v-if="showSections">
         <div v-if="!sectionToEdit">
@@ -319,6 +344,7 @@
               <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
@@ -334,6 +360,7 @@
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editSection(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -363,6 +390,7 @@
               <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
@@ -376,6 +404,7 @@
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editDivision(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -404,6 +433,7 @@
               <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
@@ -415,6 +445,7 @@
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editBranch(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -443,6 +474,7 @@
               <th>{% trans "Abbreviation" %}</th>
               <th>{% trans "Head" %}</th>
               <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
             </tr>
             </thead>
             <tbody>
@@ -452,6 +484,7 @@
               <td>${obj.abbrev}</td>
               <td>${obj.head_display}</td>
               <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
               <td>
                 <div class="btn-group">
                   <button @click="editRegion(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
@@ -510,7 +543,9 @@
       regionToEdit: null,
     },
     methods: {
-
+      popLink(url) {
+        popitup(url)
+      },
       changeTab(sectionName) {
         this.showSections = false;
         this.showDivisions = false;
@@ -540,7 +575,8 @@
             })
       },
       editSection(section) {
-        if (!section) this.sectionToEdit = {};
+        this.errors = null;
+        if (!section) this.sectionToEdit = {division: this.divisionFilter};
         else this.sectionToEdit = section;
         this.$nextTick(() => {
           {#this.$refs.form_start.focus()#}
@@ -579,6 +615,7 @@
             })
       },
       editDivision(division) {
+        this.errors = null;
         if (!division) this.divisionToEdit = {};
         else this.divisionToEdit = division;
         this.$nextTick(() => {
@@ -618,6 +655,7 @@
             })
       },
       editBranch(branch) {
+        this.errors = null;
         if (!branch) this.branchToEdit = {};
         else this.branchToEdit = branch;
         this.$nextTick(() => {
@@ -658,6 +696,7 @@
       },
 
       editRegion(region) {
+        this.errors = null;
         if (!region) this.regionToEdit = {};
         else this.regionToEdit = region;
         this.$nextTick(() => {

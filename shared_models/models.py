@@ -202,6 +202,10 @@ class Region(SimpleLookupWithUUID):
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
+
     class Meta:
         ordering = ['name', ]
         verbose_name = _("Region - Sector (NCR)")
@@ -220,6 +224,10 @@ class Branch(SimpleLookupWithUUID):
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
 
     def __str__(self):
         # check to see if a french value is given
@@ -242,6 +250,10 @@ class Division(SimpleLookupWithUUID):
     # meta
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
 
     def __str__(self):
         # check to see if a french value is given
@@ -277,6 +289,11 @@ class Section(SimpleLookupWithUUID):
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
         verbose_name = _("Section - Team (NCR)")
         verbose_name_plural = _("Sections - Teams (NCR)")
+
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
+
 
     def get_full_name_en(self):
         if self.division:
