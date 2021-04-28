@@ -220,7 +220,7 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
         return context
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request")), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -239,7 +239,7 @@ class CSASRequestDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
         return "{} {}".format(_("Request"), self.get_object().id)
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Request")), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
 
 class CSASRequestSubmitView(CSASRequestUpdateView):
