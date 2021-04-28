@@ -58,13 +58,12 @@ class CSASRequestForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
         fields = [
-            'type',
-            'language',
-            'name',
-            'nom',
-            'coordinator',
             'client',
             'section',
+            'coordinator',
+            'language',
+            'title',
+            'is_carry_over',
             'is_multiregional',
             'multiregional_text',
             'issue',
@@ -83,11 +82,11 @@ class CSASRequestForm(forms.ModelForm):
             'client': forms.Select(attrs=chosen_js),
             'coordinator': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
-            'advice_needed_by': forms.DateInput(attrs=attr_fp_date),
+            'advice_needed_by': forms.DateInput(attrs=dict(type="date")),
             'multiregional_text': forms.Textarea(attrs=rows3),
             'assistance_text': forms.Textarea(attrs=rows3),
             'funding_text': forms.Textarea(attrs=rows3),
-            'risk_text': forms.Textarea(attrs=rows3),
+            'risk_text': forms.Textarea(),
             'rationale_for_timeline': forms.Textarea(attrs=rows3),
             'prioritization_text': forms.Textarea(attrs=rows3),
         }
@@ -102,10 +101,17 @@ class CSASRequestForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         # make sure there is at least an english or french title
-        name = cleaned_data.get("name")
-        nom = cleaned_data.get("nom")
-        if not name and not nom:
-            error_msg = gettext("Must have either an English title or a French title!")
+        client = cleaned_data.get("client")
+        coordinator = cleaned_data.get("coordinator")
+        section = cleaned_data.get("section")
+        if not client:
+            error_msg = gettext("Must enter a client for this request!")
+            raise forms.ValidationError(error_msg)
+        if not coordinator:
+            error_msg = gettext("Must enter a coordinator for this request!")
+            raise forms.ValidationError(error_msg)
+        if not section:
+            error_msg = gettext("Must enter a section for this request!")
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
 
@@ -116,6 +122,7 @@ class CSASRequestReviewForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'decision_date': forms.DateInput(attrs=attr_fp_date),
+            'advice_date': forms.DateInput(attrs=attr_fp_date),
             'prioritization_text': forms.Textarea(attrs=rows3),
             'decision_text': forms.Textarea(attrs=rows3),
         }
@@ -141,7 +148,18 @@ class CSASRequestFileForm(forms.ModelForm):
 class ProcessForm(forms.ModelForm):
     class Meta:
         model = models.Process
-        fields = "__all__"
+        fields = [
+            'name',
+            'nom',
+            'status',
+            'scope',
+            'type',
+            'lead_region',
+            'other_regions',
+            'csas_requests',
+            'coordinator',
+            'advisors',
+        ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
@@ -151,7 +169,7 @@ class ProcessForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request_choices = [(obj.id, f"{obj.id} - {str(obj)} ({obj.fiscal_year})") for obj in models.CSASRequest.objects.all()]
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)} ({obj.fiscal_year})") for obj in models.CSASRequest.objects.filter(submission_date__isnull=False)]
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices
 
@@ -165,6 +183,23 @@ class ProcessForm(forms.ModelForm):
             error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
             self.add_error('other_regions', error_msg)
         return self.cleaned_data
+
+
+class ProcessTORForm(forms.ModelForm):
+    class Meta:
+        model = models.Process
+        fields = [
+            'context',
+            'objectives',
+            'expected_publications',
+        ]
+        widgets = {
+            'csas_requests': forms.SelectMultiple(attrs=chosen_js),
+            'advisors': forms.SelectMultiple(attrs=chosen_js),
+            'coordinator': forms.Select(attrs=chosen_js),
+            'lead_region': forms.Select(attrs=chosen_js),
+            'other_regions': forms.SelectMultiple(attrs=chosen_js),
+        }
 
 
 class MeetingForm(forms.ModelForm):
@@ -200,4 +235,3 @@ SeriesFormset = modelformset_factory(
     form=SeriesForm,
     extra=1,
 )
-

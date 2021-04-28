@@ -140,13 +140,13 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'id|{}'.format("request id"), "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": ""},
-        {"name": 'coordinator', "class": "", "width": ""},
-        {"name": 'client', "class": "", "width": ""},
-        {"name": 'section.full_name', "class": "", "width": ""},
+        {"name": 'id', "class": "", "width": "50px"},
+        {"name": 'fiscal_year', "class": "", "width": "100px"},
+        {"name": 'ref_number', "class": "", "width": "150px"},
+        {"name": 'title|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": "100px"},
+        {"name": 'coordinator', "class": "", "width": "150px"},
+        {"name": 'section.full_name|{}'.format(_("Region/Sector")), "class": "", "width": "30%"},
     ]
 
     def get_queryset(self):
@@ -154,7 +154,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.CSASRequest.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_requests(self.request.user)
-        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qs = qs.annotate(search_term=Concat('title', Value(" "), 'translated_title', Value(" "), 'ref_number', output_field=TextField()))
         return qs
 
     def get_h1(self):
@@ -169,6 +169,9 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     template_name = 'csas2/request_detail/main.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+
+    def get_active_page_name_crumb(self):
+        return "{} {}".format(_("Request"), self.get_object().id)
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
@@ -185,6 +188,16 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
+    def get_initial(self):
+        return dict(
+            client=self.request.user
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_csas_admin_group(self.request.user)
+        return context
+
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
@@ -198,8 +211,16 @@ class CSASRequestUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
+    def get_active_page_name_crumb(self):
+        return "{} {}".format(_("Request"), self.get_object().id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_admin"] = in_csas_admin_group(self.request.user)
+        return context
+
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -214,8 +235,11 @@ class CSASRequestDeleteView(CanModifyRequestRequiredMixin, CommonDeleteView):
     delete_protection = False
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
+    def get_active_page_name_crumb(self):
+        return "{} {}".format(_("Request"), self.get_object().id)
+
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
 
 class CSASRequestSubmitView(CSASRequestUpdateView):
@@ -240,7 +264,7 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
             return _("Please ensure the following items have been completed:")
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
+        return {"title": "{} {}".format(_("Request"), self.get_object().id), "url": reverse_lazy("csas2:request_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -252,6 +276,37 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
         return super().form_valid(form)
 
 
+class CSASRequestCloneUpdateView(CSASRequestUpdateView):
+    h1 = gettext_lazy("Clone a CSAS Request")
+    h2 = gettext_lazy("Please update the request details")
+
+    def test_func(self):
+        if self.request.user.id:
+            return True
+
+    def get_initial(self):
+        my_object = models.CSASRequest.objects.get(pk=self.kwargs["pk"])
+        data = dict(
+            title=f"COPY OF: {my_object.title}",
+            client=self.request.user,
+            advice_needed_by=None,
+        )
+        return data
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        new_obj.pk = None
+        new_obj.status = 1
+        new_obj.submission_date = None
+        new_obj.old_id = None
+        new_obj.uuid = None
+        new_obj.ref_number = None
+        new_obj.created_by = self.request.user
+        new_obj.notes = None
+        new_obj.save()
+        return HttpResponseRedirect(reverse_lazy("csas2:request_detail", args=[new_obj.id]))
+
+
 # csas request reviews #
 ########################
 
@@ -259,7 +314,7 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
 class CSASRequestReviewCreateView(CanModifyRequestRequiredMixin, CommonCreateView):
     model = models.CSASRequestReview
     form_class = forms.CSASRequestReviewForm
-    template_name = 'csas2/form.html'
+    template_name = 'csas2/request_form.html'  # shared js_body
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
     submit_text = gettext_lazy("Start a Review")
@@ -280,7 +335,7 @@ class CSASRequestReviewCreateView(CanModifyRequestRequiredMixin, CommonCreateVie
 class CSASRequestReviewUpdateView(CanModifyRequestRequiredMixin, CommonUpdateView):
     model = models.CSASRequestReview
     form_class = forms.CSASRequestReviewForm
-    template_name = 'csas2/form.html'
+    template_name = 'csas2/request_form.html'  # shared js_body
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
 
@@ -351,9 +406,10 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'fiscal_year', "class": "", "width": ""},
-        {"name": 'id|{}'.format("process Id"), "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'tname|{}'.format("title"), "class": "", "width": "300px"},
+        {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
         {"name": 'lead_region', "class": "", "width": ""},
         {"name": 'other_regions', "class": "", "width": ""},
@@ -423,10 +479,16 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
 
 class ProcessUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.Process
-    form_class = forms.ProcessForm
     template_name = 'csas2/form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_form_class(self):
+        qp = self.request.GET
+        if qp.get("tor"):
+            return forms.ProcessTORForm
+        else:
+            return forms.ProcessForm
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
@@ -578,9 +640,9 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
 
     field_list = [
         {"name": 'ttitle|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'process', "class": "", "width": ""},
         {"name": 'type', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
+        {"name": 'process', "class": "", "width": ""},
         {"name": 'series', "class": "", "width": ""},
     ]
 
@@ -589,7 +651,12 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
         qs = models.Document.objects.all()
         if qp.get("personalized"):
             qs = utils.get_related_docs(self.request.user)
-        qs = qs.annotate(search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qs = qs.annotate(search_term=Concat(
+            'title_en',
+            Value(" "),
+            'title_fr',
+            output_field=TextField())
+        )
         return qs
 
     def get_h1(self):

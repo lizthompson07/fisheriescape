@@ -1,0 +1,813 @@
+{% extends 'shared_models/generic_base.html' %}
+{% load i18n %}
+
+{% block header %}
+  {{ block.super }}
+  <style>
+  body, input, td {
+      font-size: small;
+  }
+
+  </style>
+
+{% endblock %}
+
+{% block subcontent %}
+  <div id="app" v-cloak="">
+    <div v-if="loadingSections || loadingDivisions || loadingBranches || loadingRegions || loadingDMAppsUsers" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else>
+
+      <div class="btns mb-5" v-if="!sectionToEdit && !divisionToEdit && !branchToEdit">
+        <button @click="changeTab('regions')" :class="{'btn btn-lg':true, 'btn-success':showRegions, 'btn-primary':!showRegions}">
+          {% trans "Regions" %}
+        </button>
+        <button @click="changeTab('branches')" :class="{'btn btn-lg':true, 'btn-success':showBranches, 'btn-primary':!showBranches}">
+          {% trans "Branches" %}
+        </button>
+        <button @click="changeTab('divisions')" :class="{'btn btn-lg':true, 'btn-success':showDivisions, 'btn-primary':!showDivisions}">
+          {% trans "Divisions" %}
+        </button>
+        <button @click="changeTab('sections')" :class="{'btn btn-lg':true, 'btn-success':showSections, 'btn-primary':!showSections}">
+          {% trans "Sections" %}
+        </button>
+      </div>
+
+      {# fitlers #}
+      <div v-if="(showSections || showDivisions || showBranches) && (!sectionToEdit && !divisionToEdit && !branchToEdit)" class="row mb-3 table-bordered py-3">
+        <div class="col-2">
+          <label for="">{% trans "Region" %}</label>
+          <select v-model="regionFilter" style="font-size: small" class="form-control form-control-sm" @change="branchFilter=null;divisionFilter=null;">
+            <option :value="null" label="----"></option>
+            <option
+              v-for="r, index in regions"
+              :key=r.id
+              :label="r.name"
+              :value="r.id"></option>
+          </select>
+        </div>
+        <div class="col-2" v-if="showDivisions || showSections">
+          <label for="">{% trans "Branch" %}</label>
+          <select v-model="branchFilter" style="font-size: small" class="form-control form-control-sm" @change="divisionFilter=null;">
+            <option :value="null" label="----"></option>
+            <option
+              v-for="b, index in filteredBranches"
+              :key=b.id
+              :label="`${b.region_obj.name} - ${b.name}`"
+              :value="b.id"></option>
+          </select>
+        </div>
+        <div class="col-2" v-if="showSections">
+          <label for="">{% trans "Division" %}</label>
+          <select v-model="divisionFilter" style="font-size: small" class="form-control form-control-sm">
+            <option :value="null" label="----"></option>
+            <option
+              v-for="d, index in filteredDivisions"
+              :key=d.id
+              :label="`${d.branch_obj.region_obj.name} - ${d.branch_obj.name} - ${d.name}`"
+              :value="d.id"></option>
+          </select>
+        </div>
+      </div>
+
+      {# form #}
+      <form v-if="sectionToEdit" @submit.prevent="updateSection">
+        <div class="form-group">
+          <label for="">{% trans "Division" %}</label>
+          <select required v-model="sectionToEdit.division" style="font-size: small" class="form-control form-control-sm" ref="form_start">
+            <option
+              v-for="d, index in divisions"
+              :key=d.id
+              :label="`${d.branch_obj.region_obj.name} - ${d.branch_obj.name} - ${d.name}`"
+              :value="d.id">
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Abbreviation" %}</label>
+          <textarea v-model="sectionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Name" %}</label>
+          <textarea v-model="sectionToEdit.name" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Nom" %}</label>
+          <textarea v-model="sectionToEdit.nom" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Head" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="sectionToEdit.head"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Admin" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="sectionToEdit.admin"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <button @click="popLink('{{ new_user_url }}')" class="btn btn-link">this form</button>.
+          {% endblocktrans %}
+        </div>
+        <input type="submit" value="Submit" class="btn btn-warning">
+        <button @click="sectionToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
+
+        <div v-if="errors" class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">
+            ${errors}
+          </h4>
+        </div>
+
+      </form>
+      <form v-else-if="divisionToEdit" @submit.prevent="updateDivision">
+        <div class="form-group">
+          <label for="">{% trans "Branch" %}</label>
+          <select required v-model="divisionToEdit.branch" style="font-size: small" class="form-control form-control-sm" ref="form_start">
+            <option
+              v-for="b, index in branches"
+              :key=b.id
+              :label="`${b.region_obj.name} - ${b.name}`"
+              :value="b.id">
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Abbreviation" %}</label>
+          <textarea v-model="divisionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Name" %}</label>
+          <textarea v-model="divisionToEdit.name" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Nom" %}</label>
+          <textarea v-model="divisionToEdit.nom" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Head" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="divisionToEdit.head"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Admin" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="divisionToEdit.admin"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <a href="#" pop-href="{{ new_user_url }}">this form</a>.
+          {% endblocktrans %}
+        </div>
+        <input type="submit" value="Submit" class="btn btn-warning">
+        <button @click="divisionToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
+
+        <div v-if="errors" class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">
+            ${errors}
+          </h4>
+        </div>
+
+      </form>
+      <form v-else-if="branchToEdit" @submit.prevent="updateBranch">
+        <div class="form-group">
+          <label for="">{% trans "Region" %}</label>
+          <select required v-model="branchToEdit.region" style="font-size: small" class="form-control form-control-sm" ref="form_start">
+            <option
+              v-for="r, index in regions"
+              :key=r.id
+              :label="`${r.name}`"
+              :value="r.id">
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Abbreviation" %}</label>
+          <textarea v-model="branchToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Name" %}</label>
+          <textarea v-model="branchToEdit.name" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Nom" %}</label>
+          <textarea v-model="branchToEdit.nom" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Head" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="branchToEdit.head"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Admin" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="branchToEdit.admin"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <a href="#" pop-href="{{ new_user_url }}">this form</a>.
+          {% endblocktrans %}
+        </div>
+        <input type="submit" value="Submit" class="btn btn-warning">
+        <button @click="branchToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
+
+        <div v-if="errors" class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">
+            ${errors}
+          </h4>
+        </div>
+
+      </form>
+      <form v-else-if="regionToEdit" @submit.prevent="updateRegion">
+        <div class="form-group">
+          <label for="">{% trans "Abbreviation" %}</label>
+          <textarea v-model="regionToEdit.abbrev" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Name" %}</label>
+          <textarea v-model="regionToEdit.name" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Nom" %}</label>
+          <textarea v-model="regionToEdit.nom" class="form-control form-control-sm" style="font-size: small"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Head" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="regionToEdit.head"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        <div class="form-group">
+          <label for="">{% trans "Admin" %}</label>
+          <v-select
+            style="width: 100%; font-size: small"
+            v-model="regionToEdit.admin"
+            :options="dmAppsUsers"
+            label='full_name'
+            :reduce="full_name => full_name.id"
+            :clearable="false"
+          >
+          </v-select>
+        </div>
+        {% url 'shared_models:user_new' as new_user_url %}
+        <div class="mb-3">
+          {% blocktrans %}
+            If the user is not in the above list, you can add a new DM Apps User using
+            <a href="#" pop-href="{{ new_user_url }}">this form</a>.
+          {% endblocktrans %}
+        </div>
+        <input type="submit" value="Submit" class="btn btn-warning">
+        <button @click="regionToEdit=null" class="btn btn-secondary">{% trans "Cancel" %}</button>
+
+        <div v-if="errors" class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">
+            ${errors}
+          </h4>
+        </div>
+
+      </form>
+
+      {# table #}
+      <div v-if="showSections">
+        <div v-if="!sectionToEdit">
+          <div class="mb-3">
+            <h3>{% trans "Sections" %}</h3>
+          </div>
+          <div class="mb-3">
+            <button @click="editSection(null)" class="btn btn-warning">{% trans "New" %}</button>
+          </div>
+          <table class="table table-sm table-bordered">
+            <thead>
+            <tr>
+              <th style="width: 100px">{% trans "Region" %}</th>
+              <th style="width: 200px">{% trans "Branch" %}</th>
+              <th style="width: 250px">{% trans "Division" %}</th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation" %}</th>
+              <th>{% trans "Head" %}</th>
+              <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="obj, index in filteredSections" :key="obj.id" :ref="`section_${obj.id}`">
+              <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.region_obj.name}</td>
+              <td v-else>---</td>
+              <td v-if="obj.division_obj.branch_obj">${obj.division_obj.branch_obj.name}</td>
+              <td v-else>---</td>
+              <td v-if="obj.division_obj">${obj.division_obj.name}</td>
+              <td v-else>---</td>
+              <td>${obj.name}</td>
+              <td>${obj.nom}</td>
+              <td>${obj.abbrev}</td>
+              <td>${obj.head_display}</td>
+              <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
+              <td>
+                <div class="btn-group">
+                  <button @click="editSection(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
+                  <button @click="deleteSection(obj)" class="btn btn-sm btn-danger">{% trans "Delete" %}</button>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div v-else-if="showDivisions">
+        <div v-if="!divisionToEdit">
+          <div class="mb-3">
+            <h3>{% trans "Divisions" %}</h3>
+          </div>
+          <div class="mb-3">
+            <button @click="editDivision(null)" class="btn btn-warning">{% trans "New" %}</button>
+          </div>
+          <table class="table table-sm table-bordered">
+            <thead>
+            <tr>
+              <th style="width: 100px">{% trans "Region" %}</th>
+              <th style="width: 200px">{% trans "Branch" %}</th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation" %}</th>
+              <th>{% trans "Head" %}</th>
+              <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="obj, index in filteredDivisions" :key="obj.id" :ref="`division_${obj.id}`">
+              <td v-if="obj.branch_obj.region_obj">${obj.branch_obj.region_obj.name}</td>
+              <td v-else>---</td>
+              <td v-if="obj.branch_obj">${obj.branch_obj.name}</td>
+              <td v-else>---</td>
+              <td>${obj.name}</td>
+              <td>${obj.nom}</td>
+              <td>${obj.abbrev}</td>
+              <td>${obj.head_display}</td>
+              <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
+              <td>
+                <div class="btn-group">
+                  <button @click="editDivision(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
+                  <button @click="deleteDivision(obj)" class="btn btn-sm btn-danger">{% trans "Delete" %}</button>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div v-else-if="showBranches">
+        <div v-if="!branchToEdit">
+          <div class="mb-3">
+            <h3>{% trans "Branches" %}</h3>
+          </div>
+          <div class="mb-3">
+            <button @click="editBranch(null)" class="btn btn-warning">{% trans "New" %}</button>
+          </div>
+          <table class="table table-sm table-bordered">
+            <thead>
+            <tr>
+              <th style="width: 100px">{% trans "Region" %}</th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation" %}</th>
+              <th>{% trans "Head" %}</th>
+              <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="obj, index in filteredBranches" :key="obj.id" :ref="`branch_${obj.id}`">
+              <td v-if="obj.region_obj">${obj.region_obj.name}</td>
+              <td v-else>---</td>
+              <td>${obj.name}</td>
+              <td>${obj.nom}</td>
+              <td>${obj.abbrev}</td>
+              <td>${obj.head_display}</td>
+              <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
+              <td>
+                <div class="btn-group">
+                  <button @click="editBranch(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
+                  <button @click="deleteBranch(obj)" class="btn btn-sm btn-danger">{% trans "Delete" %}</button>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div v-else-if="showRegions">
+        <div v-if="!divisionToEdit">
+          <div class="mb-3">
+            <h3>{% trans "Regions" %}</h3>
+          </div>
+          <div class="mb-3">
+            <button @click="editRegion(null)" class="btn btn-warning">{% trans "New" %}</button>
+          </div>
+          <table class="table table-sm table-bordered">
+            <thead>
+            <tr>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Nom" %}</th>
+              <th>{% trans "Abbreviation" %}</th>
+              <th>{% trans "Head" %}</th>
+              <th>{% trans "Admin" %}</th>
+              <th style="width: 170px">{% trans "Metadata" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="obj, index in regions" :key="obj.id" :ref="`region_${obj.id}`">
+              <td>${obj.name}</td>
+              <td>${obj.nom}</td>
+              <td>${obj.abbrev}</td>
+              <td>${obj.head_display}</td>
+              <td>${obj.admin_display}</td>
+              <td v-html="obj.metadata"></td>
+              <td>
+                <div class="btn-group">
+                  <button @click="editRegion(obj)" class="btn btn-sm btn-primary">{% trans "Edit" %}</button>
+                  <button @click="deleteRegion(obj)" class="btn btn-sm btn-danger">{% trans "Delete" %}</button>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block body_js %}
+
+  {% include "_vuejs_import.html" %}
+
+  <script type="application/javascript">
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      sections: {},
+      divisions: {},
+      branches: {},
+      regions: {},
+      loadingSections: true,
+      loadingDivisions: true,
+      loadingBranches: true,
+      loadingRegions: true,
+
+      showSections: false,
+      showDivisions: false,
+      showBranches: false,
+      showRegions: false,
+
+      regionFilter: null,
+      branchFilter: null,
+      divisionFilter: null,
+
+      loadingDMAppsUsers: true,
+      dmAppsUsers: [],
+      errors: null,
+
+      sectionToEdit: null,
+      divisionToEdit: null,
+      branchToEdit: null,
+      regionToEdit: null,
+    },
+    methods: {
+      popLink(url) {
+        popitup(url)
+      },
+      changeTab(sectionName) {
+        this.showSections = false;
+        this.showDivisions = false;
+        this.showBranches = false;
+        this.showRegions = false;
+        if (sectionName === 'sections') this.showSections = true;
+        else if (sectionName === 'divisions') this.showDivisions = true;
+        else if (sectionName === 'branches') this.showBranches = true;
+        else if (sectionName === 'regions') this.showRegions = true;
+      },
+      getDMAppsUsers(value) {
+        this.loadingDMAppsUsers = true;
+        // Items have not already been requested
+        let endpoint = `/api/shared/users/?page_size=50000`;
+        apiService(endpoint).then(data => {
+          this.dmAppsUsers = data.results;
+          this.loadingDMAppsUsers = false;
+        });
+      },
+      getSections() {
+        this.loadingSections = true;
+        let endpoint = `/api/shared/viewsets/sections/`;
+        apiService(endpoint)
+            .then(response => {
+              this.loadingSections = false;
+              this.sections = response;
+            })
+      },
+      editSection(section) {
+        this.errors = null;
+        if (!section) this.sectionToEdit = {division: this.divisionFilter};
+        else this.sectionToEdit = section;
+        this.$nextTick(() => {
+          {#this.$refs.form_start.focus()#}
+        })
+      },
+      deleteSection(section) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this section?' %}");
+        if (userInput) {
+          let endpoint = `/api/shared/viewsets/sections/${section.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                this.$delete(this.sections, this.sections.indexOf(section));
+              })
+        }
+      },
+      updateSection() {
+        this.loading = true;
+        this.errors = null;
+        let endpoint;
+        let method;
+        if (this.sectionToEdit.id) {
+          endpoint = `/api/shared/viewsets/sections/${this.sectionToEdit.id}/`;
+          method = "PATCH";
+        } else {
+          endpoint = `/api/shared/viewsets/sections/`;
+          method = "POST";
+        }
+        apiService(endpoint, method, this.sectionToEdit)
+            .then(response => {
+              if (response.id) {
+                this.getSections();
+                this.sectionToEdit = null;
+              } else {
+                this.errors = groomJSON(response);
+              }
+            })
+      },
+      editDivision(division) {
+        this.errors = null;
+        if (!division) this.divisionToEdit = {branch: this.branchFilter}
+        else this.divisionToEdit = division;
+        this.$nextTick(() => {
+          this.$refs.form_start.focus()
+        })
+      },
+      deleteDivision(division) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this division?' %}");
+        if (userInput) {
+          let endpoint = `/api/shared/viewsets/divisions/${division.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                this.$delete(this.divisions, this.divisions.indexOf(division));
+              })
+        }
+      },
+      updateDivision() {
+        this.loading = true;
+        this.errors = null;
+        let endpoint;
+        let method;
+        if (this.divisionToEdit.id) {
+          endpoint = `/api/shared/viewsets/divisions/${this.divisionToEdit.id}/`;
+          method = "PATCH";
+        } else {
+          endpoint = `/api/shared/viewsets/divisions/`;
+          method = "POST";
+        }
+        apiService(endpoint, method, this.divisionToEdit)
+            .then(response => {
+              if (response.id) {
+                this.getDivisions();
+                this.divisionToEdit = null;
+              } else {
+                this.errors = groomJSON(response);
+              }
+            })
+      },
+      editBranch(branch) {
+        this.errors = null;
+        if (!branch) this.branchToEdit = {region: this.regionFilter};
+        else this.branchToEdit = branch;
+        this.$nextTick(() => {
+          this.$refs.form_start.focus()
+        })
+      },
+      deleteBranch(branch) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this branch?' %}");
+        if (userInput) {
+          let endpoint = `/api/shared/viewsets/branches/${branch.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                this.$delete(this.branches, this.branches.indexOf(branch));
+              })
+        }
+      },
+      updateBranch() {
+        this.loading = true;
+        this.errors = null;
+        let endpoint;
+        let method;
+        if (this.branchToEdit.id) {
+          endpoint = `/api/shared/viewsets/branches/${this.branchToEdit.id}/`;
+          method = "PATCH";
+        } else {
+          endpoint = `/api/shared/viewsets/branches/`;
+          method = "POST";
+        }
+        apiService(endpoint, method, this.branchToEdit)
+            .then(response => {
+              if (response.id) {
+                this.getBranches();
+                this.branchToEdit = null;
+              } else {
+                this.errors = groomJSON(response);
+              }
+            })
+      },
+
+      editRegion(region) {
+        this.errors = null;
+        if (!region) this.regionToEdit = {};
+        else this.regionToEdit = region;
+        this.$nextTick(() => {
+          this.$refs.form_start.focus()
+        })
+      },
+      deleteRegion(region) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this region?' %}");
+        if (userInput) {
+          let endpoint = `/api/shared/viewsets/regions/${region.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                this.$delete(this.regions, this.regions.indexOf(region));
+              })
+        }
+      },
+      updateRegion() {
+        this.loading = true;
+        this.errors = null;
+        let endpoint;
+        let method;
+        if (this.regionToEdit.id) {
+          endpoint = `/api/shared/viewsets/regions/${this.regionToEdit.id}/`;
+          method = "PATCH";
+        } else {
+          endpoint = `/api/shared/viewsets/regions/`;
+          method = "POST";
+        }
+        apiService(endpoint, method, this.regionToEdit)
+            .then(response => {
+              if (response.id) {
+                this.getRegions();
+                this.regionToEdit = null;
+              } else {
+                this.errors = groomJSON(response);
+              }
+            })
+      },
+
+      getDivisions() {
+        this.loadingDivisions = true;
+        let endpoint = `/api/shared/viewsets/divisions/`;
+        apiService(endpoint)
+            .then(response => {
+              this.loadingDivisions = false;
+              this.divisions = response;
+            })
+      },
+      getBranches() {
+        this.loadingBranches = true;
+        let endpoint = `/api/shared/viewsets/branches/`;
+        apiService(endpoint)
+            .then(response => {
+              this.loadingBranches = false;
+              this.branches = response;
+            })
+      },
+      getRegions() {
+        this.loadingRegions = true;
+        let endpoint = `/api/shared/regions/`;
+        apiService(endpoint)
+            .then(response => {
+              this.loadingRegions = false;
+              this.regions = response;
+            })
+      },
+    },
+    computed: {
+      filteredSections() {
+        myarray = []
+        for (var i = 0; i < this.sections.length; i++) {
+          if (this.divisionFilter) {
+            if (this.sections[i].division === this.divisionFilter) myarray.push(this.sections[i])
+          } else if (this.branchFilter) {
+            if (this.sections[i].division_obj.branch === this.branchFilter) myarray.push(this.sections[i])
+          } else if (this.regionFilter) {
+            if (this.sections[i].division_obj.branch_obj.region === this.regionFilter) myarray.push(this.sections[i])
+          } else myarray.push(this.sections[i])
+        }
+        return myarray
+      },
+      filteredDivisions() {
+        myarray = []
+        for (var i = 0; i < this.divisions.length; i++) {
+          if (this.branchFilter) {
+            if (this.divisions[i].branch === this.branchFilter) myarray.push(this.divisions[i])
+          } else if (this.regionFilter) {
+            if (this.divisions[i].branch_obj.region === this.regionFilter) myarray.push(this.divisions[i])
+          } else myarray.push(this.divisions[i])
+        }
+        return myarray
+      },
+      filteredBranches() {
+        myarray = []
+        for (var i = 0; i < this.branches.length; i++) {
+          if (this.regionFilter) {
+            if (this.branches[i].region === this.regionFilter) myarray.push(this.branches[i])
+          } else myarray.push(this.branches[i])
+        }
+        return myarray
+      }
+    },
+    created() {
+      this.getSections();
+      this.getDivisions();
+      this.getBranches();
+      this.getRegions();
+      this.getDMAppsUsers();
+    }
+  });
+
+  </script>
+
+{% endblock %}
