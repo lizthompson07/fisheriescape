@@ -95,6 +95,13 @@
                 <td class="text-left">${document.pages|nz}</td>
               </tr>
               <tr>
+                <th class="text-left">{% trans "URLs" %}</th>
+                <td class="text-left">
+                  <a :href="`${document.url_en}`" target="_blank">{% trans "English URL" %}</a><br>
+                  <a :href="`${document.url_fr}`" target="_blank">{% trans "French URL" %}</a>
+                </td>
+              </tr>
+              <tr>
                 <th class="text-left" v-html="documentLabels.hide_from_list"></th>
                 <td class="text-left">${document.hide_from_list|yesNo}</td>
               </tr>

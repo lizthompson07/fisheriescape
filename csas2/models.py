@@ -433,10 +433,9 @@ class Document(MetadataFields):
     year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
     pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True)
     pages = models.IntegerField(null=True, blank=True, verbose_name=_("pages"))
+    url_en = models.URLField(verbose_name=_("document url (English)"), blank=True, null=True, max_length=2000)
+    url_fr = models.URLField(verbose_name=_("document url (French)"), blank=True, null=True, max_length=2000)
     hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
-
-    # description_en = models.TextField(null=True, blank=True, verbose_name=_("description"))
-    # description_fr = models.TextField(null=True, blank=True, verbose_name=_("description"))
 
     # non-editable
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)

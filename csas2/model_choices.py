@@ -73,6 +73,7 @@ document_type_choices = (
     (4, _("Proceedings")),
     (5, _("Science Response")),
     (6, _("Working Paper")),
+    (7, _("Term of Reference")),
 )
 
 document_status_choices = (
