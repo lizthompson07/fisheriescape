@@ -189,11 +189,9 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, prog_grp=None):
     if prog_grp:
         final_grp_list = []
         for grp in new_grp_list:
-            if prog_grp in grp.prog_grp():
+            if prog_grp in grp.prog_group():
                 final_grp_list.append(grp)
     return final_grp_list
-
-    return grp_list
 
 
 def get_relc_from_point(shapely_geom):

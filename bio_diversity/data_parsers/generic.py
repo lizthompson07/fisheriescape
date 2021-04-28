@@ -1,3 +1,4 @@
+import copy
 from datetime import date, datetime, timedelta
 import pytz
 import pandas as pd
@@ -166,6 +167,8 @@ def generic_grp_parser(cleaned_data):
         log_data += "\n File format not valid: {}".format(err.__str__())
         return log_data, False
 
+
+    # prep data:
     sex_dict = {"M": "Male",
                 "F": "Female",
                 "I": "Immature"}
@@ -175,11 +178,19 @@ def generic_grp_parser(cleaned_data):
         row_parsed = True
         row_entered = False
         try:
-            tank_id = models.Tank.objects.filter(name__iexact=row["Origin Pond"]).get()
+            row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
+                                             "%Y%b%d").replace(tzinfo=pytz.UTC)
+            row_date = row_datetime.date()
+
+            end_tank_id = None
+            if utils.nan_to_none(row["Origin Pond"]) != utils.nan_to_none(row["Destination Pond"]):
+                start_tank_id = models.Tank.objects.filter(name__iexact=row["Origin Pond"]).get()
+                end_tank_id = models.Tank.objects.filter(name__iexact=row["Destination Pond"]).get()
             year, coll = utils.year_coll_splitter(row["Year Class"])
+            prog_grp = None
             if utils.nan_to_none(row["Group"]):
                 prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=row["Group"]).get()
-            grps = utils.get_grp(row["River"], year, coll, tank_id, prog_grp=prog_grp)
+            grps = utils.get_grp(row["River"], year, coll, start_tank_id, prog_grp=prog_grp)
             if len(grps) == 1:
                 grp_id = grps[0]
             else:
@@ -188,54 +199,86 @@ def generic_grp_parser(cleaned_data):
                 indv = False
                 log_data += "Error parsing row: \n"
                 log_data += str(row)
-                log_data += "\nGroup {}-{}-{} in container: {} and program group {} not found in" \
-                            " db\n".format(row["River"], year, coll, tank_id.name, row["Group"])
+                log_data += "\nGroup {}-{}-{} in container: {} and program group {} not uniquely found in" \
+                            " db\n".format(row["River"], year, coll, start_tank_id.name, row["Group"])
+                break
 
-            if indv:
-                anix = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
+            # get group at destination:
+            end_grp_id = None
+            if end_tank_id:
+                grps = utils.get_grp(row["River"], year, coll, end_tank_id, prog_grp=prog_grp)
+                if len(grps) > 0:
+                    end_grp_id = grps[0]
+                else:
+                    end_grp_id = copy.deepcopy(grp_id)
+                    end_grp_id.pk = None
+                    end_grp_id.save()
+                    grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk)
+                    utils.enter_grpd(grp_anix.pk, cleaned_data, row_date, grp_id.__str__(), "Parent Group", frm_grp_id=grp_id)
+                    utils.enter_contx(end_tank_id, cleaned_data, True, grp_pk=end_grp_id.pk)
 
-                row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                                 "%Y%b%d").replace(tzinfo=pytz.UTC)
-                row_date = row_datetime.date()
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None, None):
-                    row_entered = True
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
-                    row_entered = True
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
-                    row_entered = True
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Vial"], "Vial", None):
-                    row_entered = True
-                if type(row["Precocity (Y/N)"]) == str:
-                    if row["Precocity (Y/N)"].upper() == "Y":
-                        if utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Animal Health",
-                                             "Tissue Sample"):
-                            row_entered = True
-                if type(row["Mortality (Y/N)"]) == str:
-                    if row["Mortality (Y/N)"].upper() == "Y":
-                        mort_evnt, mort_anix = utils.enter_mortality(indv, cleaned_data, row_date)
-                if type(row["Tissue Sample (Y/N)"]) == str:
-                    if row["Tissue Sample (Y/N)"].upper() == "Y":
-                        if utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Animal Health",
-                                             "Tissue Sample"):
-                            row_entered = True
+                row_indv = models.Individual(stok_id=end_grp_id.stok_id,
+                                             coll_id=end_grp_id.coll_id,
+                                             indv_year=end_grp_id.grp_year,
+                                             spec_id=end_grp_id.spec_id,
+                                             indv_valid=True,
+                                             grp_id=end_grp_id,
+                                             created_by=end_grp_id.created_by,
+                                             created_date=end_grp_id.created_date,
+                                             )
+                row_indv.clean()
+                row_indv.save()
+                row_anix = utils.enter_anix(cleaned_data, indv_pk=row_indv.pk)
+            else:
+                row_indv = models.Individual(stok_id=grp_id.stok_id,
+                                             coll_id=grp_id.coll_id,
+                                             indv_year=grp_id.grp_year,
+                                             spec_id=grp_id.spec_id,
+                                             indv_valid=False,
+                                             grp_id=grp_id,
+                                             created_by=grp_id.created_by,
+                                             created_date=grp_id.created_date,
+                                             )
+                row_indv.clean()
+                row_indv.save()
+                row_anix = utils.enter_anix(cleaned_data, indv_pk=row_indv.pk)
 
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope", None):
-                    row_entered = True
-
-                if not row["ORIGIN POND"] == "nan" and not row["DESTINATION POND"] == "nan":
-                    in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
-                    out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
-                    if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
-                                                  indv_pk=indv.pk):
+            if row_indv:
+                if utils.nan_to_none(row["Sex"]):
+                    if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, sex_dict[row["Sex"]], "Gender", None, None):
                         row_entered = True
+                if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
+                    row_entered = True
+                if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
+                    row_entered = True
+                if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Vial"], "Vial", None):
+                    row_entered = True
+                if utils.nan_to_none(row["Precocity (Y/N)"]):
+                    if row["Precocity (Y/N)"].upper() == "Y":
+                        if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, None, "Animal Health",
+                                             "Tissue Sample"):
+                            row_entered = True
+                if utils.nan_to_none(row["Mortality (Y/N)"]):
+                    if row["Mortality (Y/N)"].upper() == "Y":
+                        mort_evnt, mort_anix = utils.enter_mortality(row_anix, cleaned_data, row_date)
+                if utils.nan_to_none(row["Tissue Sample (Y/N)"]):
+                    if row["Tissue Sample (Y/N)"].upper() == "Y":
+                        if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, None, "Animal Health",
+                                             "Tissue Sample"):
+                            row_entered = True
 
-                if row["COMMENTS"]:
-                    utils.comment_parser(row["COMMENTS"], anix, row_date)
+                if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope", None):
+                    row_entered = True
+
+                if utils.nan_to_none(row["COMMENTS"]):
+                    utils.comment_parser(row["COMMENTS"], row_anix, row_date)
             else:
                 break
 
         except Exception as err:
-            parsed = False
+            # nuke all valid individuals associated with the event
+            models.Individual.objects.filter(animal_details__evnt_id=cleaned_data["evnt_id"]).delete()
+
             log_data += "Error parsing row: \n"
             log_data += str(row)
             log_data += "\n Error: {}".format(err.__str__())
@@ -247,6 +290,8 @@ def generic_grp_parser(cleaned_data):
             rows_parsed += 1
         elif row_parsed:
             rows_parsed += 1
+
+
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
