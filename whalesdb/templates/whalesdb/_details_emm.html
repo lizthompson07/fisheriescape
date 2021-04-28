@@ -84,7 +84,7 @@
                 {% if editable and emm.recorder %}
                         {% with emm.recorder as recorder %}
                 <span class="px-1">
-                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ecp' recorder.pk 'pop' %}','rec')" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
+                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ecp' recorder.pk 'rec' %}','cha')" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
                 </span>
                 {% endwith %}
                 {% endif %}
@@ -94,11 +94,13 @@
             <table class="table">
                 <thead>
                 <tr><th>{% trans 'Channel No.'%}</th><th>{% trans 'ADC Bits'%}</th><th>{% trans 'Voltage (max)'%}</th><th>{% trans 'Voltage (min)'%}</th>
-                {% if not emm.eqt.pk == 4 %}
+                {# in the event an rec object is passed to the details page then we should show the attached hydrophones #}
+                {# if no rec, then we want to show the buttons to update the channel properties for this make and model #}
+                {% if rec %}
                     <th>{% trans 'Attached Hydrophones' %}</th>
-                {% endif %}
-                {% if not emm.eqt.pk == 4 %}
                     <th>{% trans 'Manage Hydrophones' %}</th>
+                {% elif auth %}
+                    <th></th>
                 {% endif %}
                 </tr>
                 </thead>
@@ -106,7 +108,7 @@
             {% for ecp in emm.recorder.channels.all %}
                     <tr>
                         <td>{{ecp.ecp_channel_no}}</td><td>{{ecp.eqa_adc_bits}}</td><td>{{ecp.ecp_voltage_range_min}}</td><td>{{ecp.ecp_voltage_range_max}}</td>
-                {% if not emm.eqt.pk == 4 %}
+                {% if rec %}
                     <td>
                         {% if ecp.ecp_channel_no in channels %}
                             {% for channel, hyd in channels.items %}
@@ -119,8 +121,13 @@
 
                     </td>
                     <td>
-                        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' rec.pk ecp.ecp_channel_no 'pop' %}','cha')"> + </a>
-                        <a class="btn btn-primary" href="{% url 'whalesdb:managed_ehe' rec.pk ecp.ecp_channel_no %}" > * </a>
+                            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' rec.pk ecp.ecp_channel_no 'pop' %}','cha')"> + </a>
+                            <a class="btn btn-primary" href="{% url 'whalesdb:managed_ehe' rec.pk ecp.ecp_channel_no %}" > * </a>
+                    </td>
+                {% elif auth %}
+                    <td>
+                      <a class="btn btn-primary btn-sm" href="#" onclick="return pop('{% url 'whalesdb:update_ecp' ecp.pk 'pop' %}','cha')" title="{% trans 'Update' %}"> {% trans '>' %} </a>
+                      <button type="button" class="btn btn-danger delete-btn btn-sm my-1" object-name="Channel-{{ecp.ecp_channel_no}}" delete_url="{% url 'whalesdb:delete_ecp' emm.pk ecp.ecp_channel_no %}">X</button>
                     </td>
                 {% endif %}
 

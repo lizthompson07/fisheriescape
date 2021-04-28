@@ -77,6 +77,9 @@ class EmmMakeModel(models.Model):
     emm_depth_rating = models.BigIntegerField(verbose_name=_("Depth Rating"))
     emm_description = models.CharField(max_length=500, verbose_name=_("Description"))
 
+    class Meta:
+        ordering = ('emm_make', 'emm_model')
+
     def __str__(self):
         return "{} {}".format(self.emm_make, self.emm_model)
 
@@ -87,9 +90,9 @@ class EcpChannelProperty(models.Model):
     ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', on_delete=models.DO_NOTHING, db_column='eqa_adc_bits',
                                      verbose_name=_("ADC Bits"))
-    ecp_voltage_range_min = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True,
+    ecp_voltage_range_min = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
                                                 verbose_name=_("Maximum voltage"))
-    ecp_voltage_range_max = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True,
+    ecp_voltage_range_max = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
                                                 verbose_name=_("Minimum voltage"))
 
     class Meta:
@@ -138,6 +141,9 @@ class EqhHydrophoneProperty(models.Model):
     eqh_range_min = models.BigIntegerField(verbose_name=_("Min Range (dB)"))
     eqh_range_max = models.BigIntegerField(verbose_name=_("Max Range (db)"))
 
+    class Meta:
+        ordering = ('emm__emm_make', 'emm__emm_model')
+
     def __str__(self):
         return "{}".format(self.emm)
 
@@ -147,6 +153,10 @@ class EqoOwner(shared_models.Lookup):
 
 
 class EqpEquipment(models.Model):
+
+    class Meta:
+        ordering = ('emm__emm_make', 'emm__emm_model')
+
     emm = models.ForeignKey("EmmMakeModel", on_delete=models.DO_NOTHING, verbose_name=_("Make and Model"))
     eqp_serial = models.CharField(max_length=50, verbose_name=_("Serial Number"))
     eqp_asset_id = models.CharField(blank=True, null=True, unique=True, max_length=50, verbose_name=_("Asset ID"))
@@ -166,6 +176,9 @@ class EqrRecorderProperties(models.Model):
     ert = models.ForeignKey('ErtRecorderType', on_delete=models.DO_NOTHING, verbose_name=_("Recorder Type"))
     eqr_internal_hydro = models.BooleanField(default=False, verbose_name=_("Has Internal Hydrophone"))
 
+    class Meta:
+        ordering = ('emm__emm_make', 'emm__emm_model')
+
     def __str__(self):
         return "{}".format(self.emm)
 
@@ -177,6 +190,7 @@ class EqtEquipmentTypeCode(shared_models.Lookup):
 
 class EtrTechnicalRepairEvent(models.Model):
     eqp = models.ForeignKey("EqpEquipment", on_delete=models.DO_NOTHING, verbose_name=_("Equipment"))
+    hyd = models.ForeignKey("EqpEquipment", on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Hydrophone"), related_name="etr_hydrophones")
     etr_date = models.DateField(blank=True, null=True, verbose_name=_("Date"))
     etr_issue_desc = models.TextField(blank=True, null=True, verbose_name=_("Issue"))
     etr_repair_desc = models.TextField(blank=True, null=True, verbose_name=_("Repair"))
@@ -195,6 +209,10 @@ def mooring_directory_path(instance, filename):
 
 
 class MorMooringSetup(models.Model):
+
+    class Meta:
+        ordering = ('mor_name',)
+
     mor_name = models.CharField(unique=True, max_length=50, verbose_name=_("Name"))
     mor_max_depth = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True,
                                         verbose_name=_("Max Depth"))
@@ -312,6 +330,7 @@ class StnStation(models.Model):
 
     class Meta:
         unique_together = (('stn_code', 'stn_revision'),)
+        ordering = ('stn_name',)
 
     def __str__(self):
         current = "Past"
@@ -371,6 +390,9 @@ class RetRecordingEventType(models.Model):
     ret_name = models.CharField(max_length=50, verbose_name=_("Name"))
     ret_desc = models.CharField(max_length=255, verbose_name=_("Description"))
 
+    class Meta:
+        ordering = ('ret_name',)
+
     def __str__(self):
         return "{} : {}".format(self.ret_name, self.ret_desc)
 
@@ -378,6 +400,9 @@ class RetRecordingEventType(models.Model):
 class RscRecordingSchedule(models.Model):
     rsc_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Recording Schedule"))
     rsc_period = models.BigIntegerField(verbose_name=_("Period"))
+
+    class Meta:
+        ordering = ('rsc_name',)
 
     def __str__(self):
         return "{} : {}".format(self.rsc_name, self.rsc_period)
@@ -396,6 +421,9 @@ class RttTimezoneCode(models.Model):
     rtt_name = models.CharField(max_length=50, verbose_name=_("Name"))
     rtt_offset = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Offset"))
 
+    class Meta:
+        ordering = ('rtt_offset', )
+
     def __str__(self):
         return "{}".format(self.rtt_abb)
 
@@ -407,6 +435,7 @@ class TeaTeamMember(models.Model):
 
     class Meta:
         unique_together = (('tea_last_name', 'tea_first_name'),)
+        ordering = ('tea_last_name', 'tea_first_name')
 
     def __str__(self):
         return "{}, {} ({})".format(self.tea_last_name, self.tea_first_name, self.tea_abb)
