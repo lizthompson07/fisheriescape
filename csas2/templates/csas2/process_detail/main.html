@@ -198,7 +198,6 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      canModify: false,
       loadingDocs: false,
       loadingMeetings: false,
       docs: [],
@@ -262,6 +261,7 @@
     created() {
       this.getDocuments();
       this.getMeetings();
+      this.getCurrentUser();
     },
   });
 

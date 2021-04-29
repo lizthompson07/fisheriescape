@@ -7,7 +7,7 @@ from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext_lazy as _, gettext, get_language
 from markdown import markdown
 
 from csas2 import model_choices
@@ -340,9 +340,9 @@ class Meeting(MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
     process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
     type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
+    is_virtual = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a virtual meeting?"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"),
                                 help_text=_("City, State/Province, Country or Virtual"))
-    is_virtual = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a virtual meeting?"))
 
     start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
@@ -394,10 +394,17 @@ class Meeting(MetadataFields):
     @property
     def tor_display_dates(self):
         start = date(self.start_date) if self.start_date else gettext("TBD")
-        dates = f'{start}'
+        lang = get_language()
+        if lang == 'fr':
+            dates = f'Le {start}'
+        else:
+            dates = f'{start}'
         if self.end_date and self.end_date != self.start_date:
             end = date(self.end_date)
-            dates += ' {} {}'.format(gettext("to"), end)
+            if lang == 'fr':
+                dates += f' au {end}'
+            else:
+                dates += f' to {end}'
         return dates
 
     @property
