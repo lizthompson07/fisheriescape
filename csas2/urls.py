@@ -44,6 +44,7 @@ urlpatterns = [
     path('processes/<int:process>/new-tor/', views.TermsOfReferenceCreateView.as_view(), name="tor_new"),
     path('terms-of-reference/<int:pk>/edit/', views.TermsOfReferenceUpdateView.as_view(), name="tor_edit"),
     path('terms-of-reference/<int:pk>/delete/', views.TermsOfReferenceDeleteView.as_view(), name="tor_delete"),
+    path('terms-of-reference/<int:pk>/export/', views.tor_export, name="tor_export"),
 
     # meetings
     path('processes/<int:process>/new-meeting/', views.MeetingCreateView.as_view(), name="meeting_new"),

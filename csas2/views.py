@@ -1,9 +1,11 @@
+import os
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -14,7 +16,7 @@ from shared_models.models import Person
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView
-from . import models, forms, filters, utils
+from . import models, forms, filters, utils, reports
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group
@@ -459,7 +461,7 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
     form_class = forms.TermsOfReferenceForm
     template_name = 'csas2/tor_form.html'
     home_url_name = "csas2:index"
-    submit_text = gettext_lazy("Start a Review")
+    submit_text = gettext_lazy("Initiate ToR")
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_initial(self):
@@ -511,6 +513,29 @@ class TermsOfReferenceDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView
 
     def get_success_url(self):
         return self.get_parent_crumb().get("url")
+
+
+@login_required()
+def tor_export(request, pk):
+    tor = get_object_or_404(models.TermsOfReference, pk=pk)
+
+    qp = request.GET
+    lang = qp.get("lang", "en") # default to english if no query
+
+    file_url = reports.generate_tor(tor, lang)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
+            if lang == "fr":
+                filename = f'CdeR (no. projet {tor.process.id}).docx'
+            else:
+                filename = f'ToR (Process ID {tor.process.id}).docx'
+
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
+    raise Http404
+
 
 
 # meetings #

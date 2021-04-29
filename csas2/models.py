@@ -342,6 +342,7 @@ class Meeting(MetadataFields):
     type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"),
                                 help_text=_("City, State/Province, Country or Virtual"))
+    is_virtual = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a virtual meeting?"))
 
     start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
@@ -355,6 +356,8 @@ class Meeting(MetadataFields):
     def save(self, *args, **kwargs):
         if self.start_date:
             self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
+        if self.is_virtual:
+            self.location = 'Virtual / Virtuel'
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -389,6 +392,15 @@ class Meeting(MetadataFields):
         return dates
 
     @property
+    def tor_display_dates(self):
+        start = date(self.start_date) if self.start_date else gettext("TBD")
+        dates = f'{start}'
+        if self.end_date and self.end_date != self.start_date:
+            end = date(self.end_date)
+            dates += ' {} {}'.format(gettext("to"), end)
+        return dates
+
+    @property
     def total_cost(self):
         return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
 
@@ -397,7 +409,7 @@ class Meeting(MetadataFields):
         chair_role = InviteeRole.objects.get(name__icontains="chair")
         qs = self.invitees.filter(roles=chair_role).distinct()
         if qs.exists():
-            return listrify([str(invitee.person) for invitee in qs])
+            return listrify([f"{invitee.person} ({invitee.person.affiliation})" for invitee in qs])
 
 
 class MeetingNote(GenericNote):

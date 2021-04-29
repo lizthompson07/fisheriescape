@@ -40,24 +40,24 @@
         <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_edit' object.tor.id %}">
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
         </a>
+        <div class="neighbours">
+          <div class="dropdown">
+            <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+               aria-expanded="false">
+              <span class="mdi mdi-file-word text-light mr-1"></span>{% trans "Export ToR" %}
+            </a>
+
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=en">{% trans "English" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=fr">{% trans "French" %}</a>
+            </div>
+          </div>
+        </div>
       {% else %}
         <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_new' object.id %}">
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
         </a>
       {% endif %}
-      <div class="neighbours">
-        <div class="dropdown">
-          <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
-             aria-expanded="false">
-            <span class="mdi mdi-file-word text-light mr-1"></span>{% trans "Export ToR" %}
-          </a>
-
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <a class="dropdown-item" href="#">{% trans "English" %}</a>
-            <a class="dropdown-item" href="#">{% trans "French" %}</a>
-          </div>
-        </div>
-      </div>
 
       {#      <a class="btn btn-sm btn-primary" href=""></a>#}
     </div>
