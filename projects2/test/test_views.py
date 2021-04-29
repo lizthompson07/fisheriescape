@@ -935,6 +935,37 @@ class TestReportSearchFormView(CommonTest):
         self.assert_correct_url("projects2:reports", f"/en/project-planning/reports/")
 
 
+@tag("ManagementReport")
+class TestManagementSearchFormView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('projects2:management_reports', args=('pop',))
+        self.expected_template = 'projects2/management_search.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("reports", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ManagementReportSearchFormView, CommonFormView)
+        self.assert_inheritance(views.ManagementReportSearchFormView, views.AdminRequiredMixin)
+
+    @tag("reports", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    # the management view reports should return an HttpResponse so it should return a 200
+    @tag("reports", "submit")
+    def test_submit(self):
+        data = dict(report=1)
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("reports", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:management_reports", f"/en/project-planning/reports/management/pop/",
+                                test_url_args=('pop',))
+
+
 class TestStatusReportDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
