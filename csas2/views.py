@@ -462,6 +462,12 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
     submit_text = gettext_lazy("Start a Review")
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
+    def get_initial(self):
+        """ For the benefit of the form class"""
+        return dict(
+            process=self.kwargs.get("process"),
+        )
+
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
 
@@ -597,15 +603,19 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        range = form.cleaned_data["date_range"].split("to")
-        start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
-        obj.start_date = start_date
-        if len(range) > 1:
-            end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
-            obj.end_date = end_date
+        range = form.cleaned_data["date_range"]
+        if range:
+            range = range.split("to")
+            start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
+            obj.start_date = start_date
+            if len(range) > 1:
+                end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
+                obj.end_date = end_date
+            else:
+                obj.end_date = start_date
         else:
-            obj.end_date = start_date
-
+            obj.start_date = None
+            obj.end_date = None
         obj.updated_by = self.request.user
         return super().form_valid(form)
 

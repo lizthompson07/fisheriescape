@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
 from shared_models.models import Section, Person
@@ -127,6 +128,16 @@ class TermsOfReferenceForm(forms.ModelForm):
         #     'decision_text': forms.Textarea(attrs=rows3),
         # }
 
+    def __init__(self, *args, **kwargs):
+        if kwargs.get("instance"):
+            process = kwargs.get("instance").process
+        else:
+            process = get_object_or_404(models.Process, pk=kwargs.get("initial").get("process"))
+        meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.all()]
+        meeting_choices.insert(0, (None, "-----"))
+        super().__init__(*args, **kwargs)
+        self.fields["meeting"].choices = meeting_choices
+
     # def clean(self):
     #     cleaned_data = super().clean()
     #     # make sure that if a decision is given, there is a decision date as well
@@ -170,7 +181,8 @@ class ProcessForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {obj.ref_number} ({obj.fiscal_year})") for obj in models.CSASRequest.objects.filter(submission_date__isnull=False)]
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {obj.ref_number} ({obj.fiscal_year})") for obj in
+                           models.CSASRequest.objects.filter(submission_date__isnull=False)]
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices
 
@@ -186,25 +198,9 @@ class ProcessForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class ProcessTORForm(forms.ModelForm):
-    class Meta:
-        model = models.Process
-        fields = [
-            'context',
-            'objectives',
-            'expected_publications',
-        ]
-        widgets = {
-            'csas_requests': forms.SelectMultiple(attrs=chosen_js),
-            'advisors': forms.SelectMultiple(attrs=chosen_js),
-            'coordinator': forms.Select(attrs=chosen_js),
-            'lead_region': forms.Select(attrs=chosen_js),
-            'other_regions': forms.SelectMultiple(attrs=chosen_js),
-        }
-
-
 class MeetingForm(forms.ModelForm):
-    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Meeting dates"))
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Meeting dates"), required=False,
+                                 help_text=gettext_lazy("This can be left blank if not currently known"))
 
     class Meta:
         model = models.Meeting

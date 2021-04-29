@@ -243,9 +243,9 @@ def get_process_field_list(process):
         'advisors',
         'lead_region',
         'other_regions',
-        'context_html|{}'.format(get_verbose_label(process, "context")),
-        'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
-        'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
+        # 'context_html|{}'.format(get_verbose_label(process, "context")),
+        # 'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
+        # 'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
         'type',
         'metadata|{}'.format(_("metadata")),
     ]

@@ -261,6 +261,27 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         return reverse("csas2:process_detail", args=[self.pk])
 
     @property
+    def scope_type(self):
+        return f"{self.get_scope_display()} {self.get_type_display()}"
+
+
+class TermsOfReference(MetadataFields):
+    process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
+    context_en = models.TextField(blank=True, null=True, verbose_name=_("context"))
+    context_fr = models.TextField(blank=True, null=True, verbose_name=_("context"))
+    objectives_en = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
+    objectives_fr = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
+    expected_publications_en = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
+    expected_publications_fr = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
+    participation_en = models.TextField(blank=True, null=True, verbose_name=_("participation"))
+    participation_fr = models.TextField(blank=True, null=True, verbose_name=_("participation"))
+    references_en = models.TextField(blank=True, null=True, verbose_name=_("references"))
+    references_fr = models.TextField(blank=True, null=True, verbose_name=_("references"))
+    meeting = models.OneToOneField("Meeting", blank=True, null=True, on_delete=models.DO_NOTHING, related_name="tor",
+                                   verbose_name=_("Linked to which meeting?"),
+                                   help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
+
+    @property
     def context_html(self):
         if self.context:
             return mark_safe(markdown(self.context))
@@ -274,20 +295,6 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def expected_publications_html(self):
         if self.expected_publications:
             return mark_safe(markdown(self.expected_publications))
-
-    @property
-    def scope_type(self):
-        return f"{self.get_scope_display()} {self.get_type_display()}"
-
-
-class TermsOfReference(MetadataFields):
-    process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
-    context = models.TextField(blank=True, null=True, verbose_name=_("context"))
-    objectives = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
-    expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
-    participation = models.TextField(blank=True, null=True, verbose_name=_("participation"))
-    references = models.TextField(blank=True, null=True, verbose_name=_("references"))
-    meeting = models.OneToOneField("Meeting", blank=True, null=True, on_delete=models.DO_NOTHING, related_name="tor")
 
 
 class GenericCost(models.Model):
@@ -318,9 +325,11 @@ class Meeting(MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
     process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
     type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
-    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"), help_text=_("City, State/Province, Country"))
-    start_date = models.DateTimeField(verbose_name=_("initial activity date"))
-    end_date = models.DateTimeField(verbose_name=_("anticipated end date"))
+    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"),
+                                help_text=_("City, State/Province, Country or Virtual"))
+
+    start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
+    end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
     # rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))
     hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
 
@@ -329,11 +338,13 @@ class Meeting(MetadataFields):
                                     editable=False)
 
     def save(self, *args, **kwargs):
-        self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
+        if self.start_date:
+            self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.get_type_display() + f" ({self.start_date.strftime('%Y-%m-%d')})"
+        dt = self.start_date.strftime('%Y-%m-%d') if self.start_date else gettext("TBD")
+        return self.get_type_display() + f" ({dt})"
 
     class Meta:
         ordering = ['start_date', ]
@@ -353,7 +364,7 @@ class Meeting(MetadataFields):
 
     @property
     def display_dates(self):
-        start = date(self.start_date) if self.start_date else "??"
+        start = date(self.start_date) if self.start_date else gettext("TBD")
         dates = f'{start}'
         if self.end_date and self.end_date != self.start_date:
             end = date(self.end_date)
