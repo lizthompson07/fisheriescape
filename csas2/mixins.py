@@ -83,12 +83,14 @@ class CanModifyProcessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
                 process_id = obj.id
             elif isinstance(obj, models.Meeting) or isinstance(obj, models.Document) or isinstance(obj, models.TermsOfReference):
                 process_id = obj.process.id
+            elif isinstance(obj, models.MeetingFile):
+                process_id = obj.meeting.process.id
         except AttributeError:
             if self.kwargs.get("process"):
                 process_id = self.kwargs.get("process")
-            # elif self.kwargs.get("meeting"):
-            #     meeting = get_object_or_404(models.Meeting, pk=self.kwargs.get("meeting"))
-            #     process_id = meeting.process_id
+            elif self.kwargs.get("meeting"):
+                meeting = get_object_or_404(models.Meeting, pk=self.kwargs.get("meeting"))
+                process_id = meeting.process_id
 
         finally:
             if process_id:

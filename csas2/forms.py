@@ -150,6 +150,12 @@ class CSASRequestFileForm(forms.ModelForm):
         fields = "__all__"
 
 
+class MeetingFileForm(forms.ModelForm):
+    class Meta:
+        model = models.MeetingFile
+        fields = "__all__"
+
+
 class ProcessForm(forms.ModelForm):
     class Meta:
         model = models.Process
@@ -198,7 +204,6 @@ class ProcessForm(forms.ModelForm):
             error_msg = gettext("Must enter a lead region for this process!")
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
-
 
 
 class MeetingForm(forms.ModelForm):

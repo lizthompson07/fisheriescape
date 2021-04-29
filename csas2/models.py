@@ -21,6 +21,23 @@ def request_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
 
 
+def meeting_directory_path(instance, filename):
+    return 'csas/meeting_{0}/{1}'.format(instance.meeting.id, filename)
+
+
+class GenericFile(models.Model):
+    caption = models.CharField(max_length=255)
+    file = models.FileField()
+    date_created = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        abstract = True
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return self.caption
+
+
 class CSASRequest(MetadataFields):
     ''' csas request '''
     is_carry_over = models.BooleanField(default=False, choices=model_choices.yes_no_choices,
@@ -204,17 +221,9 @@ class CSASRequestReview(MetadataFields):
         return gettext("No")
 
 
-class CSASRequestFile(models.Model):
+class CSASRequestFile(GenericFile):
     csas_request = models.ForeignKey(CSASRequest, related_name="files", on_delete=models.CASCADE, editable=False)
-    caption = models.CharField(max_length=255)
     file = models.FileField(upload_to=request_directory_path)
-    date_created = models.DateTimeField(auto_now=True, editable=False)
-
-    class Meta:
-        ordering = ['-date_created']
-
-    def __str__(self):
-        return self.caption
 
 
 class Process(SimpleLookupWithUUID, MetadataFields):
@@ -227,7 +236,8 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
     other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
     csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"), blank=True)
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"),
+                                    blank=True)
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
 
     # remove
@@ -266,8 +276,9 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def chair(self):
-        if hasattr(self,"tor") and self.tor.meeting:
+        if hasattr(self, "tor") and self.tor.meeting:
             return self.tor.meeting.chair
+
 
 class TermsOfReference(MetadataFields):
     process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
@@ -285,20 +296,20 @@ class TermsOfReference(MetadataFields):
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
 
-    @property
-    def context_html(self):
-        if self.context:
-            return mark_safe(markdown(self.context))
-
-    @property
-    def objectives_html(self):
-        if self.objectives:
-            return mark_safe(markdown(self.objectives))
-
-    @property
-    def expected_publications_html(self):
-        if self.expected_publications:
-            return mark_safe(markdown(self.expected_publications))
+    # @property
+    # def context_html(self):
+    #     if self.context:
+    #         return mark_safe(markdown(self.context))
+    #
+    # @property
+    # def objectives_html(self):
+    #     if self.objectives:
+    #         return mark_safe(markdown(self.objectives))
+    #
+    # @property
+    # def expected_publications_html(self):
+    #     if self.expected_publications:
+    #         return mark_safe(markdown(self.expected_publications))
 
 
 class GenericCost(models.Model):
@@ -386,6 +397,7 @@ class Meeting(MetadataFields):
         chair_role = InviteeRole.objects.get(name_ic)
         return
 
+
 class MeetingNote(GenericNote):
     ''' a note pertaining to a meeting'''
     meeting = models.ForeignKey(Meeting, related_name='notes', on_delete=models.CASCADE)
@@ -413,6 +425,11 @@ class MeetingResource(SimpleLookup, MetadataFields):
 
 class MeetingCost(GenericCost):
     meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE)
+
+
+class MeetingFile(GenericFile):
+    meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
+    file = models.FileField(upload_to=meeting_directory_path)
 
 
 class InviteeRole(SimpleLookup):

@@ -637,6 +637,33 @@ class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
+
+# meeting files #
+#################
+
+class MeetingFileCreateView(CanModifyProcessRequiredMixin, CommonPopoutCreateView):
+    model = models.MeetingFile
+    form_class = forms.MeetingFileForm
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.meeting_id = self.kwargs['meeting']
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class MeetingFileUpdateView(CanModifyProcessRequiredMixin, CommonPopoutUpdateView):
+    model = models.MeetingFile
+    form_class = forms.MeetingFileForm
+    is_multipart_form_data = True
+
+
+class MeetingFileDeleteView(CanModifyProcessRequiredMixin, CommonPopoutDeleteView):
+    model = models.MeetingFile
+
+
+
 # documents #
 #############
 

@@ -28,15 +28,10 @@ urlpatterns = [
     path('requests/<int:pk>/delete/', views.CSASRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/submit/', views.CSASRequestSubmitView.as_view(), name="request_submit"),
 
-    # request reviews
-    # path('requests/<int:crequest>/new-review/', views.CSASRequestReviewCreateView.as_view(), name="review_new"),
-    # path('reviews/<int:pk>/edit/', views.CSASRequestReviewUpdateView.as_view(), name="review_edit"),
-    # path('reviews/<int:pk>/delete/', views.CSASRequestReviewDeleteView.as_view(), name="review_delete"),
-
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),
-    path('files/<int:pk>/edit/', views.CSASRequestFileUpdateView.as_view(), name='request_file_edit'),
-    path('files/<int:pk>/delete/', views.CSASRequestFileDeleteView.as_view(), name='request_file_delete'),
+    path('request-files/<int:pk>/edit/', views.CSASRequestFileUpdateView.as_view(), name='request_file_edit'),
+    path('request-files/<int:pk>/delete/', views.CSASRequestFileDeleteView.as_view(), name='request_file_delete'),
 
     # processes
     path('processes/', views.ProcessListView.as_view(), name="process_list"),
@@ -55,6 +50,11 @@ urlpatterns = [
     path('meetings/<int:pk>/view/', views.MeetingDetailView.as_view(), name="meeting_detail"),
     path('meetings/<int:pk>/edit/', views.MeetingUpdateView.as_view(), name="meeting_edit"),
     path('meetings/<int:pk>/delete/', views.MeetingDeleteView.as_view(), name="meeting_delete"),
+
+    # meeting files
+    path('meetings/<int:meeting>/new-file/', views.MeetingFileCreateView.as_view(), name='meeting_file_new'),
+    path('meeting-files/<int:pk>/edit/', views.MeetingFileUpdateView.as_view(), name='meeting_file_edit'),
+    path('meeting-files/<int:pk>/delete/', views.MeetingFileDeleteView.as_view(), name='meeting_file_delete'),
 
     # docs
     path('documents/', views.DocumentListView.as_view(), name="document_list"),
