@@ -116,27 +116,27 @@ class CSASRequestForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class CSASRequestReviewForm(forms.ModelForm):
+class TermsOfReferenceForm(forms.ModelForm):
     class Meta:
-        model = models.CSASRequestReview
+        model = models.TermsOfReference
         fields = "__all__"
-        widgets = {
-            'decision_date': forms.DateInput(attrs=attr_fp_date),
-            'advice_date': forms.DateInput(attrs=attr_fp_date),
-            'prioritization_text': forms.Textarea(attrs=rows3),
-            'decision_text': forms.Textarea(attrs=rows3),
-        }
+        # widgets = {
+        #     'decision_date': forms.DateInput(attrs=attr_fp_date),
+        #     'advice_date': forms.DateInput(attrs=attr_fp_date),
+        #     'prioritization_text': forms.Textarea(attrs=rows3),
+        #     'decision_text': forms.Textarea(attrs=rows3),
+        # }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # make sure that if a decision is given, there is a decision date as well
-        decision = cleaned_data.get("decision")
-        decision_date = cleaned_data.get("decision_date")
-
-        if decision and not decision_date:
-            error_msg = gettext("If a decision was made, a decision date must also be populated!")
-            self.add_error('decision_date', error_msg)
-        return self.cleaned_data
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     # make sure that if a decision is given, there is a decision date as well
+    #     decision = cleaned_data.get("decision")
+    #     decision_date = cleaned_data.get("decision_date")
+    #
+    #     if decision and not decision_date:
+    #         error_msg = gettext("If a decision was made, a decision date must also be populated!")
+    #         self.add_error('decision_date', error_msg)
+    #     return self.cleaned_data
 
 
 class CSASRequestFileForm(forms.ModelForm):
@@ -151,6 +151,7 @@ class ProcessForm(forms.ModelForm):
         fields = [
             'name',
             'nom',
+            'fiscal_year',
             'status',
             'scope',
             'type',

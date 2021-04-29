@@ -45,16 +45,16 @@ urlpatterns = [
     path('processes/<int:pk>/edit/', views.ProcessUpdateView.as_view(), name="process_edit"),
     path('processes/<int:pk>/delete/', views.ProcessDeleteView.as_view(), name="process_delete"),
 
+    # ToR
+    path('processes/<int:process>/new-tor/', views.TermsOfReferenceCreateView.as_view(), name="tor_new"),
+    path('terms-of-reference/<int:pk>/edit/', views.TermsOfReferenceUpdateView.as_view(), name="tor_edit"),
+    path('terms-of-reference/<int:pk>/delete/', views.TermsOfReferenceDeleteView.as_view(), name="tor_delete"),
+
     # meetings
     path('processes/<int:process>/new-meeting/', views.MeetingCreateView.as_view(), name="meeting_new"),
     path('meetings/<int:pk>/view/', views.MeetingDetailView.as_view(), name="meeting_detail"),
     path('meetings/<int:pk>/edit/', views.MeetingUpdateView.as_view(), name="meeting_edit"),
     path('meetings/<int:pk>/delete/', views.MeetingDeleteView.as_view(), name="meeting_delete"),
-    #
-    # # invitees
-    # path('meetings/<int:meeting>/new-invitee/', views.InviteeCreateView.as_view(), name="invitee_new"),
-    # path('invitees/<int:pk>/edit/', views.InviteeUpdateView.as_view(), name="invitee_edit"),
-    # path('invitees/<int:pk>/delete/', views.InviteeDeleteView.as_view(), name="invitee_delete"),
 
     # docs
     path('documents/', views.DocumentListView.as_view(), name="document_list"),

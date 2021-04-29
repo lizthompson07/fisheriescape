@@ -229,6 +229,8 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"))
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
+
+    # remove
     context = models.TextField(blank=True, null=True, verbose_name=_("context"))
     objectives = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
     expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
@@ -276,6 +278,16 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     @property
     def scope_type(self):
         return f"{self.get_scope_display()} {self.get_type_display()}"
+
+
+class TermsOfReference(MetadataFields):
+    process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
+    context = models.TextField(blank=True, null=True, verbose_name=_("context"))
+    objectives = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
+    expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
+    participation = models.TextField(blank=True, null=True, verbose_name=_("participation"))
+    references = models.TextField(blank=True, null=True, verbose_name=_("references"))
+    meeting = models.OneToOneField("Meeting", blank=True, null=True, on_delete=models.DO_NOTHING, related_name="tor")
 
 
 class GenericCost(models.Model):

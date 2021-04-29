@@ -48,6 +48,7 @@ class SeriesHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView)
     model = models.Series
     success_url = reverse_lazy("csas2:manage_series")
 
+
 class InviteeRoleFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'csas2/formset.html'
     h1 = "Manage Invitee Roles"
@@ -56,6 +57,7 @@ class InviteeRoleFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
     success_url_name = "csas2:manage_invitee_roles"
     home_url_name = "csas2:index"
     delete_url_name = "csas2:delete_invitee_role"
+
 
 class InviteeRoleHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
     model = models.InviteeRole
@@ -424,16 +426,10 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
 
 class ProcessUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.Process
+    form_class = forms.ProcessForm
     template_name = 'csas2/form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
-
-    def get_form_class(self):
-        qp = self.request.GET
-        if qp.get("tor"):
-            return forms.ProcessTORForm
-        else:
-            return forms.ProcessForm
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
@@ -453,6 +449,62 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
+
+
+# ToR #
+#######
+
+class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
+    model = models.TermsOfReference
+    form_class = forms.TermsOfReferenceForm
+    template_name = 'csas2/form.html'
+    home_url_name = "csas2:index"
+    submit_text = gettext_lazy("Start a Review")
+    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_parent_crumb(self):
+        return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
+
+    def get_process(self):
+        return get_object_or_404(models.Process, pk=self.kwargs.get("process"))
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.process = self.get_process()
+        obj.created_by = self.request.user
+        return super().form_valid(form)
+
+
+class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
+    model = models.TermsOfReference
+    form_class = forms.TermsOfReferenceForm
+    template_name = 'csas2/request_form.html'  # shared js_body
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_parent_crumb(self):
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class TermsOfReferenceDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
+    model = models.TermsOfReference
+    template_name = 'csas2/confirm_delete.html'
+    delete_protection = False
+    home_url_name = "csas2:index"
+    grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_parent_crumb(self):
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+
+    def get_success_url(self):
+        return self.get_parent_crumb().get("url")
 
 
 # meetings #
@@ -487,7 +539,8 @@ class MeetingDetailView(LoginAccessRequiredMixin, CommonDetailView):
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Process"), self.get_object().process.id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
@@ -536,7 +589,8 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
         return dict(date_range=f"{obj.start_date.strftime('%Y-%m-%d')} to {obj.end_date.strftime('%Y-%m-%d')}")
 
     def get_grandparent_crumb(self):
-        return {"title": "{} {}".format(_("Process"), self.get_object().process.id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:meeting_detail", args=[self.get_object().id])}
@@ -563,7 +617,8 @@ class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
     greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_grandparent_crumb(self):
-        return {"title": "{} {}".format(_("Process"), self.get_object().process.id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:meeting_detail", args=[self.get_object().id])}
@@ -619,7 +674,8 @@ class DocumentDetailView(LoginAccessRequiredMixin, CommonDetailView):
     container_class = ""
 
     def get_parent_crumb(self):
-        return {"title": "{} {}".format(_("Process"), self.get_object().process.id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
@@ -655,7 +711,8 @@ class DocumentUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_grandparent_crumb(self):
-        return {"title": "{} {}".format(_("Process"), self.get_object().process.id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:document_detail", args=[self.get_object().id])}
@@ -674,7 +731,8 @@ class DocumentDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
     greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_grandparent_crumb(self):
-        return {"title": "{} {}".format(_("Process"), self.get_object().process.id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
+        return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
+                "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("csas2:document_detail", args=[self.get_object().id])}
