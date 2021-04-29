@@ -457,7 +457,7 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     model = models.TermsOfReference
     form_class = forms.TermsOfReferenceForm
-    template_name = 'csas2/form.html'
+    template_name = 'csas2/tor_form.html'
     home_url_name = "csas2:index"
     submit_text = gettext_lazy("Start a Review")
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
@@ -484,7 +484,7 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
 class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.TermsOfReference
     form_class = forms.TermsOfReferenceForm
-    template_name = 'csas2/request_form.html'  # shared js_body
+    template_name = 'csas2/tor_form.html'  # shared js_body
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 

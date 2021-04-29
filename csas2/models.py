@@ -267,16 +267,16 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
 class TermsOfReference(MetadataFields):
     process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
-    context_en = models.TextField(blank=True, null=True, verbose_name=_("context"))
-    context_fr = models.TextField(blank=True, null=True, verbose_name=_("context"))
-    objectives_en = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
-    objectives_fr = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
-    expected_publications_en = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
-    expected_publications_fr = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
-    participation_en = models.TextField(blank=True, null=True, verbose_name=_("participation"))
-    participation_fr = models.TextField(blank=True, null=True, verbose_name=_("participation"))
-    references_en = models.TextField(blank=True, null=True, verbose_name=_("references"))
-    references_fr = models.TextField(blank=True, null=True, verbose_name=_("references"))
+    context_en = models.TextField(blank=True, null=True, verbose_name=_("context (en)"), help_text=_("English"))
+    context_fr = models.TextField(blank=True, null=True, verbose_name=_("context (fr)"), help_text=_("French"))
+    objectives_en = models.TextField(blank=True, null=True, verbose_name=_("objectives (en)"), help_text=_("English"))
+    objectives_fr = models.TextField(blank=True, null=True, verbose_name=_("objectives (fr)"), help_text=_("French"))
+    expected_publications_en = models.TextField(blank=True, null=True, verbose_name=_("expected publications (en)"), help_text=_("English"))
+    expected_publications_fr = models.TextField(blank=True, null=True, verbose_name=_("expected publications (fr)"), help_text=_("French"))
+    participation_en = models.TextField(blank=True, null=True, verbose_name=_("participation (en)"), help_text=_("English"))
+    participation_fr = models.TextField(blank=True, null=True, verbose_name=_("participation (fr)"), help_text=_("French"))
+    references_en = models.TextField(blank=True, null=True, verbose_name=_("references (en)"), help_text=_("English"))
+    references_fr = models.TextField(blank=True, null=True, verbose_name=_("references (fr)"), help_text=_("French"))
     meeting = models.OneToOneField("Meeting", blank=True, null=True, on_delete=models.DO_NOTHING, related_name="tor",
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))

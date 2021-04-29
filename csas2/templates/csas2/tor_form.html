@@ -1,0 +1,72 @@
+{% extends "csas2/form.html" %}
+
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load csas_filters %}
+
+
+{% block form_fields %}
+  <h5>{% trans "Context" %}</h5>
+  <div class="row mb-3">
+    <div class="col">
+      {% bootstrap_field form.context_en show_label=False placeholder=None %}
+    </div>
+    <div class="col">
+      {% bootstrap_field form.context_fr show_label=False placeholder=None %}
+    </div>
+  </div>
+
+  <h5>{% trans "Objectives" %}</h5>
+  <div class="row mb-3">
+    <div class="col">
+      {% bootstrap_field form.objectives_en show_label=False placeholder=None %}
+    </div>
+    <div class="col">
+      {% bootstrap_field form.objectives_fr show_label=False placeholder=None %}
+    </div>
+  </div>
+
+  <h5>{% trans "Expected Publication" %}</h5>
+  <div class="row mb-3">
+    <div class="col">
+      {% bootstrap_field form.expected_publications_en show_label=False placeholder=None %}
+    </div>
+    <div class="col">
+      {% bootstrap_field form.expected_publications_fr show_label=False placeholder=None %}
+    </div>
+  </div>
+
+  <h5>{% trans "Participation" %}</h5>
+  <div class="row mb-3">
+    <div class="col">
+      {% bootstrap_field form.participation_en show_label=False placeholder=None %}
+    </div>
+    <div class="col">
+      {% bootstrap_field form.participation_fr show_label=False placeholder=None %}
+    </div>
+  </div>
+
+  <h5>{% trans "References" %}</h5>
+  <div class="row mb-3">
+    <div class="col">
+      {% bootstrap_field form.references_en show_label=False placeholder=None %}
+    </div>
+    <div class="col">
+      {% bootstrap_field form.references_fr show_label=False placeholder=None %}
+    </div>
+  </div>
+
+
+  <h5>{% trans "Linked to Which Meeting" %}</h5>
+  <div class="row mb-3">
+    <div class="col">
+      {% bootstrap_field form.meeting show_label=False placeholder=None %}
+    </div>
+  </div>
+
+
+
+
+{% endblock %}
