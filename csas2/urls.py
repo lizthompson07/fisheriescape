@@ -22,13 +22,14 @@ urlpatterns = [
     path('requests/new/', views.CSASRequestCreateView.as_view(), name="request_new"),
     path('requests/<int:pk>/view/', views.CSASRequestDetailView.as_view(), name="request_detail"),
     path('requests/<int:pk>/edit/', views.CSASRequestUpdateView.as_view(), name="request_edit"),
+    path('requests/<int:pk>/clone/', views.CSASRequestCloneUpdateView.as_view(), name="request_clone"),
     path('requests/<int:pk>/delete/', views.CSASRequestDeleteView.as_view(), name="request_delete"),
     path('requests/<int:pk>/submit/', views.CSASRequestSubmitView.as_view(), name="request_submit"),
 
     # request reviews
-    path('requests/<int:crequest>/new-review/', views.CSASRequestReviewCreateView.as_view(), name="review_new"),
-    path('reviews/<int:pk>/edit/', views.CSASRequestReviewUpdateView.as_view(), name="review_edit"),
-    path('reviews/<int:pk>/delete/', views.CSASRequestReviewDeleteView.as_view(), name="review_delete"),
+    # path('requests/<int:crequest>/new-review/', views.CSASRequestReviewCreateView.as_view(), name="review_new"),
+    # path('reviews/<int:pk>/edit/', views.CSASRequestReviewUpdateView.as_view(), name="review_edit"),
+    # path('reviews/<int:pk>/delete/', views.CSASRequestReviewDeleteView.as_view(), name="review_delete"),
 
     # request files
     path('requests/<int:crequest>/new-file/', views.CSASRequestFileCreateView.as_view(), name='request_file_new'),

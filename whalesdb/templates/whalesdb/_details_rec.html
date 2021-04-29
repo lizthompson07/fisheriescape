@@ -27,9 +27,9 @@
             <span class="col">
                 <a href="#fs-list-channels" data-toggle="collapse">{% trans 'Channel Information' %}</a>
             </span>
-            <span class="px-1">
+            {% if auth %}<span class="px-1">
                 <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_rci' rec.pk 'pop' %}','id_channels')" title="{% trans 'Add' %}">{% trans 'Add Channel Information' %}</a>
-            </span>
+            </span>{% endif %}
         </div>
     </div>
     <div class="card-body collapse" id="fs-list-channels">
@@ -39,7 +39,7 @@
                 <tr><th>{% trans 'Name' %}</th><th>{% trans 'Size (Gb)' %}</th><th>{% trans 'Gain' %}</th><th>{% trans 'Volts' %}</th><th></th></tr></thead>
                 <tbody>
             {% for rci in rec.channels.all %}
-            <tr><td>{{rci.rci_name}}</td><td>{{rci.rci_size}}</td><td>{{rci.rci_gain}}</td><td>{{rci.rci_volts}}</td><td><a class="btn btn-danger" href="{% url 'whalesdb:delete_rci' rci.pk %}" >X</a></td></tr>
+            <tr><td>{{rci.rci_name}}</td><td>{{rci.rci_size}}</td><td>{{rci.rci_gain}}</td><td>{{rci.rci_volts}}</td><td>{% if auth %}<a class="btn btn-danger" href="{% url 'whalesdb:delete_rci' rci.pk %}" >X</a>{% endif %}</td></tr>
             {% endfor %}
                 </tbody>
             </table>
@@ -54,7 +54,7 @@
                 <a href="#fs-list-events" data-toggle="collapse">{% trans 'Recording Events' %}</a>
             </span>
             <span class="px-1">
-                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ree' rec.pk 'pop' %}','id_events')" title="{% trans 'Add' %}">{% trans 'Add Recording Event' %}</a>
+                {% if auth %}<a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ree' rec.pk 'pop' %}','id_events')" title="{% trans 'Add' %}">{% trans 'Add Recording Event' %}</a>{% endif %}
             </span>
         </div>
     </div>

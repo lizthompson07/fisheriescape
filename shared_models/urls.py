@@ -10,6 +10,7 @@ urlpatterns = [
 
     # DFO ORGANIZATION #
     path('dfo-org/', views.IndexTemplateView.as_view(), name="index"),
+    path('dfo-org/spreadsheet/', views.OrgSpreadsheetTemplateView.as_view(), name="org_spreadsheet"),
 
     # SECTION #
     ###########

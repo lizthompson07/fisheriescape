@@ -202,6 +202,15 @@ class Region(SimpleLookupWithUUID):
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
+
+    def save(self, *args, **kwargs):
+        for obj in self.branches.all():
+            obj.save()
+        super().save(*args, **kwargs)
+
     class Meta:
         ordering = ['name', ]
         verbose_name = _("Region - Sector (NCR)")
@@ -221,9 +230,18 @@ class Branch(SimpleLookupWithUUID):
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
+
     def __str__(self):
         # check to see if a french value is given
         return f"{self.tname} ({self.region})"
+
+    def save(self, *args, **kwargs):
+        for obj in self.divisions.all():
+            obj.save()
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['name', ]
@@ -243,6 +261,10 @@ class Division(SimpleLookupWithUUID):
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
+
     def __str__(self):
         # check to see if a french value is given
         return "{} ({})".format(self.tname, self.branch.region)
@@ -251,6 +273,11 @@ class Division(SimpleLookupWithUUID):
         ordering = ["branch__region", "name"]
         verbose_name = _("Division - Branch (NCR)")
         verbose_name_plural = _("Divisions - Branches (NCR)")
+
+    def save(self, *args, **kwargs):
+        for obj in self.sections.all():
+            obj.save()
+        super().save(*args, **kwargs)
 
 
 # CONNECTED APPS: tickets, travel, projects, inventory
@@ -277,6 +304,10 @@ class Section(SimpleLookupWithUUID):
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
         verbose_name = _("Section - Team (NCR)")
         verbose_name_plural = _("Sections - Teams (NCR)")
+
+    @property
+    def metadata(self):
+        return get_metadata_string(None, None, self.date_last_modified, self.last_modified_by)
 
     def get_full_name_en(self):
         if self.division:
@@ -850,8 +881,9 @@ class Person(MetadataFields):
     job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
     job_title_fr = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
 
-    dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"), related_name="contact")
-    old_id = models.IntegerField(blank=True, null=True, editable=False )
+    dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"),
+                                       related_name="contact")
+    old_id = models.IntegerField(blank=True, null=True, editable=False)
 
     def __str__(self):
         return "{}, {}".format(self.last_name, self.first_name)
@@ -886,6 +918,7 @@ class Person(MetadataFields):
     @property
     def has_linked_user(self):
         return bool(self.dmapps_user)
+
 
 class Publication(SimpleLookup):
     pass

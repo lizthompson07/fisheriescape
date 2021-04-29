@@ -30,6 +30,19 @@ def ecc_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
+def ecp_delete(request, emm, ecp):
+    if utils.whales_authorized(request.user):
+        ecp_channel = models.EcpChannelProperty.objects.get(eqr=emm, ecp_channel_no=ecp)
+        ehe_list = models.EheHydrophoneEvent.objects.filter(rec__emm=emm, ecp_channel_no=ecp)
+        for ehe in ehe_list:
+            ehe.delete()
+        ecp_channel.delete()
+        messages.success(request, _("The make/model channel has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 def eda_delete(request, pk):
     eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
@@ -117,7 +130,7 @@ def report_deployment_summary(request):
     return response
 
 
-class ReportView(AdminRequiredMixin, CommonFormView):
+class ReportView(CommonFormView):
     nav_menu = 'whalesdb/base/whales_nav_menu.html'
     site_css = 'whalesdb/base/whales_css.css'
     title = _("Whale Equipment Metadata Database Reports")
@@ -440,6 +453,10 @@ class EcaUpdate(mixins.EcaMixin, CommonUpdate):
         return reverse_lazy("whalesdb:details_eca", args=(self.kwargs['pk'],))
 
 
+class EcpUpdate(mixins.EcpMixin, CommonUpdate):
+    pass
+
+
 class EmmUpdate(mixins.EmmMixin, CommonUpdate):
 
     def get_success_url(self):
@@ -591,7 +608,7 @@ class EmmDetails(mixins.EmmMixin, CommonDetails):
 
 
 class EtrDetails(mixins.EtrMixin, CommonDetails):
-    fields = ['eqp', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
+    fields = ['eqp', 'hyd', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
 
 
 class EqpDetails(mixins.EqpMixin, CommonDetails):
@@ -649,12 +666,19 @@ class StnDetails(mixins.StnMixin, CommonDetails):
 
 class CommonList(CommonAuthFilterView):
 
+    template_name = "whalesdb/whales_filter.html"
     nav_menu = 'whalesdb/base/whales_nav_menu.html'
     site_css = 'whalesdb/base/whales_css.css'
     home_url_name = "whalesdb:index"
+    new_btn_text = "+"
 
     # fields to be used as columns to display an object in the filter view table
     fields = []
+
+    field_list = [
+        {"name": 'tname|{}'.format("name"), "class": "", "width": ""},
+        {"name": 'tdescription|{}'.format("description"), "class": "", "width": ""},
+    ]
 
     # URL to use to create a new object to be added to the filter view
     create_url = None
@@ -675,6 +699,9 @@ class CommonList(CommonAuthFilterView):
     # By default Listed objects will have an update button, set editable to false in extending classes to disable
     editable = True
 
+    def get_h1(self):
+        return self.get_title()
+    
     def get_fields(self):
         if self.fields:
             return self.fields
@@ -705,7 +732,8 @@ class CommonList(CommonAuthFilterView):
         # variable and in the template where the variable is used for buttons and links the button and/or links can
         # be left out without causing URL Not Found issues.
         context['create_url'] = self.get_create_url()
-        context['details_url'] = self.get_details_url()
+        context['new_object_url'] = reverse_lazy(context['create_url'])
+        context['row_object_url_name'] = context['details_url'] = self.get_details_url()
         context['update_url'] = self.get_update_url()
         context['delete_url'] = self.get_delete_url()
 
@@ -727,6 +755,18 @@ class CruList(mixins.CruMixin, CommonList):
     fields = ["mission_number", "description", "chief_scientist", "samplers", "start_date", "end_date", "notes",
               "season", "vessel" ]
 
+    field_list = [
+        {"name": "mission_number"},
+        {"name": "description"},
+        {"name": "chief_scientist"},
+        {"name": "samplers"},
+        {"name": "start_date"},
+        {"name": "end_date"},
+        {"name": "notes"},
+        {"name": "season"},
+        {"name": "vessel"},
+    ]
+
     details_url = "whalesdb:details_cru"
     delete_url = "whalesdb:delete_cru"
 
@@ -745,7 +785,18 @@ class DepList(mixins.DepMixin, CommonList):
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
     creation_form_height = 600
 
+    field_list = [
+        {"name": "dep_name"},
+        {"name": "dep_year"},
+        {"name": "dep_month"},
+        {"name": "stn"},
+        {"name": "prj"},
+        {"name": "mor"},
+    ]
+
     delete_url = "whalesdb:delete_dep"
+
+    queryset = models.DepDeployment.objects.all().select_related("stn", "prj", "mor")
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
@@ -756,42 +807,85 @@ class DepList(mixins.DepMixin, CommonList):
 class EcaList(mixins.EcaMixin, CommonList):
     filterset_class = filters.EcaFilter
     fields = ['eca_date', 'eca_attachment', 'eca_hydrophone']
+    field_list = [
+        {"name": "eca_date"},
+        {"name": "eca_attachment"},
+        {"name": "eca_hydrophone"},
+    ]
+
 
 
 class EmmList(mixins.EmmMixin, CommonList):
     filterset_class = filters.EmmFilter
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating']
+    field_list = [
+        {"name": "eqt"},
+        {"name": "emm_make"},
+        {"name": "emm_model"},
+        {"name": "emm_depth_rating"},
+    ]
 
 
 class EqpList(mixins.EqpMixin, CommonList):
     fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqo_owned_by', 'eqp_retired', "eqp_deployed"]
+    field_list = [
+        {"name": "emm"},
+        {"name": "eqp_serial"},
+        {"name": "eqp_date_purchase"},
+        {"name": "eqo_owned_by"},
+        {"name": "eqp_retired"},
+        {"name": "eqp_deployed"},
+    ]
 
 
 class EtrList(mixins.EtrMixin, CommonList):
     filterset_class = filters.EtrFilter
     fields = ['etr_date', 'eqp', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
+    field_list = [
+        {"name": "etr_date"},
+        {"name": "eqp"},
+        {"name": "hyd"},
+        {"name": "etr_issue_desc"},
+        {"name": "etr_repair_desc"},
+        {"name": "etr_repaired_by"},
+        {"name": "etr_dep_affe"},
+        {"name": "etr_rec_affe"},
+    ]
 
 
 class MorList(mixins.MorMixin, CommonList):
     filterset_class = filters.MorFilter
     fields = ['mor_name', 'mor_max_depth', 'mor_notes']
-    creation_form_height = 725
+    field_list = [
+        {"name": "mor_name"},
+        {"name": "mor_max_depth"},
+        {"name": "mor_notes"},
+    ]
 
 
 class PrjList(mixins.PrjMixin, CommonList):
     filterset_class = filters.PrjFilter
-    creation_form_height = 400
     fields = ['tname|Name', 'tdescription|Description']
 
 
 class RecList(mixins.RecMixin, CommonList):
     filterset_class = filters.RecFilter
     fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
+    field_list = [
+        {"name": "eda_id"},
+        {"name": "rsc_id"},
+        {"name": "rec_start_date"},
+        {"name": "rec_end_date"},
+    ]
 
 
 class RetList(mixins.RetMixin, CommonList):
     filterset_class = filters.RetFilter
     fields = ['ret_name', 'ret_desc']
+    field_list = [
+        {"name": "ret_name"},
+        {"name": "ret_desc"},
+    ]
 
     details_url = False
 
@@ -799,16 +893,30 @@ class RetList(mixins.RetMixin, CommonList):
 class RscList(mixins.RscMixin, CommonList):
     filterset_class = filters.RscFilter
     fields = ['rsc_name', 'rsc_period']
+    field_list = [
+        {"name": "rsc_name"},
+        {"name": "rsc_period"},
+    ]
 
 
 class StnList(mixins.StnMixin, CommonList):
     filterset_class = filters.StnFilter
     fields = ['stn_name', 'stn_code', 'stn_revision']
+    field_list = [
+        {"name": "stn_name"},
+        {"name": "stn_code"},
+        {"name": "stn_revision"},
+    ]
 
 
 class TeaList(mixins.TeaMixin, CommonList):
     filterset_class = filters.TeaFilter
     fields = ["tea_abb", "tea_last_name", "tea_first_name"]
+    field_list = [
+        {"name": "tea_abb"},
+        {"name": "tea_last_name"},
+        {"name": "tea_first_name"},
+    ]
 
     details_url = False
 

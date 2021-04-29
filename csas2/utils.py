@@ -139,12 +139,12 @@ def can_modify_request(user, request_id, return_as_dict=False):
         my_dict["reason"] = "You do not have the permissions to modify this request"
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         # check to see if they are the client
-        if is_client(user, request_id=csas_request.id):
+        if is_client(user, request_id=csas_request.id) and not csas_request.submission_date:
             my_dict["reason"] = "You can modify this record because you are the request client"
             my_dict["can_modify"] = True
         # check to see if they are the client
-        elif is_creator(user, request_id=csas_request.id):
-            my_dict["reason"] = "You can modify this record because you are the request client"
+        elif is_creator(user, request_id=csas_request.id) and not csas_request.submission_date:
+            my_dict["reason"] = "You can modify this record because you are the record creator"
             my_dict["can_modify"] = True
         # check to see if they are the coordinator
         elif is_request_coordinator(user, request_id=csas_request.id):
@@ -196,9 +196,8 @@ def get_request_field_list(csas_request, user):
     my_list = [
         'id|{}'.format(_("request Id")),
         'fiscal_year',
-        'tname|{}'.format(_("title")),
         'status_display|{}'.format(_("status")),
-        'type',
+        'is_carry_over|{}'.format(_("is carry over?")),
         'language',
         'section',
         'coordinator',
@@ -222,8 +221,11 @@ def get_request_field_list(csas_request, user):
 
 def get_review_field_list():
     my_list = [
+        'ref_number|{}'.format(_("reference number")),
         'prioritization_display|{}'.format(_("prioritization")),
         'decision_display|{}'.format(_("decision")),
+        'advice_date',
+        'deferred_display|{}'.format(_("What the original request date deferred?")),
         'notes',
         'metadata|{}'.format(_("metadata")),
     ]
