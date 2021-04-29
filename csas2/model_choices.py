@@ -52,6 +52,7 @@ process_status_choices = (
     (2, _('Complete')),
     (3, _('Deferred')),
     (4, _('Delayed')),
+    (5, _('Tentative')),
 )
 
 meeting_type_choices = (
