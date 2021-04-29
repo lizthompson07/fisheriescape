@@ -17,13 +17,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='csasrequest',
             name='client',
-            field=models.ForeignKey(blank=True, default=1, on_delete=django.db.models.deletion.DO_NOTHING, related_name='csas_client_requests', to='auth.user', verbose_name='DFO client'),
+            field=models.ForeignKey(blank=True, default=50, on_delete=django.db.models.deletion.DO_NOTHING, related_name='csas_client_requests', to='auth.user', verbose_name='DFO client'),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='csasrequest',
             name='coordinator',
-            field=models.ForeignKey(blank=True, default=1, on_delete=django.db.models.deletion.DO_NOTHING, related_name='csas_coordinator_requests', to='auth.user', verbose_name='Regional CSAS coordinator'),
+            field=models.ForeignKey(blank=True, default=50, on_delete=django.db.models.deletion.DO_NOTHING, related_name='csas_coordinator_requests', to='auth.user', verbose_name='Regional CSAS coordinator'),
             preserve_default=False,
         ),
         migrations.AlterField(

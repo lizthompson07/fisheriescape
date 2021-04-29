@@ -264,6 +264,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def scope_type(self):
         return f"{self.get_scope_display()} {self.get_type_display()}"
 
+    @property
+    def chair(self):
+        if hasattr(self,"tor") and self.tor.meeting:
+            return self.tor.meeting.chair
 
 class TermsOfReference(MetadataFields):
     process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
@@ -377,6 +381,10 @@ class Meeting(MetadataFields):
     def total_cost(self):
         return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
 
+    @property
+    def chair(self):
+        chair_role = InviteeRole.objects.get(name_ic)
+        return
 
 class MeetingNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -386,6 +394,7 @@ class MeetingNote(GenericNote):
 class MeetingResource(SimpleLookup, MetadataFields):
     ''' a file attached to to meeting'''
     meeting = models.ForeignKey(Meeting, related_name='resources', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True, max_length=2000)
     url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True, max_length=2000)
 
