@@ -30,13 +30,24 @@
         <div class="card border border-dark my-1">
             <h5 class="card-header">{% trans title %}</h5>
             <div class="card-body">
-            {% for field in fields %}
-            <div class="row" >
-                    <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
-            </div>
-            {% endfor %}
+                <div class="row" >
+                    <div class="col-sm">
+                        {% for field in fields %}
+                                <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
+                        {% endfor %}
+                        {% block model_buttons%}
+                        {% endblock %}
+                    </div>
+                    <div class="col-sm">
+                    {% for key, value in calculated_properties.items %}
+                        <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                    {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
+
+
     {% endblock field_override %}
 
 

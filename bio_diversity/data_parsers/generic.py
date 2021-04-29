@@ -174,10 +174,7 @@ def generic_grp_parser(cleaned_data):
                 "I": "Immature"}
 
     # iterate through the rows:
-    counter = 0
     for row in data_dict:
-        print("Parsing row: {}".format(counter))
-        counter += 1
         row_parsed = True
         row_entered = False
         try:
