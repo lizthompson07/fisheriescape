@@ -38,7 +38,9 @@ def in_admin_group(user):
         if user.groups.filter(name='travel_admin').count() != 0 or \
                 user.groups.filter(name='projects_admin').count() or \
                 user.groups.filter(name='scifi_admin').count() or \
-                user.groups.filter(name='travel_adm_admin').count():
+                user.groups.filter(name='travel_adm_admin').count() or \
+                user.groups.filter(name='csas_regional_admin').count() or \
+                user.groups.filter(name='csas_national_admin').count():
             return True
 
 
@@ -520,6 +522,13 @@ class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
     h2 = gettext_lazy("Please be careful when editing.")
     active_page_name_crumb = gettext_lazy("DM Apps Shared Settings")
 
+
+class OrgSpreadsheetTemplateView(AdminRequiredMixin, CommonTemplateView):
+    template_name = 'shared_models/org_spreadsheet.html'
+    h1 = gettext_lazy("DFO Organization Spreadsheet")
+    h2 = "<span class='red-font'>{}</span>".format(gettext_lazy("Please be careful when editing."))
+    active_page_name_crumb = gettext_lazy("DFO Organization Spreadsheet")
+    container_class = "container-fluid"
 
 # SECTION #
 ###########

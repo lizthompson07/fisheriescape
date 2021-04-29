@@ -16,7 +16,20 @@
         <a href="#" pop-href="{{ new_user_url }}">this form</a>.
       {% endblocktrans %}
     </div>
+  {% elif "division" in field.name %}
+    <div class="mb-3">
+      (<a href="{% url 'shared_models:division_new' %}" target="_blank">{% trans "New" %}</a>)
+    </div>
+  {% elif "branch" in field.name %}
+    <div class="mb-3">
+      (<a href="{% url 'shared_models:branch_new' %}" target="_blank">{% trans "New" %}</a>)
+    </div>
+    {#    {% elif "region" in field.name %}#}
+    {#    <div class="mb-3">#}
+    {#        (<a href="{% url 'shared_models:region_new' %}" target="_blank">{% trans "New" %}</a>)#}
+    {#    </div>#}
   {% endif %}
+
 
 {% endblock %}
 

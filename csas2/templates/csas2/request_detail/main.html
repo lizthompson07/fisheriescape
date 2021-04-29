@@ -19,104 +19,166 @@
 
 {% block subcontent %}
   <div id="app" v-cloak>
-    <div>
-      {% include "shared_models/_generic_breadcrumbs.html" %}
-      <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
-        <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
-      </div>
-      {% bootstrap_messages %}
-      <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
-        <p class="mb-0">
-          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
-        </p>
-      </div>
-    </div>
-
-    <div class="mb-3 float-right">
-      {% if not object.review and object.submission_date %}
-        <a class="btn btn-sm btn-dark" href="{% url 'csas2:review_new' object.id %}">{% trans "Start a Review" %}</a>
-      {% endif %}
-      {% if not object.processes.exists %}
-        <a class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
-      {% endif %}
-    </div>
+  <div>
+    {% include "shared_models/_generic_breadcrumbs.html" %}
     <div class="mb-3">
-      <a class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
-      <a class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
-        {% if object.submission_date %}{% trans "Un-Submit" %}{% else %}{% trans "Submit" %}{% endif %}
-      </a>
-      <a class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
-      <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
-        <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
-      </button>
-
+      <h2 class="">{{ h1|safe }}</h2>
+      <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
     </div>
+    {% bootstrap_messages %}
 
-    <div class="mb-5">
-      <table class="table table-sm">
-        {% for field in request_field_list %}
-          {% verbose_td_display object field th_width="300px" %}
-        {% endfor %}
-        {# files #}
-        <tr>
-          <th>
-            {% trans "Files" %}
-          </th>
-          <td>
-            {% if object.files.exists %}
-              {% for file in object.files.all %}
-                <div>
-                  <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
-                  <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">
-                    <span class="mdi mdi-pencil" style="font-size: large"></span>
-                  </button>
-                  <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">
-                    <span class="mdi mdi-delete" style="font-size: large"></span>
-                  </button>
-                </div>
-              {% endfor %}
-            {% else %}
-              <em>{% trans "There are no files attached to this request." %}</em>
-            {% endif %}
-          </td>
-        </tr>
-        {# files #}
-        <tr>
-          <th>
-            {% trans "Connected processes" %}
-          </th>
-          <td>
-            {% if object.processes.exists %}
-              {% for process in object.processes.all %}
-                <div>
-                  <a href="{% url 'csas2:process_detail' process.id %}">{{ process }}</a>
-                </div>
-              {% endfor %}
-            {% else %}
-              <em>{% trans "There are no processes attached to this request." %}</em>
-            {% endif %}
-          </td>
-        </tr>
+    <div class="row mb-5">
+      <div class="col">
 
-      </table>
-    </div>
-
-    {% if object.review %}
-      <div class="mb-5">
-        <h4>{% trans "Review" %}</h4>
-        <div class="mb-3">
-          <a class="btn btn-sm btn-warning" href="{% url 'csas2:review_edit' object.review.id %}">{% trans "Edit Review" %}</a>
-          <a class="btn btn-sm btn-danger" href="{% url 'csas2:review_delete' object.review.id %}">{% trans "Delete Review" %}</a>
+        <div v-if="canModify" class="alert alert-primary no-print" role="alert">
+          <p class="mb-0">
+            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+          </p>
         </div>
+
+        <div class="mb-3 float-right">
+          {% if object.submission_date %}
+            <button v-if="!request.review" class="btn btn-sm btn-dark" @click="primeReview">{% trans "Start a Review" %}</button>
+            {% if not object.processes.exists %}
+              <a class="btn btn-sm btn-dark" href="{% url 'csas2:process_new' %}?request={{ object.id }}">{% trans "Start a Process" %}</a>
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <a class="btn btn-sm btn-warning" href="{% url 'csas2:request_edit' object.id %}">{% trans "Edit" %}</a>
+          <a class="btn btn-sm btn-primary" href="{% url 'csas2:request_submit' object.id %}">
+            {% if object.submission_date %}{% trans "Un-Submit" %}{% else %}{% trans "Submit" %}{% endif %}
+          </a>
+          <a class="btn btn-sm btn-danger" href="{% url 'csas2:request_delete' object.id %}">{% trans "Delete" %}</a>
+          <a class="btn btn-sm btn-secondary" href="{% url 'csas2:request_clone' object.id %}">{% trans "Clone Me" %}</a>
+          <button @click="openPopout('{% url 'csas2:request_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
+            <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
+          </button>
+
+        </div>
+
         <table class="table table-sm">
-          {% for field in review_field_list %}
-            {% verbose_td_display object.review field th_width="300px" %}
-          {% endfor %}
+          <tr>
+            <th class="text-left w250" v-html="requestLabels.fiscal_year"></th>
+            <td class="text-left" v-html="request.fiscal_year"></td>
+          </tr>
+          <tr>
+            <th class="text-left w250" v-html="requestLabels.status"></th>
+            <td class="text-left" v-html="request.status_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "is carry over?" %}</th>
+            <td class="text-left">${request.is_carry_over|yesNo}</td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.language"></th>
+            <td class="text-left" v-html="request.language_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.section"></th>
+            <td class="text-left" v-html="request.section_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.coordinator"></th>
+            <td class="text-left" v-html="request.coordinator"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.client"></th>
+            <td class="text-left" v-html="request.client"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Multiregional / multisector?" %}</th>
+            <td class="text-left" v-html="request.multiregional_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.issue"></th>
+            <td class="text-left" v-html="request.issue_html"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Assistance from DFO Science?" %}</th>
+            <td class="text-left" v-html="request.assistance_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.rationale"></th>
+            <td class="text-left" v-html="request.rationale_html"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.risk_text"></th>
+            <td class="text-left" v-html="request.risk_text_html"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.advice_needed_by"></th>
+            <td class="text-left" v-html="request.advice_needed_by_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.rationale_for_timeline"></th>
+            <td class="text-left" v-html="request.rationale_for_timeline"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Client funding?" %}</th>
+            <td class="text-left" v-html="request.funding_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Client prioritization?" %}</th>
+            <td class="text-left" v-html="request.prioritization_display"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.submission_date"></th>
+            <td class="text-left" v-html="request.submission_date"></td>
+          </tr>
+          <tr>
+            <th class="text-left" v-html="requestLabels.uuid"></th>
+            <td class="text-left" v-html="request.uuid"></td>
+          </tr>
+          <tr>
+            <th>
+              {% trans "Files" %}
+            </th>
+            <td>
+              {% if object.files.exists %}
+                {% for file in object.files.all %}
+                  <div>
+                    <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
+                    <button class="btn" @click="openPopout('{% url 'csas2:request_file_edit' file.id %}')" class="ml-3">
+                      <span class="mdi mdi-pencil" style="font-size: large"></span>
+                    </button>
+                    <button class="btn" @click="openPopout('{% url 'csas2:request_file_delete' file.id %}')">
+                      <span class="mdi mdi-delete" style="font-size: large"></span>
+                    </button>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <em>{% trans "There are no files attached to this request." %}</em>
+              {% endif %}
+            </td>
+          </tr>
+          {# files #}
+          <tr>
+            <th>
+              {% trans "Connected processes" %}
+            </th>
+            <td>
+              {% if object.processes.exists %}
+                {% for process in object.processes.all %}
+                  <div>
+                    <a href="{% url 'csas2:process_detail' process.id %}">{{ process }}</a>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <em>{% trans "There are no processes attached to this request." %}</em>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left">{% trans "Metadata" %}</th>
+            <td class="text-left" v-html="request.metadata"></td>
+          </tr>
         </table>
       </div>
-    {% endif %}
-
+      <div v-if="canModify && request.review && request.review.id" class="col-4">
+        {% include "csas2/request_detail/_review.html" %}
+      </div>
+    </div>
     {# end #}
   </div>
 
@@ -140,13 +202,16 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      canModify: false,
       loadingRequest: false,
       request: {},
+      requestLabels: {},
+      review: {},
+      reviewLabels: {},
+      errors: null,
     },
     methods: {
       getCurrentUser() {
-        let endpoint = `/api/csas/user/`;
+        let endpoint = `/api/csas/user/?request=${requestId}`;
         apiService(endpoint)
             .then(response => {
               this.currentUser = response;
@@ -155,79 +220,70 @@
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
       },
-      getObservations() {
-        this.loadingObservations = true;
-        let endpoint;
-        if (this.pageType === "samples") endpoint = `${this.endpointPrefix}/?sample=${objectId}`;
-        else if (this.pageType === "lines") endpoint = `${this.endpointPrefix}/?line=${objectId}`;
-        else if (this.pageType === "surfaces") endpoint = `${this.endpointPrefix}/?surface=${objectId}`;
-        apiService(endpoint)
-            .then(response => {
-              if (response.length && response[0].id) {
-                for (var i = 0; i < response.length; i++) {
-                  if (response[i].observation_date) response[i].observation_date = response[i].observation_date.replace("Z", "")
-                }
-                this.observations = response;
-                this.loadingObservations = false;
-              }
-            })
-      },
-      updateObservation(obs) {
-        this.unsavedChanges = true;
-        this.obsErrorMsg = null;
-        let endpoint;
-        let method;
-        if (obs.id) {
-          endpoint = `${this.endpointPrefix}/${obs.id}/`;
-          method = "PUT";
-        } else {
-          endpoint = `${this.endpointPrefix}/`;
-          method = "POST";
-        }
-        apiService(endpoint, method, obs)
-            .then(response => {
-              if (!response.id) this.obsErrorMsg = groomJSON(response);
-              else {
-                if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
-                this.$set(this.observations, this.observations.indexOf(obs), response)
-                this.unsavedChanges = false;
-              }
-            })
-      },
-      deleteObservation(obs) {
-        userInput = confirm("{% trans 'Are you sure you want to delete this observation?' %}");
-        if (userInput) {
-          if (obs.id) {
-            let endpoint = `${this.endpointPrefix}/${obs.id}/`;
-            apiService(endpoint, "DELETE")
-                .then(response => {
-                  this.$delete(this.observations, this.observations.indexOf(obs));
-                })
-          } else {
-            this.$delete(this.observations, this.observations.indexOf(obs));
-            this.unsavedChanges = false;
-          }
-        }
-      },
 
+      getRequest() {
+        let endpoint = `/api/csas/requests/${requestId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.request = data;
+          }
+        });
+      },
+      primeReview() {
+        let endpoint = `/api/csas/request-reviews/`;
+        apiService(endpoint, "POST", {csas_request: this.request.id}).then(() => {
+          this.getRequest();
+        })
+      },
+      updateReview() {
+        this.errors = null;
+        if (this.request.review.advice_date_display) this.request.review.advice_date = this.request.review.advice_date_display + "T12:00:00";
+        else this.request.review.advice_date = null;
+        if (this.request.review.decision_date_display) this.request.review.decision_date = this.request.review.decision_date_display + "T12:00:00"
+        else this.request.review.decision_date = null;
+        let endpoint = `/api/csas/request-reviews/${this.request.review.id}/`;
+        apiService(endpoint, "PUT", this.request.review).then(data => {
+          if (!data.id) this.errors = groomJSON(data);
+          else this.getRequest();
+        });
+      },
+      deleteReview() {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this review?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/request-reviews/${this.request.review.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getRequest();
+          })
+        }
+      },
+      getReviewMetadata() {
+        let endpoint = `/api/csas/meta/models/request-review/`;
+        apiService(endpoint).then(data => {
+          this.reviewLabels = data.labels;
+          this.prioritizationChoices = data.prioritization_choices;
+          this.decisionChoices = data.decision_choices;
+        });
+      },
+      getRequestMetadata() {
+        let endpoint = `/api/csas/meta/models/request/`;
+        apiService(endpoint).then(data => {
+          this.requestLabels = data.labels;
+        });
+      },
     },
     computed: {
-      endpointPrefix() {
-        return `/api/csas2/${this.pageType.slice(0, this.pageType.length - 1)}-species`
-      },
-      totalCoverage() {
-        let total = 0;
-        let obs;
-        for (var i = 0; i < this.observations.length; i++) {
-          obs = this.observations[i];
-          if (obs.percent_coverage) total += Number(obs.percent_coverage);
-        }
-        return total
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
       }
     },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+    },
     created() {
-      {#this.getObservations();#}
-      {#this.getSpeciesMetadata();#}
+      this.getCurrentUser()
+      this.getRequest()
+      this.getReviewMetadata()
+      this.getRequestMetadata()
     },
   });
 
