@@ -121,12 +121,6 @@ class TermsOfReferenceForm(forms.ModelForm):
     class Meta:
         model = models.TermsOfReference
         fields = "__all__"
-        # widgets = {
-        #     'decision_date': forms.DateInput(attrs=attr_fp_date),
-        #     'advice_date': forms.DateInput(attrs=attr_fp_date),
-        #     'prioritization_text': forms.Textarea(attrs=rows3),
-        #     'decision_text': forms.Textarea(attrs=rows3),
-        # }
 
     def __init__(self, *args, **kwargs):
         if kwargs.get("instance"):
@@ -191,11 +185,20 @@ class ProcessForm(forms.ModelForm):
         # make sure that the lead_region is not also listed in the other_regions field
         lead_region = cleaned_data.get("lead_region")
         other_regions = cleaned_data.get("other_regions")
+        coordinator = cleaned_data.get("coordinator")
+        lead_region = cleaned_data.get("lead_region")
 
         if lead_region in other_regions:
             error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
             self.add_error('other_regions', error_msg)
+        if not coordinator:
+            error_msg = gettext("Must enter a coordinator for this request!")
+            raise forms.ValidationError(error_msg)
+        if not lead_region:
+            error_msg = gettext("Must enter a lead region for this process!")
+            raise forms.ValidationError(error_msg)
         return self.cleaned_data
+
 
 
 class MeetingForm(forms.ModelForm):

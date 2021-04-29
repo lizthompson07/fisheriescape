@@ -29,9 +29,9 @@ class CSASRequest(MetadataFields):
     title = models.CharField(max_length=1000, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"),
-                                    blank=True, null=True)
-    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=True)
+                                    blank=True, null=False)
+    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=False)
     is_multiregional = models.BooleanField(default=False,
                                            verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
@@ -227,7 +227,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
     other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
     csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"), blank=True)
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
 
     # remove
