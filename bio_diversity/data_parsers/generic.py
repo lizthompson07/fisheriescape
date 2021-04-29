@@ -99,8 +99,8 @@ def generic_indv_parser(cleaned_data):
                 row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
                                                  "%Y%b%d").replace(tzinfo=pytz.UTC)
                 row_date = row_datetime.date()
-                if utils.nan_to_none(row["SEX"]):
-                    if utils.enter_indvd(anix.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None, None):
+                if utils.nan_to_none(row["Sex"]):
+                    if utils.enter_indvd(anix.pk, cleaned_data, row_date, sex_dict[row["Sex"]], "Gender", None, None):
                         row_entered = True
                 if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                     row_entered = True
@@ -125,9 +125,9 @@ def generic_indv_parser(cleaned_data):
                 if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope", None):
                     row_entered = True
 
-                if not row["ORIGIN POND"] == "nan" and not row["DESTINATION POND"] == "nan":
-                    in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
-                    out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
+                if not row["Origin Pond"] == "nan" and not row["Destination Pond"] == "nan":
+                    in_tank = models.Tank.objects.filter(name=row["Origin Pond"]).get()
+                    out_tank = models.Tank.objects.filter(name=row["Destination Pond"]).get()
                     if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
                                                   indv_pk=indv.pk):
                         row_entered = True
@@ -174,7 +174,10 @@ def generic_grp_parser(cleaned_data):
                 "I": "Immature"}
 
     # iterate through the rows:
+    counter = 0
     for row in data_dict:
+        print("Parsing row: {}".format(counter))
+        counter += 1
         row_parsed = True
         row_entered = False
         try:
@@ -190,23 +193,18 @@ def generic_grp_parser(cleaned_data):
             prog_grp = None
             if utils.nan_to_none(row["Group"]):
                 prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=row["Group"]).get()
-            grps = utils.get_grp(row["River"], year, coll, start_tank_id, prog_grp=prog_grp)
+            grps = utils.get_grp(row["River"], year, coll, start_tank_id, at_date=row_datetime, prog_grp=prog_grp)
             if len(grps) == 1:
                 grp_id = grps[0]
+                utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
             else:
-                row_entered = False
-                row_parsed = False
-                indv = False
-                log_data += "Error parsing row: \n"
-                log_data += str(row)
-                log_data += "\nGroup {}-{}-{} in container: {} and program group {} not uniquely found in" \
-                            " db\n".format(row["River"], year, coll, start_tank_id.name, row["Group"])
-                break
+                raise Exception("\nGroup {}-{}-{} in container: {} and program group {} not uniquely found in" \
+                            " db\n".format(row["River"], year, coll, start_tank_id.name, row["Group"]))
 
             # get group at destination:
             end_grp_id = None
             if end_tank_id:
-                grps = utils.get_grp(row["River"], year, coll, end_tank_id, prog_grp=prog_grp)
+                grps = utils.get_grp(row["River"], year, coll, end_tank_id, at_date=row_datetime, prog_grp=prog_grp)
                 if len(grps) > 0:
                     end_grp_id = grps[0]
                 else:
@@ -214,14 +212,16 @@ def generic_grp_parser(cleaned_data):
                     end_grp_id.pk = None
                     end_grp_id.save()
                     grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk)
-                    utils.enter_grpd(grp_anix.pk, cleaned_data, row_date, grp_id.__str__(), "Parent Group", frm_grp_id=grp_id)
+                    utils.enter_grpd(grp_anix.pk, cleaned_data, row_date, None, "Parent Group", frm_grp_id=grp_id)
+                    utils.enter_grpd(grp_anix.pk, cleaned_data, row_date, None, "Program Group", row["Group"])
+                    utils.enter_contx(start_tank_id, cleaned_data, False, grp_pk=end_grp_id.pk)
                     utils.enter_contx(end_tank_id, cleaned_data, True, grp_pk=end_grp_id.pk)
 
                 row_indv = models.Individual(stok_id=end_grp_id.stok_id,
                                              coll_id=end_grp_id.coll_id,
                                              indv_year=end_grp_id.grp_year,
                                              spec_id=end_grp_id.spec_id,
-                                             indv_valid=True,
+                                             indv_valid=False,
                                              grp_id=end_grp_id,
                                              created_by=end_grp_id.created_by,
                                              created_date=end_grp_id.created_date,
@@ -277,13 +277,14 @@ def generic_grp_parser(cleaned_data):
 
         except Exception as err:
             # nuke all valid individuals associated with the event
-            models.Individual.objects.filter(animal_details__evnt_id=cleaned_data["evnt_id"]).delete()
-
+            fish_deleted = models.Individual.objects.filter(animal_details__evnt_id=cleaned_data["evnt_id"]).delete()
+            nfish_deleted = fish_deleted[1]["bio_diversity.Individual"]
             log_data += "Error parsing row: \n"
             log_data += str(row)
             log_data += "\n Error: {}".format(err.__str__())
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
-                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
+                        "database \n {} rows deleted from database".format(rows_parsed, len(data_dict), rows_entered,
+                                                                           len(data_dict), nfish_deleted)
             return log_data, False
         if row_entered:
             rows_entered += 1

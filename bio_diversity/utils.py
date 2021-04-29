@@ -171,24 +171,23 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, prog_grp=None):
-    grp_qs = models.Group.objects.filter(stok_id__name=stock_str,
-                                         coll_id__name__icontains=coll_str,
-                                         grp_year=grp_year)
-
-    grp_list = [grp for grp in grp_qs]
-    new_grp_list = grp_list.copy()
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None):
     if cont:
-        new_grp_list = []
-        for grp in grp_list:
-            cont_list = grp.current_cont()
-            if cont in cont_list:
-                new_grp_list.append(grp)
+        indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
+        grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str and coll_str in grp.coll_id.name
+                    and grp.grp_year == grp_year]
 
-    final_grp_list = new_grp_list.copy()
+    else:
+        grp_qs = models.Group.objects.filter(stok_id__name=stock_str,
+                                             coll_id__name__icontains=coll_str,
+                                             grp_year=grp_year)
+
+        grp_list = [grp for grp in grp_qs]
+
+    final_grp_list = grp_list.copy()
     if prog_grp:
         final_grp_list = []
-        for grp in new_grp_list:
+        for grp in grp_list:
             if prog_grp in grp.prog_group():
                 final_grp_list.append(grp)
     return final_grp_list
