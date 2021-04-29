@@ -128,7 +128,7 @@
             <th rowspan="2">{% trans "Title" %}</th>
             <th rowspan="2">{% trans "Type" %}</th>
             <th rowspan="2">{% trans "Status" %}</th>
-            <th class="text-center" :colspan="meetings.length">{% trans "Meeting Linkages" %}</th>
+            <th v-if="meetings.length" class="text-center" :colspan="meetings.length">{% trans "Meeting Linkages" %}</th>
           </tr>
           <tr>
             <th v-for="m, index in meetings" :key="m.id" class="text-center text-muted">${m.type_display}</th>

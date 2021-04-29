@@ -86,9 +86,13 @@ class CSASRequest(MetadataFields):
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 
-        # if there is a process, the request is on
+        # if there is a process, the request status will follow the process status
         if self.id and self.processes.exists():
-            self.status = 11
+            # if all processes linked to the request are complete, this request should also be complete
+            if self.processes.filter(status=2).count() == self.processes.all().count():
+                self.status = 4
+            else:
+                self.status = 11
         else:
             # look at the review to help determine the status
             self.status = 1  # draft
@@ -215,8 +219,8 @@ class CSASRequestFile(models.Model):
 
 
 class Process(SimpleLookupWithUUID, MetadataFields):
-    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
-    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
+    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
     status = models.IntegerField(choices=model_choices.process_status_choices, verbose_name=_("status"), default=1)
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
@@ -237,11 +241,13 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         ordering = ["fiscal_year", _("name")]
 
     def save(self, *args, **kwargs):
-        # the fiscal year of a process is determined by the fiscal year of the earliest request associated with it.
+        # if this is a new record, populate fy based on current time
         if not self.fiscal_year:
             self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
-        elif self.csas_requests.exists():
-            self.fiscal_year = self.csas_requests.order_by("fiscal_year").first().fiscal_year
+        # if there is a meeting, look to the latest meeting to determine fy
+        elif self.meetings.exists():
+            self.fiscal_year_id = fiscal_year(self.meetings.order_by("start_date").last().start_date, sap_style=True)
+        # otherwise, look to the creation date
         else:
             self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
 
