@@ -239,6 +239,7 @@ def get_process_field_list(process):
         'tname|{}'.format(_("Title")),
         'status_display|{}'.format(_("status")),
         'scope_type|{}'.format(_("advisory process type")),
+        'chair|{}'.format(_("chair")),
         'coordinator',
         'advisors',
         'lead_region',

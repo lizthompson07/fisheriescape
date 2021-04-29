@@ -131,12 +131,15 @@ class InviteeViewSet(viewsets.ModelViewSet):
         except KeyError:
             pass
         else:
-            # delete any existing attendance
-            obj.attendance.all().delete()
-            for date in dates.split(", "):
-                dt = datetime.strptime(date.strip(), "%Y-%m-%d")
-                dt = timezone.make_aware(dt, timezone.get_current_timezone())
-                models.Attendance.objects.create(invitee=obj, date=dt)
+            try:
+                # delete any existing attendance
+                obj.attendance.all().delete()
+                for date in dates.split(", "):
+                    dt = datetime.strptime(date.strip(), "%Y-%m-%d")
+                    dt = timezone.make_aware(dt, timezone.get_current_timezone())
+                    models.Attendance.objects.create(invitee=obj, date=dt)
+            except:
+                pass
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params

@@ -592,7 +592,8 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
 
     def get_initial(self):
         obj = self.get_object()
-        return dict(date_range=f"{obj.start_date.strftime('%Y-%m-%d')} to {obj.end_date.strftime('%Y-%m-%d')}")
+        if obj.start_date:
+            return dict(date_range=f"{obj.start_date.strftime('%Y-%m-%d')} to {obj.end_date.strftime('%Y-%m-%d')}")
 
     def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),

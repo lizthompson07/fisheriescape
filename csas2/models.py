@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
 from csas2 import model_choices
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
@@ -394,8 +394,10 @@ class Meeting(MetadataFields):
 
     @property
     def chair(self):
-        chair_role = InviteeRole.objects.get(name_ic)
-        return
+        chair_role = InviteeRole.objects.get(name__icontains="chair")
+        qs = self.invitees.filter(roles=chair_role).distinct()
+        if qs.exists():
+            return listrify([str(invitee.person) for invitee in qs])
 
 
 class MeetingNote(GenericNote):

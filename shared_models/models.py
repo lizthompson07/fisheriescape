@@ -886,14 +886,15 @@ class Person(MetadataFields):
     old_id = models.IntegerField(blank=True, null=True, editable=False)
 
     def __str__(self):
-        return "{}, {}".format(self.last_name, self.first_name)
+        return self.full_name
 
     class Meta:
         ordering = ['first_name', "last_name"]
 
     @property
     def full_name(self):
-        return "{} {}".format(self.first_name, self.last_name)
+        return f"{self.first_name} {self.last_name}"
+
 
     def save(self, *args, **kwargs):
         if self.dmapps_user:
