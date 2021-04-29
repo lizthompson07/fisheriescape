@@ -3,6 +3,9 @@ from io import BytesIO
 
 from django.utils.translation import activate, deactivate, gettext
 from docx import Document
+from html2text import html2text
+from markdown import markdown
+from textile import textile
 
 from dm_apps import settings
 
@@ -47,26 +50,13 @@ def generate_tor(tor, lang):
         TAG_PARTICIPATION=tor.participation_fr if lang == "fr" else tor.participation_en,
         TAG_REFERENCES=tor.references_fr if lang == "fr" else tor.references_en,
     )
-    for item in field_dict:
-        # replace the tagged placeholders in tables
-        for table in document.tables:
-            for row in table.rows:
-                for cell in row.cells:
-                    for paragraph in cell.paragraphs:
-                        if item in paragraph.text:
-                            try:
-                                paragraph.text = paragraph.text.replace(item, str(field_dict[item]))
-                            except Exception as E:
-                                print(E, field_dict[item])
-                                paragraph.text = "MISSING!"
-
-        # replace the tagged placeholders in paragraphs
-        for paragraph in document.paragraphs:
-            if item in paragraph.text:
-                try:
-                    paragraph.text = paragraph.text.replace(item, field_dict[item])
-                except:
-                    paragraph.text = "MISSING!"
+    for p in document.paragraphs:
+        inline = p.runs
+        for i in range(len(inline)):
+            text = inline[i].text
+            if text in field_dict.keys():
+                text = text.replace(text, field_dict[text])
+                inline[i].text = text
 
     document.save(target_file_path)
     deactivate()
