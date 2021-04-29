@@ -199,6 +199,12 @@ class EtrForm(forms.ModelForm):
             'etr_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Only hydrophones from the equipment selection list
+        self.fields['hyd'].queryset = self.fields['hyd'].queryset.filter(emm__eqt=4)
+
 
 class MorForm(forms.ModelForm):
 

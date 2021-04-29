@@ -15,9 +15,9 @@
     {% if editable and update_url%}
         {# if the update url contains /pop/ then open the url in a popup window #}
         {% if '/pop/' in update_url %}
-            <a class="btn btn-primary" href="#" onclick="return pop('{% url ''|add:update_url object.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+            <a class="btn btn-primary" href="#" onclick="return pop('{% url ''|add:update_url object.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans '>' %}</a>
         {% else %}
-            <a class="btn btn-primary" href="{% url ''|add:update_url object.pk %}" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+            <a class="btn btn-primary" href="{% url ''|add:update_url object.pk %}" title="{% trans 'Update' %}">{% trans '>' %}</a>
         {% endif %}
     {% endif %}
 
@@ -75,5 +75,12 @@ function refreshTag(tag) {
         }, 500);
     }
 }
+
+$(".delete-btn").click(function () {
+    input = confirm("Are you sure you want to delete: " + $(this).attr("object-name") + "?");
+    if (input) {
+      window.location.href = $(this).attr("delete_url");
+    }
+});
 </script>
 {% endblock %}

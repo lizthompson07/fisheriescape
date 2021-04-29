@@ -87,13 +87,6 @@
     "prod": "prod"
   },
   "DOCKER_REPOSITORY": "dmapps_img",
-  "EMAIL_HOST": {
-    "dev": "",
-    "test": "",
-    "prod": "email-smtp.ca-central-1.amazonaws.com"
-  },
-  "EMAIL_PORT": 587,
-  "EMAIL_USE_TLS": "True",
   "SHOW_TICKETING_APP": {
     "dev": "True",
     "test": "False",

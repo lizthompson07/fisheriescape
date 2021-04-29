@@ -132,13 +132,13 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["camp"] = {
-            "title": _("CAMP db"),
-            "description": _("Community Aquatic Monitoring Program (CAMP) data entry and archiving tool."),
-            "status": "production",
+        app_dict["csas2"] = {
+            "title": _("Canadian Science Advisory Secretariat (v2)"),
+            "description": _("Tool for tracking meetings, requests and publications."),
+            "status": "dev",
             "access": "login-required",
-            "url": reverse('camp:index'),
-            "icon_path": 'img/icons/seine.svg',
+            "url": reverse('csas2:index'),
+            "icon_path": 'img/csas/csas_image.svg',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -165,32 +165,6 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('edna:index'),
             "icon_path": 'img/icons/dna.png',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["scifi"] = {
-            "title": _("SciFi"),
-            "description": _("Science finance tracking and reporting tool."),
-            "status": "production",
-            "access": "permission-required",
-            "url": reverse('scifi:index'),
-            "icon_path": 'img/icons/money1.svg',
-            "region": "all",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["spring_cleanup"] = {
-            "title": _("GFC Spring Cleanup!"),
-            "description": _("App to coordinate a spring cleanup in the area around the GFC. Sign up today!!."),
-            "status": "dev",
-            "access": "permission-required",
-            "url": reverse('spring_cleanup:index'),
-            "icon_path": 'img/icons/earth.svg',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -327,19 +301,6 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["csas"] = {
-            "title": _("Canadian Science Advisory Secretariat"),
-            "description": _("Tool for tracking meetings, requests and publications."),
-            "status": "dev",
-            "access": "login-required",
-            "url": reverse('csas:index'),
-            "icon_path": 'img/csas/csas_image.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
         app_dict["bio_diversity"] = {
             "title": _("Biodiversity"),
             "description": _("Tool for Biodiversity project"),
@@ -379,13 +340,26 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["spot"] = {
-            "title": _("Grants & Contributions"),
-            "description": _("Gulf Region application for the tracking of Gs & Cs."),
-            "status": "beta",
-            "access": "permission-required",
-            "url": reverse('spot:index'),
-            "icon_path": 'img/icons/agreement.svg',
+        app_dict["fisheriescape"] = {
+            "title": _("Fisheries Landscape Tool"),
+            "description": _("Tool for mapping fisheries landscapes for marine species at risk"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('fisheriescape:index'),
+            "icon_path": 'img/icons/fisheriescape.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["camp"] = {
+            "title": _("CAMP db"),
+            "description": _("Community Aquatic Monitoring Program (CAMP) data entry and archiving tool."),
+            "status": "production",
+            "access": "login-required",
+            "url": reverse('camp:index'),
+            "icon_path": 'img/icons/seine.svg',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -405,6 +379,58 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["spot"] = {
+            "title": _("Grants & Contributions"),
+            "description": _("Gulf Region application for the tracking of Gs & Cs."),
+            "status": "beta",
+            "access": "permission-required",
+            "url": reverse('spot:index'),
+            "icon_path": 'img/icons/agreement.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["scifi"] = {
+            "title": _("SciFi"),
+            "description": _("Science finance tracking and reporting tool."),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('scifi:index'),
+            "icon_path": 'img/icons/money1.svg',
+            "region": "all",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["spring_cleanup"] = {
+            "title": _("GFC Spring Cleanup!"),
+            "description": _("App to coordinate a spring cleanup in the area around the GFC. Sign up today!!."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('spring_cleanup:index'),
+            "icon_path": 'img/icons/earth.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["csas"] = {
+            "title": _("Canadian Science Advisory Secretariat"),
+            "description": _("Tool for tracking meetings, requests and publications."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('csas:index'),
+            "icon_path": 'img/csas/csas_image.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["projects"] = {
             "title": _("Project Planning (ARCHIVE ONLY)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
@@ -413,19 +439,6 @@ def get_app_dict(request):
             "url": reverse('projects:index'),
             "icon_path": 'img/icons/scope.svg',
             "region": "all",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["fisheriescape"] = {
-            "title": _("Fisheries Landscape Tool"),
-            "description": _("Tool for mapping fisheries landscapes for marine species at risk"),
-            "status": "dev",
-            "access": "login-required",
-            "url": reverse('fisheriescape:index'),
-            "icon_path": 'img/icons/fisheriescape.svg',
-            "region": "regional",
         }
     except NoReverseMatch:
         pass

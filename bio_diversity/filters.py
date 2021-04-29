@@ -140,7 +140,7 @@ class EvntFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Event
-        fields = ["facic_id", "evntc_id", "perc_id", "prog_id",]
+        fields = ["facic_id", "evntc_id", "perc_id", "prog_id", ]
 
 
 class EvntcFilter(django_filters.FilterSet):
@@ -248,7 +248,8 @@ class IndvFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Individual
-        fields = ["ufid", "spec_id", "stok_id", "indv_year", ]
+        fields = {"pit_tag": ["icontains"],
+                  }
 
 
 class IndvdFilter(django_filters.FilterSet):
@@ -362,7 +363,7 @@ class ProtFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Protocol
-        fields = ["prog_id", "protc_id", "facic_id",]
+        fields = ["prog_id", "protc_id", "facic_id", ]
 
 
 class ProtcFilter(django_filters.FilterSet):
@@ -495,15 +496,15 @@ class TankdFilter(django_filters.FilterSet):
 class TeamFilter(django_filters.FilterSet):
 
     class Meta:
-        model = models.Team
-        fields = ["perc_id", "role_id", ]
+        model = models.TeamXRef
+        fields = ["perc_id", "role_id", "evnt_id", "loc_id"]
 
 
 class TrayFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Tray
-        fields = ["name", "nom", "trof_id" ]
+        fields = ["name", "nom", "trof_id"]
 
 
 class TraydFilter(django_filters.FilterSet):
@@ -524,7 +525,7 @@ class TrofFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Trough
-        fields = ["name", "nom", "facic_id",]
+        fields = ["name", "nom", "facic_id", ]
 
 
 class TrofdFilter(django_filters.FilterSet):
