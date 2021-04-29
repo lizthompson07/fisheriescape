@@ -1029,7 +1029,7 @@ def export_project_summary(request):
         print(year_txt, "is not a valid name of a worksheet")
 
     # start writing data at row 2 in the sheet
-    row_count = 2
+    row_count = 3
     for item in qs:
         project = item.project
 
@@ -1050,22 +1050,45 @@ def export_project_summary(request):
             if project.modified_by:
                 metadata += f" by {project.modified_by}"
 
+        priorites = item.priorities if item.priorities else None
+
         ws['A' + str(row_count)].value = project.pk
         ws['B' + str(row_count)].value = project.section.tname
         ws['C' + str(row_count)].value = project.title
         ws['D' + str(row_count)].value = html2text(nz(project.overview_html, ""))
-        ws['E' + str(row_count)].value = project.activity_type.tname if project.activity_type else ""
-        ws['F' + str(row_count)].value = theme.tname if theme else ""
-        ws['G' + str(row_count)].value = functional_group.tname if functional_group else ""
+        ws['E' + str(row_count)].value = nz(project.activity_type.tname, "") if project.activity_type else ""
+        ws['F' + str(row_count)].value = nz(theme.tname, "") if theme else ""
+        ws['G' + str(row_count)].value = nz(functional_group.tname, "") if functional_group else ""
         ws['H' + str(row_count)].value = str(primary_funding if primary_funding else "")
-        ws['I' + str(row_count)].value = project.start_date if project.start_date else ""
-        ws['J' + str(row_count)].value = project.end_date if project.end_date else ""
+        ws['I' + str(row_count)].value = nz(project.start_date, "")
+        ws['J' + str(row_count)].value = nz(project.end_date, "")
         ws['K' + str(row_count)].value = listrify(project.fiscal_years.all())
         ws['L' + str(row_count)].value = listrify(project.funding_sources.all())
-        ws['M' + str(row_count)].value = leads if leads else ""
+        ws['M' + str(row_count)].value = nz(leads, "")
         ws['N' + str(row_count)].value = listrify(project.tags.all())
         ws['O' + str(row_count)].value = listrify(project.references.all(), "\n\r")
-        ws['P' + str(row_count)].value = metadata if metadata else ""
+        ws['P' + str(row_count)].value = nz(metadata, "")
+        # leave a column blank to separate general project info from the specif year project info.
+        ws['R' + str(row_count)].value = html2text(nz(priorites, ""))
+        ws['S' + str(row_count)].value = nz(item.requires_specialized_equipment, "")
+        ws['T' + str(row_count)].value = nz(item.has_field_component, "")
+        ws['U' + str(row_count)].value = nz(item.has_data_component, "")
+        ws['V' + str(row_count)].value = nz(item.data_collected, "")
+        ws['W' + str(row_count)].value = nz(item.data_products, "")
+        ws['X' + str(row_count)].value = nz(item.data_management_needs, "")
+        ws['Y' + str(row_count)].value = nz(item.has_lab_component, "")
+        ws['Z' + str(row_count)].value = nz(item.it_needs, "")
+        ws['AA' + str(row_count)].value = nz(item.additional_notes, "")
+        ws['AB' + str(row_count)].value = nz(item.get_coding(), "")
+        ws['AC' + str(row_count)].value = nz(item.submitted, "")
+        ws['AD' + str(row_count)].value = nz(item.get_status_display(), "")
+        # leave a column blank to separate specif year project info from O&M cost.
+        for cost in item.omcost_set.filter(funding_source__funding_source_type=1):
+            print("{} : {} - {}".format(cost.funding_source.funding_source_type, cost.funding_source.name, cost.amount))
+        ws['AF' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=1).aggregate(dsum=Sum("amount"))["dsum"], 0)
+        ws['AG' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=2).aggregate(dsum=Sum("amount"))["dsum"], 0)
+        ws['AH' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=3).aggregate(dsum=Sum("amount"))["dsum"], 0)
+        ws['AI' + str(row_count)].value = nz(item.om_costs, "")
         row_count += 1
 
     wb.save(target_file_path)
