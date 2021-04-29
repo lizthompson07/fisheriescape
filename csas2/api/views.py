@@ -336,7 +336,10 @@ class InviteeModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        data['person_choices'] = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
+        external_stamp = " ({})".format(_("external"))
+        person_choices = [dict(text="{} {}".format(p, external_stamp if not p.dmapps_user else ""), value=p.id) for p in Person.objects.all()]
+        person_choices.insert(0, dict(text="-----", value=None))
+        data['person_choices'] = person_choices
         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_status_choices]
         data['role_choices'] = [dict(text=str(obj), value=obj.id) for obj in models.InviteeRole.objects.all()]
         return Response(data)
@@ -390,7 +393,9 @@ class AuthorModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        data['person_choices'] = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
+        person_choices = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
+        person_choices.insert(0, dict(text="-----", value=None))
+        data['person_choices'] = person_choices
         return Response(data)
 
 

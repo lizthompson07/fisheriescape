@@ -878,9 +878,8 @@ class Person(MetadataFields):
     email = models.EmailField(verbose_name=_("email"), unique=True)
     language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"), related_name="people")
     affiliation = models.CharField(max_length=255, verbose_name=_("affiliation"), blank=False, null=True)
-    job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
-    job_title_fr = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
-
+    job_title_en = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("job title (en)"))
+    job_title_fr = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("job title (fr)"))
     dmapps_user = models.OneToOneField(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("linkage to DM Apps User"),
                                        related_name="contact")
     old_id = models.IntegerField(blank=True, null=True, editable=False)
@@ -894,7 +893,6 @@ class Person(MetadataFields):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
-
 
     def save(self, *args, **kwargs):
         if self.dmapps_user:

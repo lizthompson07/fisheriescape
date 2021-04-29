@@ -27,7 +27,9 @@
     </thead>
     <tbody>
     <tr v-for="(invitee, index) in invitees" :key="invitee.id" @click="">
-      <td> ${ invitee.person_object.full_name } (${ invitee.person_object.affiliation }) <br>
+      <td>
+        ${ invitee.person_object.full_name } (${ invitee.person_object.affiliation }) <br>
+        <span v-if="invitee.person_object.tposition">${ invitee.person_object.tposition }<br></span>
         <a :href="`mailto:${ invitee.person_object.email }`">${ invitee.person_object.email}</a>
       </td>
       <td>${ invitee.roles_display }</td>
