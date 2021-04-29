@@ -953,11 +953,12 @@ class TestManagementSearchFormView(CommonTest):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # the management view reports should return an HttpResponse so it should return a 200
+    # The management view reports should return an HttpResponse so it should return a 200
+    # this is unlike the Report Search view which returns reports as a redirection response
     @tag("reports", "submit")
     def test_submit(self):
         data = dict(report=1)
-        self.assert_success_url(self.test_url, data=data, user=self.user)
+        self.assert_success_url(self.test_url, data=data, user=self.user, expected_code=200)
 
     @tag("reports", "correct_url")
     def test_correct_url(self):
