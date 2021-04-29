@@ -6,7 +6,6 @@ from django.db import models
 from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
@@ -221,6 +220,7 @@ class CSASRequestFile(models.Model):
 class Process(SimpleLookupWithUUID, MetadataFields):
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"))
     status = models.IntegerField(choices=model_choices.process_status_choices, verbose_name=_("status"), default=1)
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
@@ -234,22 +234,20 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
 
     # calculated
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="processes",
-                                    verbose_name=_("fiscal year"), editable=False)
 
     class Meta:
         ordering = ["fiscal_year", _("name")]
 
     def save(self, *args, **kwargs):
-        # if this is a new record, populate fy based on current time
-        if not self.fiscal_year:
-            self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
-        # if there is a meeting, look to the latest meeting to determine fy
-        elif self.meetings.exists():
-            self.fiscal_year_id = fiscal_year(self.meetings.order_by("start_date").last().start_date, sap_style=True)
-        # otherwise, look to the creation date
-        else:
-            self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
+        # # if this is a new record, populate fy based on current time
+        # if not self.fiscal_year:
+        #     self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
+        # # if there is a meeting, look to the latest meeting to determine fy
+        # elif self.meetings.exists():
+        #     self.fiscal_year_id = fiscal_year(self.meetings.order_by("start_date").last().start_date, sap_style=True)
+        # # otherwise, look to the creation date
+        # else:
+        #     self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
 
         super().save(*args, **kwargs)
 
@@ -388,6 +386,7 @@ class MeetingCost(GenericCost):
 class InviteeRole(SimpleLookup):
     pass
 
+
 class Invitee(models.Model):
     ''' a person that was invited to a meeting'''
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="invitees")
@@ -481,6 +480,8 @@ class DocumentCost(GenericCost):
 class DocumentTracking(MetadataFields):
     ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
     document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name="tracking")
+
+
 #     # administrative
 #     date_due = models.DateField(null=True, blank=True, verbose_name=_("due date"))
 #     date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"), )
