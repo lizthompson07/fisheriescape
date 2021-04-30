@@ -159,56 +159,94 @@ def generic_grp_parser(cleaned_data):
     try:
         data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
                              converters={'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
-        data_dict = data.to_dict('records')
     except Exception as err:
         log_data += "\n File format not valid: {}".format(err.__str__())
         return log_data, False
-
 
     # prep data:
     sex_dict = {"M": "Male",
                 "F": "Female",
                 "I": "Immature"}
 
+    data["datetime"] = data.apply(lambda row: utils.get_row_date(row), axis=1)
+    data["grp_year"] = data.apply(lambda row: utils.year_coll_splitter(row["Year Class"])[0], axis=1)
+    data["grp_coll"] = data.apply(lambda row: utils.year_coll_splitter(row["Year Class"])[1], axis=1)
+
+    tank_qs = models.Tank.objects.filter(facic_id=cleaned_data["facic_id"])
+    tank_dict = {tank.name: tank for tank in tank_qs}
+    data["start_tank_id"] = data.apply(lambda row: tank_dict[row["Origin Pond"]], axis=1)
+    data["end_tank_id"] = data.apply(lambda row: tank_dict[row["Destination Pond"]], axis=1)
+
+    data["grp_key"] = data["River"] + data["Year Class"] + data["Origin Pond"] + data["Group"].astype(str) + \
+                      data["datetime"].astype(str)
+    data["end_grp_key"] = data["River"] + data["Year Class"] + data["Destination Pond"] + data["Group"].astype(str) + \
+                          data["datetime"].astype(str)
+
+    start_grp_data = data.groupby(["River", "grp_year", "grp_coll", "start_tank_id", "Group", "datetime", "grp_key"],
+                              dropna=False, sort=False).size().reset_index()
+    start_grp_data["start_grp_id"] = start_grp_data.apply(lambda row: utils.get_grp(row["River"], row["grp_year"], row["grp_coll"],
+                                                                          row["start_tank_id"], at_date=row["datetime"],
+                                                                          prog_str=row["Group"])[0], axis=1)
+    start_grp_dict = dict(zip(start_grp_data['grp_key'], start_grp_data['start_grp_id']))
+    for item, grp in start_grp_dict.items():
+        utils.enter_anix(cleaned_data, grp_pk=grp.pk)
+
+    end_grp_data = data.groupby(["River", "grp_year", "grp_coll", "end_tank_id", "start_tank_id", "Group", "datetime", "grp_key", "end_grp_key"],
+                              dropna=False, sort=False).size().reset_index()
+    end_grp_dict = {}
+    for row in end_grp_data.to_dict('records'):
+        grps = utils.get_grp(row["River"], row["grp_year"], row["grp_coll"], row["end_tank_id"], at_date=row["datetime"],
+                              prog_str=row["Group"])
+        start_grp_id = start_grp_dict[row["grp_key"]]
+        start_contx = utils.enter_contx(row["start_tank_id"], cleaned_data, None, grp_pk=start_grp_id.pk,
+                                        return_contx=True)
+
+        if len(grps) > 0:
+            end_grp_id = grps[0]
+            end_grp_dict[row["end_grp_key"]] = grps[0]
+        else:
+            end_grp_id = copy.deepcopy(start_grp_id)
+            end_grp_id.pk = None
+            end_grp_id.save()
+            end_grp_dict[row["end_grp_key"]] = end_grp_id
+
+        grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk)
+        utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, "Parent Group", frm_grp_id=start_grp_id)
+        utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, "Program Group", row["Group"])
+        utils.enter_contx(row["start_tank_id"], cleaned_data, False, grp_pk=end_grp_id.pk)
+        end_contx = utils.enter_contx(row["end_tank_id"], cleaned_data, True, grp_pk=end_grp_id.pk, return_contx=True)
+        utils.enter_cnt(cleaned_data, row[0], end_contx.pk)
+        utils.enter_cnt(cleaned_data, row[0], start_contx.pk, cnt_code="Fish Removed from Container")
+
+
     # iterate through the rows:
+    data_dict = data.to_dict('records')
+    data_dict = {}
     for row in data_dict:
         row_parsed = True
         row_entered = False
         try:
-            row_datetime =utils.get_row_date(row)
-            row_date = row_datetime.date()
+            row_date = row["datetime"].date()
 
             end_tank_id = None
             if utils.nan_to_none(row["Origin Pond"]) != utils.nan_to_none(row["Destination Pond"]):
-                start_tank_id = models.Tank.objects.filter(name__iexact=row["Origin Pond"]).get()
-                end_tank_id = models.Tank.objects.filter(name__iexact=row["Destination Pond"]).get()
+                start_tank_id = models.Tank.objects.filter(name__iexact=row["Origin Pond"],
+                                                           facic_id=cleaned_data["facic_id"]).get()
+                end_tank_id = models.Tank.objects.filter(name__iexact=row["Destination Pond"],
+                                                         facic_id=cleaned_data["facic_id"]).get()
             year, coll = utils.year_coll_splitter(row["Year Class"])
-            prog_grp = None
-            if utils.nan_to_none(row["Group"]):
-                prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=row["Group"]).get()
-            grps = utils.get_grp(row["River"], year, coll, start_tank_id, at_date=row_datetime, prog_grp=prog_grp)
+
+            grps = utils.get_grp(row["River"], year, coll, start_tank_id, at_date=row["datetime"], prog_str=row["Group"])
             if len(grps) == 1:
                 grp_id = grps[0]
                 utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
             else:
-                raise Exception("\nGroup {}-{}-{} in container: {} and program group {} not uniquely found in" \
-                            " db\n".format(row["River"], year, coll, start_tank_id.name, row["Group"]))
+                raise Exception("\nGroup {}-{}-{} in container: {} and program group {} not uniquely found in"
+                                " db\n".format(row["River"], year, coll, start_tank_id.name, row["Group"]))
 
             # get group at destination:
             end_grp_id = None
             if end_tank_id:
-                grps = utils.get_grp(row["River"], year, coll, end_tank_id, at_date=row_datetime, prog_grp=prog_grp)
-                if len(grps) > 0:
-                    end_grp_id = grps[0]
-                else:
-                    end_grp_id = copy.deepcopy(grp_id)
-                    end_grp_id.pk = None
-                    end_grp_id.save()
-                    grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk)
-                    utils.enter_grpd(grp_anix.pk, cleaned_data, row_date, None, "Parent Group", frm_grp_id=grp_id)
-                    utils.enter_grpd(grp_anix.pk, cleaned_data, row_date, None, "Program Group", row["Group"])
-                    utils.enter_contx(start_tank_id, cleaned_data, False, grp_pk=end_grp_id.pk)
-                    utils.enter_contx(end_tank_id, cleaned_data, True, grp_pk=end_grp_id.pk)
 
                 row_indv = models.Individual(stok_id=end_grp_id.stok_id,
                                              coll_id=end_grp_id.coll_id,
@@ -238,7 +276,8 @@ def generic_grp_parser(cleaned_data):
 
             if row_indv:
                 if utils.nan_to_none(row["Sex"]):
-                    if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, sex_dict[row["Sex"]], "Gender", None, None):
+                    if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, sex_dict[row["Sex"]], "Gender", None,
+                                         None):
                         row_entered = True
                 if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
                     row_entered = True
@@ -260,7 +299,8 @@ def generic_grp_parser(cleaned_data):
                                              "Tissue Sample"):
                             row_entered = True
 
-                if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope", None):
+                if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope",
+                                     None):
                     row_entered = True
 
                 if utils.nan_to_none(row["COMMENTS"]):
@@ -284,8 +324,6 @@ def generic_grp_parser(cleaned_data):
             rows_parsed += 1
         elif row_parsed:
             rows_parsed += 1
-
-
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))

@@ -64,7 +64,8 @@ def coldbrook_picks_parser(cleaned_data):
     data["grps"] = data.apply(lambda row: anix_qs.filter(pair_id=row["pairs"]).get().grp_id, axis=1)
 
     trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
-    data["trofs"] = data.apply(lambda row: trof_qs.filter(name=row["Trough"]).get(), axis=1)
+    trof_dict = {trof.name: trof for trof in trof_qs}
+    data["trofs"] = data.apply(lambda row: trof_dict[row["Trough"]], axis=1)
 
     # trays, date from cross
     data["trays"] = data.apply(lambda row: utils.create_tray(row["trofs"], row["cross"], row["pairs"].start_date,

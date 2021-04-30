@@ -171,7 +171,11 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None):
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None, prog_str=None):
+
+    if nan_to_none(prog_str):
+        prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
+
     if cont:
         indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
         grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str and coll_str in grp.coll_id.name
@@ -211,7 +215,7 @@ def get_row_date(row):
         raise Exception("\nFailed to parse date from row, make sure column headers are : \"Year\", \"Month\", \"Day\" "
                         "and the format used is: 1999-Jan-1 \n \n {}".format(err))
 
-    return
+    return row_datetime
 
 
 def comment_parser(comment_str, anix_indv, det_date):
