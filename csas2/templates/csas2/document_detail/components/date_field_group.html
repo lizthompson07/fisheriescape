@@ -47,9 +47,7 @@ Vue.component("date-field-group", {
   },
   methods: {
     updateTracking() {
-      data = {}
-      data[this.field_name] = this.date
-      this.$emit("update-tracking", data);
+      this.$emit("update-tracking", {field_name:this.field_name, date: this.date});
     },
     clearDate() {
       this.date = null;

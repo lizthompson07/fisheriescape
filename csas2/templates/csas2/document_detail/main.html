@@ -295,8 +295,8 @@
       },
       _prepDates(dateFieldName, date) {
         if (dateFieldName && date) {
-            if (date) this.document.tracking[dateFieldName] = date + "T12:00:00";
-            else this.document.tracking[dateFieldName] = null;
+          if (date) this.document.tracking[dateFieldName] = date + "T12:00:00";
+          else this.document.tracking[dateFieldName] = null;
         } else {
           let dateFields = [
             "due_date",
@@ -328,17 +328,15 @@
       },
       updateTracking(data) {
         if (!data.target) {
-          this._prepDates()
-
+          this._prepDates(data.field_name, data.date)
         } else {
+          // data is an event
           this._prepDates()
-          data = this.document.tracking // data is an event
         }
-
+        data = this.document.tracking
         this.errors = null;
-
         let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
-        apiService(endpoint, "PUT", data).then(data => {
+        apiService(endpoint, "PATCH", data).then(data => {
           if (!data.id) this.errors = groomJSON(data);
           else this.getDocument();
         });
