@@ -77,9 +77,9 @@ for (var selector in fpConfig) {
   $(selector).css("background-color", "#f0ebff");
   // gives a way for the user to clear the field!
   $(selector).keydown(function (event) {
-    if (event.key == "Delete" || event.key == "Escape") {
+    if (event.key === "Delete" || event.key === "Escape") {
       event.preventDefault()
-      $(this).val("");
+      $(this).val("").trigger("change");
     }
   });
 }

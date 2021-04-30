@@ -160,6 +160,7 @@ class ProcessForm(forms.ModelForm):
     class Meta:
         model = models.Process
         fields = [
+            'csas_requests',
             'name',
             'nom',
             'fiscal_year',
@@ -168,7 +169,6 @@ class ProcessForm(forms.ModelForm):
             'type',
             'lead_region',
             'other_regions',
-            'csas_requests',
             'coordinator',
             'advisors',
         ]
@@ -207,12 +207,43 @@ class ProcessForm(forms.ModelForm):
 
 
 class MeetingForm(forms.ModelForm):
+    field_order = [
+        "type",
+        "is_virtual",
+        "location",
+        "date_range",
+        "est_quarter",
+        "est_year",
+    ]
     date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Meeting dates"), required=False,
                                  help_text=gettext_lazy("This can be left blank if not currently known"))
 
     class Meta:
         model = models.Meeting
         exclude = ["start_date", "end_date"]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # make sure that the lead_region is not also listed in the other_regions field
+        date_range = cleaned_data.get("date_range")
+        est_quarter = cleaned_data.get("est_quarter")
+        est_year = cleaned_data.get("est_year")
+
+        if not date_range and (not est_year or not est_quarter):
+            error_msg = gettext("Must enter either a date range OR an estimated quarter / year!")
+            raise forms.ValidationError(error_msg)
+        return self.cleaned_data
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        meeting_quarter_choices = (
+            (None, "-----"),
+            (1, gettext("Spring (April - June)")),
+            (2, gettext("Summer (July - September)")),
+            (3, gettext("Fall (October - December)")),
+            (4, gettext("Winter (January - March)")),
+        )
+        self.fields["est_quarter"].choices = meeting_quarter_choices
 
 
 class DocumentForm(forms.ModelForm):
@@ -224,10 +255,25 @@ class DocumentForm(forms.ModelForm):
 
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not kwargs.get("instance"):
+            del self.fields["year"]
+            del self.fields["pub_number"]
+            del self.fields["pages"]
+            del self.fields["file_en"]
+            del self.fields["file_fr"]
+            del self.fields["dev_link_en"]
+            del self.fields["dev_link_fr"]
+            del self.fields["ekme_gcdocs_en"]
+            del self.fields["ekme_gcdocs_fr"]
+            del self.fields["lib_cat_en"]
+            del self.fields["lib_cat_fr"]
 
-class SeriesForm(forms.ModelForm):
+
+class DocumentTypeForm(forms.ModelForm):
     class Meta:
-        model = models.Series
+        model = models.DocumentType
         fields = "__all__"
         widgets = {
             # 'name': forms.Textarea(attrs={"rows": 3}),
@@ -235,9 +281,9 @@ class SeriesForm(forms.ModelForm):
         }
 
 
-SeriesFormset = modelformset_factory(
-    model=models.Series,
-    form=SeriesForm,
+DocumentTypeFormset = modelformset_factory(
+    model=models.DocumentType,
+    form=DocumentTypeForm,
     extra=1,
 )
 

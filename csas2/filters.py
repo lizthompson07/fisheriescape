@@ -93,7 +93,7 @@ class DocumentFilter(django_filters.FilterSet):
             'type': ['exact'],
             'status': ['exact'],
             'process': ['exact'],
-            'series': ['exact'],
+            'document_type': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):

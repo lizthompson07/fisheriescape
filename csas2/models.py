@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _, gettext, get_language
 from markdown import markdown
 
 from csas2 import model_choices
+from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
@@ -300,20 +301,55 @@ class TermsOfReference(MetadataFields):
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
 
-    # @property
-    # def context_html(self):
-    #     if self.context:
-    #         return mark_safe(markdown(self.context))
-    #
-    # @property
-    # def objectives_html(self):
-    #     if self.objectives:
-    #         return mark_safe(markdown(self.objectives))
-    #
-    # @property
-    # def expected_publications_html(self):
-    #     if self.expected_publications:
-    #         return mark_safe(markdown(self.expected_publications))
+    @property
+    def context_en_html(self):
+        if self.context_en:
+            return mark_safe(markdown(self.context_en))
+
+    @property
+    def objectives_en_html(self):
+        if self.objectives_en:
+            return mark_safe(markdown(self.objectives_en))
+
+    @property
+    def expected_publications_en_html(self):
+        if self.expected_publications_en:
+            return mark_safe(markdown(self.expected_publications_en))
+
+    @property
+    def participation_en_html(self):
+        if self.participation_en:
+            return mark_safe(markdown(self.participation_en))
+
+    @property
+    def references_en_html(self):
+        if self.references_en:
+            return mark_safe(markdown(self.references_en))
+
+    @property
+    def context_fr_html(self):
+        if self.context_fr:
+            return mark_safe(markdown(self.context_fr))
+
+    @property
+    def objectives_fr_html(self):
+        if self.objectives_fr:
+            return mark_safe(markdown(self.objectives_fr))
+
+    @property
+    def expected_publications_fr_html(self):
+        if self.expected_publications_fr:
+            return mark_safe(markdown(self.expected_publications_fr))
+
+    @property
+    def participation_fr_html(self):
+        if self.participation_fr:
+            return mark_safe(markdown(self.participation_fr))
+
+    @property
+    def references_fr_html(self):
+        if self.references_fr:
+            return mark_safe(markdown(self.references_fr))
 
 
 class GenericCost(models.Model):
@@ -350,8 +386,8 @@ class Meeting(MetadataFields):
 
     start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
-    # rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))
-    hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
+    est_quarter = models.IntegerField(choices=model_choices.meeting_quarter_choices, verbose_name=_("estimated quarter"), blank=True, null=True)
+    est_year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("estimated year"))
 
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="meetings",
@@ -362,6 +398,9 @@ class Meeting(MetadataFields):
             self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
         if self.is_virtual:
             self.location = 'Virtual / Virtuel'
+        if self.start_date:
+            self.est_quarter = get_quarter(self.start_date)
+            self.est_year = self.start_date.year
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -386,30 +425,36 @@ class Meeting(MetadataFields):
 
     @property
     def display_dates(self):
-        start = date(self.start_date) if self.start_date else gettext("TBD")
-        dates = f'{start}'
-        if self.end_date and self.end_date != self.start_date:
-            end = date(self.end_date)
-            dates += f' &rarr; {end}'
-        days_display = "{} {}{}".format(self.length_days, gettext("day"), pluralize(self.length_days))
-        dates += f' ({days_display})'
-        return dates
+        start = date(self.start_date) if self.start_date else None
+        if start:
+            dates = f'{start}'
+            if self.end_date and self.end_date != self.start_date:
+                end = date(self.end_date)
+                dates += f' &rarr; {end}'
+            days_display = "{} {}{}".format(self.length_days, gettext("day"), pluralize(self.length_days))
+            dates += f' ({days_display})'
+            return dates
+        else:
+            return f"{self.get_est_quarter_display()} {self.est_year}"
 
     @property
     def tor_display_dates(self):
-        start = date(self.start_date) if self.start_date else gettext("TBD")
-        lang = get_language()
-        if lang == 'fr':
-            dates = f'Le {start}'
-        else:
-            dates = f'{start}'
-        if self.end_date and self.end_date != self.start_date:
-            end = date(self.end_date)
+        start = date(self.start_date) if self.start_date else None
+        if start:
+            lang = get_language()
             if lang == 'fr':
-                dates += f' au {end}'
+                dates = f'Le {start}'
             else:
-                dates += f' to {end}'
-        return dates
+                dates = f'{start}'
+            if self.end_date and self.end_date != self.start_date:
+                end = date(self.end_date)
+                if lang == 'fr':
+                    dates += f' au {end}'
+                else:
+                    dates += f' to {end}'
+            return dates
+        else:
+            return f"{self.get_est_quarter_display()} {self.est_year}"
 
     @property
     def total_cost(self):
@@ -498,21 +543,21 @@ class Attendance(models.Model):
         unique_together = (("invitee", "date"),)
 
 
-class Series(SimpleLookup):
-    pass
+class DocumentType(SimpleLookup):
+    hide_from_list = models.BooleanField(default=False, verbose_name=_("This these docs be hidden from the main search page?"), )
 
 
 class Document(MetadataFields):
     process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False)
     type = models.IntegerField(choices=model_choices.document_type_choices, verbose_name=_("type"))
-    series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("series"))
+    # currently not using this field.. consider deleting
+    document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"),  null=True)
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
     year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
     pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True)
     pages = models.IntegerField(null=True, blank=True, verbose_name=_("pages"))
-    hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
 
     # file (should be able to get size as well!
     file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))

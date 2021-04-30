@@ -145,9 +145,8 @@ class MeetingSerializerLITE(serializers.ModelSerializer):
 
 
 class DocumentSerializer(serializers.ModelSerializer):
-    # meetings = MeetingSerializerLITE(many=True)
+    document_type = serializers.StringRelatedField()
     ttitle = serializers.SerializerMethodField()
-    type_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
@@ -173,8 +172,6 @@ class DocumentSerializer(serializers.ModelSerializer):
     def get_status_display(self, instance):
         return instance.status_display
 
-    def get_type_display(self, instance):
-        return instance.get_type_display()
 
     def get_ttitle(self, instance):
         return instance.ttitle

@@ -71,16 +71,11 @@
               </tr>
               <tr>
                 <th class="text-left">{% trans "Type" %}</th>
-                <td class="text-left" v-html="document.type_display"></td>
+                <td class="text-left" v-html="document.document_type"></td>
               </tr>
               <tr>
                 <th class="text-left">{% trans "Status" %}</th>
                 <td class="text-left" v-html="document.status_display"></td>
-              </tr>
-
-              <tr>
-                <th class="text-left" v-html="documentLabels.series"></th>
-                <td class="text-left">${document.series|nz}</td>
               </tr>
               <tr>
                 <th class="text-left" v-html="documentLabels.year"></th>
@@ -139,10 +134,6 @@
                   <a v-if="document.lib_cat_en" :href="`${document.lib_cat_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
                 </td>
                 <td v-else>---</td>
-              </tr>
-              <tr>
-                <th class="text-left" v-html="documentLabels.hide_from_list"></th>
-                <td class="text-left">${document.hide_from_list|yesNo}</td>
               </tr>
               <tr>
                 <th>{% trans "Linked meetings" %}</th>

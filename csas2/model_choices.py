@@ -62,6 +62,13 @@ meeting_type_choices = (
     (4, _("Science Response Meeting")),
 )
 
+meeting_quarter_choices = (
+    (1, _("Spring")),
+    (2, _("Summer")),
+    (3, _("Fall")),
+    (4, _("Winter")),
+)
+
 note_type_choices = (
     (1, 'To Do'),
     (2, 'Next step'),
@@ -75,7 +82,7 @@ document_type_choices = (
     (4, _("Proceedings")),
     (5, _("Science Response")),
     (6, _("Working Paper")),
-    (7, _("Term of Reference")),
+    (7, _("Terms of Reference")),
 )
 
 document_status_choices = (

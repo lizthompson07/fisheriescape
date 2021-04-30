@@ -47,6 +47,12 @@ class CSASRequestReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [CanModifyRequestOrReadOnly]
     queryset = models.CSASRequestReview.objects.all()
 
+    def perform_destroy(self, instance):
+        # a little bit of gymnastics here in order to save the csas request truely following the deletion of the review (not working with signals)
+        csas_request = instance.csas_request
+        instance.delete()
+        csas_request.save()
+        
 
 class MeetingViewSet(viewsets.ModelViewSet):
     queryset = models.Meeting.objects.all().order_by("-created_at")
@@ -218,6 +224,7 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = models.Author.objects.all()

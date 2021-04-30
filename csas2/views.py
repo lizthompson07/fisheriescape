@@ -11,6 +11,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
+from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models.models import Person
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
@@ -19,7 +20,7 @@ from shared_models.views import CommonTemplateView, CommonFormView, CommonDelete
 from . import models, forms, filters, utils, reports
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin
-from .utils import in_csas_admin_group
+from .utils import in_csas_admin_group, get_quarter
 
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
@@ -36,19 +37,19 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 # settings
 ##########
 
-class SeriesFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+class DocumentTypeFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'csas2/formset.html'
-    h1 = "Manage Publication Series"
-    queryset = models.Series.objects.all()
-    formset_class = forms.SeriesFormset
-    success_url_name = "csas2:manage_series"
+    h1 = "Manage Document Type"
+    queryset = models.DocumentType.objects.all()
+    formset_class = forms.DocumentTypeFormset
+    success_url_name = "csas2:manage_document_types"
     home_url_name = "csas2:index"
-    delete_url_name = "csas2:delete_series"
+    delete_url_name = "csas2:delete_document_type"
 
 
-class SeriesHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
-    model = models.Series
-    success_url = reverse_lazy("csas2:manage_series")
+class DocumentTypeHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.DocumentType
+    success_url = reverse_lazy("csas2:manage_document_types")
 
 
 class InviteeRoleFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
@@ -186,6 +187,7 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     template_name = 'csas2/request_detail/main.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+    container_class = ""
 
     def get_active_page_name_crumb(self):
         return "{} {}".format(_("Request"), self.get_object().id)
@@ -411,15 +413,19 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     template_name = 'csas2/form.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    submit_text = gettext_lazy("Save")
 
     def get_initial(self):
+        data = dict(
+            fiscal_year=fiscal_year(timezone.now(), sap_style=True),
+        )
         qp = self.request.GET
         if qp.get("request"):
             csas_request = get_object_or_404(models.CSASRequest, pk=qp.get("request"))
-            return dict(
-                csas_requests=[csas_request.id, ],
-                coordinator=csas_request.coordinator,
-            )
+            data["name"] = csas_request.title
+            data["csas_requests"] = [csas_request.id, ]
+            data["coordinator"] = csas_request.coordinator
+        return data
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -521,7 +527,7 @@ def tor_export(request, pk):
     tor = get_object_or_404(models.TermsOfReference, pk=pk)
 
     qp = request.GET
-    lang = qp.get("lang", "en") # default to english if no query
+    lang = qp.get("lang", "en")  # default to english if no query
 
     file_url = reports.generate_tor(tor, lang)
 
@@ -537,6 +543,15 @@ def tor_export(request, pk):
             return response
     raise Http404
 
+
+
+class TermsOfReferenceHTMLDetailView(LoginAccessRequiredMixin, CommonDetailView):
+    model = models.TermsOfReference
+
+    def get_template_names(self, **kwargs):
+        qp = self.request.GET
+        lang = qp.get("lang", "en")  # default to english if no query
+        return 'csas2/tor_html_fr.html' if lang == "fr" else 'csas2/tor_html_en.html'
 
 
 # meetings #
@@ -587,6 +602,9 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_initial(self):
+        return dict(est_year=timezone.now().year, est_quarter=get_quarter(timezone.now()))
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
@@ -664,7 +682,6 @@ class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
-
 # meeting files #
 #################
 
@@ -690,7 +707,6 @@ class MeetingFileDeleteView(CanModifyProcessRequiredMixin, CommonPopoutDeleteVie
     model = models.MeetingFile
 
 
-
 # documents #
 #############
 
@@ -707,7 +723,7 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'type', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'process', "class": "", "width": ""},
-        {"name": 'series', "class": "", "width": ""},
+        {"name": 'document_type', "class": "", "width": ""},
     ]
 
     def get_queryset(self):

@@ -6,8 +6,8 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # settings
-    path('settings/series/', views.SeriesFormsetView.as_view(), name="manage_series"),
-    path('settings/series/<int:pk>/delete/', views.SeriesHardDeleteView.as_view(), name="delete_series"),
+    path('settings/document-types/', views.DocumentTypeFormsetView.as_view(), name="manage_document_types"),
+    path('settings/document-types/<int:pk>/delete/', views.DocumentTypeHardDeleteView.as_view(), name="delete_document_type"),
     path('settings/invitee-roles/', views.InviteeRoleFormsetView.as_view(), name="manage_invitee_roles"),
     path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
 
@@ -45,6 +45,7 @@ urlpatterns = [
     path('terms-of-reference/<int:pk>/edit/', views.TermsOfReferenceUpdateView.as_view(), name="tor_edit"),
     path('terms-of-reference/<int:pk>/delete/', views.TermsOfReferenceDeleteView.as_view(), name="tor_delete"),
     path('terms-of-reference/<int:pk>/export/', views.tor_export, name="tor_export"),
+    path('terms-of-reference/<int:pk>/html/', views.TermsOfReferenceHTMLDetailView.as_view(), name="tor_html"),
 
     # meetings
     path('processes/<int:process>/new-meeting/', views.MeetingCreateView.as_view(), name="meeting_new"),
