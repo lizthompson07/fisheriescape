@@ -1508,7 +1508,7 @@ class SampcDetails(mixins.SampcMixin, CommonDetails):
 
 
 class SampdDetails(mixins.SampdMixin, CommonDetails):
-    fields = ["samp_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["samp_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "detail_date", "comments", "created_by", "created_date", ]
 
 
 class SireDetails(mixins.SireMixin, CommonDetails):

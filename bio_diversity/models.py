@@ -103,6 +103,7 @@ class BioDet(BioModel):
         abstract = True
     det_val = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Value"), db_column="VAL")
     qual_id = models.ForeignKey('QualCode', on_delete=models.CASCADE, verbose_name=_("Quality"), db_column="QUAL_ID")
+    detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.CASCADE, verbose_name=_("Animal Detail Code"),
                                  db_column="ANI_DET_ID")
@@ -348,10 +349,12 @@ class ContainerXRef(BioModel):
                                 related_name="contxs", db_column="DRAWER_ID")
     cup_id = models.ForeignKey("Cup", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Cup"),
                                related_name="contxs", db_column="CUP_ID")
+    team_id = models.ForeignKey("TeamXRef", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Team"),
+                                related_name="contxs", db_column="TEAM_ID")
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['evnt_id', 'tank_id', 'trof_id', 'tray_id', 'heat_id', 'draw_id', 'cup_id'],
+            models.UniqueConstraint(fields=['evnt_id', 'tank_id', 'trof_id', 'tray_id', 'heat_id', 'draw_id', 'cup_id', 'team_id'],
                                     name='Container_Cross_Reference_Uniqueness')
         ]
 
@@ -401,6 +404,7 @@ class CountDet(BioDet):
     # cntd tag
     cnt_id = models.ForeignKey("Count", on_delete=models.CASCADE, verbose_name=_("Count"), related_name="count_details",
                                db_column="COUNT_ID")
+    detail_date = None
 
     class Meta:
         constraints = [
@@ -904,7 +908,6 @@ class GroupDet(BioDet):
     frm_grp_id = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True,
                                    verbose_name=_("From Parent Group"), db_column="FROM_GROUP_ID")
     grpd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"), db_column="STILL_VALID")
-    detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="group_details",
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
 
@@ -1123,7 +1126,6 @@ class Individual(BioModel):
 class IndividualDet(BioDet):
     # indvd tag
     indvd_valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"), db_column="STILL_VALID")
-    detail_date = models.DateField(verbose_name=_("Date detail was recorded"), db_column="DETAIL_DATE")
     anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_details",
                                 verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
 
@@ -1501,8 +1503,10 @@ class RoleCode(BioLookup):
 
 class Sample(BioModel):
     # samp tag
-    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name=_("Location"),
+    loc_id = models.ForeignKey('Location', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Location"),
                                db_column="LOCATION_ID")
+    anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Animal Detail X Ref"),
+                                db_column="ANI_DET_X_REF_ID")
     samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
     sampc_id = models.ForeignKey('SampleCode', on_delete=models.CASCADE, verbose_name=_("Sample Code"),
@@ -1514,7 +1518,8 @@ class Sample(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'samp_num', 'spec_id', 'sampc_id'], name='Sample_Uniqueness')
+            models.UniqueConstraint(fields=['loc_id', 'anix_id', 'samp_num', 'spec_id', 'sampc_id'],
+                                    name='Sample_Uniqueness')
         ]
 
 
