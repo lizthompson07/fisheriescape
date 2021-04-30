@@ -28,6 +28,11 @@ class CurrentUserAPIView(APIView):
         qp = request.GET
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
+        elif qp.get("process"):
+            data["can_modify"] = utils.can_modify_process(request.user, qp.get("process"), return_as_dict=True)
+        elif qp.get("document"):
+            doc = get_object_or_404(models.Document, pk=qp.get("document"))
+            data["can_modify"] = utils.can_modify_process(request.user, doc.process_id, return_as_dict=True)
         return Response(data)
 
 
@@ -126,12 +131,15 @@ class InviteeViewSet(viewsets.ModelViewSet):
         except KeyError:
             pass
         else:
-            # delete any existing attendance
-            obj.attendance.all().delete()
-            for date in dates.split(", "):
-                dt = datetime.strptime(date.strip(), "%Y-%m-%d")
-                dt = timezone.make_aware(dt, timezone.get_current_timezone())
-                models.Attendance.objects.create(invitee=obj, date=dt)
+            try:
+                # delete any existing attendance
+                obj.attendance.all().delete()
+                for date in dates.split(", "):
+                    dt = datetime.strptime(date.strip(), "%Y-%m-%d")
+                    dt = timezone.make_aware(dt, timezone.get_current_timezone())
+                    models.Attendance.objects.create(invitee=obj, date=dt)
+            except:
+                pass
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
@@ -199,6 +207,17 @@ class DocumentViewSet(viewsets.ModelViewSet):
             return Response(None, status.HTTP_204_NO_CONTENT)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
+
+class DocumentTrackingViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.DocumentTrackingSerializer
+    # permission_classes = [CanModifyProcessOrReadOnly]
+    queryset = models.DocumentTracking.objects.all()
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = models.Author.objects.all()
@@ -322,9 +341,12 @@ class InviteeModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        data['person_choices'] = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
+        external_stamp = " ({})".format(_("external"))
+        person_choices = [dict(text="{} {}".format(p, external_stamp if not p.dmapps_user else ""), value=p.id) for p in Person.objects.all()]
+        person_choices.insert(0, dict(text="-----", value=None))
+        data['person_choices'] = person_choices
         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_status_choices]
-        data['role_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_role_choices]
+        data['role_choices'] = [dict(text=str(obj), value=obj.id) for obj in models.InviteeRole.objects.all()]
         return Response(data)
 
 
@@ -359,6 +381,16 @@ class DocumentModelMetaAPIView(APIView):
         return Response(data)
 
 
+class DocumentTrackingModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.DocumentTracking
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
+        return Response(data)
+
+
 class AuthorModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Author
@@ -366,7 +398,9 @@ class AuthorModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        data['person_choices'] = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
+        person_choices = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
+        person_choices.insert(0, dict(text="-----", value=None))
+        data['person_choices'] = person_choices
         return Response(data)
 
 

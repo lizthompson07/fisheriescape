@@ -161,7 +161,7 @@
               {% if object.processes.exists %}
                 {% for process in object.processes.all %}
                   <div>
-                    <a href="{% url 'csas2:process_detail' process.id %}">{{ process }}</a>
+                    <a href="{% url 'csas2:process_detail' process.id %}">{{ process }} ({{ process.id }}) &rarr; {{ process.get_status_display }}</a>
                   </div>
                 {% endfor %}
               {% else %}
