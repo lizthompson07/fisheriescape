@@ -116,7 +116,7 @@ def coldbrook_electrofishing_parser(cleaned_data):
         except Exception as err:
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n \n Error: {}".format(err.__str__())
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -297,7 +297,7 @@ def mactaquac_electrofishing_parser(cleaned_data):
         except Exception as err:
             log_data += "Error parsing row {}: \n".format(rows_parsed + 1)
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n \n Error: {}".format(err.__str__())
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False

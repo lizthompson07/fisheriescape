@@ -205,15 +205,13 @@ def get_relc_from_point(shapely_geom):
 
 def get_row_date(row):
     try:
-        row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                                  "%Y%b%d").replace(tzinfo=pytz.UTC)
+        row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
+                                         "%Y-%b-%d").replace(tzinfo=pytz.UTC)
     except Exception as err:
-        raise Exception("Failed to parse date from row, make sure column headers are : \"Year\", \"Month\", \"Day\" "
-                        "and the format used is: 1999, Jan, 1 \n \n {}".format(err))
+        raise Exception("\nFailed to parse date from row, make sure column headers are : \"Year\", \"Month\", \"Day\" "
+                        "and the format used is: 1999-Jan-1 \n \n {}".format(err))
 
     return
-
-
 
 
 def comment_parser(comment_str, anix_indv, det_date):
