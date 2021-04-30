@@ -1,0 +1,18 @@
+{% load i18n %}
+
+
+{# date_translation_sent #}
+<date-field-group
+  field_name="date_translation_sent"
+  :display_date="document.tracking.date_translation_sent_display"
+  :labels="trackingLabels"
+  @update-tracking="updateTracking"
+></date-field-group>
+
+{# date_returned #}
+<date-field-group
+  field_name="date_returned"
+  :display_date="document.tracking.date_returned_display"
+  :labels="trackingLabels"
+  @update-tracking="updateTracking"
+></date-field-group>

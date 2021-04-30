@@ -90,10 +90,9 @@ class DocumentFilter(django_filters.FilterSet):
         model = models.Document
         fields = {
             'id': ['exact'],
-            'type': ['exact'],
+            'document_type': ['exact'],
             'status': ['exact'],
             'process': ['exact'],
-            'document_type': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):

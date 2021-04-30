@@ -719,16 +719,16 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'ttitle|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'type', "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": ""},
-        {"name": 'process', "class": "", "width": ""},
+        {"name": 'ttitle|{}'.format("title"), "class": "", "width": "300px"},
         {"name": 'document_type', "class": "", "width": ""},
+        {"name": 'process', "class": "", "width": "300px"},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'translation_status', "class": "", "width": ""},
     ]
 
     def get_queryset(self):
         qp = self.request.GET
-        qs = models.Document.objects.all()
+        qs = models.Document.objects.filter(document_type__hide_from_list=False)
         if qp.get("personalized"):
             qs = utils.get_related_docs(self.request.user)
         qs = qs.annotate(search_term=Concat(

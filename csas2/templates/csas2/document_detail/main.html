@@ -74,8 +74,12 @@
                 <td class="text-left" v-html="document.document_type"></td>
               </tr>
               <tr>
-                <th class="text-left">{% trans "Status" %}</th>
+                <th class="text-left">{% trans "Document Status" %}</th>
                 <td class="text-left" v-html="document.status_display"></td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "Translation Status" %}</th>
+                <td class="text-left" v-html="document.tstatus_display"></td>
               </tr>
               <tr>
                 <th class="text-left" v-html="documentLabels.year"></th>
@@ -213,8 +217,16 @@
 
       trackingLabels: {},
       errors: null,
+      showTranslationTracking: true,
+      showProcessTracking: false,
     },
     methods: {
+      changeTabs(tabFlag) {
+        this.showProcessTracking = false;
+        this.showTranslationTracking = false;
+        this[tabFlag] = true;
+      },
+
       getCurrentUser() {
         let endpoint = `/api/csas/user/?document=${documentId}`;
         apiService(endpoint)
@@ -285,10 +297,11 @@
         })
       },
       _prepDates(dateFieldName, date) {
-        if (dateFieldName && date) {
+        if (dateFieldName) {
           if (date) this.document.tracking[dateFieldName] = date + "T12:00:00";
           else this.document.tracking[dateFieldName] = null;
         } else {
+          console.log(321)
           let dateFields = [
             "due_date",
             "submission_date",
@@ -318,6 +331,7 @@
         }
       },
       updateTracking(data) {
+        console.log(data)
         if (!data.target) {
           this._prepDates(data.field_name, data.date)
         } else {

@@ -261,6 +261,8 @@ class DocumentForm(forms.ModelForm):
             del self.fields["year"]
             del self.fields["pub_number"]
             del self.fields["pages"]
+            del self.fields["url_en"]
+            del self.fields["url_fr"]
             del self.fields["file_en"]
             del self.fields["file_fr"]
             del self.fields["dev_link_en"]

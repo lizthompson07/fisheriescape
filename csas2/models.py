@@ -544,14 +544,12 @@ class Attendance(models.Model):
 
 
 class DocumentType(SimpleLookup):
-    hide_from_list = models.BooleanField(default=False, verbose_name=_("This these docs be hidden from the main search page?"), )
+    hide_from_list = models.BooleanField(default=False, verbose_name=_("hide from main search?"), choices=model_choices.yes_no_choices)
 
 
 class Document(MetadataFields):
     process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False)
-    type = models.IntegerField(choices=model_choices.document_type_choices, verbose_name=_("type"))
-    # currently not using this field.. consider deleting
-    document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"),  null=True)
+    document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"))
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
@@ -579,6 +577,7 @@ class Document(MetadataFields):
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
     people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.document_status_choices, editable=False)
+    translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.translation_status_choices, editable=False, default=0)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
@@ -590,12 +589,15 @@ class Document(MetadataFields):
                 self.status = 3  # submitted
             if self.tracking.date_chair_sent:
                 self.status = 4  # under review
-            if self.tracking.date_translation_sent:
-                self.status = 5  # under review
-            if self.tracking.date_returned:
-                self.status = 6  # under review
             if self.tracking.actual_posting_date:
                 self.status = 7  # under review
+
+            self.translation_status = 0  # null
+            if self.tracking.date_translation_sent:
+                self.translation_status = 1  # awaiting translation
+            if self.tracking.date_returned:
+                self.translation_status = 2  # translation complete
+
 
         super().save(*args, **kwargs)
 
@@ -622,6 +624,9 @@ class Document(MetadataFields):
     def status_display(self):
         return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
 
+    @property
+    def tstatus_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_translation_status_display())}">{self.get_translation_status_display()}</span>')
 
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''

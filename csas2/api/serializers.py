@@ -154,6 +154,10 @@ class DocumentSerializer(serializers.ModelSerializer):
     tracking = serializers.SerializerMethodField()
 
     file_en_size = serializers.SerializerMethodField()
+    tstatus_display = serializers.SerializerMethodField()
+
+    def get_tstatus_display(self, instance):
+        return instance.tstatus_display
 
     def get_file_en_size(self, instance):
         if instance.file_en.name:
@@ -171,7 +175,6 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_status_display(self, instance):
         return instance.status_display
-
 
     def get_ttitle(self, instance):
         return instance.ttitle
@@ -299,6 +302,7 @@ class DocumentTrackingSerializer(serializers.ModelSerializer):
     # def get_mydate_display(self, instance):
     #     if instance.mydate:
     #         return instance.mydate.strftime("%Y-%m-%d")
+
 
 class MeetingSerializer(serializers.ModelSerializer):
     class Meta:
