@@ -1,6 +1,4 @@
 import copy
-from datetime import date, datetime, timedelta
-import pytz
 import pandas as pd
 
 from bio_diversity import models
@@ -96,8 +94,7 @@ def generic_indv_parser(cleaned_data):
             if indv:
                 anix = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
 
-                row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                                 "%Y%b%d").replace(tzinfo=pytz.UTC)
+                row_datetime = utils.get_row_date(row)
                 row_date = row_datetime.date()
                 if utils.nan_to_none(row["Sex"]):
                     if utils.enter_indvd(anix.pk, cleaned_data, row_date, sex_dict[row["Sex"]], "Gender", None, None):
@@ -178,8 +175,7 @@ def generic_grp_parser(cleaned_data):
         row_parsed = True
         row_entered = False
         try:
-            row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                             "%Y%b%d").replace(tzinfo=pytz.UTC)
+            row_datetime =utils.get_row_date(row)
             row_date = row_datetime.date()
 
             end_tank_id = None

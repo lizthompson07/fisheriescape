@@ -1,7 +1,3 @@
-from datetime import datetime
-
-import pytz
-
 import pandas as pd
 
 from bio_diversity import models
@@ -44,8 +40,7 @@ def mactaquac_maturity_sorting_parser(cleaned_data):
             if indv:
                 anix_indv = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
 
-                row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                                 "%Y%b%d").replace(tzinfo=pytz.UTC)
+                row_datetime = utils.get_row_date(row)
                 row_date = row_datetime.date()
                 if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None,
                                      comments=row["COMMENTS"]):

@@ -1,6 +1,3 @@
-from datetime import datetime
-
-import pytz
 from django.core.exceptions import ValidationError
 import pandas as pd
 
@@ -46,8 +43,7 @@ def coldbrook_electrofishing_parser(cleaned_data):
         row_parsed = True
         row_entered = False
         try:
-            row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                             "%Y%b%d").replace(tzinfo=pytz.UTC)
+            row_datetime = utils.get_row_date(row)
             relc_id = None
             rive_id = river_dict[row["River"]]
             if utils.nan_to_none(row["site"]):
@@ -234,8 +230,7 @@ def mactaquac_electrofishing_parser(cleaned_data):
         row_parsed = True
         row_entered = False
         try:
-            row_date = datetime.strptime(str(row["Year"]) + str(row["Month"]) + str(row["Day"]), "%Y%b%d").replace(
-                tzinfo=pytz.UTC)
+            row_date = utils.get_row_date(row)
 
             relc_id = None
             rive_id = river_dict[row["River"]]

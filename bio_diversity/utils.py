@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import decimal
 import math
 
@@ -171,7 +171,7 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None):
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None):
     if cont:
         indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
         grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str and coll_str in grp.coll_id.name
@@ -201,6 +201,19 @@ def get_relc_from_point(shapely_geom):
             if relc.bbox.buffer(1e-14).intersects(shapely_geom):
                 return relc
     return None
+
+
+def get_row_date(row):
+    try:
+        row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
+                                                  "%Y%b%d").replace(tzinfo=pytz.UTC)
+    except Exception as err:
+        raise Exception("Failed to parse date from row, make sure column headers are : \"Year\", \"Month\", \"Day\" "
+                        "and the format used is: 1999, Jan, 1 \n \n {}".format(err))
+
+    return
+
+
 
 
 def comment_parser(comment_str, anix_indv, det_date):
@@ -981,9 +994,9 @@ def ajax_get_fields(request):
     return JsonResponse(data)
 
 
-def naive_to_aware(naive_date, naive_time=datetime.datetime.min.time()):
+def naive_to_aware(naive_date, naive_time=datetime.min.time()):
     # adds null time and timezone to dates
-    return datetime.datetime.combine(naive_date, naive_time).replace(tzinfo=pytz.UTC)
+    return datetime.combine(naive_date, naive_time).replace(tzinfo=pytz.UTC)
 
 
 def nan_to_none(test_item):

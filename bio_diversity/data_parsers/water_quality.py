@@ -1,5 +1,4 @@
 import math
-from datetime import datetime
 
 import pytz
 import pandas as pd
@@ -30,8 +29,7 @@ def mactaquac_water_quality_parser(cleaned_data):
         row_entered = False
         try:
             contx = utils.enter_tank_contx(row["Pond"], cleaned_data, None, return_contx=True)
-            row_date = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                         "%Y%b%d").replace(tzinfo=pytz.UTC).date()
+            row_date = utils.get_row_date(row)
             if not math.isnan(row["Time (24HR)"]):
                 row_time = row["Time (24HR)"].replace(tzinfo=pytz.UTC)
             else:

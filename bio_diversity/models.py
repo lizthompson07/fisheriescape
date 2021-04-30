@@ -1,7 +1,7 @@
 # from django.db import models
 
 # Create your models here.
-import datetime
+from datetime import datetime, timedelta 
 import decimal
 import os
 from collections import Counter
@@ -177,7 +177,7 @@ class BioTimeModel(BioModel):
 
     @property
     def start_time(self):
-        if self.start_datetime.time() == datetime.datetime.min.time():
+        if self.start_datetime.time() == datetime.min.time():
             return None
         return self.start_datetime.time().strftime("%H:%M")
 
@@ -191,7 +191,7 @@ class BioTimeModel(BioModel):
     @property
     def end_time(self):
         if self.end_datetime:
-            if self.end_datetime.time() == datetime.datetime.min.time():
+            if self.end_datetime.time() == datetime.min.time():
                 return None
             return self.end_datetime.time().strftime("%H:%M")
         else:
@@ -208,7 +208,7 @@ class BioCont(BioLookup):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
-    def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), select_fields=[]):
+    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[]):
         indv_list = []
         grp_list = []
 
@@ -634,7 +634,7 @@ class Event(BioTimeModel):
 
     @property
     def is_current(self):
-        if self.evnt_end and self.evnt_end < datetime.datetime.now(tz=timezone.get_current_timezone()):
+        if self.evnt_end and self.evnt_end < datetime.now(tz=timezone.get_current_timezone()):
             return True
         elif not self.evnt_end:
             return True
@@ -793,10 +793,10 @@ class Group(BioModel):
     def __str__(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         return self.current_cont_by_key('tank', at_date)
 
-    def current_cont_by_key(self, cont_key, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont_by_key(self, cont_key, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         cont_list = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True,
@@ -815,17 +815,17 @@ class Group(BioModel):
                 cont_list.append(cont)
         return cont_list
 
-    def current_trof(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
+    def current_trof(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         return self.current_cont_by_key('trof', at_date)
 
-    def current_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         current_cont_list = []
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
         return current_cont_list
 
-    def count_fish_in_group(self, at_date=datetime.datetime.now(tz=timezone.get_current_timezone())):
+    def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         fish_count = 0
 
         # ordered oldest to newest
@@ -845,7 +845,7 @@ class Group(BioModel):
                 fish_count = cnt.cnt
         return fish_count
 
-    def fish_in_cont(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], grp_select_fields=[]):
+    def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[], grp_select_fields=[]):
         indv_set = Individual.objects.filter(grp_id=self).select_related(*select_fields)
         # for consistancy with container version:
         indv_list = [indv for indv in indv_set]
@@ -855,9 +855,9 @@ class Group(BioModel):
 
         return indv_list, grp_list
 
-    def get_development(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+    def get_development(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         dev = 0
-        start_date = utils.naive_to_aware(datetime.datetime.min).date()
+        start_date = utils.naive_to_aware(datetime.min).date()
         dev_qs = GroupDet.objects.filter(anix_id__grp_id=self, grpd_valid=True, anidc_id__name="Development")
         if len(dev_qs) == 1:
             dev = float(dev_qs[0] .det_val)
@@ -1101,10 +1101,10 @@ class Individual(BioModel):
     def stok_year_coll_str(self):
         return "{}-{}-{}".format(self.stok_id.__str__(), self.indv_year, self.coll_id.__str__())
 
-    def current_tank(self, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         return self.current_cont_by_key('tank', at_date)
 
-    def current_cont_by_key(self, cont_key, at_date=datetime.datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont_by_key(self, cont_key, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         cont_list = []
 
         anix_in_set = self.animal_details.filter(final_contx_flag=True, evnt_id__start_datetime__lte=at_date).select_related('contx_id__{}_id'.format(cont_key))
@@ -1248,7 +1248,7 @@ class Location(BioModel):
 
     @property
     def start_time(self):
-        if self.loc_date.time() == datetime.datetime.min.time():
+        if self.loc_date.time() == datetime.min.time():
             return None
         return self.loc_date.time().strftime("%H:%M")
 
@@ -1695,7 +1695,7 @@ class Tray(BioCont):
         if end_date:
             degree_days = self.trof_id.degree_days(start_date, end_date)
         else:
-            degree_days = self.trof_id.degree_days(start_date, datetime.datetime.today().date())
+            degree_days = self.trof_id.degree_days(start_date, datetime.today().date())
         return degree_days
 
     def __str__(self):
@@ -1741,7 +1741,7 @@ class Trough(BioCont):
         delta = end_datetime - start_datetime
         temp_list = []
         for i in range(delta.days + 1):
-            day = start_datetime.date() + datetime.timedelta(days=i)
+            day = start_datetime.date() + timedelta(days=i)
             day_temps = []
             for env in env_qs:
                 if env.start_datetime.date() == day:

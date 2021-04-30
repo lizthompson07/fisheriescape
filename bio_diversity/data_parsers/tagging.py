@@ -1,7 +1,3 @@
-
-from datetime import datetime
-
-import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 import pandas as pd
@@ -61,8 +57,7 @@ def coldbrook_tagging_parser(cleaned_data):
         row_entered = False
         try:
             year, coll = utils.year_coll_splitter(row["Group"])
-            row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                             "%Y%b%d").replace(tzinfo=pytz.UTC)
+            row_datetime = utils.get_row_date(row)
             row_date = row_datetime.date()
             indv_ufid = utils.nan_to_none(row["Universal Fish ID"])
             indv = models.Individual(grp_id_id=grp_id,
@@ -212,8 +207,7 @@ def mactaquac_tagging_parser(cleaned_data):
         row_entered = False
         try:
             year, coll = utils.year_coll_splitter(row["Collection"])
-            row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                             "%Y%b%d").replace(tzinfo=pytz.UTC)
+            row_datetime = utils.get_row_date(row)
             indv = models.Individual(grp_id_id=grp_id,
                                      spec_id=salmon_id,
                                      stok_id=stok_id,

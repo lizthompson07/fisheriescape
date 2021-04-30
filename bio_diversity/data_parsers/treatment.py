@@ -1,6 +1,4 @@
-from datetime import datetime
 
-import pytz
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 import pandas as pd
@@ -37,8 +35,7 @@ def mactaquac_treatment_parser(cleaned_data):
         row_parsed = True
         row_entered = False
         try:
-            row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                             "%Y%b%d").replace(tzinfo=pytz.UTC)
+            row_datetime = utils.get_row_date(row)
             row_date = row_datetime.date()
             contx = utils.enter_tank_contx(row["Tank"], cleaned_data, None, return_contx=True)
             val, unit_str = utils.val_unit_splitter(row["Amount"])
@@ -92,8 +89,7 @@ def mactaquac_treatment_parser(cleaned_data):
         row_parsed = True
         row_entered = False
         try:
-            row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                             "%Y%b%d").replace(tzinfo=pytz.UTC)
+            row_datetime = utils.get_row_date(row)
             row_date = row_datetime.date()
             contx = utils.enter_trof_contx(str(row["Trough"]), cleaned_data, None, return_contx=True)
             val, unit_str = utils.val_unit_splitter(row["Amount"])

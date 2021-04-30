@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, date, timedelta
 import os
 
 from django.conf import settings
@@ -17,7 +17,6 @@ from django import forms
 from bio_diversity.forms import HelpTextFormset, CommentKeywordsFormset
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models, reports
-from datetime import date
 import pytz
 from django.utils.translation import gettext_lazy as _
 
@@ -953,7 +952,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
 
         grp_set = models.Group.objects.filter(animal_details__evnt_id=self.object,
                                               ).distinct().select_related("stok_id", "coll_id", "spec_id")
-        grp_field_list = ["stok_id", "coll_id", "spec_id", ]
+        grp_field_list = ["stok_id", "grp_year", "coll_id", "spec_id", ]
         obj_mixin = mixins.GrpMixin
         context["context_dict"]["grp"] = {"div_title": "{} Details".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
@@ -2874,7 +2873,7 @@ def stock_code_report(request):
     on_date = request.GET.get("on_date")
     stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
     if stok_id and on_date:
-        on_date = datetime.datetime.strptime(on_date, "%Y-%m-%d").replace(tzinfo=pytz.UTC)
+        on_date = datetime.strptime(on_date, "%Y-%m-%d").replace(tzinfo=pytz.UTC)
         file_url = reports.generate_stock_code_report(stok_id, on_date)
     elif stok_id:
         file_url = reports.generate_stock_code_report(stok_id)
@@ -2981,8 +2980,8 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         # filter locations by start-end dates and river codes if needed:
         location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False).select_related("evnt_id__evntc_id", "rive_id", "relc_id__rive_id")
         if self.kwargs.get("start"):
-            start_date = utils.naive_to_aware(datetime.datetime.strptime(self.kwargs.get("start"), '%Y-%m-%d'))
-            end_date = utils.naive_to_aware(datetime.datetime.strptime(self.kwargs.get("end"), '%Y-%m-%d'))
+            start_date = utils.naive_to_aware(datetime.strptime(self.kwargs.get("start"), '%Y-%m-%d'))
+            end_date = utils.naive_to_aware(datetime.strptime(self.kwargs.get("end"), '%Y-%m-%d'))
             location_qs = location_qs.filter(loc_date__lte=end_date, loc_date__gte=start_date)
 
         if self.kwargs.get("rive_id"):
@@ -3048,8 +3047,8 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             start_date = self.kwargs.get("start")
             end_date = self.kwargs.get("end")
         else:
-            start_date = (datetime.datetime.now() - datetime.timedelta(days=5 * 365)).date()
-            end_date = datetime.datetime.today()
+            start_date = (datetime.now() - timedelta(days=5 * 365)).date()
+            end_date = datetime.today()
 
         return {
             "north": self.kwargs.get("n"),

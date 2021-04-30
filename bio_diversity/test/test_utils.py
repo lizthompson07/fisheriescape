@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 
 from django.test import tag
 from bio_diversity.test import BioFactoryFloor
@@ -48,7 +48,7 @@ class TestGrpMove(CommonTest):
         utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk)
         indv_list, grp_list = self.tank.fish_in_cont()
         self.assertIn(self.grp, grp_list)
-        move_date = datetime.datetime.now().date()
+        move_date = datetime.now().date()
         utils.create_movement_evnt(self.tank, self.final_tank, self.cleaned_data, move_date, grp_pk=self.grp.pk)
         indv_list, grp_list = self.tank.fish_in_cont()
         self.assertNotIn(self.grp, grp_list)
@@ -84,9 +84,9 @@ class TestGrpMove(CommonTest):
         tank_e.facic_id = self.evnt.facic_id
         tank_e.save()
         # need three dates to ensure unique moving events, to keep django test env happy
-        move_a_date = (datetime.datetime.now() - datetime.timedelta(days=2)).date()
-        move_b_date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
-        move_c_date = datetime.datetime.now().date()
+        move_a_date = (datetime.now() - timedelta(days=2)).date()
+        move_b_date = (datetime.now() - timedelta(days=1)).date()
+        move_c_date = datetime.now().date()
 
         utils.create_movement_evnt(tank_a, tank_b, self.cleaned_data, move_a_date, grp_pk=self.grp.pk)
         utils.create_movement_evnt(tank_c, tank_d, self.cleaned_data, move_b_date, grp_pk=self.grp.pk)
@@ -158,7 +158,7 @@ class TestGrpCnt(CommonTest):
         cnt_final_val = randint(0, 5)
         next_day_evnt = BioFactoryFloor.EvntFactory()
         next_day_evnt.facic_id = self.evnt.facic_id
-        next_day_evnt.start_datetime = self.evnt.start_datetime + datetime.timedelta(days=1)
+        next_day_evnt.start_datetime = self.evnt.start_datetime + timedelta(days=1)
         next_day_evnt.save()
         new_cleaned_data = self.cleaned_data.copy()
         new_cleaned_data["evnt_id"] = next_day_evnt
