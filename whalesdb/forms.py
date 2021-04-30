@@ -12,6 +12,26 @@ class ReportSearchForm(forms.Form):
         (1, "Deployment Summary Report (csv)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    year = forms.ChoiceField(required=False)
+    month = forms.ChoiceField(required=False)
+    station = forms.ChoiceField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        deployment_qs = models.DepDeployment.objects.all()
+        YEAR_CHOICES = [(None, "------",)]
+        YEAR_CHOICES += [(y[0], y[0],) for idx, y in enumerate(deployment_qs.order_by("-dep_year").values_list("dep_year").distinct())]
+
+        MONTH_CHOICES = [(None, "------",)]
+        MONTH_CHOICES += [(y[0], y[0],) for idx, y in enumerate(deployment_qs.order_by("dep_month").values_list("dep_month").distinct())]
+
+        STN_CHOICES = [(None, "All",)]
+        STN_CHOICES += [(y.pk, str(y),) for idx, y in enumerate(models.StnStation.objects.all().order_by("stn_name"))]
+
+        self.fields['year'].choices = YEAR_CHOICES
+        self.fields['month'].choices = MONTH_CHOICES
+        self.fields['station'].choices = STN_CHOICES
 
 
 class CruForm(forms.ModelForm):
