@@ -1083,8 +1083,6 @@ def export_project_summary(request):
         ws['AC' + str(row_count)].value = nz(item.submitted, "")
         ws['AD' + str(row_count)].value = nz(item.get_status_display(), "")
         # leave a column blank to separate specif year project info from O&M cost.
-        for cost in item.omcost_set.filter(funding_source__funding_source_type=1):
-            print("{} : {} - {}".format(cost.funding_source.funding_source_type, cost.funding_source.name, cost.amount))
         ws['AF' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=1).aggregate(dsum=Sum("amount"))["dsum"], 0)
         ws['AG' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=2).aggregate(dsum=Sum("amount"))["dsum"], 0)
         ws['AH' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=3).aggregate(dsum=Sum("amount"))["dsum"], 0)
