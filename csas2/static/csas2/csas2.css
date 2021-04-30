@@ -74,11 +74,23 @@ h1 {
     background-color: #e3aefa;
 }
 
-.off, .deferred, .delayed {
-    background-color: #f699a9;
+.in-translation {
+    color: white;
+    background-color: #6928e2;
 }
 
-.on, .in-progress {
+
+.translated {
+    color: white;
+    background-color: #aa28e2;
+}
+
+.off, .deferred, .delayed, .in-preparation {
+    color: white;
+    background-color: #e94a65;
+}
+
+.on, .in-progress, .posted, .ok {
     background-color: #d5faae;
 }
 

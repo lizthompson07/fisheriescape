@@ -213,6 +213,11 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
     # permission_classes = [CanModifyProcessOrReadOnly]
     queryset = models.DocumentTracking.objects.all()
 
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = models.Author.objects.all()

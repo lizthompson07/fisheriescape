@@ -97,7 +97,8 @@
               <tr>
                 <th class="text-left">{% trans "Attachments" %}</th>
                 <td v-if="document.file_en || document.file_fr" class="text-left">
-                  <a v-if="document.file_en" :href="`${document.file_en}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "English" %} (${document.file_en_size})</a><br>
+                  <a v-if="document.file_en" :href="`${document.file_en}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "English" %}
+                    (${document.file_en_size})</a><br>
                   <a v-if="document.file_fr" :href="`${document.file_fr}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "French" %}</a>
                 </td>
                 <td v-else>---</td>
@@ -113,23 +114,28 @@
               <tr>
                 <th class="text-left">{% trans "Dev Links" %}</th>
                 <td v-if="document.dev_link_en || document.dev_link_fr" class="text-left">
-                  <a v-if="document.dev_link_en" :href="`${document.dev_link_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
-                  <a v-if="document.dev_link_en" :href="`${document.dev_link_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
+                  <a v-if="document.dev_link_en" :href="`${document.dev_link_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}
+                  </a><br>
+                  <a v-if="document.dev_link_en" :href="`${document.dev_link_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}
+                  </a>
                 </td>
                 <td v-else>---</td>
               </tr>
               <tr>
                 <th class="text-left">{% trans "EKME / GC Docs" %}</th>
                 <td v-if="document.ekme_gcdocs_en || document.ekme_gcdocs_fr" class="text-left">
-                  <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
-                  <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
+                  <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_en}`" target="_blank"><span
+                    class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
+                  <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_fr}`" target="_blank"><span
+                    class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
                 </td>
                 <td v-else>---</td>
               </tr>
-            <tr>
+              <tr>
                 <th class="text-left">{% trans "DFO Library catelogue" %}</th>
                 <td v-if="document.lib_cat_en || document.lib_cat_fr" class="text-left">
-                  <a v-if="document.lib_cat_en" :href="`${document.lib_cat_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
+                  <a v-if="document.lib_cat_en" :href="`${document.lib_cat_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}
+                  </a><br>
                   <a v-if="document.lib_cat_en" :href="`${document.lib_cat_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
                 </td>
                 <td v-else>---</td>
@@ -187,6 +193,7 @@
   {% include "csas2/document_detail/components/note_card.html" %}
   {% include "csas2/document_detail/components/cost_editor.html" %}
   {% include "csas2/document_detail/components/author_editor.html" %}
+  {% include "csas2/document_detail/components/date_field_group.html" %}
 
   <script type="application/javascript">
   var documentId = "{{ object.id }}";
@@ -286,14 +293,52 @@
           this.getDocument();
         })
       },
-      updateTracking() {
+      _prepDates(dateFieldName, date) {
+        if (dateFieldName && date) {
+            if (date) this.document.tracking[dateFieldName] = date + "T12:00:00";
+            else this.document.tracking[dateFieldName] = null;
+        } else {
+          let dateFields = [
+            "due_date",
+            "submission_date",
+            "date_chair_sent",
+            "date_chair_appr",
+            "date_coordinator_sent",
+            "date_coordinator_appr",
+            "date_director_sent",
+            "date_director_appr",
+            "date_number_requested",
+            "number_approved",
+            "date_doc_submitted",
+            "date_proof_author_sent",
+            "date_proof_author_approved",
+            "anticipated_posting_date",
+            "actual_posting_date",
+            "updated_posting_date",
+            "date_translation_sent",
+            "date_returned",
+          ];
+          let n;
+          for (let i = 0; i < dateFields.length; i++) {
+            n = dateFields[i];
+            if (this.document.tracking[n + "_display"]) this.document.tracking[n] = this.document.tracking[n + "_display"] + "T12:00:00";
+            else this.document.tracking[n] = null;
+          }
+        }
+      },
+      updateTracking(data) {
+        if (!data.target) {
+          this._prepDates()
+
+        } else {
+          this._prepDates()
+          data = this.document.tracking // data is an event
+        }
+
         this.errors = null;
-        //if (this.request.review.advice_date_display) this.request.review.advice_date = this.request.review.advice_date_display + "T12:00:00";
-        //else this.request.review.advice_date = null;
-        //if (this.request.review.decision_date_display) this.request.review.decision_date = this.request.review.decision_date_display + "T12:00:00"
-        //else this.request.review.decision_date = null;
-        let endpoint = `/api/csas/doc-tracking/${this.request.review.id}/`;
-        apiService(endpoint, "PUT", this.document.tracking).then(data => {
+
+        let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
+        apiService(endpoint, "PUT", data).then(data => {
           if (!data.id) this.errors = groomJSON(data);
           else this.getDocument();
         });
@@ -335,6 +380,7 @@
     },
     created() {
       this.getDocumentMetadata();
+      this.getTrackingMetadata();
       this.getDocument(true);
       this.getCurrentUser(true);
     },

@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from csas2.models import CSASRequestReview, CSASRequestFile, CSASRequest, Process, MeetingFile, Document
+from csas2.models import CSASRequestReview, CSASRequestFile, CSASRequest, Process, MeetingFile, Document, DocumentTracking
 from lib.functions.custom_functions import fiscal_year
 
 
@@ -108,6 +108,10 @@ def auto_delete_csas2_meeting_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
+
+@receiver(models.signals.post_save, sender=DocumentTracking)
+def save_request_on_review_save(sender, instance, created, **kwargs):
+    instance.document.save()
 
 
 @receiver(models.signals.post_delete, sender=Document)

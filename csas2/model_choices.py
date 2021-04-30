@@ -79,9 +79,13 @@ document_type_choices = (
 )
 
 document_status_choices = (
-    (1, _("Draft")),
-    (2, _("Submitted")),
-    (3, _("Under review")),
+    (1, _("OK")),
+    (2, _("In preparation")),
+    (3, _("Submitted")),
+    (4, _("Under review")),
+    (5, _("In translation")),
+    (6, _("Translated")),
+    (7, _("Posted")),
 )
 
 # invitee_role_choices = (

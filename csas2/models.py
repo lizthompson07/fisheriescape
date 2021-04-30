@@ -536,6 +536,24 @@ class Document(MetadataFields):
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.document_status_choices, editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
 
+    def save(self, *args, **kwargs):
+        # set status
+        self.status = 1  # ok
+        if hasattr(self, "tracking"):
+            self.status = 2  # tracking started
+            if self.tracking.submission_date:
+                self.status = 3  # submitted
+            if self.tracking.date_chair_sent:
+                self.status = 4  # under review
+            if self.tracking.date_translation_sent:
+                self.status = 5  # under review
+            if self.tracking.date_returned:
+                self.status = 6  # under review
+            if self.tracking.actual_posting_date:
+                self.status = 7  # under review
+
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse("csas2:document_detail", args=[self.pk])
 
@@ -555,6 +573,10 @@ class Document(MetadataFields):
     def total_cost(self):
         return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
 
+    @property
+    def status_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+
 
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -569,16 +591,16 @@ class DocumentTracking(MetadataFields):
     ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
     document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name="tracking")
 
-    date_due = models.DateField(null=True, blank=True, verbose_name=_("product due date"))
-    date_submitted = models.DateField(null=True, blank=True, verbose_name=_("date submitted to CSAS office by author"), )
+    due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("product due date"))
+    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date submitted to CSAS office by author"), )
     submitted_by = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("submitted by"), related_name="doc_submissions")
 
     chair = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("chairperson"), related_name="doc_chair_positions")
     date_chair_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to chair"))
     date_chair_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by chair"))
 
-    date_coordinator_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to coordinator"))
-    date_coordinator_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by coordinator"))
+    date_coordinator_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to CSAS coordinator"))
+    date_coordinator_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by CSAS coordinator"))
 
     director = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("director"), related_name="doc_directors")
     date_director_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to director"))
