@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='document',
             name='dev_link_en',
-            field=models.URLField(blank=True, max_length=2000, null=True, unique=True, verbose_name='dev link (en)'),
+            field=models.URLField(blank=True, max_length=2000, null=True, verbose_name='dev link (en)'),
         ),
         migrations.AddField(
             model_name='document',
             name='dev_link_fr',
-            field=models.URLField(blank=True, max_length=2000, null=True, unique=True, verbose_name='dev link (fr)'),
+            field=models.URLField(blank=True, max_length=2000, null=True, verbose_name='dev link (fr)'),
         ),
         migrations.AddField(
             model_name='document',

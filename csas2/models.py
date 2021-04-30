@@ -521,14 +521,14 @@ class Document(MetadataFields):
     url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
     url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
 
-    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True, unique=True)
-    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True, unique=True)
+    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True)
+    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True)
 
-    ekme_gcdocs_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (en)"), unique=True)
-    ekme_gcdocs_fr = models.CharField(blank=True, null=True, max_length=244, verbose_name=_("EKME# / GCDocs (fr)"), unique=True)
+    ekme_gcdocs_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (en)"))
+    ekme_gcdocs_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (fr)"))
 
-    lib_cat_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (en)"), unique=True)
-    lib_cat_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (fr)"), unique=True)
+    lib_cat_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (en)"))
+    lib_cat_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (fr)"))
 
     # non-editable
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
