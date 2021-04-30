@@ -672,12 +672,12 @@ class DocumentTracking(MetadataFields):
     # translation
     date_translation_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to translation"))
     # todo: this seems out of place!
-    is_review_complete = models.BooleanField(default=True, verbose_name=_("has the CSA office completed a translation review?"))
+    is_review_complete = models.BooleanField(default=False, verbose_name=_("has the CSA office completed a translation review?"))
     client_ref_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("client reference number"))
     target_lang = models.ForeignKey(Language, on_delete=models.DO_NOTHING, verbose_name=_("target language"), blank=True, null=True)
     # TODO: I dont understand dif between this and the above ref number
     translation_ref_number = models.CharField(max_length=255, verbose_name=_("translation reference number"), blank=True, null=True)
-    is_urgent = models.BooleanField(default=True, verbose_name=_("was submitted as an urgent request?"))
+    is_urgent = models.BooleanField(default=False, verbose_name=_("was submitted as an urgent request?"))
     date_returned = models.DateTimeField(null=True, blank=True, verbose_name=_("date back from translation"))
     invoice_number = models.CharField(max_length=255, verbose_name=_("invoice number"), blank=True, null=True)
     translation_notes = models.TextField(null=True, blank=True, verbose_name=_("translation notes"))

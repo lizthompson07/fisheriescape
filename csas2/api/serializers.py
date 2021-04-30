@@ -161,7 +161,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_file_en_size(self, instance):
         if instance.file_en.name:
-            return f"{round((instance.file_en.size / 1000 / 1000), 3)} Mb"
+            return f"{round((instance.file_en.size / 1000 ), 3)} kb"
 
     def get_tracking(self, instance):
         if hasattr(instance, "tracking"):

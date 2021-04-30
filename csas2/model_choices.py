@@ -97,8 +97,8 @@ document_status_choices = (
 
 translation_status_choices = (
     (0, _("---")),
-    (1, _("In translation")),
-    (2, _("Translation complete")),
+    (1, _("In-progress")),
+    (2, _("Complete")),
 )
 
 invitee_status_choices = (

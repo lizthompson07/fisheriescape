@@ -9,12 +9,12 @@
   <!-- Nav tabs -->
   <ul class="nav nav-tabs">
     {# Overview #}
-    <li class="nav-item">
+    <li class="nav-item tabby">
       <a :class="{'nav-link': true, active: showTranslationTracking}" @click="changeTabs('showTranslationTracking')">{% trans "Translation" %}</a>
     </li>
 
     {# Traveller #}
-    <li class="nav-item">
+    <li class="nav-item tabby">
       <a :class="{'nav-link': true, active: showProcessTracking}" @click="changeTabs('showProcessTracking')">{% trans "CSAS Process" %}</a>
     </li>
   </ul>

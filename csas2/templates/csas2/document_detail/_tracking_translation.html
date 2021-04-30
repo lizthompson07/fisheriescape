@@ -9,6 +9,36 @@
   @update-tracking="updateTracking"
 ></date-field-group>
 
+<check-group
+  field_name="is_review_complete"
+  :val="document.tracking.is_review_complete"
+  :labels="trackingLabels"
+  @update-tracking="updateTracking"
+></check-group>
+
+
+<char-group
+  field_name="client_ref_number"
+  :val="document.tracking.client_ref_number"
+  :labels="trackingLabels"
+  @update-tracking="updateTracking"
+></char-group>
+
+
+<char-group
+  field_name="translation_ref_number"
+  :val="document.tracking.translation_ref_number"
+  :labels="trackingLabels"
+  @update-tracking="updateTracking"
+></char-group>
+
+<check-group
+  field_name="is_urgent"
+  :val="document.tracking.is_urgent"
+  :labels="trackingLabels"
+  @update-tracking="updateTracking"
+></check-group>
+
 {# date_returned #}
 <date-field-group
   field_name="date_returned"
@@ -16,3 +46,11 @@
   :labels="trackingLabels"
   @update-tracking="updateTracking"
 ></date-field-group>
+
+
+<char-group
+  field_name="invoice_number"
+  :val="document.tracking.invoice_number"
+  :labels="trackingLabels"
+  @update-tracking="updateTracking"
+></char-group>

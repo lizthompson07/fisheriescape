@@ -614,14 +614,16 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        range = form.cleaned_data["date_range"].split("to")
-        start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
-        obj.start_date = start_date
-        if len(range) > 1:
-            end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
-            obj.end_date = end_date
-        else:
-            obj.end_date = start_date
+        range = form.cleaned_data["date_range"]
+        if range:
+            range = range.split("to")
+            start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
+            obj.start_date = start_date
+            if len(range) > 1:
+                end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
+                obj.end_date = end_date
+            else:
+                obj.end_date = start_date
         obj.created_by = self.request.user
         obj.process = self.get_process()
         return super().form_valid(form)

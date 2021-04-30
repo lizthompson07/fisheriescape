@@ -74,12 +74,17 @@ h1 {
     background-color: #e3aefa;
 }
 
-.off, .deferred, .delayed, .in-preparation, .in-translation {
+.in-progress {
+    color: white;
+    background-color: #4c6fc6;
+}
+
+.off, .deferred, .delayed, .in-preparation {
     color: white;
     background-color: #e94a65;
 }
 
-.on, .in-progress, .posted, .ok, .translation-complete {
+.on, .posted, .ok, .complete {
     background-color: #d5faae;
 }
 
@@ -278,5 +283,12 @@ label.filter {
     background-color: #e7e6e6;
     border: 1px black solid;
     box-shadow: 0 4px 8px 0 rgba(93, 93, 93, 0.95);
+
+}
+
+.tabby{
+    border-top: #868484 1px solid;
+    border-left: #868484 1px solid;
+    border-right: #868484 1px solid;
 
 }
