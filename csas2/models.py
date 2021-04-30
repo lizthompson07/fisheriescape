@@ -25,6 +25,10 @@ def meeting_directory_path(instance, filename):
     return 'csas/meeting_{0}/{1}'.format(instance.meeting.id, filename)
 
 
+def doc_directory_path(instance, filename):
+    return 'csas/document_{0}/{1}'.format(instance.id, filename)
+
+
 class GenericFile(models.Model):
     caption = models.CharField(max_length=255)
     file = models.FileField()
@@ -508,9 +512,23 @@ class Document(MetadataFields):
     year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
     pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True)
     pages = models.IntegerField(null=True, blank=True, verbose_name=_("pages"))
-    url_en = models.URLField(verbose_name=_("document url (English)"), blank=True, null=True, max_length=2000)
-    url_fr = models.URLField(verbose_name=_("document url (French)"), blank=True, null=True, max_length=2000)
     hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
+
+    # file (should be able to get size as well!
+    file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))
+    file_fr = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (fr)"))
+
+    url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
+    url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
+
+    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True, unique=True)
+    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True, unique=True)
+
+    ekme_gcdocs_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (en)"), unique=True)
+    ekme_gcdocs_fr = models.CharField(blank=True, null=True, max_length=244, verbose_name=_("EKME# / GCDocs (fr)"), unique=True)
+
+    lib_cat_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (en)"), unique=True)
+    lib_cat_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (fr)"), unique=True)
 
     # non-editable
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
@@ -551,60 +569,46 @@ class DocumentTracking(MetadataFields):
     ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
     document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name="tracking")
 
+    date_due = models.DateField(null=True, blank=True, verbose_name=_("product due date"))
+    date_submitted = models.DateField(null=True, blank=True, verbose_name=_("date submitted to CSAS office by author"), )
+    submitted_by = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("submitted by"), related_name="doc_submissions")
 
-#     # administrative
-#     date_due = models.DateField(null=True, blank=True, verbose_name=_("due date"))
-#     date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"), )
-#     submitted_by = models.ManyToManyField(ConContact, blank=True, related_name="submitted_by", verbose_name=_("Submitted By"))
-#     date_appr_by_chair = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Chair"), )
-#     appr_by_chair = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_chair", verbose_name=_("Approved By (Chair)"))
-#     data_appr_by_CSAS = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by CSAS"), )
-#     appr_by_CSAS = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_CSAS", verbose_name=_("Approved By (CSAS Contact)"))
-#     date_appr_by_dir = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Director"), )
-#     appr_by_dir = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_dir", verbose_name=_("Approved By Director"))
-#     date_num_req = models.DateField(null=True, blank=True, verbose_name=_("Date Number Requested"), )
-#     date_doc_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Document Submitted to CSAS"), )
-#     date_pdf_proof = models.DateField(null=True, blank=True, verbose_name=_("Date PDF Proof Sent to Author"), )
-#     appr_by = models.ManyToManyField(ConContact, blank=True, related_name="appr_by", verbose_name=_("Approved by (PDF Proof)"))
-#     date_anti = models.DateField(null=True, blank=True, verbose_name=_("Date of Anticipated Posting"), )
-#     date_posted = models.DateField(null=True, blank=True, verbose_name=_("Date Posted"), )
-#     date_modify = models.DateField(null=True, blank=True, verbose_name=_("Date Modified"), )
-#     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
-#
-#     trans_status = models.ForeignKey(PtsPublicationTransStatus, on_delete=models.DO_NOTHING, verbose_name=_("Translation Status"))
-#     date_to_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Sent to Translation"), )
-#     client_ref_num = models.CharField(default="NA", max_length=255, verbose_name=_("Client Reference Number"))
-#     target_lang = models.ForeignKey(PtlPublicationTargetLanguage, on_delete=models.DO_NOTHING, verbose_name=_("Target Language"))
-#     trans_ref_num = models.CharField(default="NA", max_length=255, verbose_name=_("Translator Reference Number"))
-#     urgent_req = models.ForeignKey(PurPublicationUrgentRequest, on_delete=models.DO_NOTHING, verbose_name=_("Urgent Request"))
-#     date_fr_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Back from Translation"), )
-#     invoice_num = models.CharField(default="NA", max_length=255, verbose_name=_("Invoice Number"))
-#     attach = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment(s)"))
-#     trans_note = models.TextField(null=True, blank=True, verbose_name=_("Translation Notes"))
-#
-#     p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
-#     attach_en_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) File"))
-#     attach_en_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) Size"))
-#     attach_fr_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) File"))
-#     attach_fr_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) Size"))
-#
-#     url_e_file = models.URLField(_("URL (English)"), max_length=255, db_index=True, unique=True, blank=True)
-#     url_f_file = models.URLField(_("URL (French)"), max_length=255, db_index=True, unique=True, blank=True)
-#
-#     dev_link_e_file = models.URLField(_("Dev Link (English)"), max_length=255, db_index=True, unique=True, blank=True)
-#     dev_link_f_file = models.URLField(_("Dev Link (French)"), max_length=255, db_index=True, unique=True, blank=True)
-#
-#     ekme_gcdocs_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (English)"))
-#     ekme_gcdocs_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (French)"))
-#
-#     lib_cat_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English)"))
-#     lib_cat_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French)"))
-#
-#
-#     # tracking
-#
-#     class Meta:
-#         ordering = ['-id']
+    chair = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("chairperson"), related_name="doc_chair_positions")
+    date_chair_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to chair"))
+    date_chair_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by chair"))
+
+    date_coordinator_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to coordinator"))
+    date_coordinator_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by coordinator"))
+
+    director = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("director"), related_name="doc_directors")
+    date_director_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to director"))
+    date_director_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by director"))
+
+    date_number_requested = models.DateTimeField(null=True, blank=True, verbose_name=_("date number requested"))
+    number_approved = models.DateTimeField(null=True, blank=True, verbose_name=_("date number approved"))
+    date_doc_submitted = models.DateTimeField(null=True, blank=True, verbose_name=_("date document submitted to CSAS office"))
+
+    proof_sent_to = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("proof will be sent to which author"),
+                                      related_name="doc_proof_sent")
+    date_proof_author_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date PDF proof sent to author"))
+    date_proof_author_approved = models.DateTimeField(null=True, blank=True, verbose_name=_("date PDF proof approved by author"))
+
+    anticipated_posting_date = models.DateTimeField(null=True, blank=True, verbose_name=_("anticipated posting date"))
+    actual_posting_date = models.DateTimeField(null=True, blank=True, verbose_name=_("actual posting date"))
+    updated_posting_date = models.DateTimeField(null=True, blank=True, verbose_name=_("updated posting date"))
+
+    # translation
+    date_translation_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to translation"))
+    # todo: this seems out of place!
+    is_review_complete = models.BooleanField(default=True, verbose_name=_("has the CSA office completed a translation review?"))
+    client_ref_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("client reference number"))
+    target_lang = models.ForeignKey(Language, on_delete=models.DO_NOTHING, verbose_name=_("target language"), blank=True, null=True)
+    # TODO: I dont understand dif between this and the above ref number
+    translation_ref_number = models.CharField(max_length=255, verbose_name=_("translation reference number"), blank=True, null=True)
+    is_urgent = models.BooleanField(default=True, verbose_name=_("was submitted as an urgent request?"))
+    date_returned = models.DateTimeField(null=True, blank=True, verbose_name=_("date back from translation"))
+    invoice_number = models.CharField(max_length=255, verbose_name=_("invoice number"), blank=True, null=True)
+    translation_notes = models.TextField(null=True, blank=True, verbose_name=_("translation notes"))
 
 
 class Author(models.Model):

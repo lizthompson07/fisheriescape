@@ -154,6 +154,12 @@ class DocumentSerializer(serializers.ModelSerializer):
     total_cost = serializers.SerializerMethodField()
     tracking = serializers.SerializerMethodField()
 
+    file_en_size = serializers.SerializerMethodField()
+
+    def get_file_en_size(self, instance):
+        if instance.file_en.name:
+            return f"{round((instance.file_en.size / 1000 / 1000), 3)} Mb"
+
     def get_tracking(self, instance):
         if hasattr(instance, "tracking"):
             return DocumentTrackingSerializer(instance.tracking).data

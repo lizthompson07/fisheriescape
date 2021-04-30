@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from csas2.models import CSASRequestReview, CSASRequestFile, CSASRequest, Process, MeetingFile
+from csas2.models import CSASRequestReview, CSASRequestFile, CSASRequest, Process, MeetingFile, Document
 from lib.functions.custom_functions import fiscal_year
 
 
@@ -104,6 +104,42 @@ def auto_delete_csas2_meeting_file_on_change(sender, instance, **kwargs):
 
     new_file = instance.file
     if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
+
+
+@receiver(models.signals.post_delete, sender=Document)
+def auto_delete_csas2_meeting_file_on_delete(sender, instance, **kwargs):
+    if instance.file_en:
+        if os.path.isfile(instance.file_en.path):
+            os.remove(instance.file_en.path)
+
+    if instance.file_fr:
+        if os.path.isfile(instance.file_fr.path):
+            os.remove(instance.file_fr.path)
+
+
+@receiver(models.signals.pre_save, sender=Document)
+def auto_delete_csas2_meeting_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_doc = Document.objects.get(pk=instance.pk)
+    except Document.DoesNotExist:
+        return False
+
+    old_file = old_doc.file_en
+    new_file = instance.file_en
+    if old_file.name and not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+    old_file = old_doc.file_fr
+    new_file = instance.file_fr
+    if old_file.name and not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
