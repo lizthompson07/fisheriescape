@@ -204,6 +204,7 @@ class CSASRequestCreateView(LoginAccessRequiredMixin, CommonCreateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+    submit_text = gettext_lazy("Save")
 
     def get_initial(self):
         return dict(
@@ -774,7 +775,7 @@ class DocumentUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     home_url_name = "csas2:index"
     greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     is_multipart_form_data = True
-    
+
     def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
                 "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}

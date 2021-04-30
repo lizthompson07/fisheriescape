@@ -110,7 +110,7 @@ def auto_delete_csas2_meeting_file_on_change(sender, instance, **kwargs):
 
 
 @receiver(models.signals.post_save, sender=DocumentTracking)
-def save_request_on_review_save(sender, instance, created, **kwargs):
+def save_docuemnt_on_tracking_save(sender, instance, created, **kwargs):
     instance.document.save()
 
 
