@@ -10,10 +10,12 @@ def is_markdown_field(value):
         'issue',
         'rationale',
         'risk_text',
-        # process
+        # tor
         'context',
         'objectives',
         'expected_publications',
+        'participation',
+        'references',
     ]
     return value in target_field_list
 
