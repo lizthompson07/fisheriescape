@@ -1093,7 +1093,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "pair", "cont"])
+        context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "samp", "pair", "cont"])
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True).select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id')
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
@@ -1105,13 +1105,22 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "field_list": evnt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        grp_set = models.GroupDet.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anidc_id')
+        grp_set = models.GroupDet.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anidc_id', "adsc_id")
         grpd_field_list = ["anidc_id", "adsc_id", "det_val", "grpd_valid", "detail_date"]
         obj_mixin = mixins.GrpdMixin
         context["context_dict"]["grpd"] = {"div_title": "{} ".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": grp_set,
                                            "field_list": grpd_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
+        obj_set = models.Sample.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anix_id__evnt_id', 'loc_id', 'sampc_id')
+        obj_field_list = ["samp_num", "sampc_id", "samp_date|Sample Date"]
+        obj_mixin = mixins.SampMixin
+        context["context_dict"]["samp"] = {"div_title": "{} ".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": obj_set,
+                                           "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
         cnt_set = models.Count.objects.filter(contx_id__animal_details__grp_id=self.object).distinct().select_related("cntc_id")
@@ -1129,7 +1138,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
         context["cont_evnt_field_list"] = [
-            "Evnt",
+            "Event",
             "Date",
             "Container",
         ]
@@ -1227,7 +1236,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                            "field_list": evnt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=self.object).distinct()
+        indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=self.object).distinct().select_related("anidc_id", "adsc_id", )
         indvd_field_list = ["anidc_id", "adsc_id", "det_val", "indvd_valid", "detail_date"]
         obj_mixin = mixins.IndvdMixin
         context["context_dict"]["indvd"] = {"div_title": "{} ".format(obj_mixin.title),
@@ -1501,6 +1510,21 @@ class RoleDetails(mixins.RoleMixin, CommonDetails):
 
 class SampDetails(mixins.SampMixin, CommonDetails):
     fields = ["loc_id", "samp_num", "spec_id", "sampc_id", "comments", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["table_list"].extend(["sampd"])
+
+        obj_set = models.SampleDet.objects.filter(samp_id=self.object).distinct().select_related("anidc_id", "adsc_id", )
+        obj_field_list = ["anidc_id", "adsc_id", "det_val", "detail_date"]
+        obj_mixin = mixins.SampdMixin
+        context["context_dict"]["sampd"] = {"div_title": "{} ".format(obj_mixin.title),
+                                            "sub_model_key": obj_mixin.key,
+                                            "objects_list": obj_set,
+                                            "field_list": obj_field_list,
+                                            "single_object": obj_mixin.model.objects.first()}
+
+        return context
 
 
 class SampcDetails(mixins.SampcMixin, CommonDetails):

@@ -1522,6 +1522,15 @@ class Sample(BioModel):
                                     name='Sample_Uniqueness')
         ]
 
+    @property
+    def samp_date(self):
+        if self.loc_id:
+            return self.loc_id.loc_date
+        elif self.anix_id:
+            return self.anix_id.evnt_id.start_date
+        else:
+            return None
+
 
 class SampleCode(BioLookup):
     # sampc tag

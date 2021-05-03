@@ -364,6 +364,7 @@ urlpatterns = [
 
     path('create/samp/', views.SampCreate.as_view(), name="create_samp"),
     path('details/samp/<int:pk>/', views.SampDetails.as_view(), name="details_samp"),
+    path('details/samp/<str:back>/<int:back_id>/<int:pk>/', views.SampDetails.as_view(), name="details_samp"),
     path('list/samp/', views.SampList.as_view(), name="list_samp"),
     path('update/samp/<int:pk>/', views.SampUpdate.as_view(), name="update_samp"),
 
@@ -374,6 +375,7 @@ urlpatterns = [
 
     path('create/sampd/', views.SampdCreate.as_view(), name="create_sampd"),
     path('details/sampd/<int:pk>/', views.SampdDetails.as_view(), name="details_sampd"),
+    path('details/sampd/<str:back>/<int:back_id>/<int:pk>/', views.SampdDetails.as_view(), name="details_sampd"),
     path('list/sampd/', views.SampdList.as_view(), name="list_sampd"),
     path('update/sampd/<int:pk>/', views.SampdUpdate.as_view(), name="update_sampd"),
 

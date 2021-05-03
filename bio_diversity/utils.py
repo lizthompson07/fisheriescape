@@ -171,7 +171,7 @@ def get_draw_from_dot(dot_string, cleaned_data):
         return
 
 
-def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None, prog_str=None):
+def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().replace(tzinfo=pytz.UTC), prog_grp=None, prog_str=None, fail_on_not_found=False):
 
     if nan_to_none(prog_str):
         prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
@@ -194,6 +194,14 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
         for grp in grp_list:
             if prog_grp in grp.prog_group():
                 final_grp_list.append(grp)
+
+    if len(final_grp_list) == 0 and fail_on_not_found:
+        if cont:
+            raise Exception("\nGroup {}-{}-{} in container {} and program group {} not uniquely found in"
+                            " db\n".format(stock_str, grp_year, coll_str, cont.name, prog_str))
+        else:
+            raise Exception("\nGroup {}-{}-{} with program group {} not uniquely found in"
+                            " db\n".format(stock_str, grp_year, coll_str, prog_str))
     return final_grp_list
 
 
@@ -730,6 +738,62 @@ def enter_mortality(indv, cleaned_data, mort_date):
     indv.indv_valid = False
     indv.save()
     return mortality_evnt, anix
+
+
+def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=None):
+    samp = models.Sample(anix_id_id=anix_pk,
+                         loc_id_id=loc_pk,
+                         spec_id_id=spec_pk,
+                         samp_num=samp_num,
+                         sampc_id_id=sampc_pk,
+                         created_by=cleaned_data["created_by"],
+                         created_date=cleaned_data["created_date"],
+                         )
+    try:
+        samp.clean()
+        samp.save()
+    except (ValidationError, IntegrityError):
+        samp = models.Sample.objects.filter(anix_id=samp.anix_id,
+                                            loc_id=samp.loc_id,
+                                            spec_id=samp.spec_id,
+                                            samp_num=samp.samp_num,
+                                            sampc_id=samp.sampc_id,
+                                            ).get()
+
+    return samp
+
+
+def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=None, comments=None):
+    row_entered = False
+    if not nan_to_none(det_value):
+        return False
+    if adsc_str:
+        sampd = models.SampleDet(samp_id_id=samp_pk,
+                                 anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                 adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
+                                 det_val=det_value,
+                                 detail_date=det_date,
+                                 qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                 comments=comments,
+                                 created_by=cleaned_data["created_by"],
+                                 created_date=cleaned_data["created_date"],
+                                 )
+    else:
+        sampd = models.SampleDet(samp_id_id=samp_pk,
+                                 anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                 det_val=det_value,
+                                 detail_date=det_date,
+                                 qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                 created_by=cleaned_data["created_by"],
+                                 created_date=cleaned_data["created_date"],
+                                 )
+    try:
+        sampd.clean()
+        sampd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
 
 
 def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_str, spwnsc_str, qual_code="Good", comments=None):
