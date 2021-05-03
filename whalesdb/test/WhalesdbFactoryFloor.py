@@ -15,7 +15,8 @@ class CruiseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = shared_models.Cruise
 
-    mission_number = factory.lazy_attribute(lambda o: faker.word())
+    mission_number = factory.lazy_attribute(lambda o: '{}-{}-{}'.format(faker.word(), faker.random_int(0, 99999),
+                                                                        faker.word()))
 
 
 class DepFactory(factory.django.DjangoModelFactory):
