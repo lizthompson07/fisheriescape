@@ -227,16 +227,17 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
 
         # we can take a few 'best guesses'
 
-        # is there a chair?
-        chair_qs = models.Invitee.objects.filter(meeting__process=obj.document.process, roles__name__icontains=_("chair"))
-        print(chair_qs)
-        if chair_qs.exists():
-            obj.chair = chair_qs.first().person
-
-        # assume proof will be sent to lead author. But if there is no lead author, default to next in line
-        author_qs = obj.document.authors.order_by("-is_lead")
-        if author_qs.exists():
-            obj.proof_sent_to = author_qs.first().person
+        # # is there a chair?
+        # chair_qs = models.Invitee.objects.filter(meeting__process=obj.document.process, roles__name__icontains=_("chair"))
+        # print(chair_qs)
+        # if chair_qs.exists():
+        #     obj.chair = chair_qs.first().person
+        #
+        # # assume proof will be sent to lead author. But if there is no lead author, default to next in line
+        # author_qs = obj.document.authors.order_by("-is_lead")
+        # if author_qs.exists():
+        #     obj.submitted_by = author_qs.first().person
+        #     obj.proof_sent_to = author_qs.first().person
 
         obj.save()
 

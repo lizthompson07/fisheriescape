@@ -62,7 +62,7 @@ h1 {
 }
 
 
-.draft {
+.draft, .preparation {
     background-color: #ffff9d;
 }
 
@@ -70,21 +70,21 @@ h1 {
     background-color: #84c6ff;
 }
 
-.under-review, .tentative {
+.finalization, .tentative {
     background-color: #e3aefa;
 }
 
-.in-progress {
+.in-progress, .review {
     color: white;
     background-color: #4c6fc6;
 }
 
-.off, .deferred, .delayed, .in-preparation {
+.off, .deferred, .delayed {
     color: white;
     background-color: #e94a65;
 }
 
-.on, .posted, .ok, .complete {
+.on, .posted, .ok, .complete, .final {
     background-color: #d5faae;
 }
 

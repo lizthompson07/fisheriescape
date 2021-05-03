@@ -576,21 +576,20 @@ class Document(MetadataFields):
     # non-editable
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
     people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
-    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.document_status_choices, editable=False)
+    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.get_document_status_choices(), editable=False)
     translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.translation_status_choices, editable=False, default=0)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         # set status
-        self.status = 1  # ok
+        self.status = 0  # ok
         if hasattr(self, "tracking"):
-            self.status = 2  # tracking started
-            if self.tracking.submission_date:
-                self.status = 3  # submitted
-            if self.tracking.date_chair_sent:
-                self.status = 4  # under review
-            if self.tracking.actual_posting_date:
-                self.status = 7  # under review
+            self.status = 1  # tracking started
+
+            for obj in model_choices.document_status_dict:
+                trigger = obj.get("trigger")
+                if trigger and getattr(self.tracking, trigger):
+                    self.status = obj.get("value")
 
             self.translation_status = 0  # null
             if self.tracking.date_translation_sent:
@@ -621,7 +620,8 @@ class Document(MetadataFields):
 
     @property
     def status_display(self):
-        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+        stage = model_choices.get_document_status_lookup().get(self.status).get("stage")
+        return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_status_display()}</span>')
 
     @property
     def tstatus_display(self):

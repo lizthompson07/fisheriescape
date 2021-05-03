@@ -85,15 +85,39 @@ document_type_choices = (
     (7, _("Terms of Reference")),
 )
 
-document_status_choices = (
-    (1, _("OK")),
-    (2, _("In preparation")),
-    (3, _("Submitted")),
-    (4, _("Under review")),
-    (5, _("In translation")),
-    (6, _("Translated")),
-    (7, _("Posted")),
+
+document_status_dict = (
+    dict(trigger=None, stage="", text=_("OK"), value=0),
+    dict(trigger=None, stage="preparation", text=_("Under preparation"), value=1),
+    dict(trigger="submission_date", stage="preparation", text=_("Submitted by author"), value=2),
+    ####################
+    dict(trigger="date_chair_sent", stage="review", text=_("Under review by chair"), value=3),
+    dict(trigger="date_chair_appr", stage="review", text=_("Approved by chair"), value=4),
+    dict(trigger="date_coordinator_sent", stage="review", text=_("Under review by CSAS coordinator"), value=5),
+    dict(trigger="date_coordinator_appr", stage="review", text=_("Approved by CSAS coordinator"), value=6),
+    dict(trigger="date_director_sent", stage="review", text=_("Under review by director"), value=7),
+    dict(trigger="date_director_appr", stage="review", text=_("Approved by director"), value=8),
+    ####################
+    dict(trigger="date_doc_submitted", stage="finalization", text=_("Submitted to CSAS office"), value=9),
+    dict(trigger="date_proof_author_sent", stage="finalization", text=_("Proof sent to author"), value=10),
+    dict(trigger="date_proof_author_approved", stage="finalization", text=_("Proof approved by author"), value=11),
+    ####################
+    dict(trigger="actual_posting_date", stage="final", text=_("Posted"), value=12),
 )
+def get_document_status_choices():
+    return [(item["value"], item["text"]) for item in document_status_dict]
+
+def get_document_status_lookup():
+    my_dict = dict()
+    for item in document_status_dict:
+        my_dict[item["value"]] = dict()
+        my_dict[item["value"]]["stage"] = item["stage"]
+        my_dict[item["value"]]["text"] = item["text"]
+    return my_dict
+
+
+
+
 
 translation_status_choices = (
     (0, _("---")),

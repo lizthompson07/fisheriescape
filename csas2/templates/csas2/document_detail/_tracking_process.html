@@ -16,6 +16,17 @@
   @update-tracking="updateTracking"
 ></date-field-group>
 
+
+{# submitted_by #}
+<select-group
+  field_name="submitted_by"
+  :val="document.tracking.submitted_by"
+  :labels="trackingLabels"
+  :choices="personChoices"
+  @update-tracking="updateTracking"
+></select-group>
+
+
 {# chair #}
 <select-group
   field_name="chair"
