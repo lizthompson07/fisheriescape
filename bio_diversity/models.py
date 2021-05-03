@@ -1124,6 +1124,35 @@ class Individual(BioModel):
                 cont_list.append(cont)
         return cont_list
 
+    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        current_cont_list = []
+        cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
+        for cont_type in cont_type_list:
+            current_cont_list += self.current_cont_by_key(cont_type, at_date)
+        return current_cont_list
+
+    def individual_detail(self, anidc_name="Length"):
+        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").first()
+        if latest_indvd:
+            return latest_indvd.det_val
+        else:
+            return None
+
+    def individual_subj_detail(self, anidc_name="Animal Health"):
+        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").select_related("adsc_id").first()
+        if latest_indvd:
+            return latest_indvd.adsc_id.name
+        else:
+            return None
+
+    def prog_group(self):
+        # gets program groups this group may be a part of.
+        indvd_set = IndividualDet.objects.filter(anix_id__indv_id=self,
+                                                 anidc_id__name="Program Group",
+                                                 adsc_id__isnull=False,
+                                                 ).select_related("adsc_id")
+        return [indvd.adsc_id for indvd in indvd_set]
+
 
 class IndividualDet(BioDet):
     # indvd tag

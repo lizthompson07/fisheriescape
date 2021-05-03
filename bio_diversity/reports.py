@@ -148,7 +148,6 @@ def generate_growth_chart(plot_fish):
         len_dets = list(itertools.chain(indv_lens, samp_lens))
         weight_dets = list(itertools.chain(indv_weights, samp_weights))
 
-
     x_len_data = []
     y_len_data = []
     for len_det in len_dets:

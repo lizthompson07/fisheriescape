@@ -35,12 +35,7 @@ class IndividualDisplaySerializer(serializers.ModelSerializer):
         return instance.stok_id.__str__()
 
     def get_length(self, instance):
-        try:
-            length = instance.animal_details.filter(individual_details__anidc_id_id=2,
-                                                    ).first().individual_details.filter(anidc_id_id=2).get().det_val
-        except AttributeError:
-            length = None
-        return length
+        return instance.individual_detail("Length")
 
     def get_collection(self, instance):
         return instance.coll_id.__str__()

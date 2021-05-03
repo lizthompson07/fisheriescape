@@ -3,6 +3,7 @@ import pandas as pd
 
 from bio_diversity import models
 from bio_diversity import utils
+from bio_diversity.static import calculation_constants
 
 
 def parser_template(cleaned_data):
@@ -73,9 +74,8 @@ def generic_indv_parser(cleaned_data):
         return log_data, False
 
     # data prep:
-    sex_dict = {"M": "Male",
-                "F": "Female",
-                "I": "Immature"}
+    sex_dict = calculation_constants.sex_dict
+
     for row in data_dict:
         row_parsed = True
         row_entered = False
@@ -165,9 +165,8 @@ def generic_grp_parser(cleaned_data):
 
     # prep data:
     try:
-        sex_dict = {"M": "Male",
-                    "F": "Female",
-                    "I": "Immature"}
+        sex_dict = calculation_constants.sex_dict
+
         sampc_id = models.SampleCode.objects.filter(name="Individual Sample").get()
 
         # set date

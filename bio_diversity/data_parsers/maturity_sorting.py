@@ -2,7 +2,7 @@ import pandas as pd
 
 from bio_diversity import models
 from bio_diversity import utils
-
+from bio_diversity.static import calculation_constants
 
 def mactaquac_maturity_sorting_parser(cleaned_data):
     log_data = "Loading Data Results: \n"
@@ -16,9 +16,9 @@ def mactaquac_maturity_sorting_parser(cleaned_data):
     except Exception as err:
         log_data += "\n File format not valid: {}".format(err.__str__())
         return log_data, False
-    sex_dict = {"M": "Male",
-                "F": "Female",
-                "I": "Immature"}
+
+    sex_dict = calculation_constants.sex_dict
+
     for row in data_dict:
         row_parsed = True
         row_entered = False

@@ -1287,7 +1287,12 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "Direction"
             "Container",
         ]
-
+        context["calculated_properties"] = {}
+        context["calculated_properties"]["Programs"] = self.object.prog_group()
+        context["calculated_properties"]["Current Tank"] = self.object.current_cont()
+        context["calculated_properties"]["Length (cm)"] = self.object.individual_detail("Length")
+        context["calculated_properties"]["Weight (g)"] = self.object.individual_detail("Weight")
+        context["calculated_properties"]["Gender"] = self.object.individual_detail("Gender")
         return context
 
 
