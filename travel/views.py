@@ -1543,10 +1543,10 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
         context = super().get_context_data(**kwargs)
         admin_group, created = Group.objects.get_or_create(name="travel_admin")
         adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
-        cfo, created = Group.objects.get_or_create(name="travel_cfo_read_only")
+        cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
         context["admin_group"] = admin_group
         context["adm_admin_group"] = adm_admin_group
-        context["cfo_group"] = cfo
+        context["cfo_group"] = cfo_group
         return context
 
 
@@ -1554,9 +1554,9 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
 @user_passes_test(in_adm_admin_group, login_url='/accounts/denied/')
 def toggle_user(request, pk, type):
     my_user = get_object_or_404(User, pk=pk)
-    admin_group = get_object_or_404(Group, name="travel_admin")
-    adm_admin_group = get_object_or_404(Group, name="travel_adm_admin")
-    cfo_group = get_object_or_404(Group, name="travel_cfo_read_only")
+    admin_group, created = Group.objects.get_or_create(name="travel_admin")
+    adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
+    cfo_group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
     if type == "admin":
         # if the user is in the admin group, remove them
         if admin_group in my_user.groups.all():
