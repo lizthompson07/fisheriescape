@@ -854,8 +854,10 @@ class Group(BioModel):
         # for consistancy with container version:
         indv_list = [indv for indv in indv_set]
 
-        grpd_set = GroupDet.objects.filter(frm_grp_id=self).select_related("anix_id__grp_id", *grp_select_fields)
-        grp_list = [grpd.anix_id.grp_id for grpd in grpd_set]
+        # grpd_set = GroupDet.objects.filter(frm_grp_id=self).select_related("anix_id__grp_id", *grp_select_fields)
+        # grp_list = [grpd.anix_id.grp_id for grpd in grpd_set]
+        #
+        grp_list = [self]
 
         return indv_list, grp_list
 

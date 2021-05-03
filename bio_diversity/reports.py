@@ -136,9 +136,19 @@ def generate_growth_chart(plot_fish):
     else:
         indv_list, grp_list = plot_fish.fish_in_cont(select_fields=[])
 
-        len_dets = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id__in=indv_list)
-        weight_dets = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__indv_id__in=indv_list)
-    
+        # indvds
+        indv_lens = models.IndividualDet.objects.filter(anidc_id__name="Length").filter(anix_id__indv_id__in=indv_list)
+        indv_weights = models.IndividualDet.objects.filter(anidc_id__name="Weight").filter(anix_id__indv_id__in=indv_list)
+
+        # sampds
+        samp_lens = models.SampleDet.objects.filter(anidc_id__name="Length").filter(samp_id__anix_id__grp_id__in=grp_list)
+        samp_weights = models.SampleDet.objects.filter(anidc_id__name="Weight").filter(samp_id__anix_id__grp_id__in=grp_list)
+
+        # this is okay because both indvds and sampds have detail_dates and det_vals
+        len_dets = list(itertools.chain(indv_lens, samp_lens))
+        weight_dets = list(itertools.chain(indv_weights, samp_weights))
+
+
     x_len_data = []
     y_len_data = []
     for len_det in len_dets:
