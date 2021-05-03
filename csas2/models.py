@@ -598,7 +598,6 @@ class Document(MetadataFields):
             if self.tracking.date_returned:
                 self.translation_status = 2  # translation complete
 
-
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -627,6 +626,7 @@ class Document(MetadataFields):
     @property
     def tstatus_display(self):
         return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_translation_status_display())}">{self.get_translation_status_display()}</span>')
+
 
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -690,5 +690,5 @@ class Author(models.Model):
     is_lead = models.BooleanField(default=False, verbose_name=_("lead author?"))
 
     class Meta:
-        ordering = ['person__first_name', "person__last_name"]
+        ordering = ['-is_lead', 'person__first_name', "person__last_name"]
         unique_together = (("document", "person"),)

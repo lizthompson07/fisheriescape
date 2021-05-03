@@ -16,6 +16,14 @@
   @update-tracking="updateTracking"
 ></date-field-group>
 
+{# chair #}
+<select-group
+  field_name="chair"
+  :val="document.tracking.chair"
+  :labels="trackingLabels"
+  :choices="personChoices"
+  @update-tracking="updateTracking"
+></select-group>
 
 {# date_chair_sent #}
 <date-field-group
@@ -52,6 +60,15 @@
   @update-tracking="updateTracking"
 ></date-field-group>
 
+
+{# director #}
+<select-group
+  field_name="director"
+  :val="document.tracking.director"
+  :labels="trackingLabels"
+  :choices="personChoices"
+  @update-tracking="updateTracking"
+></select-group>
 
 {# date_director_sent #}
 <date-field-group
@@ -96,6 +113,16 @@
   :labels="trackingLabels"
   @update-tracking="updateTracking"
 ></date-field-group>
+
+
+{# proof_sent_to #}
+<select-group
+  field_name="proof_sent_to"
+  :val="document.tracking.proof_sent_to"
+  :labels="trackingLabels"
+  :choices="personChoices"
+  @update-tracking="updateTracking"
+></select-group>
 
 
 {# date_proof_author_sent #}

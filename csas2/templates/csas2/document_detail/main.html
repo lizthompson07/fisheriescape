@@ -191,6 +191,7 @@
   {% include "csas2/document_detail/components/date_field_group.html" %}
   {% include "csas2/document_detail/components/check_group.html" %}
   {% include "csas2/document_detail/components/char_group.html" %}
+  {% include "csas2/document_detail/components/select_group.html" %}
 
   <script type="application/javascript">
   var documentId = "{{ object.id }}";
@@ -216,6 +217,7 @@
       showCostModal: false,
       documentId: documentId,
       documentLabels: {},
+      personChoices: [],
 
       trackingLabels: {},
       errors: null,
@@ -228,7 +230,12 @@
         this.showTranslationTracking = false;
         this[tabFlag] = true;
       },
-
+      getPersonMetadata() {
+        let endpoint = `/api/csas/meta/models/person/`;
+        apiService(endpoint).then(data => {
+          this.personChoices = data.person_choices;
+        });
+      },
       getCurrentUser() {
         let endpoint = `/api/csas/user/?document=${documentId}`;
         apiService(endpoint)
@@ -392,6 +399,8 @@
       this.getTrackingMetadata();
       this.getDocument(true);
       this.getCurrentUser(true);
+      this.getPersonMetadata();
+
     },
   });
 

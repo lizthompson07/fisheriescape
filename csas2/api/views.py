@@ -52,7 +52,7 @@ class CSASRequestReviewViewSet(viewsets.ModelViewSet):
         csas_request = instance.csas_request
         instance.delete()
         csas_request.save()
-        
+
 
 class MeetingViewSet(viewsets.ModelViewSet):
     queryset = models.Meeting.objects.all().order_by("-created_at")
@@ -223,7 +223,22 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        obj = serializer.save(created_by=self.request.user)
+
+        # we can take a few 'best guesses'
+
+        # is there a chair?
+        chair_qs = models.Invitee.objects.filter(meeting__process=obj.document.process, roles__name__icontains=_("chair"))
+        print(chair_qs)
+        if chair_qs.exists():
+            obj.chair = chair_qs.first().person
+
+        # assume proof will be sent to lead author. But if there is no lead author, default to next in line
+        author_qs = obj.document.authors.order_by("-is_lead")
+        if author_qs.exists():
+            obj.proof_sent_to = author_qs.first().person
+
+        obj.save()
 
 
 class AuthorViewSet(viewsets.ModelViewSet):
@@ -348,10 +363,6 @@ class InviteeModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        external_stamp = " ({})".format(_("external"))
-        person_choices = [dict(text="{} {}".format(p, external_stamp if not p.dmapps_user else ""), value=p.id) for p in Person.objects.all()]
-        person_choices.insert(0, dict(text="-----", value=None))
-        data['person_choices'] = person_choices
         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_status_choices]
         data['role_choices'] = [dict(text=str(obj), value=obj.id) for obj in models.InviteeRole.objects.all()]
         return Response(data)
@@ -362,7 +373,12 @@ class PersonModelMetaAPIView(APIView):
     model = Person
 
     def get(self, request):
+        external_stamp = " ({})".format(_("external"))
+        person_choices = [dict(text="{} {}".format(p, external_stamp if not p.dmapps_user else ""), value=p.id) for p in Person.objects.all()]
+        person_choices.insert(0, dict(text="-----", value=None))
+
         data = dict()
+        data['person_choices'] = person_choices
         data['labels'] = _get_labels(self.model)
         data['language_choices'] = [dict(text=str(p), value=p.id) for p in Language.objects.all()]
         return Response(data)

@@ -156,12 +156,21 @@ class DocumentSerializer(serializers.ModelSerializer):
     file_en_size = serializers.SerializerMethodField()
     tstatus_display = serializers.SerializerMethodField()
 
+    tstatus_text = serializers.SerializerMethodField()
+    status_text = serializers.SerializerMethodField()
+
+    def get_status_text(self, instance):
+        return instance.get_status_display()
+
+    def get_tstatus_text(self, instance):
+        return instance.get_translation_status_display()
+
     def get_tstatus_display(self, instance):
         return instance.tstatus_display
 
     def get_file_en_size(self, instance):
         if instance.file_en.name:
-            return f"{round((instance.file_en.size / 1000 ), 3)} kb"
+            return f"{round((instance.file_en.size / 1000), 3)} kb"
 
     def get_tracking(self, instance):
         if hasattr(instance, "tracking"):
