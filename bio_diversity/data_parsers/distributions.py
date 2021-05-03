@@ -35,7 +35,9 @@ def mactaquac_distribution_parser(cleaned_data):
         driver_role_id = models.RoleCode.objects.filter(name__iexact="Driver").get()
 
     except Exception as err:
-        log_data += "\n Error preparing data: {}".format(err.__str__())
+        err_msg = utils.common_err_parser(err)
+
+        log_data += "\n Error preparing data: {}".format(err_msg)
         return log_data, False
 
     # iterate over rows
@@ -114,9 +116,11 @@ def mactaquac_distribution_parser(cleaned_data):
             #     row_entered = True
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing row {}: \n".format(rows_parsed + 1)
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -125,17 +129,6 @@ def mactaquac_distribution_parser(cleaned_data):
             rows_parsed += 1
         elif row_parsed:
             rows_parsed += 1
-
-    # enter general data once all rows are entered:
-
-    try:
-        pass
-    except Exception as err:
-        log_data += "Error parsing common data: \n"
-        log_data += "\n Error: {}".format(err.__str__())
-        log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                    " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-        return log_data, False
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                 " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))

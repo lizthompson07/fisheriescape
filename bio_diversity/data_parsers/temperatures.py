@@ -29,16 +29,20 @@ def temperature_parser(cleaned_data):
                                                              envc_id, env_start=row["datetime"].time(), contx=contx,
                                                              save=False, qual_id=qual_id), axis=1)
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error preparing data for entry \n "
-        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n Error: {}".format(err_msg)
         return log_data, False
 
     # enter the data
     try:
         entered_list = models.EnvCondition.objects.bulk_create(list(data["env"].dropna()))
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error with bulk data entry \n "
-        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n Error: {}".format(err_msg)
         return log_data, False
 
     return log_data, True

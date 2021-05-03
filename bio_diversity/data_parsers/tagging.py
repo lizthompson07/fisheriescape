@@ -48,8 +48,10 @@ def coldbrook_tagging_parser(cleaned_data):
         tagger_code = models.RoleCode.objects.filter(name__iexact="Tagger").get()
 
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error finding origin group (check first row): \n"
-        log_data += "Error: {}\n\n".format(err.__str__())
+        log_data += "Error: {}\n\n".format(err_msg)
         return log_data, False
 
     for row in data_dict:
@@ -122,9 +124,11 @@ def coldbrook_tagging_parser(cleaned_data):
                                                                                             row["Comments"])
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -145,8 +149,9 @@ def coldbrook_tagging_parser(cleaned_data):
                 utils.enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
 
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
         log_data += "Error parsing common data (recording counts on tank movements)\n "
-        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n Error: {}".format(err_msg)
         log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                     " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
         return log_data, False
@@ -198,8 +203,10 @@ def mactaquac_tagging_parser(cleaned_data):
         tagger_code = models.RoleCode.objects.filter(name__iexact="Tagger").get()
 
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error finding origin group (check first row): \n"
-        log_data += "Error: {}\n\n".format(err.__str__())
+        log_data += "Error: {}\n\n".format(err_msg)
         return log_data, False
 
     for row in data_dict:
@@ -268,9 +275,11 @@ def mactaquac_tagging_parser(cleaned_data):
                                                                                             row["Comments"])
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -290,8 +299,10 @@ def mactaquac_tagging_parser(cleaned_data):
                 utils.enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
 
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error parsing common data (recording counts on tank movements)\n "
-        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n Error: {}".format(err_msg)
         log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                     " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
         return log_data, False

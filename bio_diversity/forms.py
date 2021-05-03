@@ -259,7 +259,7 @@ class DataForm(CreatePrams):
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
                     log_data, sucess = mactaquac_maturity_sorting_parser(cleaned_data)
 
-            # ---------------------------MACTAQUAC WATER QUALITY----------------------------------------
+            # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
                     log_data, sucess = mactaquac_water_quality_parser(cleaned_data)
@@ -281,34 +281,34 @@ class DataForm(CreatePrams):
                     cleaned_data["data_type"] == "Temperature":
                 log_data, sucess = temperature_parser(cleaned_data)
 
-            # ----------------------------------------PICKS----------------------------------------
+            # ---------------------------------PICKS----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Picks":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
                     log_data, sucess = mactaquac_picks_parser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
                     log_data, sucess = coldbrook_picks_parser(cleaned_data)
 
-            # ----------------------------------------PICKS----------------------------------------
+            # ------------------------------MEASURING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Measuring":
                 if cleaned_data["data_type"].__str__() == "Individuals":
                     log_data, sucess = generic_indv_parser(cleaned_data)
                 elif cleaned_data["data_type"].__str__() == "Group":
                     log_data, sucess = generic_grp_parser(cleaned_data)
 
-            # -------------------------------DISTRIBUTION----------------------------------------
+            # -----------------------------DISTRIBUTION----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Distribution":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
                     log_data, sucess = mactaquac_distribution_parser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
                     log_data, sucess = coldbrook_distribution_parser(cleaned_data)
 
-            # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
+            # -------------------------GENERAL DATA ENTRY-------------------------------------------
             else:
                 log_data, sucess = generic_indv_parser(cleaned_data)
 
         except ValueError as err: # Exception as err:
             log_data += "Error parsing data: \n"
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err)
 
         self.request.session["log_data"] = log_data
         self.request.session["load_success"] = sucess

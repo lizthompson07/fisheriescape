@@ -35,7 +35,9 @@ def coldbrook_electrofishing_parser(cleaned_data):
             locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
 
     except Exception as err:
-        log_data += "\n Error in preparing data: {}".format(err.__str__())
+        err_msg = utils.common_err_parser(err)
+
+        log_data += "\n Error in preparing data: {}".format(err_msg)
         return log_data, False
 
     # iterate over rows:
@@ -114,9 +116,11 @@ def coldbrook_electrofishing_parser(cleaned_data):
                     row_entered = True
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n \n Error: {}".format(err.__str__())
+            log_data += "\n \n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -183,8 +187,10 @@ def coldbrook_electrofishing_parser(cleaned_data):
                                 cnt_code="Fish in Container", )
 
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error parsing common data (entering group, placing it in a location and recording the count): \n"
-        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n Error: {}".format(err_msg)
         log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                     " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
         return log_data, False
@@ -222,7 +228,9 @@ def mactaquac_electrofishing_parser(cleaned_data):
             locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
 
     except Exception as err:
-        log_data += "\n Error preparing data: {}".format(err.__str__())
+        err_msg = utils.common_err_parser(err)
+
+        log_data += "\n Error preparing data: {}".format(err_msg)
         return log_data, False
 
     # iterate over rows
@@ -295,9 +303,11 @@ def mactaquac_electrofishing_parser(cleaned_data):
                     row_entered = True
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing row {}: \n".format(rows_parsed + 1)
             log_data += str(row)
-            log_data += "\n \n Error: {}".format(err.__str__())
+            log_data += "\n \n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -364,8 +374,10 @@ def mactaquac_electrofishing_parser(cleaned_data):
                                 cnt_code="Fish in Container", )
 
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error parsing common data: \n"
-        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n Error: {}".format(err_msg)
         log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                     " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
         return log_data, False

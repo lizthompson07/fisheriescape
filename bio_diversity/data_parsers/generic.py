@@ -24,7 +24,9 @@ def parser_template(cleaned_data):
     try:
         pass
     except Exception as err:
-        log_data += "\n Error preparing data: {}".format(err.__str__())
+        err_msg = utils.common_err_parser(err)
+
+        log_data += "\n Error preparing data: {}".format(err_msg)
         return log_data, False
 
     # iterate over rows
@@ -34,9 +36,11 @@ def parser_template(cleaned_data):
         try:
             pass
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -50,8 +54,10 @@ def parser_template(cleaned_data):
     try:
         pass
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error parsing common data: \n"
-        log_data += "\n Error: {}".format(err.__str__())
+        log_data += "\n Error: {}".format(err_msg)
         log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                     " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
         return log_data, False
@@ -135,9 +141,11 @@ def generic_indv_parser(cleaned_data):
                 break
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -231,7 +239,8 @@ def generic_grp_parser(cleaned_data):
                                                    grp_pk=end_grp_id.pk, return_end_contx=True)
             utils.enter_cnt(cleaned_data, row[0], end_contx.pk)
     except Exception as err:
-        log_data += "\n Error preparing data and finding initial groups: {}".format(err)
+        err_msg = utils.common_err_parser(err)
+        log_data += "\n Error preparing data and finding initial groups: {}".format(err_msg)
         return log_data, False
 
     # iterate through the rows:

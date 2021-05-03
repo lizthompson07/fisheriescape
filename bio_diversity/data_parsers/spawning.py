@@ -153,10 +153,12 @@ def mactaquac_spawning_parser(cleaned_data):
                 grp = anix_grp.grp_id
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             parsed = False
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -328,10 +330,12 @@ def coldbrook_spawning_parser(cleaned_data):
                 grp = anix_grp.grp_id
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             parsed = False
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False

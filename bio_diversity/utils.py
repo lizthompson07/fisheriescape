@@ -1081,3 +1081,11 @@ def round_no_nan(data, precision):
         return None
     else:
         return round(decimal.Decimal(data), precision)
+
+
+def common_err_parser(err):
+    err_msg = err.__str__()
+    if type(err) == KeyError:
+        err_msg = "Column with header \"{}\" not found in worksheet".format(err)
+
+    return err_msg

@@ -27,8 +27,10 @@ def mactaquac_treatment_parser(cleaned_data):
     try:
         water_envc_id = models.EnvCode.objects.filter(name="Water Level").get()
     except Exception as err:
+        err_msg = utils.common_err_parser(err)
+
         log_data += "Error preparing data: \n"
-        log_data += "{}\n\n".format(err.__str__())
+        log_data += "{}\n\n".format(err_msg)
         return log_data, False
 
     for row in data_dict:
@@ -71,9 +73,11 @@ def mactaquac_treatment_parser(cleaned_data):
                     log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
@@ -125,9 +129,11 @@ def mactaquac_treatment_parser(cleaned_data):
                     log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
         except Exception as err:
+            err_msg = utils.common_err_parser(err)
+
             log_data += "Error parsing eggroom data row: \n"
             log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err_msg)
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(eggroom_data_dict), rows_entered, len(eggroom_data_dict))
             return log_data, False
