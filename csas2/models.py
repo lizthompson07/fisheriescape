@@ -379,6 +379,7 @@ class GenericNote(MetadataFields):
 class Meeting(MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
     process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
+    # consider removing since this is redundant with process type!! maybe just a flag for a planning meeting
     type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
     is_virtual = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a virtual meeting?"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"),

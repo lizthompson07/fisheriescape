@@ -3,7 +3,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
-from shared_models.models import Section, Person
+from shared_models.models import Section, Person, FiscalYear
 from . import models
 
 attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
@@ -49,11 +49,17 @@ class TripRequestTimestampUpdateForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
-        (1, "------"),
+        (1, "Meetings for Website"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))
+    fiscal_year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal year'))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(processes__isnull=False).distinct()]
+        fy_choices.insert(0, (None, "-----"))
+        self.fields["fiscal_year"].choices = fy_choices
 
 class CSASRequestForm(forms.ModelForm):
     class Meta:

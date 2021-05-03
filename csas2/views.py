@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
-from shared_models.models import Person
+from shared_models.models import Person, FiscalYear
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView
@@ -828,10 +828,30 @@ class DocumentDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
     template_name = 'csas2/report_search.html'
     form_class = forms.ReportSearchForm
-    h1 = gettext_lazy("eDNA Reports")
+    h1 = gettext_lazy("CSAS Reports")
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        year = nz(form.cleaned_data["year"], "None")
+        fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
+
+        if report == 1:
+            return HttpResponseRedirect(f"{reverse('csas2:meeting_report')}?fiscal_year={fy}")
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("csas2:reports"))
+
+
+@login_required()
+def meeting_report(request):
+    qp = request.GET
+    year = None if not qp.get("fiscal_year") else int(qp.get("fiscal_year"))
+    file_url = reports.generate_meeting_report(fiscal_year=year)
+
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            fy = get_object_or_404(FiscalYear, pk=year)
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="CSAS meetings ({fy}).xlsx"'
+
+            return response
+    raise Http404

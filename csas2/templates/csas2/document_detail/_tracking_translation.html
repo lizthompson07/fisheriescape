@@ -11,6 +11,7 @@
 ></date-field-group>
 
 <check-group
+  key="is_review_complete"
   field_name="is_review_complete"
   :val="document.tracking.is_review_complete"
   :labels="trackingLabels"
@@ -19,6 +20,7 @@
 
 
 <char-group
+  key="client_ref_number"
   field_name="client_ref_number"
   :val="document.tracking.client_ref_number"
   :labels="trackingLabels"
@@ -27,6 +29,7 @@
 
 
 <char-group
+  key="translation_ref_number"
   field_name="translation_ref_number"
   :val="document.tracking.translation_ref_number"
   :labels="trackingLabels"
@@ -34,6 +37,7 @@
 ></char-group>
 
 <check-group
+  key="is_urgent"
   field_name="is_urgent"
   :val="document.tracking.is_urgent"
   :labels="trackingLabels"
@@ -51,6 +55,7 @@
 
 
 <char-group
+  key="invoice_number"
   field_name="invoice_number"
   :val="document.tracking.invoice_number"
   :labels="trackingLabels"
@@ -59,6 +64,7 @@
 
 
 <textarea-group
+  key="translation_notes"
   field_name="translation_notes"
   :val="document.tracking.translation_notes"
   :labels="trackingLabels"

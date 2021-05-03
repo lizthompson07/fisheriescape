@@ -66,7 +66,8 @@ urlpatterns = [
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name="document_delete"),
 
     # reports
-    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
+    path('reports/meeting/', views.meeting_report, name="meeting_report"),
 
 ]
 
