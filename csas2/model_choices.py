@@ -85,10 +85,10 @@ document_type_choices = (
     (7, _("Terms of Reference")),
 )
 
-
 document_status_dict = (
-    dict(trigger=None, stage="", text=_("OK"), value=0),
-    dict(trigger=None, stage="preparation", text=_("Under preparation"), value=1),
+    dict(trigger=None, stage="ok", text=_("OK"), value=0),
+    ####################
+    dict(trigger=None, stage="preparation", text=_("Tracking initiated"), value=1),
     dict(trigger="submission_date", stage="preparation", text=_("Submitted by author"), value=2),
     ####################
     dict(trigger="date_chair_sent", stage="review", text=_("Under review by chair"), value=3),
@@ -104,8 +104,11 @@ document_status_dict = (
     ####################
     dict(trigger="actual_posting_date", stage="final", text=_("Posted"), value=12),
 )
+
+
 def get_document_status_choices():
     return [(item["value"], item["text"]) for item in document_status_dict]
+
 
 def get_document_status_lookup():
     my_dict = dict()
@@ -114,9 +117,6 @@ def get_document_status_lookup():
         my_dict[item["value"]]["stage"] = item["stage"]
         my_dict[item["value"]]["text"] = item["text"]
     return my_dict
-
-
-
 
 
 translation_status_choices = (

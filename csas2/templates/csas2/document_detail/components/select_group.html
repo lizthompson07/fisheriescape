@@ -3,19 +3,17 @@
 <!-- template for the modal component -->
 <script type="text/x-template" id="select-group-template">
 <div class="form-group">
-  <div class="form-group">
-    <label :for="`id_${field_name}`">${label}</label>
-    <v-select
-      style="width: 100%"
-      v-model="editableVal"
-      @input="updateTracking"
-      :options="choices"
-      :reduce="choice => choice.value"
-      label="text"
-      :clearable="false"
-      class="bg-light"
-    >
-  </div>
+  <label :for="`id_${field_name}`">${label}</label>
+  <v-select
+    style="width: 100%"
+    v-model="editableVal"
+    @input="updateTracking"
+    :options="choices"
+    :reduce="choice => choice.value"
+    label="text"
+    :clearable="false"
+    class="bg-light"
+  ></v-select>
 </div>
 </script>
 <script type="application/javascript">
@@ -26,7 +24,6 @@ Vue.component("select-group", {
   name: "select-group",
   props: {
     val: {
-      type: String,
       required: false
     },
     labels: {

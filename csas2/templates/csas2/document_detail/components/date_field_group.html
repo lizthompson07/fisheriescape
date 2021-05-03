@@ -5,7 +5,7 @@
 
 <div class="form-group">
   <label for="">${label}</label>
-  <input v-model="date" type="date" class="date_returned form-control" @change="updateTracking">
+  <input v-model="date" type="date" class="form-control" @change="updateTracking">
   <div class="mt-1">
     <button class="badge badge-pill btn-primary" v-if="date"
             @click="clearDate">

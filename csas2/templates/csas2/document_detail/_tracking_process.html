@@ -1,6 +1,7 @@
 {% load i18n %}
 {# due_date #}
 <date-field-group
+  key="due_date"
   field_name="due_date"
   :display_date="document.tracking.due_date_display"
   :labels="trackingLabels"
@@ -10,6 +11,7 @@
 
 {# submission_date #}
 <date-field-group
+  key="submission_date"
   field_name="submission_date"
   :display_date="document.tracking.submission_date_display"
   :labels="trackingLabels"
