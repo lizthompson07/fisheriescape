@@ -1533,13 +1533,20 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
             search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
         )
         if self.request.GET.get("travel_only"):
-            queryset = queryset.filter(groups__in=[33, 36]).distinct()
+            admin_group, created = Group.objects.get_or_create(name="travel_admin")
+            adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
+            cfo, created = Group.objects.get_or_create(name="travel_cfo_read_only")
+            queryset = queryset.filter(groups__in=[admin_group, adm_admin_group, cfo ]).distinct()
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["admin_group"] = Group.objects.get(name="travel_admin")
-        context["adm_admin_group"] = Group.objects.get(name="travel_adm_admin")
+        admin_group, created = Group.objects.get_or_create(name="travel_admin")
+        adm_admin_group, created = Group.objects.get_or_create(name="travel_adm_admin")
+        cfo, created = Group.objects.get_or_create(name="travel_cfo_read_only")
+        context["admin_group"] = admin_group
+        context["adm_admin_group"] = adm_admin_group
+        context["cfo_group"] = cfo
         return context
 
 
@@ -1549,6 +1556,7 @@ def toggle_user(request, pk, type):
     my_user = get_object_or_404(User, pk=pk)
     admin_group = get_object_or_404(Group, name="travel_admin")
     adm_admin_group = get_object_or_404(Group, name="travel_adm_admin")
+    cfo_group = get_object_or_404(Group, name="travel_cfo_read_only")
     if type == "admin":
         # if the user is in the admin group, remove them
         if admin_group in my_user.groups.all():
@@ -1563,5 +1571,12 @@ def toggle_user(request, pk, type):
         # otherwise add them
         else:
             my_user.groups.add(adm_admin_group)
+    elif type == "cfo":
+        # if the user is in the edit group, remove them
+        if cfo_group in my_user.groups.all():
+            my_user.groups.remove(cfo_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(cfo_group)
 
     return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
