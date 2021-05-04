@@ -109,9 +109,8 @@
         <table class="table table-bordered table-hover table-sm">
           <thead>
           <tr>
-            {#          #}
             {% for field in meeting_field_list %}
-              <th>{% get_verbose_label object.meetings.first field %}</th>
+              <th class="{% if "title" in field %}w400{% endif %}">{% get_verbose_label object.meetings.first field %}</th>
             {% endfor %}
           </tr>
           </thead>
@@ -148,7 +147,7 @@
         <table class="table table-bordered table-hover table-sm">
           <thead>
           <tr>
-            <th rowspan="2" style="width: 400px">{% trans "Title" %}</th>
+            <th rowspan="2" class="w400">{% trans "Title" %}</th>
             <th rowspan="2">{% trans "Type" %}</th>
             <th rowspan="2">{% trans "Status" %}</th>
             <th v-if="keystoneMeetings.length" class="text-center" :colspan="keystoneMeetings.length">{% trans "Meeting Linkages" %}</th>

@@ -74,15 +74,38 @@ note_type_choices = (
     (3, 'General comment'),
 )
 
-document_type_choices = (
-    (1, _("Meeting Minutes")),
-    (2, _("Science Advisory Report")),
-    (3, _("Research Document")),
-    (4, _("Proceedings")),
-    (5, _("Science Response")),
-    (6, _("Working Paper")),
-    (7, _("Terms of Reference")),
-)
+# document_type_choices = (
+#     (1, _("Meeting Minutes")),
+#     (2, _("Science Advisory Report")),
+#     (3, _("Research Document")),
+#     (4, _("Proceedings")),
+#     (5, _("Science Response")),
+#     (6, _("Working Paper")),
+#     (7, _("Terms of Reference")),
+# )
+#
+# document_type_dict = (
+#     dict(text="Meeting Minutes", value=1, days_due=None),
+#     dict(text=_("Science Advisory Report"), value=2, days_due=56),
+#     dict(text=_("Research Document"), value=3, days_due=122),
+#     dict(text=_("Proceedings"), value=4, days_due=122),
+#     dict(text=_("Science Response"), value=5, days_due=56),
+#     dict(text=_("Working Paper"), value=6, days_due=None),
+#     dict(text=_("Terms of Reference"), value=7, days_due=None),
+# )
+#
+# def get_document_type_choices():
+#     return [(item["value"], item["text"]) for item in document_type_dict]
+#
+#
+# def get_document_type_lookup():
+#     my_dict = dict()
+#     for item in document_type_dict:
+#         my_dict[item["value"]] = dict()
+#         my_dict[item["value"]]["days_due"] = item["days_due"]
+#         my_dict[item["value"]]["text"] = item["text"]
+#     return my_dict
+
 
 document_status_dict = (
     dict(trigger=None, stage="ok", text=_("OK"), value=0),

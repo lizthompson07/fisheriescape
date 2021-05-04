@@ -95,6 +95,7 @@ class DocumentFilter(django_filters.FilterSet):
             'id': ['exact'],
             'document_type': ['exact'],
             'status': ['exact'],
+            'translation_status': ['exact'],
             'process': ['exact'],
         }
 

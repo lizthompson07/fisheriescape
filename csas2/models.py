@@ -156,6 +156,10 @@ class CSASRequest(MetadataFields):
         return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
 
     @property
+    def status_class(self):
+        return slugify(self.get_status_display()) if self.status else ""
+
+    @property
     def assistance_display(self):
         if self.had_assistance:
             text = self.assistance_text if self.assistance_text else gettext("no further details provided.")
@@ -269,6 +273,10 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     @property
     def status_display(self):
         return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+
+    @property
+    def status_class(self):
+        return slugify(self.get_status_display()) if self.status else ""
 
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
@@ -557,6 +565,7 @@ class Attendance(models.Model):
 
 
 class DocumentType(SimpleLookup):
+    days_due = models.IntegerField(null=True, blank=True, verbose_name=_("days due following meeting"))
     hide_from_list = models.BooleanField(default=False, verbose_name=_("hide from main search?"), choices=model_choices.yes_no_choices)
 
 
@@ -586,6 +595,7 @@ class Document(MetadataFields):
     lib_cat_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (fr)"))
 
     # non-editable
+    due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("document due date"), editable=False)
     pub_number_request_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date of publication number request"))
     pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True, editable=False, unique=True)
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
@@ -600,6 +610,7 @@ class Document(MetadataFields):
         self.status = 0  # ok
         if hasattr(self, "tracking"):
             self.pub_number = self.tracking.pub_number
+            self.due_date = self.tracking.due_date
             self.status = 1  # tracking started
 
             for obj in model_choices.document_status_dict:
@@ -640,9 +651,17 @@ class Document(MetadataFields):
         return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_status_display()}</span>')
 
     @property
+    def status_class(self):
+        return model_choices.get_document_status_lookup().get(self.status).get("stage")
+
+    @property
     def tstatus_display(self):
         stage = model_choices.get_translation_status_lookup().get(self.translation_status).get("stage")
         return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_translation_status_display()}</span>')
+
+    @property
+    def tstatus_class(self):
+        return model_choices.get_translation_status_lookup().get(self.translation_status).get("stage")
 
 
 class DocumentNote(GenericNote):

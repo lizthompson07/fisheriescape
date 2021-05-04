@@ -149,15 +149,17 @@ class DocumentSerializer(serializers.ModelSerializer):
     metadata = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
     tracking = serializers.SerializerMethodField()
-
     file_en_size = serializers.SerializerMethodField()
     tstatus_display = serializers.SerializerMethodField()
-
     tstatus_text = serializers.SerializerMethodField()
     status_text = serializers.SerializerMethodField()
     coordinator = serializers.SerializerMethodField()
-
     pub_number_request_date_display = serializers.SerializerMethodField()
+    due_date_display = serializers.SerializerMethodField()
+
+    def get_due_date_display(self, instance):
+        if instance.due_date:
+            return f"{date(instance.due_date)} ({naturaltime(instance.due_date)})"
 
     def get_pub_number_request_date_display(self, instance):
         if instance.pub_number_request_date:

@@ -80,6 +80,10 @@
                 <th class="text-left">{% trans "Type" %}</th>
                 <td class="text-left" v-html="document.document_type"></td>
               </tr>
+            <tr>
+                <th class="text-left" v-html="documentLabels.due_date"></th>
+                <td class="text-left" v-html="document.due_date_display"></td>
+              </tr>
               <tr>
                 <th class="text-left">{% trans "Document Status" %}</th>
                 <td class="text-left" v-html="document.status_display"></td>

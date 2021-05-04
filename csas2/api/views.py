@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -280,12 +280,20 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
         print(chair_qs)
         if chair_qs.exists():
             obj.chair = chair_qs.first().person
-        #
-        # # assume proof will be sent to lead author. But if there is no lead author, default to next in line
-        # author_qs = obj.document.authors.order_by("-is_lead")
-        # if author_qs.exists():
-        #     obj.submitted_by = author_qs.first().person
-        #     obj.proof_sent_to = author_qs.first().person
+
+        # due date can be guessed based on the document type
+        # but we also have to have a connected meeting!
+        if obj.document.document_type.days_due and obj.document.meetings.exists():
+            qs = obj.document.meetings.filter(end_date__isnull=False)
+            if qs.exists():
+                last_date = qs.order_by("end_date").last().end_date
+                obj.due_date = last_date + timedelta(days=obj.document.document_type.days_due)
+
+        # assume proof will be sent to lead author. But if there is no lead author, default to next in line
+        author_qs = obj.document.authors.order_by("-is_lead")
+        if author_qs.exists():
+            obj.submitted_by = author_qs.first().person
+            obj.proof_sent_to = author_qs.first().person
 
         obj.save()
 

@@ -33,8 +33,8 @@
     {% for field in field_list %}
       <td
         class="{{ field.class }}
-          {% if field.name == "status" %}{{ object.get_status_display|slugify }}
-          {% elif field.name == "translation_status" %}{{ object.get_translation_status_display|slugify }}{% endif %}
+          {% if field.name == "status" %}{{ object.status_class|slugify }}
+          {% elif field.name == "translation_status" %}{{ object.tstatus_class|slugify }}{% endif %}
         ">
         {% block table_td %}
           {% get_field_value object field.name safe=True %}
