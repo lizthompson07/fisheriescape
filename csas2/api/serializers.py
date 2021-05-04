@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date, pluralize, slugify
 from django.utils.translation import gettext
 from rest_framework import serializers
@@ -159,7 +160,8 @@ class DocumentSerializer(serializers.ModelSerializer):
     pub_number_request_date_display = serializers.SerializerMethodField()
 
     def get_pub_number_request_date_display(self, instance):
-        return date(instance.pub_number_request_date)
+        if instance.pub_number_request_date:
+            return f"{date(instance.pub_number_request_date)} ({naturaltime(instance.pub_number_request_date)})"
 
     def get_coordinator(self, instance):
         return str(instance.process.coordinator)

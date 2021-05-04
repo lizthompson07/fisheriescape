@@ -2,6 +2,8 @@ from django.utils.translation import gettext as _
 
 from dm_apps.emails import Email
 
+csas_generic_email = "csas-sccs@dfo-mpo.gc.ca"
+
 
 class InvitationEmail(Email):
     email_template_path = 'csas2/emails/invitation.html'
@@ -47,3 +49,11 @@ class NewResourceEmail(Email):
         self.request = request
         self.instance = instance
         self.resource = resource
+
+
+class PublicationNumberRequestEmail(Email):
+    email_template_path = 'csas2/emails/pub_number.html'
+    subject_en = 'A New publication number is being requested (*** ACTION REQUIRED ***)'
+
+    def get_recipient_list(self):
+        return [csas_generic_email]

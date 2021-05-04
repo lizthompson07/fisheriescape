@@ -28,6 +28,7 @@ class CurrentUserAPIView(APIView):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
         qp = request.GET
+        data["is_csas_national_admin"] = utils.in_csas_national_admin_group(request.user)
         if qp.get("request"):
             data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
         elif qp.get("process"):
@@ -69,8 +70,6 @@ class ProcessViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
-
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -211,7 +210,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DocumentSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
 
-
     def list(self, request, *args, **kwargs):
         qp = request.query_params
         if qp.get("process"):
@@ -231,6 +229,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
             else:
                 doc.meetings.add(meeting)
             return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("request_pub_number"):
+            if not doc.pub_number_request_date and not doc.pub_number:
+                email = emails.PublicationNumberRequestEmail(request, doc)
+                email.send()
+                doc.pub_number_request_date = timezone.now()
+                doc.save()
+                msg = _("Success! Your request for a publication number has been sent to the National CSAS Office.")
+                return Response(msg, status.HTTP_200_OK)
+            raise ValidationError(_("A publication number has already been requested."))
         elif qp.get("get_pub_number"):
             if hasattr(doc, "tracking") and doc.tracking.anticipated_posting_date:
                 year = doc.tracking.anticipated_posting_date.year
@@ -248,7 +255,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
                                 num_list.append(num)
                     if len(num_list):
                         num_list.sort()
-                        p_num = '{:03d}'.format(num_list[-1]+1)
+                        p_num = '{:03d}'.format(num_list[-1] + 1)
                 pub_number = f"{year}/{p_num}"
                 return Response(dict(pub_number=pub_number), status=status.HTTP_200_OK)
             raise ValidationError(_("Cannot generate a pub number if there is no anticipated posting date."))
@@ -506,6 +513,7 @@ class RequestReviewModelMetaAPIView(APIView):
         data['prioritization_choices'] = prioritization_choices
         data['decision_choices'] = decision_choices
         return Response(data)
+
 
 class ProcessModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]

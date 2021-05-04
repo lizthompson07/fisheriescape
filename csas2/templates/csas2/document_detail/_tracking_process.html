@@ -179,14 +179,15 @@
   </div>
 
 
-  <div class="card tracking-card">
+  <div class="card tracking-card" v-if="currentUser.is_csas_national_admin">
     <div class="card-header lead">
       {% trans "Pub Number" %}
+      <br><span style="font-size: x-small" class="text-muted">({% trans "Visible only to National CSAS administrators" %})</span>
     </div>
     <div class="card-body">
       <div class="mb-3" v-if="!document.pub_number">
-        <p v-if="document.pub_number_request_date" :class="{highlight:!document.pub_number}">
-          {% trans "A publication number was requested on:" %} ${document.pub_number_request_date_display}
+        <p v-if="document.pub_number_request_date" :class="{'highlight px-2 py-2':!document.pub_number}">
+          {% trans "A publication number was requested on:" %} <br> <br> ${document.pub_number_request_date_display}
         </p>
         <p v-else>
           {% trans "A publication number has not been requested." %}
