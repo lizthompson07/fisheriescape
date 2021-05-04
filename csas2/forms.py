@@ -61,6 +61,7 @@ class ReportSearchForm(forms.Form):
         fy_choices.insert(0, (None, "-----"))
         self.fields["fiscal_year"].choices = fy_choices
 
+
 class CSASRequestForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
@@ -161,6 +162,14 @@ class MeetingFileForm(forms.ModelForm):
         model = models.MeetingFile
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kwargs.get("instance"):
+            meeting = kwargs.get("instance").meeting
+        else:
+            meeting = get_object_or_404(models.Meeting, pk=kwargs.get("initial").get("meeting"))
+        if meeting.is_planning:
+            del self.fields["is_somp"]
 
 class ProcessForm(forms.ModelForm):
     class Meta:

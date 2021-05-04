@@ -391,6 +391,8 @@ class Meeting(SimpleLookup, MetadataFields):
     est_quarter = models.IntegerField(choices=model_choices.meeting_quarter_choices, verbose_name=_("estimated quarter"), blank=True, null=True)
     est_year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("estimated year"))
 
+    # non-editable
+    somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="meetings",
                                     editable=False)
@@ -507,6 +509,7 @@ class MeetingCost(GenericCost):
 
 class MeetingFile(GenericFile):
     meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
+    is_somp = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this the completed SoMP?"))
     file = models.FileField(upload_to=meeting_directory_path)
 
 
@@ -517,7 +520,9 @@ class InviteeRole(SimpleLookup):
 class Invitee(models.Model):
     ''' a person that was invited to a meeting'''
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="invitees")
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="meeting_invites")
+    person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="meeting_invites")
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name="meeting_invites", blank=True, null=True,
+                               verbose_name=_("DFO Region (if applicable)"))
     roles = models.ManyToManyField(InviteeRole, verbose_name=_("Function(s)"))
     # role = models.IntegerField(choices=model_choices.invitee_role_choices, verbose_name=_("Function"), default=1)
     status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=0)
@@ -586,7 +591,8 @@ class Document(MetadataFields):
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
     people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.get_document_status_choices(), editable=False)
-    translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.get_translation_status_choices(), editable=False, default=0)
+    translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.get_translation_status_choices(), editable=False,
+                                             default=0)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
@@ -639,7 +645,6 @@ class Document(MetadataFields):
         return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_translation_status_display()}</span>')
 
 
-
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
     document = models.ForeignKey(Document, related_name='notes', on_delete=models.CASCADE)
@@ -664,11 +669,13 @@ class DocumentTracking(MetadataFields):
     date_coordinator_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to CSAS coordinator"))
     date_coordinator_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by CSAS coordinator"))
 
-    section_head = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("section head"), related_name="doc_section_heads")
+    section_head = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("section head"),
+                                     related_name="doc_section_heads")
     date_section_head_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to section head"))
     date_section_head_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by section head"))
 
-    division_manager = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("division manager"), related_name="doc_division_managers")
+    division_manager = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("division manager"),
+                                         related_name="doc_division_managers")
     date_division_manager_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to division manager"))
     date_division_manager_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by division manager"))
 
@@ -702,7 +709,7 @@ class DocumentTracking(MetadataFields):
 
     translation_review_date = models.DateTimeField(null=True, blank=True, verbose_name=_("translation review completion date"))
     translation_review_by = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("translation review completed by"),
-                                      related_name="translation_review")
+                                              related_name="translation_review")
 
     translation_notes = models.TextField(null=True, blank=True, verbose_name=_("translation notes"))
 

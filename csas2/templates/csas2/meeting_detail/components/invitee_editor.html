@@ -44,6 +44,18 @@
                     {% trans "Edit person details" %}</button>
                 </div>
                 <div class="form-group">
+                  <label for="">${labels.region}</label>
+                  <v-select
+                    v-model="inviteeToEdit.region"
+                    :options="regionChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+                <div class="form-group">
                   <label for="">${labels.roles}</label>
                   <v-select
                     v-model="inviteeToEdit.roles"
@@ -192,6 +204,7 @@ Vue.component("invitee-editor", {
       roleChoices: [],
       search: null,
       statusChoices: [],
+      regionChoices: [],
       user: null,
     };
   },
@@ -211,6 +224,7 @@ Vue.component("invitee-editor", {
         this.labels = data.labels;
         this.roleChoices = data.role_choices;
         this.statusChoices = data.status_choices;
+        this.regionChoices = data.region_choices;
       });
     },
     getPersonMetadata() {

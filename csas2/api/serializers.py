@@ -359,6 +359,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     process = serializers.StringRelatedField()
     total_cost = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
+    somp_notification_date = serializers.SerializerMethodField()
+
+    def get_somp_notification_date(self, instance):
+        return date(instance.somp_notification_date)
 
     def get_display(self, instance):
         return instance.display
@@ -473,6 +477,11 @@ class InviteeSerializer(serializers.ModelSerializer):
     person_object = serializers.SerializerMethodField()
     roles_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
+    region_display = serializers.SerializerMethodField()
+
+    def get_region_display(self, instance):
+        if instance.region:
+            return str(instance.region)
 
     def get_attendance(self, instance):
         return listrify([a.date.strftime("%Y-%m-%d") for a in instance.attendance.all()])

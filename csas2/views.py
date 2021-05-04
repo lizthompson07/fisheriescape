@@ -16,7 +16,7 @@ from shared_models.models import Person, FiscalYear
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView
-from . import models, forms, filters, utils, reports
+from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group, get_quarter
@@ -700,10 +700,23 @@ class MeetingFileCreateView(CanModifyProcessRequiredMixin, CommonPopoutCreateVie
     form_class = forms.MeetingFileForm
     is_multipart_form_data = True
 
+    def get_initial(self):
+        """ For the benefit of the form class"""
+        return dict(
+            meeting=self.kwargs.get("meeting"),
+        )
+
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.meeting_id = self.kwargs['meeting']
         obj.save()
+        if not obj.meeting.somp_notification_date and obj.is_somp:
+            email = emails.SoMPEmail(self.request, obj)
+            email.send()
+            messages.info(self.request, _("A notification email was sent off to the national office!"))
+            meeting = obj.meeting
+            meeting.somp_notification_date = timezone.now()
+            meeting.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -711,6 +724,17 @@ class MeetingFileUpdateView(CanModifyProcessRequiredMixin, CommonPopoutUpdateVie
     model = models.MeetingFile
     form_class = forms.MeetingFileForm
     is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save()
+        if not obj.meeting.somp_notification_date and obj.is_somp:
+            email = emails.SoMPEmail(self.request, obj)
+            email.send()
+            messages.info(self.request, _("A notification email was sent off to the national office!"))
+            meeting = obj.meeting
+            meeting.somp_notification_date = timezone.now()
+            meeting.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class MeetingFileDeleteView(CanModifyProcessRequiredMixin, CommonPopoutDeleteView):

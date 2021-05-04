@@ -116,6 +116,10 @@
                 {% endif %}
               </td>
             </tr>
+            <tr v-if="!meeting.is_planning">
+              <th class="text-left" v-html="meetingLabels.somp_notification_date"></th>
+              <td class="text-left">${meeting.somp_notification_date|nz}</td>
+            </tr>
             <tr>
               <th class="text-left">{% trans "Metadata" %}</th>
               <td class="text-left" v-html="meeting.metadata"></td>
@@ -320,6 +324,7 @@
     },
     filters: {
       floatformat: vueFiltersObject["floatformat"],
+      nz: vueFiltersObject["nz"],
     },
     created() {
       this.getMeetingMetadata();
