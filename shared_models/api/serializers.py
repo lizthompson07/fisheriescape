@@ -148,11 +148,15 @@ class SectionSerializer(serializers.ModelSerializer):
 
 
 class PersonSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-
     class Meta:
         model = Person
         fields = "__all__"
+
+    full_name = serializers.SerializerMethodField()
+    tposition = serializers.SerializerMethodField()
+
+    def get_tposition(self, instance):
+        return instance.tposition
 
     def get_full_name(self, instance):
         return instance.full_name

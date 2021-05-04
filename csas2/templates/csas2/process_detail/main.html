@@ -26,9 +26,9 @@
         <p class="lead text-muted mt-1 mb-0">{% trans "Process ID:" %} {{ object.id }}</p>
       </div>
       {% bootstrap_messages %}
-      <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert">
         <p class="mb-0">
-          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
         </p>
       </div>
     </div>
@@ -36,9 +36,30 @@
     <div class="mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
-      <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:process_edit' object.id %}?tor=true"><span
-        class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}</a>
-      <a class="btn btn-sm btn-primary" href=""><span class="mdi mdi-file-document text-light mr-1"></span>{% trans "Export ToR" %}</a>
+      {% if object.tor %}
+        <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_edit' object.tor.id %}">
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
+        </a>
+        <div class="neighbours">
+          <div class="dropdown">
+            <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+               aria-expanded="false">
+              <span class="mdi mdi-file-word text-light mr-1"></span>{% trans "Export ToR" %}
+            </a>
+
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=en">{% trans "English" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=fr">{% trans "French" %}</a>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_new' object.id %}">
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
+        </a>
+      {% endif %}
+
+      {#      <a class="btn btn-sm btn-primary" href=""></a>#}
     </div>
 
     <div class="mb-5">
@@ -55,7 +76,7 @@
             {% if object.csas_requests.exists %}
               {% for obj in object.csas_requests.all %}
                 <div>
-                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj.id }} - {{ obj }} ({{ obj.fiscal_year }})</a>
+                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj.fiscal_year }} - {{ obj }} ({{ obj.id }})</a>
                 </div>
               {% endfor %}
             {% else %}
@@ -128,7 +149,7 @@
             <th rowspan="2">{% trans "Title" %}</th>
             <th rowspan="2">{% trans "Type" %}</th>
             <th rowspan="2">{% trans "Status" %}</th>
-            <th class="text-center" :colspan="meetings.length">{% trans "Meeting Linkages" %}</th>
+            <th v-if="meetings.length" class="text-center" :colspan="meetings.length">{% trans "Meeting Linkages" %}</th>
           </tr>
           <tr>
             <th v-for="m, index in meetings" :key="m.id" class="text-center text-muted">${m.type_display}</th>
@@ -177,7 +198,6 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      canModify: false,
       loadingDocs: false,
       loadingMeetings: false,
       docs: [],
@@ -185,7 +205,7 @@
     },
     methods: {
       getCurrentUser() {
-        let endpoint = `/api/csas/user/`;
+        let endpoint = `/api/csas/user/?process=${processId}`;
         apiService(endpoint)
             .then(response => {
               this.currentUser = response;
@@ -232,48 +252,16 @@
               }
             })
       },
-      updateObservation(obs) {
-        this.unsavedChanges = true;
-        this.obsErrorMsg = null;
-        let endpoint;
-        let method;
-        if (obs.id) {
-          endpoint = `${this.endpointPrefix}/${obs.id}/`;
-          method = "PUT";
-        } else {
-          endpoint = `${this.endpointPrefix}/`;
-          method = "POST";
-        }
-        apiService(endpoint, method, obs)
-            .then(response => {
-              if (!response.id) this.obsErrorMsg = groomJSON(response);
-              else {
-                if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
-                this.$set(this.observations, this.observations.indexOf(obs), response)
-                this.unsavedChanges = false;
-              }
-            })
-      },
-      deleteObservation(obs) {
-        userInput = confirm("{% trans 'Are you sure you want to delete this observation?' %}");
-        if (userInput) {
-          if (obs.id) {
-            let endpoint = `${this.endpointPrefix}/${obs.id}/`;
-            apiService(endpoint, "DELETE")
-                .then(response => {
-                  this.$delete(this.observations, this.observations.indexOf(obs));
-                })
-          } else {
-            this.$delete(this.observations, this.observations.indexOf(obs));
-            this.unsavedChanges = false;
-          }
-        }
-      },
     },
-    computed: {},
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      }
+    },
     created() {
       this.getDocuments();
       this.getMeetings();
+      this.getCurrentUser();
     },
   });
 
