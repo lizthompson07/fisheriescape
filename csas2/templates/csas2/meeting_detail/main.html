@@ -42,6 +42,9 @@
     <div class="mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:meeting_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:meeting_delete' object.id %}">{% trans "Delete" %}</a>
+      <button @click="openPopout('{% url 'csas2:meeting_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
+        <span class="mdi mdi-file mr-1"></span>{% trans "Add a File" %}
+      </button>
     </div>
 
     <div class="row">
@@ -51,7 +54,7 @@
         <div class="mb-5">
           <table class="table table-sm">
             <tr>
-              <th class="text-left" v-html="meetingLabels.process"></th>
+              <th class="text-left w200" v-html="meetingLabels.process"></th>
               <td class="text-left">
                 <a href="{% url 'csas2:process_detail' object.process.id %}">${ meeting.process }</a>
               </td>
@@ -88,6 +91,28 @@
                   {% endfor %}
                 {% else %}
                   <em>{% trans "There are no documents linked to this meeting." %}</em>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {% trans "Files" %}
+              </th>
+              <td>
+                {% if object.files.exists %}
+                  {% for file in object.files.all %}
+                    <div>
+                      <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded on: {{ file.date_created|date:"F d Y" }})
+                      <button class="btn" @click="openPopout('{% url 'csas2:meeting_file_edit' file.id %}')" class="ml-3">
+                        <span class="mdi mdi-pencil" style="font-size: large"></span>
+                      </button>
+                      <button class="btn" @click="openPopout('{% url 'csas2:meeting_file_delete' file.id %}')">
+                        <span class="mdi mdi-delete" style="font-size: large"></span>
+                      </button>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <em>{% trans "There are no files attached to this meeting." %}</em>
                 {% endif %}
               </td>
             </tr>
@@ -285,7 +310,7 @@
         }
         return 0;
       },
-      totalCost(){
+      totalCost() {
         let total = 0;
         for (var i = 0; i < this.costs.length; i++) {
           total += Number(this.costs[i].amount)
