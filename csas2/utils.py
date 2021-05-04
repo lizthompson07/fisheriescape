@@ -139,12 +139,12 @@ def can_modify_request(user, request_id, return_as_dict=False):
         my_dict["reason"] = "You do not have the permissions to modify this request"
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         # check to see if they are the client
-        if is_client(user, request_id=csas_request.id):
+        if is_client(user, request_id=csas_request.id) and not csas_request.submission_date:
             my_dict["reason"] = "You can modify this record because you are the request client"
             my_dict["can_modify"] = True
         # check to see if they are the client
-        elif is_creator(user, request_id=csas_request.id):
-            my_dict["reason"] = "You can modify this record because you are the request client"
+        elif is_creator(user, request_id=csas_request.id) and not csas_request.submission_date:
+            my_dict["reason"] = "You can modify this record because you are the record creator"
             my_dict["can_modify"] = True
         # check to see if they are the coordinator
         elif is_request_coordinator(user, request_id=csas_request.id):
@@ -196,9 +196,8 @@ def get_request_field_list(csas_request, user):
     my_list = [
         'id|{}'.format(_("request Id")),
         'fiscal_year',
-        'tname|{}'.format(_("title")),
         'status_display|{}'.format(_("status")),
-        'type',
+        'is_carry_over|{}'.format(_("is carry over?")),
         'language',
         'section',
         'coordinator',
@@ -222,8 +221,11 @@ def get_request_field_list(csas_request, user):
 
 def get_review_field_list():
     my_list = [
+        'ref_number|{}'.format(_("reference number")),
         'prioritization_display|{}'.format(_("prioritization")),
         'decision_display|{}'.format(_("decision")),
+        'advice_date',
+        'deferred_display|{}'.format(_("What the original request date deferred?")),
         'notes',
         'metadata|{}'.format(_("metadata")),
     ]
@@ -237,13 +239,14 @@ def get_process_field_list(process):
         'tname|{}'.format(_("Title")),
         'status_display|{}'.format(_("status")),
         'scope_type|{}'.format(_("advisory process type")),
+        'chair|{}'.format(_("chair")),
         'coordinator',
         'advisors',
         'lead_region',
         'other_regions',
-        'context_html|{}'.format(get_verbose_label(process, "context")),
-        'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
-        'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
+        # 'context_html|{}'.format(get_verbose_label(process, "context")),
+        # 'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
+        # 'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
         'type',
         'metadata|{}'.format(_("metadata")),
     ]
@@ -271,6 +274,7 @@ def get_document_field_list():
         'title_fr',
         'title_in',
         'type',
+        'status',
         'series',
         'year',
         'pub_number',
@@ -297,6 +301,17 @@ def get_related_processes(user):
      they are an advisor
      """
     qs = models.Process.objects.filter(Q(coordinator=user) | Q(advisors=user) | Q(csas_requests__client=user)).distinct()
+    return qs
+
+
+
+def get_related_docs(user):
+    """give me a user and I'll send back a queryset with all related docs, i.e.
+     they are an author ||
+     they are a process coordinator ||
+     they are a process advisor
+     """
+    qs = models.Process.objects.filter(Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors=user)).distinct()
     return qs
 
 

@@ -51,38 +51,30 @@
             </div>
           </div>
         </div>
-        {#        <div class="neighbours mx-3 my-3">#}
-        {#          <div class="card" style="width: 18rem; height: 170px">#}
-        {#            <div class="card-body">#}
-        {#              <h5 class="card-title">{% trans "Meetings" %}</h5>#}
-        {#              <p class="card-text">{% trans "Find a CSAS meeting" %}</p>#}
-        {#              <a href="#" class="btn btn-primary disabled">{% trans "All" %}</a>#}
-        {#            </div>#}
-        {#          </div>#}
-        {#        </div>#}
 
         <div class="neighbours mx-3 my-3">
           <div class="card" style="width: 18rem; height: 170px">
             <div class="card-body">
               <h5 class="card-title">{% trans "Documents" %}</h5>
               <p class="card-text">{% trans "Find a CSAS Document" %}</p>
-              <a href="#" class="btn btn-warning disabled">{% trans "My" %}</a>
-              <a href="#" class="btn btn-primary disabled">{% trans "All" %}</a>
+              <a href="{% url 'csas2:document_list' %}?personalized=true" class="btn btn-warning">{% trans "My" %}</a>
+              <a href="{% url 'csas2:document_list' %}" class="btn btn-primary">{% trans "All" %}</a>
+
             </div>
           </div>
         </div>
-        {% if is_admin %}
-          <div class="neighbours mx-3">
-            <div class="card" style="width: 18rem; height: 170px">
-              <div class="card-body">
-                <h5 class="card-title">{% trans "Contacts" %}</h5>
-                <p class="card-text">{% trans "Contact management module. Visible only to system administrators." %}</p>
-                <a href="{% url 'csas2:person_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
-              </div>
-            </div>
-          </div>
-          </div>
-        {% endif %}
+{#        {% if is_admin %}#}
+{#          <div class="neighbours mx-3">#}
+{#            <div class="card" style="width: 18rem; height: 170px">#}
+{#              <div class="card-body">#}
+{#                <h5 class="card-title">{% trans "Contacts" %}</h5>#}
+{#                <p class="card-text">{% trans "Contact management module. Visible only to system administrators." %}</p>#}
+{#                <a href="{% url 'csas2:person_list' %}" class="btn btn-primary">{% trans "Go" %}</a>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div>#}
+{#          </div>#}
+{#        {% endif %}#}
 
       {#      #}
       {#      #}

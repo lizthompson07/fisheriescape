@@ -18,125 +18,187 @@
 {% endblock %}
 
 {% block subcontent %}
+
   <div id="app" v-cloak>
-    <div>
-      {% include "shared_models/_generic_breadcrumbs.html" %}
+
+    <div v-if="canModify && document.tracking && document.tracking.id" class="sidebar">
+      {% include "csas2/document_detail/_tracking.html" %}
+    </div>
+    <div id="">
+      <div>
+        {% include "shared_models/_generic_breadcrumbs.html" %}
+        <div class="float-left">
+          <span class="mdi mdi-file-document mr-3 h2"></span>
+        </div>
+        <div class="mb-3">
+          <h2 class="">{{ h1|safe }}</h2>
+        </div>
+        {% bootstrap_messages %}
+        <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
+          <p class="mb-0">
+            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+          </p>
+        </div>
+      </div>
       <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
+        <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
+        <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
+        <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
       </div>
-      {% bootstrap_messages %}
-      <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
-        <p class="mb-0">
-          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
-        </p>
+
+      <div class="row">
+        <div class="col-10">
+
+          <div class="mb-5">
+            <table class="table table-sm">
+              <tr>
+                <th class="text-left w300" v-html="documentLabels.process"></th>
+                <td class="text-left">
+                  <a href="{% url 'csas2:process_detail' object.process.id %}">${ document.process }</a>
+                </td>
+              </tr>
+              <tr>
+                <th class="text-left" v-html="documentLabels.title_en"></th>
+                <td class="text-left">${document.title_en|nz}</td>
+              </tr>
+              <tr>
+                <th class="text-left" v-html="documentLabels.title_fr"></th>
+                <td class="text-left">${document.title_fr|nz}</td>
+              </tr>
+              <tr>
+                <th class="text-left" v-html="documentLabels.title_in"></th>
+                <td class="text-left">${document.title_in|nz}</td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "Type" %}</th>
+                <td class="text-left" v-html="document.type_display"></td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "Status" %}</th>
+                <td class="text-left" v-html="document.status_display"></td>
+              </tr>
+
+              <tr>
+                <th class="text-left" v-html="documentLabels.series"></th>
+                <td class="text-left">${document.series|nz}</td>
+              </tr>
+              <tr>
+                <th class="text-left" v-html="documentLabels.year"></th>
+                <td class="text-left">${document.year|nz}</td>
+              </tr>
+              <tr>
+                <th class="text-left" v-html="documentLabels.pub_number"></th>
+                <td class="text-left">${document.pub_number|nz}</td>
+              </tr>
+              <tr>
+                <th class="text-left" v-html="documentLabels.pages"></th>
+                <td class="text-left">${document.pages|nz}</td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "Attachments" %}</th>
+                <td v-if="document.file_en || document.file_fr" class="text-left">
+                  <a v-if="document.file_en" :href="`${document.file_en}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "English" %}
+                    (${document.file_en_size})</a><br>
+                  <a v-if="document.file_fr" :href="`${document.file_fr}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "French" %}</a>
+                </td>
+                <td v-else>---</td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "URLs" %}</th>
+                <td v-if="document.url_en || document.url_fr" class="text-left">
+                  <a v-if="document.url_en" :href="`${document.url_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
+                  <a v-if="document.url_fr" :href="`${document.url_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
+                </td>
+                <td v-else>---</td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "Dev Links" %}</th>
+                <td v-if="document.dev_link_en || document.dev_link_fr" class="text-left">
+                  <a v-if="document.dev_link_en" :href="`${document.dev_link_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}
+                  </a><br>
+                  <a v-if="document.dev_link_en" :href="`${document.dev_link_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}
+                  </a>
+                </td>
+                <td v-else>---</td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "EKME / GC Docs" %}</th>
+                <td v-if="document.ekme_gcdocs_en || document.ekme_gcdocs_fr" class="text-left">
+                  <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_en}`" target="_blank"><span
+                    class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
+                  <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_fr}`" target="_blank"><span
+                    class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
+                </td>
+                <td v-else>---</td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "DFO Library catelogue" %}</th>
+                <td v-if="document.lib_cat_en || document.lib_cat_fr" class="text-left">
+                  <a v-if="document.lib_cat_en" :href="`${document.lib_cat_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}
+                  </a><br>
+                  <a v-if="document.lib_cat_en" :href="`${document.lib_cat_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
+                </td>
+                <td v-else>---</td>
+              </tr>
+              <tr>
+                <th class="text-left" v-html="documentLabels.hide_from_list"></th>
+                <td class="text-left">${document.hide_from_list|yesNo}</td>
+              </tr>
+              <tr>
+                <th>{% trans "Linked meetings" %}</th>
+                <td>
+                  {% if object.meetings.exists %}
+                    {% for obj in object.meetings.all %}
+                      <div>
+                        <a href="{% url 'csas2:meeting_detail' obj.id %}">{{ obj }}</a>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <em>{% trans "There are no meetings linked to this document." %}</em>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th class="text-left">{% trans "Metadata" %}</th>
+                <td class="text-left" v-html="document.metadata"></td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="mb-5">
+            {% include "csas2/document_detail/_authors.html" %}
+          </div>
+
+
+          <div class="mb-5">
+            {% include "csas2/document_detail/_costs.html" %}
+          </div>
+        </div>
+
+        {# Notes #}
+        {#        <div class="col">#}
+        {#          {% include "csas2/document_detail/_notes.html" %}#}
+        {#        </div>#}
       </div>
     </div>
-
-    <div class="mb-3">
-      <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
-      <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
-    </div>
-
-    <div class="mb-5">
-      <table class="table table-sm">
-        {% for field in document_field_list %}
-          {% verbose_td_display object field th_width="300px" %}
-        {% endfor %}
-        <tr>
-          <th>
-            {% trans "Meeting linkages" %}
-          </th>
-          <td>
-            {% if object.meetings.exists %}
-              {% for obj in object.meetings.all %}
-                <div>
-                  <a href="{% url 'csas2:meeting_detail' obj.id %}">{{ obj }}</a>
-                </div>
-              {% endfor %}
-            {% else %}
-              <em>{% trans "There are no meetings linked to this document." %}</em>
-            {% endif %}
-          </td>
-        </tr>
-
-      </table>
-    </div>
-
-    <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="#">{% trans "Add Author" %}</a>
-      </div>
-      <h4>{% trans "Authors" %}</h4>
-      {% if object.invitees.exists %}
-
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            {% for field in document_field_list %}
-              <th>{% get_verbose_label object.documents.first field %}</th>
-            {% endfor %}
-          </tr>
-          </thead>
-          <tbody>
-          {% for obj in object.documents.all %}
-            <tr href="" @click="followLink('{% url 'csas2:document_detail' obj.id %}')" class="pointy">
-              {% for field in document_field_list %}
-                <td>{% get_field_value obj field %}</td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <em>{% trans "There are no authors associated with this document." %}</em>
-      {% endif %}
-    </div>
-
-    <div class="mb-5">
-      <div class="mb-3 float-right">
-        <a class="btn btn-sm btn-success" href="#">{% trans "Add Cost" %}</a>
-      </div>
-      <h4>{% trans "Costs" %}</h4>
-      {% if object.invitees.exists %}
-
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            {% for field in document_field_list %}
-              <th>{% get_verbose_label object.documents.first field %}</th>
-            {% endfor %}
-          </tr>
-          </thead>
-          <tbody>
-          {% for obj in object.documents.all %}
-            <tr href="" @click="followLink('{% url 'csas2:document_detail' obj.id %}')" class="pointy">
-              {% for field in document_field_list %}
-                <td>{% get_field_value obj field %}</td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <em>{% trans "There are no costs associated with this document." %}</em>
-      {% endif %}
-    </div>
-
-
   </div>
-
-
-
 
 {% endblock %}
 
 
 {% block body_js %}
   {{ block.super }}
-  <script type="application/javascript">
-  var requestId = "{{ object.id }}"
 
-  // register vue-select
+  {% include "csas2/document_detail/components/note_editor.html" %}
+  {% include "csas2/document_detail/components/note_card.html" %}
+  {% include "csas2/document_detail/components/cost_editor.html" %}
+  {% include "csas2/document_detail/components/author_editor.html" %}
+  {% include "csas2/document_detail/components/date_field_group.html" %}
+
+  <script type="application/javascript">
+  var documentId = "{{ object.id }}";
+
+  // register components
   Vue.component('v-select', VueSelect.VueSelect);
 
   // vuejs instance
@@ -145,13 +207,25 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      canModify: false,
-      loadingRequest: false,
-      request: {},
+      loadingDocument: false,
+
+      document: {},
+      notes: [],
+      authors: [],
+      costs: [],
+
+      showNoteModal: false,
+      showAuthorModal: false,
+      showCostModal: false,
+      documentId: documentId,
+      documentLabels: {},
+
+      trackingLabels: {},
+      errors: null,
     },
     methods: {
       getCurrentUser() {
-        let endpoint = `/api/csas/user/`;
+        let endpoint = `/api/csas/user/?document=${documentId}`;
         apiService(endpoint)
             .then(response => {
               this.currentUser = response;
@@ -160,82 +234,159 @@
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
       },
-      getObservations() {
-        this.loadingObservations = true;
-        let endpoint;
-        if (this.pageType === "samples") endpoint = `${this.endpointPrefix}/?sample=${objectId}`;
-        else if (this.pageType === "lines") endpoint = `${this.endpointPrefix}/?line=${objectId}`;
-        else if (this.pageType === "surfaces") endpoint = `${this.endpointPrefix}/?surface=${objectId}`;
-        apiService(endpoint)
-            .then(response => {
-              if (response.length && response[0].id) {
-                for (var i = 0; i < response.length; i++) {
-                  if (response[i].observation_date) response[i].observation_date = response[i].observation_date.replace("Z", "")
-                }
-                this.observations = response;
-                this.loadingObservations = false;
-              }
-            })
-      },
-      updateObservation(obs) {
-        this.unsavedChanges = true;
-        this.obsErrorMsg = null;
-        let endpoint;
-        let method;
-        if (obs.id) {
-          endpoint = `${this.endpointPrefix}/${obs.id}/`;
-          method = "PUT";
-        } else {
-          endpoint = `${this.endpointPrefix}/`;
-          method = "POST";
-        }
-        apiService(endpoint, method, obs)
-            .then(response => {
-              if (!response.id) this.obsErrorMsg = groomJSON(response);
-              else {
-                if (response.observation_date) response.observation_date = response.observation_date.replace("Z", "")
-                this.$set(this.observations, this.observations.indexOf(obs), response)
-                this.unsavedChanges = false;
-              }
-            })
-      },
-      deleteObservation(obs) {
-        userInput = confirm("{% trans 'Are you sure you want to delete this observation?' %}");
+      deleteCost(cost) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this cost?' %}")
         if (userInput) {
-          if (obs.id) {
-            let endpoint = `${this.endpointPrefix}/${obs.id}/`;
-            apiService(endpoint, "DELETE")
-                .then(response => {
-                  this.$delete(this.observations, this.observations.indexOf(obs));
-                })
-          } else {
-            this.$delete(this.observations, this.observations.indexOf(obs));
-            this.unsavedChanges = false;
+          let endpoint = `/api/csas/doc-costs/${cost.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getCosts();
+          })
+        }
+      },
+      getDocumentMetadata() {
+        let endpoint = `/api/csas/meta/models/document/`;
+        apiService(endpoint).then(data => {
+          this.documentLabels = data.labels;
+        });
+      },
+      deleteAuthor(author) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this author?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/authors/${author.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getAuthors();
+          })
+        }
+      },
+      getNotes() {
+        let endpoint = `/api/csas/doc-notes/?document=${this.document.id}`;
+        apiService(endpoint).then(data => {
+          this.notes = data;
+        });
+      },
+      getAuthors() {
+        let endpoint = `/api/csas/authors/?document=${this.document.id}`;
+        apiService(endpoint).then(data => {
+          this.authors = data;
+        });
+      },
+      getCosts() {
+        let endpoint = `/api/csas/doc-costs/?document=${this.document.id}`;
+        apiService(endpoint).then(data => {
+          this.costs = data;
+        });
+      },
+      getDocument(update_notes) {
+        let endpoint = `/api/csas/documents/${this.documentId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.document = data;
+            if (update_notes) this.notes = this.getNotes();
+            this.authors = this.getAuthors();
+            this.costs = this.getCosts();
+          }
+        });
+      },
+      primeTracking() {
+        let endpoint = `/api/csas/doc-tracking/`;
+        apiService(endpoint, "POST", {document: this.document.id}).then(() => {
+          this.getDocument();
+        })
+      },
+      _prepDates(dateFieldName, date) {
+        if (dateFieldName && date) {
+          if (date) this.document.tracking[dateFieldName] = date + "T12:00:00";
+          else this.document.tracking[dateFieldName] = null;
+        } else {
+          let dateFields = [
+            "due_date",
+            "submission_date",
+            "date_chair_sent",
+            "date_chair_appr",
+            "date_coordinator_sent",
+            "date_coordinator_appr",
+            "date_director_sent",
+            "date_director_appr",
+            "date_number_requested",
+            "number_approved",
+            "date_doc_submitted",
+            "date_proof_author_sent",
+            "date_proof_author_approved",
+            "anticipated_posting_date",
+            "actual_posting_date",
+            "updated_posting_date",
+            "date_translation_sent",
+            "date_returned",
+          ];
+          let n;
+          for (let i = 0; i < dateFields.length; i++) {
+            n = dateFields[i];
+            if (this.document.tracking[n + "_display"]) this.document.tracking[n] = this.document.tracking[n + "_display"] + "T12:00:00";
+            else this.document.tracking[n] = null;
           }
         }
       },
+      updateTracking(data) {
+        if (!data.target) {
+          this._prepDates(data.field_name, data.date)
+        } else {
+          // data is an event
+          this._prepDates()
+        }
+        data = this.document.tracking
+        this.errors = null;
+        let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
+        apiService(endpoint, "PATCH", data).then(data => {
+          if (!data.id) this.errors = groomJSON(data);
+          else this.getDocument();
+        });
+      },
+      deleteTracking() {
+        let userInput = confirm("{% trans 'Are you certain you want to delete the document tracking?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getDocument();
+          })
+        }
+      },
+      getTrackingMetadata() {
+        let endpoint = `/api/csas/meta/models/document-tracking/`;
+        apiService(endpoint).then(data => {
+          this.trackingLabels = data.labels;
+          {#this.prioritizationChoices = data.prioritization_choices;#}
+          {#this.decisionChoices = data.decision_choices;#}
+        });
+      },
     },
     computed: {
-      endpointPrefix() {
-        return `/api/csas2/${this.pageType.slice(0, this.pageType.length - 1)}-species`
-      },
-      totalCoverage() {
+      totalCost() {
         let total = 0;
-        let obs;
-        for (var i = 0; i < this.observations.length; i++) {
-          obs = this.observations[i];
-          if (obs.percent_coverage) total += Number(obs.percent_coverage);
+        for (var i = 0; i < this.costs.length; i++) {
+          total += Number(this.costs[i].amount)
         }
         return total
+      },
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
       }
     },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+    },
     created() {
-      {#this.getObservations();#}
-      {#this.getSpeciesMetadata();#}
+      this.getDocumentMetadata();
+      this.getTrackingMetadata();
+      this.getDocument(true);
+      this.getCurrentUser(true);
     },
   });
 
 
   </script>
+
+  {# Modals #}
 
 {% endblock %}

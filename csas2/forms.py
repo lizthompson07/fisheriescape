@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
 from shared_models.models import Section, Person
@@ -58,13 +59,12 @@ class CSASRequestForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
         fields = [
-            'type',
-            'language',
-            'name',
-            'nom',
-            'coordinator',
             'client',
             'section',
+            'coordinator',
+            'language',
+            'title',
+            'is_carry_over',
             'is_multiregional',
             'multiregional_text',
             'issue',
@@ -83,11 +83,11 @@ class CSASRequestForm(forms.ModelForm):
             'client': forms.Select(attrs=chosen_js),
             'coordinator': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
-            'advice_needed_by': forms.DateInput(attrs=attr_fp_date),
+            'advice_needed_by': forms.DateInput(attrs=dict(type="date")),
             'multiregional_text': forms.Textarea(attrs=rows3),
             'assistance_text': forms.Textarea(attrs=rows3),
             'funding_text': forms.Textarea(attrs=rows3),
-            'risk_text': forms.Textarea(attrs=rows3),
+            'risk_text': forms.Textarea(),
             'rationale_for_timeline': forms.Textarea(attrs=rows3),
             'prioritization_text': forms.Textarea(attrs=rows3),
         }
@@ -102,34 +102,46 @@ class CSASRequestForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         # make sure there is at least an english or french title
-        name = cleaned_data.get("name")
-        nom = cleaned_data.get("nom")
-        if not name and not nom:
-            error_msg = gettext("Must have either an English title or a French title!")
+        client = cleaned_data.get("client")
+        coordinator = cleaned_data.get("coordinator")
+        section = cleaned_data.get("section")
+        if not client:
+            error_msg = gettext("Must enter a client for this request!")
+            raise forms.ValidationError(error_msg)
+        if not coordinator:
+            error_msg = gettext("Must enter a coordinator for this request!")
+            raise forms.ValidationError(error_msg)
+        if not section:
+            error_msg = gettext("Must enter a section for this request!")
             raise forms.ValidationError(error_msg)
         return self.cleaned_data
 
 
-class CSASRequestReviewForm(forms.ModelForm):
+class TermsOfReferenceForm(forms.ModelForm):
     class Meta:
-        model = models.CSASRequestReview
+        model = models.TermsOfReference
         fields = "__all__"
-        widgets = {
-            'decision_date': forms.DateInput(attrs=attr_fp_date),
-            'prioritization_text': forms.Textarea(attrs=rows3),
-            'decision_text': forms.Textarea(attrs=rows3),
-        }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # make sure that if a decision is given, there is a decision date as well
-        decision = cleaned_data.get("decision")
-        decision_date = cleaned_data.get("decision_date")
+    def __init__(self, *args, **kwargs):
+        if kwargs.get("instance"):
+            process = kwargs.get("instance").process
+        else:
+            process = get_object_or_404(models.Process, pk=kwargs.get("initial").get("process"))
+        meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.all()]
+        meeting_choices.insert(0, (None, "-----"))
+        super().__init__(*args, **kwargs)
+        self.fields["meeting"].choices = meeting_choices
 
-        if decision and not decision_date:
-            error_msg = gettext("If a decision was made, a decision date must also be populated!")
-            self.add_error('decision_date', error_msg)
-        return self.cleaned_data
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     # make sure that if a decision is given, there is a decision date as well
+    #     decision = cleaned_data.get("decision")
+    #     decision_date = cleaned_data.get("decision_date")
+    #
+    #     if decision and not decision_date:
+    #         error_msg = gettext("If a decision was made, a decision date must also be populated!")
+    #         self.add_error('decision_date', error_msg)
+    #     return self.cleaned_data
 
 
 class CSASRequestFileForm(forms.ModelForm):
@@ -138,10 +150,28 @@ class CSASRequestFileForm(forms.ModelForm):
         fields = "__all__"
 
 
+class MeetingFileForm(forms.ModelForm):
+    class Meta:
+        model = models.MeetingFile
+        fields = "__all__"
+
+
 class ProcessForm(forms.ModelForm):
     class Meta:
         model = models.Process
-        fields = "__all__"
+        fields = [
+            'name',
+            'nom',
+            'fiscal_year',
+            'status',
+            'scope',
+            'type',
+            'lead_region',
+            'other_regions',
+            'csas_requests',
+            'coordinator',
+            'advisors',
+        ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
@@ -151,7 +181,8 @@ class ProcessForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request_choices = [(obj.id, f"{obj.id} - {str(obj)} ({obj.fiscal_year})") for obj in models.CSASRequest.objects.all()]
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {obj.ref_number} ({obj.fiscal_year})") for obj in
+                           models.CSASRequest.objects.filter(submission_date__isnull=False)]
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices
 
@@ -160,15 +191,24 @@ class ProcessForm(forms.ModelForm):
         # make sure that the lead_region is not also listed in the other_regions field
         lead_region = cleaned_data.get("lead_region")
         other_regions = cleaned_data.get("other_regions")
+        coordinator = cleaned_data.get("coordinator")
+        lead_region = cleaned_data.get("lead_region")
 
         if lead_region in other_regions:
             error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
             self.add_error('other_regions', error_msg)
+        if not coordinator:
+            error_msg = gettext("Must enter a coordinator for this request!")
+            raise forms.ValidationError(error_msg)
+        if not lead_region:
+            error_msg = gettext("Must enter a lead region for this process!")
+            raise forms.ValidationError(error_msg)
         return self.cleaned_data
 
 
 class MeetingForm(forms.ModelForm):
-    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Meeting dates"))
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Meeting dates"), required=False,
+                                 help_text=gettext_lazy("This can be left blank if not currently known"))
 
     class Meta:
         model = models.Meeting
@@ -198,5 +238,22 @@ class SeriesForm(forms.ModelForm):
 SeriesFormset = modelformset_factory(
     model=models.Series,
     form=SeriesForm,
+    extra=1,
+)
+
+
+class InviteeRoleForm(forms.ModelForm):
+    class Meta:
+        model = models.InviteeRole
+        fields = "__all__"
+        widgets = {
+            # 'name': forms.Textarea(attrs={"rows": 3}),
+            # 'nom': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+InviteeRoleFormset = modelformset_factory(
+    model=models.InviteeRole,
+    form=InviteeRoleForm,
     extra=1,
 )

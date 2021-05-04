@@ -20,17 +20,19 @@
     <thead>
     <tr>
       <th class="text-left"> {% trans "Person" %}</th>
-      <th class="text-left"> {% trans "Function" %}</th>
+      <th class="text-left"> {% trans "Function(s)" %}</th>
       <th class="text-left"> {% trans "RSVP Status" %}</th>
       <th class="text-left"> {% trans "Attendance" %}</th>
     </tr>
     </thead>
     <tbody>
     <tr v-for="(invitee, index) in invitees" :key="invitee.id" @click="">
-      <td> ${ invitee.full_name } (${ invitee.person_object.affiliation }) <br>
+      <td>
+        ${ invitee.person_object.full_name } (${ invitee.person_object.affiliation }) <br>
+        <span v-if="invitee.person_object.tposition">${ invitee.person_object.tposition }<br></span>
         <a :href="`mailto:${ invitee.person_object.email }`">${ invitee.person_object.email}</a>
       </td>
-      <td>${ invitee.role_display }</td>
+      <td>${ invitee.roles_display }</td>
       <td>
         <button @click="toggleInviteeStatus(invitee)"
                 :class="{'badge badge-pill':true, 'badge-success':invitee.status ===1,'badge-warning':invitee.status ===9,'badge-danger':invitee.status ===2,'badge-info':invitee.status ===3,  }">
@@ -44,7 +46,7 @@
         <email-overlay v-if="!invitee.invitation_sent_date" :invitee="invitee" @update-invitees="getInvitees"></email-overlay>
       </td>
       <td>
-        <div class="btn-group">
+        <div class="btn-group" v-if="meeting.dates.length">
           <attendance-overlay :invitee="invitee" @update-invitees="getInvitees"></attendance-overlay>
           <invitee-editor :invitee="invitee" @update-invitees="getInvitees"></invitee-editor>
           <button class="btn btn-sm" @click="deleteInvitee(invitee)">

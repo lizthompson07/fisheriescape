@@ -16,8 +16,13 @@ class CanModifyRequestOrReadOnly(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        elif can_modify_request(request.user, obj.id):
-            return True
+        else:
+            request_id = None
+            if isinstance(obj, models.CSASRequest):
+                request_id = obj.id
+            elif isinstance(obj, models.CSASRequestReview):
+                request_id = obj.csas_request.id
+            return can_modify_request(request.user, request_id)
 
 
 class CanModifyProcessOrReadOnly(permissions.BasePermission):
@@ -38,6 +43,9 @@ class CanModifyProcessOrReadOnly(permissions.BasePermission):
                 process_id = obj.id
             elif isinstance(obj, models.Meeting) or isinstance(obj, models.Document):
                 process_id = obj.process.id
-            elif isinstance(obj, models.MeetingNote) or isinstance(obj, models.MeetingResource) or isinstance(obj, models.Invitee):
+            elif isinstance(obj, models.MeetingNote) or isinstance(obj, models.MeetingResource) or isinstance(obj, models.Invitee) or isinstance(obj, models.MeetingCost):
                 process_id = obj.meeting.process.id
+            elif isinstance(obj, models.DocumentNote) or isinstance(obj, models.DocumentCost) or isinstance(obj, models.Author) \
+                    or isinstance(obj, models.DocumentTracking):
+                process_id = obj.document.process.id
             return can_modify_process(request.user, process_id)

@@ -1,0 +1,106 @@
+{% extends "csas2/form.html" %}
+
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load csas_filters %}
+
+{% block post_input %}
+  {% if is_admin %}
+    {% if field.name == "client" %}
+      <div class="mb-4">
+        <a href="#" pop-href="{% url 'shared_models:user_new' %}" class="badge badge-pill badge-primary py-2 px-3">{% trans "Add New User" %}</a>
+      </div>
+    {% elif field.name == "section" %}
+      <div class="mb-4">
+        <a href="{% url 'shared_models:section_new' %}" target="_blank" class="badge badge-pill badge-primary py-2 px-3">{% trans "Add New Section" %}</a>
+      </div>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script type="application/javascript">
+  var $is_multiregional = $("#id_is_multiregional");
+  var $had_assistance = $("#id_had_assistance");
+  var $has_funding = $("#id_has_funding");
+  var $is_deferred = $("#id_is_deferred");
+  var $is_virtual = $("#id_is_virtual");
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    refreshMultiregionalSection();
+    refreshAssistanceSection();
+    refreshFundingSection();
+    refreshDeferredSection();
+    refreshVirtualSection();
+  });
+
+  function refreshMultiregionalSection() {
+    if ($is_multiregional.prop("checked")) {
+      $(".multiregional_text_div").removeClass("gone");
+    } else {
+      $(".multiregional_text_div").addClass("gone");
+    }
+  }
+
+
+  function refreshAssistanceSection() {
+    if ($had_assistance.prop("checked")) {
+      $(".assistance_text_div").removeClass("gone");
+    } else {
+      $(".assistance_text_div").addClass("gone");
+    }
+  }
+
+  function refreshFundingSection() {
+    if ($has_funding.prop("checked")) {
+      $(".funding_text_div").removeClass("gone");
+    } else {
+      $(".funding_text_div").addClass("gone");
+    }
+  }
+
+  function refreshDeferredSection() {
+    if ($is_deferred.prop("checked")) {
+      $(".deferred_text_div").removeClass("gone");
+    } else {
+      $(".deferred_text_div").addClass("gone");
+    }
+  }
+
+  function refreshVirtualSection() {
+    if ($is_virtual.val() === "True") {
+      $(".location_div").addClass("gone");
+      $("#id_location").val("");
+    } else {
+      $(".location_div").removeClass("gone");
+    }
+  }
+
+  $is_multiregional.change(function () {
+    refreshMultiregionalSection();
+  })
+
+  $had_assistance.change(function () {
+    refreshAssistanceSection();
+  })
+
+  $has_funding.change(function () {
+    refreshFundingSection();
+  })
+
+  $is_deferred.change(function () {
+    refreshDeferredSection();
+  })
+
+  $is_virtual.change(function () {
+    refreshVirtualSection();
+  })
+
+  </script>
+{% endblock %}
+

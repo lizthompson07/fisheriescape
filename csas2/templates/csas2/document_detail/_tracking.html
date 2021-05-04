@@ -1,0 +1,318 @@
+{% load i18n %}
+<div class="mx-3 my-3">
+  <div class="mb-3">
+    <h4>{% trans "Tracking Panel" %}</h4>
+    <hr>
+  </div>
+  <div v-if="errors" class="alert alert-danger" role="alert">
+    <p>${errors}</p>
+  </div>
+
+{#  <date-field-group#}
+{#    field_name="due_date"#}
+{#    :display_date="document.tracking.due_date_display"#}
+{#    :labels="trackingLabels"#}
+{#    @update-tracking="updateTracking"#}
+{#  ></date-field-group>#}
+
+
+
+
+  {# due_date #}
+  <div class="form-group">
+    <label for="">${trackingLabels.due_date}</label>
+    <input v-model="document.tracking.due_date_display" type="date" class="mydate form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.due_date"
+              @click="document.tracking.due_date_display=null;document.tracking.due_date=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# submission_date #}
+  <div class="form-group">
+    <label for="">${trackingLabels.submission_date}</label>
+    <input v-model="document.tracking.submission_date_display" type="date" class="submission_date form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.submission_date"
+              @click="document.tracking.submission_date_display=null;document.tracking.submission_date=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_chair_sent #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_chair_sent}</label>
+    <input v-model="document.tracking.date_chair_sent_display" type="date" class="date_chair_sent form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_chair_sent"
+              @click="document.tracking.date_chair_sent_display=null;document.tracking.date_chair_sent=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_chair_appr #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_chair_appr}</label>
+    <input v-model="document.tracking.date_chair_appr_display" type="date" class="date_chair_appr form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_chair_appr"
+              @click="document.tracking.date_chair_appr_display=null;document.tracking.date_chair_appr=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_coordinator_sent #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_coordinator_sent}</label>
+    <input v-model="document.tracking.date_coordinator_sent_display" type="date" class="date_coordinator_sent form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_coordinator_sent"
+              @click="document.tracking.date_coordinator_sent_display=null;document.tracking.date_coordinator_sent=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_coordinator_appr #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_coordinator_appr}</label>
+    <input v-model="document.tracking.date_coordinator_appr_display" type="date" class="date_coordinator_appr form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_coordinator_appr"
+              @click="document.tracking.date_coordinator_appr_display=null;document.tracking.date_coordinator_appr=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_director_sent #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_director_sent}</label>
+    <input v-model="document.tracking.date_director_sent_display" type="date" class="date_director_sent form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_director_sent"
+              @click="document.tracking.date_director_sent_display=null;document.tracking.date_director_sent=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_director_appr #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_director_appr}</label>
+    <input v-model="document.tracking.date_director_appr_display" type="date" class="date_director_appr form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_director_appr"
+              @click="document.tracking.date_director_appr_display=null;document.tracking.date_director_appr=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_number_requested #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_number_requested}</label>
+    <input v-model="document.tracking.date_number_requested_display" type="date" class="date_number_requested form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_number_requested"
+              @click="document.tracking.date_number_requested_display=null;document.tracking.date_number_requested=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# number_approved #}
+  <div class="form-group">
+    <label for="">${trackingLabels.number_approved}</label>
+    <input v-model="document.tracking.number_approved_display" type="date" class="number_approved form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.number_approved"
+              @click="document.tracking.number_approved_display=null;document.tracking.number_approved=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_doc_submitted #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_doc_submitted}</label>
+    <input v-model="document.tracking.date_doc_submitted_display" type="date" class="date_doc_submitted form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_doc_submitted"
+              @click="document.tracking.date_doc_submitted_display=null;document.tracking.date_doc_submitted=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_proof_author_sent #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_proof_author_sent}</label>
+    <input v-model="document.tracking.date_proof_author_sent_display" type="date" class="date_proof_author_sent form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_proof_author_sent"
+              @click="document.tracking.date_proof_author_sent_display=null;document.tracking.date_proof_author_sent=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_proof_author_approved #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_proof_author_approved}</label>
+    <input v-model="document.tracking.date_proof_author_approved_display" type="date" class="date_proof_author_approved form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_proof_author_approved"
+              @click="document.tracking.date_proof_author_approved_display=null;document.tracking.date_proof_author_approved=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# anticipated_posting_date #}
+  <div class="form-group">
+    <label for="">${trackingLabels.anticipated_posting_date}</label>
+    <input v-model="document.tracking.anticipated_posting_date_display" type="date" class="anticipated_posting_date form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.anticipated_posting_date"
+              @click="document.tracking.anticipated_posting_date_display=null;document.tracking.anticipated_posting_date=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# actual_posting_date #}
+  <div class="form-group">
+    <label for="">${trackingLabels.actual_posting_date}</label>
+    <input v-model="document.tracking.actual_posting_date_display" type="date" class="actual_posting_date form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.actual_posting_date"
+              @click="document.tracking.actual_posting_date_display=null;document.tracking.actual_posting_date=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# updated_posting_date #}
+  <div class="form-group">
+    <label for="">${trackingLabels.updated_posting_date}</label>
+    <input v-model="document.tracking.updated_posting_date_display" type="date" class="updated_posting_date form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.updated_posting_date"
+              @click="document.tracking.updated_posting_date_display=null;document.tracking.updated_posting_date=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_translation_sent #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_translation_sent}</label>
+    <input v-model="document.tracking.date_translation_sent_display" type="date" class="date_translation_sent form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_translation_sent"
+              @click="document.tracking.date_translation_sent_display=null;document.tracking.date_translation_sent=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+  {# date_returned #}
+  <div class="form-group">
+    <label for="">${trackingLabels.date_returned}</label>
+    <input v-model="document.tracking.date_returned_display" type="date" class="date_returned form-control" @change="updateTracking">
+    <div class="mt-1">
+      <button class="badge badge-pill btn-primary" v-if="document.tracking.date_returned"
+              @click="document.tracking.date_returned_display=null;document.tracking.date_returned=null; updateTracking()">
+        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+      </button>
+    </div>
+  </div>
+
+
+
+  {#  <div class="form-group">#}
+  {#    <label for="">${reviewLabels.ref_number}</label>#}
+  {#    <input type="text" class="form-control" v-model="request.review.ref_number" @change="updateReview">#}
+  {#  </div>#}
+  {#  <div class="form-group">#}
+  {#    <label for="">${reviewLabels.prioritization}</label>#}
+  {#    <v-select#}
+  {#      style="width: 100%"#}
+  {#      v-model="request.review.prioritization"#}
+  {#      @input="updateReview"#}
+  {#      :options="prioritizationChoices"#}
+  {#      :reduce="choice => choice.value"#}
+  {#      label="text"#}
+  {#      :clearable="false"#}
+  {#      class="bg-light"#}
+  {#    >#}
+  {#    </v-select>#}
+  {#  </div>#}
+  {#  <div v-if="request.review.prioritization" class="form-group">#}
+  {#    <label for="">${reviewLabels.prioritization_text}</label>#}
+  {#    <textarea rows="3" class="form-control" v-model="request.review.prioritization_text" @change="updateReview"></textarea>#}
+  {#  </div>#}
+  {#  <div class="form-group">#}
+  {#    <label for="">${reviewLabels.decision}</label>#}
+  {#    <v-select#}
+  {#      style="width: 100%"#}
+  {#      v-model="request.review.decision"#}
+  {#      @input="updateReview"#}
+  {#      :options="decisionChoices"#}
+  {#      :reduce="choice => choice.value"#}
+  {#      label="text"#}
+  {#      :clearable="false"#}
+  {#      class="bg-light"#}
+  {#    >#}
+  {#    </v-select>#}
+  {#  </div>#}
+  {#  <div v-if="request.review.decision" class="form-group">#}
+  {#    <label for="">${reviewLabels.decision_text}</label>#}
+  {#    <textarea rows="3" class="form-control" v-model="request.review.decision_text" @change="updateReview"></textarea>#}
+  {#  </div>#}
+  {#  <div v-if="request.review.decision" class="form-group">#}
+  {#    <label for="">${reviewLabels.decision_date}</label>#}
+  {#    <input v-model="request.review.decision_date_display" type="date" class="mydate form-control" placeholder="{% trans "Click to select dates" %}"#}
+  {#           @change="updateReview">#}
+  {#    <div class="mt-1">#}
+  {#      <button class="badge badge-pill btn-primary" v-if="request.review.decision_date"#}
+  {#              @click="request.review.decision_date_display=null;request.review.decision_date=null; updateReview()">#}
+  {#        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}#}
+  {#      </button>#}
+  {#    </div>#}
+  {#  </div>#}
+  {#  <div class="form-group">#}
+  {#    <label for="">${reviewLabels.advice_date}</label>#}
+  {#    <input v-model="request.review.advice_date_display" type="date" class="mydate form-control" placeholder="{% trans "Click to select dates" %}"#}
+  {#           @change="updateReview">#}
+  {#    <div class="mt-1">#}
+  {#      <button class="badge badge-pill btn-primary" v-if="request.review.advice_date"#}
+  {#              @click="request.review.advice_date_display=null;request.review.advice_date=null; updateReview()">#}
+  {#        <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}#}
+  {#      </button>#}
+  {#    </div>#}
+  {#  </div>#}
+  {#  <div class="form-group">#}
+  {#    <input v-model="request.review.is_deferred" class="" type="checkbox" id="is_deferred" @change="updateReview">#}
+  {#    <label class="form-check-label" for="is_deferred"> ${reviewLabels.is_deferred} </label>#}
+  {#  </div>#}
+  {#  <div v-if="request.review.is_deferred" class="form-group">#}
+  {#    <label for="">${reviewLabels.deferred_text}</label>#}
+  {#    <textarea rows="3" class="form-control" v-model="request.review.deferred_text" @change="updateReview"></textarea>#}
+  {#  </div>#}
+  {#  <div class="form-group">#}
+  {#    <label for="">${reviewLabels.notes}</label>#}
+  {#    <textarea rows="3" class="form-control" v-model="request.review.notes" @change="updateReview"></textarea>#}
+  {#  </div>#}
+  {##}
+  {##}
+  <div class="mb-3">
+    <button class="btn btn-sm btn-danger" @click="deleteTracking()">{% trans "Delete Tracking" %}</button>
+  </div>
+</div>

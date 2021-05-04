@@ -5,11 +5,6 @@ yes_no_choices = (
     (False, "No"),
 )
 
-request_type_choices = (
-    (1, _('New')),
-    (2, _('Previous')),
-)
-
 language_choices = (
     (1, _('English')),
     (2, _('French')),
@@ -19,16 +14,19 @@ request_status_choices = (
     (1, _("Draft")),
     (2, _("Submitted")),
     (3, _("Under review")),
+    (4, _("Complete")),
     # all status below here should correspond to review decision choice + 10
     (11, _("On")),
     (12, _("Off")),
     (13, _("Withdrawn")),
+    (14, _("Deferred")),
 )
 
 request_decision_choices = (
     (1, _("On")),
     (2, _("Off")),
     (3, _("Withdrawn")),
+    (4, _("Deferred")),
 )
 
 prioritization_choices = (
@@ -49,22 +47,22 @@ process_type_choices = (
     (3, _('Peer Review')),
 )
 
-
 process_status_choices = (
     (1, _('In-progress')),
     (2, _('Complete')),
     (3, _('Deferred')),
     (4, _('Delayed')),
+    (5, _('Tentative')),
 )
-
 
 meeting_type_choices = (
     (1, _("Steering Committee Meeting")),
     (2, _("Science Management Meeting")),
     (3, _("Advisory Process Meeting (RAP)")),
+    (4, _("Science Response Meeting")),
 )
 
-meeting_note_type_choices = (
+note_type_choices = (
     (1, 'To Do'),
     (2, 'Next step'),
     (3, 'General comment'),
@@ -77,20 +75,30 @@ document_type_choices = (
     (4, _("Proceedings")),
     (5, _("Science Response")),
     (6, _("Working Paper")),
+    (7, _("Term of Reference")),
 )
 
 document_status_choices = (
-    (1, _("Draft")),
-    (2, _("Submitted")),
-    (3, _("Under review")),
+    (1, _("OK")),
+    (2, _("In preparation")),
+    (3, _("Submitted")),
+    (4, _("Under review")),
+    (5, _("In translation")),
+    (6, _("Translated")),
+    (7, _("Posted")),
 )
 
-invitee_role_choices = (
-    (1, 'Chair'),
-    (2, 'Participant'),
-    (3, 'Expert'),
-    (4, 'Steering Committee Member (is this is good category?)'),
-)
+# invitee_role_choices = (
+#     (1, 'Chair'),
+#     (7, 'CSAS coordinator'),
+#     (3, 'Expert'),
+#     (6, 'External reviewer'),
+#     (5, 'Internal reviewer'),
+#     (2, 'Participant'),
+#     (8, 'Rapporteur'),
+#     (9, 'Science advisor'),
+#     (4, 'Steering Committee Member'),
+# )
 
 invitee_status_choices = (
     (0, 'Invited'),
@@ -98,15 +106,11 @@ invitee_status_choices = (
     (2, 'Declined'),
     (3, 'Tentative'),
 )
-#
-# _choices = (
-#     (1, _('')),
-# )
-#
-# _choices = (
-#     (1, _('')),
-# )
-#
-# _choices = (
-#     (1, _('')),
-# )
+
+cost_category_choices = (
+    (1, 'Translation'),
+    (2, 'Travel'),
+    (3, 'Hospitality'),
+    (4, 'Space rental'),
+    (9, 'Other'),
+)

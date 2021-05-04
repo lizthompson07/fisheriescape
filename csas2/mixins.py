@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from . import models
@@ -80,14 +81,16 @@ class CanModifyProcessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             obj = self.get_object()
             if isinstance(obj, models.Process):
                 process_id = obj.id
-            elif isinstance(obj, models.Meeting) or isinstance(obj, models.Document):
+            elif isinstance(obj, models.Meeting) or isinstance(obj, models.Document) or isinstance(obj, models.TermsOfReference):
                 process_id = obj.process.id
+            elif isinstance(obj, models.MeetingFile):
+                process_id = obj.meeting.process.id
         except AttributeError:
             if self.kwargs.get("process"):
                 process_id = self.kwargs.get("process")
-            # elif self.kwargs.get("project_year"):
-            #     project_year = get_object_or_404(models.ProjectYear, pk=self.kwargs.get("project_year"))
-            #     project_id = project_year.project_id
+            elif self.kwargs.get("meeting"):
+                meeting = get_object_or_404(models.Meeting, pk=self.kwargs.get("meeting"))
+                process_id = meeting.process_id
 
         finally:
             if process_id:
