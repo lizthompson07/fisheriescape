@@ -267,7 +267,6 @@ class DocumentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if not kwargs.get("instance"):
             del self.fields["year"]
-            del self.fields["pub_number"]
             del self.fields["pages"]
             del self.fields["url_en"]
             del self.fields["url_fr"]
