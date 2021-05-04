@@ -678,16 +678,21 @@ class DocumentTracking(MetadataFields):
     updated_posting_date = models.DateTimeField(null=True, blank=True, verbose_name=_("updated posting date"))
 
     # translation
-    date_translation_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to translation"))
-    # todo: this seems out of place!
-    is_review_complete = models.BooleanField(default=False, verbose_name=_("has the CSA office completed a translation review?"))
-    client_ref_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("client reference number"))
+    is_in_house = models.BooleanField(default=False, verbose_name=_("Will translation of this document be done in-house?"))
+
     target_lang = models.ForeignKey(Language, on_delete=models.DO_NOTHING, verbose_name=_("target language"), blank=True, null=True)
-    # TODO: I dont understand dif between this and the above ref number
+    date_translation_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to translation"))
+    anticipated_return_date = models.DateTimeField(null=True, blank=True, verbose_name=_("forecasted return date"))
+    client_ref_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("client reference number"))
     translation_ref_number = models.CharField(max_length=255, verbose_name=_("translation reference number"), blank=True, null=True)
     is_urgent = models.BooleanField(default=False, verbose_name=_("was submitted as an urgent request?"))
-    date_returned = models.DateTimeField(null=True, blank=True, verbose_name=_("date back from translation"))
+    date_returned = models.DateTimeField(null=True, blank=True, verbose_name=_("date received from translation"))
     invoice_number = models.CharField(max_length=255, verbose_name=_("invoice number"), blank=True, null=True)
+
+    translation_review_date = models.DateTimeField(null=True, blank=True, verbose_name=_("translation review completion date"))
+    translation_review_by = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("translation review completion by"),
+                                      related_name="translation_review")
+
     translation_notes = models.TextField(null=True, blank=True, verbose_name=_("translation notes"))
 
 
