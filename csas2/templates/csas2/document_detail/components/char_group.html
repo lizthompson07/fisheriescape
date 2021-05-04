@@ -4,7 +4,7 @@
 <script type="text/x-template" id="char-group-template">
 <div class="form-group">
   <div class="form-group">
-    <label :for="`id_${field_name}`">${label}</label>
+    <label v-if="label" :for="`id_${field_name}`">${label}</label>
     <input type="text" class="form-control" v-model="editableVal" @change="updateTracking" :id="`id_${field_name}`">
   </div>
 </div>
@@ -20,24 +20,19 @@ Vue.component("char-group", {
       type: String,
       required: false
     },
-    labels: {
-      type: Object,
+    label: {
+      type: String,
       required: true
     },
     field_name: {
       type: String,
-      required: true
+      required: false
     },
   },
   data() {
     return {
       editableVal: null,
     };
-  },
-  computed: {
-    label() {
-      return this.labels[this.field_name]
-    }
   },
   methods: {
     updateTracking() {
@@ -50,6 +45,12 @@ Vue.component("char-group", {
   },
   created() {
     this.editableVal = this.val;
+  },
+  watch: {
+    val() {
+      this.editableVal = this.val;
+    }
   }
+
 });
 </script>

@@ -207,6 +207,7 @@
     data: {
       currentUser: {},
       loadingDocument: false,
+      loadingPeople: false,
 
       document: {},
       notes: [],
@@ -219,6 +220,8 @@
       documentId: documentId,
       documentLabels: {},
       personChoices: [],
+      langChoices: [],
+      pubNumberError: null,
 
       trackingLabels: {},
       errors: null,
@@ -232,9 +235,23 @@
         this[tabFlag] = true;
       },
       getPersonMetadata() {
+        this.loadingPeople = true;
         let endpoint = `/api/csas/meta/models/person/`;
         apiService(endpoint).then(data => {
+          this.loadingPeople = false;
           this.personChoices = data.person_choices;
+        });
+      },
+      getPubNumber() {
+        this.pubNumberError = null;
+        let endpoint = `/api/csas/documents/${this.documentId}/?get_pub_number=true`;
+        apiService(endpoint, "POST").then(data => {
+          if (data.pub_number) {
+            this.document.tracking.pub_number = data.pub_number;
+            this.updateTracking({})
+          } else {
+            this.pubNumberError = data[0];
+          }
         });
       },
       getCurrentUser() {
@@ -343,10 +360,8 @@
       updateTracking(data) {
         if (!data.target) {
           if (data.is_date) {
-            console.log("its a date!!", data)
             this._prepDates(data.field_name, data.value);
-          }
-          else {
+          } else {
             this.document.tracking[data.field_name] = data.value;
           }
         } else {
@@ -354,12 +369,13 @@
           this._prepDates()
         }
         data = this.document.tracking
-        console.log(data.due_date, data.date_translation_sent)
         this.errors = null;
         let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
         apiService(endpoint, "PATCH", data).then(data => {
           if (!data.id) this.errors = groomJSON(data);
-          else this.getDocument();
+          else {
+            this.getDocument();
+          }
         });
       },
       deleteTracking() {
@@ -375,7 +391,7 @@
         let endpoint = `/api/csas/meta/models/document-tracking/`;
         apiService(endpoint).then(data => {
           this.trackingLabels = data.labels;
-          {#this.prioritizationChoices = data.prioritization_choices;#}
+          this.langChoices = data.lang_choices;
           {#this.decisionChoices = data.decision_choices;#}
         });
       },

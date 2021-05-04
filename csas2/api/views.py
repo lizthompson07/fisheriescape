@@ -211,6 +211,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DocumentSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
 
+
     def list(self, request, *args, **kwargs):
         qp = request.query_params
         if qp.get("process"):
@@ -230,6 +231,27 @@ class DocumentViewSet(viewsets.ModelViewSet):
             else:
                 doc.meetings.add(meeting)
             return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("get_pub_number"):
+            if hasattr(doc, "tracking") and doc.tracking.anticipated_posting_date:
+                year = doc.tracking.anticipated_posting_date.year
+                p_num = "001"
+                qs = models.Document.objects.filter(tracking__pub_number__startswith=year).order_by("pub_number")
+                if qs.exists():
+                    num_list = list()
+                    for obj in qs:
+                        if len(obj.pub_number.split("/")) > 1:
+                            try:
+                                num = int(obj.pub_number.split("/")[1])
+                            except:
+                                pass
+                            else:
+                                num_list.append(num)
+                    if len(num_list):
+                        num_list.sort()
+                        p_num = '{:03d}'.format(num_list[-1]+1)
+                pub_number = f"{year}/{p_num}"
+                return Response(dict(pub_number=pub_number), status=status.HTTP_200_OK)
+            raise ValidationError(_("Cannot generate a pub number if there is no anticipated posting date."))
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
@@ -246,11 +268,11 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
 
         # we can take a few 'best guesses'
 
-        # # is there a chair?
-        # chair_qs = models.Invitee.objects.filter(meeting__process=obj.document.process, roles__name__icontains=_("chair"))
-        # print(chair_qs)
-        # if chair_qs.exists():
-        #     obj.chair = chair_qs.first().person
+        # is there a chair?
+        chair_qs = models.Invitee.objects.filter(meeting__process=obj.document.process, roles__name__icontains=_("chair"))
+        print(chair_qs)
+        if chair_qs.exists():
+            obj.chair = chair_qs.first().person
         #
         # # assume proof will be sent to lead author. But if there is no lead author, default to next in line
         # author_qs = obj.document.authors.order_by("-is_lead")
@@ -431,6 +453,7 @@ class DocumentTrackingModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
+        data['lang_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.language_choices]
         return Response(data)
 
 

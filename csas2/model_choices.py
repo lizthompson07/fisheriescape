@@ -94,14 +94,20 @@ document_status_dict = (
     dict(trigger="date_chair_appr", stage="review", text=_("Approved by chair"), value=4),
     dict(trigger="date_coordinator_sent", stage="review", text=_("Under review by CSAS coordinator"), value=5),
     dict(trigger="date_coordinator_appr", stage="review", text=_("Approved by CSAS coordinator"), value=6),
+    dict(trigger="date_section_head_sent", stage="review", text=_("Under review by section head"), value=13),
+    dict(trigger="date_section_head_appr", stage="review", text=_("Approved by section head"), value=14),
+    dict(trigger="date_division_manager_sent", stage="review", text=_("Under review by division manager"), value=15),
+    dict(trigger="date_division_manager_appr", stage="review", text=_("Approved by division manager"), value=16),
     dict(trigger="date_director_sent", stage="review", text=_("Under review by director"), value=7),
     dict(trigger="date_director_appr", stage="review", text=_("Approved by director"), value=8),
+
     ####################
     dict(trigger="date_doc_submitted", stage="finalization", text=_("Submitted to CSAS office"), value=9),
     dict(trigger="date_proof_author_sent", stage="finalization", text=_("Proof sent to author"), value=10),
     dict(trigger="date_proof_author_approved", stage="finalization", text=_("Proof approved by author"), value=11),
     ####################
     dict(trigger="actual_posting_date", stage="final", text=_("Posted"), value=12),
+    dict(trigger="updated_posting_date", stage="final", text=_("Posted (updated)"), value=17),
 )
 
 
@@ -112,6 +118,27 @@ def get_document_status_choices():
 def get_document_status_lookup():
     my_dict = dict()
     for item in document_status_dict:
+        my_dict[item["value"]] = dict()
+        my_dict[item["value"]]["stage"] = item["stage"]
+        my_dict[item["value"]]["text"] = item["text"]
+    return my_dict
+
+
+translation_status_dict = (
+    dict(trigger=None, stage="", text="----", value=0),
+    dict(trigger="date_translation_sent", stage="preparation", text=_("In progress"), value=1),
+    dict(trigger="date_returned", stage="finalization", text=_("Translated, unreviewed"), value=2),
+    dict(trigger="translation_review_date", stage="final", text=_("Translated, reviewed"), value=3),
+)
+
+
+def get_translation_status_choices():
+    return [(item["value"], item["text"]) for item in translation_status_dict]
+
+
+def get_translation_status_lookup():
+    my_dict = dict()
+    for item in translation_status_dict:
         my_dict[item["value"]] = dict()
         my_dict[item["value"]]["stage"] = item["stage"]
         my_dict[item["value"]]["text"] = item["text"]
