@@ -30,23 +30,19 @@ def mactaquac_distribution_parser(cleaned_data):
     # prepare rows before iterating:
     try:
         temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
-
         locc_id = models.LocCode.objects.filter(name__icontains="Distribution site").get()
         driver_role_id = models.RoleCode.objects.filter(name__iexact="Driver").get()
 
     except Exception as err:
-        err_msg = utils.common_err_parser(err)
 
-        log_data += "\n Error preparing data: {}".format(err_msg)
+        log_data += "\n Error finding initial codes in db (Temperature, Driver, and Distribution site): {}".format(err)
         return log_data, False
 
     # iterate over rows
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
-            row_date = datetime.strptime(str(row["Year"]) + str(row["Month"]) + str(row["Day"]), "%Y%b%d").replace(
-                tzinfo=pytz.UTC)
+            row_date = utils.get_row_date(row)
 
             tank_id = models.Tank.objects.filter(name__iexact=row["Tank"], facic_id__name=cleaned_data["facic_id"]).get()
             indv, grps = tank_id.fish_in_cont(at_date=row_date)
@@ -127,7 +123,7 @@ def mactaquac_distribution_parser(cleaned_data):
         if row_entered:
             rows_entered += 1
             rows_parsed += 1
-        elif row_parsed:
+        else:
             rows_parsed += 1
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \

@@ -31,7 +31,6 @@ def parser_template(cleaned_data):
 
     # iterate over rows
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
             pass
@@ -44,11 +43,9 @@ def parser_template(cleaned_data):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     # enter general data once all rows are entered:
     try:
@@ -83,62 +80,53 @@ def generic_indv_parser(cleaned_data):
     sex_dict = calculation_constants.sex_dict
 
     for row in data_dict:
-        row_parsed = True
-        row_entered = False
+        row_entered = 0
         try:
+            row_datetime = utils.get_row_date(row)
+            row_date = row_datetime.date()
+
             indv_qs = models.Individual.objects.filter(pit_tag=row["PIT"])
             if len(indv_qs) == 1:
                 indv = indv_qs.get()
             else:
-                row_entered = False
-                row_parsed = False
-                indv = False
                 log_data += "Error parsing row: \n"
                 log_data += str(row)
                 log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
+                return log_data, False
 
-            if indv:
-                anix = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
+            anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, return_sucess=True)
+            row_entered += anix_entered
 
-                row_datetime = utils.get_row_date(row)
-                row_date = row_datetime.date()
-                if utils.nan_to_none(row["Sex"]):
-                    if utils.enter_indvd(anix.pk, cleaned_data, row_date, sex_dict[row["Sex"]], "Gender", None, None):
-                        row_entered = True
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
-                    row_entered = True
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
-                    row_entered = True
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Vial"], "Vial", None):
-                    row_entered = True
-                if utils.nan_to_none(row["Precocity (Y/N)"]):
-                    if row["Precocity (Y/N)"].upper() == "Y":
-                        if utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Animal Health",
-                                             "Tissue Sample"):
-                            row_entered = True
-                if utils.nan_to_none(row["Mortality (Y/N)"]):
-                    if row["Mortality (Y/N)"].upper() == "Y":
-                        mort_evnt, mort_anix = utils.enter_mortality(indv, cleaned_data, row_date)
-                if utils.nan_to_none(row["Tissue Sample (Y/N)"]):
-                    if row["Tissue Sample (Y/N)"].upper() == "Y":
-                        if utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Animal Health",
-                                             "Tissue Sample"):
-                            row_entered = True
+            if utils.nan_to_none(row["Sex"]):
+                row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, sex_dict[row["Sex"]], "Gender",
+                                                 None, None)
+            row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None)
+            row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None)
+            row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Vial"], "Vial", None)
+            row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope",
+                                             None)
+            if utils.y_n_to_bool(row["Precocity (Y/N)"]):
+                row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Animal Health",
+                                                 "Tissue Sample")
+            if utils.y_n_to_bool(row["Mortality (Y/N)"]):
+                mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, cleaned_data, row_date)
+                row_entered += mort_entered
+            if utils.y_n_to_bool(row["Tissue Sample (Y/N)"]):
+                row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Animal Health",
+                                                 "Tissue Sample")
 
-                if utils.enter_indvd(anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope", None):
-                    row_entered = True
+            if utils.nan_to_none(row["Origin Pond"]) and utils.nan_to_none(row["Destination Pond"]):
+                in_tank = models.Tank.objects.filter(name=row["Origin Pond"]).get()
+                out_tank = models.Tank.objects.filter(name=row["Destination Pond"]).get()
+                row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
+                                                          indv_pk=indv.pk)
 
-                if not row["Origin Pond"] == "nan" and not row["Destination Pond"] == "nan":
-                    in_tank = models.Tank.objects.filter(name=row["Origin Pond"]).get()
-                    out_tank = models.Tank.objects.filter(name=row["Destination Pond"]).get()
-                    if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
-                                                  indv_pk=indv.pk):
-                        row_entered = True
-
-                if utils.nan_to_none(row["COMMENTS"]):
-                    utils.comment_parser(row["COMMENTS"], anix, row_date)
-            else:
-                break
+            if utils.nan_to_none(row["COMMENTS"]):
+                comments_parsed, data_entered = utils.comment_parser(row["COMMENTS"], anix, row_date)
+                row_entered += data_entered
+                if not comments_parsed:
+                    log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row["PIT"],
+                                                                                            row["COMMENTS"])
 
         except Exception as err:
             err_msg = utils.common_err_parser(err)
@@ -149,11 +137,9 @@ def generic_indv_parser(cleaned_data):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
@@ -246,7 +232,6 @@ def generic_grp_parser(cleaned_data):
     # iterate through the rows:
     data_dict = data.to_dict('records')
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
             row_date = row["datetime"].date()
@@ -254,37 +239,35 @@ def generic_grp_parser(cleaned_data):
             row_end_grp = end_grp_dict[row["end_grp_key"]]
             if row_end_grp:
                 row_grp = row_end_grp
-            row_anix = utils.enter_anix(cleaned_data, grp_pk=row_grp.pk)
-            row_samp = utils.enter_samp(cleaned_data, row["Sample"], row_grp.spec_id.pk, sampc_id.pk, anix_pk=row_anix.pk )
+            row_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=row_grp.pk, return_sucess=True)
+            row_entered += data_entered
+            row_samp, data_entered = utils.enter_samp(cleaned_data, row["Sample"], row_grp.spec_id.pk, sampc_id.pk,
+                                                      anix_pk=row_anix.pk )
+            row_entered += data_entered
 
             if row_samp:
                 if utils.nan_to_none(row["Sex"]):
-                    if utils.enter_sampd(row_samp.pk, cleaned_data, row_date, sex_dict[row["Sex"]], "Gender", None,
-                                         None):
-                        row_entered = True
-                if utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
-                    row_entered = True
-                if utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
-                    row_entered = True
-                if utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row["Vial"], "Vial", None):
-                    row_entered = True
-                if utils.nan_to_none(row["Precocity (Y/N)"]):
-                    if row["Precocity (Y/N)"].upper() == "Y":
-                        if utils.enter_sampd(row_samp.pk, cleaned_data, row_date, None, "Animal Health",
-                                             "Tissue Sample"):
-                            row_entered = True
-                if utils.nan_to_none(row["Tissue Sample (Y/N)"]):
-                    if row["Tissue Sample (Y/N)"].upper() == "Y":
-                        if utils.enter_sampd(row_samp.pk, cleaned_data, row_date, None, "Animal Health",
-                                             "Tissue Sample"):
-                            row_entered = True
+                    row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, sex_dict[row["Sex"]],
+                                                     "Gender", None, None)
+                row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None)
+                row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None)
+                row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row["Vial"], "Vial", None)
+                if utils.y_n_to_bool(row["Precocity (Y/N)"]):
+                    row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, None, "Animal Health",
+                                                     "Tissue Sample")
+                if utils.y_n_to_bool(row["Tissue Sample (Y/N)"]):
+                    row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, None, "Animal Health",
+                                                     "Tissue Sample")
 
-                if utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Scale Envelope"], "Scale Envelope",
-                                     None):
-                    row_entered = True
+                row_entered += utils.enter_indvd(row_anix.pk, cleaned_data, row_date, row["Scale Envelope"],
+                                                 "Scale Envelope", None)
 
                 if utils.nan_to_none(row["COMMENTS"]):
-                    utils.comment_parser(row["COMMENTS"], row_anix, row_date)
+                    comments_parsed, data_entered = utils.comment_parser(row["COMMENTS"], row_anix, row_date)
+                    row_entered += data_entered
+                    if not comments_parsed:
+                        log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row["COMMENTS"])
+
             else:
                 break
 
@@ -296,11 +279,9 @@ def generic_grp_parser(cleaned_data):
                         "database".format(rows_parsed, len(data_dict), rows_entered,
                                                                            len(data_dict) )
             return log_data, False
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))

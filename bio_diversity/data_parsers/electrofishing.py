@@ -22,6 +22,7 @@ def coldbrook_electrofishing_parser(cleaned_data):
     # set up before iterating over rows:
     try:
         temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+
         river_dict = {}
         for river_name in data["River"].unique():
             river_dict[river_name] = models.RiverCode.objects.filter(name__icontains=river_name).get()
@@ -42,7 +43,6 @@ def coldbrook_electrofishing_parser(cleaned_data):
 
     # iterate over rows:
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
             row_datetime = utils.get_row_date(row)
@@ -87,12 +87,13 @@ def coldbrook_electrofishing_parser(cleaned_data):
             if utils.nan_to_none(row["crew lead"]):
                 row_percs, inits_not_found = utils.team_list_splitter(row["crew lead"])
                 for perc in row_percs:
-                    utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc, role_id=leader_code)
+                    if utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc, role_id=leader_code):
+                        row_entered = True
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
                                                                                                               row)
 
-            if utils.enter_env(row["temp"], row_datetime, cleaned_data, temp_envc_id, loc_id=loc, ):
+            if utils.enter_env(row["temp"], row_datetime, cleaned_data, temp_envc_id, loc_id=loc):
                 row_entered = True
 
             cnt_caught = utils.enter_cnt(cleaned_data, cnt_value=row["# of salmon collected"], loc_pk=loc.pk,
@@ -124,11 +125,9 @@ def coldbrook_electrofishing_parser(cleaned_data):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     # do general actions on data
     try:
@@ -235,7 +234,6 @@ def mactaquac_electrofishing_parser(cleaned_data):
 
     # iterate over rows
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
             row_date = utils.get_row_date(row)
@@ -274,7 +272,8 @@ def mactaquac_electrofishing_parser(cleaned_data):
             if utils.nan_to_none(row["Crew"]):
                 row_percs, inits_not_found = utils.team_list_splitter(row["Crew"])
                 for perc in row_percs:
-                    utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc)
+                    if utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc):
+                        row_entered = True
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
                                                                                                               row)
@@ -311,11 +310,9 @@ def mactaquac_electrofishing_parser(cleaned_data):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
                         " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     # enter general data once all rows are entered:
 

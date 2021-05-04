@@ -18,7 +18,7 @@ def temperature_parser(cleaned_data):
 
     # prep the data:
     try:
-        contx = utils.enter_trof_contx(cleaned_data["trof_id"].name, cleaned_data, final_flag=None, return_contx=True)
+        contx, data_entered = utils.enter_trof_contx(cleaned_data["trof_id"].name, cleaned_data, final_flag=None, return_contx=True)
         qual_id = models.QualCode.objects.filter(name="Good").get()
         envc_id = models.EnvCode.objects.filter(name="Temperature").get()
 

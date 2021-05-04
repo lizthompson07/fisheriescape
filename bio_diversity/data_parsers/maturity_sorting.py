@@ -21,16 +21,14 @@ def mactaquac_maturity_sorting_parser(cleaned_data):
     sex_dict = calculation_constants.sex_dict
 
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
+            row_datetime = utils.get_row_date(row)
+            row_date = row_datetime.date()
             indv_qs = models.Individual.objects.filter(pit_tag=row["PIT"])
             if len(indv_qs) == 1:
                 indv = indv_qs.get()
             else:
-                row_entered = False
-                row_parsed = False
-                indv = False
                 log_data += "Error parsing row: \n"
                 log_data += str(row)
                 log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
@@ -38,28 +36,24 @@ def mactaquac_maturity_sorting_parser(cleaned_data):
                             "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
                 return log_data, False
 
-            if indv:
-                anix_indv = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
+            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, return_sucess=True)
+            row_entered += anix_entered
 
-                row_datetime = utils.get_row_date(row)
-                row_date = row_datetime.date()
-                if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None,
-                                     comments=row["COMMENTS"]):
-                    row_entered = True
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None,
+                                             comments=row["COMMENTS"])
 
-                if not row["ORIGIN POND"] == "nan" and not row["DESTINATION POND"] == "nan":
-                    in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
-                    out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
-                    if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
-                                                  indv_pk=indv.pk):
-                        row_entered = True
+            if utils.nan_to_none(row["ORIGIN POND"]) and utils.nan_to_none(row["DESTINATION POND"]):
+                in_tank = models.Tank.objects.filter(name=row["ORIGIN POND"]).get()
+                out_tank = models.Tank.objects.filter(name=row["DESTINATION POND"]).get()
+                row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
+                                                          indv_pk=indv.pk)
 
-                    row_entered = True
-
-                if row["COMMENTS"]:
-                    utils.comment_parser(row["COMMENTS"], anix_indv, row_date)
-            else:
-                break
+            if utils.nan_to_none(row["COMMENTS"]):
+                comments_parsed, data_entered = utils.comment_parser(row["COMMENTS"], anix_indv, row_date)
+                row_entered += data_entered
+                if not comments_parsed:
+                    log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row["PIT"],
+                                                                                            row["COMMENTS"])
 
         except Exception as err:
             err_msg = utils.common_err_parser(err)
@@ -70,11 +64,10 @@ def mactaquac_maturity_sorting_parser(cleaned_data):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
+
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))

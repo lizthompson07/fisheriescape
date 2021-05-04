@@ -27,19 +27,17 @@ def mactaquac_treatment_parser(cleaned_data):
     try:
         water_envc_id = models.EnvCode.objects.filter(name="Water Level").get()
     except Exception as err:
-        err_msg = utils.common_err_parser(err)
-
-        log_data += "Error preparing data: \n"
-        log_data += "{}\n\n".format(err_msg)
+        log_data += "Error finding code for Water Level in database: \n"
+        log_data += "{}\n\n".format(err)
         return log_data, False
 
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
             row_datetime = utils.get_row_date(row)
             row_date = row_datetime.date()
-            contx = utils.enter_tank_contx(row["Tank"], cleaned_data, None, return_contx=True)
+            contx, data_entered = utils.enter_tank_contx(row["Tank"], cleaned_data, None, return_contx=True)
+            row_entered += data_entered
             val, unit_str = utils.val_unit_splitter(row["Amount"])
             duration = row["Duration (hours)"]
             row_concentration = utils.parse_concentration(row["Concentration"])
@@ -58,17 +56,17 @@ def mactaquac_treatment_parser(cleaned_data):
             try:
                 envt.clean()
                 envt.save()
+                row_entered = True
             except (ValidationError, IntegrityError):
                 pass
 
             water_level, height_unit = utils.val_unit_splitter(row["Pond Level During Treatment"])
-            utils.enter_env(water_level, row_date, cleaned_data, water_envc_id, contx=contx)
+            row_entered += utils.enter_env(water_level, row_date, cleaned_data, water_envc_id, contx=contx)
 
             if utils.nan_to_none(row["Initials"]):
                 perc_list, inits_not_found = utils.team_list_splitter(row["Initials"])
                 for perc_id in perc_list:
-                    if utils.add_team_member(perc_id, cleaned_data["evnt_id"]):
-                        row_entered = True
+                    row_entered += utils.add_team_member(perc_id, cleaned_data["evnt_id"])
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
@@ -81,21 +79,20 @@ def mactaquac_treatment_parser(cleaned_data):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
+
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     rows_parsed = 0
     rows_entered = 0
     for row in eggroom_data_dict:
-        row_parsed = True
         row_entered = False
         try:
             row_datetime = utils.get_row_date(row)
             row_date = row_datetime.date()
-            contx = utils.enter_trof_contx(str(row["Trough"]), cleaned_data, None, return_contx=True)
+            contx, data_entered = utils.enter_trof_contx(str(row["Trough"]), cleaned_data, None, return_contx=True)
+            row_entered += data_entered
             val, unit_str = utils.val_unit_splitter(row["Amount"])
             duration = row["Duration (mins)"]
             row_concentration = utils.parse_concentration(row["Concentration"])
@@ -114,17 +111,17 @@ def mactaquac_treatment_parser(cleaned_data):
             try:
                 envt.clean()
                 envt.save()
+                row_entered = True
             except (ValidationError, IntegrityError):
                 pass
 
             water_level, height_unit = utils.val_unit_splitter(row["Pond Level During Treatment"])
-            utils.enter_env(water_level, row_date, cleaned_data, water_envc_id, contx=contx)
+            row_entered += utils.enter_env(water_level, row_date, cleaned_data, water_envc_id, contx=contx)
 
             if utils.nan_to_none(row["Initials"]):
                 perc_list, inits_not_found = utils.team_list_splitter(row["Initials"])
                 for perc_id in perc_list:
-                    if utils.add_team_member(perc_id, cleaned_data["evnt_id"]):
-                        row_entered = True
+                    row_entered += utils.add_team_member(perc_id, cleaned_data["evnt_id"])
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
@@ -137,11 +134,10 @@ def mactaquac_treatment_parser(cleaned_data):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(eggroom_data_dict), rows_entered, len(eggroom_data_dict))
             return log_data, False
+
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                 "database".format(rows_parsed, len(eggroom_data_dict), rows_entered, len(eggroom_data_dict))

@@ -40,7 +40,7 @@ def coldbrook_tagging_parser(cleaned_data):
                     grp_id = grp.pk
 
         if grp_id:
-            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp_id)
+            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp_id, return_sucess=False)
 
         salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
         stok_id = models.StockCode.objects.filter(name=data["Stock"][0]).get()
@@ -55,7 +55,6 @@ def coldbrook_tagging_parser(cleaned_data):
         return log_data, False
 
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
             year, coll = utils.year_coll_splitter(row["Group"])
@@ -81,44 +80,38 @@ def coldbrook_tagging_parser(cleaned_data):
             except (ValidationError, IntegrityError):
                 indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
-            if not row["From Tank"] == "nan" and not row["To Tank"] == "nan":
+            if utils.nan_to_none(row["From Tank"]) and utils.nan_to_none(row["To Tank"]):
                 in_tank = models.Tank.objects.filter(name=row["From Tank"]).get()
                 out_tank = models.Tank.objects.filter(name=row["To Tank"]).get()
-                if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
-                                              indv_pk=indv.pk):
-                    row_entered = True
+                row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
+                                              indv_pk=indv.pk)
 
-            anix_indv = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
+            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, return_sucess=True)
+            row_entered += anix_entered
 
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None):
-                row_entered = True
-
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None):
-                row_entered = True
-
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Vial"], "Vial", None):
-                row_entered = True
-
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Box"], "Box", None):
-                row_entered = True
-
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Location"], "Box Location", None):
-                row_entered = True
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None)
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Weight (g)"], "Weight", None)
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Vial"], "Vial", None)
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Box"], "Box", None)
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Location"], "Box Location", None)
 
             if utils.nan_to_none(row["Tagger"]):
                 perc_list, inits_not_found = utils.team_list_splitter(row["Tagger"])
                 for perc_id in perc_list:
-                    team_id = utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code,
-                                                    return_team=True)
+                    team_id, team_entered = utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code,
+                                                                  return_team=True)
+                    row_entered += team_entered
                     if team_id:
-                        row_entered = True
-                        utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk)
+                        team_anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk,
+                                                                   return_sucess=True)
+                        row_entered += anix_entered
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) for row with pit tag {}\n".format(inits,
                                                                                                          row["PIT tag"])
 
             if utils.nan_to_none(row["Comments"]):
-                comments_parsed = utils.comment_parser(row["Comments"], anix_indv, det_date=row_datetime.date())
+                comments_parsed, data_entered = utils.comment_parser(row["Comments"], anix_indv, det_date=row_datetime.date())
+                row_entered += data_entered
                 if not comments_parsed:
                     log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row["PIT tag"],
                                                                                             row["Comments"])
@@ -133,18 +126,16 @@ def coldbrook_tagging_parser(cleaned_data):
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
 
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     # handle general data:
     try:
         from_tanks = data["From Tank"].value_counts()
         for tank_name in from_tanks.keys():
             fish_tagged_from_tank = int(from_tanks[tank_name])
-            contx = utils.enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
+            contx, data_entered = utils.enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
             if contx:
                 utils.enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
 
@@ -195,7 +186,7 @@ def mactaquac_tagging_parser(cleaned_data):
                     grp_id = grp.pk
 
         if grp_id:
-            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp_id)
+            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp_id, return_sucess=False)
 
         salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
         stok_id = models.StockCode.objects.filter(name=data["Stock"][0]).get()
@@ -210,7 +201,6 @@ def mactaquac_tagging_parser(cleaned_data):
         return log_data, False
 
     for row in data_dict:
-        row_parsed = True
         row_entered = False
         try:
             year, coll = utils.year_coll_splitter(row["Collection"])
@@ -233,43 +223,39 @@ def mactaquac_tagging_parser(cleaned_data):
             except (ValidationError, IntegrityError):
                 indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
-            if not row["Origin Pond"] == "nan" and not row["Destination Pond"] == "nan":
+            if utils.nan_to_none(row["Origin Pond"]) and utils.nan_to_none(row["Destination Pond"]):
                 in_tank = models.Tank.objects.filter(name=row["Origin Pond"]).get()
                 out_tank = models.Tank.objects.filter(name=row["Destination Pond"]).get()
-                if utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
-                                              indv_pk=indv.pk):
-                    row_entered = True
+                row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
+                                                          indv_pk=indv.pk)
 
-            anix_indv = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
+            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, return_sucess=True)
+            row_entered += anix_entered
 
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Length (cm)"], "Length", None):
-                row_entered = True
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Length (cm)"], "Length", None)
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Weight (g)"], "Weight", None)
+            row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Vial Number"], "Vial", None)
 
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Weight (g)"], "Weight", None):
-                row_entered = True
-
-            if utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Vial Number"], "Vial", None):
-                row_entered = True
-
-            if row["Precocity (Y/N)"].upper() == "Y":
-                if utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), None, "Animal Health",
-                                     "Precocity"):
-                    row_entered = True
+            if utils.y_n_to_bool(row["Precocity (Y/N)"]):
+                row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), None, "Animal Health",
+                                                 "Precocity")
 
             if utils.nan_to_none(row["Crew"]):
                 perc_list, inits_not_found = utils.team_list_splitter(row["Crew"])
                 for perc_id in perc_list:
-                    team_id = utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code,
-                                                    return_team=True)
+                    team_id, team_entered = utils.add_team_member(perc_id, cleaned_data["evnt_id"], role_id=tagger_code,
+                                                                  return_team=True)
+                    row_entered += team_entered
                     if team_id:
-                        row_entered = True
-                        utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk)
+                        team_anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk, return_sucess=True)
+                        row_entered += anix_entered
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) from row with pit tag {}\n".format(inits, row[
                         "PIT"])
 
             if utils.nan_to_none(row["Comments"]):
-                comments_parsed = utils.comment_parser(row["Comments"], anix_indv, det_date=row_datetime.date())
+                comments_parsed, data_entered = utils.comment_parser(row["Comments"], anix_indv, det_date=row_datetime.date())
+                row_entered += data_entered
                 if not comments_parsed:
                     log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row["PIT"],
                                                                                             row["Comments"])
@@ -283,18 +269,17 @@ def mactaquac_tagging_parser(cleaned_data):
             log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
                         "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
             return log_data, False
+
+        rows_parsed += 1
         if row_entered:
             rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
 
     # handle general data:
     try:
         from_tanks = data["Origin Pond"].value_counts()
         for tank_name in from_tanks.keys():
             fish_tagged_from_tank = int(from_tanks[tank_name])
-            contx = utils.enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
+            contx, data_entered = utils.enter_tank_contx(tank_name, cleaned_data, None, grp_pk=grp_id, return_contx=True)
             if contx:
                 utils.enter_cnt(cleaned_data, fish_tagged_from_tank, contx.pk, cnt_code="Pit Tagged")
 

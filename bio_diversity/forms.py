@@ -306,7 +306,7 @@ class DataForm(CreatePrams):
             else:
                 log_data, sucess = generic_indv_parser(cleaned_data)
 
-        except ValueError as err: # Exception as err:
+        except Exception as err:
             log_data += "Error parsing data: \n"
             log_data += "\n Error: {}".format(err)
 
@@ -675,7 +675,7 @@ class MortForm(forms.Form):
             indv.save()
             cleaned_data["indv_mort"] = indv.pk
 
-        mortality_evnt, anix = utils.enter_mortality(indv, cleaned_data, cleaned_data["mort_date"])
+        mortality_evnt, anix, mort_entered = utils.enter_mortality(indv, cleaned_data, cleaned_data["mort_date"])
 
         cleaned_data["evnt_id"] = mortality_evnt
         cleaned_data["facic_id"] = mortality_evnt.facic_id
@@ -684,7 +684,7 @@ class MortForm(forms.Form):
             anix_grp = utils.enter_anix(cleaned_data, grp_pk=cleaned_data["grp_mort"])
             anix_both = utils.enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
             tank = grp.current_tank(at_date=cleaned_data["mort_date"])[0]
-            contx = utils.enter_tank_contx(tank.name, cleaned_data, grp_pk=grp.id, return_contx=True)
+            contx, data_entered = utils.enter_tank_contx(tank.name, cleaned_data, grp_pk=grp.id, return_contx=True)
             utils.enter_cnt(cleaned_data, cnt_value=1, contx_pk=contx.id, cnt_code="Mortality")
 
         if cleaned_data["indv_length"]:

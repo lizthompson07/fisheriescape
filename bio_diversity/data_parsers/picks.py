@@ -35,7 +35,7 @@ def mactaquac_picks_parser(cleaned_data):
         for row in trof_df.to_dict("records")[1:]:
             tray = models.Tray.objects.filter(trof_id=trof, name=row["Tray Number"], end_date__isnull=True).get()
             cross_grp = models.Group.objects.filter(animal_details__contx_id__tray_id=tray).get()
-            contx = utils.enter_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
+            contx, data_entered = utils.enter_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
             utils.create_picks_evnt(cleaned_data, tray, cross_grp.pk, row["Picks"], pick_date, "Egg Picks")
 
     log_data += "\n\n\n {} of {} rows entered to " \
@@ -73,7 +73,7 @@ def coldbrook_picks_parser(cleaned_data):
 
     data_dict = data.to_dict('records')
     for row in data_dict:
-        contx = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
+        contx, data_entered = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
                                   return_contx=True)
         utils.enter_contx(row["trofs"], cleaned_data)
         anix = utils.enter_anix(cleaned_data, grp_pk=row["grps"].pk)
@@ -111,7 +111,7 @@ def coldbrook_picks_parser(cleaned_data):
             hu_move_date = move_date + timedelta(minutes=1)
             hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)
             hu_anix = utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk)
-            hu_contx = utils.enter_contx(row["trays"], hu_cleaned_data, None, grp_pk=row["grps"].pk, return_contx=True)
+            hu_contx, data_entered = utils.enter_contx(row["trays"], hu_cleaned_data, None, grp_pk=row["grps"].pk, return_contx=True)
             dev_at_hu_transfer = row["grps"].get_development(hu_move_date)
             utils.enter_grpd(hu_anix.pk, hu_cleaned_data, hu_move_date, dev_at_hu_transfer, "Development")
 

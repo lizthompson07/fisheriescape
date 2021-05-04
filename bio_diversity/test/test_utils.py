@@ -120,7 +120,7 @@ class TestGrpCnt(CommonTest):
             "created_by": self.evnt.created_by,
             "created_date": self.evnt.created_date,
         }
-        self.contx = utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
+        self.contx, data_entered = utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
 
     def test_zero_cnt(self):
         # test that with no details present, count returns zero
@@ -136,7 +136,7 @@ class TestGrpCnt(CommonTest):
         # add two counts in different containers and make sure group record proper count
         cnt_val = randint(0, 100)
         utils.enter_cnt(self.cleaned_data, cnt_val, self.contx.pk, cnt_code="Fish in Container")
-        contx = utils.enter_contx(self.final_tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
+        contx, data_entered = utils.enter_contx(self.final_tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
         utils.enter_cnt(self.cleaned_data, cnt_val, contx.pk, cnt_code="Fish in Container")
         self.assertEqual(self.grp.count_fish_in_group(), 2 * cnt_val)
 
@@ -162,7 +162,7 @@ class TestGrpCnt(CommonTest):
         next_day_evnt.save()
         new_cleaned_data = self.cleaned_data.copy()
         new_cleaned_data["evnt_id"] = next_day_evnt
-        end_contx = utils.enter_contx(self.tank, new_cleaned_data, None, grp_pk=self.grp.pk, return_contx=True)
+        end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, None, grp_pk=self.grp.pk, return_contx=True)
 
         utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
         cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")
