@@ -245,10 +245,8 @@ class Process(SimpleLookupWithUUID, MetadataFields):
                                     blank=True)
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
 
-    # remove
-    context = models.TextField(blank=True, null=True, verbose_name=_("context"))
-    objectives = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
-    expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
+    # non-editable
+    is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
 
     # calculated
 
@@ -376,11 +374,14 @@ class GenericNote(MetadataFields):
         ordering = ["is_complete", "-updated_at", ]
 
 
-class Meeting(MetadataFields):
+class Meeting(SimpleLookup, MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
     process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
+    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
     # consider removing since this is redundant with process type!! maybe just a flag for a planning meeting
-    type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
+    # type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
+    is_planning = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a planning meeting?"))
     is_virtual = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a virtual meeting?"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"),
                                 help_text=_("City, State/Province, Country or Virtual"))
@@ -404,9 +405,15 @@ class Meeting(MetadataFields):
             self.est_year = self.start_date.year
         super().save(*args, **kwargs)
 
+    @property
+    def display(self):
+        mystr = self.tname
+        if self.is_planning:
+            mystr += " ({})".format(gettext("planning"))
+        return mystr
+
     def __str__(self):
-        dt = self.start_date.strftime('%Y-%m-%d') if self.start_date else gettext("TBD")
-        return self.get_type_display() + f" ({dt})"
+        return self.display
 
     class Meta:
         ordering = ['start_date', ]

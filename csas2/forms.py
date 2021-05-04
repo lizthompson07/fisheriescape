@@ -214,7 +214,9 @@ class ProcessForm(forms.ModelForm):
 
 class MeetingForm(forms.ModelForm):
     field_order = [
-        "type",
+        "name",
+        "nom",
+        "is_planning",
         "is_virtual",
         "location",
         "date_range",

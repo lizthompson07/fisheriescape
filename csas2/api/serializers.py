@@ -111,7 +111,6 @@ class MeetingSerializerLITE(serializers.ModelSerializer):
     display_dates = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     start_date_display = serializers.SerializerMethodField()
-    type_display = serializers.SerializerMethodField()
 
     def get_start_date_display(self, instance):
         return date(instance.start_date)
@@ -129,9 +128,6 @@ class MeetingSerializerLITE(serializers.ModelSerializer):
 
     def get_display(self, instance):
         return str(instance)
-
-    def get_type_display(self, instance):
-        return instance.get_type_display()
 
     def get_display_dates(self, instance):
         start = date(instance.start_date) if instance.start_date else "??"
@@ -319,7 +315,6 @@ class MeetingSerializer(serializers.ModelSerializer):
         exclude = ["updated_at", "created_at"]  # "slug", 'author'
 
     created_at_display = serializers.SerializerMethodField()
-    type_display = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()
     display_dates = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
@@ -328,6 +323,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     length_days = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
     total_cost = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return instance.display
 
     def get_total_cost(self, instance):
         return instance.total_cost
@@ -361,9 +360,6 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     def get_metadata(self, instance):
         return instance.metadata
-
-    def get_type_display(self, instance):
-        return instance.get_type_display()
 
     def get_created_at_display(self, instance):
         return date(instance.created_at)
@@ -487,3 +483,15 @@ class MeetingResourceSerializer(serializers.ModelSerializer):
 
     def get_date_added(self, instance):
         return date(instance.created_at)
+
+
+
+class ProcessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Process
+        fields = "__all__"
+    lead_region = serializers.StringRelatedField()
+    tname = serializers.SerializerMethodField()
+
+    def get_tname(self, instance):
+        return instance.tname

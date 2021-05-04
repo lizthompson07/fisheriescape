@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -13,6 +14,7 @@ from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
 from shared_models.models import Person, Language
 from . import serializers
+from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly
 from .. import models, emails, model_choices, utils
 
@@ -52,6 +54,23 @@ class CSASRequestReviewViewSet(viewsets.ModelViewSet):
         csas_request = instance.csas_request
         instance.delete()
         csas_request.save()
+
+
+class ProcessViewSet(viewsets.ModelViewSet):
+    queryset = models.Process.objects.all().order_by("-created_at")
+    serializer_class = serializers.ProcessSerializer
+    permission_classes = [CanModifyProcessOrReadOnly]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['fiscal_year', 'id', 'lead_region', "is_posted"]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -463,4 +482,13 @@ class RequestReviewModelMetaAPIView(APIView):
         decision_choices.insert(0, dict(text="-----", value=None))
         data['prioritization_choices'] = prioritization_choices
         data['decision_choices'] = decision_choices
+        return Response(data)
+
+class ProcessModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Process
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = _get_labels(self.model)
         return Response(data)

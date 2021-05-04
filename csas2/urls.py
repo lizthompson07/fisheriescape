@@ -39,6 +39,7 @@ urlpatterns = [
     path('processes/<int:pk>/view/', views.ProcessDetailView.as_view(), name="process_detail"),
     path('processes/<int:pk>/edit/', views.ProcessUpdateView.as_view(), name="process_edit"),
     path('processes/<int:pk>/delete/', views.ProcessDeleteView.as_view(), name="process_delete"),
+    path('processes/manage-postings/', views.ProcessPostingsVueJSView.as_view(), name="process_postings"),
 
     # ToR
     path('processes/<int:process>/new-tor/', views.TermsOfReferenceCreateView.as_view(), name="tor_new"),

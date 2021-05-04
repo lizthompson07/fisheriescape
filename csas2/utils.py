@@ -238,6 +238,7 @@ def get_process_field_list(process):
         'fiscal_year',
         'tname|{}'.format(_("Title")),
         'status_display|{}'.format(_("status")),
+        'is_posted',
         'scope_type|{}'.format(_("advisory process type")),
         'chair|{}'.format(_("chair")),
         'coordinator',

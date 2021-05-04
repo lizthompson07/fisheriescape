@@ -55,12 +55,11 @@ process_status_choices = (
     (5, _('Tentative')),
 )
 
-meeting_type_choices = (
-    (1, _("Steering Committee Meeting")),
-    (2, _("Science Management Meeting")),
-    (3, _("Advisory Process Meeting (RAP)")),
-    (4, _("Science Response Meeting")),
-)
+# meeting_type_choices = (
+#     (1, _("Planning")),
+#     # (2, _("Science Management Meeting (Planning)")), is this a planning meeting?
+#     (3, _("Keystone")),
+# )
 
 meeting_quarter_choices = (
     (1, _("Spring")),

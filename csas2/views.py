@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.functions.custom_functions import fiscal_year
-from lib.templatetags.custom_filters import nz
 from shared_models.models import Person, FiscalYear
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
@@ -395,7 +394,7 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["process_field_list"] = utils.get_process_field_list(obj)
         context["meeting_field_list"] = [
-            'type',
+            'display|{}'.format(_("title")),
             'location',
             'display_dates|{}'.format(_("dates")),
         ]
@@ -458,6 +457,16 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
+
+
+class ProcessPostingsVueJSView(CsasNationalAdminRequiredMixin, CommonFilterView): # using the common filter view to bring in the django filter machinery
+    template_name = 'csas2/process_postings.html'
+    home_url_name = "csas2:index"
+    container_class = "container-fluid"
+    h1 = gettext_lazy("Manage Process Postings")
+    model = models.Process
+    filterset_class = filters.ProcessFilter
+
 
 
 # ToR #
@@ -542,7 +551,6 @@ def tor_export(request, pk):
             response['Content-Disposition'] = f'inline; filename="{filename}"'
             return response
     raise Http404
-
 
 
 class TermsOfReferenceHTMLDetailView(LoginAccessRequiredMixin, CommonDetailView):
@@ -845,7 +853,6 @@ def meeting_report(request):
     qp = request.GET
     year = None if not qp.get("fiscal_year") else int(qp.get("fiscal_year"))
     file_url = reports.generate_meeting_report(fiscal_year=year)
-
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:

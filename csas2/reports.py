@@ -89,7 +89,6 @@ def generate_meeting_report(fiscal_year=None):
         objects = objects.filter(process__fiscal_year=fiscal_year)
 
     field_list = [
-        'id',
         'process.fiscal_year|fiscal year',
         'process.scope_type|type of process',
         'tor_display_dates|meeting dates',
