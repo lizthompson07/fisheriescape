@@ -1088,4 +1088,7 @@ def common_err_parser(err):
     if type(err) == KeyError:
         err_msg = "Column with header \"{}\" not found in worksheet".format(err)
 
+    if issubclass(type(err), ObjectDoesNotExist):
+        err_msg = "Could not find a {} object from worksheet in database.".format(err.__str__().split(" ")[0])
+
     return err_msg
