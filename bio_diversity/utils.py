@@ -469,7 +469,7 @@ def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
     return tray
 
 
-def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, team_pk=None, final_flag=None, return_sucess=False):
+def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, team_pk=None, final_flag=None, return_sucess=False, return_anix=False):
     row_entered = False
     if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk, team_pk]):
         anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -498,10 +498,12 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
                                                        team_id=anix.team_id,
                                                        indvt_id=anix.indvt_id,
                                                        ).get()
-        if return_sucess:
-            return anix, row_entered
-        else:
+        if return_anix:
             return anix
+        elif return_sucess:
+            return row_entered
+        else:
+            return anix, row_entered
 
 
 def enter_anix_contx(tank, cleaned_data):
@@ -520,7 +522,7 @@ def enter_anix_contx(tank, cleaned_data):
                                                         tank=contx.tank_id,
                                                         ).get()
 
-        anix_contx = enter_anix(cleaned_data, contx_pk=contx.pk)
+        anix_contx = enter_anix(cleaned_data, contx_pk=contx.pk, return_anix=True)
         return anix_contx
 
 
@@ -737,7 +739,7 @@ def enter_mortality(indv, cleaned_data, mort_date):
                                                      ).get()
     new_cleaned_data = cleaned_data.copy()
     new_cleaned_data["evnt_id"] = mortality_evnt
-    anix, anix_entered = enter_anix(new_cleaned_data, indv_pk=indv.pk, return_sucess=True)
+    anix, anix_entered = enter_anix(new_cleaned_data, indv_pk=indv.pk)
     data_entered += anix_entered
     indv.indv_valid = False
     indv.save()
@@ -866,8 +868,7 @@ def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         tank_id=contx.tank_id).get()
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag, return_sucess=True)
-            row_entered += anix_entered
+            row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag, return_sucess=True)
         if return_contx:
             return contx, row_entered
         else:
@@ -892,8 +893,7 @@ def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         trof_id=contx.trof_id).get()
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag, return_sucess=True)
-            row_entered += anix_entered
+            row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag, return_sucess=True)
         if return_contx:
             return contx, row_entered
         else:
@@ -918,9 +918,8 @@ def enter_tray_contx(tray, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         tray_id=contx.tray_id).get()
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, 
-                                            final_flag=final_flag, return_sucess=True)
-            row_entered += anix_entered
+            row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
+                                      final_flag=final_flag, return_sucess=True)
         if return_contx:
             return contx, row_entered
         else:
@@ -970,9 +969,8 @@ def enter_cup_contx(cup, cleaned_data, final_flag=None, indv_pk=None, grp_pk=Non
             pass
 
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, 
-                                            final_flag=final_flag, return_sucess=True)
-            row_entered += anix_entered
+            row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
+                                      final_flag=final_flag, return_sucess=True)
         if return_contx:
             return contx, row_entered
         else:
@@ -1010,9 +1008,8 @@ def enter_draw_contx(draw, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
             pass
 
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, 
-                                            final_flag=final_flag, return_sucess=True)
-            row_entered += anix_entered
+            row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
+                                      final_flag=final_flag, return_sucess=True)
         if return_contx:
             return contx, row_entered
         else:
@@ -1038,9 +1035,8 @@ def enter_heat_contx(heat, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
                                                         heat_id=contx.heat_id).get()
 
         if indv_pk or grp_pk:
-            anix, anix_entered = enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, 
-                                            final_flag=final_flag, return_sucess=True)
-            row_entered += anix_entered
+            row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
+                                      final_flag=final_flag, return_sucess=True)
         if return_contx:
             return contx, row_entered
         else:

@@ -94,7 +94,7 @@ def generic_indv_parser(cleaned_data):
                 log_data += "\nFish with PIT {} not found in db\n".format(row["PIT"])
                 return log_data, False
 
-            anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, return_sucess=True)
+            anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
             row_entered += anix_entered
 
             if utils.nan_to_none(row["Sex"]):
@@ -218,7 +218,7 @@ def generic_grp_parser(cleaned_data):
                 end_grp_id.save()
                 end_grp_dict[row["end_grp_key"]] = end_grp_id
 
-            grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk)
+            grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk, return_anix=True)
             utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, "Parent Group", frm_grp_id=start_grp_id)
             utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, "Program Group", row["Group"])
             end_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data, row["datetime"],
@@ -239,10 +239,10 @@ def generic_grp_parser(cleaned_data):
             row_end_grp = end_grp_dict[row["end_grp_key"]]
             if row_end_grp:
                 row_grp = row_end_grp
-            row_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=row_grp.pk, return_sucess=True)
+            row_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=row_grp.pk)
             row_entered += data_entered
             row_samp, data_entered = utils.enter_samp(cleaned_data, row["Sample"], row_grp.spec_id.pk, sampc_id.pk,
-                                                      anix_pk=row_anix.pk )
+                                                      anix_pk=row_anix.pk)
             row_entered += data_entered
 
             if row_samp:

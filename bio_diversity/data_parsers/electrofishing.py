@@ -170,7 +170,7 @@ def coldbrook_electrofishing_parser(cleaned_data):
                     grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
                                                       grp_year=grp.grp_year, coll_id=grp.coll_id).get()
 
-                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
+                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_anix=True)
                 if utils.nan_to_none(row["Group"]):
                     utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None,
                                      "Program Group", row["Group"])
@@ -355,7 +355,7 @@ def mactaquac_electrofishing_parser(cleaned_data):
                 except ValidationError:
                     # no way to get the groups here, should only be here if there are no groups already
                     pass
-                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
+                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_anix=True)
                 if utils.nan_to_none(row["Group"]):
                     utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None, "Program Group",
                                      row["Group"])

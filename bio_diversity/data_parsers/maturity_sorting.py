@@ -36,7 +36,7 @@ def mactaquac_maturity_sorting_parser(cleaned_data):
                             "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
                 return log_data, False
 
-            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, return_sucess=True)
+            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
             row_entered += anix_entered
 
             row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, sex_dict[row["SEX"]], "Gender", None,

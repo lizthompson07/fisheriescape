@@ -681,8 +681,8 @@ class MortForm(forms.Form):
         cleaned_data["facic_id"] = mortality_evnt.facic_id
 
         if cleaned_data["grp_mort"]:
-            anix_grp = utils.enter_anix(cleaned_data, grp_pk=cleaned_data["grp_mort"])
-            anix_both = utils.enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
+            utils.enter_anix(cleaned_data, grp_pk=cleaned_data["grp_mort"])
+            utils.enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
             tank = grp.current_tank(at_date=cleaned_data["mort_date"])[0]
             contx, data_entered = utils.enter_tank_contx(tank.name, cleaned_data, grp_pk=grp.id, return_contx=True)
             utils.enter_cnt(cleaned_data, cnt_value=1, contx_pk=contx.id, cnt_code="Mortality")

@@ -40,7 +40,7 @@ def coldbrook_tagging_parser(cleaned_data):
                     grp_id = grp.pk
 
         if grp_id:
-            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp_id, return_sucess=False)
+            utils.enter_anix(cleaned_data, grp_pk=grp_id, return_sucess=False)
 
         salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
         stok_id = models.StockCode.objects.filter(name=data["Stock"][0]).get()
@@ -86,7 +86,7 @@ def coldbrook_tagging_parser(cleaned_data):
                 row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
                                               indv_pk=indv.pk)
 
-            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, return_sucess=True)
+            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
             row_entered += anix_entered
 
             row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row["Length (cm)"], "Length", None)
@@ -102,9 +102,8 @@ def coldbrook_tagging_parser(cleaned_data):
                                                                   return_team=True)
                     row_entered += team_entered
                     if team_id:
-                        team_anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk,
+                        row_entered += utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk,
                                                                    return_sucess=True)
-                        row_entered += anix_entered
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) for row with pit tag {}\n".format(inits,
                                                                                                          row["PIT tag"])
@@ -186,7 +185,7 @@ def mactaquac_tagging_parser(cleaned_data):
                     grp_id = grp.pk
 
         if grp_id:
-            anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp_id, return_sucess=False)
+            utils.enter_anix(cleaned_data, grp_pk=grp_id)
 
         salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
         stok_id = models.StockCode.objects.filter(name=data["Stock"][0]).get()
@@ -229,7 +228,7 @@ def mactaquac_tagging_parser(cleaned_data):
                 row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
                                                           indv_pk=indv.pk)
 
-            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, return_sucess=True)
+            anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
             row_entered += anix_entered
 
             row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_datetime.date(), row["Length (cm)"], "Length", None)
@@ -247,8 +246,7 @@ def mactaquac_tagging_parser(cleaned_data):
                                                                   return_team=True)
                     row_entered += team_entered
                     if team_id:
-                        team_anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk, return_sucess=True)
-                        row_entered += anix_entered
+                        row_entered += utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk, return_sucess=True)
                 for inits in inits_not_found:
                     log_data += "No valid personnel with initials ({}) from row with pit tag {}\n".format(inits, row[
                         "PIT"])

@@ -37,9 +37,9 @@ def mactaquac_spawning_parser(cleaned_data):
                 return log_data, False
 
             row_date = row["date"].date()
-            anix_female, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_female.pk, return_sucess=True)
+            anix_female, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_female.pk)
             row_entered += anix_entered
-            anix_male, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_male.pk, return_sucess=True)
+            anix_male, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_male.pk)
             row_entered += anix_entered
 
             row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, "Female", "Gender", None)
@@ -86,8 +86,7 @@ def mactaquac_spawning_parser(cleaned_data):
             except (ValidationError, IntegrityError):
                 pass
 
-            anix, anix_entered = utils.enter_anix(cleaned_data, pair_pk=pair.pk, return_sucess=True)
-            row_entered += anix_entered
+            row_entered += utils.enter_anix(cleaned_data, pair_pk=pair.pk, return_sucess=True)
 
             # fecu/dud
             if row["Exp. #"] > 0:
@@ -118,10 +117,8 @@ def mactaquac_spawning_parser(cleaned_data):
                     grp.clean()
                     grp.save()
                     row_entered = True
-                    anix_grp, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_sucess=True)
-                    row_entered += anix_entered
-                    anix_grp, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp.pk, pair_pk=pair.pk, return_sucess=True)
-                    row_entered += anix_entered
+                    row_entered += utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_sucess=True)
+                    row_entered += utils.enter_anix(cleaned_data, grp_pk=grp.pk, pair_pk=pair.pk, return_sucess=True)
                     grp.grp_valid = True
                     grp.save()
                     row_entered = True
@@ -201,9 +198,9 @@ def coldbrook_spawning_parser(cleaned_data):
                 break
 
             row_date = datetime.strptime(row["date"], "%Y-%b-%d")
-            anix_female, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_female.pk, return_sucess=True)
+            anix_female, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_female.pk)
             row_entered += anix_entered
-            anix_male, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_male.pk, return_sucess=True)
+            anix_male, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_male.pk)
             row_entered += anix_entered
 
             row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row["Ln"], "Length", None)
@@ -288,10 +285,8 @@ def coldbrook_spawning_parser(cleaned_data):
                 try:
                     grp.clean()
                     grp.save()
-                    anix_grp, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_sucess=True)
-                    row_entered += anix_entered
-                    anix_grp, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp.pk, pair_pk=pair.pk, return_sucess=True)
-                    row_entered += anix_entered
+                    row_entered += utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_sucess=True)
+                    row_entered += utils.enter_anix(cleaned_data, grp_pk=grp.pk, pair_pk=pair.pk, return_sucess=True)
                     grp.grp_valid = True
                     grp.save()
                     row_entered = True

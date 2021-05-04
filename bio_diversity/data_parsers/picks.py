@@ -76,7 +76,7 @@ def coldbrook_picks_parser(cleaned_data):
         contx, data_entered = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
                                   return_contx=True)
         utils.enter_contx(row["trofs"], cleaned_data)
-        anix = utils.enter_anix(cleaned_data, grp_pk=row["grps"].pk)
+        anix = utils.enter_anix(cleaned_data, grp_pk=row["grps"].pk, return_anix=True)
         if contx:
             rows_entered += 1
             # fecu to count:
@@ -101,7 +101,7 @@ def coldbrook_picks_parser(cleaned_data):
             shock_date = datetime.strptime(row["Shocking Pick Date"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
             shocking_cleaned_data = utils.create_new_evnt(cleaned_data, "Shocking", shock_date)
             utils.enter_contx(row["trays"], shocking_cleaned_data, None, grp_pk=row["grps"].pk)
-            shock_anix = utils.enter_anix(shocking_cleaned_data, grp_pk=row["grps"].pk)
+            shock_anix = utils.enter_anix(shocking_cleaned_data, grp_pk=row["grps"].pk, return_anix=True)
             dev_at_shocking = row["grps"].get_development(shock_date)
             utils.enter_grpd(shock_anix.pk, shocking_cleaned_data, shock_date, dev_at_shocking, "Development")
 
@@ -110,7 +110,7 @@ def coldbrook_picks_parser(cleaned_data):
             # want to shift the hu move event, so that the counting math always works out.
             hu_move_date = move_date + timedelta(minutes=1)
             hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)
-            hu_anix = utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk)
+            hu_anix = utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk, return_anix=True)
             hu_contx, data_entered = utils.enter_contx(row["trays"], hu_cleaned_data, None, grp_pk=row["grps"].pk, return_contx=True)
             dev_at_hu_transfer = row["grps"].get_development(hu_move_date)
             utils.enter_grpd(hu_anix.pk, hu_cleaned_data, hu_move_date, dev_at_hu_transfer, "Development")
@@ -165,7 +165,7 @@ def coldbrook_picks_parser(cleaned_data):
                         return None
                 else:
                     final_grp = final_grp[0]
-                final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk)
+                final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk, return_anix=True)
                 utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), "Parent Group",
                                  frm_grp_id=row["grps"])
                 utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, None, "Program Group", adsc_str=cnt_code)

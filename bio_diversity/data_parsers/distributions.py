@@ -55,8 +55,8 @@ def mactaquac_distribution_parser(cleaned_data):
                 log_data += "\n No group found in container: {}".format(tank_id.__str__())
                 return log_data, False
 
-            grp_anix = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
-            utils.enter_contx(tank_id, cleaned_data)
+            row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
+            row_entered += utils.enter_contx(tank_id, cleaned_data)
 
             relc_id = None
             rive_id = models.RiverCode.objects.filter(name__icontains=row["Stock"]).get()
