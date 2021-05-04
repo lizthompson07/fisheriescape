@@ -416,7 +416,7 @@ class Meeting(SimpleLookup, MetadataFields):
         return self.display
 
     class Meta:
-        ordering = ['start_date', ]
+        ordering = ["-is_planning", 'start_date', ]
 
     def get_absolute_url(self):
         return reverse("csas2:meeting_detail", args=[self.pk])
