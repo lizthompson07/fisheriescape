@@ -296,7 +296,7 @@
         }
       },
       openEditPopout(url) {
-        popitup(url, 'popoutWindow'  + Date.now());
+        popitup(url, 'popoutWindow' + Date.now());
       },
       enablePopovers() {
         $('[data-toggle="popover"]').popover({html: true});
@@ -325,6 +325,13 @@
       hasRequests() {
         return this.trip.id && this.trip.requests.length;
       }
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+      currencyFormat: vueFiltersObject["currencyFormat"],
+      zero2NullMark: vueFiltersObject["zero2NullMark"],
     },
     created() {
       this.getTrip();
