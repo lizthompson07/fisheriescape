@@ -145,6 +145,8 @@ class EheManagedForm(forms.ModelForm):
 
 class EheForm(forms.ModelForm):
 
+    copy_to_channel = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple)
+
     class Meta:
         model = models.EheHydrophoneEvent
         exclude = []
@@ -157,6 +159,8 @@ class EheForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        channel_choices = [(c.ecp_channel_no, c.ecp_channel_no) for c in models.EqpEquipment.objects.get(pk=self.initial['rec']).emm.recorder.channels.exclude(ecp_channel_no=self.initial['ecp_channel_no'])]
+        self.fields['copy_to_channel'].choices = channel_choices
         if 'hyd' in self.initial and self.initial['hyd']:
             self.fields['hyd'].widget = forms.HiddenInput()
         else:

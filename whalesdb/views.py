@@ -228,6 +228,16 @@ class EheCreate(mixins.EheMixin, CommonCreate):
 
         return initial
 
+    def form_valid(self, form):
+        data = form.cleaned_data
+        # if any copy channel checks are checked then the even will be copied to all additional channels.
+        for channel in data['copy_to_channel']:
+            n_obj = models.EheHydrophoneEvent(ehe_date=data['ehe_date'], hyd=data['hyd'],
+                                              rec=data['rec'], ecp_channel_no=channel)
+            n_obj.save()
+
+        return super().form_valid(form)
+
 
 class EqhCreate(mixins.EqhMixin, CommonCreate):
 
