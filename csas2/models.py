@@ -654,7 +654,7 @@ class DocumentTracking(MetadataFields):
     document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name="tracking")
 
     due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("product due date"))
-    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date submitted to CSAS office by author"), )
+    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date submitted for review"), )
     submitted_by = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("submitted by"), related_name="doc_submissions")
 
     chair = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("chairperson"), related_name="doc_chair_positions")

@@ -163,5 +163,6 @@ cost_category_choices = (
     (2, 'Travel'),
     (3, 'Hospitality'),
     (4, 'Space rental'),
+    (5, 'Simultaneous translation'),
     (9, 'Other'),
 )
