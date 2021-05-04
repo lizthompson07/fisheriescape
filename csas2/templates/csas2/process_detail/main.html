@@ -151,10 +151,10 @@
             <th rowspan="2" style="width: 400px">{% trans "Title" %}</th>
             <th rowspan="2">{% trans "Type" %}</th>
             <th rowspan="2">{% trans "Status" %}</th>
-            <th v-if="meetings.length" class="text-center" :colspan="meetings.length">{% trans "Meeting Linkages" %}</th>
+            <th v-if="keystoneMeetings.length" class="text-center" :colspan="keystoneMeetings.length">{% trans "Meeting Linkages" %}</th>
           </tr>
           <tr>
-            <th v-for="m, index in meetings" :key="m.id" class="text-center text-muted">${m.type_display}</th>
+            <th v-for="m, index in keystoneMeetings" :key="m.id" class="text-center text-muted">${m.display}</th>
           </tr>
           </thead>
           <tbody>
@@ -162,7 +162,7 @@
             <td>${d.ttitle}</td>
             <td>${d.document_type}</td>
             <td v-html="d.status_display"></td>
-            <td v-for="m, index in meetings" :key="m.id" class="text-center">
+            <td v-for="m, index in keystoneMeetings" :key="m.id" class="text-center">
               <button v-if="d.meetings.includes(m.id)" @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span
                 class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span></button>
               <button v-else @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span>
@@ -258,6 +258,15 @@
     computed: {
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      keystoneMeetings() {
+        let myArray = [];
+        let m;
+        for (var i = 0; i < this.meetings.length; i++) {
+          m = this.meetings[i];
+          if (!m.is_planning) myArray.push(m);
+        }
+        return myArray;
       }
     },
     created() {
