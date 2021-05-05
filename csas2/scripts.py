@@ -52,7 +52,7 @@ def digest_csv():
             region = Region.objects.get(name__icontains="maritimes")
             # temp_branch, created = Branch.objects.get_or_create(region=region, name="temp")
             # temp_division, created = Division.objects.get_or_create(branch=temp_branch, name="temp")
-            section_text = row["section"]
+            section_text = row["section"].strip()
             qs = Section.objects.filter(name__iexact=section_text, division__branch__region=region)
             if not qs.exists():
                 print("section not found:", section_text)
