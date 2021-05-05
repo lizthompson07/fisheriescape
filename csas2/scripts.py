@@ -73,7 +73,7 @@ def digest_csv():
             rationale = row['RationaleOrContextText']
             risk_text = row['ConsequenceIfAdviceNotProvidedText']
             timeline_text = row['RationaleForDeadlineText']
-            funds = True if row['Funds'].lower() == "yes" else False
+            funds = True if row['Funds'] and row['Funds'].lower() == "yes" else False
             funds_text = row['FundsText']
             date = datetime.datetime.strptime(row['FiscalYearText']+ " 12:00", "%m/%d/%Y %H:%M")
             date = make_aware(date, utc)
