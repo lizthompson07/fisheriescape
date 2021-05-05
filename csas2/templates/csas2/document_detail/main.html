@@ -49,7 +49,8 @@
         <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
         <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
         <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
-        <button v-if="!document.pub_number_request_date && !document.pub_number" class="btn btn-sm btn-info ml-3" @click="requestPubNumber">{% trans "Request a Pub Number" %}</button>
+        <button v-if="!document.pub_number_request_date && !document.pub_number" class="btn btn-sm btn-info ml-3"
+                @click="requestPubNumber">{% trans "Request a Pub Number" %}</button>
         <em v-else-if="!document.pub_number" class=" text-muted ml-3">{% trans "Pub number requested on" %} ${document.pub_number_request_date_display}</em>
       </div>
 
@@ -80,7 +81,7 @@
                 <th class="text-left">{% trans "Type" %}</th>
                 <td class="text-left" v-html="document.document_type"></td>
               </tr>
-            <tr>
+              <tr>
                 <th class="text-left" v-html="documentLabels.due_date"></th>
                 <td class="text-left" v-html="document.due_date_display"></td>
               </tr>
@@ -267,12 +268,15 @@
         });
       },
       requestPubNumber() {
-        let endpoint = `/api/csas/documents/${this.documentId}/?request_pub_number=true`;
-        apiService(endpoint, "POST").then(data => {
-          console.log(data)
-          this.pubNumberConfirmationMsg = data;
-          this.getDocument()
-        });
+        let userInput = confirm("{% trans 'Are you certain you want to request a publication number from National CSAS Office?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/documents/${this.documentId}/?request_pub_number=true`;
+          apiService(endpoint, "POST").then(data => {
+            console.log(data)
+            this.pubNumberConfirmationMsg = data;
+            this.getDocument()
+          });
+        }
       },
       getCurrentUser() {
         let endpoint = `/api/csas/user/?document=${documentId}`;
