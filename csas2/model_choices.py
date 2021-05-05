@@ -44,7 +44,7 @@ process_scope_choices = (
 process_type_choices = (
     (1, _('Advisory Meeting')),
     (2, _('Science Response Process')),
-    (3, _('Peer Review')),
+    # (3, _('Peer Review')),
 )
 
 process_status_choices = (

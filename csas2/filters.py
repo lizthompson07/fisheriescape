@@ -41,7 +41,7 @@ class CSASRequestFilter(django_filters.FilterSet):
 
         region_choices = utils.get_region_choices()
         branch_choices = utils.get_branch_choices()
-        fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False)]
+        fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
         self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact',
@@ -78,6 +78,12 @@ class ProcessFilter(django_filters.FilterSet):
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
         self.filters['lead_region'] = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact', choices=region_choices)
+
+    class Meta:
+        model = models.Process
+        fields = {
+            'type': ['exact'],
+        }
 
 
 class MeetingFilter(django_filters.FilterSet):

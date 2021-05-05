@@ -3,6 +3,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
+from lib.templatetags.custom_filters import nz
 from shared_models.models import Section, Person, FiscalYear
 from . import models
 
@@ -196,7 +197,7 @@ class ProcessForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {obj.ref_number} ({obj.fiscal_year})") for obj in
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {nz(obj.ref_number,'')} ({obj.fiscal_year})") for obj in
                            models.CSASRequest.objects.filter(submission_date__isnull=False)]
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices
