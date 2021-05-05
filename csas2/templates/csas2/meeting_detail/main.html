@@ -166,6 +166,7 @@
   {% include "csas2/meeting_detail/components/email-overlay.html" %}
   {% include "csas2/meeting_detail/components/attendance-overlay.html" %}
   {% include "csas2/meeting_detail/components/cost_editor.html" %}
+  {% include "csas2/meeting_detail/components/invitee_importer.html" %}
 
   <script type="application/javascript">
   var meetingId = "{{ object.id }}";
@@ -195,6 +196,15 @@
       meetingLabels: {}
     },
     methods: {
+      attendAll() {
+        let userInput = confirm("{% trans 'This will set the attendance of all invitees whose status is "accepted" or "invited" to 100%. \n\n Do you wish to proceed?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/meetings/${meetingId}/?maximize_attendance=true`;
+          apiService(endpoint, "POST").then(() => {
+            this.getInvitees();
+          })
+        }
+      },
       getCurrentUser() {
         let endpoint = `/api/csas/user/`;
         apiService(endpoint)
@@ -304,8 +314,6 @@
           }
         });
       },
-
-
     },
     computed: {
       attendeeCount() {

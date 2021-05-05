@@ -1,5 +1,5 @@
 from uuid import uuid4
-
+from datetime import timedelta
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -409,6 +409,12 @@ class Meeting(SimpleLookup, MetadataFields):
     def save(self, *args, **kwargs):
         if self.start_date:
             self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
+        else:
+            est_fy = self.est_year
+            if self.est_quarter != 4:
+                est_fy += 1
+            self.fiscal_year_id = est_fy
+
         if self.is_virtual:
             self.location = 'Virtual / Virtuel'
         if self.start_date:
@@ -425,6 +431,12 @@ class Meeting(SimpleLookup, MetadataFields):
 
     def __str__(self):
         return self.display
+
+    @property
+    def full_display(self):
+        fy = str(self.fiscal_year) if self.fiscal_year else "TBD"
+        invitee_count = self.invitees.count()
+        return f"{self.process.lead_region} - {fy} - {self.display} ({invitee_count} invitee{pluralize(invitee_count)})"
 
     class Meta:
         ordering = ["-is_planning", 'start_date', ]
@@ -553,6 +565,18 @@ class Invitee(models.Model):
         else:
             days = self.attendance.count()
             return "{} {}{} ({})".format(days, gettext("day"), pluralize(days), percentage(self.attendance_fraction, 0))
+
+    def maximize_attendance(self):
+        if self.meeting.start_date and self.meeting.end_date:
+            self.attendance.all().delete()
+            start_date = self.meeting.start_date
+            end_date = self.meeting.end_date
+            diff = (end_date - start_date)
+            for i in range(0, diff.days+1):
+                date = start_date + timedelta(days=i)
+                print(date)
+                Attendance.objects.get_or_create(invitee=self, date=date)
+
 
 
 class Attendance(models.Model):

@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
 
 from lib.functions.custom_functions import fiscal_year
@@ -667,10 +668,12 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
         range = form.cleaned_data["date_range"]
         if range:
             range = range.split("to")
-            start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
+            start_date = datetime.strptime(range[0].strip() + " 12:00", "%Y-%m-%d %H:%M")
+            start_date = make_aware(start_date, utc)
             obj.start_date = start_date
             if len(range) > 1:
-                end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
+                end_date = datetime.strptime(range[1].strip() + " 12:00", "%Y-%m-%d %H:%M")
+                end_date = make_aware(end_date, utc)
                 obj.end_date = end_date
             else:
                 obj.end_date = start_date

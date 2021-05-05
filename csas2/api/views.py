@@ -84,6 +84,29 @@ class MeetingViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.MeetingSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
 
+    def post(self, request, pk):
+        qp = request.query_params
+        meeting = get_object_or_404(models.Meeting, pk=pk)
+        if qp.get("maximize_attendance"):
+            invitees = meeting.invitees.filter(status__in=[0, 1])
+            for invitee in invitees:
+                invitee.maximize_attendance()
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("import_from_meeting"):
+            target_meeting = get_object_or_404(models.Meeting, pk=qp.get("import_from_meeting"))
+            invitees = target_meeting.invitees.all()
+            for new_invitee in invitees:
+                if not meeting.invitees.filter(person=new_invitee.person).exists():
+                    i = models.Invitee.objects.create(
+                        meeting=meeting,
+                        person=new_invitee.person,
+                        region=new_invitee.region,
+                    )
+                    for role in new_invitee.roles.all():
+                        i.roles.add(role)
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
     def list(self, request, *args, **kwargs):
         qp = request.query_params
         if qp.get("process"):
@@ -91,6 +114,11 @@ class MeetingViewSet(viewsets.ModelViewSet):
             qs = process.meetings.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        if qp.get("choices"):
+            qs = models.Meeting.objects.filter(is_planning=False, invitees__isnull=False).distinct().order_by("process__lead_region", "fiscal_year")
+            meeting_choices = [dict(text=m.full_display, value=m.id) for m in qs]
+            meeting_choices.insert(0, dict(text="-----", value=None))
+            return Response(meeting_choices)
         raise ValidationError(_("You need to specify a csas process"))
 
     def perform_create(self, serializer):

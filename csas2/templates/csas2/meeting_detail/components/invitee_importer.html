@@ -1,0 +1,123 @@
+<!-- template for the modal component -->
+{% load i18n %}
+
+<script type="text/x-template" id="invitee-importer-template">
+<div class="">
+  <button class="btn btn-sm btn-primary py-0 px-1" @click="openDialog" data-toggle="tooltip" title="{% trans "Import invitees from another CSAS meeting" %}">
+    <span class="h5 mdi mdi-account-multiple-plus text-light"></span>
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 600px">
+          <div class="modal-header">
+            <h4> {% trans "Import Invitees" %}</h4>
+          </div>
+          <div class="modal-body">
+            <div v-if="loading" class="loading mb-3 mt-3 mt-5">
+              <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+
+            <form v-else @submit.prevent="onSubmit">
+              <div class="mb-3" style="height: 300px ">
+                <div class="form-group">
+                  <label for="">{% trans "Please select a meeting from which to import invitees:" %}</label>
+                  <v-select
+                    v-model="targetMeeting"
+                    :options="meetingChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+
+                <div class="mb-3">
+                  <button type="submit" class="btn btn-warning">{% trans "Import" %}</button>
+                  <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
+
+                </div>
+              </div>
+              <div class="alert alert-danger mb-3" role="alert" v-if="error">
+                <p class="lead">
+                  ${ error }
+                </p>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+</script>
+
+<script type="application/javascript">
+
+Vue.component("invitee-importer", {
+  template: "#invitee-importer-template",
+  delimiters: ["${", "}"],
+  name: "invitee-importer",
+  components: {
+    vuejsDatepicker
+  },
+  props: {
+    meeting_id: {
+      required: true
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      error: null,
+      targetMeeting: {},
+      meetingChoices: [],
+      loading: false,
+    };
+  },
+  methods: {
+    openDialog() {
+      this.error = null;
+      this.overlay = true;
+    },
+    closeOverlay() {
+      this.error = null;
+      this.targetMeeting = null;
+      this.overlay = false;
+    },
+    getMeetings() {
+      this.loading = true;
+      let endpoint = `/api/csas/meetings/?choices=True`;
+      apiService(endpoint).then(data => {
+        this.loading = false;
+        this.meetingChoices = data;
+      });
+    },
+    onSubmit() {
+      if (this.targetMeeting) {
+
+        this.error = null;
+        var method;
+        var endpoint;
+        endpoint = `/api/csas/meetings/${this.meeting_id}/?import_from_meeting=${this.targetMeeting}`;
+        method = "POST";
+        apiService(endpoint, method).then(response => {
+          this.$emit("update-invitees");
+          this.overlay = false;
+        });
+      } else {
+        this.overlay = false;
+      }
+    }
+  },
+  created() {
+    this.getMeetings()
+  },
+  computed: {}
+});
+</script>
