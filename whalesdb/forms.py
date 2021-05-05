@@ -164,7 +164,7 @@ class EheForm(forms.ModelForm):
             emm = eqp.emm
             if hasattr(emm, 'recorder'):
                 channel_choices = [(c.ecp_channel_no, c.ecp_channel_no) for c in
-                                   emm.channels.exclude(ecp_channel_no=self.initial['ecp_channel_no'])]
+                                   emm.recorder.channels.exclude(ecp_channel_no=self.initial['ecp_channel_no'])]
                 self.fields['copy_to_channel'].choices = channel_choices
 
         if 'hyd' in self.initial and self.initial['hyd']:
