@@ -7,15 +7,15 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from bio_diversity.data_parsers.distributions import mactaquac_distribution_parser, coldbrook_distribution_parser
-from bio_diversity.data_parsers.electrofishing import coldbrook_electrofishing_parser, mactaquac_electrofishing_parser
+from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser
 
 from bio_diversity import models
 from bio_diversity import utils
-from bio_diversity.data_parsers.generic import generic_indv_parser, generic_grp_parser, GenericIndvParser
+from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
 from bio_diversity.data_parsers.maturity_sorting import mactaquac_maturity_sorting_parser
 from bio_diversity.data_parsers.picks import mactaquac_picks_parser, coldbrook_picks_parser
 from bio_diversity.data_parsers.spawning import mactaquac_spawning_parser, coldbrook_spawning_parser
-from bio_diversity.data_parsers.tagging import coldbrook_tagging_parser, mactaquac_tagging_parser
+from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
 from bio_diversity.data_parsers.temperatures import temperature_parser
 from bio_diversity.data_parsers.treatment import mactaquac_treatment_parser
 from bio_diversity.data_parsers.water_quality import mactaquac_water_quality_parser
@@ -239,20 +239,23 @@ class DataForm(CreatePrams):
             return cleaned_data
         log_data = ""
         success = False
+        parser = None
         try:
             # ----------------------------ELECTROFISHING-----------------------------------
             if cleaned_data["evntc_id"].__str__() in ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:
                 if cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, success = coldbrook_electrofishing_parser(cleaned_data)
+                    parser = ColdbrookElectrofishingParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, success = mactaquac_electrofishing_parser(cleaned_data)
+                    parser = MactaquacElectrofishingParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -------------------------------TAGGING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "PIT Tagging":
                 if cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, success = coldbrook_tagging_parser(cleaned_data)
+                    parser = ColdbrookTaggingParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, success = mactaquac_tagging_parser(cleaned_data)
+                    parser = MactaquacTaggingParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -----------------------------MATURITY SORTING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting":
@@ -292,11 +295,10 @@ class DataForm(CreatePrams):
             elif cleaned_data["evntc_id"].__str__() == "Measuring":
                 if cleaned_data["data_type"].__str__() == "Individual":
                     parser = GenericIndvParser(cleaned_data)
-                    log_data = parser.log_data
-                    success = parser.success
                 elif cleaned_data["data_type"].__str__() == "Group":
-                    log_data, success = generic_grp_parser(cleaned_data)
-
+                    parser = GenericGrpParser(cleaned_data)
+                log_data = parser.log_data
+                success = parser.success
             # -----------------------------DISTRIBUTION----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Distribution":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
@@ -306,7 +308,9 @@ class DataForm(CreatePrams):
 
             # -------------------------GENERAL DATA ENTRY-------------------------------------------
             else:
-                log_data, success = generic_indv_parser(cleaned_data)
+                parser = GenericIndvParser(cleaned_data)
+                log_data = parser.log_data
+                success = parser.success
 
         except Exception as err:
             log_data += "Error parsing data: \n"

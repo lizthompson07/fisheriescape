@@ -2,6 +2,7 @@ from datetime import datetime
 import decimal
 import math
 
+from pandas import read_excel
 import pytz
 from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import IntegrityError
@@ -9,6 +10,106 @@ from django.http import JsonResponse
 from decimal import Decimal
 from bio_diversity import models
 from bio_diversity.static.calculation_constants import *
+
+
+class DataParser:
+
+    # values to explain the results of parsing
+    log_data = "Loading Data Results: \n"
+    success = True
+
+    # variables counting progress
+    rows_parsed = 0
+    rows_entered = 0
+    row_entered = False
+
+    # the data
+    cleaned_data = {}
+    data = None
+    data_dict = None
+
+    # standard column headers
+    year_key = "Year"
+    month_key = "Month"
+    day_key = "Day"
+
+    header = 1
+    converters = {year_key: str, month_key: str, day_key: str}
+    """ The data is parsed on initializing. The process is broken into steps run sequentially in init.  Each step
+     consists of two functions: a wrapper and a parser. The wrapper (eg. load_data) checks if self.success is still 
+     true, catches errors from running the corresponding parser function (eg. data_loader) which should be overwritten 
+     for each specific parser."""
+    def __init__(self, cleaned_data):
+        self.cleaned_data = cleaned_data
+        self.load_data()
+        self.prep_data()
+        self.iterate_rows()
+        self.clean_data()
+
+    def load_data(self):
+        try:
+            self.data_reader()
+            self.data_dict = self.data.to_dict('records')
+        except Exception as err:
+            self.log_data += "\n File format not valid: {}".format(err.__str__())
+            self.success = False
+
+    def data_reader(self):
+        self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
+                               converters=self.converters).dropna(how="all")
+
+    def prep_data(self):
+        if self.success:
+            try:
+                self.data_preper()
+            except Exception as err:
+                err_msg = common_err_parser(err)
+                self.log_data += "\n Error preparing data: {}".format(err_msg)
+                self.success = False
+
+    def data_preper(self):
+        pass
+
+    def iterate_rows(self):
+        for row in self.data_dict:
+            if self.success:
+                self.row_entered = False
+                try:
+                    self.row_parser(row)
+                except Exception as err:
+                    err_msg = common_err_parser(err)
+                    self.log_data += "Error parsing row: \n"
+                    self.log_data += str(row)
+                    self.log_data += "\n Error: {}".format(err_msg)
+                    self.parsed_row_counter()
+                    self.success = False
+                self.rows_parsed += 1
+                if self.row_entered:
+                    self.rows_entered += 1
+
+    def row_parser(self, row):
+        pass
+
+    def clean_data(self):
+        if self.success:
+            try:
+                self.data_cleaner()
+            except Exception as err:
+                err_msg = common_err_parser(err)
+
+                self.log_data += "Error parsing common data: \n"
+                self.log_data += "\n Error: {}".format(err_msg)
+                self.parsed_row_counter()
+                self.success = False
+
+            self.parsed_row_counter()
+
+    def data_cleaner(self):
+        pass
+
+    def parsed_row_counter(self):
+        self.log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered into database.  " \
+                         "\n".format(self.rows_parsed, len(self.data_dict), self.rows_entered, len(self.data_dict))
 
 
 def bio_diverisity_authorized(user):
@@ -587,6 +688,7 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
             if new_cnt > cnt.cnt:
                 cnt.cnt = int(new_cnt)
                 cnt.save()
+                row_entered = True
 
     return row_entered
 
