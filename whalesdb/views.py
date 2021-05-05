@@ -1,4 +1,3 @@
-import csv
 import datetime
 
 from django.views.generic import TemplateView, DetailView, DeleteView
@@ -17,7 +16,7 @@ from shared_models.views import CommonTemplateView, CommonAuthCreateView, Common
 import json
 import shared_models.models as shared_models
 from .utils import AdminRequiredMixin
-from . import mixins
+from . import mixins, reports
 
 
 def ecc_delete(request, pk):
@@ -88,48 +87,6 @@ def rci_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
-def report_deployment_summary(request):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="deployment_summary.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(['EDA_ID', 'Deployment', 'station', 'Latitude', 'Longitude', 'Depth_m', 'Equipment make_model_serial',
-                     'Hydrophone make_model_serial', 'Dataset timezone', 'Recording schedule', 'In-water_start',
-                     'In-water_end', 'Dataset notes'])
-
-    edas = models.EdaEquipmentAttachment.objects.all()
-
-    for eda in edas:
-        deployment = eda.dep
-        eqp = eda.eqp
-
-        datasets = eda.dataset.all()
-
-        for dataset in datasets:
-            staion_events = deployment.station_events.filter(set_type=1)  # set_type=1 is the deployment event
-            for dep_evt in staion_events:
-                lat = dep_evt.ste_lat_mcal if dep_evt.ste_lat_mcal else dep_evt.ste_lat_ship
-                lon = dep_evt.ste_lon_mcal if dep_evt.ste_lon_mcal else dep_evt.ste_lon_ship
-                depth = dep_evt.ste_depth_mcal if dep_evt.ste_depth_mcal else dep_evt.ste_lon_ship
-
-                in_start_date = dataset.rec_start_date
-                in_start_time = dataset.rec_start_time
-                in_start = "{} {}".format(in_start_date, in_start_time)
-
-                in_end_date = dataset.rec_end_date
-                in_end_time = dataset.rec_end_time
-                in_end = "{} {}".format(in_end_date, in_end_time)
-
-                hydro = eda.eqp.hydrophones.filter(ehe_date__lte=in_start_date).order_by("ehe_date").last()
-                hyd = hydro.hyd if hydro else "----"
-                writer.writerow([eda.pk, dep_evt.dep.dep_name, dep_evt.dep.stn, lat, lon, depth, eqp,
-                                hyd, dataset.rtt_dataset, dataset.rsc_id, in_start,
-                                in_end, dataset.rec_notes])
-
-    return response
-
-
 class ReportView(CommonFormView):
     nav_menu = 'whalesdb/base/whales_nav_menu.html'
     site_css = 'whalesdb/base/whales_css.css'
@@ -138,10 +95,12 @@ class ReportView(CommonFormView):
     template_name = 'whalesdb/whales_reports.html'
 
     def form_valid(self, form):
-        report = int(form.cleaned_data["report"])
+        report_choice = int(form.cleaned_data["report"])
 
-        if report == 1:
-            return HttpResponseRedirect(reverse_lazy("whalesdb:report_deployment_summary"))
+        if report_choice == 1:
+            return reports.report_deployment_summary(self.request.POST)
+
+        return super().form_valid(form)
 
 
 class IndexView(CommonTemplateView):
@@ -268,6 +227,16 @@ class EheCreate(mixins.EheMixin, CommonCreate):
         initial['ehe_date'] = datetime.date.today()
 
         return initial
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        # if any copy channel checks are checked then the even will be copied to all additional channels.
+        for channel in data['copy_to_channel']:
+            n_obj = models.EheHydrophoneEvent(ehe_date=data['ehe_date'], hyd=data['hyd'],
+                                              rec=data['rec'], ecp_channel_no=channel)
+            n_obj.save()
+
+        return super().form_valid(form)
 
 
 class EqhCreate(mixins.EqhMixin, CommonCreate):
