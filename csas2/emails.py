@@ -84,4 +84,4 @@ class PostedProcessEmail(Email):
     def get_recipient_list(self):
         mylist = [a.email for a in self.instance.advisors.all()]
         mylist.append(self.instance.coordinator.email)
-        return set(mylist)
+        return list(set(mylist))
