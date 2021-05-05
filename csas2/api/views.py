@@ -69,7 +69,14 @@ class ProcessViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+        kwargs = dict(updated_by=self.request.user)
+        obj = serializer.save(**kwargs)
+        # we do not want to send them too many emails.. only the first time
+        if obj.is_posted and not obj.posting_notification_date:
+            email = emails.PostedProcessEmail(self.request, obj)
+            email.send()
+            obj.posting_notification_date = timezone.now()
+            obj.save()
 
 
 class MeetingViewSet(viewsets.ModelViewSet):

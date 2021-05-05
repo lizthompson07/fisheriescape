@@ -58,6 +58,7 @@
             <th>{% trans "Title" %}</th>
             <th>${processLabels.lead_region}</th>
             <th>${processLabels.is_posted}</th>
+            <th>{% trans "Notification Email Sent?" %}</th>
           </tr>
           </thead>
           <tbody>
@@ -69,6 +70,7 @@
               <button v-if="p.is_posted" class="btn btn-xs btn-success" @click="toggle(p)">{% trans "Posted" %}</button>
               <button v-else class="btn btn-xs btn-danger" @click="toggle(p)">{% trans "Not Posted" %}</button>
             </td>
+            <td>${p.posting_notification_date|yesNo}</td>
           </tr>
           </tbody>
         </table>
@@ -148,6 +150,9 @@
           });
         }
       },
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"]
     },
     computed: {
       canModify() {

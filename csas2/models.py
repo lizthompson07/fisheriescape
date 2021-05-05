@@ -250,7 +250,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
 
     # non-editable
-    is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"), editable=False)
+    is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
     # calculated
