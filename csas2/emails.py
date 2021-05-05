@@ -85,3 +85,27 @@ class PostedProcessEmail(Email):
         mylist = [a.email for a in self.instance.advisors.all()]
         mylist.append(self.instance.coordinator.email)
         return list(set(mylist))
+
+
+
+class UpdatedMeetingEmail(Email):
+    email_template_path = 'csas2/emails/updated_meeting.html'
+    subject_en = 'Some information has been updated on a posted meeting'
+
+    def get_recipient_list(self):
+        return [csas_generic_email]
+
+    def __init__(self, request, meeting, tor, old_meeting=None):
+        super().__init__(request)
+        self.request = request
+        self.old_meeting = old_meeting
+        self.meeting = meeting
+        self.tor = tor
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        old_meeting = self.old_meeting
+        if not old_meeting:
+            old_meeting = self.meeting
+        context.update({'old_meeting': old_meeting, 'meeting': self.meeting, 'tor': self.tor})
+        return context

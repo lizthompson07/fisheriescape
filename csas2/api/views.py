@@ -36,6 +36,9 @@ class CurrentUserAPIView(APIView):
         elif qp.get("document"):
             doc = get_object_or_404(models.Document, pk=qp.get("document"))
             data["can_modify"] = utils.can_modify_process(request.user, doc.process_id, return_as_dict=True)
+        elif qp.get("meeting"):
+            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
+            data["can_modify"] = utils.can_modify_process(request.user, meeting.process_id, return_as_dict=True)
         return Response(data)
 
 

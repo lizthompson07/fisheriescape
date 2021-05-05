@@ -466,14 +466,13 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return {"title": "{} {}".format(_("Process"), self.get_object().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
 
 
-class ProcessPostingsVueJSView(CsasNationalAdminRequiredMixin, CommonFilterView): # using the common filter view to bring in the django filter machinery
+class ProcessPostingsVueJSView(CsasNationalAdminRequiredMixin, CommonFilterView):  # using the common filter view to bring in the django filter machinery
     template_name = 'csas2/process_postings.html'
     home_url_name = "csas2:index"
     container_class = "container-fluid"
     h1 = gettext_lazy("Manage Process Postings")
     model = models.Process
     filterset_class = filters.ProcessFilter
-
 
 
 # ToR #
@@ -520,7 +519,19 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
-        return super().form_valid(form)
+
+        old_obj = models.TermsOfReference.objects.get(pk=obj.id)
+        obj.save()
+        print(123)
+        # now for the piece about NCR email
+        if obj.process.is_posted and \
+                (old_obj.expected_publications_en != obj.expected_publications_en or old_obj.expected_publications_fr != obj.expected_publications_fr):
+            if not obj.meeting:
+                messages.error(self.request, "tried to send an email to NCR but this TOR has no meeting!")
+            else:
+                email = emails.UpdatedMeetingEmail(self.request, obj.meeting, obj.process.tor)
+                email.send()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class TermsOfReferenceDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
@@ -641,7 +652,18 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
                 obj.end_date = start_date
         obj.created_by = self.request.user
         obj.process = self.get_process()
-        return super().form_valid(form)
+
+        obj.save()
+
+        # now for the piece about NCR email
+        if obj.process.is_posted and not obj.is_planning:
+            if not hasattr(obj.process, "tor"):
+                messages.error(self.request, "tried to send an email to NCR but this process has no TOR!")
+            else:
+                email = emails.UpdatedMeetingEmail(self.request, obj, obj.process.tor)
+                email.send()
+        return HttpResponseRedirect(self.get_success_url())
+
 
 
 class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
@@ -681,7 +703,19 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
             obj.start_date = None
             obj.end_date = None
         obj.updated_by = self.request.user
-        return super().form_valid(form)
+
+        old_obj = models.Meeting.objects.get(pk=obj.id)
+        obj.save()
+
+        # now for the piece about NCR email
+        if obj.process.is_posted and not obj.is_planning and \
+                (old_obj.name != obj.name or old_obj.nom != obj.nom or old_obj.location != obj.location or old_obj.tor_display_dates != obj.tor_display_dates):
+            if not hasattr(obj.process, "tor"):
+                messages.error(self.request, "tried to send an email to NCR but this process has no TOR!")
+            else:
+                email = emails.UpdatedMeetingEmail(self.request, obj, obj.process.tor, old_obj)
+                email.send()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):

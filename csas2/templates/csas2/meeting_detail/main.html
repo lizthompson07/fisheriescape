@@ -33,10 +33,10 @@
       </div>
       {% bootstrap_messages %}
       <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
-        <p class="mb-0">
-          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
-        </p>
-      </div>
+          <p class="mb-0">
+            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+          </p>
+        </div>
     </div>
 
     <div class="mb-3">
@@ -73,7 +73,7 @@
             </tr>
             <tr>
               <th class="text-left">{% trans "Attendees" %}</th>
-              <td class="text-left" v-html="meeting.attendees"></td>
+              <td class="text-left">${meeting.attendees|nz}</td>
             </tr>
 
             <tr>
@@ -180,7 +180,6 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      canModify: false,
       loadingMeeting: false,
 
       meeting: {},
@@ -197,16 +196,21 @@
     },
     methods: {
       attendAll() {
-        let userInput = confirm("{% trans 'This will set the attendance of all invitees whose status is `accepted` or `invited` to 100%. \n\n Do you wish to proceed?' %}")
-        if (userInput) {
-          let endpoint = `/api/csas/meetings/${meetingId}/?maximize_attendance=true`;
-          apiService(endpoint, "POST").then(() => {
-            this.getInvitees();
-          })
+        if (!this.meeting.start_date) {
+          alert("{% trans "You cannot use this function unless you have a meeting start and end date selected :)" %}");
+        } else {
+
+          let userInput = confirm("{% trans 'This will set the attendance of all invitees whose status is `accepted` or `invited` to 100%. \n\n Do you wish to proceed?' %}")
+          if (userInput) {
+            let endpoint = `/api/csas/meetings/${meetingId}/?maximize_attendance=true`;
+            apiService(endpoint, "POST").then(() => {
+              this.getInvitees();
+            })
+          }
         }
       },
       getCurrentUser() {
-        let endpoint = `/api/csas/user/`;
+        let endpoint = `/api/csas/user/?meeting=${meetingId}`;
         apiService(endpoint)
             .then(response => {
               this.currentUser = response;
@@ -316,6 +320,9 @@
       },
     },
     computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
       attendeeCount() {
         if (this.meeting && this.meeting.attendees && this.meeting.attendees.length) {
           return this.meeting.attendees.split(",").length;
@@ -335,6 +342,7 @@
       nz: vueFiltersObject["nz"],
     },
     created() {
+      this.getCurrentUser();
       this.getMeetingMetadata();
       this.getMeeting(true);
     },

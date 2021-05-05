@@ -49,9 +49,9 @@
         <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
         <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
         <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
-        <button v-if="!document.pub_number_request_date && !document.pub_number" class="btn btn-sm btn-info ml-3"
+        <button v-if="!document.pub_number_request_date && !document.pub_number && document.tracking" class="btn btn-sm btn-info ml-3"
                 @click="requestPubNumber">{% trans "Request a Pub Number" %}</button>
-        <em v-else-if="!document.pub_number" class=" text-muted ml-3">{% trans "Pub number requested on" %} ${document.pub_number_request_date_display}</em>
+        <em v-else-if="!document.pub_number && document.tracking" class=" text-muted ml-3">{% trans "Pub number requested on" %} ${document.pub_number_request_date_display}</em>
       </div>
 
       <div class="row">

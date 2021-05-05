@@ -1,0 +1,45 @@
+{% load verbose_names %}
+{% load i18n %}
+
+{% language 'en' %}
+  <p>
+    Dear CSAS,
+  </p>
+  <p>
+    This is an automated message to notify you that the process entitled,
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' meeting.process.id %}">{{ meeting.process.tname }}</a>,
+    has been modified.
+  </p>
+
+  <ul> Here are the original details:</ul>
+  <p>
+    English title: {{ old_meeting.name }} <br>
+    French title: {{ old_meeting.nom }} <br>
+    Dates: {{ old_meeting.tor_display_dates }} <br>
+  </p>
+
+  <ul> Here are the new details:</ul>
+  <p>
+    Title (English): {{ meeting.name }} <br>
+    Title (French): {{ meeting.nom }} <br>
+    Dates: {{ meeting.tor_display_dates }} <br>
+    Location: {{ meeting.location }} <br>
+    Chair: {{ meeting.chair }} <br>
+  </p>
+  <div class="">
+    Expected publications (English):
+    {{ tor.expected_publications_en_html }}
+  </div>
+  <div class="">
+    Expected publications (French):
+    {{ tor.expected_publications_fr_html }}
+  </div>
+
+
+{% endlanguage %}
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps
+</p>

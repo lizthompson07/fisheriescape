@@ -1,5 +1,6 @@
-from uuid import uuid4
 from datetime import timedelta
+from uuid import uuid4
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -572,11 +573,9 @@ class Invitee(models.Model):
             start_date = self.meeting.start_date
             end_date = self.meeting.end_date
             diff = (end_date - start_date)
-            for i in range(0, diff.days+1):
+            for i in range(0, diff.days + 1):
                 date = start_date + timedelta(days=i)
-                print(date)
                 Attendance.objects.get_or_create(invitee=self, date=date)
-
 
 
 class Attendance(models.Model):

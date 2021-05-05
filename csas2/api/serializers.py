@@ -383,7 +383,6 @@ class MeetingSerializer(serializers.ModelSerializer):
             )
         if len(my_list):
             return listrify(my_list)
-        return gettext("None")
 
     def get_start_date_display(self, instance):
         return date(instance.start_date)
