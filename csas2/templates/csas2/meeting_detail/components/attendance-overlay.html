@@ -68,7 +68,7 @@ Vue.component("attendance-overlay", {
       this.overlay = true;
       this.dates = this.invitee.attendance;
       this.$nextTick(() => {
-        $(".fp-date-multiple").flatpickr({
+        let calendar = flatpickr($(".fp-date-multiple"), {
           mode: "multiple",
           dateFormat: "Y-m-d",
           conjunction: ", ",
@@ -78,7 +78,10 @@ Vue.component("attendance-overlay", {
               to: this.invitee.meeting_object.dates[1]
             }
           ]
-        }).open();
+        });
+        calendar.jumpToDate(this.invitee.meeting_object.dates[0])
+        calendar.open()
+
         $(".fp-date-multiple").keydown(function (event) {
           if (event.key == "Delete" || event.key == "Escape") {
             event.preventDefault()

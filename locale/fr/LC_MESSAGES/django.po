@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-23 09:19-0300\n"
+"POT-Creation-Date: 2021-05-03 13:17-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -42,7 +42,7 @@ msgid "phone (office)"
 msgstr "téléphone (bureau)"
 
 #: .\accounts\models.py:18 .\inventory\models.py:83
-#: .\shared_models\models.py:848
+#: .\shared_models\models.py:879
 msgid "language preference"
 msgstr "préférence linguistique"
 
@@ -94,7 +94,11 @@ msgstr "Nouvelle demande d'accès:"
 #: .\sar_search\templates\sar_search\rp_points_file_import_form.html:124
 #: .\shared_models\templates\shared_models\generic_form.html:29
 #: .\shared_models\templates\shared_models\generic_popout_form.html:34
-#: .\shared_models\templates\shared_models\org_form.html:26
+#: .\shared_models\templates\shared_models\org_form.html:39
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:133
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:198
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:263
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:317
 #: .\staff\templates\staff\staffingplan_form.html:38
 #: .\staff\templates\staff\staffingplan_form.html:45
 #: .\staff\templates\staff\staffingplan_form.html:60
@@ -216,7 +220,7 @@ msgstr "Inventaire des données"
 
 #: .\bio_diversity\forms.py:583 .\bio_diversity\models.py:94
 #: .\bio_diversity\models.py:425 .\bio_diversity\models.py:1675
-#: .\shared_models\models.py:523
+#: .\shared_models\models.py:554
 msgid "Start Date"
 msgstr "Date de début"
 
@@ -857,7 +861,7 @@ msgid "Comments"
 msgstr "Commentaires"
 
 #: .\bio_diversity\models.py:95 .\bio_diversity\models.py:426
-#: .\bio_diversity\models.py:1676 .\shared_models\models.py:524
+#: .\bio_diversity\models.py:1676 .\shared_models\models.py:555
 msgid "End Date"
 msgstr "Date de fin"
 
@@ -873,9 +877,9 @@ msgstr "Date de début"
 
 #: .\bio_diversity\models.py:207 .\bio_diversity\models.py:422
 #: .\bio_diversity\models.py:467 .\bio_diversity\models.py:1671
-#: .\shared_models\models.py:30 .\shared_models\models.py:212
-#: .\shared_models\models.py:235 .\shared_models\models.py:258
-#: .\shared_models\models.py:730 .\shared_models\models.py:792
+#: .\shared_models\models.py:30 .\shared_models\models.py:221
+#: .\shared_models\models.py:253 .\shared_models\models.py:285
+#: .\shared_models\models.py:761 .\shared_models\models.py:823
 #, fuzzy
 msgid "name (en)"
 msgstr "nom (fra)"
@@ -1372,7 +1376,7 @@ msgstr ""
 #: .\publications\templates\publications\pub_form.html:32
 #: .\publications\templates\publications\pub_form.html:60
 #: .\shared_models\templates\shared_models\shared_filter.html:25
-#: .\shared_models\test\test_common_views.py:270 .\shared_models\views.py:72
+#: .\shared_models\test\test_common_views.py:270 .\shared_models\views.py:74
 #: .\staff\templates\staff\staffingplan_form.html:42
 #: .\staff\templates\staff\staffingplan_form.html:64
 msgid "Add"
@@ -1421,7 +1425,7 @@ msgstr ""
 #: .\shared_models\mixins.py:233
 #: .\shared_models\templates\shared_models\generic_form.html:28
 #: .\shared_models\templates\shared_models\generic_popout_form.html:33
-#: .\shared_models\templates\shared_models\org_form.html:25
+#: .\shared_models\templates\shared_models\org_form.html:38
 #: .\shared_models\templates\shared_models\shared_entry_form.html:47
 #: .\staff\templates\staff\staffingplanfunding_form.html:23
 msgid "Submit"
@@ -1627,6 +1631,12 @@ msgstr "de"
 
 #: .\camp\templates\camp\sample_list.html:53 .\shared_models\mixins.py:324
 #: .\shared_models\templates\shared_models\generic_filter.html:71
+#: .\shared_models\templates\shared_models\org_form.html:21
+#: .\shared_models\templates\shared_models\org_form.html:25
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:334
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:381
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:425
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:467
 msgid "New"
 msgstr "Nouveau"
 
@@ -1635,14 +1645,14 @@ msgstr "Nouveau"
 #: .\sar_search\models.py:56 .\sar_search\models.py:85
 #: .\sar_search\models.py:109 .\shared_models\models.py:19
 #: .\shared_models\models.py:28 .\shared_models\models.py:36
-#: .\shared_models\models.py:37 .\shared_models\models.py:465
-#: .\shared_models\models.py:466 .\shared_models\models.py:482
-#: .\shared_models\models.py:483 .\shared_models\models.py:626
-#: .\shared_models\models.py:627 .\shared_models\models.py:633
-#: .\shared_models\models.py:735 .\shared_models\models.py:736
-#: .\shared_models\models.py:911 .\shared_models\models.py:912
-#: .\shared_models\utils.py:22 .\shared_models\views.py:879
-#: .\shared_models\views.py:930 .\shared_models\views.py:1030
+#: .\shared_models\models.py:37 .\shared_models\models.py:496
+#: .\shared_models\models.py:497 .\shared_models\models.py:513
+#: .\shared_models\models.py:514 .\shared_models\models.py:657
+#: .\shared_models\models.py:658 .\shared_models\models.py:664
+#: .\shared_models\models.py:766 .\shared_models\models.py:767
+#: .\shared_models\models.py:943 .\shared_models\models.py:944
+#: .\shared_models\utils.py:22 .\shared_models\views.py:888
+#: .\shared_models\views.py:939 .\shared_models\views.py:1039
 #: .\shares\models.py:61 .\staff\views.py:34 .\staff\views.py:221
 #: .\staff\views.py:222
 msgid "name"
@@ -1708,8 +1718,12 @@ msgstr "Types de composantes des instruments"
 #: .\scifi\templates\scifi\project_detail.html:31
 #: .\scifi\templates\scifi\responsibilitycenter_detail.html:31
 #: .\scifi\templates\scifi\transaction_detail.html:29
-#: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:124
-#: .\shared_models\views.py:295 .\shiny\templates\shiny\index.html:62
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:366
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:410
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:451
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:490
+#: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:126
+#: .\shared_models\views.py:297 .\shiny\templates\shiny\index.html:62
 msgid "Edit"
 msgstr "Modifier"
 
@@ -1734,8 +1748,12 @@ msgstr "Modifier"
 #: .\scifi\templates\scifi\responsibilitycenter_detail.html:28
 #: .\scifi\templates\scifi\transaction_detail.html:32
 #: .\shared_models\templates\shared_models\generic_form.html:41
-#: .\shared_models\templates\shared_models\org_form.html:35
-#: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:188
+#: .\shared_models\templates\shared_models\org_form.html:48
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:367
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:411
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:452
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:491
+#: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:190
 #: .\shiny\templates\shiny\index.html:64
 msgid "Delete"
 msgstr "Supprimer"
@@ -1767,11 +1785,11 @@ msgstr "période de temps"
 msgid "Instruments"
 msgstr "Instruments"
 
-#: .\dm_apps\my_conf.py:397 .\dm_apps\settings.py:278
+#: .\dm_apps\my_conf.py:397 .\dm_apps\settings.py:277
 msgid "English"
 msgstr "Anglais"
 
-#: .\dm_apps\my_conf.py:398 .\dm_apps\settings.py:279
+#: .\dm_apps\my_conf.py:398 .\dm_apps\settings.py:278
 msgid "French"
 msgstr "Français"
 
@@ -2419,7 +2437,7 @@ msgid "Probes"
 msgstr "Projet"
 
 #: .\grais\templates\grais\base\_nav_left_auth.html:35
-#: .\shared_models\models.py:522
+#: .\shared_models\models.py:553
 msgid "Samplers"
 msgstr ""
 
@@ -2488,6 +2506,11 @@ msgstr "Terme de recherche"
 
 #: .\inventory\filters.py:13
 #: .\inventory\templates\inventory\resource_list.html:85
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:42
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:209
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:339
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:386
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:430
 msgid "Region"
 msgstr "Région"
 
@@ -2735,7 +2758,7 @@ msgstr "Liens externes"
 #: .\inventory\templates\inventory\temp_formset.html:30
 #: .\inventory\templates\inventory\temp_formset.html:77
 #: .\shared_models\templates\shared_models\generic_formset.html:18
-#: .\shared_models\test\test_common_views.py:401 .\shared_models\views.py:130
+#: .\shared_models\test\test_common_views.py:401 .\shared_models\views.py:132
 #: .\staff\templates\staff\staffingplan_form.html:35
 #: .\staff\templates\staff\staffingplan_form.html:57
 msgid "Save"
@@ -3365,7 +3388,7 @@ msgstr "Titre du projet"
 msgid "Date last modified"
 msgstr "Date de la dernière modification"
 
-#: .\publications\models.py:220 .\shared_models\models.py:519
+#: .\publications\models.py:220 .\shared_models\models.py:550
 msgid "Description"
 msgstr "Description"
 
@@ -3473,6 +3496,9 @@ msgid "Year"
 msgstr ""
 
 #: .\publications\templates\publications\pub_detail.html:60
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:64
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:79
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:341
 msgid "Division"
 msgstr "Division"
 
@@ -3564,15 +3590,15 @@ msgstr "notes (français)"
 
 #: .\sar_search\models.py:225 .\sar_search\models.py:327
 #: .\shared_models\models.py:178 .\shared_models\models.py:202
-#: .\shared_models\models.py:221 .\shared_models\models.py:243
-#: .\shared_models\models.py:266
+#: .\shared_models\models.py:230 .\shared_models\models.py:261
+#: .\shared_models\models.py:293
 msgid "date last modified"
 msgstr "date de dernière modification"
 
 #: .\sar_search\models.py:226 .\sar_search\models.py:328
 #: .\shared_models\models.py:179 .\shared_models\models.py:203
-#: .\shared_models\models.py:222 .\shared_models\models.py:244
-#: .\shared_models\models.py:267
+#: .\shared_models\models.py:231 .\shared_models\models.py:262
+#: .\shared_models\models.py:294
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
@@ -3711,25 +3737,25 @@ msgid "Duplicate Record"
 msgstr ""
 
 #: .\shared_models\filters.py:20 .\shared_models\filters.py:65
-#: .\shared_models\filters.py:98 .\shared_models\models.py:207
-#: .\shared_models\templates\shared_models\org_index.html:10
+#: .\shared_models\filters.py:98 .\shared_models\models.py:216
+#: .\shared_models\templates\shared_models\org_index.html:13
 msgid "Region - Sector (NCR)"
 msgstr ""
 
 #: .\shared_models\filters.py:21 .\shared_models\filters.py:66
-#: .\shared_models\filters.py:99 .\shared_models\models.py:230
-#: .\shared_models\templates\shared_models\org_index.html:13
+#: .\shared_models\filters.py:99 .\shared_models\models.py:248
+#: .\shared_models\templates\shared_models\org_index.html:16
 msgid "Branch - Directorate (NCR)"
 msgstr ""
 
 #: .\shared_models\filters.py:22 .\shared_models\filters.py:67
-#: .\shared_models\models.py:252
-#: .\shared_models\templates\shared_models\org_index.html:16
+#: .\shared_models\models.py:274
+#: .\shared_models\templates\shared_models\org_index.html:19
 msgid "Division - Branch (NCR)"
 msgstr ""
 
-#: .\shared_models\filters.py:23 .\shared_models\models.py:278
-#: .\shared_models\templates\shared_models\org_index.html:19
+#: .\shared_models\filters.py:23 .\shared_models\models.py:305
+#: .\shared_models\templates\shared_models\org_index.html:22
 #, fuzzy
 msgid "Section - Team (NCR)"
 msgstr "chef de section"
@@ -3764,7 +3790,7 @@ msgstr ""
 msgid "Please make sure the two email addresses provided match."
 msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
 
-#: .\shared_models\models.py:31 .\shared_models\models.py:731
+#: .\shared_models\models.py:31 .\shared_models\models.py:762
 #, fuzzy
 msgid "name (fr)"
 msgstr "nom (fra)"
@@ -3814,9 +3840,9 @@ msgstr ""
 msgid "abbrev_eng"
 msgstr "abbrev_fre"
 
-#: .\shared_models\models.py:196 .\shared_models\models.py:213
-#: .\shared_models\models.py:236 .\shared_models\models.py:264
-#: .\shared_models\models.py:476 .\shared_models\models.py:793
+#: .\shared_models\models.py:196 .\shared_models\models.py:222
+#: .\shared_models\models.py:254 .\shared_models\models.py:291
+#: .\shared_models\models.py:507 .\shared_models\models.py:824
 msgid "abbreviation"
 msgstr ""
 
@@ -3824,287 +3850,292 @@ msgstr ""
 msgid "RDG / ADM"
 msgstr ""
 
-#: .\shared_models\models.py:199 .\shared_models\models.py:218
-#: .\shared_models\models.py:240 .\shared_models\models.py:262
+#: .\shared_models\models.py:199 .\shared_models\models.py:227
+#: .\shared_models\models.py:258 .\shared_models\models.py:289
 msgid "admin"
 msgstr ""
 
-#: .\shared_models\models.py:208 .\shared_models\views.py:749
+#: .\shared_models\models.py:217 .\shared_models\views.py:758
 msgid "Regions - Sectors (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:214 .\shared_models\models.py:906
+#: .\shared_models\models.py:223 .\shared_models\models.py:938
 msgid "region"
 msgstr ""
 
-#: .\shared_models\models.py:216
+#: .\shared_models\models.py:225
 msgid "regional director / NCR director general"
 msgstr ""
 
-#: .\shared_models\models.py:231
+#: .\shared_models\models.py:249
 msgid "Branches - Directorates (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:237 .\shared_models\views.py:681
+#: .\shared_models\models.py:255 .\shared_models\views.py:690
 msgid "branch"
 msgstr "direction"
 
-#: .\shared_models\models.py:238
+#: .\shared_models\models.py:256
 #, fuzzy
 msgid "division manager / NCR director"
 msgstr "chef de division"
 
-#: .\shared_models\models.py:253
+#: .\shared_models\models.py:275
 msgid "Divisions - Branches (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:260
+#: .\shared_models\models.py:287
 #, fuzzy
 msgid "section head  / NCR team lead"
 msgstr "approuvé par le chef de section"
 
-#: .\shared_models\models.py:279
+#: .\shared_models\models.py:306
 msgid "Sections - Teams (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:332 .\shared_models\models.py:333
+#: .\shared_models\models.py:363 .\shared_models\models.py:364
 msgid "full_name_en"
 msgstr "full_name_fr"
 
-#: .\shared_models\models.py:340 .\shared_models\models.py:341
+#: .\shared_models\models.py:371 .\shared_models\models.py:372
 msgid "full_name_en_ver1"
 msgstr "full_name_fr_ver1"
 
-#: .\shared_models\models.py:517
+#: .\shared_models\models.py:548
 #, fuzzy
 msgid "Mission Number"
 msgstr "Nouvelle organisation"
 
-#: .\shared_models\models.py:518
+#: .\shared_models\models.py:549
 #, fuzzy
 msgid "Mission Name"
 msgstr "Organisation"
 
-#: .\shared_models\models.py:520
+#: .\shared_models\models.py:551
 msgid "Purpose"
 msgstr ""
 
-#: .\shared_models\models.py:521
+#: .\shared_models\models.py:552
 msgid "Chief Scientist"
 msgstr ""
 
-#: .\shared_models\models.py:526
+#: .\shared_models\models.py:557
 msgid "Area of Operation"
 msgstr ""
 
-#: .\shared_models\models.py:527
+#: .\shared_models\models.py:558
 #, fuzzy
 msgid "Number of Profiles"
 msgstr "Projets soumis"
 
-#: .\shared_models\models.py:528
+#: .\shared_models\models.py:559
 msgid "MEDS ID"
 msgstr ""
 
-#: .\shared_models\models.py:533
+#: .\shared_models\models.py:564
 msgid "West Bound Longitude"
 msgstr ""
 
-#: .\shared_models\models.py:535
+#: .\shared_models\models.py:566
 msgid "East Bound Longitude"
 msgstr ""
 
-#: .\shared_models\models.py:537
+#: .\shared_models\models.py:568
 msgid "North Bound Latitude"
 msgstr ""
 
-#: .\shared_models\models.py:539
+#: .\shared_models\models.py:570
 msgid "South Bound Latitude"
 msgstr ""
 
-#: .\shared_models\models.py:541
+#: .\shared_models\models.py:572
 #, fuzzy
 msgid "funding agency name"
 msgstr "programme de financement"
 
-#: .\shared_models\models.py:543
+#: .\shared_models\models.py:574
 #, fuzzy
 msgid "funding project title"
 msgstr "titre du projet"
 
-#: .\shared_models\models.py:545
+#: .\shared_models\models.py:576
 #, fuzzy
 msgid "funding project ID"
 msgstr "but du financement"
 
-#: .\shared_models\models.py:547
+#: .\shared_models\models.py:578
 msgid "research projects programs"
 msgstr ""
 
-#: .\shared_models\models.py:549
+#: .\shared_models\models.py:580
 #, fuzzy
 msgid "references"
 msgstr "Référence"
 
-#: .\shared_models\models.py:582
+#: .\shared_models\models.py:613
 msgid "NS"
 msgstr "N.-É."
 
-#: .\shared_models\models.py:583
+#: .\shared_models\models.py:614
 msgid "NB"
 msgstr "N.-B."
 
-#: .\shared_models\models.py:584
+#: .\shared_models\models.py:615
 msgid "PE"
 msgstr ""
 
-#: .\shared_models\models.py:585
+#: .\shared_models\models.py:616
 msgid "QC"
 msgstr "Qc"
 
-#: .\shared_models\models.py:586
+#: .\shared_models\models.py:617
 #, fuzzy
 msgid "NL"
 msgstr "T.-N.-L."
 
-#: .\shared_models\models.py:641
+#: .\shared_models\models.py:672
 msgid "GCNDB key"
 msgstr ""
 
-#: .\shared_models\models.py:642
+#: .\shared_models\models.py:673
 msgid "Parent GCNDB key"
 msgstr ""
 
-#: .\shared_models\models.py:643
+#: .\shared_models\models.py:674
 msgid "NDADW water body ID"
 msgstr ""
 
-#: .\shared_models\models.py:729
+#: .\shared_models\models.py:760
 #, fuzzy
 msgid "code"
 msgstr "enregistrement"
 
-#: .\shared_models\models.py:747
+#: .\shared_models\models.py:778
 #, fuzzy
 msgid "script"
 msgstr "description"
 
-#: .\shared_models\models.py:777 .\shared_models\models.py:778
+#: .\shared_models\models.py:808 .\shared_models\models.py:809
 msgid "location_en"
 msgstr "Location_fr"
 
-#: .\shared_models\models.py:794
+#: .\shared_models\models.py:825
 #, fuzzy
 #| msgid "Email address"
 msgid "address"
 msgstr "Courriel"
 
-#: .\shared_models\models.py:795
+#: .\shared_models\models.py:826
 #, fuzzy
 msgid "city"
 msgstr "description"
 
-#: .\shared_models\models.py:796
+#: .\shared_models\models.py:827
 msgid "postal code"
 msgstr ""
 
-#: .\shared_models\models.py:798
+#: .\shared_models\models.py:829
 msgid "Is this a DFO location?"
 msgstr ""
 
-#: .\shared_models\models.py:844
+#: .\shared_models\models.py:875
 #, fuzzy
 #| msgid "First name"
 msgid "first name"
 msgstr "Prénom"
 
-#: .\shared_models\models.py:845
+#: .\shared_models\models.py:876
 #, fuzzy
 #| msgid "Last name"
 msgid "last name"
 msgstr "Nom de famille"
 
-#: .\shared_models\models.py:846
+#: .\shared_models\models.py:877
 #, fuzzy
 #| msgid "Close"
 msgid "phone"
 msgstr "Fermer"
 
-#: .\shared_models\models.py:847
+#: .\shared_models\models.py:878
 #, fuzzy
 #| msgid "Email"
 msgid "email"
 msgstr "Courriel"
 
-#: .\shared_models\models.py:849
+#: .\shared_models\models.py:880
 #, fuzzy
 msgid "affiliation"
 msgstr "Organisation"
 
-#: .\shared_models\models.py:850 .\shared_models\models.py:851
+#: .\shared_models\models.py:881
 #, fuzzy
-#| msgid "Title"
-msgid "Job Title"
-msgstr "Titre"
+#| msgid "job_title_en"
+msgid "job title (en)"
+msgstr "job_title_fr"
 
-#: .\shared_models\models.py:853
+#: .\shared_models\models.py:882
+#, fuzzy
+msgid "job title (fr)"
+msgstr "titre"
+
+#: .\shared_models\models.py:883
 #, fuzzy
 msgid "linkage to DM Apps User"
 msgstr "Utilisateur de Applis GD"
 
-#: .\shared_models\models.py:882 .\shared_models\models.py:883
+#: .\shared_models\models.py:913 .\shared_models\models.py:914
 msgid "job_title_en"
 msgstr "job_title_fr"
 
-#: .\shared_models\models.py:897
+#: .\shared_models\models.py:929
 msgid "authors"
 msgstr ""
 
-#: .\shared_models\models.py:898
+#: .\shared_models\models.py:930
 #, fuzzy
 #| msgid "Clear"
 msgid "year"
 msgstr "Effacer"
 
-#: .\shared_models\models.py:899
+#: .\shared_models\models.py:931
 #, fuzzy
 #| msgid "application name"
 msgid "publication name"
 msgstr "nom de l'application"
 
-#: .\shared_models\models.py:900
+#: .\shared_models\models.py:932
 #, fuzzy
 #| msgid "application name"
 msgid "publication number"
 msgstr "nom de l'application"
 
-#: .\shared_models\models.py:901
+#: .\shared_models\models.py:933
 msgid "URL (en)"
 msgstr ""
 
-#: .\shared_models\models.py:902
+#: .\shared_models\models.py:934
 msgid "URL (fr)"
 msgstr ""
 
-#: .\shared_models\models.py:903
+#: .\shared_models\models.py:935
 msgid "abstract (en)"
 msgstr ""
 
-#: .\shared_models\models.py:904
+#: .\shared_models\models.py:936
 msgid "abstract (fr)"
 msgstr ""
 
-#: .\shared_models\models.py:905
+#: .\shared_models\models.py:937
 #, fuzzy
 #| msgid "Cruises"
 msgid "series"
 msgstr "Croisières"
 
-#: .\shared_models\models.py:921 .\shared_models\models.py:922
+#: .\shared_models\models.py:953 .\shared_models\models.py:954
 msgid "url_en"
 msgstr ""
 
-#: .\shared_models\models.py:931 .\shared_models\models.py:932
+#: .\shared_models\models.py:963 .\shared_models\models.py:964
 msgid "abstract_en"
 msgstr ""
 
@@ -4170,9 +4201,9 @@ msgid ""
 "      "
 msgstr ""
 
-#: .\shared_models\templates\shared_models\org_form.html:52
-#: .\shared_models\templates\shared_models\org_form.html:69
-#: .\shared_models\templates\shared_models\org_form.html:87
+#: .\shared_models\templates\shared_models\org_form.html:65
+#: .\shared_models\templates\shared_models\org_form.html:82
+#: .\shared_models\templates\shared_models\org_form.html:100
 #, python-format
 msgid ""
 "\n"
@@ -4186,58 +4217,214 @@ msgstr ""
 msgid "DFO Governance"
 msgstr "Contacts du MPO"
 
-#: .\shared_models\templates\shared_models\org_index.html:24
+#: .\shared_models\templates\shared_models\org_index.html:10
+#, fuzzy
+#| msgid "Cruises"
+msgid "Masterlist"
+msgstr "Croisières"
+
+#: .\shared_models\templates\shared_models\org_index.html:27
 #, fuzzy
 msgid "Add a new DM Apps User"
 msgstr "Utilisateur de Applis GD"
 
-#: .\shared_models\templates\shared_models\org_index.html:30
+#: .\shared_models\templates\shared_models\org_index.html:33
 #, fuzzy
 #| msgid "Location"
 msgid "Physcial Locations"
 msgstr "Location"
 
-#: .\shared_models\templates\shared_models\org_index.html:33
+#: .\shared_models\templates\shared_models\org_index.html:36
 msgid "DFO Physical Locations"
 msgstr ""
 
-#: .\shared_models\templates\shared_models\org_index.html:38
+#: .\shared_models\templates\shared_models\org_index.html:41
 #, fuzzy
 msgid "Financial Coding"
 msgstr "Résumé financier:"
 
-#: .\shared_models\templates\shared_models\org_index.html:41
-#: .\shared_models\views.py:938 .\shared_models\views.py:946
-#: .\shared_models\views.py:959 .\shared_models\views.py:968
+#: .\shared_models\templates\shared_models\org_index.html:44
+#: .\shared_models\views.py:947 .\shared_models\views.py:955
+#: .\shared_models\views.py:968 .\shared_models\views.py:977
 #, fuzzy
 #| msgid "Project"
 msgid "Project Codes"
 msgstr "Projet"
 
-#: .\shared_models\templates\shared_models\org_index.html:44
+#: .\shared_models\templates\shared_models\org_index.html:47
 msgid "RC Codes"
 msgstr ""
 
-#: .\shared_models\templates\shared_models\org_index.html:50
+#: .\shared_models\templates\shared_models\org_index.html:53
 msgid "REPORTS"
 msgstr ""
 
-#: .\shared_models\templates\shared_models\org_index.html:53
+#: .\shared_models\templates\shared_models\org_index.html:56
 #, fuzzy
 msgid "export organization (CSV)"
 msgstr "Organisations"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:26
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:464
+#, fuzzy
+#| msgid "Region"
+msgid "Regions"
+msgstr "Région"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:29
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:422
+#, fuzzy
+#| msgid "branch"
+msgid "Branches"
+msgstr "direction"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:32
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:378
+#, fuzzy
+#| msgid "Division"
+msgid "Divisions"
+msgstr "Division"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:35
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:331
+#, fuzzy
+#| msgid "Section"
+msgid "Sections"
+msgstr "Section"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:53
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:144
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:340
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:387
+#, fuzzy
+#| msgid "branch"
+msgid "Branch"
+msgstr "direction"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:90
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:155
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:220
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:274
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:344
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:390
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:433
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:474
+#, fuzzy
+#| msgid "section"
+msgid "Abbreviation"
+msgstr "section"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:94
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:159
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:224
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:278
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:342
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:388
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:431
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:472
+#, fuzzy
+#| msgid "name"
+msgid "Name"
+msgstr "nom"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:98
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:163
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:228
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:282
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:343
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:389
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:432
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:473
+#, fuzzy
+#| msgid "No"
+msgid "Nom"
+msgstr "Non"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:102
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:167
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:232
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:286
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:345
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:391
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:434
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:475
+msgid "Head"
+msgstr ""
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:114
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:179
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:244
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:298
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:346
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:392
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:435
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:476
+msgid "Admin"
+msgstr ""
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:127
+#, python-format
+msgid ""
+"\n"
+"            If the user is not in the above list, you can add a new DM Apps "
+"User using\n"
+"            <button @click=\"popLink('%(new_user_url)s')\" class=\"btn btn-"
+"link\">this form</button>.\n"
+"          "
+msgstr ""
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:192
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:257
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:311
+#, python-format
+msgid ""
+"\n"
+"            If the user is not in the above list, you can add a new DM Apps "
+"User using\n"
+"            <a href=\"#\" pop-href=\"%(new_user_url)s\">this form</a>.\n"
+"          "
+msgstr ""
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:347
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:393
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:436
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:477
+#, fuzzy
+#| msgid "Metadata Inventory"
+msgid "Metadata"
+msgstr "Inventaire de métadonnées"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:586
+#, fuzzy
+msgid "Are you sure you want to delete this section?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:626
+#, fuzzy
+msgid "Are you sure you want to delete this division?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:666
+#, fuzzy
+msgid "Are you sure you want to delete this branch?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
+
+#: .\shared_models\templates\shared_models\org_spreadsheet.html:707
+#, fuzzy
+msgid "Are you sure you want to delete this region?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 
 #: .\shared_models\templates\shared_models\shared_filter.html:85
 #, fuzzy
 msgid "Details"
 msgstr "Détails de la personne:"
 
-#: .\shared_models\test\test_common_views.py:269 .\shared_models\views.py:66
+#: .\shared_models\test\test_common_views.py:269 .\shared_models\views.py:68
 #, fuzzy
 msgid "New {}"
 msgstr "Nouveau"
 
-#: .\shared_models\test\test_common_views.py:539 .\shared_models\views.py:179
+#: .\shared_models\test\test_common_views.py:539 .\shared_models\views.py:181
 #, fuzzy
 msgid ""
 "Are you sure you want to delete the following {}? <br>  <span class='red-"
@@ -4256,79 +4443,84 @@ msgstr "Date de création :"
 msgid "Last updated:"
 msgstr "Mis à jour :"
 
-#: .\shared_models\views.py:251
+#: .\shared_models\views.py:253
 #, fuzzy
 msgid "Delete Confirmation"
 msgstr "Informations concernant le voyageur"
 
-#: .\shared_models\views.py:517
+#: .\shared_models\views.py:519
 msgid "Warning"
 msgstr ""
 
-#: .\shared_models\views.py:519
+#: .\shared_models\views.py:521
 msgid "These are shared tables for all of DM Apps."
 msgstr ""
 
-#: .\shared_models\views.py:520
+#: .\shared_models\views.py:522 .\shared_models\views.py:529
 msgid "Please be careful when editing."
 msgstr ""
 
-#: .\shared_models\views.py:521
+#: .\shared_models\views.py:523
 msgid "DM Apps Shared Settings"
 msgstr ""
 
-#: .\shared_models\views.py:536
+#: .\shared_models\views.py:528 .\shared_models\views.py:530
+#, fuzzy
+msgid "DFO Organization Spreadsheet"
+msgstr "Organisations"
+
+#: .\shared_models\views.py:545
 msgid "section"
 msgstr "section"
 
-#: .\shared_models\views.py:542 .\shared_models\views.py:562
-#: .\shared_models\views.py:578 .\shared_models\views.py:589
-#: .\shared_models\views.py:615 .\shared_models\views.py:635
-#: .\shared_models\views.py:651 .\shared_models\views.py:662
-#: .\shared_models\views.py:687 .\shared_models\views.py:707
-#: .\shared_models\views.py:723 .\shared_models\views.py:734
-#: .\shared_models\views.py:755 .\shared_models\views.py:771
-#: .\shared_models\views.py:787 .\shared_models\views.py:798
-#: .\shared_models\views.py:820 .\shared_models\views.py:836
-#: .\shared_models\views.py:852 .\shared_models\views.py:863
-#: .\shared_models\views.py:1065 .\shared_models\views.py:1077
+#: .\shared_models\views.py:551 .\shared_models\views.py:571
+#: .\shared_models\views.py:587 .\shared_models\views.py:598
+#: .\shared_models\views.py:624 .\shared_models\views.py:644
+#: .\shared_models\views.py:660 .\shared_models\views.py:671
+#: .\shared_models\views.py:696 .\shared_models\views.py:716
+#: .\shared_models\views.py:732 .\shared_models\views.py:743
+#: .\shared_models\views.py:764 .\shared_models\views.py:780
+#: .\shared_models\views.py:796 .\shared_models\views.py:807
+#: .\shared_models\views.py:829 .\shared_models\views.py:845
+#: .\shared_models\views.py:861 .\shared_models\views.py:872
+#: .\shared_models\views.py:1074 .\shared_models\views.py:1086
 #, fuzzy
 msgid "DFO Orgs"
 msgstr "Secteurs du MPO"
 
-#: .\shared_models\views.py:609
+#: .\shared_models\views.py:618
 msgid "division"
 msgstr "division"
 
-#: .\shared_models\views.py:813
+#: .\shared_models\views.py:822
 #, fuzzy
 msgid "Organizations - Sectors (NCR)"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:886 .\shared_models\views.py:894
-#: .\shared_models\views.py:907 .\shared_models\views.py:916
+#: .\shared_models\views.py:895 .\shared_models\views.py:903
+#: .\shared_models\views.py:916 .\shared_models\views.py:925
 msgid "Responsibility Center"
 msgstr ""
 
-#: .\shared_models\views.py:980
+#: .\shared_models\views.py:989
 msgid "Create a New DM Apps User"
 msgstr "Créer un nouveau utilisateur de Applis GD"
 
-#: .\shared_models\views.py:982
+#: .\shared_models\views.py:991
 msgid "Please use extreme vigilance with this form."
 msgstr ""
 
-#: .\shared_models\views.py:983
+#: .\shared_models\views.py:992
 msgid ""
 "After this form is submitted, the new user will receive a confirmation e-"
 "mail."
 msgstr ""
 
-#: .\shared_models\views.py:1014
+#: .\shared_models\views.py:1023
 msgid "The user '{}' was created and an email was sent"
 msgstr ""
 
-#: .\shared_models\views.py:1031 .\shiny\views.py:30
+#: .\shared_models\views.py:1040 .\shiny\views.py:30
 msgid "description"
 msgstr "description"
 
@@ -4669,6 +4861,11 @@ msgid "Region Specific Applications"
 msgstr ""
 
 #, fuzzy
+#~| msgid "Title"
+#~ msgid "Job Title"
+#~ msgstr "Titre"
+
+#, fuzzy
 #~| msgid "title"
 #~ msgid "Lattitude"
 #~ msgstr "titre"
@@ -4830,11 +5027,6 @@ msgstr ""
 #~| msgid "Transactions"
 #~ msgid "transect"
 #~ msgstr "Transactions"
-
-#, fuzzy
-#~| msgid "Region"
-#~ msgid "Regions"
-#~ msgstr "Région"
 
 #, fuzzy
 #~| msgid "Gulf Region Aquatic Invasive Species data entry and archiving tool."

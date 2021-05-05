@@ -517,6 +517,13 @@ var app = new Vue({
       return false;
     }
   },
+  filters: {
+    yesNo: vueFiltersObject["yesNo"],
+    nz: vueFiltersObject["nz"],
+    floatformat: vueFiltersObject["floatformat"],
+    currencyFormat: vueFiltersObject["currencyFormat"],
+    zero2NullMark: vueFiltersObject["zero2NullMark"],
+  },
   computed: {
     canModify() {
       return this.currentUser && this.currentUser.can_modify;

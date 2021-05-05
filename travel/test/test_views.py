@@ -324,8 +324,10 @@ class TestToggleUserView(CommonTest):
         self.instance = UserFactory()
         self.type1 = "admin"
         self.type2 = "adm_admin"
+        self.type3 = "cfo"
         self.test_url1 = reverse_lazy('travel:toggle_user', args=[self.instance.pk, self.type1])
         self.test_url2 = reverse_lazy('travel:toggle_user', args=[self.instance.pk, self.type2])
+        self.test_url3 = reverse_lazy('travel:toggle_user', args=[self.instance.pk, self.type3])
         self.user = self.get_and_login_user(in_group="travel_adm_admin")
 
     @tag("ToggleUser", "toggle_user", "access")
@@ -346,6 +348,9 @@ class TestToggleUserView(CommonTest):
         self.assertFalse(utils.in_adm_admin_group(self.instance))
         self.client.get(self.test_url2)
         self.assertTrue(utils.in_adm_admin_group(self.instance))
+        self.assertFalse(utils.in_cfo_group(self.instance))
+        self.client.get(self.test_url3)
+        self.assertTrue(utils.in_cfo_group(self.instance))
 
     @tag("ToggleUser", "toggle_user", "correct_url")
     def test_correct_url(self):

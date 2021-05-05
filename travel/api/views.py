@@ -155,7 +155,9 @@ class RequestViewSet(viewsets.ModelViewSet):
             # if: 3) this request fall under their managerial purview
             elif my_request in utils.get_requests_with_managerial_access(self.request.user):
                 can_proceed = True
-
+            # if: 4) they are in the CFO group
+            elif utils.in_cfo_group(self.request.user):
+                can_proceed = True
             if can_proceed:
                 return models.TripRequest.objects.filter(pk=self.kwargs.get("pk"))
             else:

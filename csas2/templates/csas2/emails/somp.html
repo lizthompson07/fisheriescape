@@ -1,0 +1,39 @@
+{% load verbose_names %}
+{% load i18n %}
+<style>
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+</style>
+
+<p>
+  Dear CSAS,
+</p>
+<p>
+  The SoMP for the following meeting has been posted:
+</p>
+<p>
+  <a href="{{ SITE_FULL_URL }}{% url 'csas2:meeting_detail' object.meeting.id %}">{{ object.meeting.display }}</a>
+</p>
+
+<p>
+  If you wish, you can download the SoMP <a href="{{ SITE_FULL_URL }}{{ object.file.url }}">here</a>.
+</p>
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps
+</p>
+
+
+
+
+
+
+
+

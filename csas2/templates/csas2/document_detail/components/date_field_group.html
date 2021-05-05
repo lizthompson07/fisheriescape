@@ -1,0 +1,56 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="date-field-group-template">
+
+<div class="form-group">
+  <label  v-if="label" for="">${label}</label>
+  <input v-model="date" type="date" class="form-control" @change="updateTracking">
+  <div class="mt-1">
+    <button class="badge badge-pill btn-primary" v-if="date"
+            @click="clearDate">
+      <span class="mdi mdi-close text-light mr-1"></span> {% trans "clear" %}
+    </button>
+  </div>
+</div>
+
+</script>
+<script type="application/javascript">
+
+Vue.component("date-field-group", {
+  template: "#date-field-group-template",
+  delimiters: ["${", "}"],
+  name: "date-field-group",
+  props: {
+    display_date: {
+      type: String,
+      required: false
+    },
+    label: {
+      type: String,
+      required: false
+    },
+    field_name: {
+      type: String,
+      required: true
+    },
+  },
+  data() {
+    return {
+      date: null,
+    };
+  },
+  methods: {
+    updateTracking() {
+      this.$emit("update-tracking", {field_name:this.field_name, value: this.date, is_date: true});
+    },
+    clearDate() {
+      this.date = null;
+      this.updateTracking();
+    },
+  },
+  created() {
+    this.date = this.display_date;
+  }
+});
+</script>

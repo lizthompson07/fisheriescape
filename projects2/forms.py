@@ -820,6 +820,25 @@ class AdminStaffForm(forms.ModelForm):
         }
 
 
+class ManagementSearchForm(forms.Form):
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "Science Culture Committee Report (xlsx)"),
+        (2, "CSRF Submission List (xlsx)"),
+        (3, "Project Status Summary (csv)"),
+        (4, "Project List (csv)"),
+        (5, "SAR Workplan (xlsx)"),
+        (6, "Regional Staff Allocation (csv)"),
+        (7, "HR Project-Position Allocation (csv)"),
+        (8, "Capital Request Costs (csv)"),
+        (9, "Project Summary (xlsx)"),
+    )
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),

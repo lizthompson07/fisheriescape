@@ -19,7 +19,8 @@
             <h4 v-else> {% trans "Edit Invitee" %} </h4>
           </div>
           <div v-else class="modal-header">
-            <h4> {% trans "Add a Person" %}</h4>
+            <h4 v-if="!person.id"> {% trans "Add a Person" %}</h4>
+            <h4 v-else> {% trans "Edit Person" %} </h4>
           </div>
           <div class="modal-body">
             <form v-if="!personEditMode" @submit.prevent="onSubmit">
@@ -37,18 +38,34 @@
                   ></v-select>
                 </div>
                 <div class="mb-3">
-                  <button @click="openPersonEditMode" class="badge badge-pill badge-primary" tabindex="-1">{% trans "Add a person" %}</button>
+                  <button v-if="!inviteeToEdit.person" @click="openPersonEditMode" class="badge badge-pill badge-primary" tabindex="-1">
+                    {% trans "Add a person" %}</button>
+                  <button v-else @click="openPersonEditMode" class="badge badge-pill badge-warning" tabindex="-1">
+                    {% trans "Edit person details" %}</button>
                 </div>
                 <div class="form-group">
-                  <label for="">${labels.role}</label>
+                  <label for="">${labels.region}</label>
                   <v-select
-                    v-model="inviteeToEdit.role"
+                    v-model="inviteeToEdit.region"
+                    :options="regionChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+                <div class="form-group">
+                  <label for="">${labels.roles}</label>
+                  <v-select
+                    v-model="inviteeToEdit.roles"
                     :options="roleChoices"
                     :reduce="choice => choice.value"
                     label="text"
                     class="no-borders"
                     :clearable=false
                     required
+                    multiple
                   ></v-select>
                 </div>
                 <div class="form-group">
@@ -77,27 +94,46 @@
                 <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
               </div>
             </form>
-            <form v-else @submit.prevent="addPerson">
+            <form v-else @submit.prevent="onPersonFormSubmit">
+              <div v-if="person.dmapps_user" class="alert alert-warning mb-3" role="alert">
+                  <p>
+                    {% trans "This person cannot be edited since they are attached to a DM Apps user" %}
+                    <br><br>
+                    {% trans "Click" %}
+                    <button type="button" class="btn btn-link px-0 py-0" @click="clonePerson">{% trans "here" %}</button>
+                    {% trans "to clone this person into an editable external user." %}
+
+                  </p>
+              </div>
+
               <div class="mb-3">
                 <div class="form-group">
                   <label for="">${personLabels.first_name}</label>
-                  <input type="text" v-model="person.first_name" class="form-control"/>
+                  <input type="text" v-model="person.first_name" class="form-control" :disabled="person.dmapps_user"/>
                 </div>
                 <div class="form-group">
                   <label for="">${personLabels.last_name}</label>
-                  <input type="text" v-model="person.last_name" class="form-control"/>
+                  <input type="text" v-model="person.last_name" class="form-control" :disabled="person.dmapps_user"/>
                 </div>
                 <div class="form-group">
                   <label for="">${personLabels.email}</label>
-                  <input type="email" v-model="person.email" class="form-control"/>
+                  <input type="email" v-model="person.email" class="form-control" :disabled="person.dmapps_user"/>
                 </div>
                 <div class="form-group">
                   <label for="">${personLabels.phone}</label>
-                  <input type="text" v-model="person.phone" class="form-control"/>
+                  <input type="text" v-model="person.phone" class="form-control" :disabled="person.dmapps_user"/>
                 </div>
                 <div class="form-group">
                   <label for="">${personLabels.affiliation}</label>
-                  <input type="text" v-model="person.affiliation" class="form-control"/>
+                  <input type="text" v-model="person.affiliation" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.job_title_en}</label>
+                  <input type="text" v-model="person.job_title_en" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.job_title_fr}</label>
+                  <input type="text" v-model="person.job_title_fr" class="form-control" :disabled="person.dmapps_user"/>
                 </div>
                 <div class="form-group">
                   <label for="">${personLabels.language}</label>
@@ -109,6 +145,7 @@
                     class="no-borders"
                     :clearable=false
                     required
+                    :disabled="person.dmapps_user"
                   ></v-select>
                 </div>
               </div>
@@ -122,7 +159,7 @@
                   <span v-if="invitee.id">{% trans "Update" %}</span>
                   <span v-else>{% trans "Create" %}</span>
                 </button>
-                <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
+                <button class="mx-1 btn btn-secondary" @click="personEditMode=false" type="button">{% trans "Cancel" %}</button>
               </div>
             </form>
           </div>
@@ -167,24 +204,12 @@ Vue.component("invitee-editor", {
       roleChoices: [],
       search: null,
       statusChoices: [],
+      regionChoices: [],
       user: null,
     };
   },
   methods: {
-    addPerson() {
-      this.error = null;
-      let endpoint = "/api/csas/people/";
-      let method = "POST";
-      apiService(endpoint, method, this.person).then(response => {
-        if (response.id) {
-          this.getInviteeMetadata()
-          this.personEditMode = false;
-          this.inviteeToEdit.person = response.id
-        } else {
-          this.error = groomJSON(response)
-        }
-      });
-    },
+
     closeOverlay() {
       this.error = null;
       if (this.invitee.id) {
@@ -198,17 +223,26 @@ Vue.component("invitee-editor", {
       apiService(endpoint).then(data => {
         this.labels = data.labels;
         this.roleChoices = data.role_choices;
-        this.personChoices = data.person_choices;
         this.statusChoices = data.status_choices;
+        this.regionChoices = data.region_choices;
       });
     },
     getPersonMetadata() {
       let endpoint = `/api/csas/meta/models/person/`;
       apiService(endpoint).then(data => {
         this.personLabels = data.labels;
+        this.personChoices = data.person_choices;
         this.languageChoices = data.language_choices;
       });
     },
+    getPerson(personId) {
+        let endpoint = `/api/csas/people/${personId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.person = data;
+          }
+        });
+      },
     onSubmit() {
       this.error = null;
       var method;
@@ -230,9 +264,39 @@ Vue.component("invitee-editor", {
         }
       });
     },
+    onPersonFormSubmit() {
+      this.error = null;
+      var method;
+      var endpoint;
+      if (this.person.id) {
+        endpoint = `/api/csas/people/${this.person.id}/`;
+        method = "PUT";
+      } else {
+        endpoint = "/api/csas/people/";
+        method = "POST";
+      }
+      apiService(endpoint, method, this.person).then(response => {
+        if (response.id) {
+          this.getInviteeMetadata()
+          this.personEditMode = false;
+          this.inviteeToEdit.person = response.id
+        } else {
+          this.error = groomJSON(response)
+        }
+      });
+    },
+    clonePerson() {
+      clone = JSON.parse(JSON.stringify(this.person));
+      clone.dmapps_user=null;
+      clone.id=null;
+      clone.email=null;
+      this.person = clone;
+    },
+
     openOverlay() {
       this.error = null;
       this.overlay = true;
+      this.personEditMode = false;
       if (!this.invitee.id) {
         this.primeInvitee();
       } else {
@@ -240,8 +304,11 @@ Vue.component("invitee-editor", {
       }
     },
     openPersonEditMode() {
+      this.person = {};
+      if (this.inviteeToEdit.person) {
+        this.getPerson(this.inviteeToEdit.person)
+      }
       this.error = null;
-      this.primeInvitee();
       this.personEditMode = true;
     },
     primeInvitee() {

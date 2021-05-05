@@ -180,7 +180,6 @@ if not GEODJANGO:
     except:
         pass
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -384,9 +383,9 @@ if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
     }
 
 # For Django debug toolbar
-INTERNAL_IPS = [
-    '127.0.0.1',
-]
+USE_DEBUG_TOOLBAR = config("USE_DEBUG_TOOLBAR", cast=bool, default=False)
+if USE_DEBUG_TOOLBAR:
+    INTERNAL_IPS = ['127.0.0.1', ]
 
 # Django REST Framework settings
 REST_FRAMEWORK = {

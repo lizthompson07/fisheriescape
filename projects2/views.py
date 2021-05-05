@@ -1088,6 +1088,39 @@ class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
 ###########
 
 
+class ManagementReportSearchFormView(AdminRequiredMixin, CommonFormView):
+    template_name = 'projects2/management_search.html'
+    form_class = forms.ManagementSearchForm
+    h1 = gettext_lazy("Project Planning Reports")
+    success_url = reverse_lazy("shared_models:close_me")
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+
+        #responce = generate_project_status_summary(self)
+        if report == 1:
+            return culture_committee_report(self.request)
+        elif report == 2:
+            return export_csrf_submission_list(self.request)
+        elif report == 3:
+            return project_status_summary(self.request)
+        elif report == 4:
+            return export_project_list(self.request)
+        elif report == 5:
+            return export_sar_workplan(self.request)
+        elif report == 6:
+            return export_regional_staff_allocation(self.request)
+        elif report == 7:
+            return export_project_position_allocation(self.request)
+        elif report == 8:
+            return export_capital_request_costs(self.request)
+        elif report == 9:
+            return export_project_summary(self.request)
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("projects2:reports"))
+
+
 class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
     template_name = 'projects2/report_search.html'
     form_class = forms.ReportSearchForm
@@ -1248,7 +1281,7 @@ def export_csrf_submission_list(request):
 
 @login_required()
 def project_status_summary(request):
-    year = request.GET.get("year")
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
     region = request.GET.get("region")
     # Create the HttpResponse object with the appropriate CSV header.
     response = reports.generate_project_status_summary(year, region)
@@ -1258,7 +1291,7 @@ def project_status_summary(request):
 
 @login_required()
 def export_project_list(request):
-    year = request.GET.get("year")
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
     region = request.GET.get("region")
     section = request.GET.get("section")
     # Create the HttpResponse object with the appropriate CSV header.
@@ -1269,7 +1302,7 @@ def export_project_list(request):
 
 @login_required()
 def export_sar_workplan(request):
-    year = request.GET.get("year")
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
     region = request.GET.get("region")
     region_name = None
     # Create the HttpResponse object with the appropriate CSV header.
@@ -1292,7 +1325,7 @@ def export_sar_workplan(request):
 
 @login_required()
 def export_regional_staff_allocation(request):
-    year = request.GET.get("year")
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
     region = request.GET.get("region")
     # Create the HttpResponse object with the appropriate CSV header.
     region_name = None
@@ -1320,7 +1353,7 @@ def export_regional_staff_allocation(request):
 
 @login_required()
 def export_project_position_allocation(request):
-    year = request.GET.get("year")
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
     region = request.GET.get("region")
     section = request.GET.get("section")
 
@@ -1362,7 +1395,7 @@ def export_project_position_allocation(request):
 
 @login_required()
 def export_capital_request_costs(request):
-    year = request.GET.get("year")
+    year = request.GET.get("year") if "year" in request.GET else request.GET.get("fiscal_year")
     region = request.GET.get("region")
     division = request.GET.get("division")
     section = request.GET.get("section")
@@ -1401,6 +1434,25 @@ def export_capital_request_costs(request):
             writer.writerow([proj.pk, proj.title, proj.section.division.branch.region, proj.section.division, proj.section, proj.functional_group, cost, cost.amount])
 
     return response
+
+
+@login_required()
+def export_project_summary(request):
+
+    file_url = reports.export_project_summary(request)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            year = request.GET.get('fiscal_year')
+            region_name = request.GET.get('region') if request.GET.get('region') != 'null'else None
+            if region_name:
+                response['Content-Disposition'] = f'inline; filename="({year}) {region_name} - Project Summary.xls"'
+            else:
+                response['Content-Disposition'] = f'inline; filename="({year}) - Project Summary.xls"'
+
+            return response
+    raise Http404
 
 
 # ADMIN USERS

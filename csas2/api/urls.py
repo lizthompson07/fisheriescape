@@ -5,6 +5,7 @@ from . import views
 router = DefaultRouter()
 router.register(r'requests', views.CSASRequestViewSet)
 router.register(r'request-reviews', views.CSASRequestReviewViewSet)
+router.register(r'processes', views.ProcessViewSet)
 router.register(r'meetings', views.MeetingViewSet)
 router.register(r'meeting-notes', views.MeetingNoteViewSet)
 router.register(r'meeting-costs', views.MeetingCostViewSet)
@@ -14,6 +15,7 @@ router.register(r'documents', views.DocumentViewSet)
 router.register(r'authors', views.AuthorViewSet)
 router.register(r'doc-notes', views.DocumentNoteViewSet)
 router.register(r'doc-costs', views.DocumentCostViewSet)
+router.register(r'doc-tracking', views.DocumentTrackingViewSet)
 router.register(r'people', views.PersonViewSet)
 
 
@@ -33,6 +35,7 @@ urlpatterns = [
     path("csas/invitees/<int:pk>/invitation/", views.InviteeSendInvitationAPIView.as_view(), name="invitee-send-invitation"),
 
     path("csas/meta/models/document/", views.DocumentModelMetaAPIView.as_view(), name="csas-doc-model-meta"),
+    path("csas/meta/models/document-tracking/", views.DocumentTrackingModelMetaAPIView.as_view(), name="csas-doc-tracking-model-meta"),
     path("csas/meta/models/author/", views.AuthorModelMetaAPIView.as_view(), name="csas-author-model-meta"),
-    # path("csas/documents/<int:pk>/toggle-meeting-linkage/", views.DocumentMeetingLinkageAPIView.as_view(), name="document-meeting-lnka"),
+    path("csas/meta/models/process/", views.ProcessModelMetaAPIView.as_view(), name="csas-process-model-meta"),
 ]

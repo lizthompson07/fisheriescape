@@ -6,13 +6,13 @@ from django.db import models
 from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext_lazy as _, gettext, get_language
 from markdown import markdown
 
 from csas2 import model_choices
-from lib.functions.custom_functions import fiscal_year
+from csas2.utils import get_quarter
+from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields, Language, Person, Section, \
     SimpleLookupWithUUID
@@ -20,6 +20,27 @@ from shared_models.models import SimpleLookup, UnilingualSimpleLookup, Unilingua
 
 def request_directory_path(instance, filename):
     return 'csas/request_{0}/{1}'.format(instance.csas_request.id, filename)
+
+
+def meeting_directory_path(instance, filename):
+    return 'csas/meeting_{0}/{1}'.format(instance.meeting.id, filename)
+
+
+def doc_directory_path(instance, filename):
+    return 'csas/document_{0}/{1}'.format(instance.id, filename)
+
+
+class GenericFile(models.Model):
+    caption = models.CharField(max_length=255)
+    file = models.FileField()
+    date_created = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        abstract = True
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return self.caption
 
 
 class CSASRequest(MetadataFields):
@@ -30,9 +51,9 @@ class CSASRequest(MetadataFields):
     title = models.CharField(max_length=1000, verbose_name=_("title"))
     translated_title = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("translated title"))
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_requests", verbose_name=_("Regional CSAS coordinator"),
-                                    blank=True, null=True)
-    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=True)
+                                    blank=True, null=False)
+    client = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_client_requests", verbose_name=_("DFO client"), blank=True, null=False)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="csas_requests", verbose_name=_("section"), blank=True, null=False)
     is_multiregional = models.BooleanField(default=False,
                                            verbose_name=_("Does this request involve more than one region (zonal) or more than one client sector?"))
     multiregional_text = models.TextField(null=True, blank=True, verbose_name=_("Please provide the contact name, sector, and region for all involved."))
@@ -86,9 +107,13 @@ class CSASRequest(MetadataFields):
         else:
             self.fiscal_year_id = fiscal_year(self.advice_needed_by, sap_style=True)
 
-        # if there is a process, the request is on
+        # if there is a process, the request status will follow the process status
         if self.id and self.processes.exists():
-            self.status = 11
+            # if all processes linked to the request are complete, this request should also be complete
+            if self.processes.filter(status=2).count() == self.processes.all().count():
+                self.status = 4
+            else:
+                self.status = 11
         else:
             # look at the review to help determine the status
             self.status = 1  # draft
@@ -129,6 +154,10 @@ class CSASRequest(MetadataFields):
     @property
     def status_display(self):
         return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+
+    @property
+    def status_class(self):
+        return slugify(self.get_status_display()) if self.status else ""
 
     @property
     def assistance_display(self):
@@ -201,49 +230,44 @@ class CSASRequestReview(MetadataFields):
         return gettext("No")
 
 
-class CSASRequestFile(models.Model):
+class CSASRequestFile(GenericFile):
     csas_request = models.ForeignKey(CSASRequest, related_name="files", on_delete=models.CASCADE, editable=False)
-    caption = models.CharField(max_length=255)
     file = models.FileField(upload_to=request_directory_path)
-    date_created = models.DateTimeField(auto_now=True, editable=False)
-
-    class Meta:
-        ordering = ['-date_created']
-
-    def __str__(self):
-        return self.caption
 
 
 class Process(SimpleLookupWithUUID, MetadataFields):
-    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (en)"))
-    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("tittle (fr)"))
+    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, related_name="processes", verbose_name=_("fiscal year"))
     status = models.IntegerField(choices=model_choices.process_status_choices, verbose_name=_("status"), default=1)
     scope = models.IntegerField(verbose_name=_("scope"), choices=model_choices.process_scope_choices)
     type = models.IntegerField(verbose_name=_("type"), choices=model_choices.process_type_choices)
     lead_region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="process_lead_regions", verbose_name=_("lead region"))
     other_regions = models.ManyToManyField(Region, blank=True, verbose_name=_("other regions"))
     csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
-    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"))
+    coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"),
+                                    blank=True)
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
-    context = models.TextField(blank=True, null=True, verbose_name=_("context"))
-    objectives = models.TextField(blank=True, null=True, verbose_name=_("objectives"))
-    expected_publications = models.TextField(blank=True, null=True, verbose_name=_("expected publications"))
+
+    # non-editable
+    is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
+    posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
     # calculated
-    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="processes",
-                                    verbose_name=_("fiscal year"), editable=False)
 
     class Meta:
         ordering = ["fiscal_year", _("name")]
 
     def save(self, *args, **kwargs):
-        # the fiscal year of a process is determined by the fiscal year of the earliest request associated with it.
-        if not self.fiscal_year:
-            self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
-        elif self.csas_requests.exists():
-            self.fiscal_year = self.csas_requests.order_by("fiscal_year").first().fiscal_year
-        else:
-            self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
+        # # if this is a new record, populate fy based on current time
+        # if not self.fiscal_year:
+        #     self.fiscal_year_id = fiscal_year(timezone.now(), sap_style=True)
+        # # if there is a meeting, look to the latest meeting to determine fy
+        # elif self.meetings.exists():
+        #     self.fiscal_year_id = fiscal_year(self.meetings.order_by("start_date").last().start_date, sap_style=True)
+        # # otherwise, look to the creation date
+        # else:
+        #     self.fiscal_year_id = fiscal_year(self.created_at, sap_style=True)
 
         super().save(*args, **kwargs)
 
@@ -251,27 +275,88 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     def status_display(self):
         return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
 
+    @property
+    def status_class(self):
+        return slugify(self.get_status_display()) if self.status else ""
+
     def get_absolute_url(self):
         return reverse("csas2:process_detail", args=[self.pk])
 
     @property
-    def context_html(self):
-        if self.context:
-            return mark_safe(markdown(self.context))
-
-    @property
-    def objectives_html(self):
-        if self.objectives:
-            return mark_safe(markdown(self.objectives))
-
-    @property
-    def expected_publications_html(self):
-        if self.expected_publications:
-            return mark_safe(markdown(self.expected_publications))
-
-    @property
     def scope_type(self):
         return f"{self.get_scope_display()} {self.get_type_display()}"
+
+    @property
+    def chair(self):
+        if hasattr(self, "tor") and self.tor.meeting:
+            return self.tor.meeting.chair
+
+
+class TermsOfReference(MetadataFields):
+    process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
+    context_en = models.TextField(blank=True, null=True, verbose_name=_("context (en)"), help_text=_("English"))
+    context_fr = models.TextField(blank=True, null=True, verbose_name=_("context (fr)"), help_text=_("French"))
+    objectives_en = models.TextField(blank=True, null=True, verbose_name=_("objectives (en)"), help_text=_("English"))
+    objectives_fr = models.TextField(blank=True, null=True, verbose_name=_("objectives (fr)"), help_text=_("French"))
+    expected_publications_en = models.TextField(blank=True, null=True, verbose_name=_("expected publications (en)"), help_text=_("English"))
+    expected_publications_fr = models.TextField(blank=True, null=True, verbose_name=_("expected publications (fr)"), help_text=_("French"))
+    participation_en = models.TextField(blank=True, null=True, verbose_name=_("participation (en)"), help_text=_("English"))
+    participation_fr = models.TextField(blank=True, null=True, verbose_name=_("participation (fr)"), help_text=_("French"))
+    references_en = models.TextField(blank=True, null=True, verbose_name=_("references (en)"), help_text=_("English"))
+    references_fr = models.TextField(blank=True, null=True, verbose_name=_("references (fr)"), help_text=_("French"))
+    meeting = models.OneToOneField("Meeting", blank=True, null=True, on_delete=models.DO_NOTHING, related_name="tor",
+                                   verbose_name=_("Linked to which meeting?"),
+                                   help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
+
+    @property
+    def context_en_html(self):
+        if self.context_en:
+            return mark_safe(markdown(self.context_en))
+
+    @property
+    def objectives_en_html(self):
+        if self.objectives_en:
+            return mark_safe(markdown(self.objectives_en))
+
+    @property
+    def expected_publications_en_html(self):
+        if self.expected_publications_en:
+            return mark_safe(markdown(self.expected_publications_en))
+
+    @property
+    def participation_en_html(self):
+        if self.participation_en:
+            return mark_safe(markdown(self.participation_en))
+
+    @property
+    def references_en_html(self):
+        if self.references_en:
+            return mark_safe(markdown(self.references_en))
+
+    @property
+    def context_fr_html(self):
+        if self.context_fr:
+            return mark_safe(markdown(self.context_fr))
+
+    @property
+    def objectives_fr_html(self):
+        if self.objectives_fr:
+            return mark_safe(markdown(self.objectives_fr))
+
+    @property
+    def expected_publications_fr_html(self):
+        if self.expected_publications_fr:
+            return mark_safe(markdown(self.expected_publications_fr))
+
+    @property
+    def participation_fr_html(self):
+        if self.participation_fr:
+            return mark_safe(markdown(self.participation_fr))
+
+    @property
+    def references_fr_html(self):
+        if self.references_fr:
+            return mark_safe(markdown(self.references_fr))
 
 
 class GenericCost(models.Model):
@@ -298,29 +383,51 @@ class GenericNote(MetadataFields):
         ordering = ["is_complete", "-updated_at", ]
 
 
-class Meeting(MetadataFields):
+class Meeting(SimpleLookup, MetadataFields):
     ''' meeting that is taking place under the umbrella of a csas process'''
     process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
-    type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
-    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"), help_text=_("City, State/Province, Country"))
-    start_date = models.DateTimeField(verbose_name=_("initial activity date"))
-    end_date = models.DateTimeField(verbose_name=_("anticipated end date"))
-    # rsvp_email = models.EmailField(verbose_name=_("RSVP email address (on invitation)"))
-    hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
+    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
+    # consider removing since this is redundant with process type!! maybe just a flag for a planning meeting
+    # type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
+    is_planning = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a planning meeting?"))
+    is_virtual = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a virtual meeting?"))
+    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"),
+                                help_text=_("City, State/Province, Country or Virtual"))
 
+    start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
+    end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
+    est_quarter = models.IntegerField(choices=model_choices.meeting_quarter_choices, verbose_name=_("estimated quarter"), blank=True, null=True)
+    est_year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("estimated year"))
+
+    # non-editable
+    somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="meetings",
                                     editable=False)
 
     def save(self, *args, **kwargs):
-        self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
+        if self.start_date:
+            self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
+        if self.is_virtual:
+            self.location = 'Virtual / Virtuel'
+        if self.start_date:
+            self.est_quarter = get_quarter(self.start_date)
+            self.est_year = self.start_date.year
         super().save(*args, **kwargs)
 
+    @property
+    def display(self):
+        mystr = self.tname
+        if self.is_planning:
+            mystr += " ({})".format(gettext("planning"))
+        return mystr
+
     def __str__(self):
-        return self.get_type_display() + f" ({self.start_date.strftime('%Y-%m-%d')})"
+        return self.display
 
     class Meta:
-        ordering = ['start_date', ]
+        ordering = ["-is_planning", 'start_date', ]
 
     def get_absolute_url(self):
         return reverse("csas2:meeting_detail", args=[self.pk])
@@ -337,18 +444,47 @@ class Meeting(MetadataFields):
 
     @property
     def display_dates(self):
-        start = date(self.start_date) if self.start_date else "??"
-        dates = f'{start}'
-        if self.end_date and self.end_date != self.start_date:
-            end = date(self.end_date)
-            dates += f' &rarr; {end}'
-        days_display = "{} {}{}".format(self.length_days, gettext("day"), pluralize(self.length_days))
-        dates += f' ({days_display})'
-        return dates
+        start = date(self.start_date) if self.start_date else None
+        if start:
+            dates = f'{start}'
+            if self.end_date and self.end_date != self.start_date:
+                end = date(self.end_date)
+                dates += f' &rarr; {end}'
+            days_display = "{} {}{}".format(self.length_days, gettext("day"), pluralize(self.length_days))
+            dates += f' ({days_display})'
+            return dates
+        else:
+            return f"{self.get_est_quarter_display()} {self.est_year}"
+
+    @property
+    def tor_display_dates(self):
+        start = date(self.start_date) if self.start_date else None
+        if start:
+            lang = get_language()
+            if lang == 'fr':
+                dates = f'Le {start}'
+            else:
+                dates = f'{start}'
+            if self.end_date and self.end_date != self.start_date:
+                end = date(self.end_date)
+                if lang == 'fr':
+                    dates += f' au {end}'
+                else:
+                    dates += f' to {end}'
+            return dates
+        else:
+            return f"{self.get_est_quarter_display()} {self.est_year}"
 
     @property
     def total_cost(self):
         return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
+
+    @property
+    def chair(self):
+        chair_role = InviteeRole.objects.get(name__icontains="chair")
+        qs = self.invitees.filter(roles=chair_role).distinct()
+        if qs.exists():
+            return listrify([f"{invitee.person} ({invitee.person.affiliation})" for invitee in qs])
 
 
 class MeetingNote(GenericNote):
@@ -359,8 +495,9 @@ class MeetingNote(GenericNote):
 class MeetingResource(SimpleLookup, MetadataFields):
     ''' a file attached to to meeting'''
     meeting = models.ForeignKey(Meeting, related_name='resources', on_delete=models.CASCADE)
-    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True)
-    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True)
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    url_en = models.URLField(verbose_name=_("url (English)"), blank=True, null=True, max_length=2000)
+    url_fr = models.URLField(verbose_name=_("url (French)"), blank=True, null=True, max_length=2000)
 
     @property
     def turl(self):
@@ -379,11 +516,24 @@ class MeetingCost(GenericCost):
     meeting = models.ForeignKey(Meeting, related_name='costs', on_delete=models.CASCADE)
 
 
+class MeetingFile(GenericFile):
+    meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
+    is_somp = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this the completed SoMP?"))
+    file = models.FileField(upload_to=meeting_directory_path)
+
+
+class InviteeRole(SimpleLookup):
+    pass
+
+
 class Invitee(models.Model):
     ''' a person that was invited to a meeting'''
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="invitees")
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="meeting_invites")
-    role = models.IntegerField(choices=model_choices.invitee_role_choices, verbose_name=_("Function"), default=1)
+    person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="meeting_invites")
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name="meeting_invites", blank=True, null=True,
+                               verbose_name=_("DFO Region (if applicable)"))
+    roles = models.ManyToManyField(InviteeRole, verbose_name=_("Function(s)"))
+    # role = models.IntegerField(choices=model_choices.invitee_role_choices, verbose_name=_("Function"), default=1)
     status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=0)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("MeetingResource", editable=False)
@@ -415,30 +565,67 @@ class Attendance(models.Model):
         unique_together = (("invitee", "date"),)
 
 
-class Series(SimpleLookup):
-    pass
+class DocumentType(SimpleLookup):
+    days_due = models.IntegerField(null=True, blank=True, verbose_name=_("days due following meeting"))
+    hide_from_list = models.BooleanField(default=False, verbose_name=_("hide from main search?"), choices=model_choices.yes_no_choices)
 
 
 class Document(MetadataFields):
     process = models.ForeignKey(Process, on_delete=models.CASCADE, related_name="documents", editable=False)
-    type = models.IntegerField(choices=model_choices.document_type_choices, verbose_name=_("type"))
-    series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("series"))
+    document_type = models.ForeignKey(DocumentType, on_delete=models.DO_NOTHING, verbose_name=_("document type"))
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
     year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
-    pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True)
     pages = models.IntegerField(null=True, blank=True, verbose_name=_("pages"))
-    hide_from_list = models.BooleanField(default=False, verbose_name=_("This record should be hidden from the main search page"), )
 
-    # description_en = models.TextField(null=True, blank=True, verbose_name=_("description"))
-    # description_fr = models.TextField(null=True, blank=True, verbose_name=_("description"))
+    # file (should be able to get size as well!
+    file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))
+    file_fr = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (fr)"))
+
+    url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
+    url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
+
+    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True)
+    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True)
+
+    ekme_gcdocs_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (en)"))
+    ekme_gcdocs_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (fr)"))
+
+    lib_cat_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (en)"))
+    lib_cat_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (fr)"))
 
     # non-editable
+    due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("document due date"), editable=False)
+    pub_number_request_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date of publication number request"))
+    pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True, editable=False, unique=True)
     meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
     people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
-    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.document_status_choices, editable=False)
+    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.get_document_status_choices(), editable=False)
+    translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.get_translation_status_choices(), editable=False,
+                                             default=0)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        # set status
+        self.status = 0  # ok
+        if hasattr(self, "tracking"):
+            self.pub_number = self.tracking.pub_number
+            self.due_date = self.tracking.due_date
+            self.status = 1  # tracking started
+
+            for obj in model_choices.document_status_dict:
+                trigger = obj.get("trigger")
+                if trigger and getattr(self.tracking, trigger):
+                    self.status = obj.get("value")
+
+            self.translation_status = 0  # null
+            for obj in model_choices.translation_status_dict:
+                trigger = obj.get("trigger")
+                if trigger and getattr(self.tracking, trigger):
+                    self.translation_status = obj.get("value")
+
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("csas2:document_detail", args=[self.pk])
@@ -459,6 +646,24 @@ class Document(MetadataFields):
     def total_cost(self):
         return self.costs.aggregate(dsum=Sum("amount"))["dsum"]
 
+    @property
+    def status_display(self):
+        stage = model_choices.get_document_status_lookup().get(self.status).get("stage")
+        return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_status_display()}</span>')
+
+    @property
+    def status_class(self):
+        return model_choices.get_document_status_lookup().get(self.status).get("stage")
+
+    @property
+    def tstatus_display(self):
+        stage = model_choices.get_translation_status_lookup().get(self.translation_status).get("stage")
+        return mark_safe(f'<span class=" px-1 py-1 {stage}">{self.get_translation_status_display()}</span>')
+
+    @property
+    def tstatus_class(self):
+        return model_choices.get_translation_status_lookup().get(self.translation_status).get("stage")
+
 
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -469,62 +674,64 @@ class DocumentCost(GenericCost):
     document = models.ForeignKey(Document, related_name='costs', on_delete=models.CASCADE)
 
 
-# class DocumentTracking(MetadataFields):
-#     ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
-#     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="authors")
-#     # administrative
-#     date_due = models.DateField(null=True, blank=True, verbose_name=_("due date"))
-#     date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"), )
-#     submitted_by = models.ManyToManyField(ConContact, blank=True, related_name="submitted_by", verbose_name=_("Submitted By"))
-#     date_appr_by_chair = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Chair"), )
-#     appr_by_chair = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_chair", verbose_name=_("Approved By (Chair)"))
-#     data_appr_by_CSAS = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by CSAS"), )
-#     appr_by_CSAS = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_CSAS", verbose_name=_("Approved By (CSAS Contact)"))
-#     date_appr_by_dir = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Director"), )
-#     appr_by_dir = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_dir", verbose_name=_("Approved By Director"))
-#     date_num_req = models.DateField(null=True, blank=True, verbose_name=_("Date Number Requested"), )
-#     date_doc_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Document Submitted to CSAS"), )
-#     date_pdf_proof = models.DateField(null=True, blank=True, verbose_name=_("Date PDF Proof Sent to Author"), )
-#     appr_by = models.ManyToManyField(ConContact, blank=True, related_name="appr_by", verbose_name=_("Approved by (PDF Proof)"))
-#     date_anti = models.DateField(null=True, blank=True, verbose_name=_("Date of Anticipated Posting"), )
-#     date_posted = models.DateField(null=True, blank=True, verbose_name=_("Date Posted"), )
-#     date_modify = models.DateField(null=True, blank=True, verbose_name=_("Date Modified"), )
-#     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
-#
-#     trans_status = models.ForeignKey(PtsPublicationTransStatus, on_delete=models.DO_NOTHING, verbose_name=_("Translation Status"))
-#     date_to_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Sent to Translation"), )
-#     client_ref_num = models.CharField(default="NA", max_length=255, verbose_name=_("Client Reference Number"))
-#     target_lang = models.ForeignKey(PtlPublicationTargetLanguage, on_delete=models.DO_NOTHING, verbose_name=_("Target Language"))
-#     trans_ref_num = models.CharField(default="NA", max_length=255, verbose_name=_("Translator Reference Number"))
-#     urgent_req = models.ForeignKey(PurPublicationUrgentRequest, on_delete=models.DO_NOTHING, verbose_name=_("Urgent Request"))
-#     date_fr_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Back from Translation"), )
-#     invoice_num = models.CharField(default="NA", max_length=255, verbose_name=_("Invoice Number"))
-#     attach = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment(s)"))
-#     trans_note = models.TextField(null=True, blank=True, verbose_name=_("Translation Notes"))
-#
-#     p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
-#     attach_en_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) File"))
-#     attach_en_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) Size"))
-#     attach_fr_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) File"))
-#     attach_fr_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) Size"))
-#
-#     url_e_file = models.URLField(_("URL (English)"), max_length=255, db_index=True, unique=True, blank=True)
-#     url_f_file = models.URLField(_("URL (French)"), max_length=255, db_index=True, unique=True, blank=True)
-#
-#     dev_link_e_file = models.URLField(_("Dev Link (English)"), max_length=255, db_index=True, unique=True, blank=True)
-#     dev_link_f_file = models.URLField(_("Dev Link (French)"), max_length=255, db_index=True, unique=True, blank=True)
-#
-#     ekme_gcdocs_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (English)"))
-#     ekme_gcdocs_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (French)"))
-#
-#     lib_cat_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English)"))
-#     lib_cat_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French)"))
-#
-#
-#     # tracking
-#
-#     class Meta:
-#         ordering = ['-id']
+class DocumentTracking(MetadataFields):
+    ''' since not all docs from meetings will be tracked, we will establish a 1-1 relationship to parse out tracking process'''
+    document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name="tracking")
+
+    due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("product due date"))
+    submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date submitted for review"), )
+    submitted_by = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("submitted by"), related_name="doc_submissions")
+
+    chair = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("chairperson"), related_name="doc_chair_positions")
+    date_chair_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to chair"))
+    date_chair_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by chair"))
+
+    date_coordinator_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to CSAS coordinator"))
+    date_coordinator_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by CSAS coordinator"))
+
+    section_head = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("section head"),
+                                     related_name="doc_section_heads")
+    date_section_head_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to section head"))
+    date_section_head_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by section head"))
+
+    division_manager = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("division manager"),
+                                         related_name="doc_division_managers")
+    date_division_manager_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to division manager"))
+    date_division_manager_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by division manager"))
+
+    director = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("director"), related_name="doc_directors")
+    date_director_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to director"))
+    date_director_appr = models.DateTimeField(null=True, blank=True, verbose_name=_("date approved by director"))
+
+    pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True)
+    date_doc_submitted = models.DateTimeField(null=True, blank=True, verbose_name=_("date document submitted to CSAS office"))
+
+    proof_sent_to = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("proof will be sent to which author"),
+                                      related_name="doc_proof_sent")
+    date_proof_author_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date PDF proof sent to author"))
+    date_proof_author_approved = models.DateTimeField(null=True, blank=True, verbose_name=_("date PDF proof approved by author"))
+
+    anticipated_posting_date = models.DateTimeField(null=True, blank=True, verbose_name=_("anticipated posting date"))
+    actual_posting_date = models.DateTimeField(null=True, blank=True, verbose_name=_("actual posting date"))
+    updated_posting_date = models.DateTimeField(null=True, blank=True, verbose_name=_("updated posting date"))
+
+    # translation
+    is_in_house = models.BooleanField(default=False, verbose_name=_("Will translation be tackled in-house?"))
+    target_lang = models.IntegerField(verbose_name=_("target language"), choices=model_choices.language_choices, blank=True, null=True)
+
+    date_translation_sent = models.DateTimeField(null=True, blank=True, verbose_name=_("date sent to translation"))
+    anticipated_return_date = models.DateTimeField(null=True, blank=True, verbose_name=_("forecasted return date"))
+    client_ref_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("client reference number"))
+    translation_ref_number = models.CharField(max_length=255, verbose_name=_("translation reference number"), blank=True, null=True)
+    is_urgent = models.BooleanField(default=False, verbose_name=_("was submitted as an urgent request?"))
+    date_returned = models.DateTimeField(null=True, blank=True, verbose_name=_("date received from translation"))
+    invoice_number = models.CharField(max_length=255, verbose_name=_("invoice number"), blank=True, null=True)
+
+    translation_review_date = models.DateTimeField(null=True, blank=True, verbose_name=_("translation review completion date"))
+    translation_review_by = models.ForeignKey(Person, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("translation review completed by"),
+                                              related_name="translation_review")
+
+    translation_notes = models.TextField(null=True, blank=True, verbose_name=_("translation notes"))
 
 
 class Author(models.Model):
@@ -534,5 +741,5 @@ class Author(models.Model):
     is_lead = models.BooleanField(default=False, verbose_name=_("lead author?"))
 
     class Meta:
-        ordering = ['person__first_name', "person__last_name"]
+        ordering = ['-is_lead', 'person__first_name', "person__last_name"]
         unique_together = (("document", "person"),)

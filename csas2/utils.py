@@ -238,14 +238,16 @@ def get_process_field_list(process):
         'fiscal_year',
         'tname|{}'.format(_("Title")),
         'status_display|{}'.format(_("status")),
+        'is_posted',
         'scope_type|{}'.format(_("advisory process type")),
+        'chair|{}'.format(_("chair")),
         'coordinator',
         'advisors',
         'lead_region',
         'other_regions',
-        'context_html|{}'.format(get_verbose_label(process, "context")),
-        'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
-        'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
+        # 'context_html|{}'.format(get_verbose_label(process, "context")),
+        # 'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
+        # 'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
         'type',
         'metadata|{}'.format(_("metadata")),
     ]
@@ -274,7 +276,7 @@ def get_document_field_list():
         'title_in',
         'type',
         'status',
-        'series',
+        'document_type',
         'year',
         'pub_number',
         'pages',
@@ -303,14 +305,13 @@ def get_related_processes(user):
     return qs
 
 
-
 def get_related_docs(user):
     """give me a user and I'll send back a queryset with all related docs, i.e.
      they are an author ||
      they are a process coordinator ||
      they are a process advisor
      """
-    qs = models.Process.objects.filter(Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors=user)).distinct()
+    qs = models.Document.objects.filter(document_type__hide_from_list=False).filter(Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors__person__dmapps_user=user)).distinct()
     return qs
 
 
@@ -327,3 +328,14 @@ def get_person_field_list():
     ]
     while None in my_list: my_list.remove(None)
     return my_list
+
+
+def get_quarter(date):
+    if date.month in [1, 2, 3]:
+        return 4
+    elif date.month in [4, 5, 6]:
+        return 1
+    elif date.month in [7, 8, 9]:
+        return 2
+    else:
+        return 3
