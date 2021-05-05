@@ -102,10 +102,8 @@ var app = new Vue({
 
     },
 
-    getProjectYearsEndpoint(pageSize = 45) {
-      endpoint = `/api/project-planning/project-years/`;
-      // apply filters
-      endpoint += `?page_size=${pageSize}&user=true&` +
+    getFilterString() {
+        endpoint = `user=true&` +
           `id=${this.filter_id}&` +
           `title=${this.filter_title}&` +
           `staff=${this.filter_staff}&` +
@@ -117,7 +115,15 @@ var app = new Vue({
           `region=${this.filter_region}&` +
           `division=${this.filter_division}&` +
           `section=${this.filter_section}&` +
-          `status=${this.filter_status}&`
+          `status=${this.filter_status}&`;
+
+        return endpoint
+    },
+
+    getProjectYearsEndpoint(pageSize = 45) {
+      endpoint = `/api/project-planning/project-years/`;
+      // apply filters
+      endpoint += `?page_size=${pageSize}&` + this.getFilterString()
       return endpoint
 
     },
@@ -315,6 +321,9 @@ var app = new Vue({
       staff.showRelatedProjects = !staff.showRelatedProjects
       this.$forceUpdate()
     },
+    generateReports(url, tag) {
+        window.open(url + "?" + this.getFilterString(), tag, 'toolbar=0,status=0,height=500,width=600');
+    }
   },
 
   filters: {

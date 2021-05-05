@@ -5,6 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from shared_models.models import FiscalYear, Section, Branch, Region, Person
 from . import models, utils
 
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
 
 class PersonFilter(django_filters.FilterSet):
     class Meta:
@@ -62,18 +64,19 @@ class CSASRequestFilter(django_filters.FilterSet):
 
 
 class ProcessFilter(django_filters.FilterSet):
-    process_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
+    id = django_filters.NumberFilter(field_name='id', lookup_expr='exact', label=_("Process ID"))
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
     lead_region = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact')
+    is_posted = django_filters.ChoiceFilter(field_name="is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False)]
+        fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
         region_choices = [(obj.id, str(obj)) for obj in Region.objects.filter(process_lead_regions__isnull=False).distinct()]
 
-        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
+        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
         self.filters['lead_region'] = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact', choices=region_choices)
 
 
@@ -90,10 +93,10 @@ class DocumentFilter(django_filters.FilterSet):
         model = models.Document
         fields = {
             'id': ['exact'],
-            'type': ['exact'],
+            'document_type': ['exact'],
             'status': ['exact'],
+            'translation_status': ['exact'],
             'process': ['exact'],
-            'series': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):

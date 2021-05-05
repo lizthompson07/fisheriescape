@@ -271,7 +271,7 @@ class CommonTest(TestCase):
         self.assertEquals(test_view, expected_form_class)
 
     def assert_success_url(self, test_url, data=None, user=None, expected_url_name=None, expected_success_url=None,
-                           use_anonymous_user=False, file_field_name=None):
+                           use_anonymous_user=False, file_field_name=None, expected_code=302):
         """
         test that upon a successful form the view redirects to the expected success url
         :param test_url: URL being tested
@@ -306,7 +306,7 @@ class CommonTest(TestCase):
                                 f"Here's the data from the form:\n{response.context_data['form'].data}")
 
         # should always result in a redirect response
-        self.assertEquals(302, response.status_code)
+        self.assertEquals(expected_code, response.status_code)
 
         # if a url name was provided
         if expected_url_name:

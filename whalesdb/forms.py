@@ -12,6 +12,26 @@ class ReportSearchForm(forms.Form):
         (1, "Deployment Summary Report (csv)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    year = forms.ChoiceField(required=False)
+    month = forms.ChoiceField(required=False)
+    station = forms.ChoiceField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        deployment_qs = models.DepDeployment.objects.all()
+        YEAR_CHOICES = [(None, "------",)]
+        YEAR_CHOICES += [(y[0], y[0],) for idx, y in enumerate(deployment_qs.order_by("-dep_year").values_list("dep_year").distinct())]
+
+        MONTH_CHOICES = [(None, "------",)]
+        MONTH_CHOICES += [(y[0], y[0],) for idx, y in enumerate(deployment_qs.order_by("dep_month").values_list("dep_month").distinct())]
+
+        STN_CHOICES = [(None, "All",)]
+        STN_CHOICES += [(y.pk, str(y),) for idx, y in enumerate(models.StnStation.objects.all().order_by("stn_name"))]
+
+        self.fields['year'].choices = YEAR_CHOICES
+        self.fields['month'].choices = MONTH_CHOICES
+        self.fields['station'].choices = STN_CHOICES
 
 
 class CruForm(forms.ModelForm):
@@ -125,6 +145,8 @@ class EheManagedForm(forms.ModelForm):
 
 class EheForm(forms.ModelForm):
 
+    copy_to_channel = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, required=False)
+
     class Meta:
         model = models.EheHydrophoneEvent
         exclude = []
@@ -136,6 +158,14 @@ class EheForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if 'rec' in self.initial and self.initial['rec']:
+            eqp = models.EqpEquipment.objects.get(pk=self.initial['rec'])
+            emm = eqp.emm
+            if hasattr(emm, 'recorder'):
+                channel_choices = [(c.ecp_channel_no, c.ecp_channel_no) for c in
+                                   emm.channels.exclude(ecp_channel_no=self.initial['ecp_channel_no'])]
+                self.fields['copy_to_channel'].choices = channel_choices
 
         if 'hyd' in self.initial and self.initial['hyd']:
             self.fields['hyd'].widget = forms.HiddenInput()

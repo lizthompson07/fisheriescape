@@ -11,15 +11,15 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
-from lib.templatetags.custom_filters import nz
-from shared_models.models import Person
+from lib.functions.custom_functions import fiscal_year
+from shared_models.models import Person, FiscalYear
 from shared_models.views import CommonTemplateView, CommonFormView, CommonDeleteView, CommonDetailView, \
     CommonCreateView, CommonUpdateView, CommonFilterView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonFormsetView, \
     CommonHardDeleteView
-from . import models, forms, filters, utils, reports
+from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin
-from .utils import in_csas_admin_group
+from .utils import in_csas_admin_group, get_quarter
 
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
@@ -36,19 +36,19 @@ class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
 # settings
 ##########
 
-class SeriesFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
+class DocumentTypeFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
     template_name = 'csas2/formset.html'
-    h1 = "Manage Publication Series"
-    queryset = models.Series.objects.all()
-    formset_class = forms.SeriesFormset
-    success_url_name = "csas2:manage_series"
+    h1 = "Manage Document Type"
+    queryset = models.DocumentType.objects.all()
+    formset_class = forms.DocumentTypeFormset
+    success_url_name = "csas2:manage_document_types"
     home_url_name = "csas2:index"
-    delete_url_name = "csas2:delete_series"
+    delete_url_name = "csas2:delete_document_type"
 
 
-class SeriesHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
-    model = models.Series
-    success_url = reverse_lazy("csas2:manage_series")
+class DocumentTypeHardDeleteView(CsasNationalAdminRequiredMixin, CommonHardDeleteView):
+    model = models.DocumentType
+    success_url = reverse_lazy("csas2:manage_document_types")
 
 
 class InviteeRoleFormsetView(CsasNationalAdminRequiredMixin, CommonFormsetView):
@@ -186,6 +186,7 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     template_name = 'csas2/request_detail/main.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
+    container_class = ""
 
     def get_active_page_name_crumb(self):
         return "{} {}".format(_("Request"), self.get_object().id)
@@ -281,7 +282,13 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
             obj.submission_date = None
         else:
             obj.submission_date = timezone.now()
-        return super().form_valid(form)
+        obj.save()
+
+        # if the request was just submitted, send an email
+        if obj.submission_date:
+            email = emails.NewRequestEmail(self.request, obj)
+            email.send()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class CSASRequestCloneUpdateView(CSASRequestUpdateView):
@@ -393,7 +400,7 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["process_field_list"] = utils.get_process_field_list(obj)
         context["meeting_field_list"] = [
-            'type',
+            'display|{}'.format(_("title")),
             'location',
             'display_dates|{}'.format(_("dates")),
         ]
@@ -411,15 +418,19 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     template_name = 'csas2/form.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+    submit_text = gettext_lazy("Save")
 
     def get_initial(self):
+        data = dict(
+            fiscal_year=fiscal_year(timezone.now(), sap_style=True),
+        )
         qp = self.request.GET
         if qp.get("request"):
             csas_request = get_object_or_404(models.CSASRequest, pk=qp.get("request"))
-            return dict(
-                csas_requests=[csas_request.id, ],
-                coordinator=csas_request.coordinator,
-            )
+            data["name"] = csas_request.title
+            data["csas_requests"] = [csas_request.id, ]
+            data["coordinator"] = csas_request.coordinator
+        return data
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -452,6 +463,16 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_object().id])}
+
+
+class ProcessPostingsVueJSView(CsasNationalAdminRequiredMixin, CommonFilterView): # using the common filter view to bring in the django filter machinery
+    template_name = 'csas2/process_postings.html'
+    home_url_name = "csas2:index"
+    container_class = "container-fluid"
+    h1 = gettext_lazy("Manage Process Postings")
+    model = models.Process
+    filterset_class = filters.ProcessFilter
+
 
 
 # ToR #
@@ -521,7 +542,7 @@ def tor_export(request, pk):
     tor = get_object_or_404(models.TermsOfReference, pk=pk)
 
     qp = request.GET
-    lang = qp.get("lang", "en") # default to english if no query
+    lang = qp.get("lang", "en")  # default to english if no query
 
     file_url = reports.generate_tor(tor, lang)
 
@@ -537,6 +558,14 @@ def tor_export(request, pk):
             return response
     raise Http404
 
+
+class TermsOfReferenceHTMLDetailView(LoginAccessRequiredMixin, CommonDetailView):
+    model = models.TermsOfReference
+
+    def get_template_names(self, **kwargs):
+        qp = self.request.GET
+        lang = qp.get("lang", "en")  # default to english if no query
+        return 'csas2/tor_html_fr.html' if lang == "fr" else 'csas2/tor_html_en.html'
 
 
 # meetings #
@@ -588,6 +617,9 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
+    def get_initial(self):
+        return dict(est_year=timezone.now().year, est_quarter=get_quarter(timezone.now()))
+
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
 
@@ -596,14 +628,16 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        range = form.cleaned_data["date_range"].split("to")
-        start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
-        obj.start_date = start_date
-        if len(range) > 1:
-            end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
-            obj.end_date = end_date
-        else:
-            obj.end_date = start_date
+        range = form.cleaned_data["date_range"]
+        if range:
+            range = range.split("to")
+            start_date = datetime.strptime(range[0].strip(), "%Y-%m-%d")
+            obj.start_date = start_date
+            if len(range) > 1:
+                end_date = datetime.strptime(range[1].strip(), "%Y-%m-%d")
+                obj.end_date = end_date
+            else:
+                obj.end_date = start_date
         obj.created_by = self.request.user
         obj.process = self.get_process()
         return super().form_valid(form)
@@ -664,7 +698,6 @@ class MeetingDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
-
 # meeting files #
 #################
 
@@ -673,10 +706,23 @@ class MeetingFileCreateView(CanModifyProcessRequiredMixin, CommonPopoutCreateVie
     form_class = forms.MeetingFileForm
     is_multipart_form_data = True
 
+    def get_initial(self):
+        """ For the benefit of the form class"""
+        return dict(
+            meeting=self.kwargs.get("meeting"),
+        )
+
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.meeting_id = self.kwargs['meeting']
         obj.save()
+        if not obj.meeting.somp_notification_date and obj.is_somp:
+            email = emails.SoMPEmail(self.request, obj)
+            email.send()
+            messages.info(self.request, _("A notification email was sent off to the national office!"))
+            meeting = obj.meeting
+            meeting.somp_notification_date = timezone.now()
+            meeting.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -685,10 +731,20 @@ class MeetingFileUpdateView(CanModifyProcessRequiredMixin, CommonPopoutUpdateVie
     form_class = forms.MeetingFileForm
     is_multipart_form_data = True
 
+    def form_valid(self, form):
+        obj = form.save()
+        if not obj.meeting.somp_notification_date and obj.is_somp:
+            email = emails.SoMPEmail(self.request, obj)
+            email.send()
+            messages.info(self.request, _("A notification email was sent off to the national office!"))
+            meeting = obj.meeting
+            meeting.somp_notification_date = timezone.now()
+            meeting.save()
+        return HttpResponseRedirect(self.get_success_url())
+
 
 class MeetingFileDeleteView(CanModifyProcessRequiredMixin, CommonPopoutDeleteView):
     model = models.MeetingFile
-
 
 
 # documents #
@@ -703,16 +759,16 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'ttitle|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'type', "class": "", "width": ""},
+        {"name": 'ttitle|{}'.format("title"), "class": "", "width": "300px"},
+        {"name": 'document_type', "class": "", "width": ""},
+        {"name": 'process', "class": "", "width": "300px"},
         {"name": 'status', "class": "", "width": ""},
-        {"name": 'process', "class": "", "width": ""},
-        {"name": 'series', "class": "", "width": ""},
+        {"name": 'translation_status', "class": "", "width": ""},
     ]
 
     def get_queryset(self):
         qp = self.request.GET
-        qs = models.Document.objects.all()
+        qs = models.Document.objects.filter(document_type__hide_from_list=False)
         if qp.get("personalized"):
             qs = utils.get_related_docs(self.request.user)
         qs = qs.annotate(search_term=Concat(
@@ -810,10 +866,29 @@ class DocumentDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
 class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
     template_name = 'csas2/report_search.html'
     form_class = forms.ReportSearchForm
-    h1 = gettext_lazy("eDNA Reports")
+    h1 = gettext_lazy("CSAS Reports")
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        year = nz(form.cleaned_data["year"], "None")
+        fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
+
+        if report == 1:
+            return HttpResponseRedirect(f"{reverse('csas2:meeting_report')}?fiscal_year={fy}")
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("csas2:reports"))
+
+
+@login_required()
+def meeting_report(request):
+    qp = request.GET
+    year = None if not qp.get("fiscal_year") else int(qp.get("fiscal_year"))
+    file_url = reports.generate_meeting_report(fiscal_year=year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            fy = get_object_or_404(FiscalYear, pk=year)
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="CSAS meetings ({fy}).xlsx"'
+
+            return response
+    raise Http404

@@ -31,7 +31,11 @@
   {% url row_object_url_name object.id as my_url %}
   <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
     {% for field in field_list %}
-      <td class="{{ field.class }} {% if field.name == "status" %}{{ object.get_status_display|slugify }}{% endif %}">
+      <td
+        class="{{ field.class }}
+          {% if field.name == "status" %}{{ object.status_class|slugify }}
+          {% elif field.name == "translation_status" %}{{ object.tstatus_class|slugify }}{% endif %}
+        ">
         {% block table_td %}
           {% get_field_value object field.name safe=True %}
         {% endblock %}

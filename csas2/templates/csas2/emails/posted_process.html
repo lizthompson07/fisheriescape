@@ -1,0 +1,60 @@
+{% load verbose_names %}
+{% load i18n %}
+<style>
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+{% language 'en' %}
+  <p>
+    Hello,
+  </p>
+  <p>
+    This is an automated message to notify you that your process entitled,
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.id %}">{{ object.tname }}</a>,
+    has been added to the national CSAS website.
+  </p>
+{% endlanguage %}
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps
+</p>
+
+<hr>
+<p>
+  Bonjour,
+</p>
+{% language 'fr' %}
+  <p>
+    Ceci est un message automatisé pour vous informer que votre processus intitulé,
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' object.id %}">{{ object.tname }}</a>,
+    a été ajouté au site Web national du SCCS.
+  </p>
+{% endlanguage %}
+
+<p>
+  Cordialement,
+  <br><br>
+  Applis GD
+</p>
+
+
+
+
+
+
+
+

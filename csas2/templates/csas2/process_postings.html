@@ -1,0 +1,172 @@
+{% extends "csas2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block crumbs %}
+{% endblock %}
+
+{% block messages %}{% endblock %}
+{% block title_area %}
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+{% endblock %}
+
+{% block subcontent %}
+  <div id="app" v-cloak>
+    <div>
+      {% include "shared_models/_generic_breadcrumbs.html" %}
+      <div class="mb-3">
+        <h2 class="">{{ h1|safe }}</h2>
+      </div>
+      {% bootstrap_messages %}
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 px-3 py-3 mx-3 table-bordered">
+        <form class="form " action="." method="get" id="filter-form" @change="submitForm">
+          {% bootstrap_field filter.form.fiscal_year placeholder="" size="small" %}
+          {% bootstrap_field filter.form.lead_region placeholder="" size="small" %}
+          {% bootstrap_field filter.form.id placeholder="" size="small" %}
+          {% bootstrap_field filter.form.is_posted placeholder="" size="small" %}
+          <div class="">
+            <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+          </div>
+        </form>
+      </div>
+      <div class="col">
+        <div v-if="loading" class="loading mb-3 mt-3 mt-5">
+          <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+        <em v-else-if="!processes.length">{% trans "No results found... :(" %}</em>
+        <table v-else class="table table-sm table-bordered">
+          <thead>
+          <tr>
+            <th>${processLabels.id}</th>
+            <th>{% trans "Title" %}</th>
+            <th>${processLabels.lead_region}</th>
+            <th>${processLabels.is_posted}</th>
+            <th>{% trans "Notification Email Sent?" %}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="p, index in processes" :key="p.id">
+            <td>${p.id}</td>
+            <td>${p.tname}</td>
+            <td>${p.lead_region}</td>
+            <td>
+              <button v-if="p.is_posted" class="btn btn-xs btn-success" @click="toggle(p)">{% trans "Posted" %}</button>
+              <button v-else class="btn btn-xs btn-danger" @click="toggle(p)">{% trans "Not Posted" %}</button>
+            </td>
+            <td>${p.posting_notification_date|yesNo}</td>
+          </tr>
+          </tbody>
+        </table>
+        <div v-if="processes.length">
+          <button @click="setAll(true)" class="btn btn-sm btn-primary">{% trans "Post All" %}</button>
+          <button @click="setAll(false)" class="btn btn-sm btn-danger">{% trans "Un-Post All" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script type="application/javascript">
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      loading: false,
+      processes: [],
+      processLabels: {},
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/csas/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      submitForm(){
+        $("#filter-form").submit()
+      },
+      goProcessDetail(process) {
+        url = `/csas2/processes/${process.id}/view/`;
+        let win;
+        win = window.open(url, '_blank');
+      },
+      getProcesses() {
+        this.loading = true;
+        let params = window.location.search.substring(1);
+        if (!params) page_size = 50;
+        else page_size = 50000;
+        let endpoint = `/api/csas/processes/?${params}&page_size=${page_size}`;
+        apiService(endpoint)
+            .then(response => {
+              this.loading = false;
+              this.processes = response.results;
+            })
+      },
+      getProcessMetadata() {
+        let endpoint = `/api/csas/meta/models/process/`;
+        apiService(endpoint).then(data => {
+          this.processLabels = data.labels;
+        });
+      },
+      toggle(p) {
+        let endpoint = `/api/csas/processes/${p.id}/`;
+        apiService(endpoint, "PATCH", {is_posted: !p.is_posted}).then(data => {
+          if (!data.id) this.errors = groomJSON(data);
+          else this.getProcesses();
+        });
+      },
+      setAll(setTo) {
+        for (var i = 0; i < this.processes.length; i++) {
+          let p = this.processes[i];
+          let endpoint = `/api/csas/processes/${p.id}/`;
+          apiService(endpoint, "PATCH", {is_posted: setTo}).then(data => {
+            if (data.id) p.is_posted = setTo;
+          });
+        }
+      },
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"]
+    },
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      }
+    },
+    created() {
+      this.getCurrentUser();
+      this.getProcesses();
+      this.getProcessMetadata();
+    },
+  });
+
+
+  </script>
+
+{% endblock %}

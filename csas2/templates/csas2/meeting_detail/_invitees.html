@@ -28,7 +28,10 @@
     <tbody>
     <tr v-for="(invitee, index) in invitees" :key="invitee.id" @click="">
       <td>
-        ${ invitee.person_object.full_name } (${ invitee.person_object.affiliation }) <br>
+        ${ invitee.person_object.full_name }
+        <span v-if="invitee.region">(${ invitee.person_object.affiliation }, ${ invitee.region_display }) <br></span>
+        <span v-else>(${ invitee.person_object.affiliation }) <br></span>
+
         <span v-if="invitee.person_object.tposition">${ invitee.person_object.tposition }<br></span>
         <a :href="`mailto:${ invitee.person_object.email }`">${ invitee.person_object.email}</a>
       </td>
@@ -46,8 +49,8 @@
         <email-overlay v-if="!invitee.invitation_sent_date" :invitee="invitee" @update-invitees="getInvitees"></email-overlay>
       </td>
       <td>
-        <div class="btn-group" v-if="meeting.dates.length">
-          <attendance-overlay :invitee="invitee" @update-invitees="getInvitees"></attendance-overlay>
+        <div class="btn-group">
+          <attendance-overlay :invitee="invitee" @update-invitees="getInvitees" v-if="meeting.dates.length"></attendance-overlay>
           <invitee-editor :invitee="invitee" @update-invitees="getInvitees"></invitee-editor>
           <button class="btn btn-sm" @click="deleteInvitee(invitee)">
             <span class="mdi mdi-delete"></span>

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date, pluralize, slugify
 from django.utils.translation import gettext
 from rest_framework import serializers
@@ -111,7 +112,6 @@ class MeetingSerializerLITE(serializers.ModelSerializer):
     display_dates = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     start_date_display = serializers.SerializerMethodField()
-    type_display = serializers.SerializerMethodField()
 
     def get_start_date_display(self, instance):
         return date(instance.start_date)
@@ -130,9 +130,6 @@ class MeetingSerializerLITE(serializers.ModelSerializer):
     def get_display(self, instance):
         return str(instance)
 
-    def get_type_display(self, instance):
-        return instance.get_type_display()
-
     def get_display_dates(self, instance):
         start = date(instance.start_date) if instance.start_date else "??"
         dates = f'{start}'
@@ -145,20 +142,44 @@ class MeetingSerializerLITE(serializers.ModelSerializer):
 
 
 class DocumentSerializer(serializers.ModelSerializer):
-    # meetings = MeetingSerializerLITE(many=True)
+    document_type = serializers.StringRelatedField()
     ttitle = serializers.SerializerMethodField()
-    type_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
     metadata = serializers.SerializerMethodField()
     total_cost = serializers.SerializerMethodField()
     tracking = serializers.SerializerMethodField()
-
     file_en_size = serializers.SerializerMethodField()
+    tstatus_display = serializers.SerializerMethodField()
+    tstatus_text = serializers.SerializerMethodField()
+    status_text = serializers.SerializerMethodField()
+    coordinator = serializers.SerializerMethodField()
+    pub_number_request_date_display = serializers.SerializerMethodField()
+    due_date_display = serializers.SerializerMethodField()
+
+    def get_due_date_display(self, instance):
+        if instance.due_date:
+            return f"{date(instance.due_date)} ({naturaltime(instance.due_date)})"
+
+    def get_pub_number_request_date_display(self, instance):
+        if instance.pub_number_request_date:
+            return f"{date(instance.pub_number_request_date)} ({naturaltime(instance.pub_number_request_date)})"
+
+    def get_coordinator(self, instance):
+        return str(instance.process.coordinator)
+
+    def get_status_text(self, instance):
+        return instance.get_status_display()
+
+    def get_tstatus_text(self, instance):
+        return instance.get_translation_status_display()
+
+    def get_tstatus_display(self, instance):
+        return instance.tstatus_display
 
     def get_file_en_size(self, instance):
         if instance.file_en.name:
-            return f"{round((instance.file_en.size / 1000 / 1000), 3)} Mb"
+            return f"{round((instance.file_en.size / 1000), 3)} kb"
 
     def get_tracking(self, instance):
         if hasattr(instance, "tracking"):
@@ -172,9 +193,6 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_status_display(self, instance):
         return instance.status_display
-
-    def get_type_display(self, instance):
-        return instance.get_type_display()
 
     def get_ttitle(self, instance):
         return instance.ttitle
@@ -225,6 +243,30 @@ class DocumentTrackingSerializer(serializers.ModelSerializer):
         if instance.date_coordinator_appr:
             return instance.date_coordinator_appr.strftime("%Y-%m-%d")
 
+    date_division_manager_sent_display = serializers.SerializerMethodField()
+
+    def get_date_division_manager_sent_display(self, instance):
+        if instance.date_division_manager_sent:
+            return instance.date_division_manager_sent.strftime("%Y-%m-%d")
+
+    date_division_manager_appr_display = serializers.SerializerMethodField()
+
+    def get_date_division_manager_appr_display(self, instance):
+        if instance.date_division_manager_appr:
+            return instance.date_division_manager_appr.strftime("%Y-%m-%d")
+
+    date_section_head_sent_display = serializers.SerializerMethodField()
+
+    def get_date_section_head_sent_display(self, instance):
+        if instance.date_section_head_sent:
+            return instance.date_section_head_sent.strftime("%Y-%m-%d")
+
+    date_section_head_appr_display = serializers.SerializerMethodField()
+
+    def get_date_section_head_appr_display(self, instance):
+        if instance.date_section_head_appr:
+            return instance.date_section_head_appr.strftime("%Y-%m-%d")
+
     date_director_sent_display = serializers.SerializerMethodField()
 
     def get_date_director_sent_display(self, instance):
@@ -236,18 +278,6 @@ class DocumentTrackingSerializer(serializers.ModelSerializer):
     def get_date_director_appr_display(self, instance):
         if instance.date_director_appr:
             return instance.date_director_appr.strftime("%Y-%m-%d")
-
-    date_number_requested_display = serializers.SerializerMethodField()
-
-    def get_date_number_requested_display(self, instance):
-        if instance.date_number_requested:
-            return instance.date_number_requested.strftime("%Y-%m-%d")
-
-    number_approved_display = serializers.SerializerMethodField()
-
-    def get_number_approved_display(self, instance):
-        if instance.number_approved:
-            return instance.number_approved.strftime("%Y-%m-%d")
 
     date_doc_submitted_display = serializers.SerializerMethodField()
 
@@ -297,11 +327,24 @@ class DocumentTrackingSerializer(serializers.ModelSerializer):
         if instance.date_returned:
             return instance.date_returned.strftime("%Y-%m-%d")
 
+    translation_review_date_display = serializers.SerializerMethodField()
+
+    def get_translation_review_date_display(self, instance):
+        if instance.translation_review_date:
+            return instance.translation_review_date.strftime("%Y-%m-%d")
+
+    anticipated_return_date_display = serializers.SerializerMethodField()
+
+    def get_anticipated_return_date_display(self, instance):
+        if instance.anticipated_return_date:
+            return instance.anticipated_return_date.strftime("%Y-%m-%d")
+
     # mydate_display = serializers.SerializerMethodField()
     #
     # def get_mydate_display(self, instance):
     #     if instance.mydate:
     #         return instance.mydate.strftime("%Y-%m-%d")
+
 
 class MeetingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -309,7 +352,6 @@ class MeetingSerializer(serializers.ModelSerializer):
         exclude = ["updated_at", "created_at"]  # "slug", 'author'
 
     created_at_display = serializers.SerializerMethodField()
-    type_display = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()
     display_dates = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
@@ -318,6 +360,14 @@ class MeetingSerializer(serializers.ModelSerializer):
     length_days = serializers.SerializerMethodField()
     process = serializers.StringRelatedField()
     total_cost = serializers.SerializerMethodField()
+    display = serializers.SerializerMethodField()
+    somp_notification_date = serializers.SerializerMethodField()
+
+    def get_somp_notification_date(self, instance):
+        return date(instance.somp_notification_date)
+
+    def get_display(self, instance):
+        return instance.display
 
     def get_total_cost(self, instance):
         return instance.total_cost
@@ -351,9 +401,6 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     def get_metadata(self, instance):
         return instance.metadata
-
-    def get_type_display(self, instance):
-        return instance.get_type_display()
 
     def get_created_at_display(self, instance):
         return date(instance.created_at)
@@ -432,6 +479,11 @@ class InviteeSerializer(serializers.ModelSerializer):
     person_object = serializers.SerializerMethodField()
     roles_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
+    region_display = serializers.SerializerMethodField()
+
+    def get_region_display(self, instance):
+        if instance.region:
+            return str(instance.region)
 
     def get_attendance(self, instance):
         return listrify([a.date.strftime("%Y-%m-%d") for a in instance.attendance.all()])
@@ -477,3 +529,15 @@ class MeetingResourceSerializer(serializers.ModelSerializer):
 
     def get_date_added(self, instance):
         return date(instance.created_at)
+
+
+class ProcessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Process
+        fields = "__all__"
+
+    lead_region = serializers.StringRelatedField()
+    tname = serializers.SerializerMethodField()
+
+    def get_tname(self, instance):
+        return instance.tname
