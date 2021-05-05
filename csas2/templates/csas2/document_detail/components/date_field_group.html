@@ -4,8 +4,8 @@
 <script type="text/x-template" id="date-field-group-template">
 
 <div class="form-group">
-  <label for="">${label}</label>
-  <input v-model="date" type="date" class="date_returned form-control" @change="updateTracking">
+  <label  v-if="label" for="">${label}</label>
+  <input v-model="date" type="date" class="form-control" @change="updateTracking">
   <div class="mt-1">
     <button class="badge badge-pill btn-primary" v-if="date"
             @click="clearDate">
@@ -26,9 +26,9 @@ Vue.component("date-field-group", {
       type: String,
       required: false
     },
-    labels: {
-      type: Object,
-      required: true
+    label: {
+      type: String,
+      required: false
     },
     field_name: {
       type: String,
@@ -40,14 +40,9 @@ Vue.component("date-field-group", {
       date: null,
     };
   },
-  computed: {
-    label(){
-      return this.labels[this.field_name]
-    }
-  },
   methods: {
     updateTracking() {
-      this.$emit("update-tracking", {field_name:this.field_name, date: this.date});
+      this.$emit("update-tracking", {field_name:this.field_name, value: this.date, is_date: true});
     },
     clearDate() {
       this.date = null;

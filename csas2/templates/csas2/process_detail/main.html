@@ -48,8 +48,10 @@
             </a>
 
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=en">{% trans "English" %}</a>
-              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=fr">{% trans "French" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=en">{% trans "Word (en)" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=fr">{% trans "Word (fr)" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_html' object.tor.id %}?lang=en">{% trans "HTML (en)" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_html' object.tor.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
             </div>
           </div>
         </div>
@@ -107,9 +109,8 @@
         <table class="table table-bordered table-hover table-sm">
           <thead>
           <tr>
-            {#          #}
             {% for field in meeting_field_list %}
-              <th>{% get_verbose_label object.meetings.first field %}</th>
+              <th class="{% if "title" in field %}w400{% endif %}">{% get_verbose_label object.meetings.first field %}</th>
             {% endfor %}
           </tr>
           </thead>
@@ -146,21 +147,21 @@
         <table class="table table-bordered table-hover table-sm">
           <thead>
           <tr>
-            <th rowspan="2">{% trans "Title" %}</th>
+            <th rowspan="2" class="w400">{% trans "Title" %}</th>
             <th rowspan="2">{% trans "Type" %}</th>
             <th rowspan="2">{% trans "Status" %}</th>
-            <th v-if="meetings.length" class="text-center" :colspan="meetings.length">{% trans "Meeting Linkages" %}</th>
+            <th v-if="keystoneMeetings.length" class="text-center" :colspan="keystoneMeetings.length">{% trans "Meeting Linkages" %}</th>
           </tr>
           <tr>
-            <th v-for="m, index in meetings" :key="m.id" class="text-center text-muted">${m.type_display}</th>
+            <th v-for="m, index in keystoneMeetings" :key="m.id" class="text-center text-muted">${m.display}</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="d, index in docs" :key="d.id" @click="goDocumentDetail(d)" class="pointy">
             <td>${d.ttitle}</td>
-            <td>${d.type_display}</td>
-            <td>${d.status_display}</td>
-            <td v-for="m, index in meetings" :key="m.id" class="text-center">
+            <td>${d.document_type}</td>
+            <td v-html="d.status_display"></td>
+            <td v-for="m, index in keystoneMeetings" :key="m.id" class="text-center">
               <button v-if="d.meetings.includes(m.id)" @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span
                 class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span></button>
               <button v-else @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span>
@@ -256,6 +257,15 @@
     computed: {
       canModify() {
         return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      keystoneMeetings() {
+        let myArray = [];
+        let m;
+        for (var i = 0; i < this.meetings.length; i++) {
+          m = this.meetings[i];
+          if (!m.is_planning) myArray.push(m);
+        }
+        return myArray;
       }
     },
     created() {

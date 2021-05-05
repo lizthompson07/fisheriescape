@@ -32,6 +32,14 @@ def in_adm_admin_group(user):
         return admin_group in user.groups.all()
 
 
+
+def in_cfo_group(user):
+    # make sure the following group exist:
+    group, created = Group.objects.get_or_create(name="travel_cfo_read_only")
+    if user:
+        return group in user.groups.all()
+
+
 def is_admin(user):
     return in_adm_admin_group(user) or in_travel_admin_group(user)
 

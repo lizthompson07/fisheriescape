@@ -108,7 +108,13 @@ var app = new Vue({
           })
     }
   },
-
+  filters: {
+    yesNo: vueFiltersObject["yesNo"],
+    nz: vueFiltersObject["nz"],
+    floatformat: vueFiltersObject["floatformat"],
+    currencyFormat: vueFiltersObject["currencyFormat"],
+    zero2NullMark: vueFiltersObject["zero2NullMark"],
+  },
   computed: {
     isAdmin() {
       return this.currentUser.is_regional_admin;

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-29 14:17-0300\n"
+"POT-Creation-Date: 2021-05-03 13:17-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1785,11 +1785,11 @@ msgstr "période de temps"
 msgid "Instruments"
 msgstr "Instruments"
 
-#: .\dm_apps\my_conf.py:397 .\dm_apps\settings.py:278
+#: .\dm_apps\my_conf.py:397 .\dm_apps\settings.py:277
 msgid "English"
 msgstr "Anglais"
 
-#: .\dm_apps\my_conf.py:398 .\dm_apps\settings.py:279
+#: .\dm_apps\my_conf.py:398 .\dm_apps\settings.py:278
 msgid "French"
 msgstr "Français"
 

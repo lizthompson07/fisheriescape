@@ -12,7 +12,6 @@ def save_request_on_review_save(sender, instance, created, **kwargs):
     instance.csas_request.save()
 
 
-
 @receiver(models.signals.post_save, sender=Process)
 def update_fiscal_year_on_process_save(sender, instance, created, **kwargs):
     for r in instance.csas_requests.all():

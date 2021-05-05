@@ -29,6 +29,7 @@
   var $has_funding = $("#id_has_funding");
   var $is_deferred = $("#id_is_deferred");
   var $is_virtual = $("#id_is_virtual");
+  var $date_range = $("#id_date_range");
 
   $(document).ready(function () {
     // Stuff to do as soon as the DOM is ready
@@ -37,6 +38,7 @@
     refreshFundingSection();
     refreshDeferredSection();
     refreshVirtualSection();
+    refreshDatesSection();
   });
 
   function refreshMultiregionalSection() {
@@ -81,6 +83,16 @@
     }
   }
 
+  function refreshDatesSection() {
+    if ($date_range.val() && $date_range.val() !== "") {
+      $(".est_quarter_div").addClass("gone");
+      $(".est_year_div").addClass("gone");
+    } else {
+      $(".est_quarter_div").removeClass("gone");
+      $(".est_year_div").removeClass("gone");
+    }
+  }
+
   $is_multiregional.change(function () {
     refreshMultiregionalSection();
   })
@@ -99,6 +111,12 @@
 
   $is_virtual.change(function () {
     refreshVirtualSection();
+  })
+  $date_range.change(function () {
+    refreshDatesSection();
+  })
+  $date_range.change(function () {
+    refreshDatesSection();
   })
 
   </script>

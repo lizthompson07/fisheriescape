@@ -254,7 +254,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
         'province',
         'phone',
         'fax',
-        'notes',
+        'notes_html|{}'.format(_("notes")),
         'grouping',
         'regions',
         'sectors',

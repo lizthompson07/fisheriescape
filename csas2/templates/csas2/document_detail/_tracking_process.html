@@ -1,0 +1,283 @@
+{% load i18n %}
+<div v-if="loadingPeople" class="loading mb-3 mt-3 mt-5">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+<div v-else>
+  {# due_date #}
+  <date-field-group
+    key="due_date"
+    field_name="due_date"
+    :display_date="document.tracking.due_date_display"
+    :label="trackingLabels.due_date"
+    @update-tracking="updateTracking"
+  ></date-field-group>
+
+
+  {# submission_date #}
+  <date-field-group
+    key="submission_date"
+    field_name="submission_date"
+    :display_date="document.tracking.submission_date_display"
+    :label="trackingLabels.submission_date"
+    @update-tracking="updateTracking"
+  ></date-field-group>
+
+
+  {# submitted_by #}
+  <select-group
+    key="submitted_by"
+    field_name="submitted_by"
+    :val="document.tracking.submitted_by"
+    :label="trackingLabels.submitted_by"
+    :choices="personChoices"
+    @update-tracking="updateTracking"
+  ></select-group>
+
+
+  <div class="card tracking-card">
+    <div class="card-header lead">
+      {% trans "Chair" %}
+    </div>
+    <div class="card-body">
+      <select-group
+        key="chair"
+        field_name="chair"
+        :val="document.tracking.chair"
+        :choices="personChoices"
+        @update-tracking="updateTracking"
+      ></select-group>
+      <date-field-group v-if="document.tracking.chair"
+                        key="date_chair_sent"
+                        field_name="date_chair_sent"
+                        :display_date="document.tracking.date_chair_sent_display"
+                        label="{% trans "Sent" %}"
+                        @update-tracking="updateTracking"
+      ></date-field-group>
+      <date-field-group v-if="document.tracking.chair"
+                        key="date_chair_appr"
+                        field_name="date_chair_appr"
+                        :display_date="document.tracking.date_chair_appr_display"
+                        label="{% trans "Approved" %}"
+                        @update-tracking="updateTracking"
+      ></date-field-group>
+    </div>
+  </div>
+
+
+  <div class="card tracking-card">
+    <div class="card-header lead">
+      {% trans "Coordinator" %} <br>(${document.coordinator})
+    </div>
+    <div class="card-body">
+      <date-field-group
+        key="date_coordinator_sent"
+        field_name="date_coordinator_sent"
+        :display_date="document.tracking.date_coordinator_sent_display"
+        label="{% trans "Sent" %}"
+        @update-tracking="updateTracking"
+      ></date-field-group>
+      <date-field-group
+        key="date_coordinator_appr"
+        field_name="date_coordinator_appr"
+        :display_date="document.tracking.date_coordinator_appr_display"
+        label="{% trans "Approved" %}"
+        @update-tracking="updateTracking"
+      ></date-field-group>
+    </div>
+  </div>
+
+
+  <div class="card tracking-card">
+    <div class="card-header lead">
+      {% trans "Section Head" %}
+    </div>
+    <div class="card-body">
+      <select-group
+        key="section_head"
+        field_name="section_head"
+        :val="document.tracking.section_head"
+        :choices="personChoices"
+        @update-tracking="updateTracking"
+      ></select-group>
+      <date-field-group v-if="document.tracking.section_head"
+                        key="date_section_head_sent"
+                        field_name="date_section_head_sent"
+                        :display_date="document.tracking.date_section_head_sent_display"
+                        label="{% trans "Sent" %}"
+                        @update-tracking="updateTracking"
+      ></date-field-group>
+      <date-field-group v-if="document.tracking.section_head"
+                        key="date_section_head_appr"
+                        field_name="date_section_head_appr"
+                        :display_date="document.tracking.date_section_head_appr_display"
+                        label="{% trans "Approved" %}"
+                        @update-tracking="updateTracking"
+      ></date-field-group>
+    </div>
+  </div>
+
+
+  <div class="card tracking-card">
+    <div class="card-header lead">
+      {% trans "Division Manager" %}
+    </div>
+    <div class="card-body">
+      <select-group
+        key="division_manager"
+        field_name="division_manager"
+        :val="document.tracking.division_manager"
+        :choices="personChoices"
+        @update-tracking="updateTracking"
+      ></select-group>
+      <date-field-group v-if="document.tracking.division_manager"
+                        key="date_division_manager_sent"
+                        field_name="date_division_manager_sent"
+                        :display_date="document.tracking.date_division_manager_sent_display"
+                        label="{% trans "Sent" %}"
+                        @update-tracking="updateTracking"
+      ></date-field-group>
+      <date-field-group v-if="document.tracking.division_manager"
+                        key="date_division_manager_appr"
+                        field_name="date_division_manager_appr"
+                        :display_date="document.tracking.date_division_manager_appr_display"
+                        label="{% trans "Approved" %}"
+                        @update-tracking="updateTracking"
+      ></date-field-group>
+    </div>
+  </div>
+
+
+  <div class="card tracking-card">
+    <div class="card-header lead">
+      {% trans "Director" %}
+    </div>
+    <div class="card-body">
+      <select-group
+        key="director"
+        field_name="director"
+        :val="document.tracking.director"
+        :choices="personChoices"
+        @update-tracking="updateTracking"
+      ></select-group>
+      <date-field-group v-if="document.tracking.director"
+                        key="date_director_sent"
+                        field_name="date_director_sent"
+                        :display_date="document.tracking.date_director_sent_display"
+                        label="{% trans "Sent" %}"
+                        @update-tracking="updateTracking"
+      ></date-field-group>
+      <date-field-group v-if="document.tracking.director"
+                        key="date_director_appr"
+                        field_name="date_director_appr"
+                        :display_date="document.tracking.date_director_appr_display"
+                        label="{% trans "Approved" %}"
+                        @update-tracking="updateTracking"
+      ></date-field-group>
+    </div>
+  </div>
+
+
+  <div class="card tracking-card" v-if="currentUser.is_csas_national_admin">
+    <div class="card-header lead">
+      {% trans "Pub Number" %}
+      <br><span style="font-size: x-small" class="text-muted">({% trans "Visible only to National CSAS administrators" %})</span>
+    </div>
+    <div class="card-body">
+      <div class="mb-3" v-if="!document.pub_number">
+        <p v-if="document.pub_number_request_date" :class="{'highlight px-2 py-2':!document.pub_number}">
+          {% trans "A publication number was requested on:" %} <br> <br> ${document.pub_number_request_date_display}
+        </p>
+        <p v-else>
+          {% trans "A publication number has not been requested." %}
+        </p>
+        <button class="btn btn-xs btn-info" @click="getPubNumber">{% trans "Generate Pub Number" %} </button>
+        <div v-if="pubNumberError" class="alert alert-danger mt-2" role="alert">
+            <p>${pubNumberError}</p>
+        </div>
+      </div>
+      <char-group
+        key="pub_number"
+        field_name="pub_number"
+        :val="document.tracking.pub_number"
+        :label="trackingLabels.pub_number"
+        @update-tracking="updateTracking"
+      ></char-group>
+    </div>
+  </div>
+
+
+  <div class="card tracking-card">
+    <div class="card-header lead">
+      {% trans "Finalization" %}
+    </div>
+    <div class="card-body">
+      <date-field-group
+        key="date_doc_submitted"
+        field_name="date_doc_submitted"
+        :display_date="document.tracking.date_doc_submitted_display"
+        :label="trackingLabels.date_doc_submitted"
+        @update-tracking="updateTracking"
+      ></date-field-group>
+      <select-group
+        key="proof_sent_to"
+        field_name="proof_sent_to"
+        :val="document.tracking.proof_sent_to"
+        :label="trackingLabels.proof_sent_to"
+        :choices="personChoices"
+        @update-tracking="updateTracking"
+      ></select-group>
+
+      <date-field-group
+        key="date_proof_author_sent"
+        field_name="date_proof_author_sent"
+        :display_date="document.tracking.date_proof_author_sent_display"
+        :label="trackingLabels.date_proof_author_sent"
+        @update-tracking="updateTracking"
+      ></date-field-group>
+
+      <date-field-group
+        key="date_proof_author_approved"
+        field_name="date_proof_author_approved"
+        :display_date="document.tracking.date_proof_author_approved_display"
+        :label="trackingLabels.date_proof_author_approved"
+        @update-tracking="updateTracking"
+      ></date-field-group>
+
+    </div>
+  </div>
+
+  <div class="card tracking-card">
+    <div class="card-header lead">
+      {% trans "Posting" %}
+    </div>
+    <div class="card-body">
+      <date-field-group
+        key="anticipated_posting_date"
+        field_name="anticipated_posting_date"
+        :display_date="document.tracking.anticipated_posting_date_display"
+        :label="trackingLabels.anticipated_posting_date"
+        @update-tracking="updateTracking"
+      ></date-field-group>
+
+      <date-field-group
+        key="actual_posting_date"
+        field_name="actual_posting_date"
+        :display_date="document.tracking.actual_posting_date_display"
+        :label="trackingLabels.actual_posting_date"
+        @update-tracking="updateTracking"
+      ></date-field-group>
+
+      <date-field-group
+        key="updated_posting_date"
+        field_name="updated_posting_date"
+        :display_date="document.tracking.updated_posting_date_display"
+        :label="trackingLabels.updated_posting_date"
+        @update-tracking="updateTracking"
+      ></date-field-group>
+    </div>
+  </div>
+
+
+</div>

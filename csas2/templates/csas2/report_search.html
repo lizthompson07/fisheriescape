@@ -36,16 +36,16 @@
   <script type="application/javascript">
 
   function hideAll() {
-    $(".year_div").addClass("gone");
-    $("#id_year").prop("required", false);
+    $(".fiscal_year_div").addClass("gone");
+    $("#id_fiscal_year").prop("required", false);
   }
 
   function configureForm() {
     var reportChoice = $("#id_report")[0].value;
     // cfts report
     if (reportChoice === "1") {
-      $(".year_div").removeClass("gone");
-      $("#id_year").prop("required", false);
+      $(".fiscal_year_div").removeClass("gone");
+      $("#id_fiscal_year").prop("required", false);
 
     }
   }

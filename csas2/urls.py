@@ -6,8 +6,8 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # settings
-    path('settings/series/', views.SeriesFormsetView.as_view(), name="manage_series"),
-    path('settings/series/<int:pk>/delete/', views.SeriesHardDeleteView.as_view(), name="delete_series"),
+    path('settings/document-types/', views.DocumentTypeFormsetView.as_view(), name="manage_document_types"),
+    path('settings/document-types/<int:pk>/delete/', views.DocumentTypeHardDeleteView.as_view(), name="delete_document_type"),
     path('settings/invitee-roles/', views.InviteeRoleFormsetView.as_view(), name="manage_invitee_roles"),
     path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
 
@@ -39,12 +39,14 @@ urlpatterns = [
     path('processes/<int:pk>/view/', views.ProcessDetailView.as_view(), name="process_detail"),
     path('processes/<int:pk>/edit/', views.ProcessUpdateView.as_view(), name="process_edit"),
     path('processes/<int:pk>/delete/', views.ProcessDeleteView.as_view(), name="process_delete"),
+    path('processes/manage-postings/', views.ProcessPostingsVueJSView.as_view(), name="process_postings"),
 
     # ToR
     path('processes/<int:process>/new-tor/', views.TermsOfReferenceCreateView.as_view(), name="tor_new"),
     path('terms-of-reference/<int:pk>/edit/', views.TermsOfReferenceUpdateView.as_view(), name="tor_edit"),
     path('terms-of-reference/<int:pk>/delete/', views.TermsOfReferenceDeleteView.as_view(), name="tor_delete"),
     path('terms-of-reference/<int:pk>/export/', views.tor_export, name="tor_export"),
+    path('terms-of-reference/<int:pk>/html/', views.TermsOfReferenceHTMLDetailView.as_view(), name="tor_html"),
 
     # meetings
     path('processes/<int:process>/new-meeting/', views.MeetingCreateView.as_view(), name="meeting_new"),
@@ -65,7 +67,8 @@ urlpatterns = [
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name="document_delete"),
 
     # reports
-    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
+    path('reports/meeting/', views.meeting_report, name="meeting_report"),
 
 ]
 
