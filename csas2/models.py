@@ -251,6 +251,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"), editable=False)
+    posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
     # calculated
 

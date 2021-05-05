@@ -1,9 +1,9 @@
 # TODO: when entering a new request, it should validate that this is not more than 3 fiscal years ahead!
 # TODO: user permissions menu
+# TODO: invitee -- when adding a new person, (or cloning) the name does not appear in dropdown list
+# TODO: invitee -- external invitee should not have a region option
 # issue with french and date input in browser
-
-# request
-# email to dfo coordinator
+# TODO: connection with ppt
 
 # meeting
 # TODO: send out a meeting invitation instead of an email

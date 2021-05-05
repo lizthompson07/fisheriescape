@@ -282,7 +282,13 @@ class CSASRequestSubmitView(CSASRequestUpdateView):
             obj.submission_date = None
         else:
             obj.submission_date = timezone.now()
-        return super().form_valid(form)
+        obj.save()
+
+        # if the request was just submitted, send an email
+        if obj.submission_date:
+            email = emails.NewRequestEmail(self.request, obj)
+            email.send()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class CSASRequestCloneUpdateView(CSASRequestUpdateView):
