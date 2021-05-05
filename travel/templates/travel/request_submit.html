@@ -91,6 +91,12 @@
             })
       },
     },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+      zero2NullMark: vueFiltersObject["zero2NullMark"],
+    },
     computed: {
       allConfirmed() {
         return this.userConfirmed1 && this.userConfirmed2 && this.userConfirmed3

@@ -1,0 +1,124 @@
+{% load i18n %}
+
+<div v-if="loadingPeople" class="loading mb-3 mt-3 mt-5 text-center">
+  <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+<div v-else>
+  <select-group
+    key="target_lang"
+    field_name="target_lang"
+    :val="document.tracking.target_lang"
+    :label="trackingLabels.target_lang"
+    :choices="langChoices"
+    @update-tracking="updateTracking"
+  ></select-group>
+
+
+  <check-group
+    key="is_in_house"
+    field_name="is_in_house"
+    :val="document.tracking.is_in_house"
+    :label="trackingLabels.is_in_house"
+    @update-tracking="updateTracking"
+  ></check-group>
+
+
+  <date-field-group v-if="!document.tracking.is_in_house"
+                    key="date_translation_sent1"
+                    field_name="date_translation_sent"
+                    :display_date="document.tracking.date_translation_sent_display"
+                    :label="trackingLabels.date_translation_sent"
+                    @update-tracking="updateTracking"
+  ></date-field-group>
+  <date-field-group v-else
+                    key="date_translation_sent2"
+                    field_name="date_translation_sent"
+                    :display_date="document.tracking.date_translation_sent_display"
+                    label="{% trans "Date started" %}"
+                    @update-tracking="updateTracking"
+  ></date-field-group>
+
+  <date-field-group v-if="!document.tracking.is_in_house"
+                    key="anticipated_return_date"
+                    field_name="anticipated_return_date"
+                    :display_date="document.tracking.anticipated_return_date_display"
+                    :label="trackingLabels.anticipated_return_date"
+                    @update-tracking="updateTracking"
+  ></date-field-group>
+
+  <char-group v-if="!document.tracking.is_in_house"
+              key="client_ref_number"
+              field_name="client_ref_number"
+              :val="document.tracking.client_ref_number"
+              :label="trackingLabels.client_ref_number"
+              @update-tracking="updateTracking"
+  ></char-group>
+
+
+  <char-group v-if="!document.tracking.is_in_house"
+              key="translation_ref_number"
+              field_name="translation_ref_number"
+              :val="document.tracking.translation_ref_number"
+              :label="trackingLabels.translation_ref_number"
+              @update-tracking="updateTracking"
+  ></char-group>
+
+  <check-group v-if="!document.tracking.is_in_house"
+               key="is_urgent"
+               field_name="is_urgent"
+               :val="document.tracking.is_urgent"
+               :label="trackingLabels.is_urgent"
+               @update-tracking="updateTracking"
+  ></check-group>
+  <date-field-group v-if="!document.tracking.is_in_house"
+                    key="date_returned1"
+                    field_name="date_returned"
+                    :display_date="document.tracking.date_returned_display"
+                    :label="trackingLabels.date_returned"
+                    @update-tracking="updateTracking"
+  ></date-field-group>
+  <date-field-group v-else
+                    key="date_returned2"
+                    field_name="date_returned"
+                    :display_date="document.tracking.date_returned_display"
+                    label="{% trans "Date completed" %}"
+                    @update-tracking="updateTracking"
+  ></date-field-group>
+
+  <char-group v-if="!document.tracking.is_in_house"
+              key="invoice_number"
+              field_name="invoice_number"
+              :val="document.tracking.invoice_number"
+              :label="trackingLabels.invoice_number"
+              @update-tracking="updateTracking"
+  ></char-group>
+
+
+  <date-field-group
+    key="translation_review_date"
+    field_name="translation_review_date"
+    :display_date="document.tracking.translation_review_date_display"
+    :label="trackingLabels.translation_review_date"
+    @update-tracking="updateTracking"
+  ></date-field-group>
+
+  <select-group
+    key="translation_review_by"
+    field_name="translation_review_by"
+    :val="document.tracking.translation_review_by"
+    :label="trackingLabels.translation_review_by"
+    :choices="personChoices"
+    @update-tracking="updateTracking"
+  ></select-group>
+
+
+  <textarea-group
+    key="translation_notes"
+    field_name="translation_notes"
+    :val="document.tracking.translation_notes"
+    :label="trackingLabels.translation_notes"
+    @update-tracking="updateTracking"
+  ></textarea-group>
+</div>

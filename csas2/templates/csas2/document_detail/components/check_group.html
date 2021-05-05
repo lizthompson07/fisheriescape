@@ -1,0 +1,51 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="check-group-template">
+
+<div class="form-group">
+  <label  v-if="label" class="form-check-label" :for="`id_${field_name}`"> ${label} </label>
+  <br>
+    <input v-model="editableVal" class="" type="checkbox" :id="`id_${field_name}`" @change="updateTracking">
+</div>
+
+</script>
+<script type="application/javascript">
+
+Vue.component("check-group", {
+  template: "#check-group-template",
+  delimiters: ["${", "}"],
+  name: "check-group",
+  props: {
+    val: {
+      type: Boolean,
+      required: false
+    },
+    label: {
+      type: String,
+      required: false
+    },
+    field_name: {
+      type: String,
+      required: true
+    },
+  },
+  data() {
+    return {
+      editableVal: null,
+    };
+  },
+  methods: {
+    updateTracking() {
+      this.$emit("update-tracking", {field_name: this.field_name, value: this.editableVal});
+    },
+    clearDate() {
+      this.date = null;
+      this.updateTracking();
+    },
+  },
+  created() {
+    this.editableVal = this.val;
+  }
+});
+</script>

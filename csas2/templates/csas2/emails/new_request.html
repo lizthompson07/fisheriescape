@@ -1,0 +1,59 @@
+{% load verbose_names %}
+{% load i18n %}
+<style>
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+{% language 'en' %}
+  <p>
+    Hello {{ object.coordinator.first_name }},
+  </p>
+  <p>
+    This is an automated message to notify you that a new request,
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a>, has been added to the CSAS tracking tool.
+  </p>
+{% endlanguage %}
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps
+</p>
+
+<hr>
+<p>
+  Bonjour {{ object.coordinator.first_name }},
+</p>
+{% language 'fr' %}
+  <p>
+    Ceci est un message automatisé pour vous informer qu'une nouvelle demande,
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:request_detail' object.id %}">{{ object.title }}</a>,
+    a été ajoutée à l'outil de suivi SCCS.
+  </p>
+{% endlanguage %}
+
+<p>
+  Cordialement,
+  <br><br>
+  Applis GD
+</p>
+
+
+
+
+
+
+
+

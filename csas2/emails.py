@@ -2,6 +2,8 @@ from django.utils.translation import gettext as _
 
 from dm_apps.emails import Email
 
+csas_generic_email = "csas-sccs@dfo-mpo.gc.ca"
+
 
 class InvitationEmail(Email):
     email_template_path = 'csas2/emails/invitation.html'
@@ -47,3 +49,39 @@ class NewResourceEmail(Email):
         self.request = request
         self.instance = instance
         self.resource = resource
+
+
+class PublicationNumberRequestEmail(Email):
+    email_template_path = 'csas2/emails/pub_number.html'
+    subject_en = 'A New publication number is being requested (*** ACTION REQUIRED ***)'
+
+    def get_recipient_list(self):
+        return [csas_generic_email]
+
+
+class SoMPEmail(Email):
+    email_template_path = 'csas2/emails/somp.html'
+    subject_en = 'The SoMP for a meeting has been posted'
+
+    def get_recipient_list(self):
+        return [csas_generic_email]
+
+
+class NewRequestEmail(Email):
+    email_template_path = 'csas2/emails/new_request.html'
+    subject_en = 'A new CSAS request has been submitted'
+    subject_fr = "Une nouvelle demande de SCCS a été soumise"
+
+    def get_recipient_list(self):
+        return [self.instance.coordinator.email]
+
+
+class PostedProcessEmail(Email):
+    email_template_path = 'csas2/emails/posted_process.html'
+    subject_en = 'Your process has been posted to the CSAS website'
+    subject_fr = "Votre processus a été publié sur le site Web du SCCS"
+
+    def get_recipient_list(self):
+        mylist = [a.email for a in self.instance.advisors.all()]
+        mylist.append(self.instance.coordinator.email)
+        return set(mylist)

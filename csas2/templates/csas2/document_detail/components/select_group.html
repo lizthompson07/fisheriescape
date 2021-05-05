@@ -1,0 +1,60 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="select-group-template">
+<div class="form-group">
+  <label  v-if="label" :for="`id_${field_name}`">${label}</label>
+  <v-select
+    style="width: 100%"
+    v-model="editableVal"
+    @input="updateTracking"
+    :options="choices"
+    :reduce="choice => choice.value"
+    label="text"
+    :clearable="false"
+    class="bg-light"
+  ></v-select>
+</div>
+</script>
+<script type="application/javascript">
+
+Vue.component("select-group", {
+  template: "#select-group-template",
+  delimiters: ["${", "}"],
+  name: "select-group",
+  props: {
+    val: {
+      required: false
+    },
+    label: {
+      type: String,
+required: false
+    },
+    field_name: {
+      type: String,
+      required: true
+    },
+    choices: {
+      type: Array,
+      required: true
+    },
+  },
+  data() {
+    return {
+      editableVal: null,
+    };
+  },
+  methods: {
+    updateTracking() {
+      this.$emit("update-tracking", {field_name: this.field_name, value: this.editableVal});
+    },
+    clearDate() {
+      this.date = null;
+      this.updateTracking();
+    },
+  },
+  created() {
+    this.editableVal = this.val;
+  }
+});
+</script>

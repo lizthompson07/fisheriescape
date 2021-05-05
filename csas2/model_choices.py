@@ -55,11 +55,17 @@ process_status_choices = (
     (5, _('Tentative')),
 )
 
-meeting_type_choices = (
-    (1, _("Steering Committee Meeting")),
-    (2, _("Science Management Meeting")),
-    (3, _("Advisory Process Meeting (RAP)")),
-    (4, _("Science Response Meeting")),
+# meeting_type_choices = (
+#     (1, _("Planning")),
+#     # (2, _("Science Management Meeting (Planning)")), is this a planning meeting?
+#     (3, _("Keystone")),
+# )
+
+meeting_quarter_choices = (
+    (1, _("Spring")),
+    (2, _("Summer")),
+    (3, _("Fall")),
+    (4, _("Winter")),
 )
 
 note_type_choices = (
@@ -68,37 +74,105 @@ note_type_choices = (
     (3, 'General comment'),
 )
 
-document_type_choices = (
-    (1, _("Meeting Minutes")),
-    (2, _("Science Advisory Report")),
-    (3, _("Research Document")),
-    (4, _("Proceedings")),
-    (5, _("Science Response")),
-    (6, _("Working Paper")),
-    (7, _("Term of Reference")),
-)
-
-document_status_choices = (
-    (1, _("OK")),
-    (2, _("In preparation")),
-    (3, _("Submitted")),
-    (4, _("Under review")),
-    (5, _("In translation")),
-    (6, _("Translated")),
-    (7, _("Posted")),
-)
-
-# invitee_role_choices = (
-#     (1, 'Chair'),
-#     (7, 'CSAS coordinator'),
-#     (3, 'Expert'),
-#     (6, 'External reviewer'),
-#     (5, 'Internal reviewer'),
-#     (2, 'Participant'),
-#     (8, 'Rapporteur'),
-#     (9, 'Science advisor'),
-#     (4, 'Steering Committee Member'),
+# document_type_choices = (
+#     (1, _("Meeting Minutes")),
+#     (2, _("Science Advisory Report")),
+#     (3, _("Research Document")),
+#     (4, _("Proceedings")),
+#     (5, _("Science Response")),
+#     (6, _("Working Paper")),
+#     (7, _("Terms of Reference")),
 # )
+#
+# document_type_dict = (
+#     dict(text="Meeting Minutes", value=1, days_due=None),
+#     dict(text=_("Science Advisory Report"), value=2, days_due=56),
+#     dict(text=_("Research Document"), value=3, days_due=122),
+#     dict(text=_("Proceedings"), value=4, days_due=122),
+#     dict(text=_("Science Response"), value=5, days_due=56),
+#     dict(text=_("Working Paper"), value=6, days_due=None),
+#     dict(text=_("Terms of Reference"), value=7, days_due=None),
+# )
+#
+# def get_document_type_choices():
+#     return [(item["value"], item["text"]) for item in document_type_dict]
+#
+#
+# def get_document_type_lookup():
+#     my_dict = dict()
+#     for item in document_type_dict:
+#         my_dict[item["value"]] = dict()
+#         my_dict[item["value"]]["days_due"] = item["days_due"]
+#         my_dict[item["value"]]["text"] = item["text"]
+#     return my_dict
+
+
+document_status_dict = (
+    dict(trigger=None, stage="ok", text=_("OK"), value=0),
+    ####################
+    dict(trigger=None, stage="preparation", text=_("Tracking initiated"), value=1),
+    dict(trigger="submission_date", stage="preparation", text=_("Submitted by author"), value=2),
+    ####################
+    dict(trigger="date_chair_sent", stage="review", text=_("Under review by chair"), value=3),
+    dict(trigger="date_chair_appr", stage="review", text=_("Approved by chair"), value=4),
+    dict(trigger="date_coordinator_sent", stage="review", text=_("Under review by CSAS coordinator"), value=5),
+    dict(trigger="date_coordinator_appr", stage="review", text=_("Approved by CSAS coordinator"), value=6),
+    dict(trigger="date_section_head_sent", stage="review", text=_("Under review by section head"), value=13),
+    dict(trigger="date_section_head_appr", stage="review", text=_("Approved by section head"), value=14),
+    dict(trigger="date_division_manager_sent", stage="review", text=_("Under review by division manager"), value=15),
+    dict(trigger="date_division_manager_appr", stage="review", text=_("Approved by division manager"), value=16),
+    dict(trigger="date_director_sent", stage="review", text=_("Under review by director"), value=7),
+    dict(trigger="date_director_appr", stage="review", text=_("Approved by director"), value=8),
+
+    ####################
+    dict(trigger="date_doc_submitted", stage="finalization", text=_("Submitted to CSAS office"), value=9),
+    dict(trigger="date_proof_author_sent", stage="finalization", text=_("Proof sent to author"), value=10),
+    dict(trigger="date_proof_author_approved", stage="finalization", text=_("Proof approved by author"), value=11),
+    ####################
+    dict(trigger="actual_posting_date", stage="final", text=_("Posted"), value=12),
+    dict(trigger="updated_posting_date", stage="final", text=_("Posted (updated)"), value=17),
+)
+
+
+def get_document_status_choices():
+    return [(item["value"], item["text"]) for item in document_status_dict]
+
+
+def get_document_status_lookup():
+    my_dict = dict()
+    for item in document_status_dict:
+        my_dict[item["value"]] = dict()
+        my_dict[item["value"]]["stage"] = item["stage"]
+        my_dict[item["value"]]["text"] = item["text"]
+    return my_dict
+
+
+translation_status_dict = (
+    dict(trigger=None, stage="", text="----", value=0),
+    dict(trigger="date_translation_sent", stage="preparation", text=_("In progress"), value=1),
+    dict(trigger="date_returned", stage="finalization", text=_("Translated, unreviewed"), value=2),
+    dict(trigger="translation_review_date", stage="final", text=_("Translated, reviewed"), value=3),
+)
+
+
+def get_translation_status_choices():
+    return [(item["value"], item["text"]) for item in translation_status_dict]
+
+
+def get_translation_status_lookup():
+    my_dict = dict()
+    for item in translation_status_dict:
+        my_dict[item["value"]] = dict()
+        my_dict[item["value"]]["stage"] = item["stage"]
+        my_dict[item["value"]]["text"] = item["text"]
+    return my_dict
+
+
+translation_status_choices = (
+    (0, _("---")),
+    (1, _("In-progress")),
+    (2, _("Complete")),
+)
 
 invitee_status_choices = (
     (0, 'Invited'),
@@ -112,5 +186,6 @@ cost_category_choices = (
     (2, 'Travel'),
     (3, 'Hospitality'),
     (4, 'Space rental'),
+    (5, 'Simultaneous translation'),
     (9, 'Other'),
 )

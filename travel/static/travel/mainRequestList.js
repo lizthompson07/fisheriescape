@@ -126,6 +126,13 @@ var app = new Vue({
       this.getFilterData();
     },
   },
+  filters: {
+    yesNo: vueFiltersObject["yesNo"],
+    nz: vueFiltersObject["nz"],
+    floatformat: vueFiltersObject["floatformat"],
+    currencyFormat: vueFiltersObject["currencyFormat"],
+    zero2NullMark: vueFiltersObject["zero2NullMark"],
+  },
   computed: {
     sortedRequests() {
       return this.requests.sort((a, b) => {

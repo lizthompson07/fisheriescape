@@ -1,0 +1,50 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="textarea-group-template">
+<div class="form-group">
+  <div class="form-group">
+    <label v-if="label" :for="`id_${field_name}`">${label}</label>
+    <textarea rows="3" class="form-control" v-model="editableVal" @change="updateTracking"></textarea>
+  </div>
+</div>
+</script>
+<script type="application/javascript">
+
+Vue.component("textarea-group", {
+  template: "#textarea-group-template",
+  delimiters: ["${", "}"],
+  name: "textarea-group",
+  props: {
+    val: {
+      type: String,
+      required: false
+    },
+    label: {
+      type: String,
+      required: false
+    },
+    field_name: {
+      type: String,
+      required: true
+    },
+  },
+  data() {
+    return {
+      editableVal: null,
+    };
+  },
+  methods: {
+    updateTracking() {
+      this.$emit("update-tracking", {field_name: this.field_name, value: this.editableVal});
+    },
+    clearDate() {
+      this.date = null;
+      this.updateTracking();
+    },
+  },
+  created() {
+    this.editableVal = this.val;
+  }
+});
+</script>

@@ -42,7 +42,9 @@
       <th class="text-center">
         {% trans "National Coordinator" %}
       </th>
-
+      <th class="text-center">
+        {% trans "CFO Read Only" %}
+      </th>
     {% endblock %}
     </thead>
 
@@ -56,6 +58,7 @@
 
         {% url 'travel:toggle_user' object.id "admin" as admin_url %}
         {% url 'travel:toggle_user' object.id "adm_admin" as adm_admin_url %}
+        {% url 'travel:toggle_user' object.id "cfo" as cfo_url %}
 
         {% for field in field_list %}
 
@@ -79,6 +82,13 @@
             <a class="btn btn-sm btn-success" href="{{ adm_admin_url }}">Yes</a>
           {% else %}
             <a class="btn btn-sm btn-danger" href="{{ adm_admin_url }}">No</a>
+          {% endif %}
+        </td>
+        <td class="text-center">
+          {% if cfo_group in object.groups.all %}
+            <a class="btn btn-sm btn-success" href="{{ cfo_url }}">Yes</a>
+          {% else %}
+            <a class="btn btn-sm btn-danger" href="{{ cfo_url }}">No</a>
           {% endif %}
         </td>
 

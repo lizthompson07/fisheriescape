@@ -39,11 +39,18 @@
             <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
           </p>
         </div>
+        <div v-if="pubNumberConfirmationMsg" class="mt-3 alert alert-success no-print alert-dismissable" role="alert" style="width: 60%">
+          <p class="mb-0">
+            <span class="h5 mdi mdi-check mr-3"></span> <span class="h6">${pubNumberConfirmationMsg}</span>
+          </p>
+        </div>
       </div>
       <div class="mb-3">
         <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
         <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
         <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
+        <button v-if="!document.pub_number_request_date && !document.pub_number" class="btn btn-sm btn-info ml-3" @click="requestPubNumber">{% trans "Request a Pub Number" %}</button>
+        <em v-else-if="!document.pub_number" class=" text-muted ml-3">{% trans "Pub number requested on" %} ${document.pub_number_request_date_display}</em>
       </div>
 
       <div class="row">
@@ -71,16 +78,19 @@
               </tr>
               <tr>
                 <th class="text-left">{% trans "Type" %}</th>
-                <td class="text-left" v-html="document.type_display"></td>
+                <td class="text-left" v-html="document.document_type"></td>
+              </tr>
+            <tr>
+                <th class="text-left" v-html="documentLabels.due_date"></th>
+                <td class="text-left" v-html="document.due_date_display"></td>
               </tr>
               <tr>
-                <th class="text-left">{% trans "Status" %}</th>
+                <th class="text-left">{% trans "Document Status" %}</th>
                 <td class="text-left" v-html="document.status_display"></td>
               </tr>
-
               <tr>
-                <th class="text-left" v-html="documentLabels.series"></th>
-                <td class="text-left">${document.series|nz}</td>
+                <th class="text-left">{% trans "Translation Status" %}</th>
+                <td class="text-left" v-html="document.tstatus_display"></td>
               </tr>
               <tr>
                 <th class="text-left" v-html="documentLabels.year"></th>
@@ -141,10 +151,6 @@
                 <td v-else>---</td>
               </tr>
               <tr>
-                <th class="text-left" v-html="documentLabels.hide_from_list"></th>
-                <td class="text-left">${document.hide_from_list|yesNo}</td>
-              </tr>
-              <tr>
                 <th>{% trans "Linked meetings" %}</th>
                 <td>
                   {% if object.meetings.exists %}
@@ -194,6 +200,10 @@
   {% include "csas2/document_detail/components/cost_editor.html" %}
   {% include "csas2/document_detail/components/author_editor.html" %}
   {% include "csas2/document_detail/components/date_field_group.html" %}
+  {% include "csas2/document_detail/components/check_group.html" %}
+  {% include "csas2/document_detail/components/char_group.html" %}
+  {% include "csas2/document_detail/components/select_group.html" %}
+  {% include "csas2/document_detail/components/textarea_group.html" %}
 
   <script type="application/javascript">
   var documentId = "{{ object.id }}";
@@ -208,6 +218,7 @@
     data: {
       currentUser: {},
       loadingDocument: false,
+      loadingPeople: false,
 
       document: {},
       notes: [],
@@ -219,11 +230,50 @@
       showCostModal: false,
       documentId: documentId,
       documentLabels: {},
+      personChoices: [],
+      langChoices: [],
+      pubNumberError: null,
+      pubNumberConfirmationMsg: null,
 
       trackingLabels: {},
       errors: null,
+      showTranslationTracking: true,
+      showProcessTracking: false,
     },
     methods: {
+      changeTabs(tabFlag) {
+        this.showProcessTracking = false;
+        this.showTranslationTracking = false;
+        this[tabFlag] = true;
+      },
+      getPersonMetadata() {
+        this.loadingPeople = true;
+        let endpoint = `/api/csas/meta/models/person/`;
+        apiService(endpoint).then(data => {
+          this.loadingPeople = false;
+          this.personChoices = data.person_choices;
+        });
+      },
+      getPubNumber() {
+        this.pubNumberError = null;
+        let endpoint = `/api/csas/documents/${this.documentId}/?get_pub_number=true`;
+        apiService(endpoint, "POST").then(data => {
+          if (data.pub_number) {
+            this.document.tracking.pub_number = data.pub_number;
+            this.updateTracking({})
+          } else {
+            this.pubNumberError = data[0];
+          }
+        });
+      },
+      requestPubNumber() {
+        let endpoint = `/api/csas/documents/${this.documentId}/?request_pub_number=true`;
+        apiService(endpoint, "POST").then(data => {
+          console.log(data)
+          this.pubNumberConfirmationMsg = data;
+          this.getDocument()
+        });
+      },
       getCurrentUser() {
         let endpoint = `/api/csas/user/?document=${documentId}`;
         apiService(endpoint)
@@ -294,7 +344,7 @@
         })
       },
       _prepDates(dateFieldName, date) {
-        if (dateFieldName && date) {
+        if (dateFieldName) {
           if (date) this.document.tracking[dateFieldName] = date + "T12:00:00";
           else this.document.tracking[dateFieldName] = null;
         } else {
@@ -315,6 +365,7 @@
             "anticipated_posting_date",
             "actual_posting_date",
             "updated_posting_date",
+            // translation
             "date_translation_sent",
             "date_returned",
           ];
@@ -328,7 +379,11 @@
       },
       updateTracking(data) {
         if (!data.target) {
-          this._prepDates(data.field_name, data.date)
+          if (data.is_date) {
+            this._prepDates(data.field_name, data.value);
+          } else {
+            this.document.tracking[data.field_name] = data.value;
+          }
         } else {
           // data is an event
           this._prepDates()
@@ -338,7 +393,9 @@
         let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
         apiService(endpoint, "PATCH", data).then(data => {
           if (!data.id) this.errors = groomJSON(data);
-          else this.getDocument();
+          else {
+            this.getDocument();
+          }
         });
       },
       deleteTracking() {
@@ -354,7 +411,7 @@
         let endpoint = `/api/csas/meta/models/document-tracking/`;
         apiService(endpoint).then(data => {
           this.trackingLabels = data.labels;
-          {#this.prioritizationChoices = data.prioritization_choices;#}
+          this.langChoices = data.lang_choices;
           {#this.decisionChoices = data.decision_choices;#}
         });
       },
@@ -381,6 +438,8 @@
       this.getTrackingMetadata();
       this.getDocument(true);
       this.getCurrentUser(true);
+      this.getPersonMetadata();
+
     },
   });
 

@@ -60,8 +60,8 @@
               </td>
             </tr>
             <tr>
-              <th class="text-left" v-html="meetingLabels.type"></th>
-              <td class="text-left" v-html="meeting.type_display"></td>
+              <th class="text-left">{% trans "Title" %}</th>
+              <td class="text-left" v-html="meeting.display"></td>
             </tr>
             <tr>
               <th class="text-left" v-html="meetingLabels.location"></th>
@@ -115,6 +115,10 @@
                   <em>{% trans "There are no files attached to this meeting." %}</em>
                 {% endif %}
               </td>
+            </tr>
+            <tr v-if="!meeting.is_planning">
+              <th class="text-left" v-html="meetingLabels.somp_notification_date"></th>
+              <td class="text-left">${meeting.somp_notification_date|nz}</td>
             </tr>
             <tr>
               <th class="text-left">{% trans "Metadata" %}</th>
@@ -320,6 +324,7 @@
     },
     filters: {
       floatformat: vueFiltersObject["floatformat"],
+      nz: vueFiltersObject["nz"],
     },
     created() {
       this.getMeetingMetadata();
