@@ -6,6 +6,168 @@ from bio_diversity import utils
 from bio_diversity.static import calculation_constants
 
 
+class DataParser:
+    log_data = "Loading Data Results: \n"
+    success = True
+
+    rows_parsed = 0
+    rows_entered = 0
+    row_entered = False
+
+    cleaned_data = {}
+    data = None
+    data_dict = None
+
+    year_key = "Year"
+    month_key = "Month"
+    day_key = "Day"
+
+    def __init__(self, cleaned_data):
+        self.cleaned_data = cleaned_data
+        self.load_data()
+        self.prep_data()
+        self.iterate_rows()
+        self.clean_data()
+
+    def load_data(self):
+        # load data
+        try:
+            self.data_reader()
+            self.data_dict = self.data.to_dict('records')
+        except Exception as err:
+            self.log_data += "\n File format not valid: {}".format(err.__str__())
+            self.success = False
+
+    def data_reader(self):
+        self.data = pd.read_excel(self.cleaned_data["data_csv"], header=1, engine='openpyxl',
+                                  converters={self.year_key: str, self.month_key: str,
+                                              self.day_key: str}).dropna(how="all")
+
+    def prep_data(self):
+        # prepare data
+        if self.success:
+            try:
+                self.data_preper()
+            except Exception as err:
+                err_msg = utils.common_err_parser(err)
+                self.log_data += "\n Error preparing data: {}".format(err_msg)
+                self.success = False
+
+    def data_preper(self):
+        pass
+
+    def iterate_rows(self):
+        if self.success:
+            # iterate over rows
+            for row in self.data_dict:
+                if self.success:
+                    self.row_entered = False
+                    try:
+                        self.row_parser(row)
+                    except Exception as err:
+                        err_msg = utils.common_err_parser(err)
+                        self.log_data += "Error parsing row: \n"
+                        self.log_data += str(row)
+                        self.log_data += "\n Error: {}".format(err_msg)
+                        self.parsed_row_counter()
+                        self.success = False
+                    self.rows_parsed += 1
+                    if self.row_entered:
+                        self.rows_entered += 1
+
+    def row_parser(self, row):
+        pass
+
+    def clean_data(self):
+        if self.success:
+            try:
+                self.data_cleaner()
+            except Exception as err:
+                err_msg = utils.common_err_parser(err)
+
+                self.log_data += "Error parsing common data: \n"
+                self.log_data += "\n Error: {}".format(err_msg)
+                self.parsed_row_counter()
+                self.success = False
+
+            self.parsed_row_counter()
+            self.success = True
+
+    def data_cleaner(self):
+        pass
+
+    def parsed_row_counter(self):
+        self.log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered into database.  " \
+                         "\n".format(self.rows_parsed, len(self.data_dict), self.rows_entered, len(self.data_dict))
+
+
+class GenericIndvParser(DataParser):
+    sex_dict = calculation_constants.sex_dict
+    pit_key = "PIT"
+    sex_key = "Sex"
+    len_key = "Length (cm)"
+    weight_key = "Weight (g)"
+    vial_key = "Vial"
+    envelope_key = "Scale Envelope"
+    precocity_key = "Precocity (Y/N)"
+    mort_key = "Mortality (Y/N)"
+    tissue_key = "Tissue Sample (Y/N)"
+    start_tank_key = "Origin Pond"
+    end_tank_key = "Destination Pond"
+    comment_key = "COMMENTS"
+
+    def data_reader(self):
+        self.data = pd.read_excel(self.cleaned_data["data_csv"], engine='openpyxl', header=0,
+                                  converters={'PIT': str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
+
+    def row_parser(self, row):
+        row_datetime = utils.get_row_date(row)
+        row_date = row_datetime.date()
+
+        indv_qs = models.Individual.objects.filter(pit_tag=row[self.pit_key])
+        if len(indv_qs) == 1:
+            indv = indv_qs.get()
+        else:
+            self.log_data += "Error parsing row: \n"
+            self.log_data += str(row)
+            self.log_data += "\nFish with PIT {} not found in db\n".format(row[self.pit_key])
+            self.success = False
+
+        anix, anix_entered = utils.enter_anix(self.cleaned_data, indv_pk=indv.pk)
+        self.row_entered += anix_entered
+
+        if utils.nan_to_none(row[self.sex_key]):
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, self.sex_dict[row[self.sex_key]],
+                                                  "Gender", None, None)
+        self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key], "Length", None)
+        self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.weight_key], "Weight", None)
+        self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.vial_key], "Vial", None)
+        self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.envelope_key],
+                                              "Scale Envelope", None)
+        if utils.y_n_to_bool(row[self.precocity_key]):
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None, "Animal Health",
+                                                  "Tissue Sample")
+        if utils.y_n_to_bool(row[self.mort_key]):
+            mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_date)
+            self.row_entered += mort_entered
+        if utils.y_n_to_bool(row[self.tissue_key]):
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None, "Animal Health",
+                                                  "Tissue Sample")
+
+        if utils.nan_to_none(row[self.start_tank_key]) and utils.nan_to_none(row[self.end_tank_key]):
+            in_tank = models.Tank.objects.filter(name=row[self.start_tank_key]).get()
+            out_tank = models.Tank.objects.filter(name=row[self.end_tank_key]).get()
+            self.row_entered += utils.create_movement_evnt(in_tank, out_tank, self.cleaned_data, row_datetime,
+                                                           indv_pk=indv.pk)
+
+        if utils.nan_to_none(row[self.comment_key]):
+            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix, row_date)
+            self.row_entered += data_entered
+            if not comments_parsed:
+                self.log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row[self.pit_key],
+                                                                                             row[self.comment_key])
+
+
 def parser_template(cleaned_data):
     log_data = "Loading Data Results: \n"
     rows_parsed = 0
@@ -21,13 +183,6 @@ def parser_template(cleaned_data):
         return log_data, False
 
     # prepare rows before iterating:
-    try:
-        pass
-    except Exception as err:
-        err_msg = utils.common_err_parser(err)
-
-        log_data += "\n Error preparing data: {}".format(err_msg)
-        return log_data, False
 
     # iterate over rows
     for row in data_dict:
