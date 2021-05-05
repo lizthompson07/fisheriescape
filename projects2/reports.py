@@ -22,6 +22,9 @@ from . import models, utils
 from .models import ProjectYear
 from .utils import in_projects_admin_group
 
+from .api.views import get_project_year_queryset
+from shared_models import models as shared_models
+
 
 def generate_acrdp_application(project):
     # figure out the filename
@@ -994,5 +997,98 @@ def generate_sara_application(project, lang):
                     paragraph.text = "MISSING!"
 
     document.save(target_file_path)
+
+    return target_url
+
+
+def export_project_summary(request):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "projects_summary_template.xlsx")
+
+    year = request.GET.get("fiscal_year")
+
+    # get all project years using the same query as the management console
+    qs = get_project_year_queryset(request)
+
+    wb = load_workbook(filename=template_file_path)
+
+    # to order worksheets so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    year_txt = str(shared_models.FiscalYear.objects.get(pk=year))
+    ws = wb['template']
+    ws.title = year_txt
+    wb.copy_worksheet(ws).title = str("template")
+    try:
+        ws = wb[year_txt]
+    except KeyError:
+        print(year_txt, "is not a valid name of a worksheet")
+
+    # start writing data at row 2 in the sheet
+    row_count = 3
+    for item in qs:
+        project = item.project
+
+        functional_group = project.functional_group if project.functional_group else None
+        theme = functional_group.theme if functional_group and functional_group.theme else None
+        primary_funding = project.default_funding_source if project.default_funding_source else None
+        leads = ""
+        for prj_lead in item.get_project_leads_as_users():
+            if prj_lead:
+                if leads:
+                    leads += ", "
+                leads += prj_lead.first_name + " " + prj_lead.last_name
+
+        metadata = ""
+        if project.updated_at:
+
+            metadata += f"{naturaltime(project.updated_at)}"
+            if project.modified_by:
+                metadata += f" by {project.modified_by}"
+
+        priorites = item.priorities if item.priorities else None
+
+        ws['A' + str(row_count)].value = project.pk
+        ws['B' + str(row_count)].value = project.section.tname
+        ws['C' + str(row_count)].value = project.title
+        ws['D' + str(row_count)].value = html2text(nz(project.overview_html, ""))
+        ws['E' + str(row_count)].value = nz(project.activity_type.tname, "") if project.activity_type else ""
+        ws['F' + str(row_count)].value = nz(theme.tname, "") if theme else ""
+        ws['G' + str(row_count)].value = nz(functional_group.tname, "") if functional_group else ""
+        ws['H' + str(row_count)].value = str(primary_funding if primary_funding else "")
+        ws['I' + str(row_count)].value = nz(project.start_date, "")
+        ws['J' + str(row_count)].value = nz(project.end_date, "")
+        ws['K' + str(row_count)].value = listrify(project.fiscal_years.all())
+        ws['L' + str(row_count)].value = listrify(project.funding_sources.all())
+        ws['M' + str(row_count)].value = nz(leads, "")
+        ws['N' + str(row_count)].value = listrify(project.tags.all())
+        ws['O' + str(row_count)].value = listrify(project.references.all(), "\n\r")
+        ws['P' + str(row_count)].value = nz(metadata, "")
+        # leave a column blank to separate general project info from the specif year project info.
+        ws['R' + str(row_count)].value = html2text(nz(priorites, ""))
+        ws['S' + str(row_count)].value = nz(item.requires_specialized_equipment, "")
+        ws['T' + str(row_count)].value = nz(item.has_field_component, "")
+        ws['U' + str(row_count)].value = nz(item.has_data_component, "")
+        ws['V' + str(row_count)].value = nz(item.data_collected, "")
+        ws['W' + str(row_count)].value = nz(item.data_products, "")
+        ws['X' + str(row_count)].value = nz(item.data_management_needs, "")
+        ws['Y' + str(row_count)].value = nz(item.has_lab_component, "")
+        ws['Z' + str(row_count)].value = nz(item.it_needs, "")
+        ws['AA' + str(row_count)].value = nz(item.additional_notes, "")
+        ws['AB' + str(row_count)].value = nz(item.get_coding(), "")
+        ws['AC' + str(row_count)].value = nz(item.submitted, "")
+        ws['AD' + str(row_count)].value = nz(item.get_status_display(), "")
+        # leave a column blank to separate specif year project info from O&M cost.
+        ws['AF' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=1).aggregate(dsum=Sum("amount"))["dsum"], 0)
+        ws['AG' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=2).aggregate(dsum=Sum("amount"))["dsum"], 0)
+        ws['AH' + str(row_count)].value = nz(item.omcost_set.filter(funding_source__funding_source_type=3).aggregate(dsum=Sum("amount"))["dsum"], 0)
+        ws['AI' + str(row_count)].value = nz(item.om_costs, "")
+        row_count += 1
+
+    wb.save(target_file_path)
 
     return target_url

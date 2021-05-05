@@ -152,74 +152,82 @@ class AddProjectReferenceAPIView(APIView):
 # PROJECT YEAR
 ##############
 
+# P. Upson - I moved this from the ProjectYearListAPIView.get_queryset() so that I can take advantage of the same query
+# used to gather results for the management console when gathering resources for the Project_summary report. If required
+# I could just copy and paste this content to report.py instead
+def get_project_year_queryset(request):
+    qs = models.ProjectYear.objects.order_by("start_date")
+    qp = request.query_params if hasattr(request, 'query_params') else request.GET
+
+    filter_list = [
+        "user",
+        "is_hidden",
+        "title",
+        "id",
+        'staff',
+        'fiscal_year',
+        'tag',
+        'theme',
+        'functional_group',
+        'funding_source',
+        'region',
+        'division',
+        'section',
+        'status',
+    ]
+    for filter in filter_list:
+        input = qp.get(filter)
+        if input == "true":
+            input = True
+        elif input == "false":
+            input = False
+        elif input == "null" or input == "":
+            input = None
+
+        if input:
+            if filter == "user":
+                qs = qs.filter(project__section__in=get_manageable_sections(request.user)).order_by("fiscal_year",
+                                                                                                         "project_id")
+            elif filter == "is_hidden":
+                qs = qs.filter(project__is_hidden=True)
+            elif filter == "status":
+                qs = qs.filter(status=input)
+            elif filter == "title":
+                qs = qs.filter(project__title__icontains=input)
+            elif filter == "id":
+                qs = qs.filter(project__id=input)
+            elif filter == "staff":
+                qs = qs.filter(project__staff_search_field__icontains=input)
+            elif filter == "fiscal_year":
+                qs = qs.filter(fiscal_year_id=input)
+            elif filter == "tag":
+                qs = qs.filter(project__tags=input)
+            elif filter == "theme":
+                qs = qs.filter(project__functional_group__theme_id=input)
+            elif filter == "functional_group":
+                qs = qs.filter(project__functional_group_id=input)
+            elif filter == "funding_source":
+                qs = qs.filter(project__default_funding_source_id=input)
+            elif filter == "region":
+                qs = qs.filter(project__section__division__branch__region_id=input)
+            elif filter == "division":
+                qs = qs.filter(project__section__division_id=input)
+            elif filter == "section":
+                qs = qs.filter(project__section_id=input)
+
+    # if a regular user is making the request, show only approved projects (and not hidden projects)
+    if not is_management_or_admin(request.user):
+        qs = qs.filter(project__is_hidden=False, status=4)
+    return qs.distinct()
+
+
 class ProjectYearListAPIView(ListAPIView):
     pagination_class = pagination.StandardResultsSetPagination
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = models.ProjectYear.objects.order_by("start_date")
-        qp = self.request.query_params
-
-        filter_list = [
-            "user",
-            "is_hidden",
-            "title",
-            "id",
-            'staff',
-            'fiscal_year',
-            'tag',
-            'theme',
-            'functional_group',
-            'funding_source',
-            'region',
-            'division',
-            'section',
-            'status',
-        ]
-        for filter in filter_list:
-            input = qp.get(filter)
-            if input == "true":
-                input = True
-            elif input == "false":
-                input = False
-            elif input == "null" or input == "":
-                input = None
-
-            if input:
-                if filter == "user":
-                    qs = qs.filter(project__section__in=get_manageable_sections(self.request.user)).order_by("fiscal_year", "project_id")
-                elif filter == "is_hidden":
-                    qs = qs.filter(project__is_hidden=True)
-                elif filter == "status":
-                    qs = qs.filter(status=input)
-                elif filter == "title":
-                    qs = qs.filter(project__title__icontains=input)
-                elif filter == "id":
-                    qs = qs.filter(project__id=input)
-                elif filter == "staff":
-                    qs = qs.filter(project__staff_search_field__icontains=input)
-                elif filter == "fiscal_year":
-                    qs = qs.filter(fiscal_year_id=input)
-                elif filter == "tag":
-                    qs = qs.filter(project__tags=input)
-                elif filter == "theme":
-                    qs = qs.filter(project__functional_group__theme_id=input)
-                elif filter == "functional_group":
-                    qs = qs.filter(project__functional_group_id=input)
-                elif filter == "funding_source":
-                    qs = qs.filter(project__default_funding_source_id=input)
-                elif filter == "region":
-                    qs = qs.filter(project__section__division__branch__region_id=input)
-                elif filter == "division":
-                    qs = qs.filter(project__section__division_id=input)
-                elif filter == "section":
-                    qs = qs.filter(project__section_id=input)
-
-        # if a regular user is making the request, show only approved projects (and not hidden projects)
-        if not is_management_or_admin(self.request.user):
-            qs = qs.filter(project__is_hidden=False, status=4)
-        return qs.distinct()
+        return get_project_year_queryset(self.request)
 
 
 class ProjectYearRetrieveAPIView(RetrieveAPIView):
