@@ -171,7 +171,7 @@ class ElectrofishingParser(DataParser):
 class ColdbrookElectrofishingParser(ElectrofishingParser):
 
     def row_parser(self, row):
-        super(ElectrofishingParser, self).row_parser()
+        super().row_parser(row)
 
         if utils.nan_to_none(row[self.crew_lead_key]):
             row_percs, inits_not_found = utils.team_list_splitter(row[self.crew_lead_key])

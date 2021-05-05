@@ -95,7 +95,6 @@ class TaggingParser(DataParser):
                                               None)
         self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.vial_key], "Vial", None)
 
-
         if utils.nan_to_none(row[self.crew_key]):
             perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
             for perc_id in perc_list:
@@ -139,7 +138,7 @@ class MactaquacTaggingParser(TaggingParser):
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def row_parser(self, row):
-        super().row_parser()
+        super().row_parser(row)
         row_datetime = utils.get_row_date(row)
         if utils.y_n_to_bool(row[self.precocity_key]):
             self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_datetime.date(), None,
@@ -151,8 +150,10 @@ class ColdbrookTaggingParser(TaggingParser):
     location_key = "Location"
 
     def row_parser(self, row):
-        super().row_parser()
+        super().row_parser(row)
         row_datetime = utils.get_row_date(row)
-        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.box_key], "Box", None)
-        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.location_key],
+        row_date = row_datetime.date()
+        self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.box_key], "Box",
+                                              None)
+        self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.location_key],
                                               "Box Location", None)
