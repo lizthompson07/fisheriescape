@@ -33,7 +33,7 @@ def digest_csv():
             coord = User.objects.get(email__iexact="tana.worcester@dfo-mpo.gc.ca")
 
             # client
-            email = row["Email"]
+            email = row["Email"].lower().strip()
             try:
                 client = User.objects.get(email__iexact=email)
             except:
