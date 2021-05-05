@@ -98,10 +98,12 @@ class GenericGrpParser(DataParser):
     start_grp_dict = {}
     end_grp_dict = {}
 
-    sampc_id = models.SampleCode.objects.filter(name="Individual Sample").get()
+    sampc_id = None
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
+        self.sampc_id = models.SampleCode.objects.filter(name="Individual Sample").get()
+
         # set date
         self.data["datetime"] = self.data.apply(lambda row: utils.get_row_date(row), axis=1)
         # split year-coll

@@ -25,8 +25,8 @@ class TaggingParser(DataParser):
     start_grp_dict = {}
     end_grp_dict = {}
 
-    tagger_code = models.RoleCode.objects.filter(name__iexact="Tagger").get()
-    salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
+    tagger_code = None
+    salmon_id = None
     stok_id = None
     coll_id = None
     grp_id = None
@@ -36,6 +36,9 @@ class TaggingParser(DataParser):
         if len(self.data[self.group_key].unique()) > 1 or len(self.data[self.stok_key].unique()) > 1:
             self.log_data += "\n WARNING: Form only designed for use with single group. Check \"Group\" column and" \
                              " split sheet if needed. \n"
+
+        self.tagger_code = models.RoleCode.objects.filter(name__iexact="Tagger").get()
+        self.salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
 
         year, coll = utils.year_coll_splitter(self.data[self.group_key][0])
         grp_qs = models.Group.objects.filter(stok_id__name=self.data_dict[0][self.stok_key],

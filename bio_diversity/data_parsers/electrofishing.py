@@ -30,14 +30,17 @@ class ElectrofishingParser(DataParser):
     start_grp_dict = {}
     end_grp_dict = {}
 
-    temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
-    leader_code = models.RoleCode.objects.filter(name__iexact="Crew Lead").get()
+    temp_envc_id = None
+    leader_code = None
 
     loc = None
     locc_id = None
     river_dict = {}
 
     def data_preper(self):
+        self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+        self.leader_code = models.RoleCode.objects.filter(name__iexact="Crew Lead").get()
+
         for river_name in self.data[self.rive_key].unique():
             self.river_dict[river_name] = models.RiverCode.objects.filter(name__icontains=river_name).get()
 
