@@ -422,7 +422,10 @@ class InviteeModelMetaAPIView(APIView):
         data['labels'] = _get_labels(self.model)
         data['status_choices'] = [dict(text=c[1], value=c[0]) for c in model_choices.invitee_status_choices]
         data['role_choices'] = [dict(text=str(obj), value=obj.id) for obj in models.InviteeRole.objects.all()]
-        data['region_choices'] = [dict(text=str(obj), value=obj.id) for obj in Region.objects.all()]
+
+        region_choices = [dict(text=str(obj), value=obj.id) for obj in Region.objects.all()]
+        region_choices.insert(0, dict(text="-----", value=None))
+        data['region_choices'] = region_choices
         return Response(data)
 
 
