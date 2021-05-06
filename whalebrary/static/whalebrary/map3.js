@@ -21,7 +21,7 @@ var streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{
 var pointObject = L.geoJSON(pointObj, {
 
     onEachFeature: function (feature, layer) {
-        layer.bindPopup(`Incident: ${feature.properties.name}`);
+        layer.bindPopup(`Incident: ${feature.properties.name}<br>Incident Type: ${feature.properties.type}</br>Species: ${feature.properties.species}</br>Date: ${feature.properties.date}`);
         }
 });
 
@@ -31,7 +31,7 @@ var allPointObject = L.geoJSON(allPointObj, {
 
     onEachFeature: function (feature, layer) {
         myUrl = `http://dmapps/en/whalebrary/incident_detail/${feature.properties.pk}/view/`
-        layer.bindPopup(`Incident: <a href = "${myUrl}">${feature.properties.name}</a>`);
+        layer.bindPopup(`Incident: <a href = "${myUrl}">${feature.properties.name}</a><br>Incident Type: ${feature.properties.type}</br>Species: ${feature.properties.species}</br>Date: ${feature.properties.date}`);
         }
 });
 

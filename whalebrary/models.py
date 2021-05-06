@@ -400,7 +400,13 @@ class Incident(LatLongFields):
     def get_leaflet_dict(self):
         json_dict = dict(
             type='Feature',
-            properties=dict(name=self.name, pk=self.pk),
+            properties=dict(
+                name=self.name,
+                pk=self.pk,
+                type=self.get_incident_type_display(), #if this is not filled in this method fails though, need to make separate one for error handling
+                species=self.species.name,
+                date=str(self.first_report),
+            ),
             geometry=dict(type='Point', coordinates=list([self.longitude, self.latitude]))
         )
         return json_dict
