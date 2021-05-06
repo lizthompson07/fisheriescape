@@ -744,17 +744,7 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
                 obj.end_date = start_date
         obj.created_by = self.request.user
         obj.process = self.get_process()
-
-        obj.save()
-
-        # now for the piece about NCR email
-        if obj.process.is_posted and not obj.is_planning:
-            if not hasattr(obj.process, "tor"):
-                messages.error(self.request, "tried to send an email to NCR but this process has no TOR!")
-            else:
-                email = emails.UpdatedMeetingEmail(self.request, obj, obj.process.tor)
-                email.send()
-        return HttpResponseRedirect(self.get_success_url())
+        return super().form_valid(form)
 
 
 class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
@@ -804,7 +794,7 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
         obj.updated_by = self.request.user
 
         old_obj = models.Meeting.objects.get(pk=obj.id)
-        obj.save()
+        super().form_valid(form)
 
         # now for the piece about NCR email
         if obj.process.is_posted and hasattr(obj, "tor") and \
