@@ -60,34 +60,42 @@
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate ToR" %}
         </a>
       {% endif %}
-
-      {#      <a class="btn btn-sm btn-primary" href=""></a>#}
     </div>
 
-    <div class="mb-5">
-      <table class="table table-sm" style="width: auto">
-        {% for field in process_field_list %}
-          {% verbose_td_display object field th_width="300px" %}
-        {% endfor %}
-        {# requests #}
-        <tr>
-          <th>
-            {% trans "Connected requests" %}
-          </th>
-          <td>
-            {% if object.csas_requests.exists %}
-              {% for obj in object.csas_requests.all %}
-                <div>
-                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj.fiscal_year }} - {{ obj }} ({{ obj.id }})</a>
-                </div>
-              {% endfor %}
-            {% else %}
-              <em>{% trans "There are no requests attached to this process." %}</em>
-            {% endif %}
-          </td>
-        </tr>
+    <div class="row">
+      <div class="col-8">
 
-      </table>
+
+        <div class="mb-5">
+          <table class="table table-sm" style="width: auto">
+            {% for field in process_field_list %}
+              {% verbose_td_display object field th_width="300px" %}
+            {% endfor %}
+            {# requests #}
+            <tr>
+              <th>
+                {% trans "Connected requests" %}
+              </th>
+              <td>
+                {% if object.csas_requests.exists %}
+                  {% for obj in object.csas_requests.all %}
+                    <div>
+                      <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj.fiscal_year }} - {{ obj }} ({{ obj.id }})</a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <em>{% trans "There are no requests attached to this process." %}</em>
+                {% endif %}
+              </td>
+            </tr>
+
+          </table>
+        </div>
+      </div>
+      {# Notes #}
+      <div class="col">
+        {% include "csas2/process_detail/_notes.html" %}
+      </div>
     </div>
 
 
@@ -187,6 +195,10 @@
 
 {% block body_js %}
   {{ block.super }}
+
+  {% include "csas2/process_detail/components/note_editor.html" %}
+  {% include "csas2/process_detail/components/note_card.html" %}
+
   <script type="application/javascript">
   var processId = "{{ object.id }}"
 
@@ -199,10 +211,13 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
+      process: {},
       loadingDocs: false,
       loadingMeetings: false,
       docs: [],
       meetings: [],
+      notes: [],
+
     },
     methods: {
       getCurrentUser() {
@@ -211,6 +226,23 @@
             .then(response => {
               this.currentUser = response;
             })
+      },
+      getProcess(update_notes) {
+        let endpoint = `/api/csas/processes/${processId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.process = data;
+            if (update_notes) this.notes = this.getNotes();
+            this.getDocuments();
+            this.getMeetings();
+          }
+        });
+      },
+      getNotes() {
+        let endpoint = `/api/csas/process-notes/?process=${processId}`;
+        apiService(endpoint).then(data => {
+          this.notes = data;
+        });
       },
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
@@ -269,9 +301,8 @@
       }
     },
     created() {
-      this.getDocuments();
-      this.getMeetings();
       this.getCurrentUser();
+      this.getProcess(true);
     },
   });
 

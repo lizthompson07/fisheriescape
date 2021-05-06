@@ -423,6 +423,16 @@ class MeetingNoteSerializer(serializers.ModelSerializer):
     def get_type_display(self, instance):
         return instance.get_type_display()
 
+class ProcessNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ProcessNote
+        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+
+    type_display = serializers.SerializerMethodField()
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
 
 class DocumentNoteSerializer(serializers.ModelSerializer):
     class Meta:

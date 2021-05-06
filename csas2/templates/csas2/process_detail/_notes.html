@@ -1,0 +1,18 @@
+{% load i18n %}
+
+<div class="neighbours">
+  <h4>{% trans "Notes" %}</h4>
+</div>
+<div class="mb-3 neighbours">
+  <note-editor v-if="process" :process_id="process.id" @update-notes="getNotes"></note-editor>
+</div>
+
+<div v-if="notes && !notes.length">
+  <em>{% trans "This process has no notes." %}</em>
+</div>
+<div v-else>
+  <div v-for="n, index in notes" :key="n.id">
+    <note-card :note="n" @update-notes="getNotes"></note-card>
+
+  </div>
+</div>

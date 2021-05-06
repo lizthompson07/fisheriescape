@@ -311,3 +311,7 @@ label.filter {
     text-decoration-style: dotted;
     cursor: help;
 }
+
+.strike {
+    text-decoration: line-through;
+}

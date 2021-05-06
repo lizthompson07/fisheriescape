@@ -153,6 +153,28 @@ class MeetingNoteViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+class ProcessNoteViewSet(viewsets.ModelViewSet):
+    queryset = models.ProcessNote.objects.all()
+    serializer_class = serializers.ProcessNoteSerializer
+    permission_classes = [CanModifyProcessOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("process"):
+            process = get_object_or_404(models.Process, pk=qp.get("process"))
+            qs = process.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a process"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        print(123)
+        serializer.save(updated_by=self.request.user)
+
+
 class MeetingCostViewSet(viewsets.ModelViewSet):
     queryset = models.MeetingCost.objects.all()
     serializer_class = serializers.MeetingCostSerializer

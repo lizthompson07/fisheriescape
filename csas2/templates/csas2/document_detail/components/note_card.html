@@ -6,7 +6,7 @@
   <div class="card" style="width: 18rem;" :style='{backgroundColor : color}'>
     <div class="card-body">
       <h5 class="card-title">${ note.type_display }:</h5>
-      <div class="card-text mb-3">
+      <div :class="{'card-text mb-3':true, strike:note.is_complete}">
         ${ note.note }
       </div>
       <div class="float-right btn-group">
