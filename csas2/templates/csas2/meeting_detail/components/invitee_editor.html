@@ -1,0 +1,329 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="invitee-editor-template">
+<div class="">
+  <button @click="openOverlay" v-if="!invitee.id" class="btn btn-sm btn-primary py-0 px-1">
+    <span class="h5 mdi mdi-plus text-light"></span>
+  </button>
+  <button class="btn btn-sm" @click="openOverlay" v-else>
+    <span class="mdi mdi-pencil"></span>
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 800px">
+          <div v-if="!personEditMode" class="modal-header">
+            <h4 v-if="!invitee.id"> {% trans "Add Invitee" %}</h4>
+            <h4 v-else> {% trans "Edit Invitee" %} </h4>
+          </div>
+          <div v-else class="modal-header">
+            <h4 v-if="!person.id"> {% trans "Add a Person" %}</h4>
+            <h4 v-else> {% trans "Edit Person" %} </h4>
+          </div>
+          <div class="modal-body">
+            <form v-if="!personEditMode" @submit.prevent="onSubmit">
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="">${labels.person}</label>
+                  <v-select
+                    v-model="inviteeToEdit.person"
+                    :options="personChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+                <div class="mb-3">
+                  <button v-if="!inviteeToEdit.person" @click="openPersonEditMode" class="badge badge-pill badge-primary" tabindex="-1">
+                    {% trans "Add a person" %}</button>
+                  <button v-else @click="openPersonEditMode" class="badge badge-pill badge-warning" tabindex="-1">
+                    {% trans "Edit person details" %}</button>
+                </div>
+                <div class="form-group">
+                  <label for="">${labels.region}</label>
+                  <v-select
+                    v-model="inviteeToEdit.region"
+                    :options="regionChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+                <div class="form-group">
+                  <label for="">${labels.roles}</label>
+                  <v-select
+                    v-model="inviteeToEdit.roles"
+                    :options="roleChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                    multiple
+                  ></v-select>
+                </div>
+                <div class="form-group">
+                  <label for="">${labels.status}</label>
+                  <v-select
+                    v-model="inviteeToEdit.status"
+                    :options="statusChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                  ></v-select>
+                </div>
+              </div>
+              <div class="alert alert-danger mb-3" role="alert" v-if="error">
+                <p class="lead">
+                  ${ error }
+                </p>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-success">
+                  <span v-if="invitee.id">{% trans "Update" %}</span>
+                  <span v-else>{% trans "Create" %}</span>
+                </button>
+                <button class="mx-1 btn btn-primary" @click="closeOverlay" type="button">{% trans "Back" %}</button>
+              </div>
+            </form>
+            <form v-else @submit.prevent="onPersonFormSubmit">
+              <div v-if="person.dmapps_user" class="alert alert-warning mb-3" role="alert">
+                  <p>
+                    {% trans "This person cannot be edited since they are attached to a DM Apps user" %}
+                    <br><br>
+                    {% trans "Click" %}
+                    <button type="button" class="btn btn-link px-0 py-0" @click="clonePerson">{% trans "here" %}</button>
+                    {% trans "to clone this person into an editable external user." %}
+
+                  </p>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-group">
+                  <label for="">${personLabels.first_name}</label>
+                  <input type="text" v-model="person.first_name" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.last_name}</label>
+                  <input type="text" v-model="person.last_name" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.email}</label>
+                  <input type="email" v-model="person.email" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.phone}</label>
+                  <input type="text" v-model="person.phone" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.affiliation}</label>
+                  <input type="text" v-model="person.affiliation" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.job_title_en}</label>
+                  <input type="text" v-model="person.job_title_en" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.job_title_fr}</label>
+                  <input type="text" v-model="person.job_title_fr" class="form-control" :disabled="person.dmapps_user"/>
+                </div>
+                <div class="form-group">
+                  <label for="">${personLabels.language}</label>
+                  <v-select
+                    v-model="person.language"
+                    :options="languageChoices"
+                    :reduce="choice => choice.value"
+                    label="text"
+                    class="no-borders"
+                    :clearable=false
+                    required
+                    :disabled="person.dmapps_user"
+                  ></v-select>
+                </div>
+              </div>
+              <div class="alert alert-danger mb-3" role="alert" v-if="error">
+                <p class="lead">
+                  ${ error }
+                </p>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-success">
+                  <span v-if="invitee.id">{% trans "Update" %}</span>
+                  <span v-else>{% trans "Create" %}</span>
+                </button>
+                <button class="mx-1 btn btn-secondary" @click="personEditMode=false" type="button">{% trans "Cancel" %}</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+
+</script>
+<script type="application/javascript">
+
+Vue.component("invitee-editor", {
+  template: "#invitee-editor-template",
+  delimiters: ["${", "}"],
+  name: "invitee-editor",
+  props: {
+    meeting_id: {
+      required: false
+    },
+    invitee: {
+      required: false,
+      default: function () {
+        return {};
+      }
+    }
+  },
+  data() {
+    return {
+      dates: null,
+      error: null,
+      inviteeToEdit: {},
+      labels: {},
+      languageChoices: [],
+      loadingPersons: false,
+      overlay: false,
+      person: {},
+      personChoices: [],
+      personEditMode: false,
+      personLabels: {},
+      roleChoices: [],
+      search: null,
+      statusChoices: [],
+      regionChoices: [],
+      user: null,
+    };
+  },
+  methods: {
+
+    closeOverlay() {
+      this.error = null;
+      if (this.invitee.id) {
+        this.primeInvitee();
+        this.inviteeToEdit = this.invitee;
+      }
+      this.overlay = false;
+    },
+    getInviteeMetadata() {
+      let endpoint = `/api/csas/meta/models/invitee/`;
+      apiService(endpoint).then(data => {
+        this.labels = data.labels;
+        this.roleChoices = data.role_choices;
+        this.statusChoices = data.status_choices;
+        this.regionChoices = data.region_choices;
+      });
+    },
+    getPersonMetadata() {
+      let endpoint = `/api/csas/meta/models/person/`;
+      apiService(endpoint).then(data => {
+        this.personLabels = data.labels;
+        this.personChoices = data.person_choices;
+        this.languageChoices = data.language_choices;
+      });
+    },
+    getPerson(personId) {
+        let endpoint = `/api/csas/people/${personId}/`;
+        apiService(endpoint).then(data => {
+          if (data) {
+            this.person = data;
+          }
+        });
+      },
+    onSubmit() {
+      this.error = null;
+      var method;
+      var endpoint;
+      if (this.invitee.id) {
+        endpoint = `/api/csas/invitees/${this.invitee.id}/`;
+        method = "PUT";
+      } else {
+        endpoint = "/api/csas/invitees/";
+        method = "POST";
+      }
+      apiService(endpoint, method, this.inviteeToEdit).then(response => {
+        if (response.id) {
+          this.$emit("update-invitees");
+          if (!this.inviteeToEdit.id) this.primeInvitee();
+          this.overlay = false;
+        } else {
+          this.error = groomJSON(response)
+        }
+      });
+    },
+    onPersonFormSubmit() {
+      this.error = null;
+      var method;
+      var endpoint;
+      if (this.person.id) {
+        endpoint = `/api/csas/people/${this.person.id}/`;
+        method = "PUT";
+      } else {
+        endpoint = "/api/csas/people/";
+        method = "POST";
+      }
+      apiService(endpoint, method, this.person).then(response => {
+        if (response.id) {
+          this.getInviteeMetadata()
+          this.personEditMode = false;
+          this.inviteeToEdit.person = response.id
+        } else {
+          this.error = groomJSON(response)
+        }
+      });
+    },
+    clonePerson() {
+      clone = JSON.parse(JSON.stringify(this.person));
+      clone.dmapps_user=null;
+      clone.id=null;
+      clone.email=null;
+      this.person = clone;
+    },
+
+    openOverlay() {
+      this.error = null;
+      this.overlay = true;
+      this.personEditMode = false;
+      if (!this.invitee.id) {
+        this.primeInvitee();
+      } else {
+        this.inviteeToEdit = JSON.parse(JSON.stringify(this.invitee)); // deep copy
+      }
+    },
+    openPersonEditMode() {
+      this.person = {};
+      if (this.inviteeToEdit.person) {
+        this.getPerson(this.inviteeToEdit.person)
+      }
+      this.error = null;
+      this.personEditMode = true;
+    },
+    primeInvitee() {
+      this.inviteeToEdit = {
+        status: 0,
+        role: null,
+        person: null,
+        meeting: this.meeting_id
+      };
+    },
+  },
+  created() {
+    this.getInviteeMetadata();
+    this.getPersonMetadata();
+  },
+  computed: {}
+});
+</script>

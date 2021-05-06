@@ -734,7 +734,6 @@ class EvntFactory(factory.django.DjangoModelFactory):
     evntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntcFactory")
     perc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PercFactory")
     prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
-    team_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TeamFactory")
     start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
                                                                           tzinfo=pytz.UTC))
     end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
@@ -749,7 +748,6 @@ class EvntFactory(factory.django.DjangoModelFactory):
         evntc = EvntcFactory()
         perc = PercFactory()
         prog = ProgFactory()
-        team = TeamFactory()
         obj = EvntFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
@@ -758,7 +756,6 @@ class EvntFactory(factory.django.DjangoModelFactory):
             'evntc_id': evntc.pk,
             'perc_id': perc.pk,
             'prog_id': prog.pk,
-            'team_id': team.pk,
             'start_date': obj.start_datetime.date(),
             'start_time': obj.start_datetime.time().strftime("%H:%M"),
             'end_date': obj.end_datetime.date(),
@@ -2476,10 +2473,11 @@ class TankdFactory(factory.django.DjangoModelFactory):
 
 class TeamFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.Team
+        model = models.TeamXRef
 
     perc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PercFactory")
     role_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RoleFactory")
+    evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
@@ -2487,6 +2485,7 @@ class TeamFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
         perc = PercFactory()
         role = RoleFactory()
+        evnt = EvntFactory()
 
         obj = TeamFactory.build(**kwargs)
 
@@ -2494,6 +2493,7 @@ class TeamFactory(factory.django.DjangoModelFactory):
         data = {
             'perc_id': perc.pk,
             'role_id': role.pk,
+            'evnt_id': evnt.pk,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

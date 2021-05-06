@@ -1,0 +1,58 @@
+{% extends "shared_models/generic_filter.html" %}
+{% load verbose_names %}
+
+{% block jquery_import %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+
+{% block bug_create %}
+  {% include "csas2/base/_bug_url.html" %}
+{% endblock bug_create %}
+
+{% block title %}
+  {% include "csas2/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block header %}
+  {{ block.super }}
+  {% include "csas2/base/_style.html" %}
+{% endblock %}
+
+{% block body %}
+  {{ block.super }}
+{% endblock body %}
+
+{% block left_auth %}
+  {% include "csas2/base/_nav_left_auth.html" %}
+{% endblock left_auth %}
+
+{% block table_tr %}
+  {% url row_object_url_name object.id as my_url %}
+  <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
+    {% for field in field_list %}
+      <td
+        class="{{ field.class }}
+          {% if field.name == "status" %}{{ object.status_class|slugify }}
+          {% elif field.name == "translation_status" %}{{ object.tstatus_class|slugify }}{% endif %}
+        ">
+        {% block table_td %}
+          {% get_field_value object field.name safe=True %}
+        {% endblock %}
+      </td>
+    {% endfor %}
+  </tr>
+{% endblock %}
+
+{% block body_js %}
+
+  {#  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>#}
+  {#<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>#}
+  {% if DEBUG %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  {% else %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  {% endif %}
+
+
+{% endblock %}

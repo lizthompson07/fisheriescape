@@ -38,6 +38,8 @@
                 {% for field in surface_field_list %}
                   {% if 'lost' in field %}
                     <td class="{% if obj.is_lost %}bad{% endif %}">{% get_field_value obj field %}</td>
+                  {% elif 'damaged' in field %}
+                    <td class="{% if obj.is_damaged %}bad{% endif %}">{% get_field_value obj field %}</td>
                   {% elif 'type' in field %}
                     <td class="{{ obj.get_surface_type_display|slugify }}">{% get_field_value obj field %}</td>
                   {% else %}

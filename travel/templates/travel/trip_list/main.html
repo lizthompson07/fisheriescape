@@ -58,11 +58,10 @@
                 <th style="" @click="sort('travellers')" class="clickable">{% trans "Travellers" %}</th>
                 <th style="width: 200px" @click="sort('dates')" class="clickable">{% trans "Dates" %}</th>
                 <th style="" @click="sort('is_adm_approval_required')" class="clickable">{% trans "ADM approval required?" %}</th>
-                {#                <th v-if="pageType !== 'upcoming'" style="width: 200px" @click="sort('trip_subcategory')" class="clickable">${tripLabels.trip_subcategory}</th>#}
-                <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('registration_deadline')" class="clickable">
+                <th  style="width: 140px" @click="sort('registration_deadline')" class="clickable">
                   ${tripLabels.registration_deadline}
                 </th>
-                <th v-if="pageType === 'upcoming'" style="width: 140px" @click="sort('abstract_deadline')" class="clickable">${tripLabels.abstract_deadline}
+                <th  style="width: 140px" @click="sort('abstract_deadline')" class="clickable">${tripLabels.abstract_deadline}
                 </th>
                 <th style="width: 140px" @click="sort('date_eligible_for_adm_review')" class="clickable">${tripLabels.date_eligible_for_adm_review}</th>
                 <th style="width: 200px" v-if="pageType === 'adm-hit-list'" @click="sort('adm_review_deadline')"
@@ -84,8 +83,8 @@
                 <td v-html="t.dates"></td>
                 <td>${t.is_adm_approval_required |yesNo }</td>
                 {#                <td v-if="pageType !== 'upcoming'">${t.trip_subcategory }</td>#}
-                <td v-if="pageType === 'upcoming'">${t.registration_deadline |nz}</td>
-                <td v-if="pageType === 'upcoming'">${t.abstract_deadline |nz}</td>
+                <td >${t.registration_deadline |nz}</td>
+                <td >${t.abstract_deadline |nz}</td>
                 <td>
                   <span v-if="!t.is_adm_approval_required"> --- </span>
                   <span v-else> ${t.date_eligible_for_adm_review } </span>
@@ -129,7 +128,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/travel/mainTripList.js' %}?version=1.6" type="application/javascript"></script>
+  <script src="{% static '/travel/mainTripList.js' %}?version=1.7" type="application/javascript"></script>
   <script type="application/javascript">
   //reload other scripts that we care about
   </script>

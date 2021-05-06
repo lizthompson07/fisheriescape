@@ -2,7 +2,9 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from markdown import markdown
 
 from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
@@ -107,6 +109,17 @@ class Organization(models.Model):
     old_id = models.IntegerField(blank=True, null=True)
 
     @property
+    def full_display_name(self):
+        mystr = self.name_eng
+        if self.abbrev:
+            mystr += f' ({self.abbrev})'
+        if self.name_ind:
+            mystr += f' - {self.abbrev}'
+        if self.former_name:
+            mystr += f' - {self.former_name}'
+        return mystr
+
+    @property
     def is_indigenous(self):
         return self.grouping.filter(is_indigenous=True).exists()
 
@@ -167,6 +180,11 @@ class Organization(models.Model):
                     shortest_dist = dist
                     winner = m
             return winner
+
+    @property
+    def notes_html(self):
+        if self.notes:
+            return mark_safe(markdown(self.notes))
 
 
 class Person(models.Model):

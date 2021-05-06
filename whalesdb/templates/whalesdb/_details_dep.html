@@ -41,9 +41,11 @@
                                     <span class="col">
                                         <a href="#fs-list-attachments" data-toggle="collapse">{% trans 'Attachments' %}</a>
                                     </span>
+                                    {% if auth %}
                                     <span class="px-1">
                                         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_eda' dep.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Attachment' %}</a>
                                     </span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="card-body expand" id="fs-list-attachments">
@@ -51,7 +53,9 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
+                                                {% if auth %}
                                                 <th>{% trans 'Delete' %}</th>
+                                                {% endif %}
                                                 <th class="d-lg-table-cell">{% trans 'Equipment' %}</th>
                                                 <th class="d-md-table-cell">{% trans 'Dataset' %}</th>
                                             </tr>
@@ -59,19 +63,26 @@
                                         <tbody>
                                     {% for att in dep.attachments.all %}
                                         <tr>
+                                    {% if auth %}
                                         <td>
                                             {# Cannot remove an attachment after a deployment has been made #}
                                             <a class="btn btn-danger" href="{% url 'whalesdb:delete_eda' att.id %}">X</a>
-                                        </td><td>
+                                        </td>
+                                    {% endif %}
+                                        <td>
                                             <a href="{% url 'whalesdb:details_eqp' att.eqp.pk %}">{{att.eqp}}</a>
                                         </td><td>
                                             {% if att.dataset.all %}
                                                 {% for ds in att.dataset.all %}
                                                     <a class="btn btn-primary my-1" href="{% url 'whalesdb:details_rec' ds.id %}">{{ ds.rec_start_date }}</a>
+                                    {% if auth %}
                                                     <a class="btn btn-danger my-1" href="#" onclick="return pop('{% url 'whalesdb:delete_rec' ds.id 'pop' %}','id_attachments')">X</a><br />
+                                    {% endif %}
                                                 {% endfor %}
                                             {% endif %}
+                                    {% if auth %}
                                             <a class="btn btn-primary my-1" href="{% url 'whalesdb:create_rec' att.pk %}">+</a>
+                                    {% endif %}
                                         </td>
                                         </tr>
                                     {% endfor %}
@@ -111,7 +122,9 @@
                                     <th scope="col">{% get_verbose_label evt 'ste_date' %}</th>
                                     <th scope="col">{% get_verbose_label evt 'crs' %}</th>
                                     <th scope="col">{% get_verbose_label evt 'set_type' %}</th>
-                                    <th scope="col">{% trans 'Delete' %}</th>
+                            {% if auth %}
+                                   <th scope="col">{% trans 'Delete' %}</th>
+                            {% endif %}
                                     {% endwith %}
                                 </tr></thead>
                                 <tbody>
@@ -123,7 +136,9 @@
                                     </td>
                                     <td>{{ evt.crs }}</td>
                                     <td>{{ evt.set_type.name }}</td>
+                            {% if auth %}
                                     <td><a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:delete_ste' evt.pk 'pop' %}','all')" >X</a></td>
+                            {% endif %}
                                 </tr>
                                 <tr>
                                     <td colspan="4">
@@ -131,7 +146,9 @@
                                         <div class="card-header">
                                             <div class="row">
                                                 <a class="col h5" href="#fs-evt-{{evt.pk}}" data-toggle="collapse">{% trans 'Details' %}</a>
+                            {% if auth %}
                                                 <a class="btn btn-primary col-2" href="#" onclick="return pop('{% url 'whalesdb:update_ste' evt.id 'pop' %}','all')" >{% trans 'Update' %}</a>
+                            {% endif %}
                                             </div>
                                         </div>
                                         <div class="card-body collapse" id="fs-evt-{{evt.pk}}">

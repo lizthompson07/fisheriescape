@@ -1,0 +1,43 @@
+{% load i18n %}
+<div class="mx-3 my-3">
+  <div class="mb-3">
+    <h4>{% trans "Tracking Panel" %}</h4>
+
+
+  </div>
+
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs">
+    {# Overview #}
+    <li class="nav-item tabby">
+      <a :class="{'nav-link text-center': true, active: showTranslationTracking}" @click="changeTabs('showTranslationTracking')">
+        {% trans "Translation" %}
+{#        <br>(${document.status_text})#}
+      </a>
+    </li>
+
+    {# Traveller #}
+    <li class="nav-item tabby">
+      <a :class="{'nav-link': true, active: showProcessTracking}" @click="changeTabs('showProcessTracking')">
+        {% trans "CSAS Process" %}
+{#        <br>(${document.tstatus_text})#}
+      </a>
+    </li>
+  </ul>
+  <hr>
+
+  <div v-if="errors" class="alert alert-danger" role="alert">
+    <p>${errors}</p>
+  </div>
+
+
+  <div v-if="showProcessTracking">
+    {% include "csas2/document_detail/_tracking_process.html" %}
+  </div>
+  <div v-if="showTranslationTracking">
+    {% include "csas2/document_detail/_tracking_translation.html" %}
+  </div>
+  <div class="mb-3">
+    <button class="btn btn-sm btn-danger" @click="deleteTracking()">{% trans "Delete Tracking" %}</button>
+  </div>
+</div>

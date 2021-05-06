@@ -1,0 +1,56 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="char-group-template">
+<div class="form-group">
+  <div class="form-group">
+    <label v-if="label" :for="`id_${field_name}`">${label}</label>
+    <input type="text" class="form-control" v-model="editableVal" @change="updateTracking" :id="`id_${field_name}`">
+  </div>
+</div>
+</script>
+<script type="application/javascript">
+
+Vue.component("char-group", {
+  template: "#char-group-template",
+  delimiters: ["${", "}"],
+  name: "char-group",
+  props: {
+    val: {
+      type: String,
+      required: false
+    },
+    label: {
+      type: String,
+      required: true
+    },
+    field_name: {
+      type: String,
+      required: false
+    },
+  },
+  data() {
+    return {
+      editableVal: null,
+    };
+  },
+  methods: {
+    updateTracking() {
+      this.$emit("update-tracking", {field_name: this.field_name, value: this.editableVal});
+    },
+    clearDate() {
+      this.date = null;
+      this.updateTracking();
+    },
+  },
+  created() {
+    this.editableVal = this.val;
+  },
+  watch: {
+    val() {
+      this.editableVal = this.val;
+    }
+  }
+
+});
+</script>

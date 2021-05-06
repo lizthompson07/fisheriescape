@@ -1,0 +1,100 @@
+{% load verbose_names %}
+{% load i18n %}
+<style>
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+
+</style>
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+<p>
+  Hello {{ object.first_name }},
+</p>
+<p>
+  You have been invited to the following meeting:
+</p>
+
+{% language 'en' %}
+  <table class="email-table">
+    {% for field in field_list %}
+      {% verbose_td_display object.meeting field %}
+    {% endfor %}
+  </table>
+
+  {% if object.meeting.resources.exists %}
+    <p>
+      There {{ object.meeting.resources.count|pluralize:"is,are" }} currently {{ object.meeting.resources.count }}
+      resource{{ object.meeting.resources.count|pluralize }} available for this meeting:
+    </p>
+    <ol>
+      {% for r in object.meeting.resources.all %}
+        <li><a href="{{ r.turl }}">{{ r.tname }}</a></li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+{% endlanguage %}
+
+<p>
+  Please send your RSVP to the following email: <a href="mailto:{{ object.meeting.rsvp_email }}">{{ object.meeting.rsvp_email }}</a>.
+</p>
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps
+</p>
+
+<hr>
+
+<p>
+  Bonjour {{ object.first_name }},
+</p>
+<p>
+  Vous avez été invité à l'événement suivant :
+</p>
+
+{% language 'fr' %}
+  <table class="email-table">
+    {% for field in field_list %}
+      {% verbose_td_display object.meeting field %}
+    {% endfor %}
+  </table>
+   {% if object.meeting.resources.exists %}
+    <p>
+      Il y a actuellement {{ object.meeting.resources.count }} ressource{{ object.meeting.resources.count|pluralize }} disponible{{ object.meeting.resources.count|pluralize }}
+      pour cet événement:
+    </p>
+    <ol>
+      {% for r in object.meeting.resources.all %}
+        <li><a href="{{ r.turl }}">{{ r.tname }}</a></li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+{% endlanguage %}
+
+<p>
+  Veuillez envoyer votre RSVP à l'adresse e-mail suivante: <a href="mailto:{{ object.meeting.rsvp_email }}"> {{ object.meeting.rsvp_email }} </a>.
+</p>
+
+<p>
+  Cordialement,
+  <br><br>
+  Applis GD
+</p>
+
+
+
+
+
+
+
+

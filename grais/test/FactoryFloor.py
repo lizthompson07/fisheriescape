@@ -117,6 +117,7 @@ class SurfaceFactory(factory.django.DjangoModelFactory):
     surface_type = factory.lazy_attribute(lambda o: models.Surface.SURFACE_TYPE_CHOICES[faker.random_int(0, len(models.Surface.SURFACE_TYPE_CHOICES) - 1)][0])
     label = factory.lazy_attribute(lambda o: faker.catch_phrase())
     is_lost = factory.lazy_attribute(lambda o: faker.pybool())
+    is_damaged = factory.lazy_attribute(lambda o: faker.pybool())
 
     @staticmethod
     def get_valid_data():
@@ -125,6 +126,7 @@ class SurfaceFactory(factory.django.DjangoModelFactory):
             'surface_type': models.Surface.SURFACE_TYPE_CHOICES[faker.random_int(0, len(models.Surface.SURFACE_TYPE_CHOICES) - 1)][0],
             'label': faker.catch_phrase(),
             'is_lost': faker.pybool(),
+            'is_damaged': faker.pybool(),
         }
 
 

@@ -8,20 +8,14 @@ from django.utils.translation import gettext as _
 from shared_models import models as shared_models
 
 # Choices for language
-ENG = 1
-FRE = 2
-LANGUAGE_CHOICES = (
-    (ENG, 'English'),
-    (FRE, 'French'),
-)
-
+from shared_models.models import Language
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     position_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("position (English)"))
     position_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("position (French)"))
     phone = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("phone (office)"))
-    language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
+    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("language preference"))
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Section"))
     retired = models.BooleanField(default=False)
 

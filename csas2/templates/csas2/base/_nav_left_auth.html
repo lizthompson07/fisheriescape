@@ -1,0 +1,43 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'csas2:index' %}">
+  {% trans "Home" %}
+</a></li>
+
+{% if is_admin %}
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'csas2:person_list' %}">
+      {% trans "Contacts" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'csas2:reports' %}">
+      {% trans "Reports" %}
+    </a>
+  </li>
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+      {% trans "Admin" %}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="{% url 'csas2:manage_document_types' %}">
+        {% trans "Manage Document Type" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'csas2:manage_invitee_roles' %}">
+        {% trans "Manage Invitee Roles" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'shared_models:index' %}" target="_blank">
+        {% trans "Manage DFO Organizations" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'csas2:process_postings' %}" target="_blank">
+        {% trans "Manage Process Postings" %}
+      </a>
+    </div>
+  </li>
+{% endif %}
+
+
+
+
+

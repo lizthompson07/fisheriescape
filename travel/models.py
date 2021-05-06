@@ -290,6 +290,9 @@ class Trip(models.Model):
             # this is stored in the table
             self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(
                 days=self.trip_subcategory.trip_category.days_when_eligible_for_review)
+        else:
+            self.adm_review_deadline = None
+            self.date_eligible_for_adm_review = None
 
         if self.is_virtual:
             self.location = 'Virtual / Virtuel'

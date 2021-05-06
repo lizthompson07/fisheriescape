@@ -7,7 +7,6 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
 
     path('report/', views.ReportView.as_view(), name="report"),
-    path('report/deployment_summary/', views.report_deployment_summary, name="report_deployment_summary"),
 
     # CRUISES #
     ###########
@@ -31,6 +30,8 @@ urlpatterns = [
     path('details/eca/<int:pk>/', views.EcaDetails.as_view(), name="details_eca"),
 
     path('create/ecp/<int:eqr>/<str:pop>/', views.EcpCreate.as_view(), name="create_ecp"),
+    path('update/ecp/<int:pk>/<str:pop>/', views.EcpUpdate.as_view(), name="update_ecp"),
+    path('delete/ecp/<int:emm>/<int:ecp>/', views.ecp_delete, name="delete_ecp"),
 
     path('create/ecc/<int:eca>/<str:pop>/', views.EccCreate.as_view(), name="create_ecc"),
     path('delete/ecc/<int:pk>/', views.ecc_delete, name="delete_ecc"),

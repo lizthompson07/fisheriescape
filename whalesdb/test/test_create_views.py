@@ -1,21 +1,21 @@
-from django.test import tag
-from django.urls import reverse_lazy
+import os
+import datetime
 
+from django.test import TestCase, tag, RequestFactory
+from django.urls import reverse_lazy
 from django.core.files.base import ContentFile
-from six import BytesIO
 from django.utils.translation import activate
 
-from django.test import TestCase
-
+from six import BytesIO
 from PIL import Image
 
+from whalesdb import views, forms, models
+from whalesdb.test import WhalesdbFactoryFloor as Factory
 from whalesdb.test.common_views import CommonCreateTest
 
-from whalesdb import views, forms, models
-
-import os
-from whalesdb.test import WhalesdbFactoryFloor as Factory
 from shared_models.test import SharedModelsFactoryFloor as SharedFactory
+
+req_factory = RequestFactory()
 
 
 @tag('cru', 'create')

@@ -161,7 +161,7 @@
             class="w90 filter" id="filter_title" placeholder="">
         </div>
       </div>
-
+re
       {# Staff #}
       <div class="row">
         <div class="col-5">
@@ -235,8 +235,11 @@
       <div class="mb-3">
         <button @click="clearFilters" class="btn btn-sm btn-warning">{% trans "Clear filters" %}</button>
       </div>
-    </div>
+      <div class="mb-0">
+        <button @click="generateReports('{% url 'projects2:management_reports' 'pop' %}', 'all');" href="#" class="btn btn-sm btn-primary">{% trans 'Reports' %}</button>
+      </div>
 
+    </div>
 
     <h5>
       {% trans "Columns" %}

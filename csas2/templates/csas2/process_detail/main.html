@@ -1,0 +1,281 @@
+{% extends "csas2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block crumbs %}
+{% endblock %}
+
+{% block messages %}{% endblock %}
+{% block title_area %}
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+{% endblock %}
+
+{% block subcontent %}
+  <div id="app" v-cloak>
+    <div>
+      {% include "shared_models/_generic_breadcrumbs.html" %}
+      <div class="mb-3">
+        <h2 class="">{{ h1|safe }}</h2>
+        <p class="lead text-muted mt-1 mb-0">{% trans "Process ID:" %} {{ object.id }}</p>
+      </div>
+      {% bootstrap_messages %}
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert">
+        <p class="mb-0">
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
+      <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
+      {% if object.tor %}
+        <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_edit' object.tor.id %}">
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
+        </a>
+        <div class="neighbours">
+          <div class="dropdown">
+            <a class="btn btn-sm btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+               aria-expanded="false">
+              <span class="mdi mdi-file-word text-light mr-1"></span>{% trans "Export ToR" %}
+            </a>
+
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=en">{% trans "Word (en)" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_export' object.tor.id %}?lang=fr">{% trans "Word (fr)" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_html' object.tor.id %}?lang=en">{% trans "HTML (en)" %}</a>
+              <a class="dropdown-item" href="{% url 'csas2:tor_html' object.tor.id %}?lang=fr">{% trans "HTML (fr)" %}</a>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_new' object.id %}">
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
+        </a>
+      {% endif %}
+
+      {#      <a class="btn btn-sm btn-primary" href=""></a>#}
+    </div>
+
+    <div class="mb-5">
+      <table class="table table-sm" style="width: auto">
+        {% for field in process_field_list %}
+          {% verbose_td_display object field th_width="300px" %}
+        {% endfor %}
+        {# requests #}
+        <tr>
+          <th>
+            {% trans "Connected requests" %}
+          </th>
+          <td>
+            {% if object.csas_requests.exists %}
+              {% for obj in object.csas_requests.all %}
+                <div>
+                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj.fiscal_year }} - {{ obj }} ({{ obj.id }})</a>
+                </div>
+              {% endfor %}
+            {% else %}
+              <em>{% trans "There are no requests attached to this process." %}</em>
+            {% endif %}
+          </td>
+        </tr>
+
+      </table>
+    </div>
+
+
+    <div class="mb-5">
+      <div class="float-left">
+        <span class="mdi mdi-account-group mr-3 h4"></span>
+      </div>
+      <div class="neighbours">
+        <h4>{% trans "Meetings" %}</h4>
+      </div>
+      <div class="mb-2 neighbours">
+        <a class="btn btn-sm btn-primary py-0 px-1" href="{% url 'csas2:meeting_new' object.id %}">
+          <span class="h5 mdi mdi-plus text-light"></span>
+        </a>
+      </div>
+
+      {% if object.meetings.exists %}
+
+        <table class="table table-bordered table-hover table-sm">
+          <thead>
+          <tr>
+            {% for field in meeting_field_list %}
+              <th class="{% if "title" in field %}w400{% endif %}">{% get_verbose_label object.meetings.first field %}</th>
+            {% endfor %}
+          </tr>
+          </thead>
+          <tbody>
+          {% for obj in object.meetings.all %}
+            <tr @click="followLink('{% url 'csas2:meeting_detail' obj.id %}')" class="pointy">
+              {% for field in meeting_field_list %}
+                <td>{% get_field_value obj field safe=True %}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <em>{% trans "There are no meetings associated with this process." %}</em>
+      {% endif %}
+    </div>
+
+    <div class="mb-5">
+      <div class="float-left">
+        <span class="mdi mdi-file-document mr-3 h4"></span>
+      </div>
+      <div class="neighbours">
+        <h4>{% trans "Documents" %}</h4>
+      </div>
+      <div class="mb-2 neighbours">
+        <a class="btn btn-sm btn-primary py-0 px-1" href="{% url 'csas2:document_new' object.id %}">
+          <span class="h5 mdi mdi-plus text-light"></span>
+        </a>
+      </div>
+
+      {% if object.documents.exists %}
+
+        <table class="table table-bordered table-hover table-sm">
+          <thead>
+          <tr>
+            <th rowspan="2" class="w400">{% trans "Title" %}</th>
+            <th rowspan="2">{% trans "Type" %}</th>
+            <th rowspan="2">{% trans "Status" %}</th>
+            <th v-if="keystoneMeetings.length" class="text-center" :colspan="keystoneMeetings.length">{% trans "Meeting Linkages" %}</th>
+          </tr>
+          <tr>
+            <th v-for="m, index in keystoneMeetings" :key="m.id" class="text-center text-muted">${m.display}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="d, index in docs" :key="d.id" @click="goDocumentDetail(d)" class="pointy">
+            <td>${d.ttitle}</td>
+            <td>${d.document_type}</td>
+            <td v-html="d.status_display"></td>
+            <td v-for="m, index in keystoneMeetings" :key="m.id" class="text-center">
+              <button v-if="d.meetings.includes(m.id)" @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span
+                class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span></button>
+              <button v-else @click="toggleMeetingLinkage(d, m, $event)" class="btn my-0 py-0"><span class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span>
+              </button>
+            </td>
+
+          </tr>
+          </tbody>
+        </table>
+      {% else %}
+        <em>{% trans "There are no documents associated with this process." %}</em>
+      {% endif %}
+    </div>
+
+    {# end #}
+  </div>
+
+
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script type="application/javascript">
+  var processId = "{{ object.id }}"
+
+  // register vue-select
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      loadingDocs: false,
+      loadingMeetings: false,
+      docs: [],
+      meetings: [],
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/csas/user/?process=${processId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      openPopout(url) {
+        popitup(url, 'popoutWindow' + Date.now());
+      },
+      followLink(url) {
+        window.location.href = url;
+      },
+      goDocumentDetail(document) {
+        window.location.href = `/csas2/documents/${document.id}/view/`;
+      },
+      toggleMeetingLinkage(doc, meeting, event) {
+        console.log(event)
+        // stop propagation of window change
+        event.stopPropagation()
+        let endpoint = `/api/csas/documents/${doc.id}/?meeting=${meeting.id}`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              this.getDocuments()
+            })
+      },
+      getDocuments() {
+        this.loadingDocs = true;
+        let endpoint = `/api/csas/documents/?process=${processId}`;
+        apiService(endpoint)
+            .then(response => {
+              if (response.length && response[0].id) {
+                this.docs = response;
+                this.loadingDocs = false;
+              }
+            })
+      },
+      getMeetings() {
+        this.loadingMeetings = true;
+        let endpoint = `/api/csas/meetings/?process=${processId}`;
+        apiService(endpoint)
+            .then(response => {
+              if (response.length && response[0].id) {
+                this.meetings = response;
+                this.loadingMeetings = false;
+              }
+            })
+      },
+    },
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+      keystoneMeetings() {
+        let myArray = [];
+        let m;
+        for (var i = 0; i < this.meetings.length; i++) {
+          m = this.meetings[i];
+          if (!m.is_planning) myArray.push(m);
+        }
+        return myArray;
+      }
+    },
+    created() {
+      this.getDocuments();
+      this.getMeetings();
+      this.getCurrentUser();
+    },
+  });
+
+
+  </script>
+
+{% endblock %}

@@ -596,10 +596,10 @@ class TankdMixin:
 
 class TeamMixin:
     key = 'team'
-    model = models.Team
+    model = models.TeamXRef
     form_class = forms.TeamForm
     title = _("Team")
-    admin_only = False
+    admin_only = True
 
 
 class TrayMixin:
