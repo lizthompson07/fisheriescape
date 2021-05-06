@@ -299,8 +299,6 @@ class TermsOfReference(MetadataFields):
     context_fr = models.TextField(blank=True, null=True, verbose_name=_("context (fr)"), help_text=_("French"))
     objectives_en = models.TextField(blank=True, null=True, verbose_name=_("objectives (en)"), help_text=_("English"))
     objectives_fr = models.TextField(blank=True, null=True, verbose_name=_("objectives (fr)"), help_text=_("French"))
-    expected_publications_en = models.TextField(blank=True, null=True, verbose_name=_("expected publications (en)"), help_text=_("English"))
-    expected_publications_fr = models.TextField(blank=True, null=True, verbose_name=_("expected publications (fr)"), help_text=_("French"))
     participation_en = models.TextField(blank=True, null=True, verbose_name=_("participation (en)"), help_text=_("English"))
     participation_fr = models.TextField(blank=True, null=True, verbose_name=_("participation (fr)"), help_text=_("French"))
     references_en = models.TextField(blank=True, null=True, verbose_name=_("references (en)"), help_text=_("English"))
