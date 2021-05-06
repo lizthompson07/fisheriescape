@@ -39,6 +39,10 @@ def generate_tor(tor, lang):
             location = tor.meeting.location if tor.meeting.location else "TBD"
         chair = tor.meeting.chair if tor.meeting.chair else "TBD"
 
+    expected_publications = ""
+    for t in tor.expected_document_types.all():
+        expected_publications += f"- {t}\n"
+
     field_dict = dict(
         TAG_TITLE=tor.process.tname,
         TAG_TYPE_SCOPE=tor.process.scope_type,
@@ -48,7 +52,7 @@ def generate_tor(tor, lang):
         TAG_CHAIR=chair,
         TAG_CONTEXT=tor.context_fr if lang == "fr" else tor.context_en,
         TAG_OBJECTIVES=tor.objectives_fr if lang == "fr" else tor.objectives_en,
-        TAG_EXPECTED_PUBLICATIONS=tor.expected_publications_fr if lang == "fr" else tor.expected_publications_en,
+        TAG_EXPECTED_PUBLICATIONS=expected_publications,
         TAG_PARTICIPATION=tor.participation_fr if lang == "fr" else tor.participation_en,
         TAG_REFERENCES=tor.references_fr if lang == "fr" else tor.references_en,
     )

@@ -319,11 +319,6 @@ class TermsOfReference(MetadataFields):
             return mark_safe(markdown(self.objectives_en))
 
     @property
-    def expected_publications_en_html(self):
-        if self.expected_publications_en:
-            return mark_safe(markdown(self.expected_publications_en))
-
-    @property
     def participation_en_html(self):
         if self.participation_en:
             return mark_safe(markdown(self.participation_en))
@@ -342,11 +337,6 @@ class TermsOfReference(MetadataFields):
     def objectives_fr_html(self):
         if self.objectives_fr:
             return mark_safe(markdown(self.objectives_fr))
-
-    @property
-    def expected_publications_fr_html(self):
-        if self.expected_publications_fr:
-            return mark_safe(markdown(self.expected_publications_fr))
 
     @property
     def participation_fr_html(self):

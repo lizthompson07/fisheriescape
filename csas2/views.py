@@ -582,14 +582,14 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
         obj.save()
         super().form_valid(form)
 
-        # now for the piece about NCR email
-        if obj.process.is_posted and \
-                (old_obj.expected_publications_en != obj.expected_publications_en or old_obj.expected_publications_fr != obj.expected_publications_fr):
-            if not obj.meeting:
-                messages.error(self.request, "tried to send an email to NCR but this TOR has no meeting!")
-            else:
-                email = emails.UpdatedMeetingEmail(self.request, obj.meeting, obj.process.tor)
-                email.send()
+        # # now for the piece about NCR email
+        # if obj.process.is_posted and \
+        #         (old_obj.expected_publications_en != obj.expected_publications_en or old_obj.expected_publications_fr != obj.expected_publications_fr):
+        #     if not obj.meeting:
+        #         messages.error(self.request, "tried to send an email to NCR but this TOR has no meeting!")
+        #     else:
+        #         email = emails.UpdatedMeetingEmail(self.request, obj.meeting, obj.process.tor)
+        #         email.send()
         return HttpResponseRedirect(self.get_success_url())
 
 
