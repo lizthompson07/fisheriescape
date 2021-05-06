@@ -219,10 +219,11 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": "50px"},
         {"name": 'fiscal_year', "class": "", "width": "100px"},
         {"name": 'ref_number', "class": "", "width": "150px"},
-        {"name": 'title|{}'.format("title"), "class": "", "width": ""},
+        {"name": 'title|{}'.format("title"), "class": "", "width": "300px"},
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'coordinator', "class": "", "width": "150px"},
-        {"name": 'section.full_name|{}'.format(_("Region/Sector")), "class": "", "width": "30%"},
+        {"name": 'region|{}'.format(_("region")), "class": "", "width": "150px"},
+        {"name": 'section|{}'.format(_("section")), "class": "", "width": "200px"},
     ]
 
     def get_queryset(self):

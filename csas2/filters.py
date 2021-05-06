@@ -34,7 +34,7 @@ class CSASRequestFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
-    has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
+    has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
 
     class Meta:
         model = models.CSASRequest
