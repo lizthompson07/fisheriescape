@@ -10,7 +10,7 @@
         ${ note.note }
       </div>
       <div class="float-right btn-group">
-        <note-editor :note="note" @update-notes="getNotes"></note-editor>
+        <note-editor v-if="!note.is_complete" :note="note" @update-notes="getNotes"></note-editor>
         <button class="btn btn-sm btn-outline-dark" @click="deleteNote">
           <span class="mdi mdi-delete"></span>
         </button>
@@ -72,7 +72,8 @@ Vue.component("note-card", {
       this.$emit("update-notes");
     },
     async deleteNote() {
-      let userInput = confirm("{% trans 'Are you certain you want to delete this Note?' %}")
+      let userInput = true;
+      if(!this.note.is_complete) userInput = confirm("{% trans 'Are you certain you want to delete this Note?' %}");
       if (userInput) {
         let endpoint = `/api/csas/process-notes/${this.note.id}/`;
         await apiService(endpoint, "DELETE");

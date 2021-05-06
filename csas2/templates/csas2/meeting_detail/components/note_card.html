@@ -73,7 +73,7 @@ Vue.component("note-card", {
     },
     async deleteNote() {
       let userInput = true;
-      if(!this.note.is_complete) userInput = confirm("{% trans 'Are you certain you want to delete this Note?' %}")
+      if(!this.note.is_complete) userInput = confirm("{% trans 'Are you certain you want to delete this Note?' %}");
       if (userInput) {
         let endpoint = `/api/csas/meeting-notes/${this.note.id}/`;
         await apiService(endpoint, "DELETE");
