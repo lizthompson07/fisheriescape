@@ -427,7 +427,7 @@ class Meeting(SimpleLookup, MetadataFields):
     @property
     def display(self):
         mystr = self.tname
-        if self.is_planning:
+        if mystr and self.is_planning:
             mystr += " ({})".format(gettext("planning"))
         return mystr
 

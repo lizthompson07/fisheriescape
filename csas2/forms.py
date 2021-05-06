@@ -216,7 +216,13 @@ class ProcessForm(forms.ModelForm):
         other_regions = cleaned_data.get("other_regions")
         coordinator = cleaned_data.get("coordinator")
         lead_region = cleaned_data.get("lead_region")
-
+        name = cleaned_data.get("name")
+        nom = cleaned_data.get("nom")
+        if not name and not nom:
+            error_msg = gettext("Must have either an English title or a French title!")
+            self.add_error('name', error_msg)
+            self.add_error('nom', error_msg)
+            raise forms.ValidationError(error_msg)
         if lead_region in other_regions:
             error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
             self.add_error('other_regions', error_msg)
