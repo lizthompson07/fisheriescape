@@ -84,7 +84,6 @@ class ProjectForm(forms.ModelForm):
         }
         labels = {
             'management_area': mark_safe('Management area:<a href="https://www.pac.dfo-mpo.gc.ca/fm-gp/maps-cartes/areas-secteurs/index-eng.html" target="_blank"> Map of Area 1-142</a> '),
-            'merged_number': 'Merged agreement number: Only fill this field out if you chose MERGED in the last field, otherwise leave blank'
         }
         help_texts = {
             'agreement_number': 'Most current and primary agreement number',
@@ -264,6 +263,7 @@ class MeetingsForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update(
                     {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
                      'data-container': 'body', 'data-html': "true"})
+
 
 class ReportsForm(forms.ModelForm):
     class Meta:

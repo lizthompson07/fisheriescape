@@ -2,14 +2,12 @@ from django.contrib import admin
 from . import models
 
 
-
+admin.site.register(models.HelpText)
 admin.site.register(models.OrgType)
 admin.site.register(models.Country)
 admin.site.register(models.Province)
 admin.site.register(models.FundingYear)
 admin.site.register(models.Role)
-admin.site.register(models.DocumentCategory)
-admin.site.register(models.DocumentTopic)
 admin.site.register(models.AgreementDatabase)
 admin.site.register(models.AgreementLineage)
 admin.site.register(models.OutcomeCategory)
@@ -20,9 +18,6 @@ admin.site.register(models.SalmonStage)
 admin.site.register(models.DataQualityType)
 admin.site.register(models.DataQualityLevel)
 admin.site.register(models.Location)
-admin.site.register(models.MethodCategory)
-admin.site.register(models.SpecificMethodType)
-admin.site.register(models.FormCategory)
 admin.site.register(models.Database)
 admin.site.register(models.ModelsUsed)
 admin.site.register(models.DataFormat)

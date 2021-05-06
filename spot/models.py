@@ -8,6 +8,10 @@ from django.core.mail import send_mail
 from django.urls import reverse
 
 
+class AgreementNumber(UnilingualSimpleLookup):
+    pass
+
+
 class PlanningMethod(UnilingualSimpleLookup):
     pass
 
@@ -368,7 +372,6 @@ class Method(models.Model):
     form_link = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("link to form"))
     ####
 
-
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
@@ -381,6 +384,34 @@ class Method(models.Model):
 
     class Meta:
         ordering = ['method_section']
+
+
+class Reports(models.Model):
+
+    report_timeline = models.ForeignKey(ReportTimeline, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_timeline', verbose_name=_("report timeline"))
+    report_topic = models.ForeignKey(ReportTopic, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_topic', verbose_name=_("report topic"))
+    report_form_project_level = models.ForeignKey(ReportLevel, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_form_project_level', verbose_name=_("report form project level"))
+    report_purpose = models.ForeignKey(ReportPurpose, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_purpose', verbose_name=_("report purpose"))
+    report_client = models.ForeignKey(ReportClient, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_client', verbose_name=_("report client"))
+
+    document_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document name"))
+    document_author = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document author"))
+    document_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document location"))
+    document_reference_information = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document reference information"))
+    document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document link"))
+
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{}".format(self.document_name)
+
+    class Meta:
+        ordering = ['report_topic']
 
 
 class DatabasesUsed(models.Model):
@@ -431,7 +462,7 @@ class Feedback(models.Model):
 
 class Objective(models.Model):
 
-    number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("number"))
+    agreement_number = models.ForeignKey(AgreementNumber, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="agreement_number", verbose_name=_("project agreement number"))
     work_plan_section = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("work plan section"))
     task_description = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("task description"))
 
@@ -478,7 +509,12 @@ class Objective(models.Model):
 
 class Project(models.Model):
 
-    agreement_number = models.ForeignKey(Objective, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("agreement number"))
+    objectives = models.ForeignKey(Objective, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("project objectives"))
+    methods = models.ForeignKey(Method, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("project methods"))
+    reports = models.ForeignKey(Reports, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("project reports"))
+
+
+    agreement_number = models.ForeignKey(AgreementNumber, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("agreement number"))
     #NEED TO MOVE LINEAGE
     agreement_lineage = models.ForeignKey(AgreementLineage, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='agreement_lineage', verbose_name=_("agreement lineage"))
     agreement_database = models.ForeignKey(AgreementDatabase, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='agreement_database', verbose_name=_("agreement database"))
@@ -515,7 +551,6 @@ class Project(models.Model):
     project_sub_type = models.ForeignKey(ProjectSubType, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_sub_type', verbose_name=_("project sub type"))
     project_theme = models.ForeignKey(ProjectTheme, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_theme', verbose_name=_("project theme"))
     project_stage = models.ForeignKey(ProjectStage, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='project_stage', verbose_name=_("project stage"))
-    merged_number = models.ForeignKey(Objective, default=None, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='merged_number', verbose_name=_("merged agreement number"))
     project_scale = models.ForeignKey(ProjectScale, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='project_scale', verbose_name=_("project scale"))
     monitoring_approach = models.ForeignKey(MonitoringApproach, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='monitoring_approach', verbose_name=_("monitoring approach"))
     core_component = models.ForeignKey(CoreComponent, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='core_component', verbose_name=_("core component"))
@@ -582,29 +617,6 @@ class Meetings(models.Model):
         ordering = ['name']
 
 
-class Reports(models.Model):
-
-    report_timeline = models.ForeignKey(ReportTimeline, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_timeline', verbose_name=_("report timeline"))
-    report_topic = models.ForeignKey(ReportTopic, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_topic', verbose_name=_("report topic"))
-    report_form_project_level = models.ForeignKey(ReportLevel, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_form_project_level', verbose_name=_("report form project level"))
-    report_purpose = models.ForeignKey(ReportPurpose, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_purpose', verbose_name=_("report purpose"))
-    report_client = models.ForeignKey(ReportClient, default=None, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='report_client', verbose_name=_("report client"))
-
-    document_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document name"))
-    document_author = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document author"))
-    document_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document location"))
-    document_reference_information = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document reference information"))
-    document_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document link"))
-
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        return super().save(*args, **kwargs)
-
-    def __str__(self):
-        return "{}".format(self.document_name)
-
-    class Meta:
-        ordering = ['report_topic']
+class HelpText(models.Model):
+    field_name = models.CharField()
+    description = models.TextField()
