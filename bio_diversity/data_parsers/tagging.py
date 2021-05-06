@@ -63,7 +63,7 @@ class TaggingParser(DataParser):
         year, coll = utils.year_coll_splitter(row[self.group_key])
         row_datetime = utils.get_row_date(row)
         row_date = row_datetime.date()
-        indv_ufid = utils.nan_to_none(row[self.ufid_key])
+        indv_ufid = utils.nan_to_none(row.get(self.ufid_key))
         indv = models.Individual(grp_id_id=self.grp_id,
                                  spec_id=self.salmon_id,
                                  stok_id=self.stok_id,

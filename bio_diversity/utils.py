@@ -56,7 +56,8 @@ class DataParser:
 
     def data_reader(self):
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
-                               converters=self.converters).dropna(how="all")
+                               converters=self.converters)
+        self.data = self.data.mask(self.data.eq('None')).dropna(how="all")
 
     def prep_data(self):
         if self.success:
@@ -328,7 +329,7 @@ def get_row_date(row):
 
 
 def comment_parser(comment_str, anix_indv, det_date):
-    data_entered = True
+    data_entered = False
     com_key_dict = get_comment_keywords_dict()
     parser_list = com_key_dict.keys()
     mortality = False

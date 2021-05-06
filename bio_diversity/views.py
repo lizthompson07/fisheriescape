@@ -5,6 +5,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.db.models import F
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
@@ -303,9 +305,17 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
-            context["template_url"] = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
-            if evnt_code == "spawning":
-                context["template_url"] = 'data_templates/{}-{}.xls'.format(facility_code, evnt_code)
+
+            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+
+            if evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
+                template_url = 'data_templates/{}-collection.xls'.format(facility_code)
+
+            if staticfiles_storage.exists(template_url):
+                context["template_url"] = template_url
+            else:
+                context["template_url"] = 'data_templates/measuring.xlsx'
+
             context["template_name"] = "{}-{}".format(facility_code, evnt_code)
         return context
 
@@ -1093,9 +1103,11 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "samp", "pair", "cont"])
+        context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "samp", "pair", "team", "cont"])
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True).select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id')
+                                                     indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True)\
+            .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
+
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
         evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_date|Start Date"]
         obj_mixin = mixins.EvntMixin
@@ -1131,6 +1143,23 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                           "objects_list": cnt_set,
                                           "field_list": cnt_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
+
+        anix_set = self.object.animal_details.filter(team_id__isnull=False) \
+            .select_related('team_id__role_id', 'team_id__perc_id', 'team_id__evnt_id')
+
+        evnt_team_anix_set = models.TeamXRef.objects.filter(evnt_id__in=evnt_list, perc_id=F("evnt_id__perc_id"),
+                                                            role_id__isnull=True, loc_id__isnull=True)
+
+        obj_list = [anix.team_id for anix in anix_set]
+        obj_list.extend(evnt_team_anix_set)
+        obj_list = list(dict.fromkeys(obj_list))
+        obj_field_list = ["perc_id", "role_id", "evnt_id"]
+        obj_mixin = mixins.TeamMixin
+        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": obj_list,
+                                           "field_list": obj_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
                                                           indvt_id__isnull=True, pair_id__isnull=True)
@@ -1226,7 +1255,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
                                                           indvt_id__isnull=True, pair_id__isnull=True)\
-            .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id')
+            .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_datetime"]
         obj_mixin = mixins.EvntMixin
@@ -1259,7 +1288,13 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
         anix_set = self.object.animal_details.filter(team_id__isnull=False)\
             .select_related('team_id__role_id', 'team_id__perc_id', 'team_id__evnt_id')
-        obj_list = list(dict.fromkeys([anix.team_id for anix in anix_set]))
+
+        evnt_team_anix_set = models.TeamXRef.objects.filter(evnt_id__in=evnt_list, perc_id=F("evnt_id__perc_id"),
+                                                            role_id__isnull=True, loc_id__isnull=True)
+
+        obj_list = [anix.team_id for anix in anix_set]
+        obj_list.extend(evnt_team_anix_set)
+        obj_list = list(dict.fromkeys(obj_list))
         obj_field_list = ["perc_id", "role_id", "evnt_id"]
         obj_mixin = mixins.TeamMixin
         context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
