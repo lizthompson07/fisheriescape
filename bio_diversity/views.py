@@ -785,7 +785,8 @@ class CommonContDetails(CommonDetails):
                                            "field_list": envt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        indv_list, grp_list = self.object.fish_in_cont(select_fields=["indv_id__grp_id__stok_id", "indv_id__grp_id__coll_id"])
+        indv_list, grp_list = self.object.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
+                                                                      "indv_id__grp_id__coll_id"])
         indv_field_list = ["ufid", "pit_tag", "grp_id", ]
         obj_mixin = mixins.IndvMixin
         context["context_dict"]["indv_cont"] = {"div_title": "Individuals in Container",
@@ -802,7 +803,20 @@ class CommonContDetails(CommonDetails):
                                                "field_list": grp_field_list,
                                                "single_object": obj_mixin.model.objects.first()}
 
-        context["table_list"].extend(["grp_cont", "indv_cont", "env", "envt", "cnt"])
+        contx_set = self.object.contxs.filter(team_id__isnull=False) \
+            .select_related('team_id__role_id', 'team_id__perc_id', 'team_id__evnt_id')
+
+        obj_list = [anix.team_id for anix in contx_set]
+        obj_list = list(dict.fromkeys(obj_list))
+        obj_field_list = ["perc_id", "role_id", "evnt_id"]
+        obj_mixin = mixins.TeamMixin
+        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": obj_list,
+                                           "field_list": obj_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
+        context["table_list"].extend(["grp_cont", "indv_cont", "env", "envt", "team", "cnt"])
 
         return context
 

@@ -17,7 +17,7 @@ from bio_diversity.data_parsers.spawning import mactaquac_spawning_parser, coldb
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
 from bio_diversity.data_parsers.temperatures import temperature_parser
 from bio_diversity.data_parsers.treatment import mactaquac_treatment_parser
-from bio_diversity.data_parsers.water_quality import mactaquac_water_quality_parser
+from bio_diversity.data_parsers.water_quality import WaterQualityParser
 
 
 class CreatePrams(forms.ModelForm):
@@ -263,8 +263,8 @@ class DataForm(CreatePrams):
 
             # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
-                if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, success = mactaquac_water_quality_parser(cleaned_data)
+                parser = WaterQualityParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -------------------------------SPAWNING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Spawning":

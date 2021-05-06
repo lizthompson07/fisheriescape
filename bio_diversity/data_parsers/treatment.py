@@ -8,6 +8,10 @@ from bio_diversity import models
 from bio_diversity import utils
 
 
+
+
+
+
 def mactaquac_treatment_parser(cleaned_data):
     log_data = "Loading Data Results: \n"
     rows_parsed = 0
