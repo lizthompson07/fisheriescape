@@ -45,7 +45,7 @@
           </p>
         </div>
       </div>
-      <div class="mb-3">
+      <div v-if="canModify" class="mb-3">
         <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
         <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
         <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
@@ -240,6 +240,7 @@
       errors: null,
       showTranslationTracking: true,
       showProcessTracking: false,
+      dueDateError: null,
     },
     methods: {
       changeTabs(tabFlag) {
@@ -264,6 +265,24 @@
             this.updateTracking({})
           } else {
             this.pubNumberError = data[0];
+          }
+        });
+      },
+      getDueDate() {
+        this.dueDateError = null;
+        let endpoint = `/api/csas/documents/${this.documentId}/?get_due_date=true`;
+
+        {#if (this.document.tracking[n + "_display"]) this.document.tracking[n] = this.document.tracking[n + "_display"] + "T12:00:00";#}
+        {#    else this.document.tracking[n] = null;#}
+
+        apiService(endpoint, "POST").then(data => {
+          if (data.due_date) {
+            this.document.tracking.due_date = data.due_date;
+            this.document.tracking.due_date_display = data.due_date.split("T")[0];
+            this.updateTracking({})
+          } else {
+            console.log(data)
+            this.dueDateError = data[0];
           }
         });
       },

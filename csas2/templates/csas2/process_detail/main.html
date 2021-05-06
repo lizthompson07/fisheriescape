@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div class="mb-3">
+    <div v-if="canModify" class="mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
       {% if object.tor %}
@@ -98,7 +98,7 @@
       <div class="neighbours">
         <h4>{% trans "Meetings" %}</h4>
       </div>
-      <div class="mb-2 neighbours">
+      <div v-if="canModify" class="mb-2 neighbours">
         <a class="btn btn-sm btn-primary py-0 px-1" href="{% url 'csas2:meeting_new' object.id %}">
           <span class="h5 mdi mdi-plus text-light"></span>
         </a>
@@ -136,7 +136,7 @@
       <div class="neighbours">
         <h4>{% trans "Documents" %}</h4>
       </div>
-      <div class="mb-2 neighbours">
+      <div v-if="canModify" class="mb-2 neighbours">
         <a class="btn btn-sm btn-primary py-0 px-1" href="{% url 'csas2:document_new' object.id %}">
           <span class="h5 mdi mdi-plus text-light"></span>
         </a>

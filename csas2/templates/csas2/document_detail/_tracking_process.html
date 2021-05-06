@@ -14,6 +14,12 @@
     @update-tracking="updateTracking"
   ></date-field-group>
 
+  <div class="mb-3" v-if="!document.tracking.due_date">
+    <button class="btn btn-xs btn-info" @click="getDueDate">{% trans "Give a Guess" %} </button>
+    <div v-if="dueDateError" class="alert alert-danger mt-2" role="alert">
+      <p>${dueDateError}</p>
+    </div>
+  </div>
 
   {# submission_date #}
   <date-field-group
@@ -194,7 +200,7 @@
         </p>
         <button class="btn btn-xs btn-info" @click="getPubNumber">{% trans "Generate Pub Number" %} </button>
         <div v-if="pubNumberError" class="alert alert-danger mt-2" role="alert">
-            <p>${pubNumberError}</p>
+          <p>${pubNumberError}</p>
         </div>
       </div>
       <char-group

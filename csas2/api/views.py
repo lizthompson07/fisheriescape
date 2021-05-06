@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -9,6 +9,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from unidecode import unidecode
 
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
@@ -297,6 +298,19 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 pub_number = f"{year}/{p_num}"
                 return Response(dict(pub_number=pub_number), status=status.HTTP_200_OK)
             raise ValidationError(_("Cannot generate a pub number if there is no anticipated posting date."))
+        elif qp.get("get_due_date"):
+            # due date can be guessed based on the document type
+            # but we also have to have a connected meeting!
+            if not doc.document_type.days_due:
+                raise ValidationError(_("Cannot guess at the due date because the document type has not pre-configuration. "
+                                        "Please talk to a national CSAS administrator to have this fixed!"))
+            if not doc.meetings.exists():
+                raise ValidationError(_("Cannot guess at the due date because there are no connected meetings to this document!"))
+            qs = doc.meetings.filter(end_date__isnull=False)
+            if not qs.exists():
+                raise ValidationError(_("Cannot guess at the due date because none of the connected meeting have end dates!"))
+            last_date = qs.order_by("end_date").last().end_date
+            return Response(dict(due_date=last_date), status=status.HTTP_200_OK)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
@@ -318,14 +332,6 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
         print(chair_qs)
         if chair_qs.exists():
             obj.chair = chair_qs.first().person
-
-        # due date can be guessed based on the document type
-        # but we also have to have a connected meeting!
-        if obj.document.document_type.days_due and obj.document.meetings.exists():
-            qs = obj.document.meetings.filter(end_date__isnull=False)
-            if qs.exists():
-                last_date = qs.order_by("end_date").last().end_date
-                obj.due_date = last_date + timedelta(days=obj.document.document_type.days_due)
 
         # assume proof will be sent to lead author. But if there is no lead author, default to next in line
         author_qs = obj.document.authors.order_by("-is_lead")
@@ -472,8 +478,9 @@ class PersonModelMetaAPIView(APIView):
     model = Person
 
     def get(self, request):
-        external_stamp = " ({})".format(_("external"))
-        person_choices = [dict(text="{} {}".format(p, external_stamp if not p.dmapps_user else ""), value=p.id) for p in Person.objects.all()]
+        external_stamp = " ({})".format(_("external").upper())
+        person_choices = [dict(text="{} {}".format(unidecode(str(p)), external_stamp if not p.dmapps_user else ""), value=p.id) for p in
+                          Person.objects.all()]
         person_choices.insert(0, dict(text="-----", value=None))
 
         data = dict()
@@ -521,9 +528,6 @@ class AuthorModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        person_choices = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
-        person_choices.insert(0, dict(text="-----", value=None))
-        data['person_choices'] = person_choices
         return Response(data)
 
 

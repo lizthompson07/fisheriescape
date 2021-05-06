@@ -269,12 +269,21 @@ class DocumentForm(forms.ModelForm):
         model = models.Document
         fields = "__all__"
         widgets = {
-            'meetings': forms.SelectMultiple(attrs=multi_select_js),
+            'meetings': forms.SelectMultiple(attrs=chosen_js),
 
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if kwargs.get("instance"):
+            process = kwargs.get("instance").process
+        else:
+            process = get_object_or_404(models.Process, pk=kwargs.get("initial").get("process"))
+        # meeting_choices
+        meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.all()]
+        meeting_choices.insert(0, (None, "-----"))
+        self.fields["meetings"].choices = meeting_choices
+
         if not kwargs.get("instance"):
             del self.fields["year"]
             del self.fields["pages"]
