@@ -429,7 +429,10 @@ class Meeting(SimpleLookup, MetadataFields):
         mystr = self.tname
         if mystr and self.is_planning:
             mystr += " ({})".format(gettext("planning"))
-        return mystr
+            return mystr
+        else:
+            return gettext("untitled meeting")
+
 
     def __str__(self):
         return self.display
