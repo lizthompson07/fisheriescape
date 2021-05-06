@@ -223,8 +223,8 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'status', "class": "", "width": "100px"},
         {"name": 'coordinator', "class": "", "width": "150px"},
         {"name": 'client', "class": "", "width": "150px"},
-        {"name": 'region|{}'.format(_("region")), "class": "", "width": ""},
-        {"name": 'section|{}'.format(_("section")), "class": "", "width": "250px"},
+        {"name": 'region|{}'.format(_("region")), "class": "", "width": "75px"},
+        {"name": 'section|{}'.format(_("section")), "class": "", "width": ""},
     ]
 
     def get_queryset(self):
