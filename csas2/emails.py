@@ -95,7 +95,7 @@ class UpdatedMeetingEmail(Email):
         return [csas_generic_email]
 
     def __init__(self, request, meeting, old_meeting=None, new_expected_publications_en=None, old_expected_publications_en=None,
-                 new_expected_publications_fr=None, old_expected_publications_fr=None):
+                 new_expected_publications_fr=None, old_expected_publications_fr=None, new_chair=None, old_chair=None):
         super().__init__(request)
         self.request = request
         self.meeting = meeting
@@ -104,20 +104,23 @@ class UpdatedMeetingEmail(Email):
         self.old_expected_publications_en = old_expected_publications_en
         self.new_expected_publications_fr = new_expected_publications_fr
         self.old_expected_publications_fr = old_expected_publications_fr
+        self.new_chair = new_chair
+        self.old_chair = old_chair
 
     def get_context_data(self):
         context = super().get_context_data()
         old_meeting = self.old_meeting
         if not old_meeting:
             old_meeting = self.meeting
-
+        print(self.meeting)
         context.update({
             'old_meeting': old_meeting,
             'meeting': self.meeting,
             'new_expected_publications_en': self.new_expected_publications_en,
             'old_expected_publications_en': self.old_expected_publications_en,
             'new_expected_publications_fr': self.new_expected_publications_fr,
-            'old_expected_publications_fr': self.old_expected_publications_fr
-
+            'old_expected_publications_fr': self.old_expected_publications_fr,
+            'new_chair': self.new_chair,
+            'old_chair': self.old_chair,
         })
         return context

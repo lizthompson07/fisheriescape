@@ -32,12 +32,12 @@
     {% if meeting.location != old_meeting.location %}
       <b>Location: </b>{{ meeting.location }} <br>
     {% endif %}
-    {% if meeting.chair != old_meeting.chair %}
-      <b>Chair: </b>{{ meeting.chair }} <br>
+    {% if old_chair != new_chair %}
+      <b>Chair: </b>{{ new_chair }} <br>
     {% endif %}
     {% if old_expected_publications_en != new_expected_publications_en %}
-      <b>Expected publications (English): </b>{{ meeting.expected_publications_en }} <br>
-      <b>Expected publications (French): </b>{{ meeting.expected_publications_fr }} <br>
+      <b>Expected publications (English): </b>{{ new_expected_publications_en }} <br>
+      <b>Expected publications (French): </b>{{ new_expected_publications_fr }} <br>
     {% endif %}
   </p>
 

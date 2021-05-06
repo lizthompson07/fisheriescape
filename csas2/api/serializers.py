@@ -362,6 +362,14 @@ class MeetingSerializer(serializers.ModelSerializer):
     total_cost = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
     somp_notification_date = serializers.SerializerMethodField()
+    is_posted = serializers.SerializerMethodField()
+    has_tor = serializers.SerializerMethodField()
+
+    def get_has_tor(self, instance):
+        return hasattr(instance, "tor")
+
+    def get_is_posted(self, instance):
+        return instance.process.is_posted
 
     def get_somp_notification_date(self, instance):
         return date(instance.somp_notification_date)

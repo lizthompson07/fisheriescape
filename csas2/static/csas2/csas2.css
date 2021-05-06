@@ -138,9 +138,11 @@ h1 {
 .w300 {
     width: 300px;
 }
+
 .w400 {
     width: 300px;
 }
+
 .pointy {
     cursor: pointer;
 }
@@ -288,7 +290,7 @@ label.filter {
 
 }
 
-.tabby{
+.tabby {
     border-top: #868484 1px solid;
     border-left: #868484 1px solid;
     border-right: #868484 1px solid;
@@ -296,10 +298,16 @@ label.filter {
 }
 
 
-.tracking-card{
+.tracking-card {
     background-color: #e7e6e6;
     margin-top: 15px;
     margin-bottom: 15px;
     border: #868484 1px solid;
 
+}
+
+.dotted {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    cursor: help;
 }

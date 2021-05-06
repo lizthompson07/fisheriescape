@@ -182,10 +182,26 @@ class InviteeViewSet(viewsets.ModelViewSet):
     # pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
+        meeting = get_object_or_404(models.Meeting, pk=self.request.data.get("meeting"))
+        old_chair = meeting.chair
         serializer.save()
+        new_chair = meeting.chair
+
+        # now for the piece about NCR email
+        if meeting.process.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
+            email = emails.UpdatedMeetingEmail(self.request, meeting, old_chair=old_chair, new_chair=new_chair)
+            email.send()
 
     def perform_update(self, serializer):
-        obj = serializer.save(updated_by=self.request.user)
+        meeting = get_object_or_404(models.Invitee, pk=self.kwargs.get("pk")).meeting
+        old_chair = meeting.chair
+        obj = serializer.save()
+        new_chair = meeting.chair
+
+        # now for the piece about NCR email
+        if meeting.process.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
+            email = emails.UpdatedMeetingEmail(self.request, meeting, old_chair=old_chair, new_chair=new_chair)
+            email.send()
 
         # it is important to use the try/except approach because this way
         # it can differentiate between  1) no dates value being passed or 2) a null value (i.e. clear all attendance)

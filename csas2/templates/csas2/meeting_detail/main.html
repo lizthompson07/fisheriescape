@@ -33,10 +33,18 @@
       </div>
       {% bootstrap_messages %}
       <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
-          <p class="mb-0">
-            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
-          </p>
-        </div>
+        <p class="mb-0">
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+        </p>
+      </div>
+      <div v-if="meeting.is_posted && meeting.has_tor" class="alert alert-warning no-print" role="alert" style="width: 90%">
+        <p class="h6">
+          {% blocktrans %}
+            This meeting / process has already been posted to the national CSAS website.
+            Changes made to <span class="dotted" data-toggle="tooltip" title="Title (English and French), Location, Dates, Chair, Expected Publications (from ToR)">certain fields</span> of this meeting will automatically trigger a notification email to be sent to the national CSAS team.
+          {% endblocktrans %}
+        </p>
+      </div>
     </div>
 
     <div v-if="canModify" class="mb-3">
