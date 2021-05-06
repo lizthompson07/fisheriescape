@@ -69,7 +69,7 @@ def generate_tor(tor, lang):
     return target_url
 
 
-def generate_meeting_report(fiscal_year=None):
+def generate_meeting_report(fiscal_year=None, is_posted=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -88,12 +88,17 @@ def generate_meeting_report(fiscal_year=None):
     date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
 
     # get the meeting list
-    objects = models.Meeting.objects.filter(type__in=[3, 4])
+    objects = models.Meeting.objects.filter(is_planning=False)
     if fiscal_year:
         objects = objects.filter(process__fiscal_year=fiscal_year)
 
+    if is_posted is not None:
+        objects = objects.filter(process__is_posted=is_posted)
+
     field_list = [
         'process.fiscal_year|fiscal year',
+        'process.is_posted|Has been posted?',
+        'process.name|Process name',
         'process.scope_type|type of process',
         'tor_display_dates|meeting dates',
         'process.name|meeting name (English)',
@@ -129,7 +134,10 @@ def generate_meeting_report(fiscal_year=None):
                 my_val = listrify(obj.process.advisors.all())
                 my_ws.write(i, j, my_val, normal_format)
             elif "expected publications" in field:
-                my_val = obj.process.tor.expected_publications_en if hasattr(obj.process, "tor") else ""
+                if hasattr(obj.process, "tor"):
+                    my_val = listrify(obj.process.tor.expected_document_types.all())
+                else:
+                    my_val = "n/a"
                 my_ws.write(i, j, my_val, normal_format)
             else:
                 my_val = str(get_field_value(obj, field))

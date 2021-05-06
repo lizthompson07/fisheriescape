@@ -87,7 +87,6 @@ class PostedProcessEmail(Email):
         return list(set(mylist))
 
 
-
 class UpdatedMeetingEmail(Email):
     email_template_path = 'csas2/emails/updated_meeting.html'
     subject_en = 'Some information has been updated on a posted meeting'
@@ -95,17 +94,30 @@ class UpdatedMeetingEmail(Email):
     def get_recipient_list(self):
         return [csas_generic_email]
 
-    def __init__(self, request, meeting, tor, old_meeting=None):
+    def __init__(self, request, meeting, old_meeting=None, new_expected_publications_en=None, old_expected_publications_en=None,
+                 new_expected_publications_fr=None, old_expected_publications_fr=None):
         super().__init__(request)
         self.request = request
-        self.old_meeting = old_meeting
         self.meeting = meeting
-        self.tor = tor
+        self.old_meeting = old_meeting
+        self.new_expected_publications_en = new_expected_publications_en
+        self.old_expected_publications_en = old_expected_publications_en
+        self.new_expected_publications_fr = new_expected_publications_fr
+        self.old_expected_publications_fr = old_expected_publications_fr
 
     def get_context_data(self):
         context = super().get_context_data()
         old_meeting = self.old_meeting
         if not old_meeting:
             old_meeting = self.meeting
-        context.update({'old_meeting': old_meeting, 'meeting': self.meeting, 'tor': self.tor})
+
+        context.update({
+            'old_meeting': old_meeting,
+            'meeting': self.meeting,
+            'new_expected_publications_en': self.new_expected_publications_en,
+            'old_expected_publications_en': self.old_expected_publications_en,
+            'new_expected_publications_fr': self.new_expected_publications_fr,
+            'old_expected_publications_fr': self.old_expected_publications_fr
+
+        })
         return context

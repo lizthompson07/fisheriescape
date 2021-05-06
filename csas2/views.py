@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpRespons
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
 
@@ -122,7 +123,6 @@ def toggle_user(request, pk, type):
 
     else:
         return HttpResponseForbidden("sorry, not authorized")
-
 
 
 # people #
@@ -544,6 +544,13 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
     submit_text = gettext_lazy("Initiate ToR")
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
+    def get_h3(self):
+        if self.get_process().is_posted:
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
+                _("This process has already been posted therefore changes to the ToR "
+                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            return mark_safe(mystr)
+
     def get_initial(self):
         """ For the benefit of the form class"""
         return dict(
@@ -560,6 +567,15 @@ class TermsOfReferenceCreateView(CanModifyProcessRequiredMixin, CommonCreateView
         obj = form.save(commit=False)
         obj.process = self.get_process()
         obj.created_by = self.request.user
+
+        super().form_valid(form)
+
+        # now for the piece about NCR email
+        if obj.process.is_posted and obj.meeting:
+            email = emails.UpdatedMeetingEmail(self.request, obj.meeting, obj.meeting, obj.meeting.expected_publications_en, "",
+                                               obj.meeting.expected_publications_fr, "")
+            email.send()
+
         return super().form_valid(form)
 
 
@@ -570,6 +586,13 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
+    def get_h3(self):
+        if self.get_object().process.is_posted:
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
+                _("This process has already been posted therefore changes to the ToR "
+                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            return mark_safe(mystr)
+
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
                 "url": reverse_lazy("csas2:process_detail", args=[self.get_object().process.id])}
@@ -579,17 +602,27 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
         obj.updated_by = self.request.user
 
         old_obj = models.TermsOfReference.objects.get(pk=obj.id)
+
+        old_expected_publications_en = ""
+        old_expected_publications_fr = ""
+        old_meeting = old_obj.meeting
+        if old_meeting:
+            old_expected_publications_en = old_meeting.expected_publications_en
+            old_expected_publications_fr = old_meeting.expected_publications_fr
         obj.save()
         super().form_valid(form)
 
-        # # now for the piece about NCR email
-        # if obj.process.is_posted and \
-        #         (old_obj.expected_publications_en != obj.expected_publications_en or old_obj.expected_publications_fr != obj.expected_publications_fr):
-        #     if not obj.meeting:
-        #         messages.error(self.request, "tried to send an email to NCR but this TOR has no meeting!")
-        #     else:
-        #         email = emails.UpdatedMeetingEmail(self.request, obj.meeting, obj.process.tor)
-        #         email.send()
+        new_meeting = obj.meeting
+        if new_meeting:
+            # have to capture diff as string due to m2m...
+            new_expected_publications_en = new_meeting.expected_publications_en
+            new_expected_publications_fr = new_meeting.expected_publications_fr
+
+            # now for the piece about NCR email
+            if obj.process.is_posted and (old_meeting != new_meeting or old_expected_publications_en != new_expected_publications_en):
+                email = emails.UpdatedMeetingEmail(self.request, new_meeting, old_meeting, old_expected_publications_en, new_expected_publications_en,
+                                                   old_expected_publications_fr, new_expected_publications_fr)
+                email.send()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -724,13 +757,20 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-
 class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     model = models.Meeting
     form_class = forms.MeetingForm
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     greatgrandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
+
+    def get_h3(self):
+        obj = self.get_object()
+        if obj.process.is_posted and hasattr(obj, "tor"):
+            mystr = '<div class="alert alert-warning" role="alert"><p class="lead">{}</p></div>'.format(
+                _("This process has already been posted therefore changes to the meeting details "
+                  "will automatically trigger a notification to be sent to the national CSAS team."))
+            return mark_safe(mystr)
 
     def get_initial(self):
         obj = self.get_object()
@@ -767,13 +807,11 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
         obj.save()
 
         # now for the piece about NCR email
-        if obj.process.is_posted and not obj.is_planning and \
-                (old_obj.name != obj.name or old_obj.nom != obj.nom or old_obj.location != obj.location or old_obj.tor_display_dates != obj.tor_display_dates):
-            if not hasattr(obj.process, "tor"):
-                messages.error(self.request, "tried to send an email to NCR but this process has no TOR!")
-            else:
-                email = emails.UpdatedMeetingEmail(self.request, obj, obj.process.tor, old_obj)
-                email.send()
+        if obj.process.is_posted and hasattr(obj, "tor") and \
+                (old_obj.name != obj.name or old_obj.nom != obj.nom or old_obj.location != obj.location
+                 or old_obj.tor_display_dates != obj.tor_display_dates or old_obj.expected_publications_en != obj.expected_publications_en):
+            email = emails.UpdatedMeetingEmail(self.request, obj, old_obj)
+            email.send()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -967,9 +1005,9 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
-
+        is_posted = form.cleaned_data["is_posted"] if form.cleaned_data["is_posted"] != "" else "None"
         if report == 1:
-            return HttpResponseRedirect(f"{reverse('csas2:meeting_report')}?fiscal_year={fy}")
+            return HttpResponseRedirect(f"{reverse('csas2:meeting_report')}?fiscal_year={fy}&is_posted={is_posted}")
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("csas2:reports"))
 
@@ -977,14 +1015,14 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
 @login_required()
 def meeting_report(request):
     qp = request.GET
-    year = None if not qp.get("fiscal_year") else int(qp.get("fiscal_year"))
-    file_url = reports.generate_meeting_report(fiscal_year=year)
+    year = None if qp.get("fiscal_year") == "None" else int(qp.get("fiscal_year"))
+    is_posted = None if qp.get("is_posted") == "None" else bool(qp.get("is_posted"))
+    file_url = reports.generate_meeting_report(fiscal_year=year, is_posted=is_posted)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
-            fy = get_object_or_404(FiscalYear, pk=year)
+            fy = get_object_or_404(FiscalYear, pk=year) if year else "all years"
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="CSAS meetings ({fy}).xlsx"'
-
             return response
     raise Http404

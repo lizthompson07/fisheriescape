@@ -8,7 +8,7 @@ from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _, gettext, get_language
+from django.utils.translation import gettext_lazy as _, gettext, get_language, activate, deactivate
 from markdown import markdown
 
 from csas2 import model_choices
@@ -415,12 +415,9 @@ class Meeting(SimpleLookup, MetadataFields):
     @property
     def display(self):
         mystr = self.tname
-        if mystr and self.is_planning:
+        if self.is_planning:
             mystr += " ({})".format(gettext("planning"))
-            return mystr
-        else:
-            return gettext("untitled meeting")
-
+        return mystr
 
     def __str__(self):
         return self.display
@@ -479,6 +476,26 @@ class Meeting(SimpleLookup, MetadataFields):
             return dates
         else:
             return f"{self.get_est_quarter_display()} {self.est_year}"
+
+    @property
+    def expected_publications_en(self):
+        """ this is mainly for the email that gets sent to NCR when there is a change on a posted meeting """
+        if hasattr(self.process, "tor"):
+            lang = get_language()
+            activate("en")
+            mystr = listrify(self.process.tor.expected_document_types.all())
+            activate(lang)
+            return mystr
+
+    @property
+    def expected_publications_fr(self):
+        """ this is mainly for the email that gets sent to NCR when there is a change on a posted meeting """
+        if hasattr(self.process, "tor"):
+            lang = get_language()
+            activate("fr")
+            mystr = listrify(self.process.tor.expected_document_types.all())
+            activate(lang)
+            return mystr
 
     @property
     def total_cost(self):

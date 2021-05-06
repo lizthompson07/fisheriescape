@@ -6,34 +6,40 @@
     Dear CSAS,
   </p>
   <p>
-    This is an automated message to notify you that the process entitled,
+    This is an automated message to notify you that the posted process entitled,
     <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' meeting.process.id %}">{{ meeting.process.tname }}</a>,
     has been modified.
   </p>
 
-  <ul> Here are the original details:</ul>
+  <u> Here are the original details:</u>
   <p>
-    English title: {{ old_meeting.name }} <br>
-    French title: {{ old_meeting.nom }} <br>
-    Dates: {{ old_meeting.tor_display_dates }} <br>
+    <b>Title (English): </b>{{ old_meeting.name }} <br>
+    <b>Title (French): </b>{{ old_meeting.nom }} <br>
+    <b>Dates: </b>{{ old_meeting.tor_display_dates }} <br>
   </p>
 
-  <ul> Here are the new details:</ul>
+  <u> Here are the details that have changed:</u>
   <p>
-    Title (English): {{ meeting.name }} <br>
-    Title (French): {{ meeting.nom }} <br>
-    Dates: {{ meeting.tor_display_dates }} <br>
-    Location: {{ meeting.location }} <br>
-    Chair: {{ meeting.chair }} <br>
+    {% if meeting.name != old_meeting.name %}
+      <b>Title (English): </b>{{ meeting.name }} <br>
+    {% endif %}
+    {% if meeting.nom != old_meeting.nom %}
+      <b>Title (French): </b>{{ meeting.nom }} <br>
+    {% endif %}
+    {% if meeting.tor_display_dates != old_meeting.tor_display_dates %}
+      <b>Dates: </b>{{ meeting.tor_display_dates }} <br>
+    {% endif %}
+    {% if meeting.location != old_meeting.location %}
+      <b>Location: </b>{{ meeting.location }} <br>
+    {% endif %}
+    {% if meeting.chair != old_meeting.chair %}
+      <b>Chair: </b>{{ meeting.chair }} <br>
+    {% endif %}
+    {% if old_expected_publications_en != new_expected_publications_en %}
+      <b>Expected publications (English): </b>{{ meeting.expected_publications_en }} <br>
+      <b>Expected publications (French): </b>{{ meeting.expected_publications_fr }} <br>
+    {% endif %}
   </p>
-  <div class="">
-    Expected publications (English):
-    {{ tor.expected_publications_en_html }}
-  </div>
-  <div class="">
-    Expected publications (French):
-    {{ tor.expected_publications_fr_html }}
-  </div>
 
 
 {% endlanguage %}

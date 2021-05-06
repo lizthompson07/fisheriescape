@@ -54,13 +54,19 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal year'))
+    is_posted = forms.ChoiceField(required=False, label=gettext_lazy('Posted processes?'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        posted_choices = (
+            ("", "All meetings"),
+            (1, gettext("Only posted")),
+            (0, gettext("Only un-posted")),
+        )
         fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(processes__isnull=False).distinct()]
-        fy_choices.insert(0, (None, "-----"))
+        fy_choices.insert(0, (None, "All"))
         self.fields["fiscal_year"].choices = fy_choices
+        self.fields["is_posted"].choices = posted_choices
 
 
 class CSASRequestForm(forms.ModelForm):
