@@ -38,7 +38,7 @@
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
       {% if object.tor %}
         <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_edit' object.tor.id %}">
-          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Modify ToR" %}
         </a>
         <div class="neighbours">
           <div class="dropdown">
@@ -57,7 +57,7 @@
         </div>
       {% else %}
         <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_new' object.id %}">
-          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate ToR" %}
         </a>
       {% endif %}
 

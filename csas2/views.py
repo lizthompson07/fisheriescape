@@ -580,7 +580,8 @@ class TermsOfReferenceUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView
 
         old_obj = models.TermsOfReference.objects.get(pk=obj.id)
         obj.save()
-        print(123)
+        super().form_valid(form)
+
         # now for the piece about NCR email
         if obj.process.is_posted and \
                 (old_obj.expected_publications_en != obj.expected_publications_en or old_obj.expected_publications_fr != obj.expected_publications_fr):

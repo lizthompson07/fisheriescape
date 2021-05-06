@@ -308,6 +308,7 @@ class TermsOfReference(MetadataFields):
     meeting = models.OneToOneField("Meeting", blank=True, null=True, on_delete=models.DO_NOTHING, related_name="tor",
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
+    expected_document_types = models.ManyToManyField("DocumentType", blank=True, verbose_name=_("expected publications"))
 
     @property
     def context_en_html(self):

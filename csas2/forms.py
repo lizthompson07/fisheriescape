@@ -129,6 +129,9 @@ class TermsOfReferenceForm(forms.ModelForm):
     class Meta:
         model = models.TermsOfReference
         fields = "__all__"
+        widgets = {
+            'expected_document_types': forms.SelectMultiple(attrs=chosen_js),
+        }
 
     def __init__(self, *args, **kwargs):
         if kwargs.get("instance"):
@@ -137,8 +140,12 @@ class TermsOfReferenceForm(forms.ModelForm):
             process = get_object_or_404(models.Process, pk=kwargs.get("initial").get("process"))
         meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.all()]
         meeting_choices.insert(0, (None, "-----"))
+        document_type_choices = [(obj.id, f"{str(obj)}") for obj in models.DocumentType.objects.filter(hide_from_list=False)]
+        document_type_choices.insert(0, (None, "-----"))
+
         super().__init__(*args, **kwargs)
         self.fields["meeting"].choices = meeting_choices
+        self.fields["expected_document_types"].choices = document_type_choices
 
     # def clean(self):
     #     cleaned_data = super().clean()
