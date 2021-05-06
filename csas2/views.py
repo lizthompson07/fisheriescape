@@ -101,22 +101,22 @@ class UserListView(CsasNationalAdminRequiredMixin, CommonFilterView):
         return context
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def toggle_user(request, pk, type):
-    if in_projects_admin_group(request.user):
-        my_user = User.objects.get(pk=pk)
-        admin_group = Group.objects.get(name="projects_admin")
-        if type == "admin":
-            # if the user is in the admin group, remove them
-            if admin_group in my_user.groups.all():
-                my_user.groups.remove(admin_group)
-            # otherwise add them
-            else:
-                my_user.groups.add(admin_group)
-        return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-    else:
-        return HttpResponseForbidden("sorry, not authorized")
+# @login_required(login_url='/accounts/login/')
+# @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
+# def toggle_user(request, pk, type):
+#     if in_projects_admin_group(request.user):
+#         my_user = User.objects.get(pk=pk)
+#         admin_group = Group.objects.get(name="projects_admin")
+#         if type == "admin":
+#             # if the user is in the admin group, remove them
+#             if admin_group in my_user.groups.all():
+#                 my_user.groups.remove(admin_group)
+#             # otherwise add them
+#             else:
+#                 my_user.groups.add(admin_group)
+#         return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+#     else:
+#         return HttpResponseForbidden("sorry, not authorized")
 
 
 
