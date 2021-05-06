@@ -8,7 +8,7 @@ from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _, gettext, get_language, activate, deactivate
+from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
 
 from csas2 import model_choices
@@ -42,6 +42,30 @@ class GenericFile(models.Model):
 
     def __str__(self):
         return self.caption
+
+
+class GenericCost(models.Model):
+    cost_category = models.IntegerField(choices=model_choices.cost_category_choices, verbose_name=_("cost category"))
+    description = models.CharField(max_length=1000, blank=True, null=True)
+    funding_source = models.CharField(max_length=255, blank=True, null=True)
+    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
+
+    def save(self, *args, **kwargs):
+        if not self.amount: self.amount = 0
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+
+class GenericNote(MetadataFields):
+    type = models.IntegerField(choices=model_choices.note_type_choices, verbose_name=_("type"))
+    note = models.TextField(verbose_name=_("note"))
+    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
+
+    class Meta:
+        abstract = True
+        ordering = ["is_complete", "-updated_at", ]
 
 
 class CSASRequest(MetadataFields):
@@ -349,28 +373,9 @@ class TermsOfReference(MetadataFields):
             return mark_safe(markdown(self.references_fr))
 
 
-class GenericCost(models.Model):
-    cost_category = models.IntegerField(choices=model_choices.cost_category_choices, verbose_name=_("cost category"))
-    description = models.CharField(max_length=1000, blank=True, null=True)
-    funding_source = models.CharField(max_length=255, blank=True, null=True)
-    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
-
-    def save(self, *args, **kwargs):
-        if not self.amount: self.amount = 0
-        super().save(*args, **kwargs)
-
-    class Meta:
-        abstract = True
-
-
-class GenericNote(MetadataFields):
-    type = models.IntegerField(choices=model_choices.note_type_choices, verbose_name=_("type"))
-    note = models.TextField(verbose_name=_("note"))
-    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
-
-    class Meta:
-        abstract = True
-        ordering = ["is_complete", "-updated_at", ]
+class ProcessNote(GenericNote):
+    ''' a note pertaining to a process'''
+    process = models.ForeignKey(Process, related_name='notes', on_delete=models.CASCADE)
 
 
 class Meeting(SimpleLookup, MetadataFields):
