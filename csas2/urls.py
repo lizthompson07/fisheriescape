@@ -12,7 +12,7 @@ urlpatterns = [
     path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
     # permissions
     path('settings/user-permissions/', views.UserListView.as_view(), name='user_list'),
-    # path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+    path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
 
 
     # people #

@@ -2,11 +2,11 @@ import os
 from datetime import datetime
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -97,26 +97,31 @@ class UserListView(CsasNationalAdminRequiredMixin, CommonFilterView):
         context = super().get_context_data(**kwargs)
         nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
         reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
-        context["nat_group"] = Group.objects.get(name="projects_admin")
+        context["nat_group"] = nat_group
+        context["reg_group"] = reg_group
         return context
 
 
-# @login_required(login_url='/accounts/login/')
-# @user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-# def toggle_user(request, pk, type):
-#     if in_projects_admin_group(request.user):
-#         my_user = User.objects.get(pk=pk)
-#         admin_group = Group.objects.get(name="projects_admin")
-#         if type == "admin":
-#             # if the user is in the admin group, remove them
-#             if admin_group in my_user.groups.all():
-#                 my_user.groups.remove(admin_group)
-#             # otherwise add them
-#             else:
-#                 my_user.groups.add(admin_group)
-#         return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
-#     else:
-#         return HttpResponseForbidden("sorry, not authorized")
+@login_required(login_url='/accounts/login/')
+@user_passes_test(utils.in_csas_national_admin_group, login_url='/accounts/denied/')
+def toggle_user(request, pk, type):
+    if utils.in_csas_national_admin_group(request.user):
+        my_user = User.objects.get(pk=pk)
+        nat_group, created = Group.objects.get_or_create(name="csas_national_admin")
+        reg_group, created = Group.objects.get_or_create(name="csas_regional_admin")
+        group = None
+        if type == "nat":
+            group = nat_group
+        elif type == "reg":
+            group = reg_group
+        if group:
+            my_user.groups.remove(group) if group in my_user.groups.all() else my_user.groups.add(group)
+            return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+        else:
+            return HttpResponseNotFound("Sorry, group type not recognized")
+
+    else:
+        return HttpResponseForbidden("sorry, not authorized")
 
 
 
