@@ -122,6 +122,23 @@ class ContxAPIView(BioAPIView):
         data = serializer.data
         return Response(data)
 
+# Count
+############################
+class CountAPIView(BioAPIView):
+    model = models.Count
+
+    def get(self, request):
+        super().get(request)
+
+        if request.query_params.get("group"):
+            grp_pk = request.query_params.get("group")
+            anix_set = models.AniDetailXref.objects.filter(grp_id=grp_pk, contx_id__isnull=False).select_related('contx_id')
+            contx_list = [anix.contx_id for anix in anix_set]
+            self.model_instances = self.model_instances.filter(contx_id__in=contx_list).distinct()
+        serializer = serializers.CountDisplaySerializer(instance=self.model_instances, many=True)
+        data = serializer.data
+        return Response(data)
+
 
 # Group
 ############################

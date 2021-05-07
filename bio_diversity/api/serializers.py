@@ -75,6 +75,17 @@ class ContxDisplaySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CountDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Count
+        fields = "__all__"
+
+    count_code = serializers.SerializerMethodField()
+
+    def get_count_code(self, instance):
+        return instance.cntc_id.__str__()
+
+
 class GroupDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Group
