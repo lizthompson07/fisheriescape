@@ -69,9 +69,8 @@ meeting_quarter_choices = (
 )
 
 note_type_choices = (
-    (1, 'To Do'),
-    (2, 'Next step'),
-    (3, 'General comment'),
+    (1, 'General comment'),
+    (2, 'To Do'),
 )
 
 # document_type_choices = (
