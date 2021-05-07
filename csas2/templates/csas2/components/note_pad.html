@@ -1,0 +1,244 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="note-pad-template">
+
+<div>
+  <div class="card notepad">
+    <div class="card-body py-2">
+
+      <div class="my-2 float-right">
+        <button @click="openOverlay" class="btn btn-xs btn-success py-0 px-1">
+          <span class="mdi mdi-plus text-light"></span>
+          {% trans "New Note" %}
+        </button>
+      </div>
+
+      <div class="card-text">
+        <div class="mb-4" v-if="generalNotes.length">
+          <p class="card-title py-0 lead text-muted">{% trans "General" %}</p>
+          <table>
+            <tr v-for="n, index in generalNotes" :key="n.id">
+              <td class="pb-3">
+                <div class="mb-2">
+                  <em class="small mb-1" v-html="n.last_modified"></em><br><span :class="{strike:n.is_complete}">${n.note}</span>
+                </div>
+                <div class="btn-group">
+                  <button v-if="!n.is_complete" class="btn btn-xs px-0 py-0 mr-2" @click="openOverlay(n)">
+                    <span class=" text-primary">{% trans "Edit" %}</span>
+                  </button>
+                  <button class="btn btn-xs px-0 py-0 mr-2" @click="deleteNote(n)">
+                    <span class="text-danger">{% trans "Delete" %}</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="mb-3" v-if="toDoNotes.length">
+          <hr v-if="generalNotes.length">
+          <p class="card-title py-0 lead text-muted">{% trans "To Do" %}</p>
+          <table>
+            <tr v-for="n, index in toDoNotes" :key="n.id">
+              <td style="vertical-align: top">
+                <button class="btn btn-sm px-0 py-0 mr-2" style="vertical-align: top" @click="toggleComplete(n)">
+                  <span v-if="!n.is_complete" class="py-0 my-0 mdi mdi-checkbox-blank-outline"></span>
+                  <span v-else class="py-0 my-0 mdi mdi-checkbox-marked-outline"></span>
+                </button>
+              </td>
+              <td class="pb-2">
+                <em class="small" v-html="n.last_modified"></em><br><span :class="{strike:n.is_complete}">${n.note}</span>
+                <br>
+                <div class="btn-group">
+                  <button v-if="!n.is_complete" class="btn btn-xs px-0 py-0 mr-2" @click="openOverlay(n)">
+                    <span class=" text-primary">{% trans "Edit" %}</span>
+                  </button>
+                  <button class="btn btn-xs px-0 py-0 mr-2" @click="deleteNote(n)">
+                    <span class="text-danger">{% trans "Delete" %}</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div v-if="!notes.length" class="mt-5 text-center">
+          <br>
+          <p class="text-muted">
+            <em>{% trans "This record has no notes on file." %}</em>
+          </p>
+        </div>
+      </div>
+    </div>
+    <transition v-if="overlay" name="modal">
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container" style="width: 400px">
+            <div class="modal-header">
+              <h4 v-if="!noteToEdit.id"> {% trans "Add Note" %} </h4>
+              <h4 v-else> {% trans "Edit Note" %} </h4>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="onSubmit">
+                <div class="mb-3">
+                  <div class="form-group">
+                    <label for="">${labels.type}</label>
+                    <v-select
+                      v-model="noteToEdit.type"
+                      :options="typeChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class="no-borders"
+                      :clearable=false
+                      required
+                    ></v-select>
+                  </div>
+                  <div class="form-group">
+                    <label for="">${labels.note}</label>
+                    <textarea
+                      v-model="noteToEdit.note"
+                      class="form-control"
+                      rows="5"
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="alert alert-danger mb-3" role="alert" v-if="error">
+                  <p class="lead">
+                    ${ error }
+                  </p>
+                </div>
+                <div class="mb-3">
+                  <button type="submit" class="btn btn-success">
+                    <span v-if="noteToEdit.id">{% trans "Update" %}</span>
+                    <span v-else>{% trans "Create" %}</span>
+                  </button>
+                  <button class="mx-1 btn btn-primary" @click="overlay = false" type="button">{% trans "Back" %}</button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </transition>
+
+
+  </div>
+</div>
+
+</script>
+<script type="application/javascript">
+
+Vue.component("note-pad", {
+  template: "#note-pad-template",
+  delimiters: ["${", "}"],
+  name: "note-pad",
+  props: {
+    parent_id: {
+      type: Number,
+      required: true
+    },
+    parent_name: {
+      type: String,
+      required: true
+    },
+    notes: {
+      type: Array,
+      required: true
+    }
+  },
+  data() {
+    return {
+      labels: {},
+      overlay: false,
+      typeChoices: [],
+      error: null,
+      noteToEdit: {}
+    };
+  },
+  computed: {
+    generalNotes() {
+      return this.getNotesByType(1)
+    },
+    toDoNotes() {
+      return this.getNotesByType(2)
+    },
+  },
+  methods: {
+    getNotesByType(type) {
+      let myarray = [];
+      let n;
+      for (var i = 0; i < this.notes.length; i++) {
+        n = this.notes[i];
+        if (n.type === type) myarray.push(n)
+      }
+      return myarray
+    },
+    openOverlay(note) {
+      this.error = null;
+      this.overlay = true;
+      if (!note.id) {
+        this.primeNote();
+      } else {
+        this.noteToEdit = JSON.parse(JSON.stringify(note)); // deep copy;
+      }
+    },
+    primeNote() {
+      this.noteToEdit = {
+        type: 1,
+        note: null,
+        is_complete: false,
+      };
+      this.noteToEdit[this.parent_name] = this.parent_id;
+    },
+    getNoteMetadata() {
+      let endpoint = `/api/csas/meta/models/note/`;
+      apiService(endpoint).then(data => {
+        this.labels = data.labels;
+        this.typeChoices = data.type_choices;
+      });
+    },
+    onSubmit() {
+      this.error = null;
+      var method;
+      var endpoint;
+      if (this.noteToEdit.id) {
+        endpoint = `/api/csas/${this.parent_name}-notes/${this.noteToEdit.id}/`;
+        method = "PUT";
+      } else {
+        endpoint = `/api/csas/${this.parent_name}-notes/`;
+        method = "POST";
+      }
+      apiService(endpoint, method, this.noteToEdit).then(response => {
+        if (response.id) {
+          this.$emit("update-notes");
+          if (!this.noteToEdit.id) this.primeNote();
+          this.overlay = false;
+        } else {
+          this.error = groomJSON(response)
+        }
+      });
+    },
+    deleteNote(note) {
+      let userInput = true;
+      if (!note.is_complete) userInput = confirm("{% trans 'Are you certain you want to delete this Note?' %}");
+      if (userInput) {
+        let endpoint = `/api/csas/${this.parent_name}-notes/${note.id}/`;
+        apiService(endpoint, "DELETE").then(() => {
+          this.$emit("update-notes");
+        });
+      }
+    },
+    async toggleComplete(note) {
+      let endpoint = `/api/csas/${this.parent_name}-notes/${note.id}/`;
+      await apiService(endpoint, "PATCH", {
+        is_complete: !note.is_complete
+      });
+      this.$emit("update-notes");
+    }
+  },
+  created() {
+    this.getNoteMetadata()
+  }
+});
+</script>

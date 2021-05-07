@@ -148,4 +148,3 @@ def auto_delete_csas2_meeting_file_on_change(sender, instance, **kwargs):
 
 
 
-# TODO: add signal to create a person upon creating / updating a user

@@ -63,7 +63,11 @@
     <h4>
       Publications prévues
     </h4>
-    {{ object.expected_publications_fr_html }}
+    <ul>
+      {% for type in object.expected_document_types.all %}
+        <li>{{ type }}</li>
+      {% endfor %}
+    </ul>
   </div>
 
   <div class="">

@@ -10,6 +10,10 @@ urlpatterns = [
     path('settings/document-types/<int:pk>/delete/', views.DocumentTypeHardDeleteView.as_view(), name="delete_document_type"),
     path('settings/invitee-roles/', views.InviteeRoleFormsetView.as_view(), name="manage_invitee_roles"),
     path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
+    # permissions
+    path('settings/user-permissions/', views.UserListView.as_view(), name='user_list'),
+    path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+
 
     # people #
     ##########
