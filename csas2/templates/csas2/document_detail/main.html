@@ -25,38 +25,36 @@
       {% include "csas2/document_detail/_tracking.html" %}
     </div>
     <div id="">
-      <div>
-        {% include "shared_models/_generic_breadcrumbs.html" %}
-        <div class="float-left">
-          <span class="mdi mdi-file-document mr-3 h2"></span>
-        </div>
-        <div class="mb-3">
-          <h2 class="">{{ h1|safe }}</h2>
-        </div>
-        {% bootstrap_messages %}
-        <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
-          <p class="mb-0">
-            <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
-          </p>
-        </div>
-        <div v-if="pubNumberConfirmationMsg" class="mt-3 alert alert-success no-print alert-dismissable" role="alert" style="width: 60%">
-          <p class="mb-0">
-            <span class="h5 mdi mdi-check mr-3"></span> <span class="h6">${pubNumberConfirmationMsg}</span>
-          </p>
-        </div>
-      </div>
-      <div v-if="canModify" class="mb-3">
-        <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
-        <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
-        <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
-        <button v-if="!document.pub_number_request_date && !document.pub_number && document.tracking" class="btn btn-sm btn-info ml-3"
-                @click="requestPubNumber">{% trans "Request a Pub Number" %}</button>
-        <em v-else-if="!document.pub_number && document.tracking" class=" text-muted ml-3">{% trans "Pub number requested on" %}
-          ${document.pub_number_request_date_display}</em>
-      </div>
-
       <div class="row">
-        <div class="col-10">
+        <div :class="{'col-10':document.tracking, 'col':!document.tracking}">
+          <div>
+            {% include "shared_models/_generic_breadcrumbs.html" %}
+            <div class="row mb-3">
+              <div class="col-sm-1">
+                <span class="mdi mdi-account-group h1"></span>
+              </div>
+              <div class="col">
+                <h2 class="">{{ h1|safe }}</h2>
+              </div>
+            </div>
+            {% bootstrap_messages %}
+            <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 100%">
+              <p class="mb-0">
+                <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+              </p>
+            </div>
+            <div v-if="pubNumberConfirmationMsg" class="mt-3 alert alert-success no-print alert-dismissable" role="alert" style="width: 100%">
+              <p class="mb-0">
+                <span class="h5 mdi mdi-check mr-3"></span> <span class="h6">${pubNumberConfirmationMsg}</span>
+              </p>
+            </div>
+          </div>
+          <div v-if="canModify" class="mb-3">
+            <a class="btn btn-sm btn-warning" href="{% url 'csas2:document_edit' object.id %}">{% trans "Edit" %}</a>
+            <a class="btn btn-sm btn-danger" href="{% url 'csas2:document_delete' object.id %}">{% trans "Delete" %}</a>
+            <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
+          </div>
+
 
           <div class="row mb-5">
             <div class="col-8">
@@ -101,7 +99,14 @@
                 </tr>
                 <tr>
                   <th class="text-left" v-html="documentLabels.pub_number"></th>
-                  <td class="text-left">${document.pub_number|nz}</td>
+                  <td class="text-left">
+                    <button v-if="!document.pub_number_request_date && !document.pub_number && document.tracking" class="btn btn-xs btn-primary"
+                            @click="requestPubNumber">{% trans "Request a Number" %}</button>
+                    <em v-else-if="!document.pub_number && document.tracking" class=" text-muted">
+                      {% trans "Publication number requested on" %} ${document.pub_number_request_date_display}
+                    </em>
+                    <span v-else>${document.pub_number|nz}</span>
+                  </td>
                 </tr>
                 <tr>
                   <th class="text-left" v-html="documentLabels.pages"></th>

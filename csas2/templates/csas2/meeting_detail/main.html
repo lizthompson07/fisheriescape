@@ -25,11 +25,13 @@
   <div id="app" v-cloak>
     <div>
       {% include "shared_models/_generic_breadcrumbs.html" %}
-      <div class="float-left">
-        <span class="mdi mdi-account-group mr-3 h2"></span>
-      </div>
-      <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
+      <div class="row mb-3">
+        <div class="col-sm-1">
+          <span class="mdi mdi-account-group h1"></span>
+        </div>
+        <div class="col">
+          <h2 class="">{{ h1|safe }}</h2>
+        </div>
       </div>
       {% bootstrap_messages %}
       <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
