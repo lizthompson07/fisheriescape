@@ -17,7 +17,7 @@ class ElectrofishingParser(DataParser):
     comment_key = "Comments"
     crew_key = "Crew"
     crew_lead_key = "crew lead"
-    temp_key = "temp"
+    temp_key = "Temperature"
     fish_caught_key = "# of salmon collected"
     fish_obs_key = "# of salmon observed"
     settings_key = "Settings"
@@ -26,7 +26,7 @@ class ElectrofishingParser(DataParser):
     group_key = "Group"
     coll_key = "Collection"
 
-    header = 0
+    header = 2
     start_grp_dict = {}
     end_grp_dict = {}
 
@@ -201,5 +201,5 @@ class MactaquacElectrofishingParser(ElectrofishingParser):
     fish_obs_key = "# Fish Observed"
     settings_key = "Fishing Settings"
     fishing_time_key = "Fishing Seconds"
-    header = 1
+    header = 2
 

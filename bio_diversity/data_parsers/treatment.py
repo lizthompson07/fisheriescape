@@ -8,19 +8,15 @@ from bio_diversity import models
 from bio_diversity import utils
 
 
-
-
-
-
 def mactaquac_treatment_parser(cleaned_data):
     log_data = "Loading Data Results: \n"
     rows_parsed = 0
     rows_entered = 0
     try:
-        tank_data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Ponds",
+        tank_data = pd.read_excel(cleaned_data["data_csv"], header=2, engine='openpyxl', sheet_name="Ponds",
                                   converters={'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
         data_dict = tank_data.to_dict('records')
-        eggroom_data = pd.read_excel(cleaned_data["data_csv"], header=0, engine='openpyxl', sheet_name="Eggrooms",
+        eggroom_data = pd.read_excel(cleaned_data["data_csv"], header=2, engine='openpyxl', sheet_name="Eggrooms",
                                      converters={'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
         eggroom_data_dict = eggroom_data.to_dict('records')
     except Exception as err:

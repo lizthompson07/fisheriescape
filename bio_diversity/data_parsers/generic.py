@@ -20,12 +20,10 @@ class GenericIndvParser(DataParser):
     tissue_key = "Tissue Sample (Y/N)"
     start_tank_key = "Origin Pond"
     end_tank_key = "Destination Pond"
-    comment_key = "COMMENTS"
+    comment_key = "Comments"
 
-    def data_reader(self):
-        self.data = pd.read_excel(self.cleaned_data["data_csv"], engine='openpyxl', header=0,
-                                  converters={self.pit_key: str, self.year_key: str, self.month_key: str,
-                                              self.day_key: str}).dropna(how="all")
+    converters = {pit_key: str, "Year": str, "Month": str, "Day": str}
+    header = 2
 
     def row_parser(self, row):
         row_datetime = utils.get_row_date(row)
@@ -92,9 +90,9 @@ class GenericGrpParser(DataParser):
     tissue_key = "Tissue Sample (Y/N)"
     start_tank_key = "Origin Pond"
     end_tank_key = "Destination Pond"
-    comment_key = "COMMENTS"
+    comment_key = "Comments"
 
-    header = 0
+    header = 2
     start_grp_dict = {}
     end_grp_dict = {}
 

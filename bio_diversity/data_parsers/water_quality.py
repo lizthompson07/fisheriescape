@@ -17,7 +17,7 @@ class WaterQualityParser(DataParser):
     comment_key = "Comments"
     crew_key = "Initials"
 
-    header = 0
+    header = 2
     converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     temp_envc_id = None

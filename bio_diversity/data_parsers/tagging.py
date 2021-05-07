@@ -138,6 +138,7 @@ class MactaquacTaggingParser(TaggingParser):
     precocity_key = "Precocity (Y/N)"
     crew_key = "Crew"
 
+    header = 2
     converters = {to_tank_key: str, from_tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def row_parser(self, row):
