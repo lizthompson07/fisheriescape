@@ -100,7 +100,7 @@
                 <tr>
                   <th class="text-left" v-html="documentLabels.pub_number"></th>
                   <td class="text-left">
-                    <button v-if="!document.pub_number_request_date && !document.pub_number && document.tracking" class="btn btn-xs btn-primary"
+                    <button v-if="!document.pub_number_request_date && !document.pub_number && document.tracking" class="badge badge-pill btn-purple"
                             @click="requestPubNumber">{% trans "Request a Number" %}</button>
                     <em v-else-if="!document.pub_number && document.tracking" class=" text-muted">
                       {% trans "Publication number requested on" %} ${document.pub_number_request_date_display}

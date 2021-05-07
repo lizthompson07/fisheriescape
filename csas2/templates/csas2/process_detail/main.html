@@ -67,11 +67,66 @@
 
 
         <div class="mb-5">
-          <table class="table table-sm" style="width: auto">
-            {% for field in process_field_list %}
-              {% verbose_td_display object field th_width="300px" %}
-            {% endfor %}
-            {# requests #}
+          <div v-if="loading" class="loading mb-3 mt-3 mt-5">
+            <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+              <span class="sr-only"></span>
+            </div>
+          </div>
+          <table v-else class="table table-sm" style="width: auto">
+            {#            {% for field in process_field_list %}#}
+            {#              {% verbose_td_display object field th_width="300px" %}#}
+            {#            {% endfor %}#}
+
+            <tr>
+              <th class="text-left" v-html="processLabels.fiscal_year"></th>
+              <td class="text-left">${process.fiscal_year|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Name" %}</th>
+              <td class="text-left">${process.tname|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.is_posted"></th>
+              <td class="text-left">
+                <span class="mr-2">${process.is_posted|yesNo}</span>
+                <button v-if="!process.posting_request_date && !process.is_posted" class="badge badge-pill btn-purple" @click="requestPosting">
+                  {% trans "Request to Post" %}
+                </button>
+                <em v-else-if="!process.is_posted" class=" text-muted">
+                  &mdash; {% trans "Posting request made on" %} ${process.posting_request_date}
+                </em>
+              </td>
+            </tr>
+
+
+            <tr>
+              <th class="text-left">{% trans "Advisory process type" %}</th>
+              <td class="text-left">${process.scope_type|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Meeting Chair" %}</th>
+              <td class="text-left">
+                <em v-if="!process.has_tor">{% trans "The terms of reference have not yet been initiated for this process." %}</em>
+                <em v-else-if="!process.has_tor_meeting">{% trans "Terms of reference has not been linked to a meeting." %}</em>
+                <span v-else>${process.chair|nz}</span>
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.coordinator"></th>
+              <td class="text-left">${process.coordinator|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.advisors"></th>
+              <td class="text-left">${process.advisors|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.lead_region"></th>
+              <td class="text-left">${process.lead_region|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.other_regions"></th>
+              <td class="text-left">${process.other_regions|nz}</td>
+            </tr>
             <tr>
               <th>
                 {% trans "Connected requests" %}
@@ -88,7 +143,10 @@
                 {% endif %}
               </td>
             </tr>
-
+            <tr>
+              <th class="text-left">{% trans "Metadata" %}</th>
+              <td class="text-left" v-html="process.metadata"></td>
+            </tr>
           </table>
         </div>
       </div>
@@ -210,14 +268,24 @@
     data: {
       currentUser: {},
       process: {},
+      loading: false,
       loadingDocs: false,
       loadingMeetings: false,
       docs: [],
       meetings: [],
       notes: [],
-
+      processLabels: {}
     },
     methods: {
+      requestPosting() {
+        let userInput = confirm("{% trans 'Are you certain you want to make a request for this process to be posted on the National CSAS website?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/processes/${processId}/?request_posting=true`;
+          apiService(endpoint, "POST").then(data => {
+            this.getProcess()
+          });
+        }
+      },
       getCurrentUser() {
         let endpoint = `/api/csas/user/?process=${processId}`;
         apiService(endpoint)
@@ -226,8 +294,10 @@
             })
       },
       getProcess(update_notes) {
+        this.loading = true;
         let endpoint = `/api/csas/processes/${processId}/`;
         apiService(endpoint).then(data => {
+          this.loading = false;
           if (data) {
             this.process = data;
             if (update_notes) this.getNotes();
@@ -283,6 +353,16 @@
               }
             })
       },
+      getProcessMetadata() {
+        let endpoint = `/api/csas/meta/models/process/`;
+        apiService(endpoint).then(data => {
+          this.processLabels = data.labels;
+        });
+      },
+    },
+    filters: {
+      nz: vueFiltersObject["nz"],
+      yesNo: vueFiltersObject["yesNo"],
     },
     computed: {
       canModify() {
@@ -301,6 +381,7 @@
     created() {
       this.getCurrentUser();
       this.getProcess(true);
+      this.getProcessMetadata();
     },
   });
 

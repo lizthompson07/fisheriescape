@@ -229,7 +229,10 @@ label.filter {
 .btn-success {
     background-color: #08830d;
 }
-
+.btn-purple {
+    background-color: #b64aff;
+    color: white;
+}
 /*
  * Style for modals
  */

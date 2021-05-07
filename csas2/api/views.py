@@ -82,6 +82,20 @@ class ProcessViewSet(viewsets.ModelViewSet):
             obj.posting_notification_date = timezone.now()
             obj.save()
 
+    def post(self, request, pk):
+        qp = request.query_params
+        process = get_object_or_404(models.Process, pk=pk)
+        if qp.get("request_posting"):
+            if not process.is_posted:
+                email = emails.PostingRequestEmail(request, process)
+                email.send()
+                process.posting_request_date = timezone.now()
+                process.save()
+                msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
+                return Response(msg, status.HTTP_200_OK)
+            raise ValidationError(_("A request to have this process posted has already occurred."))
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
 
 class MeetingViewSet(viewsets.ModelViewSet):
     queryset = models.Meeting.objects.all().order_by("-created_at")
@@ -171,7 +185,6 @@ class ProcessNoteViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        print(123)
         serializer.save(updated_by=self.request.user)
 
 
@@ -367,7 +380,6 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
 
         # is there a chair?
         chair_qs = models.Invitee.objects.filter(meeting__process=obj.document.process, roles__name__icontains=_("chair"))
-        print(chair_qs)
         if chair_qs.exists():
             obj.chair = chair_qs.first().person
 

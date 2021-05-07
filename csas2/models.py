@@ -72,6 +72,7 @@ class GenericNote(MetadataFields):
         by = self.updated_by if self.updated_by else self.created_by
         return mark_safe(f"{date(self.updated_at)} &mdash; {by}")
 
+
 class CSASRequest(MetadataFields):
     ''' csas request '''
     is_carry_over = models.BooleanField(default=False, choices=model_choices.yes_no_choices,
@@ -280,6 +281,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
+    posting_request_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
     # calculated
@@ -646,6 +648,9 @@ class Document(MetadataFields):
     translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.get_translation_status_choices(), editable=False,
                                              default=0)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+
+    class Meta:
+        ordering = ["process", _("title_en")]
 
     def save(self, *args, **kwargs):
         # set status

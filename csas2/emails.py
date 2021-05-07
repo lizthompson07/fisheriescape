@@ -59,6 +59,15 @@ class PublicationNumberRequestEmail(Email):
         return [csas_generic_email]
 
 
+class PostingRequestEmail(Email):
+    email_template_path = 'csas2/emails/posting_request.html'
+    subject_en = 'Request to post new CSAS process'
+
+    def get_recipient_list(self):
+        return [csas_generic_email]
+
+
+
 class SoMPEmail(Email):
     email_template_path = 'csas2/emails/somp.html'
     subject_en = 'The SoMP for a meeting has been posted'

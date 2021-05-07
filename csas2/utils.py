@@ -248,7 +248,7 @@ def get_process_field_list(process):
         # 'context_html|{}'.format(get_verbose_label(process, "context")),
         # 'objectives_html|{}'.format(get_verbose_label(process, "objectives")),
         # 'expected_publications_html|{}'.format(get_verbose_label(process, "expected_publications")),
-        'type',
+        # 'type',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)

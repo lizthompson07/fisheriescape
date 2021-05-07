@@ -566,8 +566,44 @@ class ProcessSerializer(serializers.ModelSerializer):
         model = models.Process
         fields = "__all__"
 
+    advisors = serializers.SerializerMethodField()
+    chair = serializers.SerializerMethodField()
+    coordinator = serializers.StringRelatedField()
+    fiscal_year = serializers.StringRelatedField()
+    has_tor = serializers.SerializerMethodField()
+    has_tor_meeting = serializers.SerializerMethodField()
     lead_region = serializers.StringRelatedField()
+    metadata = serializers.SerializerMethodField()
+    other_regions = serializers.SerializerMethodField()
+    scope_type = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
+    posting_request_date = serializers.SerializerMethodField()
+
+    def get_posting_request_date(self, instance):
+        if instance.posting_request_date:
+            return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
+
+    def get_advisors(self, instance):
+        return listrify(instance.advisors.all())
+
+    def get_chair(self, instance):
+        return instance.chair
+
+    def get_has_tor(self, instance):
+        return hasattr(instance, "tor")
+
+    def get_has_tor_meeting(self, instance):
+        if hasattr(instance, "tor"):
+            return instance.tor.meeting is not None
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_other_regions(self, instance):
+        return listrify(instance.other_regions.all())
+
+    def get_scope_type(self, instance):
+        return instance.scope_type
 
     def get_tname(self, instance):
         return instance.tname

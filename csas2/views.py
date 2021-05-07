@@ -214,6 +214,7 @@ class CSASRequestListView(LoginAccessRequiredMixin, CommonFilterView):
     new_object_url = reverse_lazy("csas2:request_new")
     row_object_url_name = row_ = "csas2:request_detail"
     container_class = "container-fluid"
+    open_row_in_new_tab = True
 
     field_list = [
         {"name": 'id', "class": "", "width": "50px"},
@@ -419,6 +420,7 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
     new_object_url = reverse_lazy("csas2:process_new")
     row_object_url_name = row_ = "csas2:process_detail"
     container_class = "container-fluid"
+    open_row_in_new_tab = True
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -886,6 +888,7 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     home_url_name = "csas2:index"
     row_object_url_name = row_ = "csas2:document_detail"
     container_class = "container-fluid"
+    open_row_in_new_tab = True
 
     field_list = [
         {"name": 'ttitle|{}'.format("title"), "class": "", "width": "300px"},
