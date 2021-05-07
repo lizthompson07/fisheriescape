@@ -79,9 +79,8 @@ class DataParser:
                     self.row_parser(row)
                 except Exception as err:
                     err_msg = common_err_parser(err)
-                    self.log_data += "Error parsing row: \n"
+                    self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
                     self.log_data += str(row)
-                    self.log_data += "\n Error: {}".format(err_msg)
                     self.parsed_row_counter()
                     self.success = False
                 self.rows_parsed += 1

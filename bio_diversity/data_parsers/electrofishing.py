@@ -60,12 +60,17 @@ class ElectrofishingParser(DataParser):
             relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key])
             if len(relc_qs) == 1:
                 relc_id = relc_qs.get()
+
+        start_lat = utils.round_no_nan(row[self.lat_key], 5)
+        start_lon = utils.round_no_nan(row[self.lon_key], 5)
+        if not relc_id and not (start_lat and start_lon):
+            raise Exception("Site code not found and lat-long not given for site on row")
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                               locc_id=self.locc_id,
                               rive_id=rive_id,
                               relc_id=relc_id,
-                              loc_lat=utils.round_no_nan(row[self.lat_key], 5),
-                              loc_lon=utils.round_no_nan(row[self.lon_key], 5),
+                              loc_lat=start_lat,
+                              loc_lon=start_lon,
                               end_lat=utils.round_no_nan(row[self.end_lat], 5),
                               end_lon=utils.round_no_nan(row[self.end_lon], 5),
                               loc_date=row_datetime,
@@ -116,7 +121,7 @@ class ElectrofishingParser(DataParser):
         cleaned_data = self.cleaned_data
         river_group_data = self.data.groupby([self.rive_key, self.group_key, self.coll_key],
                                              dropna=False).size().reset_index()
-        for row in river_group_data:
+        for index, row in river_group_data.iterrows():
             stok_id = models.StockCode.objects.filter(name__icontains=row[self.rive_key]).get()
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                               grp_id__stok_id=stok_id,
@@ -159,7 +164,8 @@ class ElectrofishingParser(DataParser):
                     utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None,
                                      "Program Group", row[self.group_key])
 
-            contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
+            contx, data_entered = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk,
+                                                         return_contx=True)
 
             if utils.nan_to_none(row[self.group_key]):
                 utils.enter_cnt(cleaned_data, self.data[(self.data[self.rive_key] == row[self.rive_key]) &
@@ -190,7 +196,7 @@ class MactaquacElectrofishingParser(ElectrofishingParser):
     site_key = "Location Name"
     end_lat = "Lat.1"
     end_lon = "Long.1"
-    temp_key = " Temperature"
+    temp_key = "Temperature"
     fish_caught_key = "# Fish Collected"
     fish_obs_key = "# Fish Observed"
     settings_key = "Fishing Settings"

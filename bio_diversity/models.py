@@ -1322,8 +1322,9 @@ class Location(BioModel):
             if not self.relc_id and self.end_point:
                 self.relc_id = utils.get_relc_from_point(self.linestring)
         if self.relc_id and not self.point:
-            self.loc_lon = round(decimal.Decimal(self.relc_id.bbox.centroid.xy[0][0] + 0.0005), 5)
-            self.loc_lat = round(decimal.Decimal(self.relc_id.bbox.centroid.xy[1][0]), 5)
+            if self.relc_id.bbox:
+                self.loc_lon = round(decimal.Decimal(self.relc_id.bbox.centroid.xy[0][0] + 0.0005), 5)
+                self.loc_lat = round(decimal.Decimal(self.relc_id.bbox.centroid.xy[1][0]), 5)
 
     def save(self, *args, **kwargs):
         self.set_relc_latlng()
