@@ -67,6 +67,10 @@ class GenericNote(MetadataFields):
         abstract = True
         ordering = ["is_complete", "-updated_at", ]
 
+    @property
+    def last_modified(self):
+        by = self.updated_by if self.updated_by else self.created_by
+        return mark_safe(f"{date(self.updated_at)} &mdash; {by}")
 
 class CSASRequest(MetadataFields):
     ''' csas request '''

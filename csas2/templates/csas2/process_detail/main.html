@@ -94,7 +94,7 @@
       </div>
       {# Notes #}
       <div class="col">
-        {% include "csas2/process_detail/_notes.html" %}
+        <note-pad v-if="process.id" :process_id="process.id" :notes="notes" @update-notes="getNotes"></note-pad>
       </div>
     </div>
 
@@ -196,8 +196,9 @@
 {% block body_js %}
   {{ block.super }}
 
-  {% include "csas2/process_detail/components/note_editor.html" %}
-  {% include "csas2/process_detail/components/note_card.html" %}
+{#  {% include "csas2/process_detail/components/note_editor.html" %}#}
+{#  {% include "csas2/process_detail/components/note_card.html" %}#}
+  {% include "csas2/process_detail/components/note_pad.html" %}
 
   <script type="application/javascript">
   var processId = "{{ object.id }}"
@@ -232,7 +233,7 @@
         apiService(endpoint).then(data => {
           if (data) {
             this.process = data;
-            if (update_notes) this.notes = this.getNotes();
+            if (update_notes) this.getNotes();
             this.getDocuments();
             this.getMeetings();
           }
