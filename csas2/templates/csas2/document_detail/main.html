@@ -51,125 +51,134 @@
         <button v-if="!document.tracking" class="btn btn-sm btn-dark ml-3" @click="primeTracking">{% trans "Start Tracking" %}</button>
         <button v-if="!document.pub_number_request_date && !document.pub_number && document.tracking" class="btn btn-sm btn-info ml-3"
                 @click="requestPubNumber">{% trans "Request a Pub Number" %}</button>
-        <em v-else-if="!document.pub_number && document.tracking" class=" text-muted ml-3">{% trans "Pub number requested on" %} ${document.pub_number_request_date_display}</em>
+        <em v-else-if="!document.pub_number && document.tracking" class=" text-muted ml-3">{% trans "Pub number requested on" %}
+          ${document.pub_number_request_date_display}</em>
       </div>
 
       <div class="row">
         <div class="col-10">
 
-          <div class="mb-5">
-            <table class="table table-sm">
-              <tr>
-                <th class="text-left w300" v-html="documentLabels.process"></th>
-                <td class="text-left">
-                  <a href="{% url 'csas2:process_detail' object.process.id %}">${ document.process }</a>
-                </td>
-              </tr>
-              <tr>
-                <th class="text-left" v-html="documentLabels.title_en"></th>
-                <td class="text-left">${document.title_en|nz}</td>
-              </tr>
-              <tr>
-                <th class="text-left" v-html="documentLabels.title_fr"></th>
-                <td class="text-left">${document.title_fr|nz}</td>
-              </tr>
-              <tr>
-                <th class="text-left" v-html="documentLabels.title_in"></th>
-                <td class="text-left">${document.title_in|nz}</td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "Type" %}</th>
-                <td class="text-left" v-html="document.document_type"></td>
-              </tr>
-              <tr>
-                <th class="text-left" v-html="documentLabels.due_date"></th>
-                <td class="text-left" v-html="document.due_date_display"></td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "Document Status" %}</th>
-                <td class="text-left" v-html="document.status_display"></td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "Translation Status" %}</th>
-                <td class="text-left" v-html="document.tstatus_display"></td>
-              </tr>
-              <tr>
-                <th class="text-left" v-html="documentLabels.year"></th>
-                <td class="text-left">${document.year|nz}</td>
-              </tr>
-              <tr>
-                <th class="text-left" v-html="documentLabels.pub_number"></th>
-                <td class="text-left">${document.pub_number|nz}</td>
-              </tr>
-              <tr>
-                <th class="text-left" v-html="documentLabels.pages"></th>
-                <td class="text-left">${document.pages|nz}</td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "Attachments" %}</th>
-                <td v-if="document.file_en || document.file_fr" class="text-left">
-                  <a v-if="document.file_en" :href="`${document.file_en}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "English" %}
-                    (${document.file_en_size})</a><br>
-                  <a v-if="document.file_fr" :href="`${document.file_fr}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "French" %}</a>
-                </td>
-                <td v-else>---</td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "URLs" %}</th>
-                <td v-if="document.url_en || document.url_fr" class="text-left">
-                  <a v-if="document.url_en" :href="`${document.url_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
-                  <a v-if="document.url_fr" :href="`${document.url_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
-                </td>
-                <td v-else>---</td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "Dev Links" %}</th>
-                <td v-if="document.dev_link_en || document.dev_link_fr" class="text-left">
-                  <a v-if="document.dev_link_en" :href="`${document.dev_link_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}
-                  </a><br>
-                  <a v-if="document.dev_link_en" :href="`${document.dev_link_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}
-                  </a>
-                </td>
-                <td v-else>---</td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "EKME / GC Docs" %}</th>
-                <td v-if="document.ekme_gcdocs_en || document.ekme_gcdocs_fr" class="text-left">
-                  <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_en}`" target="_blank"><span
-                    class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
-                  <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_fr}`" target="_blank"><span
-                    class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
-                </td>
-                <td v-else>---</td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "DFO Library catelogue" %}</th>
-                <td v-if="document.lib_cat_en || document.lib_cat_fr" class="text-left">
-                  <a v-if="document.lib_cat_en" :href="`${document.lib_cat_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}
-                  </a><br>
-                  <a v-if="document.lib_cat_en" :href="`${document.lib_cat_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
-                </td>
-                <td v-else>---</td>
-              </tr>
-              <tr>
-                <th>{% trans "Linked meetings" %}</th>
-                <td>
-                  {% if object.meetings.exists %}
-                    {% for obj in object.meetings.all %}
-                      <div>
-                        <a href="{% url 'csas2:meeting_detail' obj.id %}">{{ obj }}</a>
-                      </div>
-                    {% endfor %}
-                  {% else %}
-                    <em>{% trans "There are no meetings linked to this document." %}</em>
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <th class="text-left">{% trans "Metadata" %}</th>
-                <td class="text-left" v-html="document.metadata"></td>
-              </tr>
-            </table>
+          <div class="row mb-5">
+            <div class="col-8">
+              <table class="table table-sm">
+                <tr>
+                  <th class="text-left w300" v-html="documentLabels.process"></th>
+                  <td class="text-left">
+                    <a href="{% url 'csas2:process_detail' object.process.id %}">${ document.process }</a>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="text-left" v-html="documentLabels.title_en"></th>
+                  <td class="text-left">${document.title_en|nz}</td>
+                </tr>
+                <tr>
+                  <th class="text-left" v-html="documentLabels.title_fr"></th>
+                  <td class="text-left">${document.title_fr|nz}</td>
+                </tr>
+                <tr>
+                  <th class="text-left" v-html="documentLabels.title_in"></th>
+                  <td class="text-left">${document.title_in|nz}</td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "Type" %}</th>
+                  <td class="text-left" v-html="document.document_type"></td>
+                </tr>
+                <tr>
+                  <th class="text-left" v-html="documentLabels.due_date"></th>
+                  <td class="text-left" v-html="document.due_date_display"></td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "Document Status" %}</th>
+                  <td class="text-left" v-html="document.status_display"></td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "Translation Status" %}</th>
+                  <td class="text-left" v-html="document.tstatus_display"></td>
+                </tr>
+                <tr>
+                  <th class="text-left" v-html="documentLabels.year"></th>
+                  <td class="text-left">${document.year|nz}</td>
+                </tr>
+                <tr>
+                  <th class="text-left" v-html="documentLabels.pub_number"></th>
+                  <td class="text-left">${document.pub_number|nz}</td>
+                </tr>
+                <tr>
+                  <th class="text-left" v-html="documentLabels.pages"></th>
+                  <td class="text-left">${document.pages|nz}</td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "Attachments" %}</th>
+                  <td v-if="document.file_en || document.file_fr" class="text-left">
+                    <a v-if="document.file_en" :href="`${document.file_en}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "English" %}
+                      (${document.file_en_size})</a><br>
+                    <a v-if="document.file_fr" :href="`${document.file_fr}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "French" %}</a>
+                  </td>
+                  <td v-else>---</td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "URLs" %}</th>
+                  <td v-if="document.url_en || document.url_fr" class="text-left">
+                    <a v-if="document.url_en" :href="`${document.url_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
+                    <a v-if="document.url_fr" :href="`${document.url_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
+                  </td>
+                  <td v-else>---</td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "Dev Links" %}</th>
+                  <td v-if="document.dev_link_en || document.dev_link_fr" class="text-left">
+                    <a v-if="document.dev_link_en" :href="`${document.dev_link_en}`" target="_blank"><span
+                      class="mdi mdi-link mr-1"></span>{% trans "English" %}
+                    </a><br>
+                    <a v-if="document.dev_link_en" :href="`${document.dev_link_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}
+                    </a>
+                  </td>
+                  <td v-else>---</td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "EKME / GC Docs" %}</th>
+                  <td v-if="document.ekme_gcdocs_en || document.ekme_gcdocs_fr" class="text-left">
+                    <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_en}`" target="_blank"><span
+                      class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
+                    <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_fr}`" target="_blank"><span
+                      class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
+                  </td>
+                  <td v-else>---</td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "DFO Library catelogue" %}</th>
+                  <td v-if="document.lib_cat_en || document.lib_cat_fr" class="text-left">
+                    <a v-if="document.lib_cat_en" :href="`${document.lib_cat_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}
+                    </a><br>
+                    <a v-if="document.lib_cat_en" :href="`${document.lib_cat_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}
+                    </a>
+                  </td>
+                  <td v-else>---</td>
+                </tr>
+                <tr>
+                  <th>{% trans "Linked meetings" %}</th>
+                  <td>
+                    {% if object.meetings.exists %}
+                      {% for obj in object.meetings.all %}
+                        <div>
+                          <a href="{% url 'csas2:meeting_detail' obj.id %}">{{ obj }}</a>
+                        </div>
+                      {% endfor %}
+                    {% else %}
+                      <em>{% trans "There are no meetings linked to this document." %}</em>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th class="text-left">{% trans "Metadata" %}</th>
+                  <td class="text-left" v-html="document.metadata"></td>
+                </tr>
+              </table>
+            </div>
+            {# Notes #}
+            <div class="col-2">
+              <note-pad v-if="document.id" parent_name="document" :parent_id="document.id" :notes="notes" @update-notes="getNotes"></note-pad>
+            </div>
           </div>
 
           <div class="mb-5">
@@ -182,10 +191,6 @@
           </div>
         </div>
 
-        {# Notes #}
-        {#        <div class="col">#}
-        {#          {% include "csas2/document_detail/_notes.html" %}#}
-        {#        </div>#}
       </div>
     </div>
   </div>
@@ -195,9 +200,7 @@
 
 {% block body_js %}
   {{ block.super }}
-
-  {% include "csas2/document_detail/components/note_editor.html" %}
-  {% include "csas2/document_detail/components/note_card.html" %}
+  {% include "csas2/components/note_pad.html" %}
   {% include "csas2/document_detail/components/cost_editor.html" %}
   {% include "csas2/document_detail/components/author_editor.html" %}
   {% include "csas2/document_detail/components/date_field_group.html" %}
@@ -332,7 +335,7 @@
         }
       },
       getNotes() {
-        let endpoint = `/api/csas/doc-notes/?document=${this.document.id}`;
+        let endpoint = `/api/csas/document-notes/?document=${this.document.id}`;
         apiService(endpoint).then(data => {
           this.notes = data;
         });
@@ -354,9 +357,9 @@
         apiService(endpoint).then(data => {
           if (data) {
             this.document = data;
-            if (update_notes) this.notes = this.getNotes();
-            this.authors = this.getAuthors();
-            this.costs = this.getCosts();
+            if (update_notes) this.getNotes();
+            this.getAuthors();
+            this.getCosts();
           }
         });
       },

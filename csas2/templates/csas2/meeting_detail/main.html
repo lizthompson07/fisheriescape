@@ -41,7 +41,9 @@
         <p class="h6">
           {% blocktrans %}
             This meeting / process has already been posted to the national CSAS website.
-            Changes made to <span class="dotted" data-toggle="tooltip" title="Title (English and French), Location, Dates, Chair, Expected Publications (from ToR)">certain fields</span> of this meeting will automatically trigger a notification email to be sent to the national CSAS team.
+            Changes made to
+            <span class="dotted" data-toggle="tooltip" title="Title (English and French), Location, Dates, Chair, Expected Publications (from ToR)">certain fields</span>
+            of this meeting will automatically trigger a notification email to be sent to the national CSAS team.
           {% endblocktrans %}
         </p>
       </div>
@@ -150,7 +152,7 @@
 
       {# Notes #}
       <div class="col">
-        {% include "csas2/meeting_detail/_notes.html" %}
+        <note-pad v-if="meeting.id" parent_name="meeting" :parent_id="meeting.id" :notes="notes" @update-notes="getNotes"></note-pad>
       </div>
 
 
@@ -166,9 +168,7 @@
 
 {% block body_js %}
   {{ block.super }}
-
-  {% include "csas2/meeting_detail/components/note_editor.html" %}
-  {% include "csas2/meeting_detail/components/note_card.html" %}
+  {% include "csas2/components/note_pad.html" %}
   {% include "csas2/meeting_detail/components/resource_editor.html" %}
   {% include "csas2/meeting_detail/components/invitee_editor.html" %}
   {% include "csas2/meeting_detail/components/email-overlay.html" %}
@@ -319,10 +319,10 @@
         apiService(endpoint).then(data => {
           if (data) {
             this.meeting = data;
-            if (update_notes) this.notes = this.getNotes();
-            this.invitees = this.getInvitees();
-            this.resources = this.getResources();
-            this.costs = this.getCosts();
+            if (update_notes) this.getNotes();
+            this.getInvitees();
+            this.getResources();
+            this.getCosts();
           }
         });
       },

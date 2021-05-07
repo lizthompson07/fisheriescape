@@ -226,6 +226,9 @@ label.filter {
     background-color: #0d47a1;
 }
 
+.btn-success {
+    background-color: #08830d;
+}
 
 /*
  * Style for modals
