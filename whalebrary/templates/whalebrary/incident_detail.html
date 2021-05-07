@@ -14,6 +14,7 @@
   <p>
     <a href="{% url 'whalebrary:incident_email' object.id %}" class="btn btn-sm btn-primary">Email Incident</a>
     <a class="btn btn-sm btn-secondary" href="#" pop-href="{% url 'whalebrary:image_new' object.id %}">Upload Image</a>
+    <a class="btn btn-sm btn-success" href="#" pop-href="{% url 'whalebrary:resight_new' object.id %}">Resight</a>
   </p>
 
   <div class="row">
@@ -29,6 +30,15 @@
                      {{ object.first_report }}
                   </td>
                 </tr>
+            {% elif field == "response_date" %}
+                <tr>
+                  <th>
+                    {% get_verbose_label instance=object field_name=field %}
+                  </th>
+                  <td>
+                     {{ object.response_date }}
+                  </td>
+                </tr>
             {% else %}
                 {% verbose_td_display object field %}
           {% endif %}
@@ -37,6 +47,8 @@
     </div>
     <div class="col-6">
         <div id="map3"></div>
+        <br>
+        {% include "whalebrary/_resight.html" %}
     </div>
   </div>
   <br><br><br>

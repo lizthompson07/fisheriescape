@@ -1357,7 +1357,7 @@ class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'region', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
         {"name": 'incident_type', "class": "", "width": ""},
-        {"name": 'exam', "class": "", "width": ""},
+        {"name": 'response', "class": "", "width": ""},
         {"name": 'date_email_sent', "class": "", "width": ""},
     ]
 
@@ -1372,6 +1372,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         'name',
         'species_count',
         'submitted',
+        'reported_by',
         'first_report',
         'coordinates',
         'location',
@@ -1382,7 +1383,10 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         'incident_type',
         'gear_presence',
         'gear_desc',
-        'exam',
+        'response',
+        'response_type',
+        'response_by',
+        'response_date',
         'necropsy',
         'results',
         'photos',
@@ -1397,11 +1401,22 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # context for _images.html
+        # context for _image.html
         context["random_image"] = models.Image.objects.first()
         context["image_field_list"] = [
             'title',
             'date_uploaded',
+        ]
+
+        # context for _resight.html
+        context["random_resight"] = models.Resight.objects.first()
+        context["resight_field_list"] = [
+            'id',
+            'coordinates',
+            'reported_by',
+            'resight_date',
+            'comments',
+            'date_email_sent',
         ]
 
         # contexts for incident_detail maps
@@ -1481,6 +1496,97 @@ class IncidentDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("whalebrary:incident_detail", kwargs=self.kwargs)}
+
+        ## INCIDENT RESIGHT ##
+
+
+class ResightListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/list.html"
+    h1 = "Resight List"
+    filterset_class = filters.ResightFilter
+    home_url_name = "whalebrary:index"
+    row_object_url_name = "whalebrary:resight_detail"
+    # new_btn_text = "New Resight"
+
+    queryset = models.Resight.objects.annotate(
+        search_term=Concat('id', 'reported_by', 'comments',
+                           output_field=TextField()))
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'reported_by', "class": "", "width": ""},
+        {"name": 'resight_date', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+        {"name": 'date_email_sent', "class": "", "width": ""},
+    ]
+
+    # def get_new_object_url(self):
+    #     return reverse("whalebrary:resight_new", kwargs=self.kwargs)
+
+
+# class ResightDetailView(WhalebraryAccessRequired, CommonDetailView):
+#     model = models.Resight
+#     field_list = [
+#         'id',
+#         'reported_by',
+#         'resight_date',
+#         'comments',
+#         'date_email_sent',
+#
+#     ]
+#     home_url_name = "whalebrary:index"
+#     parent_crumb = {"title": gettext_lazy("Resight List"), "url": reverse_lazy("whalebrary:resight_list")}
+
+
+def send_resight_email(request, pk):
+    """simple function to send email with detail_view information"""
+    # create a new email object
+    resight = get_object_or_404(models.Resight, pk=pk)
+    email = emails.NewResightEmail(request, resight)
+    # send the email object
+    email.send()
+    # success message
+    messages.success(request, "The new resight has been logged and a confirmation email has been sent!")
+    # log when the email was sent
+    resight.date_email_sent = timezone.now()
+    resight.save()
+    # go to previous page
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
+
+class ResightUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
+    model = models.Resight
+    form_class = forms.ResightForm
+    template_name = 'whalebrary/form.html'
+    cancel_text = _("Cancel")
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Resight record successfully updated for : {my_object}"))
+        success_url = reverse_lazy('shared_models:close_me')
+        return HttpResponseRedirect(success_url)
+
+
+class ResightCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Resight
+    form_class = forms.ResightForm
+    template_name = 'whalebrary/form.html'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Resight successfully added for : {my_object}"))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+    def get_initial(self):
+        incident = models.Incident.objects.get(pk=self.kwargs['incident'])
+        return {
+            'incident': incident,
+        }
+
+
+class ResightDeleteView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
+    model = models.Resight
+    delete_protection = False
 
     ## INCIDENT IMAGE UPLOAD ##
 

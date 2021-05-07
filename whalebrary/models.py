@@ -371,10 +371,20 @@ class Incident(LatLongFields):
         ("LS", "LIVE - Stranded"),
     )
 
+    RESPONSE_CHOICES = (
+        ("D", "Disentanglement"),
+        ("R", "Refloating"),
+        ("DE", "Documentation / Examination"),
+        ("N", "Necropsy"),
+        ("E", "Education"),
+        ("O", "Other"),
+    )
+
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("incident name"))
     species_count = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species count"))
     submitted = models.BooleanField(choices=BOOL_CHOICES, blank=True, null=True,
                                     verbose_name=_("incident report submitted by Gulf?"))
+    reported_by = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("reported by"))
     first_report = models.DateTimeField(blank=True, null=True, verbose_name=_("date and time first reported"))
     location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("location"))
     region = models.CharField(max_length=255, null=True, blank=True, choices=REGION_CHOICES, verbose_name=_("region"))
@@ -386,7 +396,10 @@ class Incident(LatLongFields):
                                      verbose_name=_("type of Incident"))
     gear_presence = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("gear Presence?"))
     gear_desc = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("gear description"))
-    exam = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("examination conducted?"))
+    response = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("was there a response?"))
+    response_type = models.CharField(max_length=255, blank=True, null=True, choices=RESPONSE_CHOICES, verbose_name=_("response type"))
+    response_by = models.ManyToManyField(Organisation, blank=True, related_name="incidents", verbose_name=_("response by"))
+    response_date = models.DateTimeField(blank=True, null=True, verbose_name=_("date and time of response"))
     necropsy = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("necropsy conducted?"))
     results = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("results"))
     photos = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("photos?"))
@@ -413,6 +426,14 @@ class Incident(LatLongFields):
 
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
+
+
+class Resight(LatLongFields):
+    incident = models.ForeignKey(Incident, on_delete=models.DO_NOTHING, related_name="resights", verbose_name=_("incident"))
+    reported_by = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("reported by"))
+    resight_date = models.DateTimeField(blank=True, null=True, verbose_name=_("date and time of resight"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
+    date_email_sent = models.DateTimeField(blank=True, null=True, verbose_name="date resight incident emailed")
 
 
 def image_directory_path(instance, imagename):
