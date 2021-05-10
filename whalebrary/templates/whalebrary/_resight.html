@@ -3,6 +3,15 @@
 {% load i18n %}
 {% load verbose_names %}
 
+<style>
+    .thead-incident {
+        color: black;
+        background-color: #5cb85c;
+        text-align: center;
+        {#justify-content: center;#}
+    }
+</style>
+
 <div class="">
     <h3>
         {% trans "Resights:" %}
@@ -15,7 +24,8 @@
     </em><br>
 {% else %}
 
-    <table class="table table-bordered table-sm" style="width: auto">
+    <table class="table table-bordered table-striped table-sm" style="width: auto">
+        <thead class="thead-incident">
         <tr>
             {% for field in resight_field_list %}
             <th>

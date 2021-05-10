@@ -284,5 +284,5 @@ class ReportGeneratorForm(forms.Form):
 
 class PlanningLinkForm(forms.ModelForm):
     class Meta:
-        model = models.PlanningLinks
+        model = models.PlanningLink
         fields = "__all__"

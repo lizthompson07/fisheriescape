@@ -1759,7 +1759,7 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
 
 class PlanningLinkListView(WhalebraryAdminAccessRequired, CommonListView):
     template_name = "whalebrary/planning_link_list.html"
-    model = models.PlanningLinks
+    model = models.PlanningLink
     h1 = "Planning Link List"
     home_url_name = "whalebrary:index"
     # new_btn_text = "New Planning Link"
@@ -1776,15 +1776,15 @@ class PlanningLinkListView(WhalebraryAdminAccessRequired, CommonListView):
 
 
 class PlanningLinkCreateView(WhalebraryAdminAccessRequired, CommonPopoutCreateView):
-    model = models.PlanningLinks
+    model = models.PlanningLink
     form_class = forms.PlanningLinkForm
 
 
 class PlanningLinkUpdateView(WhalebraryAdminAccessRequired, CommonPopoutUpdateView):
-    model = models.PlanningLinks
+    model = models.PlanningLink
     form_class = forms.PlanningLinkForm
     template_name = 'whalebrary/form.html'
 
 
 class PlanningLinkDeleteView(WhalebraryAdminAccessRequired, CommonPopoutDeleteView):
-    model = models.PlanningLinks
+    model = models.PlanningLink

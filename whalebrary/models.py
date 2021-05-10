@@ -601,8 +601,8 @@ class Order(models.Model):
             no_str = "---"
             return no_str
 
-#TODO unpluralize model
-class PlanningLinks(models.Model):
+
+class PlanningLink(models.Model):
     year = models.IntegerField(verbose_name=_("planning year"))
     client = models.CharField(max_length=250, verbose_name=_("client"))
     description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
