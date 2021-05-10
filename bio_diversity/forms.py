@@ -258,8 +258,12 @@ class DataForm(CreatePrams):
 
             # -----------------------------MATURITY SORTING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting":
-                if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, success = GenericIndvParser(cleaned_data)
+                if cleaned_data["data_type"].__str__() == "Individual":
+                    parser = GenericIndvParser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Group":
+                    parser = GenericGrpParser(cleaned_data)
+                log_data = parser.log_data
+                success = parser.success
 
             # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":

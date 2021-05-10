@@ -24,6 +24,7 @@ class GenericIndvParser(DataParser):
 
     converters = {pit_key: str, "Year": str, "Month": str, "Day": str}
     header = 2
+    sheet_name = "Individual"
 
     def row_parser(self, row):
         row_datetime = utils.get_row_date(row)
@@ -93,6 +94,7 @@ class GenericGrpParser(DataParser):
     comment_key = "Comments"
 
     header = 2
+    sheet_name = "Group"
     start_grp_dict = {}
     end_grp_dict = {}
 
@@ -143,8 +145,8 @@ class GenericGrpParser(DataParser):
             grps = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
                                  at_date=row["datetime"], prog_str=row[self.group_key])
             start_grp_id = self.start_grp_dict[row["grp_key"]]
-            start_contx = utils.enter_contx(row["start_tank_id"], cleaned_data, None, grp_pk=start_grp_id.pk,
-                                            return_contx=True)
+            start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, None,
+                                                           grp_pk=start_grp_id.pk, return_contx=True)
             utils.enter_cnt(cleaned_data, sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
                             start_contx.pk, cnt_code="Fish Removed from Container")
 
@@ -159,7 +161,8 @@ class GenericGrpParser(DataParser):
 
             grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk, return_anix=True)
             utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, "Parent Group", frm_grp_id=start_grp_id)
-            utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, "Program Group", row[self.group_key])
+            if utils.nan_to_none(row[self.group_key]):
+                utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, "Program Group", row[self.group_key])
             end_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
                                                    row["datetime"],
                                                    grp_pk=end_grp_id.pk, return_end_contx=True)

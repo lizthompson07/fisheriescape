@@ -279,13 +279,13 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
 
-            if evntc.__str__() in ["Egg Development", "Measuring"]:
+            if evntc.__str__() in ["Egg Development", "Measuring", "Maturity Sorting"]:
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
                 if evntc.__str__() == "Egg Development":
                     data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
-                elif evntc.__str__() == "Measuring":
+                elif evntc.__str__() in ["Measuring", "Maturity Sorting"]:
                     data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
             else:
@@ -1053,7 +1053,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         elif evnt_code == "Egg Development":
             context["table_list"].extend(["data", "team", "grp", "trof", "heat", "prot", "evntf"])
         elif evnt_code == "Maturity Sorting":
-            context["table_list"].extend(["data", "team", "indv", "tank", "prot", "evntf"])
+            context["table_list"].extend(["data", "team", "indv", "grp", "tank", "prot", "evntf"])
         elif evnt_code == "Water Quality Record":
             context["table_list"].extend(["data", "team", "tank", "prot", "evntf"])
         elif evnt_code == "Spawning":

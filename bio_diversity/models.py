@@ -1171,22 +1171,23 @@ class IndividualDet(BioDet):
         """ Need to set all earlier details with the same code to invalid"""
         if self.indvd_valid:
             indv = self.anix_id.indv_id
-            anix_set = indv.animal_details.filter(individual_details__isnull=False,
-                                                  individual_details__indvd_valid=True,
-                                                  individual_details__anidc_id=self.anidc_id,
-                                                  individual_details__adsc_id=self.adsc_id,
-                                                  )
-            old_indvd_set = [anix.individual_details.filter(detail_date__lt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
-            for old_indvd in old_indvd_set:
-                if old_indvd:
-                    old_indvd = old_indvd.get()
-                    old_indvd.indvd_valid = False
-                    old_indvd.save()
+            if indv:
+                anix_set = indv.animal_details.filter(individual_details__isnull=False,
+                                                      individual_details__indvd_valid=True,
+                                                      individual_details__anidc_id=self.anidc_id,
+                                                      individual_details__adsc_id=self.adsc_id,
+                                                      )
+                old_indvd_set = [anix.individual_details.filter(detail_date__lt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
+                for old_indvd in old_indvd_set:
+                    if old_indvd:
+                        old_indvd = old_indvd.get()
+                        old_indvd.indvd_valid = False
+                        old_indvd.save()
 
-            current_indvd_set = [anix.individual_details.filter(detail_date__gt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
-            for current_indvd in current_indvd_set:
-                if current_indvd:
-                    self.indvd_valid = False
+                current_indvd_set = [anix.individual_details.filter(detail_date__gt=self.detail_date, anidc_id=self.anidc_id, adsc_id=self.adsc_id) for anix in anix_set]
+                for current_indvd in current_indvd_set:
+                    if current_indvd:
+                        self.indvd_valid = False
 
         super(IndividualDet, self).save(*args, **kwargs)
 

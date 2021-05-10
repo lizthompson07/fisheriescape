@@ -35,6 +35,7 @@ class DataParser:
 
     header = 1
     converters = {year_key: str, month_key: str, day_key: str}
+    sheet_name = 0
     """ The data is parsed on initializing. The process is broken into steps run sequentially in init.  Each step
      consists of two functions: a wrapper and a parser. The wrapper (eg. load_data) checks if self.success is still 
      true, catches errors from running the corresponding parser function (eg. data_loader) which should be overwritten 
@@ -56,7 +57,7 @@ class DataParser:
 
     def data_reader(self):
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
-                               converters=self.converters)
+                               converters=self.converters, sheet_name=self.sheet_name)
         self.data = self.data.mask(self.data.eq('None')).dropna(how="all")
 
     def prep_data(self):
