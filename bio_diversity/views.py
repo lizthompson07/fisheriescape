@@ -310,7 +310,6 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
             context["template_url"] = template_url
 
-
             context["template_name"] = "{}-{}".format(facility_code, evnt_code)
         return context
 
