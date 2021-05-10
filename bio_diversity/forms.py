@@ -13,8 +13,7 @@ from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
 from bio_diversity.data_parsers.picks import mactaquac_picks_parser, coldbrook_picks_parser
-from bio_diversity.data_parsers.spawning import coldbrook_spawning_parser, \
-    MactaquacSpawningParser
+from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
 from bio_diversity.data_parsers.temperatures import temperature_parser
 from bio_diversity.data_parsers.treatment import mactaquac_treatment_parser
@@ -277,7 +276,7 @@ class DataForm(CreatePrams):
                     parser = MactaquacSpawningParser(cleaned_data)
                     log_data, success = parser.log_data, parser.success
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, success = coldbrook_spawning_parser(cleaned_data)
+                    log_data, success = ColdbrookSpawningParser(cleaned_data)
 
             # -------------------------------TREATMENT----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Treatment":
