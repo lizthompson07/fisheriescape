@@ -122,6 +122,7 @@ class ContxAPIView(BioAPIView):
         data = serializer.data
         return Response(data)
 
+
 # Count
 ############################
 class CountAPIView(BioAPIView):
