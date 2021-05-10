@@ -14,7 +14,7 @@
   <p>
     <a href="{% url 'whalebrary:incident_email' object.id %}" class="btn btn-sm btn-primary">Email Incident</a>
     <a class="btn btn-sm btn-secondary" href="#" pop-href="{% url 'whalebrary:image_new' object.id %}">Upload Image</a>
-    <a class="btn btn-sm btn-success" href="#" pop-href="{% url 'whalebrary:resight_new' object.id %}">Resight</a>
+    <a class="btn btn-sm btn-success" href="#" pop-href="{% url 'whalebrary:resight_new' object.id %}">Log Resight</a>
   </p>
 
   <div class="row">
@@ -63,10 +63,11 @@
 
   let pointObj = {{ object.get_leaflet_dict | safe }};
   let allPointObj = {{ all_incidents | safe }};
+  let resightObj = {{ obj_resights | safe }};
   let mapboxApiKey = '{{ mapbox_api_key }}';
 
   </script>
 
-  <script src="{% static 'whalebrary/map3.js' %}?version=1.5"></script>
+  <script src="{% static 'whalebrary/map3.js' %}?version=1.7"></script>
 
 {% endblock %}

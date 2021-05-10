@@ -1419,8 +1419,13 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
             'date_email_sent',
         ]
 
+        def get_queryset(self, **kwargs):
+            qs = models.Transaction.objects.filter(item__item_name__iexact=self.kwargs['item_name'])
+            return qs
+
         # contexts for incident_detail maps
         context["all_incidents"] = [i.get_leaflet_dict() for i in models.Incident.objects.filter(latitude__isnull=False, longitude__isnull=False)]
+        context["obj_resights"] = [i.get_leaflet_resight_dict() for i in models.Resight.objects.filter(latitude__isnull=False, longitude__isnull=False, incident__id__iexact=self.kwargs['pk'])]
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
 
         return context
@@ -1500,6 +1505,22 @@ class IncidentDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
         ## INCIDENT RESIGHT ##
 
 
+def send_resight_email(request, pk):
+    """simple function to send email with detail_view information"""
+    # create a new email object
+    resight = get_object_or_404(models.Resight, pk=pk)
+    email = emails.NewResightEmail(request, resight)
+    # send the email object
+    email.send()
+    # success message
+    messages.success(request, "The new incident has been logged and a confirmation email has been sent!")
+    # log when the email was sent
+    resight.date_email_sent = timezone.now()
+    resight.save()
+    # go to previous page
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
+
 class ResightListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
     h1 = "Resight List"
@@ -1536,22 +1557,6 @@ class ResightListView(WhalebraryAccessRequired, CommonFilterView):
 #     ]
 #     home_url_name = "whalebrary:index"
 #     parent_crumb = {"title": gettext_lazy("Resight List"), "url": reverse_lazy("whalebrary:resight_list")}
-
-
-def send_resight_email(request, pk):
-    """simple function to send email with detail_view information"""
-    # create a new email object
-    resight = get_object_or_404(models.Resight, pk=pk)
-    email = emails.NewResightEmail(request, resight)
-    # send the email object
-    email.send()
-    # success message
-    messages.success(request, "The new resight has been logged and a confirmation email has been sent!")
-    # log when the email was sent
-    resight.date_email_sent = timezone.now()
-    resight.save()
-    # go to previous page
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
 class ResightUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):

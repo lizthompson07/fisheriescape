@@ -43,6 +43,11 @@
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                 </a>
             </td>
+            <td>
+                <a href="{% url 'whalebrary:resight_email' obj.id %}" data-toggle="tooltip" title="Email">
+                    <span class="icon mdi mdi-email"></span>
+                </a>
+            </td>
         </tr>
         {% endfor %}
         </tbody>

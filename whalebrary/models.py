@@ -435,6 +435,25 @@ class Resight(LatLongFields):
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
     date_email_sent = models.DateTimeField(blank=True, null=True, verbose_name="date resight incident emailed")
 
+    def __str__(self):
+        my_str = "{}".format(self.id)
+
+        if self.incident.name:
+            my_str += f' ({self.incident.name})'
+        return my_str
+
+    def get_leaflet_resight_dict(self):
+        json_dict = dict(
+            type='Feature',
+            properties=dict(
+                pk=self.pk,
+                date=str(self.resight_date),
+                comments=self.comments,
+            ),
+            geometry=dict(type='Point', coordinates=list([self.longitude, self.latitude]))
+        )
+        return json_dict
+
 
 def image_directory_path(instance, imagename):
     # image will be uploaded to MEDIA_ROOT/item_<id>/<filename>

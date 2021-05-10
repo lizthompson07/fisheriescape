@@ -35,6 +35,15 @@ var allPointObject = L.geoJSON(allPointObj, {
         }
 });
 
+// Create all resight layer and use onEachFeature to show certain info for each feature
+
+var resightObject = L.geoJSON(resightObj, {
+
+    onEachFeature: function (feature, layer) {
+       layer.bindPopup(`Resight #: ${feature.properties.pk}<br>Date: ${feature.properties.date}</br>Comments: ${feature.properties.comments}`);
+        }
+});
+
 // Create the map starting location and zoom level and tell it which layers to have on by default
 
 var map = L.map('map3', {
@@ -52,7 +61,8 @@ var baseMaps = {
 
 var overlayMaps = {
     "incident": pointObject,
-    "all": allPointObject,
+    "all incidents": allPointObject,
+    "resights": resightObject,
 
 };
 
