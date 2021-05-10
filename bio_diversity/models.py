@@ -455,8 +455,6 @@ class DataLoader(BioModel):
     evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"))
     evntc_id = models.ForeignKey('EventCode', on_delete=models.CASCADE, verbose_name=_("Data Format"))
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Data Format"))
-    tank_id = models.ForeignKey('Tank', on_delete=models.CASCADE, blank=True, null=True,
-                                verbose_name=_("Destination Tank"))
     data_csv = models.FileField(upload_to="", null=True, blank=True, verbose_name=_("Datafile"))
 
 

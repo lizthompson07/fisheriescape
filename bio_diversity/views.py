@@ -278,12 +278,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
-            if evntc.__str__() in ["Electrofishing", "Smolt Wheel Collection", "Bypass Collection"]:
-                self.get_form_class().base_fields["tank_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
-                self.get_form_class().base_fields["tank_id"].required = True
-            else:
-                self.get_form_class().base_fields["tank_id"].required = False
-                self.get_form_class().base_fields["tank_id"].widget = forms.HiddenInput()
+
             if evntc.__str__() in ["Egg Development", "Measuring"]:
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
@@ -306,15 +301,15 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
 
-            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
-
-            if evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
-                template_url = 'data_templates/{}-collection.xls'.format(facility_code)
-
-            if staticfiles_storage.exists(template_url):
-                context["template_url"] = template_url
+            if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water qualty record"]:
+                template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+            elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
+                template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
             else:
-                context["template_url"] = 'data_templates/measuring.xlsx'
+                template_url = 'data_templates/measuring.xlsx'
+
+            context["template_url"] = template_url
+
 
             context["template_name"] = "{}-{}".format(facility_code, evnt_code)
         return context

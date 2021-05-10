@@ -7,7 +7,6 @@ from bio_diversity.utils import DataParser
 
 
 class ElectrofishingParser(DataParser):
-    yr_coll_key = "Year Class"
     rive_key = "River"
     site_key = "site"
     lat_key = "Lat"
@@ -25,6 +24,7 @@ class ElectrofishingParser(DataParser):
     voltage_key = "Voltage"
     group_key = "Group"
     coll_key = "Collection"
+    tank_key = "End Tank"
 
     header = 2
     start_grp_dict = {}
@@ -119,12 +119,18 @@ class ElectrofishingParser(DataParser):
 
     def data_cleaner(self):
         cleaned_data = self.cleaned_data
-        river_group_data = self.data.groupby([self.rive_key, self.group_key, self.coll_key],
+        river_group_data = self.data.groupby([self.rive_key, self.group_key, self.coll_key, self.tank_key],
                                              dropna=False).size().reset_index()
+
+        if not river_group_data[self.tank_key].is_unique:
+            raise Exception("Too many different groups going into same tank. Create multiple events if needed")
+
         for index, row in river_group_data.iterrows():
             stok_id = models.StockCode.objects.filter(name__icontains=row[self.rive_key]).get()
+            coll_id = models.Collection.objects.filter(name__icontains=row[self.coll_key]).get()
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                               grp_id__stok_id=stok_id,
+                                                              grp_id__coll_id=coll_id,
                                                               indv_id__isnull=True,
                                                               contx_id__isnull=True,
                                                               indvt_id__isnull=True,
@@ -146,7 +152,7 @@ class ElectrofishingParser(DataParser):
             if not grp_found:
                 grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                    stok_id=stok_id,
-                                   coll_id=models.Collection.objects.filter(name__icontains=row[self.coll_key]).get(),
+                                   coll_id=coll_id,
                                    grp_year=self.data[self.year_key][0],
                                    grp_valid=True,
                                    created_by=cleaned_data["created_by"],
@@ -164,15 +170,19 @@ class ElectrofishingParser(DataParser):
                     utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None,
                                      "Program Group", row[self.group_key])
 
-            contx, data_entered = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk,
+            contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, True, None, grp.pk,
                                                          return_contx=True)
 
             if utils.nan_to_none(row[self.group_key]):
                 utils.enter_cnt(cleaned_data, self.data[(self.data[self.rive_key] == row[self.rive_key]) &
-                                                        (self.data[self.group_key] == row[self.group_key])][
+                                                        (self.data[self.group_key] == row[self.group_key]) &
+                                                        (self.data[self.tank_key] == row[self.tank_key]) &
+                                                        (self.data[self.coll_key] == row[self.coll_key])][
                     self.fish_caught_key].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
             else:
                 utils.enter_cnt(cleaned_data, self.data[(self.data[self.rive_key] == row[self.rive_key]) &
+                                                        (self.data[self.coll_key] == row[self.coll_key]) &
+                                                        (self.data[self.tank_key] == row[self.tank_key]) &
                                                         (self.data[self.group_key].isnull())][
                     self.fish_caught_key].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
 
@@ -202,4 +212,5 @@ class MactaquacElectrofishingParser(ElectrofishingParser):
     settings_key = "Fishing Settings"
     fishing_time_key = "Fishing Seconds"
     header = 2
+    tank_key = "Destination Pond"
 
