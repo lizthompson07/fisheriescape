@@ -308,7 +308,7 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
     # therefore determine an appropriate org list
     i = 0
     for org in org_list:
-        org_abbrev = slugify(org.abbrev) if org.abbrev else f"org{i}"
+        org_abbrev = slugify(org.abbrev) if org.abbrev else f"missing_abbrev_{i}"
         my_ws = workbook.add_worksheet(name=org_abbrev)
 
         # create the col_max column to store the length of each header
