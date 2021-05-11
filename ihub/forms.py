@@ -35,7 +35,7 @@ class EntryCreateForm(forms.ModelForm):
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, f'[{listrify(obj.regions.all())}] {obj}') for obj in get_ind_organizations()]
         self.fields["organizations"].choices = org_choices_all
-        sector_choices = [(obj.id, f"{obj.region} - {obj}") for obj in ml_models.Sector.objects.all()]
+        sector_choices = [(obj.id, f"{obj.region} - {obj.tname}") for obj in ml_models.Sector.objects.all()]
         self.fields["sectors"].choices = sector_choices
 
 
@@ -61,7 +61,7 @@ class EntryForm(forms.ModelForm):
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, f'[{listrify(obj.regions.all())}] {obj}') for obj in get_ind_organizations()]
         self.fields["organizations"].choices = org_choices_all
-        sector_choices = [(obj.id, f"{obj.region} - {obj}") for obj in ml_models.Sector.objects.all()]
+        sector_choices = [(obj.id, f"{obj.region} - {obj.tname}") for obj in ml_models.Sector.objects.all()]
         self.fields["sectors"].choices = sector_choices
 
 
@@ -99,11 +99,11 @@ class ReportSearchForm(forms.Form):
             ('xlsx', "Excel (xlsx)"),
         )
 
-        org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
-        org_choices_has_entry = [(obj.id, obj) for obj in get_ind_organizations() if obj.entries.count() > 0]
-        org_choices_has_ci = [(obj.id, obj) for obj in get_ind_organizations() if hasattr(obj, "consultation_instructions")]
+        org_choices_all = [(obj.id, f'{obj} [{listrify(obj.regions.all())}]') for obj in get_ind_organizations()]
+        org_choices_has_entry = [(obj.id, f'{obj} [{listrify(obj.regions.all())}]') for obj in get_ind_organizations() if obj.entries.count() > 0]
+        org_choices_has_ci = [(obj.id, f'{obj} [{listrify(obj.regions.all())}]') for obj in get_ind_organizations() if hasattr(obj, "consultation_instructions")]
 
-        sector_choices = [(obj.id, obj) for obj in ml_models.Sector.objects.all() if obj.entries.count() > 0]
+        sector_choices = [(obj.id, f"{obj.region} - {obj.tname}") for obj in ml_models.Sector.objects.all() if obj.entries.count() > 0]
         status_choices = [(obj.id, obj) for obj in models.Status.objects.all() if obj.entries.count() > 0]
         entry_type_choices = [(obj.id, obj) for obj in models.EntryType.objects.all() if obj.entries.count() > 0]
 
