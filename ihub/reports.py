@@ -306,9 +306,10 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
 
     # each org should be represented on a separate worksheet
     # therefore determine an appropriate org list
-
+    i = 0
     for org in org_list:
-        my_ws = workbook.add_worksheet(name=slugify(org.abbrev))
+        org_abbrev = slugify(org.abbrev) if org.abbrev else f"org{i}"
+        my_ws = workbook.add_worksheet(name=org_abbrev)
 
         # create the col_max column to store the length of each header
         # should be a maximum column width to 100
@@ -450,6 +451,7 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
                                          })
         except:
             print("problem with summary row")
+    i += 1
 
     workbook.close()
     return target_url
