@@ -27,14 +27,16 @@ class EntryCreateForm(forms.ModelForm):
             'created_by': forms.HiddenInput(),
             'organizations': forms.SelectMultiple(attrs=chosen_js),
             'regions': forms.SelectMultiple(attrs={'class': "multi-select"}),
-            'sectors': forms.SelectMultiple(attrs={'class': "multi-select"}),
+            'sectors': forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from ihub.views import get_ind_organizations
-        org_choices_all = [(obj.id, obj.full_display_name) for obj in get_ind_organizations()]
+        org_choices_all = [(obj.id, f'[{listrify(obj.regions.all())}] {obj}') for obj in get_ind_organizations()]
         self.fields["organizations"].choices = org_choices_all
+        sector_choices = [(obj.id, f"{obj.region} - {obj}") for obj in ml_models.Sector.objects.all()]
+        self.fields["sectors"].choices = sector_choices
 
 
 class EntryForm(forms.ModelForm):
@@ -51,14 +53,16 @@ class EntryForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'organizations': forms.SelectMultiple(attrs=chosen_js),
             'regions': forms.SelectMultiple(attrs={'class': "multi-select"}),
-            'sectors': forms.SelectMultiple(attrs={'class': "multi-select"}),
+            'sectors': forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from ihub.views import get_ind_organizations
-        org_choices_all = [(obj.id, obj.full_display_name) for obj in get_ind_organizations()]
+        org_choices_all = [(obj.id, f'[{listrify(obj.regions.all())}] {obj}') for obj in get_ind_organizations()]
         self.fields["organizations"].choices = org_choices_all
+        sector_choices = [(obj.id, f"{obj.region} - {obj}") for obj in ml_models.Sector.objects.all()]
+        self.fields["sectors"].choices = sector_choices
 
 
 class NoteForm(forms.ModelForm):
