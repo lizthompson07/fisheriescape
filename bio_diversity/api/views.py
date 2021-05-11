@@ -136,7 +136,7 @@ class CountAPIView(BioAPIView):
             anix_set = models.AniDetailXref.objects.filter(grp_id=grp_pk, contx_id__isnull=False).select_related('contx_id')
             contx_list = [anix.contx_id for anix in anix_set]
             self.model_instances = self.model_instances.filter(contx_id__in=contx_list).distinct()
-        serializer = serializers.CountDisplaySerializer(instance=self.model_instances, many=True)
+        serializer = serializers.CntDisplaySerializer(instance=self.model_instances, many=True)
         data = serializer.data
         return Response(data)
 

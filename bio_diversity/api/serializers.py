@@ -75,7 +75,7 @@ class ContxDisplaySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class CountDisplaySerializer(serializers.ModelSerializer):
+class CntDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Count
         fields = "__all__"
