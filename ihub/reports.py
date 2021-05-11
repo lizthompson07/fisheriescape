@@ -451,7 +451,7 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
                                          })
         except:
             print("problem with summary row")
-    i += 1
+        i += 1
 
     workbook.close()
     return target_url
