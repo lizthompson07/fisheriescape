@@ -4,7 +4,7 @@ from datetime import datetime
 import xlsxwriter as xlsxwriter
 from django.conf import settings
 from django.db.models import Q
-from django.template.defaultfilters import yesno
+from django.template.defaultfilters import yesno, slugify
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -308,7 +308,7 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
     # therefore determine an appropriate org list
 
     for org in org_list:
-        my_ws = workbook.add_worksheet(name=org.abbrev)
+        my_ws = workbook.add_worksheet(name=slugify(org.abbrev))
 
         # create the col_max column to store the length of each header
         # should be a maximum column width to 100
