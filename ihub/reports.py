@@ -306,9 +306,10 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
 
     # each org should be represented on a separate worksheet
     # therefore determine an appropriate org list
-    i = 0
+    org_counter = 0
     for org in org_list:
-        org_abbrev = slugify(org.abbrev) if org.abbrev else f"missing_abbrev_{i}"
+        org_abbrev = slugify(org.abbrev) if org.abbrev else f"missing_abbrev_{org_counter}"
+        org_counter += 1
         my_ws = workbook.add_worksheet(name=org_abbrev)
 
         # create the col_max column to store the length of each header
@@ -692,7 +693,6 @@ def consultation_instructions_export_spreadsheet(orgs=None):
             j += 1
 
         my_ws.write_row(i, 0, data_row, normal_format)
-        i += 1
 
     # set column widths
     for j in range(0, len(col_max)):
