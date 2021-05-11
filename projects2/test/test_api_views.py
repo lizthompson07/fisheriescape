@@ -445,7 +445,7 @@ class TestFTEBreakdownAPIView(CommonTest):
         # but this should return a bad response since no fiscal year was supplied
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get(self.test_url + f"?ids={project_year_1.id},{project_year_2.id};year={project_year_2.fiscal_year_id}")
+        response = self.client.get(self.test_url + f"?ids={project_year_1.id},{project_year_2.id}&year={project_year_2.fiscal_year_id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # the data should be a list for each user
         data = response.data
