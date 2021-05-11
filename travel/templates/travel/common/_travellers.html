@@ -112,8 +112,18 @@
                   {% trans "Please enter the new traveller information below." %}
                 </p>
               </div>
-
               <div class="form-group">
+                <label for="">
+                  ${travellerLabels.is_public_servant}
+                  <span v-if="helpText.is_public_servant" @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
+                        data-trigger="hover" :title="travellerLabels.is_public_servant"
+                        :data-content="helpText.is_public_servant"></span>
+                </label>
+                <select v-model="travellerToEdit.is_public_servant" class="form-control form-control-sm" required ref="traveller_form_starting_point">
+                  <option v-for="(obj, index) in yesNoChoices" :value="obj.value">${obj.text}</option>
+                </select>
+              </div>
+              <div class="form-group" v-if="travellerToEdit.is_public_servant">
                 <label for="">
                   ${travellerLabels.user}
                   <span v-if="helpText.user" @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
@@ -131,17 +141,7 @@
                 >
                 </v-select>
               </div>
-              <div class="form-group">
-                <label for="">
-                  ${travellerLabels.is_public_servant}
-                  <span v-if="helpText.is_public_servant" @mouseover="enablePopovers" class="mdi mdi-help-circle-outline" data-toggle="popover"
-                        data-trigger="hover" :title="travellerLabels.is_public_servant"
-                        :data-content="helpText.is_public_servant"></span>
-                </label>
-                <select v-model="travellerToEdit.is_public_servant" class="form-control form-control-sm" required ref="traveller_form_starting_point">
-                  <option v-for="(obj, index) in yesNoChoices" :value="obj.value">${obj.text}</option>
-                </select>
-              </div>
+
               <div class="form-group" v-if="travellerToEdit.is_public_servant">
                 <label for="">
                   ${travellerLabels.is_research_scientist}
