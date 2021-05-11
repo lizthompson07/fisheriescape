@@ -348,8 +348,8 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
                                 obj.get_type_display().upper(),
                                 obj.note,
                                 obj.status,
-                                obj.author.first_name,
-                                obj.author.last_name,
+                                obj.author.first_name if obj.author else "",
+                                obj.author.last_name if obj.author else "",
                                 obj.creation_date.strftime("%Y-%m-%d"),
                             )
                             if not count == max_count:
