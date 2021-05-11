@@ -73,12 +73,8 @@
             </div>
           </div>
           <table v-else class="table table-sm" style="width: auto">
-            {#            {% for field in process_field_list %}#}
-            {#              {% verbose_td_display object field th_width="300px" %}#}
-            {#            {% endfor %}#}
-
             <tr>
-              <th class="text-left" v-html="processLabels.fiscal_year"></th>
+              <th class="text-left w300" v-html="processLabels.fiscal_year"></th>
               <td class="text-left">${process.fiscal_year|nz}</td>
             </tr>
             <tr>
