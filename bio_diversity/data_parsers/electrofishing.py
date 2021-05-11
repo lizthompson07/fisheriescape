@@ -89,13 +89,8 @@ class ElectrofishingParser(DataParser):
                                                  relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
         self.loc = loc
-        if utils.nan_to_none(row[self.crew_key]):
-            row_percs, inits_not_found = utils.team_list_splitter(row[self.crew_key])
-            for perc in row_percs:
-                utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc)
-            for inits in inits_not_found:
-                self.log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
-                                                                                                          row)
+
+        self.team_parser(row[self.crew_key], row, loc_id=loc)
 
         self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id, loc_id=loc)
 
@@ -192,14 +187,7 @@ class ColdbrookElectrofishingParser(ElectrofishingParser):
     def row_parser(self, row):
         super().row_parser(row)
 
-        if utils.nan_to_none(row[self.crew_lead_key]):
-            row_percs, inits_not_found = utils.team_list_splitter(row[self.crew_lead_key])
-            for perc in row_percs:
-                if utils.add_team_member(perc, self.cleaned_data["evnt_id"], loc_id=self.loc, role_id=self.leader_code):
-                    self.row_entered = True
-            for inits in inits_not_found:
-                self.log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
-                                                                                                          row)
+        self.team_parser(row[self.crew_lead_key], row, loc_id=self.loc, role_id=self.leader_code)
 
 
 class MactaquacElectrofishingParser(ElectrofishingParser):

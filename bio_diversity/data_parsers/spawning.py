@@ -177,4 +177,4 @@ class MactaquacSpawningParser(SpawningParser):
 
 
 class ColdbrookSpawningParser(SpawningParser):
-   pass
+    pass

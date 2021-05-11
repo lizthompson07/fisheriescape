@@ -112,6 +112,14 @@ class DataParser:
         self.log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered into database.  " \
                          "\n".format(self.rows_parsed, len(self.data_dict), self.rows_entered, len(self.data_dict))
 
+    def team_parser(self, init_str, row, role_id=None, loc_id=None):
+        if nan_to_none(init_str):
+            perc_list, inits_not_found = team_list_splitter(init_str)
+            for perc_id in perc_list:
+                self.row_entered += add_team_member(perc_id, self.cleaned_data["evnt_id"], role_id=role_id, loc_id=loc_id)
+            for inits in inits_not_found:
+                self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
+
 
 def bio_diverisity_authorized(user):
     # return user.is_user and user.groups.filter(name='bio_diversity_user').exists()

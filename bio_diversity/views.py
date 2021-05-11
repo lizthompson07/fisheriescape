@@ -301,7 +301,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
 
-            if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water qualty record"]:
+            if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)

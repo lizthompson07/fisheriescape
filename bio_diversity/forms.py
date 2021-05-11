@@ -6,7 +6,7 @@ from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from bio_diversity.data_parsers.distributions import mactaquac_distribution_parser, coldbrook_distribution_parser
+from bio_diversity.data_parsers.distributions import MactaquacDistributionParser, ColdbrookDistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser
 
 from bio_diversity import models
@@ -16,7 +16,7 @@ from bio_diversity.data_parsers.picks import mactaquac_picks_parser, coldbrook_p
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
 from bio_diversity.data_parsers.temperatures import temperature_parser
-from bio_diversity.data_parsers.treatment import mactaquac_treatment_parser
+from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser, ColdbrookTreatmentParser
 from bio_diversity.data_parsers.water_quality import WaterQualityParser
 
 
@@ -274,14 +274,17 @@ class DataForm(CreatePrams):
             elif cleaned_data["evntc_id"].__str__() == "Spawning":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
                     parser = MactaquacSpawningParser(cleaned_data)
-                    log_data, success = parser.log_data, parser.success
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, success = ColdbrookSpawningParser(cleaned_data)
+                    parser = ColdbrookSpawningParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -------------------------------TREATMENT----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Treatment":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, success = mactaquac_treatment_parser(cleaned_data)
+                    parser = MactaquacTreatmentParser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    parser = ColdbrookTreatmentParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # ---------------------------TROUGH TEMPERATURE----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Egg Development" and\
@@ -306,9 +309,10 @@ class DataForm(CreatePrams):
             # -----------------------------DISTRIBUTION----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Distribution":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, success = mactaquac_distribution_parser(cleaned_data)
+                    parser = MactaquacDistributionParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, success = coldbrook_distribution_parser(cleaned_data)
+                    parser = ColdbrookDistributionParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -------------------------GENERAL DATA ENTRY-------------------------------------------
             else:

@@ -110,8 +110,8 @@ class TaggingParser(DataParser):
                     self.row_entered += utils.enter_anix(cleaned_data, indv_pk=indv.pk, team_pk=team_id.pk,
                                                          return_sucess=True)
             for inits in inits_not_found:
-                self.log_data += "No valid personnel with initials ({}) for row with pit tag {}\n".format(inits,
-                                                                                                     row[self.pit_key])
+                self.log_data += "No valid personnel with initials ({}) for row with pit tag" \
+                                 " {}\n".format(inits, row[self.pit_key])
 
         if utils.nan_to_none(row[self.comment_key]):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_indv,
