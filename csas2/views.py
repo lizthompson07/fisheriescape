@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
+from django.views.generic import CreateView
 
 from lib.functions.custom_functions import fiscal_year, truncate
 from shared_models.models import Person, FiscalYear
@@ -945,6 +946,12 @@ class DocumentCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     is_multipart_form_data = True
+
+    def get_initial(self):
+        """ For the benefit of the form class"""
+        return dict(
+            process=self.kwargs.get("process"),
+        )
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
