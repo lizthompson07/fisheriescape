@@ -22,17 +22,16 @@
     <div v-if="canModify && request.review && request.review.id" class="sidebar">
       {% include "csas2/request_detail/_review.html" %}
     </div>
+    <div class="row mb-5">
+      <div :class="{'col-10':request.review, 'col':!review.review}">
+        <div>
+          {% include "shared_models/_generic_breadcrumbs.html" %}
+          <div class="mb-3">
+            <h2 class="">{{ h1|safe }}</h2>
+            <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
+          </div>
+          {% bootstrap_messages %}
 
-    <div>
-      {% include "shared_models/_generic_breadcrumbs.html" %}
-      <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
-        <p class="lead text-muted mt-1 mb-0">{% trans "Request ID:" %} {{ object.id }}</p>
-      </div>
-      {% bootstrap_messages %}
-
-      <div class="row mb-5">
-        <div class="col-10">
 
           <div v-if="canModify" class="alert alert-primary no-print" role="alert">
             <p class="mb-0">
@@ -207,6 +206,8 @@
       review: {},
       reviewLabels: {},
       errors: null,
+      prioritizationChoices: [],
+      decisionChoices: [],
     },
     methods: {
       getCurrentUser() {

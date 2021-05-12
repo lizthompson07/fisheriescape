@@ -1,0 +1,51 @@
+{% load verbose_names %}
+{% load i18n %}
+
+{% language 'en' %}
+  <p>
+    Dear CSAS,
+  </p>
+  <p>
+    This is an automated message to notify you that the posted process entitled,
+    <a href="{{ SITE_FULL_URL }}{% url 'csas2:process_detail' meeting.process.id %}">{{ meeting.process.tname }}</a>,
+    has been modified.
+  </p>
+
+  <u> Here are the original details:</u>
+  <p>
+    <b>Title (English): </b>{{ old_meeting.name }} <br>
+    <b>Title (French): </b>{{ old_meeting.nom }} <br>
+    <b>Dates: </b>{{ old_meeting.tor_display_dates }} <br>
+  </p>
+
+  <u> Here are the details that have changed:</u>
+  <p>
+    {% if meeting.name != old_meeting.name %}
+      <b>Title (English): </b>{{ meeting.name }} <br>
+    {% endif %}
+    {% if meeting.nom != old_meeting.nom %}
+      <b>Title (French): </b>{{ meeting.nom }} <br>
+    {% endif %}
+    {% if meeting.tor_display_dates != old_meeting.tor_display_dates %}
+      <b>Dates: </b>{{ meeting.tor_display_dates }} <br>
+    {% endif %}
+    {% if meeting.location != old_meeting.location %}
+      <b>Location: </b>{{ meeting.location }} <br>
+    {% endif %}
+    {% if old_chair != new_chair %}
+      <b>Chair: </b>{{ new_chair }} <br>
+    {% endif %}
+    {% if old_expected_publications_en != new_expected_publications_en %}
+      <b>Expected publications (English): </b>{{ new_expected_publications_en }} <br>
+      <b>Expected publications (French): </b>{{ new_expected_publications_fr }} <br>
+    {% endif %}
+  </p>
+
+
+{% endlanguage %}
+
+<p>
+  With thanks,
+  <br><br>
+  DM Apps
+</p>

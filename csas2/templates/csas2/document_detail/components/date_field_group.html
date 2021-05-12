@@ -51,6 +51,11 @@ Vue.component("date-field-group", {
   },
   created() {
     this.date = this.display_date;
+  },
+  watch: {
+    display_date() {
+      this.date = this.display_date;
+    }
   }
 });
 </script>

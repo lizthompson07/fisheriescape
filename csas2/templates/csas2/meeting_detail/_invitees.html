@@ -13,6 +13,14 @@
       <span class="h5 mdi mdi-email text-light"></span>
     </button>
   </div>
+  <div class="mb-2 neighbours">
+    <button @click="attendAll" class="btn btn-sm btn-primary py-0 px-1" data-toggle="tooltip" title="{% trans "Mark all invitees who accepted the invitation as having 100% attendance" %}">
+      <span class="h5 mdi mdi-account-multiple-check text-light"></span>
+    </button>
+  </div>
+  <div class="mb-2 neighbours">
+    <invitee-importer v-if="meeting.id" :meeting_id="meeting.id" @update-invitees="getInvitees"></invitee-importer>
+  </div>
 </div>
 
 <div v-if="invitees && invitees.length">

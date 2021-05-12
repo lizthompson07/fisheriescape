@@ -175,13 +175,13 @@ Vue.component("author-editor", {
       let endpoint = `/api/csas/meta/models/author/`;
       apiService(endpoint).then(data => {
         this.labels = data.labels;
-        this.personChoices = data.person_choices;
       });
     },
     getPersonMetadata() {
       let endpoint = `/api/csas/meta/models/person/`;
       apiService(endpoint).then(data => {
         this.personLabels = data.labels;
+        this.personChoices = data.person_choices;
         this.languageChoices = data.language_choices;
       });
     },

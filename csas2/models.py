@@ -1,3 +1,4 @@
+from datetime import timedelta
 from uuid import uuid4
 
 from django.contrib.auth.models import User
@@ -7,7 +8,7 @@ from django.db.models import Sum
 from django.template.defaultfilters import date, slugify, pluralize
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _, gettext, get_language
+from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
 from markdown import markdown
 
 from csas2 import model_choices
@@ -41,6 +42,35 @@ class GenericFile(models.Model):
 
     def __str__(self):
         return self.caption
+
+
+class GenericCost(models.Model):
+    cost_category = models.IntegerField(choices=model_choices.cost_category_choices, verbose_name=_("cost category"))
+    description = models.CharField(max_length=1000, blank=True, null=True)
+    funding_source = models.CharField(max_length=255, blank=True, null=True)
+    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
+
+    def save(self, *args, **kwargs):
+        if not self.amount: self.amount = 0
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+
+class GenericNote(MetadataFields):
+    type = models.IntegerField(choices=model_choices.note_type_choices, verbose_name=_("type"))
+    note = models.TextField(verbose_name=_("note"))
+    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
+
+    class Meta:
+        abstract = True
+        ordering = ["is_complete", "-updated_at", ]
+
+    @property
+    def last_modified(self):
+        by = self.updated_by if self.updated_by else self.created_by
+        return mark_safe(f"{date(self.updated_at)} &mdash; {by}")
 
 
 class CSASRequest(MetadataFields):
@@ -251,6 +281,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
+    posting_request_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Date of posting request"))
     posting_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("Posting notification date"))
 
     # calculated
@@ -298,8 +329,6 @@ class TermsOfReference(MetadataFields):
     context_fr = models.TextField(blank=True, null=True, verbose_name=_("context (fr)"), help_text=_("French"))
     objectives_en = models.TextField(blank=True, null=True, verbose_name=_("objectives (en)"), help_text=_("English"))
     objectives_fr = models.TextField(blank=True, null=True, verbose_name=_("objectives (fr)"), help_text=_("French"))
-    expected_publications_en = models.TextField(blank=True, null=True, verbose_name=_("expected publications (en)"), help_text=_("English"))
-    expected_publications_fr = models.TextField(blank=True, null=True, verbose_name=_("expected publications (fr)"), help_text=_("French"))
     participation_en = models.TextField(blank=True, null=True, verbose_name=_("participation (en)"), help_text=_("English"))
     participation_fr = models.TextField(blank=True, null=True, verbose_name=_("participation (fr)"), help_text=_("French"))
     references_en = models.TextField(blank=True, null=True, verbose_name=_("references (en)"), help_text=_("English"))
@@ -307,6 +336,7 @@ class TermsOfReference(MetadataFields):
     meeting = models.OneToOneField("Meeting", blank=True, null=True, on_delete=models.DO_NOTHING, related_name="tor",
                                    verbose_name=_("Linked to which meeting?"),
                                    help_text=_("The ToR will pull several fields from the linked meeting (e.g., dates, chair, location, ...)"))
+    expected_document_types = models.ManyToManyField("DocumentType", blank=True, verbose_name=_("expected publications"))
 
     @property
     def context_en_html(self):
@@ -317,11 +347,6 @@ class TermsOfReference(MetadataFields):
     def objectives_en_html(self):
         if self.objectives_en:
             return mark_safe(markdown(self.objectives_en))
-
-    @property
-    def expected_publications_en_html(self):
-        if self.expected_publications_en:
-            return mark_safe(markdown(self.expected_publications_en))
 
     @property
     def participation_en_html(self):
@@ -344,11 +369,6 @@ class TermsOfReference(MetadataFields):
             return mark_safe(markdown(self.objectives_fr))
 
     @property
-    def expected_publications_fr_html(self):
-        if self.expected_publications_fr:
-            return mark_safe(markdown(self.expected_publications_fr))
-
-    @property
     def participation_fr_html(self):
         if self.participation_fr:
             return mark_safe(markdown(self.participation_fr))
@@ -359,28 +379,9 @@ class TermsOfReference(MetadataFields):
             return mark_safe(markdown(self.references_fr))
 
 
-class GenericCost(models.Model):
-    cost_category = models.IntegerField(choices=model_choices.cost_category_choices, verbose_name=_("cost category"))
-    description = models.CharField(max_length=1000, blank=True, null=True)
-    funding_source = models.CharField(max_length=255, blank=True, null=True)
-    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
-
-    def save(self, *args, **kwargs):
-        if not self.amount: self.amount = 0
-        super().save(*args, **kwargs)
-
-    class Meta:
-        abstract = True
-
-
-class GenericNote(MetadataFields):
-    type = models.IntegerField(choices=model_choices.note_type_choices, verbose_name=_("type"))
-    note = models.TextField(verbose_name=_("note"))
-    is_complete = models.BooleanField(default=False, verbose_name=_("complete?"))
-
-    class Meta:
-        abstract = True
-        ordering = ["is_complete", "-updated_at", ]
+class ProcessNote(GenericNote):
+    ''' a note pertaining to a process'''
+    process = models.ForeignKey(Process, related_name='notes', on_delete=models.CASCADE)
 
 
 class Meeting(SimpleLookup, MetadataFields):
@@ -409,6 +410,12 @@ class Meeting(SimpleLookup, MetadataFields):
     def save(self, *args, **kwargs):
         if self.start_date:
             self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
+        else:
+            est_fy = self.est_year
+            if self.est_quarter != 4:
+                est_fy += 1
+            self.fiscal_year_id = est_fy
+
         if self.is_virtual:
             self.location = 'Virtual / Virtuel'
         if self.start_date:
@@ -425,6 +432,12 @@ class Meeting(SimpleLookup, MetadataFields):
 
     def __str__(self):
         return self.display
+
+    @property
+    def full_display(self):
+        fy = str(self.fiscal_year) if self.fiscal_year else "TBD"
+        invitee_count = self.invitees.count()
+        return f"{self.process.lead_region} - {fy} - {self.display} ({invitee_count} invitee{pluralize(invitee_count)})"
 
     class Meta:
         ordering = ["-is_planning", 'start_date', ]
@@ -474,6 +487,26 @@ class Meeting(SimpleLookup, MetadataFields):
             return dates
         else:
             return f"{self.get_est_quarter_display()} {self.est_year}"
+
+    @property
+    def expected_publications_en(self):
+        """ this is mainly for the email that gets sent to NCR when there is a change on a posted meeting """
+        if hasattr(self.process, "tor"):
+            lang = get_language()
+            activate("en")
+            mystr = listrify(self.process.tor.expected_document_types.all())
+            activate(lang)
+            return mystr
+
+    @property
+    def expected_publications_fr(self):
+        """ this is mainly for the email that gets sent to NCR when there is a change on a posted meeting """
+        if hasattr(self.process, "tor"):
+            lang = get_language()
+            activate("fr")
+            mystr = listrify(self.process.tor.expected_document_types.all())
+            activate(lang)
+            return mystr
 
     @property
     def total_cost(self):
@@ -554,6 +587,16 @@ class Invitee(models.Model):
             days = self.attendance.count()
             return "{} {}{} ({})".format(days, gettext("day"), pluralize(days), percentage(self.attendance_fraction, 0))
 
+    def maximize_attendance(self):
+        if self.meeting.start_date and self.meeting.end_date:
+            self.attendance.all().delete()
+            start_date = self.meeting.start_date
+            end_date = self.meeting.end_date
+            diff = (end_date - start_date)
+            for i in range(0, diff.days + 1):
+                date = start_date + timedelta(days=i)
+                Attendance.objects.get_or_create(invitee=self, date=date)
+
 
 class Attendance(models.Model):
     '''we will need to track on which days an invitee actually showed up'''
@@ -597,14 +640,17 @@ class Document(MetadataFields):
 
     # non-editable
     due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("document due date"), editable=False)
-    pub_number_request_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date of publication number request"))
+    pub_number_request_date = models.DateTimeField(null=True, blank=True, verbose_name=_("date of publication number request"), editable=False)
     pub_number = models.CharField(max_length=25, verbose_name=_("publication number"), blank=True, null=True, editable=False, unique=True)
-    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"), editable=False)
+    meetings = models.ManyToManyField(Meeting, blank=True, related_name="documents", verbose_name=_("csas meeting linkages"))
     people = models.ManyToManyField(Person, verbose_name=_("authors"), editable=False, through="Author")
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.get_document_status_choices(), editable=False)
     translation_status = models.IntegerField(verbose_name=_("translation status"), choices=model_choices.get_translation_status_choices(), editable=False,
                                              default=0)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
+
+    class Meta:
+        ordering = ["process", _("title_en")]
 
     def save(self, *args, **kwargs):
         # set status

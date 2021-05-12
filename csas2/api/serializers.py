@@ -362,6 +362,14 @@ class MeetingSerializer(serializers.ModelSerializer):
     total_cost = serializers.SerializerMethodField()
     display = serializers.SerializerMethodField()
     somp_notification_date = serializers.SerializerMethodField()
+    is_posted = serializers.SerializerMethodField()
+    has_tor = serializers.SerializerMethodField()
+
+    def get_has_tor(self, instance):
+        return hasattr(instance, "tor")
+
+    def get_is_posted(self, instance):
+        return instance.process.is_posted
 
     def get_somp_notification_date(self, instance):
         return date(instance.somp_notification_date)
@@ -383,7 +391,6 @@ class MeetingSerializer(serializers.ModelSerializer):
             )
         if len(my_list):
             return listrify(my_list)
-        return gettext("None")
 
     def get_start_date_display(self, instance):
         return date(instance.start_date)
@@ -412,6 +419,25 @@ class MeetingNoteSerializer(serializers.ModelSerializer):
         exclude = ["updated_at", "created_at"]  # "slug", 'author'
 
     type_display = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+
+    def get_last_modified(self, instance):
+        return instance.last_modified
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
+
+class ProcessNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ProcessNote
+        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+
+    type_display = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+
+    def get_last_modified(self, instance):
+        return instance.last_modified
 
     def get_type_display(self, instance):
         return instance.get_type_display()
@@ -423,6 +449,10 @@ class DocumentNoteSerializer(serializers.ModelSerializer):
         exclude = ["updated_at", "created_at"]  # "slug", 'author'
 
     type_display = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+
+    def get_last_modified(self, instance):
+        return instance.last_modified
 
     def get_type_display(self, instance):
         return instance.get_type_display()
@@ -536,8 +566,44 @@ class ProcessSerializer(serializers.ModelSerializer):
         model = models.Process
         fields = "__all__"
 
+    advisors = serializers.SerializerMethodField()
+    chair = serializers.SerializerMethodField()
+    coordinator = serializers.StringRelatedField()
+    fiscal_year = serializers.StringRelatedField()
+    has_tor = serializers.SerializerMethodField()
+    has_tor_meeting = serializers.SerializerMethodField()
     lead_region = serializers.StringRelatedField()
+    metadata = serializers.SerializerMethodField()
+    other_regions = serializers.SerializerMethodField()
+    scope_type = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
+    posting_request_date = serializers.SerializerMethodField()
+
+    def get_posting_request_date(self, instance):
+        if instance.posting_request_date:
+            return f"{date(instance.posting_request_date)} ({naturaltime(instance.posting_request_date)})"
+
+    def get_advisors(self, instance):
+        return listrify(instance.advisors.all())
+
+    def get_chair(self, instance):
+        return instance.chair
+
+    def get_has_tor(self, instance):
+        return hasattr(instance, "tor")
+
+    def get_has_tor_meeting(self, instance):
+        if hasattr(instance, "tor"):
+            return instance.tor.meeting is not None
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_other_regions(self, instance):
+        return listrify(instance.other_regions.all())
+
+    def get_scope_type(self, instance):
+        return instance.scope_type
 
     def get_tname(self, instance):
         return instance.tname

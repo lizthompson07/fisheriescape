@@ -1,3 +1,5 @@
+# TODO: vue-select is sensitive to accents!!
+
 # TODO: when entering a new request, it should validate that this is not more than 3 fiscal years ahead!
 # TODO: user permissions menu
 # TODO: invitee -- when adding a new person, (or cloning) the name does not appear in dropdown list

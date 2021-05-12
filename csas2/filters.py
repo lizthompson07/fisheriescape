@@ -4,8 +4,15 @@ from django.utils.translation import gettext_lazy as _
 
 from shared_models.models import FiscalYear, Section, Branch, Region, Person
 from . import models, utils
+from .model_choices import request_status_choices
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+chosen_js = {"class": "chosen-select-contains"}
+
+
+class UserFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Name contains"), lookup_expr='icontains',
+                                            widget=forms.TextInput())
 
 
 class PersonFilter(django_filters.FilterSet):
@@ -28,22 +35,19 @@ class CSASRequestFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
     branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
-    has_process = django_filters.BooleanFilter(field_name='process', lookup_expr='isnull', label=_("Has process?"), exclude=True)
-
-    class Meta:
-        model = models.CSASRequest
-        fields = {
-            'status': ['exact'],
-        }
+    has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
+    status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"),
+                                                 widget=forms.SelectMultiple(attrs=chosen_js), choices=request_status_choices)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         region_choices = utils.get_region_choices()
         branch_choices = utils.get_branch_choices()
-        fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False)]
+        fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
 
-        self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
+        self.filters['fiscal_year'] = django_filters.MultipleChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
+                                                                          label=_("Fiscal year"), widget=forms.SelectMultiple(attrs=chosen_js))
         self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact',
                                                              choices=region_choices)
         self.filters['branch'] = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact',
@@ -78,6 +82,12 @@ class ProcessFilter(django_filters.FilterSet):
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
         self.filters['lead_region'] = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact', choices=region_choices)
+
+    class Meta:
+        model = models.Process
+        fields = {
+            'type': ['exact'],
+        }
 
 
 class MeetingFilter(django_filters.FilterSet):
