@@ -311,6 +311,10 @@ class CommonFilterView(FilterView, CommonListMixin):
     template_name = 'shared_models/shared_filter.html'
     extra_button_dict1 = None
     extra_button_dict2 = None
+    open_row_in_new_tab = False
+
+    def get_open_row_in_new_tab(self):
+        return self.open_row_in_new_tab
 
     def get_extra_button_dict1(self):
         return self.extra_button_dict1
@@ -325,6 +329,7 @@ class CommonFilterView(FilterView, CommonListMixin):
         context["extra_button_dict1"] = self.get_extra_button_dict1()
         context["extra_button_dict2"] = self.get_extra_button_dict2()
         context["model_name"] = self.get_queryset().model._meta.verbose_name
+        context["open_row_in_new_tab"] = self.get_open_row_in_new_tab()
         return context
 
 

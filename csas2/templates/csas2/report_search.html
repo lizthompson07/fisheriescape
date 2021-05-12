@@ -38,6 +38,8 @@
   function hideAll() {
     $(".fiscal_year_div").addClass("gone");
     $("#id_fiscal_year").prop("required", false);
+    $(".is_posted_div").addClass("gone");
+    $("#id_is_posted").prop("required", false);
   }
 
   function configureForm() {
@@ -46,6 +48,8 @@
     if (reportChoice === "1") {
       $(".fiscal_year_div").removeClass("gone");
       $("#id_fiscal_year").prop("required", false);
+      $(".is_posted_div").removeClass("gone");
+      $("#id_is_posted").prop("required", false);
 
     }
   }

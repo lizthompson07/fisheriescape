@@ -3,6 +3,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 
+from lib.templatetags.custom_filters import nz
 from shared_models.models import Section, Person, FiscalYear
 from . import models
 
@@ -53,13 +54,19 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal year'))
+    is_posted = forms.ChoiceField(required=False, label=gettext_lazy('Posted processes?'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        posted_choices = (
+            ("", "All meetings"),
+            (1, gettext("Only posted")),
+            (0, gettext("Only un-posted")),
+        )
         fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(processes__isnull=False).distinct()]
-        fy_choices.insert(0, (None, "-----"))
+        fy_choices.insert(0, (None, "All"))
         self.fields["fiscal_year"].choices = fy_choices
+        self.fields["is_posted"].choices = posted_choices
 
 
 class CSASRequestForm(forms.ModelForm):
@@ -128,6 +135,9 @@ class TermsOfReferenceForm(forms.ModelForm):
     class Meta:
         model = models.TermsOfReference
         fields = "__all__"
+        widgets = {
+            'expected_document_types': forms.SelectMultiple(attrs=chosen_js),
+        }
 
     def __init__(self, *args, **kwargs):
         if kwargs.get("instance"):
@@ -136,8 +146,12 @@ class TermsOfReferenceForm(forms.ModelForm):
             process = get_object_or_404(models.Process, pk=kwargs.get("initial").get("process"))
         meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.all()]
         meeting_choices.insert(0, (None, "-----"))
+        document_type_choices = [(obj.id, f"{str(obj)}") for obj in models.DocumentType.objects.filter(hide_from_list=False)]
+        document_type_choices.insert(0, (None, "-----"))
+
         super().__init__(*args, **kwargs)
         self.fields["meeting"].choices = meeting_choices
+        self.fields["expected_document_types"].choices = document_type_choices
 
     # def clean(self):
     #     cleaned_data = super().clean()
@@ -196,7 +210,7 @@ class ProcessForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {obj.ref_number} ({obj.fiscal_year})") for obj in
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {nz(obj.ref_number,'')} ({obj.fiscal_year})") for obj in
                            models.CSASRequest.objects.filter(submission_date__isnull=False)]
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices
@@ -208,7 +222,13 @@ class ProcessForm(forms.ModelForm):
         other_regions = cleaned_data.get("other_regions")
         coordinator = cleaned_data.get("coordinator")
         lead_region = cleaned_data.get("lead_region")
-
+        name = cleaned_data.get("name")
+        nom = cleaned_data.get("nom")
+        if not name and not nom:
+            error_msg = gettext("Must have either an English title or a French title!")
+            self.add_error('name', error_msg)
+            self.add_error('nom', error_msg)
+            raise forms.ValidationError(error_msg)
         if lead_region in other_regions:
             error_msg = gettext("Your lead region cannot be listed in the 'Other Regions' field.")
             self.add_error('other_regions', error_msg)
@@ -268,12 +288,21 @@ class DocumentForm(forms.ModelForm):
         model = models.Document
         fields = "__all__"
         widgets = {
-            'meetings': forms.SelectMultiple(attrs=multi_select_js),
+            'meetings': forms.SelectMultiple(attrs=chosen_js),
 
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if kwargs.get("instance"):
+            process = kwargs.get("instance").process
+        else:
+            process = get_object_or_404(models.Process, pk=kwargs.get("initial").get("process"))
+        # meeting_choices
+        meeting_choices = [(obj.id, f"{str(obj)}") for obj in process.meetings.all()]
+        meeting_choices.insert(0, (None, "-----"))
+        self.fields["meetings"].choices = meeting_choices
+
         if not kwargs.get("instance"):
             del self.fields["year"]
             del self.fields["pages"]
