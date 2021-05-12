@@ -349,7 +349,7 @@ class RciChannelInfo(models.Model):
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
     rci_gain = models.IntegerField(blank=True, null=True, verbose_name=_("Gain"))
-    rci_volts = models.DecimalField(max_digits=14, decimal_places=10, blank=True, null=True, verbose_name=_("Voltage"))
+    rci_volts = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True, verbose_name=_("Volts per bit"))
 
 
 class RecDataset(models.Model):
