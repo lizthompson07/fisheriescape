@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from markdown import markdown
 
 from lib.functions.custom_functions import listrify
 from lib.functions.custom_functions import nz
@@ -63,12 +64,14 @@ class Entry(models.Model):
                                            limit_choices_to={'grouping__is_indigenous': True}, verbose_name=_("organizations"))
     initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     anticipated_end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
+    is_faa_required = models.BooleanField(null=True, blank=True, verbose_name=_("is an FAA required?"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
     sectors = models.ManyToManyField(ml_models.Sector, related_name="entries", verbose_name=_("DFO sectors"))
     entry_type = models.ForeignKey(EntryType, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="entries",
                                    verbose_name=_("Entry Type"))  # title case needed
     regions = models.ManyToManyField(shared_models.Region, related_name="entries", verbose_name=_("regions"))
+    response_deadline = models.DateTimeField(verbose_name=_("response deadline"), blank=True, null=True)
 
     # funding
     funding_program = models.ForeignKey(FundingProgram, on_delete=models.DO_NOTHING, blank=True, null=True,
@@ -92,6 +95,12 @@ class Entry(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"),
                                    related_name="user_entries")
     old_id = models.IntegerField(blank=True, null=True, editable=False, unique=True)  # used for importing new data.
+
+    @property
+    def has_funding_detail(self):
+        return self.funding_program or self.fiscal_year or self.funding_needed or \
+               self.funding_purpose or self.amount_requested or self.amount_approved or \
+               self.amount_transferred or self.amount_lapsed or self.amount_owing
 
     class Meta:
         ordering = ['-date_created', ]
@@ -201,6 +210,10 @@ class EntryNote(models.Model):
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entry_notes")
 
+    @property
+    def metadata(self):
+        return get_metadata_string(self.creation_date, self.author, self.modified_date, with_time=False)
+
     def __str__(self):
         my_str = "{} - {} [STATUS: {}] (Created by {} {} on {})".format(
             self.get_type_display().upper(),
@@ -214,6 +227,11 @@ class EntryNote(models.Model):
 
     class Meta:
         ordering = ["-creation_date"]
+
+    @property
+    def note_html(self):
+        if self.note:
+            return markdown(self.note)
 
 
 def file_directory_path(instance, filename):
