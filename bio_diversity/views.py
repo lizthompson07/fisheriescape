@@ -1204,6 +1204,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["calculated_properties"]["Programs"] = self.object.prog_group()
         context["calculated_properties"]["Current Tank"] = self.object.current_cont()
         context["calculated_properties"]["Development"] = self.object.get_development()
+        context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()
         return context
 
 
@@ -2848,6 +2849,59 @@ class HelpTextFormsetView(SiteLoginRequiredMixin, CommonFormsetView):
 class HelpTextHardDeleteView(SiteLoginRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
     success_url = reverse_lazy("bio_diversity:manage_help_texts")
+
+
+class FishtocontFormView(mixins.FishtocontMixin, SiteLoginRequiredMixin, CommonFormView):
+    template_name = 'shared_models/shared_entry_form.html'
+
+    nav_menu = 'bio_diversity/bio_diversity_nav.html'
+    site_css = 'bio_diversity/bio_diversity.css'
+    home_url_name = "bio_diversity:index"
+
+    def get_initial(self):
+        init = super().get_initial()
+        init["created_by"] = self.request.user.username
+        init["created_date"] = date.today
+        init["move_date"] = date.today
+
+        cont = utils.get_cont_from_tag(self.kwargs.get("cont_type"), self.kwargs.get("cont_id"))
+        init["facic_id"] = cont.facic_id
+        collection_evntc_names = ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]
+        indv_list, grp_list = cont.fish_in_cont()
+        self.form_class.base_fields["evnt_id"].queryset = models.Event.objects.filter(facic_id=cont.facic_id, evntc_id__name__in=collection_evntc_names)
+        if len(grp_list) == 1:
+            grp = grp_list[0]
+            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id=grp.pk)
+            self.form_class.base_fields["relc_id"].queryset = models.ReleaseSiteCode.objects.filter(rive_id__name=grp.stok_id.name)
+        else:
+            grp_id_list =[grp.id for grp in grp_list]
+            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id__in=grp_id_list)
+
+        return init
+
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return None
+
+        return self.nav_menu
+
+    # Upon success most creation views will be redirected to the Individual List view. To send
+    # a successful creation view somewhere else, override this method
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:list_indv")
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        return super().form_valid(form)
 
 
 class MortFormView(mixins.MortMixin, SiteLoginRequiredMixin, CommonFormView):

@@ -207,7 +207,6 @@ class BioCont(BioLookup):
 
     # Make name not unique, is unique together with facility code.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"), db_column="NAME")
-    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     def fish_in_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), select_fields=[]):
         indv_list = []
@@ -428,12 +427,15 @@ class Cup(BioCont):
     # Make name not unique, is unique together with drawer.
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     draw_id = models.ForeignKey('Drawer', on_delete=models.CASCADE, related_name="cups", verbose_name=_("Drawer"), db_column="DRAWER_ID")
-    facic_id = None
     start_date = models.DateField(verbose_name=_("Start Date"), db_column="START_DATE")
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"), db_column="END_DATE")
 
     def __str__(self):
         return "HU {}.{}.{}".format(self.draw_id.heat_id.__str__(), self.draw_id.name, self.name)
+
+    @property
+    def facic_id(self):
+        return self.draw_id.facic_id
 
 
 class CupDet(BioContainerDet):
@@ -472,7 +474,10 @@ class Drawer(BioCont):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     heat_id = models.ForeignKey('HeathUnit', on_delete=models.CASCADE, related_name="draws",
                                 verbose_name=_("Heath Unit"), db_column="HEATH_UNIT_ID")
-    facic_id = None
+
+    @property
+    def facic_id(self):
+        return self.heat_id.facic_id
 
     def __str__(self):
         return "HU {}.{}".format(self.heat_id.__str__(), self.name)
@@ -793,7 +798,11 @@ class Group(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTTS")
 
     def __str__(self):
-        return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
+        prog = self.prog_group()
+        if not prog:
+            return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
+        elif len(prog) == 1:
+            return "{}-{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__(), prog[0].__str__())
 
     def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         return self.current_cont_by_key('tank', at_date)
@@ -836,7 +845,8 @@ class Group(BioModel):
 
         absolute_codes = ["Egg Count", ]
         add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added"]
-        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed", ]
+        subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
+                          "Fish Removed from Container"]
 
         for cnt in cnt_set:
             if cnt.cntc_id.name in add_codes:
@@ -949,6 +959,7 @@ class HeathUnit(BioCont):
     manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"), db_column="MANUFACTURER")
     inservice_date = models.DateField(verbose_name=_("Date unit was put into service"), db_column="INSERVICE_DATE")
     serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"), db_column="SERIAL_NUMBER")
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
         constraints = [
@@ -1679,6 +1690,7 @@ class SubRiverCode(BioLookup):
 class Tank(BioCont):
     # tank tag
     key = "tank"
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
         constraints = [
@@ -1728,7 +1740,6 @@ class Tray(BioCont):
     name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     trof_id = models.ForeignKey('Trough', on_delete=models.CASCADE, related_name="trays", verbose_name=_("Trough"),
                                 db_column="TROUGH_ID")
-    facic_id = None
     start_date = models.DateField(verbose_name=_("Start Date"), db_column="START_DATE")
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"), db_column="END_DATE")
 
@@ -1745,6 +1756,10 @@ class Tray(BioCont):
 
     def __str__(self):
         return "TR{}-{}".format(self.trof_id.__str__(), self.name)
+
+    @property
+    def facic_id(self):
+        return self.trof_id.facic_id
 
 
 class TrayDet(BioContainerDet):
@@ -1768,6 +1783,7 @@ class Tributary(BioLookup):
 class Trough(BioCont):
     # trof tag
     key = "trof"
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:
         constraints = [

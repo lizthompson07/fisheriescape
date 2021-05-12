@@ -381,17 +381,18 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
     if origin == destination:
         row_entered = False
         return row_entered
-    if cleaned_data["evnt_id"]:
-        # link containers to parent event
-        if not origin:
-            # move indvidual or group to destination and clean up previous contx's
-            if grp_pk:
-                grp = models.Group.objects.filter(pk=grp_pk).get()
-                origin_conts = grp.current_cont(movement_date)
-        else:
-            row_entered += enter_contx(origin, cleaned_data, None)
+    if "evnt_id" in cleaned_data.keys():
+        if cleaned_data["evnt_id"]:
+            # link containers to parent event
+            if not origin:
+                # move indvidual or group to destination and clean up previous contx's
+                if grp_pk:
+                    grp = models.Group.objects.filter(pk=grp_pk).get()
+                    origin_conts = grp.current_cont(movement_date)
+            else:
+                row_entered += enter_contx(origin, cleaned_data, None)
 
-        row_entered += enter_contx(destination, cleaned_data, None)
+            row_entered += enter_contx(destination, cleaned_data, None)
 
     if destination:
         movement_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Movement").get(),
@@ -1238,3 +1239,20 @@ def common_err_parser(err):
         err_msg = "Could not find a {} object from worksheet in database.".format(err.__str__().split(" ")[0])
 
     return err_msg
+
+
+def get_cont_from_tag(cont_tag, cont_id):
+    cont = None
+    if cont_tag == "cup":
+        cont = models.Cup.objects.filter(pk=cont_id).get()
+    elif cont_tag == "draw":
+        cont = models.Drawer.objects.filter(pk=cont_id).get()
+    elif cont_tag == "heat":
+        cont = models.HeathUnit.objects.filter(pk=cont_id).get()
+    elif cont_tag == "tank":
+        cont = models.Tank.objects.filter(pk=cont_id).get()
+    elif cont_tag == "tray":
+        cont = models.Tray.objects.filter(pk=cont_id).get()
+    elif cont_tag == "trof":
+        cont = models.Trough.objects.filter(pk=cont_id).get()
+    return cont

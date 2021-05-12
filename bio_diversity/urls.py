@@ -172,6 +172,9 @@ urlpatterns = [
     path('list/feedm/', views.FeedmList.as_view(), name="list_feedm"),
     path('update/feedm/<int:pk>/', views.FeedmUpdate.as_view(), name="update_feedm"),
                  
+    path('create/fishtocont/', views.FishtocontFormView.as_view(), name="create_fish_to_cont"),
+    path('create/fishtocont/<str:cont_type>/<int:cont_id>/<str:pop>', views.FishtocontFormView.as_view(), name="create_fish_to_cont"),
+
     path('create/grp/', views.GrpCreate.as_view(), name="create_grp"),
     path('create/grp/<int:evnt>/<str:pop>', views.GrpCreate.as_view(), name="create_grp"),
     path('details/grp/<int:pk>/', views.GrpDetails.as_view(), name="details_grp"),

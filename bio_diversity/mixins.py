@@ -239,6 +239,13 @@ class FeedmMixin:
     admin_only = False
 
 
+class FishtocontMixin:
+    key = "fish_to_cont"
+    form_class = forms.FishToContForm
+    title = _("Add Fish to Container")
+    admin_only = True
+
+
 class GrpMixin:
     key = "grp"
     form_class = forms.GrpForm
