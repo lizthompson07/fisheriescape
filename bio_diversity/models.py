@@ -1336,6 +1336,16 @@ class Location(BioModel):
                 self.loc_lon = round(decimal.Decimal(self.relc_id.bbox.centroid.xy[0][0] + 0.0005), 5)
                 self.loc_lat = round(decimal.Decimal(self.relc_id.bbox.centroid.xy[1][0]), 5)
 
+    def clean(self, *args, **kwargs):
+        if self.relc_id and not self.rive_id:
+            self.rive_id = self.relc_id.rive_id
+        if self.relc_id and not self.trib_id:
+            self.trib_id = self.relc_id.trib_id
+        if self.relc_id and not self.subr_id:
+            self.sube_id = self.relc_id.subr_id
+        self.set_relc_latlng()
+        super(Location, self).clean(*args, **kwargs)
+
     def save(self, *args, **kwargs):
         self.set_relc_latlng()
         super(Location, self).save(*args, **kwargs)

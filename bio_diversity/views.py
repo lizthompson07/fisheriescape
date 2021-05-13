@@ -2865,17 +2865,16 @@ class FishtocontFormView(mixins.FishtocontMixin, SiteLoginRequiredMixin, CommonF
         init["move_date"] = date.today
 
         cont = utils.get_cont_from_tag(self.kwargs.get("cont_type"), self.kwargs.get("cont_id"))
+        self.form_class.set_cont(self.form_class, cont)
         init["facic_id"] = cont.facic_id
-        collection_evntc_names = ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]
         indv_list, grp_list = cont.fish_in_cont()
-        self.form_class.base_fields["evnt_id"].queryset = models.Event.objects.filter(facic_id=cont.facic_id, evntc_id__name__in=collection_evntc_names)
+        self.form_class.base_fields["evnt_id"].queryset = models.Event.objects.filter(facic_id=cont.facic_id).select_related("prog_id", "evntc_id")
         if len(grp_list) == 1:
             grp = grp_list[0]
-            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id=grp.pk)
-            self.form_class.base_fields["relc_id"].queryset = models.ReleaseSiteCode.objects.filter(rive_id__name=grp.stok_id.name)
+            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id=grp.pk).select_related("stok_id", "coll_id")
         else:
-            grp_id_list =[grp.id for grp in grp_list]
-            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id__in=grp_id_list)
+            grp_id_list = [grp.id for grp in grp_list]
+            self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id__in=grp_id_list).select_related("stok_id", "coll_id")
 
         return init
 
