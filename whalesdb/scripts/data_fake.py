@@ -27,3 +27,13 @@ def load_fake_equipment():
 
     # attach to a technical repair event
     factory.EtrFactory.create(eqp=eqp_rec, hyd=eqp_hyd)
+
+
+# this is intended to be used from the `python manage.py shell` to load equipment
+# into the sql db just for visual testing of buttons and stuff.
+# Use from `python manage.py shell`:
+#   from whalesdb.scripts.data_fake import load_fake_equipment
+#   load_fake_equipment()
+def load_fake_station():
+    # create a stn
+    stn = factory.StnFactory.create()

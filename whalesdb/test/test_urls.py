@@ -155,6 +155,10 @@ class URLTest(TestCase):
     def test_url_details_emm_view(self):
         self.basic_en_url_test('whalesdb:details_emm', 'whalesdb/details/emm/1/', views.EmmDetails, [1])
 
+    @tag('emm', 'url', 'delete')
+    def test_url_delete_emm(self):
+        self.basic_en_url_test('whalesdb:delete_emm', 'whalesdb/delete/emm/1/', views.emm_delete, [1])
+
     @tag('ehe', 'url', 'create')
     def test_url_create_pop_ehe_view(self):
         self.basic_en_url_test('whalesdb:create_ehe', 'whalesdb/create/ehe/1/1/pop/', views.EheCreate, [1, 1, 'pop'])
@@ -342,6 +346,10 @@ class URLTest(TestCase):
     @tag('stn', 'url', 'details')
     def test_url_details_stn_view(self):
         self.basic_en_url_test('whalesdb:details_stn', 'whalesdb/details/stn/1/', views.StnDetails, [1])
+
+    @tag('stn', 'url', 'delete')
+    def test_url_delete_stn(self):
+        self.basic_en_url_test('whalesdb:delete_stn', 'whalesdb/delete/stn/1/', views.stn_delete, [1])
 
     @tag('ste', 'url', 'create', 'pop')
     def test_url_create_set_pop_ste_view(self):

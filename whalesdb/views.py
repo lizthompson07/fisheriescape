@@ -19,39 +19,6 @@ from .utils import AdminRequiredMixin
 from . import mixins, reports
 
 
-def ecc_delete(request, pk):
-    ecc = models.EccCalibrationValue.objects.get(pk=pk)
-    if utils.whales_authorized(request.user):
-        ecc.delete()
-        messages.success(request, _("The value curve has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
-
-
-def ecp_delete(request, emm, ecp):
-    if utils.whales_authorized(request.user):
-        ecp_channel = models.EcpChannelProperty.objects.get(eqr=emm, ecp_channel_no=ecp)
-        ehe_list = models.EheHydrophoneEvent.objects.filter(rec__emm=emm, ecp_channel_no=ecp)
-        for ehe in ehe_list:
-            ehe.delete()
-        ecp_channel.delete()
-        messages.success(request, _("The make/model channel has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
-
-
-def eda_delete(request, pk):
-    eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
-    if utils.whales_authorized(request.user):
-        eda.delete()
-        messages.success(request, _("The attachment has been successfully removed."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
-
-
 def remove_equipment(pk):
     eqp = models.EqpEquipment.objects.get(pk=pk)
     if eqp.emm.eqt.pk == 4:
@@ -88,6 +55,49 @@ def remove_equipment(pk):
     eqp.delete()
 
 
+def remove_deployment(pk):
+    dep = models.DepDeployment.objects.get(pk=pk)
+    edas = dep.attachments.all()
+    for eda in edas:
+        recs = eda.dataset.all()
+        recs.delete()
+        eda.delete()
+    dep.delete()
+
+
+def ecc_delete(request, pk):
+    ecc = models.EccCalibrationValue.objects.get(pk=pk)
+    if utils.whales_authorized(request.user):
+        ecc.delete()
+        messages.success(request, _("The value curve has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def ecp_delete(request, emm, ecp):
+    if utils.whales_authorized(request.user):
+        ecp_channel = models.EcpChannelProperty.objects.get(eqr=emm, ecp_channel_no=ecp)
+        ehe_list = models.EheHydrophoneEvent.objects.filter(rec__emm=emm, ecp_channel_no=ecp)
+        for ehe in ehe_list:
+            ehe.delete()
+        ecp_channel.delete()
+        messages.success(request, _("The make/model channel has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def eda_delete(request, pk):
+    eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
+    if utils.whales_authorized(request.user):
+        eda.delete()
+        messages.success(request, _("The attachment has been successfully removed."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 def emm_delete(request, pk):
     if utils.whales_authorized(request.user):
         emm = models.EmmMakeModel.objects.get(pk=pk)
@@ -113,14 +123,8 @@ def eqp_delete(request, pk):
 
 
 def dep_delete(request, pk):
-    dep = models.DepDeployment.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
-        edas = dep.attachments.all()
-        for eda in edas:
-            recs = eda.dataset.all()
-            recs.delete()
-            eda.delete()
-        dep.delete()
+        remove_deployment(pk=pk)
         messages.success(request, _("The deployment has been successfully deleted."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
@@ -142,6 +146,20 @@ def rci_delete(request, pk):
     if utils.whales_authorized(request.user):
         rci.delete()
         messages.success(request, _("The recording channel has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def stn_delete(request, pk):
+    if utils.whales_authorized(request.user):
+        stn = models.StnStation.objects.get(pk=pk)
+        dep_list = models.DepDeployment.objects.filter(stn=stn)
+        for dep in dep_list:
+            remove_deployment(dep.pk)
+
+        stn.delete()
+        messages.success(request, _("The Station has been successfully deleted."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
@@ -939,6 +957,8 @@ class StnList(mixins.StnMixin, CommonList):
         {"name": "stn_code"},
         {"name": "stn_revision"},
     ]
+
+    delete_url = "whalesdb:delete_stn"
 
 
 class TeaList(mixins.TeaMixin, CommonList):

@@ -103,6 +103,7 @@ urlpatterns = [
     path('update/stn/<int:pk>/<str:pop>/', views.StnUpdate.as_view(), name="update_stn"),
     path('details/stn/<int:pk>/', views.StnDetails.as_view(), name="details_stn"),
     path('list/stn/', views.StnList.as_view(), name="list_stn"),
+    path('delete/stn/<int:pk>/', views.stn_delete, name="delete_stn"),
 
     path('create/tea/', views.TeaCreate.as_view(), name="create_tea"),
     path('update/tea/<int:pk>/', views.TeaUpdate.as_view(), name="update_tea"),
