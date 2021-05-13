@@ -52,6 +52,52 @@ def eda_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
+def remove_equipment(pk):
+    eqp = models.EqpEquipment.objects.get(pk=pk)
+    if eqp.emm.eqt.pk == 4:
+        # it's a hydrophone
+        ehe_events = models.EheHydrophoneEvent.objects.filter(hyd=eqp)
+        for ehe in ehe_events:
+            ehe.delete()
+
+        eca_events = models.EcaCalibrationEvent.objects.filter(eca_hydrophone=eqp)
+        for eca in eca_events:
+            eca.delete()
+
+        etr_events = models.EtrTechnicalRepairEvent.objects.filter(hyd=eqp)
+        for etr in etr_events:
+            etr.delete()
+    else:
+        # it's a recorder
+        ehe_events = models.EheHydrophoneEvent.objects.filter(rec=eqp)
+        for ehe in ehe_events:
+            ehe.delete()
+
+        eda_events = models.EdaEquipmentAttachment.objects.filter(eqp=eqp)
+        for eda in eda_events:
+            eda.delete()
+
+        eca_events = models.EcaCalibrationEvent.objects.filter(eca_attachment=eqp)
+        for eca in eca_events:
+            eca.delete()
+
+        etr_events = models.EtrTechnicalRepairEvent.objects.filter(eqp=eqp)
+        for etr in etr_events:
+            etr.delete()
+
+    eqp.delete()
+
+
+def eqp_delete(request, pk):
+
+    if utils.whales_authorized(request.user):
+        remove_equipment(pk=pk)
+        messages.success(request, _("The equipment has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 def dep_delete(request, pk):
     dep = models.DepDeployment.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
@@ -783,7 +829,6 @@ class EcaList(mixins.EcaMixin, CommonList):
     ]
 
 
-
 class EmmList(mixins.EmmMixin, CommonList):
     filterset_class = filters.EmmFilter
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating']
@@ -805,6 +850,8 @@ class EqpList(mixins.EqpMixin, CommonList):
         {"name": "eqp_retired"},
         {"name": "eqp_deployed"},
     ]
+
+    delete_url = "whalesdb:delete_eqp"
 
 
 class EtrList(mixins.EtrMixin, CommonList):

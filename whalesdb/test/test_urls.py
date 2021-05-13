@@ -195,6 +195,10 @@ class URLTest(TestCase):
     def test_url_details_eqp_view(self):
         self.basic_en_url_test('whalesdb:details_eqp', 'whalesdb/details/eqp/1/', views.EqpDetails, [1])
 
+    @tag('eqp', 'url', 'delete')
+    def test_url_delete_eqp_view(self):
+        self.basic_en_url_test('whalesdb:delete_eqp', 'whalesdb/delete/eqp/1/', views.eqp_delete, [1])
+
     @tag('eqr', 'url', 'create')
     def test_url_create_pop_eqr_view(self):
         self.basic_en_url_test('whalesdb:create_eqr', 'whalesdb/create/eqr/1/pop/', views.EqrCreate, [1, 'pop'])

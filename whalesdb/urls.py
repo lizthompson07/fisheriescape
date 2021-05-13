@@ -59,6 +59,7 @@ urlpatterns = [
     path('update/eqp/<int:pk>/<str:pop>/', views.EqpUpdate.as_view(), name="update_eqp"),
     path('details/eqp/<int:pk>/', views.EqpDetails.as_view(), name="details_eqp"),
     path('list/eqp/', views.EqpList.as_view(), name="list_eqp"),
+    path('delete/eqp/<int:pk>/', views.eqp_delete, name="delete_eqp"),
 
     path('create/eqr/<int:pk>/<str:pop>/', views.EqrCreate.as_view(), name="create_eqr"),
     path('update/eqr/<int:pk>/<str:pop>/', views.EqrUpdate.as_view(), name="update_eqr"),

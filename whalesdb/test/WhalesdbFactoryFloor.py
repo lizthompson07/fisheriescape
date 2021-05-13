@@ -60,6 +60,7 @@ class EcaFactory(factory.django.DjangoModelFactory):
 
     eca_date = factory.lazy_attribute(lambda o: faker.date())
     eca_attachment = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
+    eca_hydrophone = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqhFactory")
 
     @staticmethod
     def get_valid_data():
@@ -177,6 +178,7 @@ class EheFactory(factory.django.DjangoModelFactory):
 
     ehe_date = factory.lazy_attribute(lambda o: faker.date())
     hyd = factory.SubFactory('whalesdb.test.WhalesdbFactoryFloor.EqhFactory')
+    rec = factory.SubFactory('whalesdb.test.WhalesdbFactoryFloor.EqrFactory')
     ecp_channel_no = factory.lazy_attribute(lambda o: faker.random_int(1, 9))
 
     @staticmethod
@@ -281,13 +283,16 @@ class EtrFactory(factory.django.DjangoModelFactory):
         model = models.EtrTechnicalRepairEvent
 
     eqp = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
+    hyd = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqhFactory")
 
     @staticmethod
     def get_valid_data():
         eqp = EqpFactory()
+        hyd = EqhFactory()
 
         valid_data = {
-            'eqp': eqp.pk
+            'eqp': eqp.pk,
+            'hyd': hyd.pk
         }
 
         return valid_data
