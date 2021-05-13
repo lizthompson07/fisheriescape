@@ -10,9 +10,49 @@ from shared_models.test import common_tests
 req_factory = RequestFactory()
 
 
-@tag("delete", "eqp")
-class TestDeleteEqp(common_tests.CommonTest):
+class CommonTestFixtures(common_tests.CommonTest):
     fixtures = ['initial_whale_data.json']
+
+
+@tag("delete", "emm")
+class TestDeleteEmm(CommonTestFixtures):
+    emm = None
+
+    def setUp(self):
+        self.emm = factory.EmmFactory()
+
+        # What if a piece of equipment uses a make/model
+        factory.EqpFactory(emm=self.emm)
+
+    def test_emm_delete_not_whale_admin(self):
+        self.get_and_login_user()
+
+        activate('en')
+        response = self.client.get(reverse_lazy("whalesdb:delete_emm", args=(self.emm.pk,)))
+
+        self.assertEqual(1, len(models.EmmMakeModel.objects.filter(pk=self.emm.pk)))
+
+        #redirect to access denied
+        self.assertEqual(302, response.status_code)
+
+    def test_eqp_delete_recorder(self):
+        self.get_and_login_user(in_group='whalesdb_admin')
+
+        activate('en')
+        response = self.client.get(reverse_lazy("whalesdb:delete_emm", args=(self.emm.pk,)))
+
+        self.assertEqual(0, len(models.EmmMakeModel.objects.filter(pk=self.emm.pk)))
+
+        # if successful should return a message
+        message = str(messages.get_messages(response.wsgi_request)._queued_messages[0])
+        self.assertEqual(message, "The Make/Model has been successfully deleted.")
+
+        # redirect to HTTP_REFERER
+        self.assertEqual(302, response.status_code)
+
+
+@tag("delete", "eqp")
+class TestDeleteEqp(CommonTestFixtures):
 
     eqr = None
     eqh = None

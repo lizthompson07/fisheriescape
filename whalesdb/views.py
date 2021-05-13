@@ -88,6 +88,20 @@ def remove_equipment(pk):
     eqp.delete()
 
 
+def emm_delete(request, pk):
+    if utils.whales_authorized(request.user):
+        emm = models.EmmMakeModel.objects.get(pk=pk)
+        eqp_list = models.EqpEquipment.objects.filter(emm=emm)
+        for eqp in eqp_list:
+            remove_equipment(pk=eqp.pk)
+
+        emm.delete()
+        messages.success(request, _("The Make/Model has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 def eqp_delete(request, pk):
 
     if utils.whales_authorized(request.user):
@@ -838,6 +852,8 @@ class EmmList(mixins.EmmMixin, CommonList):
         {"name": "emm_model"},
         {"name": "emm_depth_rating"},
     ]
+
+    delete_url = "whalesdb:delete_emm"
 
 
 class EqpList(mixins.EqpMixin, CommonList):
