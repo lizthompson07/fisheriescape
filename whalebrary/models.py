@@ -408,7 +408,10 @@ class Incident(LatLongFields):
     date_email_sent = models.DateTimeField(blank=True, null=True, verbose_name="date incident emailed")
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        else:
+            return None
 
     def get_leaflet_dict(self):
         json_dict = dict(
@@ -416,7 +419,7 @@ class Incident(LatLongFields):
             properties=dict(
                 name=self.name,
                 pk=self.pk,
-                type=self.get_incident_type_display(), #if this is not filled in this method fails though, need to make separate one for error handling
+                type=str(self.get_incident_type_display()), #if this is not filled in this method fails though, need to make separate one for error handling
                 species=self.species.name,
                 date=str(self.first_report),
             ),

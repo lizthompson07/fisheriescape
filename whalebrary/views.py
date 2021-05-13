@@ -1419,9 +1419,6 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
             'date_email_sent',
         ]
 
-        def get_queryset(self, **kwargs):
-            qs = models.Transaction.objects.filter(item__item_name__iexact=self.kwargs['item_name'])
-            return qs
 
         # contexts for incident_detail maps
         context["all_incidents"] = [i.get_leaflet_dict() for i in models.Incident.objects.filter(latitude__isnull=False, longitude__isnull=False)]
