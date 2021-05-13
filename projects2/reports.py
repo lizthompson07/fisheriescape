@@ -1016,7 +1016,7 @@ def export_project_summary(request):
     wb = load_workbook(filename=template_file_path)
     year_list = []
     # if the fiscal_year is set then we're only creating one worksheet for that year
-    if 'fiscal_year' in request.GET:
+    if 'fiscal_year' in request.GET and request.GET.get("fiscal_year"):
         year_list.append(request.GET.get("fiscal_year"))
     else:
         year_list = [y[0] for y in list(dict.fromkeys(qs.values_list('project__fiscal_years').distinct()))]
