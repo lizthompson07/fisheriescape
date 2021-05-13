@@ -131,9 +131,27 @@ def dep_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
-def rst_delete(request, pk):
-    rst = models.RstRecordingStage.objects.get(pk=pk)
+def rsc_delete(request, pk):
     if utils.whales_authorized(request.user):
+        rsc = models.RscRecordingSchedule.objects.get(pk=pk)
+        rec_list = models.RecDataset.objects.filter(rsc_id=rsc)
+        for rec in rec_list:
+            rec.delete()
+
+        rst_list = models.RstRecordingStage.objects.filter(rsc=rsc)
+        for rst in rst_list:
+            rst.delete()
+
+        rsc.delete()
+        messages.success(request, _("The Recording Schedule has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def rst_delete(request, pk):
+    if utils.whales_authorized(request.user):
+        rst = models.RstRecordingStage.objects.get(pk=pk)
         rst.delete()
         messages.success(request, _("The recording stage has been successfully deleted."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -947,6 +965,8 @@ class RscList(mixins.RscMixin, CommonList):
         {"name": "rsc_name"},
         {"name": "rsc_period"},
     ]
+
+    delete_url = "whalesdb:delete_rsc"
 
 
 class StnList(mixins.StnMixin, CommonList):

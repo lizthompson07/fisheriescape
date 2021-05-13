@@ -89,6 +89,7 @@ urlpatterns = [
     path('update/rsc/<int:pk>/', views.RscUpdate.as_view(), name="update_rsc"),
     path('details/rsc/<int:pk>/', views.RscDetails.as_view(), name="details_rsc"),
     path('list/rsc/', views.RscList.as_view(), name="list_rsc"),
+    path('delete/rsc/<int:pk>/', views.rsc_delete, name="delete_rsc"),
 
     path('create/rst/<int:rsc>/<str:pop>/', views.RstCreate.as_view(), name="create_rst"),
     path('delete/rst/<int:pk>/', views.rst_delete, name="delete_rst"),

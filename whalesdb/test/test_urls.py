@@ -311,6 +311,10 @@ class URLTest(TestCase):
     def test_url_details_rsc_view(self):
         self.basic_en_url_test('whalesdb:details_rsc', 'whalesdb/details/rsc/1/', views.RscDetails, [1])
 
+    @tag('rsc', 'url', 'delete')
+    def test_url_delete_rsc_view(self):
+        self.basic_en_url_test('whalesdb:delete_rsc', 'whalesdb/delete/rsc/1/', views.rsc_delete, [1])
+
     @tag('rst', 'url', 'create')
     def test_url_create_rst_view(self):
         self.basic_en_url_test('whalesdb:create_rst', 'whalesdb/create/rst/1/pop/', views.RstCreate, [1, 'pop'])

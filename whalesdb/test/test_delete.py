@@ -14,6 +14,46 @@ class CommonTestFixtures(common_tests.CommonTest):
     fixtures = ['initial_whale_data.json']
 
 
+@tag("delete", "rsc")
+class TestDeleteRsc(CommonTestFixtures):
+    rsc = None
+
+    def setUp(self):
+        self.rsc = factory.RscFactory()
+
+        # What if the rsc is attached to a dataset
+        factory.RecFactory(rsc_id=self.rsc)
+
+        # What if the rsc is attached to a recording stage
+        factory.RstFactory(rsc=self.rsc)
+
+    def test_rsc_delete_not_whale_admin(self):
+        self.get_and_login_user()
+
+        activate('en')
+        response = self.client.get(reverse_lazy("whalesdb:delete_rsc", args=(self.rsc.pk,)))
+
+        self.assertEqual(1, len(models.RscRecordingSchedule.objects.filter(pk=self.rsc.pk)))
+
+        # redirect to access denied
+        self.assertEqual(302, response.status_code)
+
+    def test_rsc_delete_recorder(self):
+        self.get_and_login_user(in_group='whalesdb_admin')
+
+        activate('en')
+        response = self.client.get(reverse_lazy("whalesdb:delete_rsc", args=(self.rsc.pk,)))
+
+        self.assertEqual(0, len(models.RscRecordingSchedule.objects.filter(pk=self.rsc.pk)))
+
+        # if successful should return a message
+        message = str(messages.get_messages(response.wsgi_request)._queued_messages[0])
+        self.assertEqual(message, "The Recording Schedule has been successfully deleted.")
+
+        # redirect to HTTP_REFERER
+        self.assertEqual(302, response.status_code)
+
+
 @tag("delete", "stn")
 class TestDeleteStn(CommonTestFixtures):
     stn = None
@@ -41,7 +81,7 @@ class TestDeleteStn(CommonTestFixtures):
         activate('en')
         response = self.client.get(reverse_lazy("whalesdb:delete_stn", args=(self.stn.pk,)))
 
-        self.assertEqual(0, len(models.EmmMakeModel.objects.filter(pk=self.stn.pk)))
+        self.assertEqual(0, len(models.StnStation.objects.filter(pk=self.stn.pk)))
 
         # if successful should return a message
         message = str(messages.get_messages(response.wsgi_request)._queued_messages[0])
