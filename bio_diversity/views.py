@@ -903,17 +903,24 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
 
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
-    template_name = 'bio_diversity/details_env.html'
     fields = ["loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "start_date|Start Date", "start_time|Start Time",
               "end_date|End Date", "end_time|End Time", "env_avg", "qual_id", "comments", "created_by", "created_date"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["envcf_object"] = models.EnvCondFile.objects.first()
-        context["envcf_field_list"] = [
-            "env_pdf",
-            "created_date",
-        ]
+        context["table_list"].extend(["envcf"])
+
+        if hasattr(self.object, "envcf_id"):
+            envcf_set = [self.object.envcf_id]
+        else:
+            envcf_set = None
+        envcf_field_list = ["env_pdf", "created_date" ]
+        obj_mixin = mixins.EnvcfMixin
+        context["context_dict"]["envcf"] = {"div_title": "Environment Condition Files",
+                                            "sub_model_key": obj_mixin.key,
+                                            "objects_list": envcf_set,
+                                            "field_list": envcf_field_list,
+                                            "single_object": obj_mixin.model.objects.first()}
 
         return context
 
@@ -1833,9 +1840,9 @@ class EnvcList(mixins.EnvcMixin, GenericList):
 
 class EnvcfList(mixins.EnvcfMixin, GenericList):
     field_list = [
-        {"name": 'env_id', "class": "", "width": ""},
+        {"name": 'env_pdf', "class": "", "width": ""},
     ]
-    queryset = models.EnvCondFile.objects.select_related("env")
+    queryset = models.EnvCondFile.objects.all()
     filterset_class = filters.EnvcfFilter
 
 

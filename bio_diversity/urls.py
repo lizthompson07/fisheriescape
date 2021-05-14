@@ -104,6 +104,7 @@ urlpatterns = [
     
     path('create/envcf/', views.EnvcfCreate.as_view(), name="create_envcf"),
     path('details/envcf/<int:pk>/', views.EnvcfDetails.as_view(), name="details_envcf"),
+    path('details/envcf/<str:back>/<int:back_id>/<int:pk>/', views.EnvcfDetails.as_view(), name="details_envcf"),
     path('list/envcf/', views.EnvcfList.as_view(), name="list_envcf"),
     path('update/envcf/<int:pk>/', views.EnvcfUpdate.as_view(), name="update_envcf"),   
     

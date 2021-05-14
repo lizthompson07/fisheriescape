@@ -552,6 +552,8 @@ class EnvCondFile(BioModel):
     def __str__(self):
         return "{}".format(self.env_pdf)
 
+    class Meta:
+        ordering = ['created_date']
 
 @receiver(models.signals.post_delete, sender=EnvCondFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):

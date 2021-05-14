@@ -116,7 +116,7 @@ class EnvcfFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.EnvCondFile
-        fields = ["env_id", ]
+        fields = ["created_by", ]
 
 
 class EnvscFilter(django_filters.FilterSet):

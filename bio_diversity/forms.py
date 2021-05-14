@@ -353,9 +353,19 @@ class EnvcForm(CreatePrams):
 
 
 class EnvcfForm(CreatePrams):
+
     class Meta:
         model = models.EnvCondFile
         exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['env_id'].queryset = models.EnvCondition.objects.all().select_related("envc_id",
+                                                                                          "contx_id__evnt_id__prog_id",
+                                                                                          "contx_id__evnt_id__evntc_id",
+                                                                                          "contx_id__evnt_id",
+                                                                                          "contx_id__evnt_id__prog_id",
+                                                                                          "loc_id__locc_id")
 
 
 class EnvscForm(CreatePrams):
