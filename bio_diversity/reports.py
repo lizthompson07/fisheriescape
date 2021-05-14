@@ -128,6 +128,68 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     return target_url
 
 
+def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
+    # report is given a stock code and returns location of all associated fish
+    if not start_date:
+        start_date = datetime.min.replace(tzinfo=pytz.UTC)
+    if not end_date:
+        end_date = datetime.now().replace(tzinfo=pytz.UTC)
+
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
+                                      "site_report_template.xlsx")
+
+    wb = load_workbook(filename=template_file_path)
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws_indv = wb['template']
+    ws_indv.title = "Sites"
+    wb.copy_worksheet(ws_indv).title = str("template")
+    try:
+        ws = wb["Sites"]
+    except KeyError:
+        print("Individuals is not a valid name of a worksheet")
+
+    loc_pk_list = [loc.pk for loc in locations_list]
+    # pre fetch counts:
+    cnt_qs = models.Count.objects.filter(loc_id_id__in=loc_pk_list).select_related("cntc_id")
+    # force the qurey to run:
+    len(cnt_qs)
+
+    # put in start and end dates
+    ws_indv['B1'].value = start_date
+    ws_indv['B2'].value = end_date
+    # start writing data at row 3 in the sheet
+    row_count = 4
+    cnt_slots = "EFGHIJKLMNOPQRST"
+    for site in sites_list:
+        site_name = site.name
+        rive_name = site.rive_id.name
+        site_locations = [location for location in locations_list if location.relc_id.pk == site.pk]
+        for site_location in site_locations:
+            loc_cnt_qs = cnt_qs.filter(loc_id_id=site_location.pk)
+            ws_indv['A' + str(row_count)].value = rive_name
+            ws_indv['B' + str(row_count)].value = site_name
+            ws_indv['C' + str(row_count)].value = site_location.start_date
+            ws_indv['D' + str(row_count)].value = site_location.locc_id.name
+            cnt_col = 0
+            for cnt in loc_cnt_qs:
+                ws_indv[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
+                ws_indv[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
+                cnt_col += 2
+            row_count += 1
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
 def generate_growth_chart(plot_fish):
 
     if type(plot_fish) == models.Individual:

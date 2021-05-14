@@ -95,9 +95,9 @@
     {% endif %}
     {% if 'img' in table_list %}
     <div class="card border border-dark my-1" name="img-details">
-        <h5 class="card-header">{% trans "Images" %}
+        <h5 class="card-header">{% trans "Documents" %}
             <span class="px-1">
-                <a class="btn btn-primary" name="add-new-img-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_img' model_key object.pk 'pop' %}','all')" title="{% trans 'Add New Image' %}">{% trans 'Add New Image' %}</a>
+                <a class="btn btn-primary" name="add-new-img-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_img' model_key object.pk 'pop' %}','all')" title="{% trans 'Add New Document' %}">{% trans 'Add New Document' %}</a>
             </span>
         </h5>
         {% if object.images.count > 0 %}

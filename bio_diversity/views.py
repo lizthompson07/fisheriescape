@@ -959,7 +959,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
 
         indv_set = models.Individual.objects.filter(animal_details__evnt_id=self.object,
-                                                    ).distinct().select_related("grp_id__stok_id", "grp_id__coll_id")
+                                                    ).distinct().select_related("grp_id", "grp_id__stok_id", "grp_id__coll_id")
         indv_field_list = ["ufid", "pit_tag", "grp_id", "indv_valid"]
         obj_mixin = mixins.IndvMixin
         context["context_dict"]["indv"] = {"div_title": "{} Details".format(obj_mixin.title),
@@ -3024,6 +3024,18 @@ def plot_data_file(request):
     raise Http404
 
 
+@login_required()
+def site_report_file(request):
+    file_url = request.GET.get("file_url")
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="site_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+            return response
+    raise Http404
+
+
 class PlotView(CommonTemplateView):
     success_url = reverse_lazy("shared_models:close_me")
     template_name = 'bio_diversity/bio_plot.html'
@@ -3104,6 +3116,8 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
 
         # filter locations by start-end dates and river codes if needed:
         location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False).select_related("evnt_id__evntc_id", "rive_id", "relc_id__rive_id")
+        start_date = None
+        end_date = None
         if self.kwargs.get("start"):
             start_date = utils.naive_to_aware(datetime.strptime(self.kwargs.get("start"), '%Y-%m-%d'))
             end_date = utils.naive_to_aware(datetime.strptime(self.kwargs.get("end"), '%Y-%m-%d'))
@@ -3137,11 +3151,16 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         # if there are bounding coords, we look in the box
 
         if self.kwargs.get("n"):
+            west_lim = float(self.kwargs.get("w"))
+            south_lim = float(self.kwargs.get("s"))
+            east_lim = float(self.kwargs.get("e"))
+            north_lim = float(self.kwargs.get("n"))
+
             bbox = box(
-                float(self.kwargs.get("w")),
-                float(self.kwargs.get("s")),
-                float(self.kwargs.get("e")),
-                float(self.kwargs.get("n")),
+                west_lim,
+                south_lim,
+                east_lim,
+                north_lim
             )
 
             captured_locations_list = []
@@ -3162,6 +3181,10 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         else:
             captured_locations_list = []
             captured_site_list = []
+
+        report_file_url = reports.generate_sites_report(captured_site_list, captured_locations_list, start_date, end_date)
+
+        context["sites_url"] = reverse("bio_diversity:site_report_file") + f"?file_url={report_file_url}"
 
         context["captured_locations_list"] = captured_locations_list
         context["captured_site_list"] = captured_site_list

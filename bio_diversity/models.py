@@ -798,11 +798,7 @@ class Group(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTTS")
 
     def __str__(self):
-        prog = self.prog_group()
-        if not prog:
-            return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
-        elif len(prog) == 1:
-            return "{}-{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__(), prog[0].__str__())
+        return "{}-{}-{}".format(self.stok_id.__str__(), self.grp_year, self.coll_id.__str__())
 
     def current_tank(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
         return self.current_cont_by_key('tank', at_date)
@@ -1009,7 +1005,7 @@ def img_directory_path(instance, filename):
 
 class Image(BioModel):
     # img tag
-    imgc_id = models.ForeignKey("ImageCode", on_delete=models.CASCADE, verbose_name=_("Image Code"), db_column="IMG_ID")
+    imgc_id = models.ForeignKey("ImageCode", on_delete=models.CASCADE, verbose_name=_("Document Code"), db_column="IMG_ID")
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                verbose_name=_("Location"), db_column="LOCATION_ID")
     cntd_id = models.ForeignKey("CountDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
@@ -1034,7 +1030,7 @@ class Image(BioModel):
                                  verbose_name=_("Tray Detail"), db_column="TRAY_DET_ID")
     cupd_id = models.ForeignKey("CupDet", on_delete=models.CASCADE, null=True, blank=True, related_name="images",
                                 verbose_name=_("Cup Detail"), db_column="CUP_DET_ID")
-    img_png = models.FileField(upload_to=img_directory_path, null=True, blank=True, verbose_name=_("Image File"),
+    img_png = models.FileField(upload_to=img_directory_path, null=True, blank=True, verbose_name=_("Document File"),
                                db_column="IMAGE")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 

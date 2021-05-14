@@ -82,10 +82,18 @@
             <h3>Layer Toggles:</h3>
 
             <ul>
-            <button class="btn btn-sm btn-primary", id="layer-button">Fishing Areas</button>
-            <button class="btn btn-sm btn-primary", id="river-layer-button">Rivers</button>
+            <button class="btn btn-sm btn-primary" id="layer-button">Fishing Areas</button>
+            <button class="btn btn-sm btn-primary" id="river-layer-button">Rivers</button>
 
 
+            </ul>
+            <br>
+            <h3>Reports:</h3>
+
+            <ul>
+                {% if sites_url %}
+                    <a class="btn btn-sm btn-primary" href={{sites_url}} id="reports-button">Sites Report</a>
+                {% endif %}
             </ul>
             <br>
         </div>
