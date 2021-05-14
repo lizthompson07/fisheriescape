@@ -89,7 +89,8 @@ class ElectrofishingParser(DataParser):
                                                  relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
         self.loc = loc
-
+        if self.loc.loc_lon and self.loc.loc_lat and not self.loc.relc_id:
+            self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n\n{}".format(self.loc.loc_lat, self.loc.loc_lon, row)
         self.team_parser(row[self.crew_key], row, loc_id=loc)
 
         self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id, loc_id=loc)
