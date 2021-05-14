@@ -8,7 +8,7 @@ from django.test import tag
 from datetime import datetime
 from bio_diversity import forms, models
 from bio_diversity.data_parsers.electrofishing import MactaquacElectrofishingParser
-from bio_diversity.data_parsers.generic import GenericGrpParser
+from bio_diversity.data_parsers.generic import GenericGrpParser, GenericIndvParser
 from bio_diversity.data_parsers.tagging import MactaquacTaggingParser
 from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser
 from bio_diversity.data_parsers.water_quality import WaterQualityParser
@@ -32,6 +32,7 @@ class TestParsers(CommonTest):
         self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing.xlsx")
         self.tagging_test_data = finders.find("test\\parser_test_files\\test-tagging.xlsx")
         self.measuring_test_data = finders.find("test\\parser_test_files\\test-generic-group.xlsx")
+        self.measuring_indv_test_data = finders.find("test\\parser_test_files\\test-generic-indv.xlsx")
 
         self.electrofishing_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.electrofishing_evntc, facic_id=mactaquac_facic)
         self.tagging_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.tagging_evntc, facic_id=mactaquac_facic)
@@ -52,17 +53,24 @@ class TestParsers(CommonTest):
         parser = MactaquacElectrofishingParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
 
-        # self.cleaned_data["evnt_id"] = self.tagging_evnt
-        # self.cleaned_data["evntc_id"] = self.tagging_evntc
-        # self.cleaned_data["data_csv"] = self.tagging_test_data
-        # parser = MactaquacTaggingParser(self.cleaned_data)
-        # self.assertTrue(parser.success, parser.log_data)
-        #
-        # self.cleaned_data["evnt_id"] = self.measuring_evnt
-        # self.cleaned_data["evntc_id"] = self.measuring_evntc
-        # self.cleaned_data["data_csv"] = self.measuring_test_data
-        # parser = GenericGrpParser(self.cleaned_data)
-        # self.assertTrue(parser.success, parser.log_data)
+        # Tagging parser
+        self.cleaned_data["evnt_id"] = self.tagging_evnt
+        self.cleaned_data["evntc_id"] = self.tagging_evntc
+        self.cleaned_data["data_csv"] = self.tagging_test_data
+        parser = MactaquacTaggingParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+        # Generic Group Parser
+        self.cleaned_data["evnt_id"] = self.measuring_evnt
+        self.cleaned_data["evntc_id"] = self.measuring_evntc
+        self.cleaned_data["data_csv"] = self.measuring_test_data
+        parser = GenericGrpParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+        # Generic Individual parser
+        self.cleaned_data["data_csv"] = self.measuring_indv_test_data
+        parser = GenericIndvParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
 
 
 @tag("Treatment", 'Parser')
