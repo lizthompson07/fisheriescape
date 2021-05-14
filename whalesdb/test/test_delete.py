@@ -1,6 +1,7 @@
 from django.urls import reverse_lazy
 from django.test import tag, RequestFactory
 from django.contrib import auth, messages
+from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import activate
 
 from whalesdb.test import WhalesdbFactoryFloor as factory
@@ -15,178 +16,193 @@ class CommonTestFixtures(common_tests.CommonTest):
 
 
 @tag("delete", "rsc")
-class TestDeleteRsc(CommonTestFixtures):
-    rsc = None
+class TestRscDeleteView(CommonTestFixtures):
+    view = views.RscDeleteView
+    model = models.RscRecordingSchedule
 
     def setUp(self):
-        self.rsc = factory.RscFactory()
+        super().setUp()
+        self.instance = factory.RscFactory()
+        self.test_url = reverse_lazy('whalesdb:delete_rsc', args=[self.instance.pk, ])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
-        # What if the rsc is attached to a dataset
-        factory.RecFactory(rsc_id=self.rsc)
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
 
-        # What if the rsc is attached to a recording stage
-        factory.RstFactory(rsc=self.rsc)
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    def test_rsc_delete_not_whale_admin(self):
-        self.get_and_login_user()
+    @tag("submit")
+    def test_submit(self):
+        data = factory.RscFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
 
-        activate('en')
-        response = self.client.get(reverse_lazy("whalesdb:delete_rsc", args=(self.rsc.pk,)))
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
 
-        self.assertEqual(1, len(models.RscRecordingSchedule.objects.filter(pk=self.rsc.pk)))
-
-        # redirect to access denied
-        self.assertEqual(302, response.status_code)
-
-    def test_rsc_delete_recorder(self):
-        self.get_and_login_user(in_group='whalesdb_admin')
-
-        activate('en')
-        response = self.client.get(reverse_lazy("whalesdb:delete_rsc", args=(self.rsc.pk,)))
-
-        self.assertEqual(0, len(models.RscRecordingSchedule.objects.filter(pk=self.rsc.pk)))
-
-        # if successful should return a message
-        message = str(messages.get_messages(response.wsgi_request)._queued_messages[0])
-        self.assertEqual(message, "The Recording Schedule has been successfully deleted.")
-
-        # redirect to HTTP_REFERER
-        self.assertEqual(302, response.status_code)
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalesdb:delete_rsc", f"/en/whalesdb/delete/rsc/{self.instance.pk}/", [self.instance.pk])
 
 
 @tag("delete", "stn")
-class TestDeleteStn(CommonTestFixtures):
-    stn = None
+class TestStnDeleteView(CommonTestFixtures):
+    view = views.StnDeleteView
+    model = models.StnStation
 
     def setUp(self):
-        self.stn = factory.StnFactory()
+        super().setUp()
+        self.instance = factory.StnFactory()
+        self.test_url = reverse_lazy('whalesdb:delete_stn', args=[self.instance.pk, ])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
-        # What if a station is used in a deployment
-        factory.DepFactory.create(stn=self.stn)
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
 
-    def test_stn_delete_not_whale_admin(self):
-        self.get_and_login_user()
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-        activate('en')
-        response = self.client.get(reverse_lazy("whalesdb:delete_stn", args=(self.stn.pk,)))
+    @tag("submit")
+    def test_submit(self):
+        data = factory.StnFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
 
-        self.assertEqual(1, len(models.StnStation.objects.filter(pk=self.stn.pk)))
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
 
-        # redirect to access denied
-        self.assertEqual(302, response.status_code)
-
-    def test_stn_delete_recorder(self):
-        self.get_and_login_user(in_group='whalesdb_admin')
-
-        activate('en')
-        response = self.client.get(reverse_lazy("whalesdb:delete_stn", args=(self.stn.pk,)))
-
-        self.assertEqual(0, len(models.StnStation.objects.filter(pk=self.stn.pk)))
-
-        # if successful should return a message
-        message = str(messages.get_messages(response.wsgi_request)._queued_messages[0])
-        self.assertEqual(message, "The Station has been successfully deleted.")
-
-        # redirect to HTTP_REFERER
-        self.assertEqual(302, response.status_code)
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalesdb:delete_stn", f"/en/whalesdb/delete/stn/{self.instance.pk}/", [self.instance.pk])
 
 
 @tag("delete", "emm")
-class TestDeleteEmm(CommonTestFixtures):
-    emm = None
+class TestEmmDeleteView(CommonTestFixtures):
+    view = views.EmmDeleteView
+    model = models.EmmMakeModel
 
     def setUp(self):
-        self.emm = factory.EmmFactory()
+        super().setUp()
+        self.instance = factory.EmmFactory()
+        self.test_url = reverse_lazy('whalesdb:delete_emm', args=[self.instance.pk, ])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
-        # What if a piece of equipment uses a make/model
-        factory.EqpFactory(emm=self.emm)
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
 
-    def test_emm_delete_not_whale_admin(self):
-        self.get_and_login_user()
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-        activate('en')
-        response = self.client.get(reverse_lazy("whalesdb:delete_emm", args=(self.emm.pk,)))
+    @tag("submit")
+    def test_submit(self):
+        self.assert_success_url(self.test_url, user=self.user)
 
-        self.assertEqual(1, len(models.EmmMakeModel.objects.filter(pk=self.emm.pk)))
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
 
-        #redirect to access denied
-        self.assertEqual(302, response.status_code)
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalesdb:delete_emm", f"/en/whalesdb/delete/emm/{self.instance.pk}/", [self.instance.pk])
 
-    def test_emm_delete_recorder(self):
-        self.get_and_login_user(in_group='whalesdb_admin')
+    # For the make and model deletion, often the Emm is linked in a one to one relationship with either a
+    # hydrophone or a recorder, This causes issues with the standard CommonDeleteView I copied from the SCUBA
+    # app so these one-to-one relationships need to be dealt with before the Emm object can be deleted.
+    def test_delete_eqr(self):
+        emm = factory.EmmFactory(eqt=models.EqtEquipmentTypeCode.objects.get(pk=1))
+        eqr = factory.EqrFactory(emm=emm)
+        test_url = reverse_lazy('whalesdb:delete_emm', args=[eqr.emm.pk, ])
+        self.assert_success_url(test_url, user=self.user)
 
-        activate('en')
-        response = self.client.get(reverse_lazy("whalesdb:delete_emm", args=(self.emm.pk,)))
+        # for delete views...
+        self.assertEqual(models.EmmMakeModel.objects.filter(pk=eqr.emm.pk).count(), 0)
 
-        self.assertEqual(0, len(models.EmmMakeModel.objects.filter(pk=self.emm.pk)))
+    def test_delete_eqh(self):
+        emm = factory.EmmFactory(eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
+        eqh = factory.EqhFactory(emm=emm)
+        test_url = reverse_lazy('whalesdb:delete_emm', args=[eqh.emm.pk, ])
+        self.assert_success_url(test_url, user=self.user)
 
-        # if successful should return a message
-        message = str(messages.get_messages(response.wsgi_request)._queued_messages[0])
-        self.assertEqual(message, "The Make/Model has been successfully deleted.")
-
-        # redirect to HTTP_REFERER
-        self.assertEqual(302, response.status_code)
+        # for delete views...
+        self.assertEqual(models.EmmMakeModel.objects.filter(pk=eqh.emm.pk).count(), 0)
 
 
 @tag("delete", "eqp")
-class TestDeleteEqp(CommonTestFixtures):
-
-    eqr = None
-    eqh = None
-
-    eqp_rec = None
-    eqp_hyd = None
+class TestEqpDeleteView(CommonTestFixtures):
+    view = views.EqpDeleteView
+    model = models.EqpEquipment
 
     def setUp(self):
-        # create a recorder
-        self.eqr = factory.EqrFactory.create()
-        # create a hydrophone
-        self.eqh = factory.EqhFactory.create()
+        super().setUp()
+        self.instance = factory.EqpFactory()
+        self.test_url = reverse_lazy('whalesdb:delete_eqp', args=[self.instance.pk, ])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
-        # make them equipment
-        self.eqp_rec = factory.EqpFactory.create(emm=self.eqr.emm)
-        self.eqp_hyd = factory.EqpFactory.create(emm=self.eqh.emm)
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
 
-        # attach the hydrophone to the recorder
-        factory.EheFactory.create(rec=self.eqp_rec, hyd=self.eqp_hyd)
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-        # attach the recorder to a deployment
-        factory.EdaFactory.create(eqp=self.eqp_rec)
+    @tag("submit")
+    def test_submit(self):
+        self.assert_success_url(self.test_url, user=self.user)
 
-        # attach to a Calibration Event
-        factory.EcaFactory.create(eca_attachment=self.eqp_rec, eca_hydrophone=self.eqp_hyd)
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
 
-        # attach to a technical repair event
-        factory.EtrFactory.create(eqp=self.eqp_rec, hyd=self.eqp_hyd)
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalesdb:delete_eqp", f"/en/whalesdb/delete/eqp/{self.instance.pk}/", [self.instance.pk])
 
-    def test_eqp_delete_recorder(self):
-        self.delete_eqp(self.eqp_rec)
 
-    def test_eqp_delete_hydrophone(self):
-        self.delete_eqp(self.eqp_hyd)
+@tag("delete", "dep")
+class TestDepDeleteView(CommonTestFixtures):
+    view = views.DepDeleteView
+    model = models.DepDeployment
 
-    def delete_eqp(self, eqp):
-        self.get_and_login_user(in_group='whalesdb_admin')
+    def setUp(self):
+        super().setUp()
+        self.instance = factory.DepFactory()
+        self.test_url = reverse_lazy('whalesdb:delete_dep', args=[self.instance.pk, ])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
-        activate('en')
-        response = self.client.get(reverse_lazy("whalesdb:delete_eqp", args=(eqp.pk,)))
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
 
-        self.assertEqual(0, len(models.EqpEquipment.objects.filter(pk=eqp.pk)))
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-        # if successful should return a message
-        message = str(messages.get_messages(response.wsgi_request)._queued_messages[0])
-        self.assertEqual(message, "The equipment has been successfully deleted.")
+    @tag("submit")
+    def test_submit(self):
+        self.assert_success_url(self.test_url, user=self.user)
 
-        # redirect to HTTP_REFERER
-        self.assertEqual(302, response.status_code)
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
 
-    def test_eqp_delete_not_whale_admin(self):
-        self.get_and_login_user()
-
-        activate('en')
-        response = self.client.get(reverse_lazy("whalesdb:delete_eqp", args=(self.eqp_rec.pk,)))
-
-        self.assertEqual(1, len(models.EqpEquipment.objects.filter(pk=self.eqp_rec.pk)))
-
-        #redirect to access denied
-        self.assertEqual(302, response.status_code)
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalesdb:delete_dep", f"/en/whalesdb/delete/dep/{self.instance.pk}/", [self.instance.pk])

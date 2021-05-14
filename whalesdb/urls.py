@@ -22,7 +22,7 @@ urlpatterns = [
     path('update/dep/<int:pk>/<str:pop>/', views.DepUpdate.as_view(), name="update_dep"),
     path('details/dep/<int:pk>/', views.DepDetails.as_view(), name="details_dep"),
     path('list/dep/', views.DepList.as_view(), name="list_dep"),
-    path('delete/dep/<int:pk>/', views.dep_delete, name="delete_dep"),
+    path('delete/dep/<int:pk>/', views.DepDeleteView.as_view(), name="delete_dep"),
 
     path('list/eca/', views.EcaList.as_view(), name="list_eca"),
     path('create/eca/', views.EcaCreate.as_view(), name="create_eca"),
@@ -45,7 +45,7 @@ urlpatterns = [
     path('update/emm/<int:pk>/', views.EmmUpdate.as_view(), name="update_emm"),
     path('details/emm/<int:pk>/', views.EmmDetails.as_view(), name="details_emm"),
     path('list/emm/', views.EmmList.as_view(), name="list_emm"),
-    path('delete/emm/<int:pk>/', views.emm_delete, name="delete_emm"),
+    path('delete/emm/<int:pk>/', views.EmmDeleteView.as_view(), name="delete_emm"),
 
     path('create/ehe/<int:rec>/<int:ecp_channel_no>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
     path('managed/ehe/<int:rec>/<int:ecp_channel_no>/', views.EheMangedView.as_view(), name="managed_ehe"),
@@ -60,7 +60,7 @@ urlpatterns = [
     path('update/eqp/<int:pk>/<str:pop>/', views.EqpUpdate.as_view(), name="update_eqp"),
     path('details/eqp/<int:pk>/', views.EqpDetails.as_view(), name="details_eqp"),
     path('list/eqp/', views.EqpList.as_view(), name="list_eqp"),
-    path('delete/eqp/<int:pk>/', views.eqp_delete, name="delete_eqp"),
+    path('delete/eqp/<int:pk>/', views.EqpDeleteView.as_view(), name="delete_eqp"),
 
     path('create/eqr/<int:pk>/<str:pop>/', views.EqrCreate.as_view(), name="create_eqr"),
     path('update/eqr/<int:pk>/<str:pop>/', views.EqrUpdate.as_view(), name="update_eqr"),
@@ -89,7 +89,7 @@ urlpatterns = [
     path('update/rsc/<int:pk>/', views.RscUpdate.as_view(), name="update_rsc"),
     path('details/rsc/<int:pk>/', views.RscDetails.as_view(), name="details_rsc"),
     path('list/rsc/', views.RscList.as_view(), name="list_rsc"),
-    path('delete/rsc/<int:pk>/', views.rsc_delete, name="delete_rsc"),
+    path('delete/rsc/<int:pk>/', views.RscDeleteView.as_view(), name="delete_rsc"),
 
     path('create/rst/<int:rsc>/<str:pop>/', views.RstCreate.as_view(), name="create_rst"),
     path('delete/rst/<int:pk>/', views.rst_delete, name="delete_rst"),
@@ -104,7 +104,7 @@ urlpatterns = [
     path('update/stn/<int:pk>/<str:pop>/', views.StnUpdate.as_view(), name="update_stn"),
     path('details/stn/<int:pk>/', views.StnDetails.as_view(), name="details_stn"),
     path('list/stn/', views.StnList.as_view(), name="list_stn"),
-    path('delete/stn/<int:pk>/', views.stn_delete, name="delete_stn"),
+    path('delete/stn/<int:pk>/', views.StnDeleteView.as_view(), name="delete_stn"),
 
     path('create/tea/', views.TeaCreate.as_view(), name="create_tea"),
     path('update/tea/<int:pk>/', views.TeaUpdate.as_view(), name="update_tea"),

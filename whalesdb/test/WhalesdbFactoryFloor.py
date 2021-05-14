@@ -22,18 +22,16 @@ class CruiseFactory(factory.django.DjangoModelFactory):
 class DepFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.DepDeployment
-        django_get_or_create = ("stn", "prj", "mor", "dep_name",)
+        django_get_or_create = ("stn", "prj", "mor",)
+        exclude = ('stn_code', )
 
-    stn = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.StnFactory")
+    stn_code = factory.Iterator(_stn_codes_)
+    stn = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.StnFactory", stn_code=stn_code)
     prj = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.PrjFactory")
     mor = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.MorFactory")
     dep_year = factory.lazy_attribute(lambda o: faker.random_int(1980, 2060))
     dep_month = factory.lazy_attribute(lambda o: faker.random_int(1, 12))
-    dep_name = "{}-{}-{}".format(
-        factory.LazyAttribute(lambda o: o.stn_code),
-        factory.LazyAttribute(lambda o: o.dep_year),
-        factory.LazyAttribute(lambda o: o.dep_month)
-    )
+    dep_name = "{}-{}-{}".format(stn_code, dep_year, dep_month)
 
     @staticmethod
     def get_valid_data():

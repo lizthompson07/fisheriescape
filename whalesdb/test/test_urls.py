@@ -77,7 +77,7 @@ class URLTest(TestCase):
 
     @tag('dep', 'url', 'delete')
     def test_url_delete_dep_view(self):
-        self.basic_en_url_test('whalesdb:delete_dep', 'whalesdb/delete/dep/1/', views.dep_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_dep', 'whalesdb/delete/dep/1/', views.DepDeleteView, [1])
 
     @tag('dep', 'url', 'list')
     def test_url_list_dep_view(self):
@@ -157,7 +157,7 @@ class URLTest(TestCase):
 
     @tag('emm', 'url', 'delete')
     def test_url_delete_emm(self):
-        self.basic_en_url_test('whalesdb:delete_emm', 'whalesdb/delete/emm/1/', views.emm_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_emm', 'whalesdb/delete/emm/1/', views.EmmDeleteView, [1])
 
     @tag('ehe', 'url', 'create')
     def test_url_create_pop_ehe_view(self):
@@ -201,7 +201,7 @@ class URLTest(TestCase):
 
     @tag('eqp', 'url', 'delete')
     def test_url_delete_eqp_view(self):
-        self.basic_en_url_test('whalesdb:delete_eqp', 'whalesdb/delete/eqp/1/', views.eqp_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_eqp', 'whalesdb/delete/eqp/1/', views.EqpDeleteView, [1])
 
     @tag('eqr', 'url', 'create')
     def test_url_create_pop_eqr_view(self):
@@ -313,7 +313,7 @@ class URLTest(TestCase):
 
     @tag('rsc', 'url', 'delete')
     def test_url_delete_rsc_view(self):
-        self.basic_en_url_test('whalesdb:delete_rsc', 'whalesdb/delete/rsc/1/', views.rsc_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_rsc', 'whalesdb/delete/rsc/1/', views.RscDeleteView, [1])
 
     @tag('rst', 'url', 'create')
     def test_url_create_rst_view(self):
@@ -353,7 +353,7 @@ class URLTest(TestCase):
 
     @tag('stn', 'url', 'delete')
     def test_url_delete_stn(self):
-        self.basic_en_url_test('whalesdb:delete_stn', 'whalesdb/delete/stn/1/', views.stn_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_stn', 'whalesdb/delete/stn/1/', views.StnDeleteView, [1])
 
     @tag('ste', 'url', 'create', 'pop')
     def test_url_create_set_pop_ste_view(self):
