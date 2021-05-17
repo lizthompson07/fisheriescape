@@ -51,7 +51,7 @@
                 {% endfor %}
 
                 {% buttons %}
-                    <button type="submit" class="btn btn-success" onclick="saveForm();">
+                    <button type="submit" id="submitBtn" class="btn btn-success" onclick="this.hidden=true, saveForm();">
                         {% trans "Submit" %}
                     </button>
                 {% endbuttons %}
@@ -60,4 +60,3 @@
     </div>
 </div>
 {% endblock content %}
-

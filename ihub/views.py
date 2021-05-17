@@ -405,10 +405,12 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
             'location',
             'organizations',
             'status',
+            'is_faa_required',
             'sectors',
             'entry_type',
             'initial_date',
             'anticipated_end_date',
+            'response_deadline',
             'regions',
             "metadata|{}".format(gettext_lazy("metadata")),
         ]

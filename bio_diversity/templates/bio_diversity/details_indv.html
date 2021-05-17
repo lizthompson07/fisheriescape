@@ -5,24 +5,14 @@
 {% load i18n %}
 {% bootstrap_css %}
 
-{% block field_override %}
-    <div class="card border border-dark my-1">
-        <h5 class="card-header">{% trans title %}</h5>
-        <div class="card-body">
-        {% for field in fields %}
-        <div class="row" >
-                <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
-        </div>
-        {% endfor %}
-        {% if object.indv_valid %}
-            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'indv' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
-        {% else %}
-            <a class="btn btn-primary disabled" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'indv' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
-        {% endif %}
-        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_growth' 'indv' object.pk  'pop'%}')" title="{% trans 'Plot Growth Chart' %}">{% trans 'Plot Growth Chart' %}</a>
-        </div>
-    </div>
-{% endblock field_override %}
+{% block model_buttons %}
+    {% if object.indv_valid %}
+        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'indv' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
+    {% else %}
+        <a class="btn btn-primary disabled" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'indv' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
+    {% endif %}
+    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_growth' 'indv' object.pk  'pop'%}')" title="{% trans 'Plot Growth Chart' %}">{% trans 'Plot Growth Chart' %}</a>
+{% endblock model_buttons %}
 
 
 

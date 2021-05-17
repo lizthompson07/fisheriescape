@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-03 13:18-0300\n"
+"POT-Creation-Date: 2021-05-12 08:17-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -734,15 +734,21 @@ msgid "last name"
 msgstr "nom de famille"
 
 #: .\travel\models.py:740
-msgid "address"
+#, fuzzy
+#| msgid "address"
+msgid "work address"
 msgstr "adresse"
 
 #: .\travel\models.py:741
-msgid "phone"
+#, fuzzy
+#| msgid "phone"
+msgid "work phone"
 msgstr "téléphone"
 
 #: .\travel\models.py:742
-msgid "email"
+#, fuzzy
+#| msgid "email"
+msgid "work email"
 msgstr "courriel"
 
 #: .\travel\models.py:743
@@ -1356,7 +1362,7 @@ msgid "Skip"
 msgstr "Sauter"
 
 #: .\travel\templates\travel\common\_reviewers.html:83
-#: .\travel\templates\travel\common\_travellers.html:130
+#: .\travel\templates\travel\common\_travellers.html:140
 msgid "Start typing to search for a user"
 msgstr "Commencez à taper pour rechercher un utilisateur"
 

@@ -1970,10 +1970,10 @@ class RelcFactory(factory.django.DjangoModelFactory):
     rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
     trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
     subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
-    min_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
-    max_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
-    min_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
-    max_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
+    min_lat = factory.lazy_attribute(lambda o: faker.random_int(0, 45))
+    max_lat = factory.lazy_attribute(lambda o: faker.random_int(50, 90))
+    min_lon = factory.lazy_attribute(lambda o: faker.random_int(0, 45))
+    max_lon = factory.lazy_attribute(lambda o: faker.random_int(50, 90))
 
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -2139,6 +2139,7 @@ class SampdFactory(factory.django.DjangoModelFactory):
     det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
+    detail_date = factory.lazy_attribute(lambda o: faker.date())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -2159,6 +2160,7 @@ class SampdFactory(factory.django.DjangoModelFactory):
             'det_val': obj.det_val,
             'adsc_id': adsc.pk,
             'qual_id': qual.pk,
+            'detail_date': obj.detail_date,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
