@@ -35,7 +35,7 @@ def mactaquac_picks_parser(cleaned_data):
         for row in trof_df.to_dict("records")[1:]:
             tray = models.Tray.objects.filter(trof_id=trof, name=row["Tray Number"], end_date__isnull=True).get()
             cross_grp = models.Group.objects.filter(animal_details__contx_id__tray_id=tray).get()
-            contx = utils.enter_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
+            contx, data_entered = utils.enter_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
             utils.create_picks_evnt(cleaned_data, tray, cross_grp.pk, row["Picks"], pick_date, "Egg Picks")
 
     log_data += "\n\n\n {} of {} rows entered to " \
@@ -64,7 +64,8 @@ def coldbrook_picks_parser(cleaned_data):
     data["grps"] = data.apply(lambda row: anix_qs.filter(pair_id=row["pairs"]).get().grp_id, axis=1)
 
     trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
-    data["trofs"] = data.apply(lambda row: trof_qs.filter(name=row["Trough"]).get(), axis=1)
+    trof_dict = {trof.name: trof for trof in trof_qs}
+    data["trofs"] = data.apply(lambda row: trof_dict[row["Trough"]], axis=1)
 
     # trays, date from cross
     data["trays"] = data.apply(lambda row: utils.create_tray(row["trofs"], row["cross"], row["pairs"].start_date,
@@ -72,10 +73,10 @@ def coldbrook_picks_parser(cleaned_data):
 
     data_dict = data.to_dict('records')
     for row in data_dict:
-        contx = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
+        contx, data_entered = utils.enter_contx(row["trays"], cleaned_data, final_flag=True, grp_pk=row["grps"].pk,
                                   return_contx=True)
         utils.enter_contx(row["trofs"], cleaned_data)
-        anix = utils.enter_anix(cleaned_data, grp_pk=row["grps"].pk)
+        anix = utils.enter_anix(cleaned_data, grp_pk=row["grps"].pk, return_anix=True)
         if contx:
             rows_entered += 1
             # fecu to count:
@@ -100,7 +101,7 @@ def coldbrook_picks_parser(cleaned_data):
             shock_date = datetime.strptime(row["Shocking Pick Date"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
             shocking_cleaned_data = utils.create_new_evnt(cleaned_data, "Shocking", shock_date)
             utils.enter_contx(row["trays"], shocking_cleaned_data, None, grp_pk=row["grps"].pk)
-            shock_anix = utils.enter_anix(shocking_cleaned_data, grp_pk=row["grps"].pk)
+            shock_anix = utils.enter_anix(shocking_cleaned_data, grp_pk=row["grps"].pk, return_anix=True)
             dev_at_shocking = row["grps"].get_development(shock_date)
             utils.enter_grpd(shock_anix.pk, shocking_cleaned_data, shock_date, dev_at_shocking, "Development")
 
@@ -109,8 +110,8 @@ def coldbrook_picks_parser(cleaned_data):
             # want to shift the hu move event, so that the counting math always works out.
             hu_move_date = move_date + timedelta(minutes=1)
             hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)
-            hu_anix = utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk)
-            hu_contx = utils.enter_contx(row["trays"], hu_cleaned_data, None, grp_pk=row["grps"].pk, return_contx=True)
+            hu_anix = utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk, return_anix=True)
+            hu_contx, data_entered = utils.enter_contx(row["trays"], hu_cleaned_data, None, grp_pk=row["grps"].pk, return_contx=True)
             dev_at_hu_transfer = row["grps"].get_development(hu_move_date)
             utils.enter_grpd(hu_anix.pk, hu_cleaned_data, hu_move_date, dev_at_hu_transfer, "Development")
 
@@ -124,11 +125,13 @@ def coldbrook_picks_parser(cleaned_data):
                 utils.enter_cnt_det(hu_cleaned_data, hu_pick_cnt, row[pick_cnt], "Mortality Observation", pick_code)
 
             # HU selections:
-            # list of movement column headers
+            # list of movement column headers: count, cup, weight, and code
             move_tuples = [
                 ("EQU A #", "EQU A Location", "Weight 1 (g)", "EQU A"),
                 ("EQU B #", "EQU B Location", "Weight 2 (g)", "EQU B"),
-                ("# of PEQUs", "PEQU Location stack.tray", "Actual PEQU Wt (g)", "PEQU")
+                ("# of PEQUs", "PEQU Location stack.tray", "Actual PEQU Wt (g)", "PEQU"),
+                ("AB Pools", "A Pool", None, "A Pool"),
+                ("AB Pools", "B Pool", None, "B Pool"),
             ]
 
             # track eggs moving out:
@@ -162,7 +165,7 @@ def coldbrook_picks_parser(cleaned_data):
                         return None
                 else:
                     final_grp = final_grp[0]
-                final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk)
+                final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk, return_anix=True)
                 utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), "Parent Group",
                                  frm_grp_id=row["grps"])
                 utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, None, "Program Group", adsc_str=cnt_code)
@@ -175,7 +178,8 @@ def coldbrook_picks_parser(cleaned_data):
 
                 # add the positive counts
                 cnt = utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Eggs Added", )
-                utils.enter_cnt_det(cleaned_data, cnt, row[move_weight], "Weight")
+                if utils.nan_to_none(move_weight):
+                    utils.enter_cnt_det(cleaned_data, cnt, row[move_weight], "Weight")
                 utils.enter_cnt_det(cleaned_data, cnt, row[move_cnt], "Program Group", cnt_code)
 
                 # link cup to egg development event

@@ -35,12 +35,7 @@ class IndividualDisplaySerializer(serializers.ModelSerializer):
         return instance.stok_id.__str__()
 
     def get_length(self, instance):
-        try:
-            length = instance.animal_details.filter(individual_details__anidc_id_id=2,
-                                                    ).first().individual_details.filter(anidc_id_id=2).get().det_val
-        except AttributeError:
-            length = None
-        return length
+        return instance.individual_detail("Length")
 
     def get_collection(self, instance):
         return instance.coll_id.__str__()
@@ -51,3 +46,63 @@ class IndividualDisplaySerializer(serializers.ModelSerializer):
     def get_group(self, instance):
         return instance.grp_id.__str__()
 
+
+class CupDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Cup
+        fields = ["id", "name", "nom", "description_en", "description_fr", "drawer", "draw_id", "heath_unit",
+                  "start_date", "end_date"]
+
+    drawer = serializers.SerializerMethodField()
+    heath_unit = serializers.SerializerMethodField()
+
+    def get_drawer(self, instance):
+        return instance.draw_id.__str__()
+
+    def get_heath_unit(self, instance):
+        return instance.draw_id.heat_id.__str__()
+
+
+class AnixDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AniDetailXref
+        fields = "__all__"
+
+
+class ContxDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ContainerXRef
+        fields = "__all__"
+
+
+class CntDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Count
+        fields = "__all__"
+
+    count_code = serializers.SerializerMethodField()
+
+    def get_count_code(self, instance):
+        return instance.cntc_id.__str__()
+
+
+class GroupDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Group
+        fields = "__all__"
+
+    stock = serializers.SerializerMethodField()
+    collection = serializers.SerializerMethodField()
+    species = serializers.SerializerMethodField()
+
+    def get_stock(self, instance):
+        return instance.stok_id.__str__()
+
+    def get_length(self, instance):
+        return instance.individual_detail("Length")
+
+    def get_collection(self, instance):
+        return instance.coll_id.__str__()
+
+    def get_species(self, instance):
+        return instance.spec_id.__str__()

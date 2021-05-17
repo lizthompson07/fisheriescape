@@ -2,21 +2,24 @@ import inspect
 from datetime import date, datetime
 
 from django import forms
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from bio_diversity.data_parsers.electrofishing import coldbrook_electrofishing_parser, mactaquac_electrofishing_parser
+
+from bio_diversity.data_parsers.distributions import MactaquacDistributionParser, ColdbrookDistributionParser
+from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser
 
 from bio_diversity import models
 from bio_diversity import utils
-from bio_diversity.data_parsers.generic import generic_indv_parser
-from bio_diversity.data_parsers.maturity_sorting import mactaquac_maturity_sorting_parser
+from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
 from bio_diversity.data_parsers.picks import mactaquac_picks_parser, coldbrook_picks_parser
-from bio_diversity.data_parsers.spawning import mactaquac_spawning_parser, coldbrook_spawning_parser
-from bio_diversity.data_parsers.tagging import coldbrook_tagging_parser, mactaquac_tagging_parser
+from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
+from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
 from bio_diversity.data_parsers.temperatures import temperature_parser
-from bio_diversity.data_parsers.treatment import mactaquac_treatment_parser
-from bio_diversity.data_parsers.water_quality import mactaquac_water_quality_parser
+from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser, ColdbrookTreatmentParser
+from bio_diversity.data_parsers.water_quality import WaterQualityParser
 
 
 class CreatePrams(forms.ModelForm):
@@ -218,8 +221,8 @@ class DataForm(CreatePrams):
         model = models.DataLoader
         exclude = []
 
-    egg_data_types = ((None, '---------'), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
-    egg_data_type = forms.ChoiceField(choices=egg_data_types, label=_("Type of data entry"))
+    data_types = (None, '---------')
+    data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
 
     def __init__(self, request=None, *args, **kwargs):
@@ -236,66 +239,95 @@ class DataForm(CreatePrams):
         if not self.is_valid():
             return cleaned_data
         log_data = ""
-        sucess = False
+        success = False
+        parser = None
         try:
             # ----------------------------ELECTROFISHING-----------------------------------
-            if cleaned_data["evntc_id"].__str__() == "Electrofishing":
+            if cleaned_data["evntc_id"].__str__() in ["Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:
                 if cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, sucess = coldbrook_electrofishing_parser(cleaned_data)
+                    parser = ColdbrookElectrofishingParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, sucess = mactaquac_electrofishing_parser(cleaned_data)
+                    parser = MactaquacElectrofishingParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -------------------------------TAGGING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "PIT Tagging":
                 if cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, sucess = coldbrook_tagging_parser(cleaned_data)
+                    parser = ColdbrookTaggingParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, sucess = mactaquac_tagging_parser(cleaned_data)
+                    parser = MactaquacTaggingParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -----------------------------MATURITY SORTING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting":
-                if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, sucess = mactaquac_maturity_sorting_parser(cleaned_data)
+                if cleaned_data["data_type"].__str__() == "Individual":
+                    parser = GenericIndvParser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Group":
+                    parser = GenericGrpParser(cleaned_data)
+                log_data = parser.log_data
+                success = parser.success
 
-            # ---------------------------MACTAQUAC WATER QUALITY----------------------------------------
+            # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
-                if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, sucess = mactaquac_water_quality_parser(cleaned_data)
+                parser = WaterQualityParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -------------------------------SPAWNING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Spawning":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, sucess = mactaquac_spawning_parser(cleaned_data)
+                    parser = MactaquacSpawningParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, sucess = coldbrook_spawning_parser(cleaned_data)
+                    parser = ColdbrookSpawningParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # -------------------------------TREATMENT----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Treatment":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, sucess = mactaquac_treatment_parser(cleaned_data)
+                    parser = MactaquacTreatmentParser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    parser = ColdbrookTreatmentParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # ---------------------------TROUGH TEMPERATURE----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Egg Development" and\
-                    cleaned_data["egg_data_type"] == "Temperature":
-                log_data, sucess = temperature_parser(cleaned_data)
+                    cleaned_data["data_type"] == "Temperature":
+                log_data, success = temperature_parser(cleaned_data)
 
-            # ----------------------------------------PICKS----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["egg_data_type"] == "Picks":
+            # ---------------------------------PICKS----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Picks":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, sucess = mactaquac_picks_parser(cleaned_data)
+                    log_data, success = mactaquac_picks_parser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, sucess = coldbrook_picks_parser(cleaned_data)
+                    log_data, success = coldbrook_picks_parser(cleaned_data)
 
-            # -------------------------------------GENERAL DATA ENTRY-------------------------------------------
+            # ------------------------------MEASURING----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Measuring":
+                if cleaned_data["data_type"].__str__() == "Individual":
+                    parser = GenericIndvParser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Group":
+                    parser = GenericGrpParser(cleaned_data)
+                log_data = parser.log_data
+                success = parser.success
+            # -----------------------------DISTRIBUTION----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Distribution":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    parser = MactaquacDistributionParser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    parser = ColdbrookDistributionParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
+
+            # -------------------------GENERAL DATA ENTRY-------------------------------------------
             else:
-                log_data, sucess = generic_indv_parser(cleaned_data)
+                parser = GenericIndvParser(cleaned_data)
+                log_data = parser.log_data
+                success = parser.success
 
         except Exception as err:
             log_data += "Error parsing data: \n"
-            log_data += "\n Error: {}".format(err.__str__())
+            log_data += "\n Error: {}".format(err)
 
         self.request.session["log_data"] = log_data
-        self.request.session["load_success"] = sucess
+        self.request.session["load_success"] = success
 
 
 class DrawForm(CreatePrams):
@@ -321,9 +353,19 @@ class EnvcForm(CreatePrams):
 
 
 class EnvcfForm(CreatePrams):
+
     class Meta:
         model = models.EnvCondFile
         exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['env_id'].queryset = models.EnvCondition.objects.all().select_related("envc_id",
+                                                                                          "contx_id__evnt_id__prog_id",
+                                                                                          "contx_id__evnt_id__evntc_id",
+                                                                                          "contx_id__evnt_id",
+                                                                                          "contx_id__evnt_id__prog_id",
+                                                                                          "loc_id__locc_id")
 
 
 class EnvscForm(CreatePrams):
@@ -408,6 +450,63 @@ class FeedmForm(CreatePrams):
     class Meta:
         model = models.FeedMethod
         exclude = []
+
+
+class FishToContForm(forms.Form):
+    evnt_id = forms.ModelChoiceField(required=True, queryset=None, label=_("Event"))
+    grp_id = forms.ModelChoiceField(required=False, queryset=None, label=_("Add to Group"))
+    new_grp_id = forms.ModelChoiceField(required=False, queryset=models.Group.objects.all().select_related("stok_id", "coll_id"), label=_("New Group"))
+    grp_prog_id = forms.ModelChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Program Group"), label=_("Program Group"))
+    perc_id = forms.ModelChoiceField(required=False, queryset=models.PersonnelCode.objects.all(), label=_("Personnel"))
+    num_fish = forms.IntegerField(required=True, max_value=1000)
+    move_date = forms.DateField(required=True, label=_("Date of transfer"))
+
+    created_date = forms.DateField(required=True)
+    created_by = forms.CharField(required=True, max_length=32)
+    cont = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        self.fields['move_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-date"})
+
+        self.fields['evnt_id'].create_url = 'bio_diversity:create_evnt'
+        self.fields['new_grp_id'].create_url = 'bio_diversity:create_grp'
+
+    def set_cont(self, cont):
+        self.cont = cont
+
+    def clean(self):
+        cleaned_data = super().clean()
+        cleaned_data["move_date"] = utils.naive_to_aware(cleaned_data["move_date"])
+        cleaned_data["facic_id"] = cleaned_data["evnt_id"].facic_id
+
+        if cleaned_data["grp_id"] and not cleaned_data["new_grp_id"]:
+            grp_id = cleaned_data["grp_id"]
+        elif not cleaned_data["grp_id"] and cleaned_data["new_grp_id"]:
+            grp_id = cleaned_data["new_grp_id"]
+        if cleaned_data["grp_id"] and cleaned_data["new_grp_id"]:
+            self.add_error('grp_id', gettext("Can only add to one group at a time"))
+            self.add_error('new_grp_id', gettext("Can only add to one group at a time"))
+
+        if not self.is_valid():
+            return cleaned_data
+
+        # fish into tank contx
+        contx, entered = utils.enter_contx(self.cont, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
+
+        #fish to event
+        utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
+
+        # perc contx:
+        if cleaned_data["perc_id"]:
+            team_id, entered = utils.add_team_member(cleaned_data["perc_id"], cleaned_data["evnt_id"], return_team=True)
+            utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, team_pk=team_id.pk)
+
+        # cnt:
+        utils.enter_cnt(cleaned_data, cleaned_data["num_fish"], contx_pk=contx.pk)
 
 
 class GrpForm(CreatePrams):
@@ -659,16 +758,16 @@ class MortForm(forms.Form):
             indv.save()
             cleaned_data["indv_mort"] = indv.pk
 
-        mortality_evnt, anix = utils.enter_mortality(indv, cleaned_data, cleaned_data["mort_date"])
+        mortality_evnt, anix, mort_entered = utils.enter_mortality(indv, cleaned_data, cleaned_data["mort_date"])
 
         cleaned_data["evnt_id"] = mortality_evnt
         cleaned_data["facic_id"] = mortality_evnt.facic_id
 
         if cleaned_data["grp_mort"]:
-            anix_grp = utils.enter_anix(cleaned_data, grp_pk=cleaned_data["grp_mort"])
-            anix_both = utils.enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
+            utils.enter_anix(cleaned_data, grp_pk=cleaned_data["grp_mort"])
+            utils.enter_anix(cleaned_data, indv_pk=cleaned_data["indv_mort"], grp_pk=cleaned_data["grp_mort"])
             tank = grp.current_tank(at_date=cleaned_data["mort_date"])[0]
-            contx = utils.enter_tank_contx(tank.name, cleaned_data, grp_pk=grp.id, return_contx=True)
+            contx, data_entered = utils.enter_tank_contx(tank.name, cleaned_data, grp_pk=grp.id, return_contx=True)
             utils.enter_cnt(cleaned_data, cnt_value=1, contx_pk=contx.id, cnt_code="Mortality")
 
         if cleaned_data["indv_length"]:
@@ -864,6 +963,8 @@ class TankForm(CreatePrams):
     class Meta:
         model = models.Tank
         exclude = []
+        # to set the ordering:
+        fields = ['name', 'nom', 'facic_id', 'description_en', 'description_fr', 'created_date', 'created_by']
 
 
 class TankdForm(CreateDatePrams):

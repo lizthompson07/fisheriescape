@@ -104,6 +104,7 @@ urlpatterns = [
     
     path('create/envcf/', views.EnvcfCreate.as_view(), name="create_envcf"),
     path('details/envcf/<int:pk>/', views.EnvcfDetails.as_view(), name="details_envcf"),
+    path('details/envcf/<str:back>/<int:back_id>/<int:pk>/', views.EnvcfDetails.as_view(), name="details_envcf"),
     path('list/envcf/', views.EnvcfList.as_view(), name="list_envcf"),
     path('update/envcf/<int:pk>/', views.EnvcfUpdate.as_view(), name="update_envcf"),   
     
@@ -124,6 +125,7 @@ urlpatterns = [
     path('update/envtc/<int:pk>/', views.EnvtcUpdate.as_view(), name="update_envtc"),  
     
     path('create/evnt/', views.EvntCreate.as_view(), name="create_evnt"),
+    path('create/evnt/<str:pop>/', views.EvntCreate.as_view(), name="create_evnt"),
     path('details/evnt/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
     path('details/evnt/<str:back>/<int:back_id>/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
     path('list/evnt/', views.EvntList.as_view(), name="list_evnt"),
@@ -172,8 +174,12 @@ urlpatterns = [
     path('list/feedm/', views.FeedmList.as_view(), name="list_feedm"),
     path('update/feedm/<int:pk>/', views.FeedmUpdate.as_view(), name="update_feedm"),
                  
+    path('create/fishtocont/', views.FishtocontFormView.as_view(), name="create_fish_to_cont"),
+    path('create/fishtocont/<str:cont_type>/<int:cont_id>/<str:pop>/', views.FishtocontFormView.as_view(), name="create_fish_to_cont"),
+
     path('create/grp/', views.GrpCreate.as_view(), name="create_grp"),
-    path('create/grp/<int:evnt>/<str:pop>', views.GrpCreate.as_view(), name="create_grp"),
+    path('create/grp/<str:pop>/', views.GrpCreate.as_view(), name="create_grp"),
+    path('create/grp/<int:evnt>/<str:pop>/', views.GrpCreate.as_view(), name="create_grp"),
     path('details/grp/<int:pk>/', views.GrpDetails.as_view(), name="details_grp"),
     path('details/grp/<str:back>/<int:back_id>/<int:pk>/', views.GrpDetails.as_view(), name="details_grp"),
     path('list/grp/', views.GrpList.as_view(), name="list_grp"),
@@ -297,9 +303,9 @@ urlpatterns = [
     path('update/perc/<int:pk>/', views.PercUpdate.as_view(), name="update_perc"),
 
     path('plot/growth/<str:iorg>/<int:pk>/', views.GrowthChartView.as_view(), name="plot_growth"),
-    path('plot/growth/<str:iorg>/<int:pk>/<str:pop>', views.GrowthChartView.as_view(), name="plot_growth"),
-    path('plot/maturity/<str:cont>/<int:pk>/<str:pop>', views.MaturityRateView.as_view(), name="plot_maturity_rate"),
-    path('plot/tempdata/<str:cont>/<int:pk>/<str:pop>', views.PlotTempData.as_view(), name="plot_temp_data"),
+    path('plot/growth/<str:iorg>/<int:pk>/<str:pop>/', views.GrowthChartView.as_view(), name="plot_growth"),
+    path('plot/maturity/<str:cont>/<int:pk>/<str:pop>/', views.MaturityRateView.as_view(), name="plot_maturity_rate"),
+    path('plot/tempdata/<str:cont>/<int:pk>/<str:pop>/', views.PlotTempData.as_view(), name="plot_temp_data"),
     path('plots/plot_data_file/', views.plot_data_file, name="plot_data_file"),
 
     path('create/prio/', views.PrioCreate.as_view(), name="create_prio"),
@@ -318,7 +324,7 @@ urlpatterns = [
     path('update/proga/<int:pk>/', views.ProgaUpdate.as_view(), name="update_proga"),
 
     path('create/prot/', views.ProtCreate.as_view(), name="create_prot"),
-    path('create/prot/<int:prog>/<str:pop>', views.ProtCreate.as_view(), name="create_prot"),
+    path('create/prot/<int:prog>/<str:pop>/', views.ProtCreate.as_view(), name="create_prot"),
     path('details/prot/<int:pk>/', views.ProtDetails.as_view(), name="details_prot"),
     path('details/prot/<str:back>/<int:back_id>/<int:pk>/', views.ProtDetails.as_view(), name="details_prot"),
     path('list/prot/', views.ProtList.as_view(), name="list_prot"),
@@ -351,6 +357,7 @@ urlpatterns = [
     path('create/repr/', views.ReportFormView.as_view(), name="create_repr"),
     path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
     path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
+    path('reports/site_report_file/', views.site_report_file, name="site_report_file"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
@@ -364,6 +371,7 @@ urlpatterns = [
 
     path('create/samp/', views.SampCreate.as_view(), name="create_samp"),
     path('details/samp/<int:pk>/', views.SampDetails.as_view(), name="details_samp"),
+    path('details/samp/<str:back>/<int:back_id>/<int:pk>/', views.SampDetails.as_view(), name="details_samp"),
     path('list/samp/', views.SampList.as_view(), name="list_samp"),
     path('update/samp/<int:pk>/', views.SampUpdate.as_view(), name="update_samp"),
 
@@ -374,6 +382,7 @@ urlpatterns = [
 
     path('create/sampd/', views.SampdCreate.as_view(), name="create_sampd"),
     path('details/sampd/<int:pk>/', views.SampdDetails.as_view(), name="details_sampd"),
+    path('details/sampd/<str:back>/<int:back_id>/<int:pk>/', views.SampdDetails.as_view(), name="details_sampd"),
     path('list/sampd/', views.SampdList.as_view(), name="list_sampd"),
     path('update/sampd/<int:pk>/', views.SampdUpdate.as_view(), name="update_sampd"),
 

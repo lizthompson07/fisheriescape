@@ -1,64 +1,61 @@
-import math
-from datetime import datetime
-
 import pytz
 import pandas as pd
 
 from bio_diversity import models
 from bio_diversity import utils
+from bio_diversity.utils import DataParser
 
 
-def mactaquac_water_quality_parser(cleaned_data):
-    log_data = "Loading Data Results: \n"
-    rows_parsed = 0
-    rows_entered = 0
-    try:
-        data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', header=0,
-                             converters={'Pond': str, 'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
-        data_dict = data.to_dict('records')
-    except Exception as err:
-        log_data += "\n File format not valid: {}".format(err.__str__())
-        return log_data, False
-    parsed = True
-    temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
-    oxlvl_envc_id = models.EnvCode.objects.filter(name="Oxygen Level").get()
-    ph_envc_id = models.EnvCode.objects.filter(name="pH").get()
-    disn_envc_id = models.EnvCode.objects.filter(name="Dissolved Nitrogen").get()
+class WaterQualityParser(DataParser):
+    tank_key = "Pond"
+    time_key = "Time (24HR)"
+    temp_key = "Temp °C"
+    dox_key = "DO%"
+    ph_key = "pH"
+    dn_key = "Dissolved Nitrogen %"
 
-    for row in data_dict:
-        row_parsed = True
-        row_entered = False
-        try:
-            contx = utils.enter_tank_contx(row["Pond"], cleaned_data, None, return_contx=True)
-            row_date = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                         "%Y%b%d").replace(tzinfo=pytz.UTC).date()
-            if not math.isnan(row["Time (24HR)"]):
-                row_time = row["Time (24HR)"].replace(tzinfo=pytz.UTC)
-            else:
-                row_time = None
+    comment_key = "Comments"
+    crew_key = "Initials"
 
-            if utils.enter_env(row["Temp °C"], row_date, cleaned_data, temp_envc_id, contx=contx, env_start=row_time):
-                row_entered = True
-            if utils.enter_env(row["DO%"], row_date, cleaned_data, oxlvl_envc_id, contx=contx, env_start=row_time):
-                row_entered = True
-            if utils.enter_env(row["pH"], row_date, cleaned_data, ph_envc_id, contx=contx, env_start=row_time):
-                row_entered = True
-            if utils.enter_env(row["Dissolved Nitrogen %"], row_date, cleaned_data, disn_envc_id, contx=contx,
-                               env_start=row_time):
-                row_entered = True
+    header = 2
+    converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
 
-        except Exception as err:
-            log_data += "Error parsing row: \n"
-            log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
-            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
-                        "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-            return log_data, False
-        if row_entered:
-            rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
-    log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to " \
-                "database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-    return log_data, True
+    temp_envc_id = None
+    oxlvl_envc_id = None
+    ph_envc_id = None
+    disn_envc_id = None
+
+    def data_preper(self):
+        self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+        self.oxlvl_envc_id = models.EnvCode.objects.filter(name="Oxygen Level").get()
+        self.ph_envc_id = models.EnvCode.objects.filter(name="pH").get()
+        self.disn_envc_id = models.EnvCode.objects.filter(name="Dissolved Nitrogen").get()
+
+    def row_parser(self, row):
+        cleaned_data = self.cleaned_data
+        contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, None, return_contx=True)
+        self.row_entered += data_entered
+        row_date = utils.get_row_date(row)
+        if utils.nan_to_none(row[self.time_key]):
+            row_time = row[self.time_key].replace(tzinfo=pytz.UTC)
+        else:
+            row_time = None
+
+        self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id, contx=contx,
+                                            env_start=row_time)
+        self.row_entered += utils.enter_env(row[self.dox_key], row_date, cleaned_data, self.oxlvl_envc_id, contx=contx,
+                                            env_start=row_time)
+        self.row_entered += utils.enter_env(row[self.ph_key], row_date, cleaned_data, self.ph_envc_id, contx=contx,
+                                            env_start=row_time)
+        self.row_entered += utils.enter_env(row[self.dn_key], row_date, cleaned_data, self.disn_envc_id,
+                                            contx=contx, env_start=row_time)
+
+        if utils.nan_to_none(row[self.crew_key]):
+            perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
+            for perc_id in perc_list:
+                team_id, team_entered = utils.add_team_member(perc_id, cleaned_data["evnt_id"], return_team=True)
+                self.row_entered += team_entered
+                if team_id:
+                    self.row_entered += utils.enter_tank_contx(row[self.tank_key], cleaned_data, team_pk=team_id.pk)
+            for inits in inits_not_found:
+                self.log_data += "No valid personnel with initials ({}) for row {} \n".format(inits, row)
