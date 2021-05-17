@@ -129,6 +129,7 @@ urlpatterns = [
 
     path('create/ree/<int:rec_id>/<str:pop>/', views.ReeCreate.as_view(), name="create_ree"),
     path('update/ree/<int:pk>/<str:pop>/', views.ReeUpdate.as_view(), name="update_ree"),
+    path('delete/ree/<int:pk>/', views.ReeDeleteView.as_view(), name="delete_ree"),
 
     path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),

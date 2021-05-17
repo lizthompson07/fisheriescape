@@ -1045,6 +1045,10 @@ class MorDeleteView(mixins.MorMixin, CommonDeleteView):
     success_url = reverse_lazy("whalesdb:list_mor")
 
 
+class ReeDeleteView(mixins.ReeMixin, CommonDeleteView):
+    success_url = reverse_lazy('shared_models:close_me')
+
+
 class RscDeleteView(mixins.RscMixin, CommonDeleteView):
     success_url = reverse_lazy('whalesdb:list_rsc')
 

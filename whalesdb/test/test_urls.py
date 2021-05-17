@@ -299,6 +299,10 @@ class URLTest(TestCase):
     def test_url_update_ree_pop_view(self):
         self.basic_en_url_test('whalesdb:update_ree', 'whalesdb/update/ree/1/pop/', views.ReeUpdate, [1, 'pop'])
 
+    @tag('ree', 'url', 'delete')
+    def test_url_update_ree_view(self):
+        self.basic_en_url_test('whalesdb:delete_ree', 'whalesdb/delete/ree/1/', views.ReeDeleteView, [1])
+
     @tag('rsc', 'url', 'create')
     def test_url_create_rsc_view(self):
         self.basic_en_url_test('whalesdb:create_rsc', 'whalesdb/create/rsc/', views.RscCreate)

@@ -69,7 +69,10 @@
                         <h3>{{ree.ret_id.ret_name}}</h3>
                     </span>
                     <span class="px-1">
+                        {% if auth %}
                         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:update_ree' ree.pk 'pop' %}','id_events')">{% trans '>' %}</a>
+                        <a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:delete_ree' ree.pk %}','id_events')">{% trans 'X' %}</a>
+                        {% endif %}
                     </span>
                 </div>
                 <table class="table" >
