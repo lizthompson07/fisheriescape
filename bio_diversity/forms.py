@@ -674,6 +674,24 @@ class LoccForm(CreatePrams):
         exclude = []
 
 
+class LocdForm(CreatePrams):
+    class Meta:
+        model = models.LocationDet
+        exclude = []
+
+
+class LocdcForm(CreatePrams):
+    class Meta:
+        model = models.LocationDetCode
+        exclude = []
+
+
+class LdscForm(CreatePrams):
+    class Meta:
+        model = models.LocDetSubjCode
+        exclude = []
+
+
 class MapForm(forms.Form):
     north = forms.FloatField(required=False)
     south = forms.FloatField(required=False)

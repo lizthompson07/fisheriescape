@@ -1354,6 +1354,57 @@ class LocCode(BioLookup):
     pass
 
 
+class LocationDet(BioDet):
+    # locd tag
+    anidc_id = None
+    adsc_id = None
+    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name=_("Location"),
+                               db_column="LOCATION_ID")
+    locdc_id = models.ForeignKey('LocationDetCode', on_delete=models.CASCADE, verbose_name=_("Location Detail Code"),
+                                 db_column="LOC_DET_ID")
+    ldsc_id = models.ForeignKey('LocDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
+                                verbose_name=_("Location Detail Subjective Code"), db_column="LOC_DET_SUBJ_ID")
+
+    def clean(self):
+        super(BioDet, self).clean()
+        if self.is_numeric() and self.det_val is not None:
+            if float(self.det_val) > self.locdc_id.max_val or float(self.det_val) < self.locdc_id.min_val:
+                raise ValidationError({
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.locdc_id.max_val, self.locdc_id.min_val))
+                })
+
+    def is_numeric(self):
+        if self.locdc_id.min_val is not None and self.locdc_id.max_val is not None:
+            return True
+        else:
+            return False
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['loc_id', 'locdc_id', 'ldsc_id'], name='Location_Detail_Uniqueness')
+        ]
+
+
+class LocationDetCode(BioLookup):
+    # locdc tag
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"),
+                                db_column="UNIT_ID")
+    loc_subj_flag = models.BooleanField(verbose_name=_("Subjective detail?"), db_column="CONT_SUBJ_FLAG")
+
+
+class LocDetSubjCode(BioLookup):
+    locdc_id = models.ForeignKey("LocationDetCode", on_delete=models.CASCADE, db_column="LOC_DET_ID",
+                                 verbose_name=_("Location detail code"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'locdc_id'], name='LDSC_Uniqueness')
+        ]
+
+
 class Organization(BioLookup):
     # orga tag
     pass

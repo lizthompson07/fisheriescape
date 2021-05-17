@@ -501,6 +501,18 @@ class LoccCreate(mixins.LoccMixin, CommonCreate):
     pass
 
 
+class LocdCreate(mixins.LocdMixin, CommonCreate):
+    pass
+
+
+class LocdcCreate(mixins.LocdcMixin, CommonCreate):
+    pass
+
+
+class LdscCreate(mixins.LdscMixin, CommonCreate):
+    pass
+
+
 class OrgaCreate(mixins.OrgaMixin, CommonCreate):
     pass
 
@@ -1421,6 +1433,20 @@ class LoccDetails(mixins.LoccMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class LocdDetails(mixins.LocdMixin, CommonDetails):
+    fields = ["loc_id", "locdc_id",  "det_val", "ldsc_id", "qual_id", "detail_date", "comments", "created_by",
+              "created_date", ]
+
+
+class LocdcDetails(mixins.LocdcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "loc_subj_flag",
+              "created_by", "created_date", ]
+
+
+class LdscDetails(mixins.LdscMixin, CommonDetails):
+    fields = ["locdc_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class OrgaDetails(mixins.OrgaMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
@@ -2105,6 +2131,30 @@ class LoccList(mixins.LoccMixin, GenericList):
     filterset_class = filters.LoccFilter
 
 
+class LocdList(mixins.LocdMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
+    filterset_class = filters.LocdFilter
+
+
+class LocdcList(mixins.LocdcMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
+    filterset_class = filters.LocdcFilter
+
+
+class LdscList(mixins.LdscMixin, GenericList):
+    field_list = [
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'nom', "class": "", "width": ""},
+    ]
+    filterset_class = filters.LdscFilter
+
+
 class OrgaList(mixins.OrgaMixin, GenericList):
     field_list = [
         {"name": 'name', "class": "", "width": ""},
@@ -2650,6 +2700,18 @@ class LocUpdate(mixins.LocMixin, CommonUpdate):
 
 
 class LoccUpdate(mixins.LoccMixin, CommonUpdate):
+    pass
+
+
+class LocdUpdate(mixins.LocdMixin, CommonUpdate):
+    pass
+
+
+class LocdcUpdate(mixins.LocdcMixin, CommonUpdate):
+    pass
+
+
+class LdscUpdate(mixins.LdscMixin, CommonUpdate):
     pass
 
 
