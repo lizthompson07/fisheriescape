@@ -10,17 +10,31 @@ from bio_diversity.utils import DataParser
 
 
 class DistributionParser(DataParser):
-    tank_key = "Tank"
-    stok_key = "Stock"
+    time_key = "Time"
+    driver_key = "Driver"
+    crew_key = "Crew"
+    truck_key = "Truck"
     site_key = "Site"
     lat_key = "Lat"
     lon_key = "Long"
+    stok_key = "Stock"
+    year_coll_key = "Year Collection"
+    prog_key = "Program"
+    tank_key = "Tank"
+    trof_key = "Trough"
+    relm_key = "Release Method"
+    temp_key = "River Temp"
+    truck_temp = "Truck Temp"
+    aclimation_key = "Acclimation Time (mins)"
+    lifestage_key = "Lifestage"
+    len_key = "Len (cm)"
+    weight_key = "Weight (Kg)"
+    num_key = "NFish"
     comment_key = "Comments"
-    crew_key = "Crew"
-    driver_key = "Driver"
-    temp_key = "Water Temp"
 
     temp_envc_id = None
+    truck_locdc_id = None
+    relm_locdc_id = None
     locc_id = None
     driver_role_id = None
 
@@ -28,6 +42,8 @@ class DistributionParser(DataParser):
 
     def data_preper(self):
         self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+        self.truck_locdc_id = models.LocationDetCode.objects.filter(name="Truck").get()
+        self.relm_locdc_id = models.LocationDetCode.objects.filter(name="Release Method").get()
         self.locc_id = models.LocCode.objects.filter(name__icontains="Distribution site").get()
         self.driver_role_id = models.RoleCode.objects.filter(name__iexact="Driver").get()
 

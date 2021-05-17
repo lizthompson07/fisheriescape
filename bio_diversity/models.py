@@ -1388,8 +1388,8 @@ class LocationDet(BioDet):
 
 class LocationDetCode(BioLookup):
     # locdc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
     unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"),
                                 db_column="UNIT_ID")
     loc_subj_flag = models.BooleanField(verbose_name=_("Subjective detail?"), db_column="CONT_SUBJ_FLAG")
