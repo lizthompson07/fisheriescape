@@ -838,6 +838,9 @@ class MorList(mixins.MorMixin, CommonList):
         {"name": "mor_notes"},
     ]
 
+    delete_url = "whalesdb:delete_mor"
+    delete_confirm = False
+
 
 class PrjList(mixins.PrjMixin, CommonList):
     filterset_class = filters.PrjFilter
@@ -1036,6 +1039,10 @@ class DepDeleteView(mixins.DepMixin, CommonDeleteView):
 
 class EqpDeleteView(mixins.EqpMixin, CommonDeleteView):
     success_url = reverse_lazy("whalesdb:list_eqp")
+
+
+class MorDeleteView(mixins.MorMixin, CommonDeleteView):
+    success_url = reverse_lazy("whalesdb:list_mor")
 
 
 class RscDeleteView(mixins.RscMixin, CommonDeleteView):

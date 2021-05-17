@@ -77,6 +77,7 @@ urlpatterns = [
     path('update/mor/<int:pk>/<str:pop>/', views.MorUpdate.as_view(), name="update_mor"),
     path('details/mor/<int:pk>/', views.MorDetails.as_view(), name="details_mor"),
     path('list/mor/', views.MorList.as_view(), name="list_mor"),
+    path('delete/mor/<int:pk>/', views.MorDeleteView.as_view(), name="delete_mor"),
 
     path('create/prj/', views.PrjCreate.as_view(), name="create_prj"),
     path('create/prj/<str:pop>/', views.PrjCreate.as_view(), name="create_prj"),

@@ -263,6 +263,10 @@ class URLTest(TestCase):
     def test_url_details_mor_view(self):
         self.basic_en_url_test('whalesdb:details_mor', 'whalesdb/details/mor/1/', views.MorDetails, [1])
 
+    @tag('mor', 'url', 'delete')
+    def test_url_delete_mor_view(self):
+        self.basic_en_url_test('whalesdb:delete_mor', 'whalesdb/delete/mor/1/', views.MorDeleteView, [1])
+
     @tag('prj', 'url', 'create')
     def test_url_create_prj_view(self):
         self.basic_en_url_test('whalesdb:create_prj', 'whalesdb/create/prj/', views.PrjCreate)
