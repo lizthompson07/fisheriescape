@@ -206,3 +206,33 @@ class TestDepDeleteView(CommonTestFixtures):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("whalesdb:delete_dep", f"/en/whalesdb/delete/dep/{self.instance.pk}/", [self.instance.pk])
+
+
+# The models.TeaTeamMember object is not *required* by anything that uses it so it's ok to delete
+# without confirmation
+@tag("delete", "tea")
+class TestDeleteTea(CommonTestFixtures):
+
+    model = models.TeaTeamMember
+
+    def setUp(self):
+        self.instance = factory.TeaFactory()
+        self.test_url = reverse_lazy('whalesdb:delete_tea', args=[self.instance.pk, ])
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, locales=('en',), user=self.user, expected_code=302)
+
+    @tag("submit")
+    def test_submit(self):
+        self.assert_success_url(self.test_url, user=self.user)
+
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalesdb:delete_tea", f"/en/whalesdb/delete/tea/{self.instance.pk}/", [self.instance.pk])

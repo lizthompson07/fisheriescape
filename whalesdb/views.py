@@ -2,7 +2,7 @@ import datetime
 
 from django.views.generic import DetailView, DeleteView
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.conf import settings
 
 from django.urls import reverse_lazy
@@ -22,8 +22,8 @@ from . import mixins, reports
 
 
 def ecc_delete(request, pk):
-    ecc = models.EccCalibrationValue.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
+        ecc = models.EccCalibrationValue.objects.get(pk=pk)
         ecc.delete()
         messages.success(request, _("The value curve has been successfully deleted."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -45,29 +45,10 @@ def ecp_delete(request, emm, ecp):
 
 
 def eda_delete(request, pk):
-    eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
+        eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
         eda.delete()
         messages.success(request, _("The attachment has been successfully removed."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
-
-
-def eqp_delete(request, pk):
-
-    if utils.whales_authorized(request.user):
-        remove_equipment(pk=pk)
-        messages.success(request, _("The equipment has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
-
-
-def dep_delete(request, pk):
-    if utils.whales_authorized(request.user):
-        remove_deployment(pk=pk)
-        messages.success(request, _("The deployment has been successfully deleted."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
@@ -91,6 +72,19 @@ def rci_delete(request, pk):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def tea_delete(request, pk):
+    user_test_result = utils.whales_authorized(request.user)
+    if user_test_result and request.user.is_authenticated:
+        tea = models.TeaTeamMember.objects.get(pk=pk)
+        tea.delete()
+        messages.success(request, _("The team member has been successfully removed."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    elif not request.user.is_authenticated:
+        return HttpResponseRedirect('/accounts/login/?next={}'.format(reverse_lazy("whalesdb:delete_tea", args=[pk, ])))
+    else:
+        return HttpResponseRedirect('/accounts/denied/')
 
 
 class ReportView(CommonFormView):
@@ -907,6 +901,8 @@ class TeaList(mixins.TeaMixin, CommonList):
     ]
 
     details_url = False
+    delete_url = "whalesdb:delete_tea"
+    delete_confirm = False
 
 
 class CommonDeleteView(UserPassesTestMixin, CommonFormMixin, DeleteView):

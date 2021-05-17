@@ -109,6 +109,7 @@ urlpatterns = [
     path('create/tea/', views.TeaCreate.as_view(), name="create_tea"),
     path('update/tea/<int:pk>/', views.TeaUpdate.as_view(), name="update_tea"),
     path('list/tea/', views.TeaList.as_view(), name="list_tea"),
+    path('delete/tea/<int:pk>/', views.tea_delete, name="delete_tea"),
 
     path('create/rec/', views.RecCreate.as_view(), name="create_rec"),
     path('create/rec/<int:eda>/', views.RecCreate.as_view(), name="create_rec"),

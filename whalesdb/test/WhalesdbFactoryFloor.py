@@ -15,7 +15,7 @@ class CruiseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = shared_models.Cruise
 
-    mission_number = factory.lazy_attribute(lambda o: '{}-{}-{}'.format(faker.word(), faker.random_int(0, 99999),
+    mission_number = factory.LazyAttribute(lambda o: '{}-{}-{}'.format(faker.word(), faker.random_int(0, 99999),
                                                                         faker.word()))
 
 
@@ -23,15 +23,13 @@ class DepFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.DepDeployment
         django_get_or_create = ("stn", "prj", "mor",)
-        exclude = ('stn_code', )
 
-    stn_code = factory.Iterator(_stn_codes_)
-    stn = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.StnFactory", stn_code=stn_code)
+    stn = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.StnFactory")
     prj = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.PrjFactory")
     mor = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.MorFactory")
-    dep_year = factory.lazy_attribute(lambda o: faker.random_int(1980, 2060))
-    dep_month = factory.lazy_attribute(lambda o: faker.random_int(1, 12))
-    dep_name = "{}-{}-{}".format(stn_code, dep_year, dep_month)
+    dep_year = factory.LazyAttribute(lambda o: faker.random_int(1980, 2060))
+    dep_month = factory.LazyAttribute(lambda o: faker.random_int(1, 12))
+    dep_name = factory.LazyAttribute(lambda o: "{}-{}-{}".format(o.stn.stn_code, o.dep_year, o.dep_month))
 
     @staticmethod
     def get_valid_data():
@@ -56,7 +54,7 @@ class EcaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EcaCalibrationEvent
 
-    eca_date = factory.lazy_attribute(lambda o: faker.date())
+    eca_date = factory.LazyAttribute(lambda o: faker.date())
     eca_attachment = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
     eca_hydrophone = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqhFactory")
 
@@ -78,8 +76,8 @@ class EccFactory(factory.django.DjangoModelFactory):
         model = models.EccCalibrationValue
 
     eca = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EcaFactory")
-    ecc_frequency = factory.lazy_attribute(lambda o: faker.pyfloat(left_digits=4, right_digits=6))
-    ecc_sensitivity = factory.lazy_attribute(lambda o: faker.pyfloat(left_digits=4, right_digits=6))
+    ecc_frequency = factory.LazyAttribute(lambda o: faker.pyfloat(left_digits=4, right_digits=6))
+    ecc_sensitivity = factory.LazyAttribute(lambda o: faker.pyfloat(left_digits=4, right_digits=6))
 
     @staticmethod
     def get_valid_data():
@@ -99,10 +97,10 @@ class EcpFactory(factory.django.DjangoModelFactory):
         model = models.EcpChannelProperty
 
     eqr = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqrFactory")
-    ecp_channel_no = factory.lazy_attribute(lambda o: faker.random_int(1, 9))
-    eqa_adc_bits = factory.lazy_attribute(lambda o: models.EqaAdcBitsCode.objects.get(pk=faker.random_int(1, 3)))
-    ecp_voltage_range_min = factory.lazy_attribute(lambda o: faker.random_int(-99, 0))
-    ecp_voltage_range_max = factory.lazy_attribute(lambda o: o.ecp_voltage_range_min + faker.random_int(0, 99))
+    ecp_channel_no = factory.LazyAttribute(lambda o: faker.random_int(1, 9))
+    eqa_adc_bits = factory.LazyAttribute(lambda o: models.EqaAdcBitsCode.objects.get(pk=faker.random_int(1, 3)))
+    ecp_voltage_range_min = factory.LazyAttribute(lambda o: faker.random_int(-99, 0))
+    ecp_voltage_range_max = factory.LazyAttribute(lambda o: o.ecp_voltage_range_min + faker.random_int(0, 99))
 
     @staticmethod
     def get_valid_data():
@@ -147,11 +145,11 @@ class EmmFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EmmMakeModel
 
-    eqt = factory.lazy_attribute(lambda o: models.EqtEquipmentTypeCode.objects.get(pk=faker.random_int(1, 4)))
-    emm_make = factory.lazy_attribute(lambda o: faker.word())
-    emm_model = factory.lazy_attribute(lambda o: faker.word())
-    emm_depth_rating = factory.lazy_attribute(lambda o: faker.random_int(10, 10000))
-    emm_description = factory.lazy_attribute(lambda o: faker.text())
+    eqt = factory.LazyAttribute(lambda o: models.EqtEquipmentTypeCode.objects.get(pk=faker.random_int(1, 4)))
+    emm_make = factory.LazyAttribute(lambda o: faker.word())
+    emm_model = factory.LazyAttribute(lambda o: faker.word())
+    emm_depth_rating = factory.LazyAttribute(lambda o: faker.random_int(10, 10000))
+    emm_description = factory.LazyAttribute(lambda o: faker.text())
 
     # if providing an eqt_type use the WhalesdbFactory._eqt_type_codes array
     @staticmethod
@@ -174,10 +172,10 @@ class EheFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EheHydrophoneEvent
 
-    ehe_date = factory.lazy_attribute(lambda o: faker.date())
+    ehe_date = factory.LazyAttribute(lambda o: faker.date())
     hyd = factory.SubFactory('whalesdb.test.WhalesdbFactoryFloor.EqhFactory')
     rec = factory.SubFactory('whalesdb.test.WhalesdbFactoryFloor.EqrFactory')
-    ecp_channel_no = factory.lazy_attribute(lambda o: faker.random_int(1, 9))
+    ecp_channel_no = factory.LazyAttribute(lambda o: faker.random_int(1, 9))
 
     @staticmethod
     def get_valid_data():
@@ -199,8 +197,8 @@ class EqhFactory(factory.django.DjangoModelFactory):
         model = models.EqhHydrophoneProperty
 
     emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory", eqt_id=4)
-    eqh_range_min = factory.lazy_attribute(lambda o: faker.random_int(0, 100))
-    eqh_range_max = factory.lazy_attribute(lambda o: faker.random_int(100, 1000))
+    eqh_range_min = factory.LazyAttribute(lambda o: faker.random_int(0, 100))
+    eqh_range_max = factory.LazyAttribute(lambda o: faker.random_int(100, 1000))
 
     @staticmethod
     def get_valid_data():
@@ -227,11 +225,11 @@ class EqpFactory(factory.django.DjangoModelFactory):
         model = models.EqpEquipment
 
     emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory")
-    eqp_serial = factory.lazy_attribute(lambda o: faker.random_int(1, 1000000000))
+    eqp_serial = factory.LazyAttribute(lambda o: faker.random_int(1, 1000000000))
     eqp_asset_id = factory.Sequence(lambda n: "DFO-{}".format(faker.random_int(9000000, 9999999)))
-    eqp_date_purchase = factory.lazy_attribute(lambda o: faker.date())
-    eqp_notes = factory.lazy_attribute(lambda o: faker.text())
-    eqp_retired = factory.lazy_attribute(lambda o: faker.boolean())
+    eqp_date_purchase = factory.LazyAttribute(lambda o: faker.date())
+    eqp_notes = factory.LazyAttribute(lambda o: faker.text())
+    eqp_retired = factory.LazyAttribute(lambda o: faker.boolean())
     eqo_owned_by = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqoFactory")
 
     @staticmethod
@@ -257,9 +255,9 @@ class EqrFactory(factory.django.DjangoModelFactory):
         model = models.EqrRecorderProperties
 
     emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
-                             eqt=factory.lazy_attribute(lambda o: models.EqtEquipmentTypeCode.objects.get(pk=faker.random_int(1, 3))))
-    ert = factory.lazy_attribute(lambda o: models.ErtRecorderType.objects.get(pk=faker.random_int(1, 4)))
-    eqr_internal_hydro = factory.lazy_attribute(lambda o: faker.boolean())
+                             eqt=factory.LazyAttribute(lambda o: models.EqtEquipmentTypeCode.objects.get(pk=faker.random_int(1, 3))))
+    ert = factory.LazyAttribute(lambda o: models.ErtRecorderType.objects.get(pk=faker.random_int(1, 4)))
+    eqr_internal_hydro = factory.LazyAttribute(lambda o: faker.boolean())
 
     @staticmethod
     def get_valid_data():
@@ -301,12 +299,12 @@ class MorFactory(factory.django.DjangoModelFactory):
         model = models.MorMooringSetup
         django_get_or_create = ('mor_name',)
 
-    mor_name = factory.lazy_attribute(lambda o: faker.name())
-    mor_max_depth = factory.lazy_attribute(lambda o: faker.random_int(0, 1000))
-    mor_link_setup_image = factory.lazy_attribute(lambda o: faker.url())
-    mor_additional_equipment = factory.lazy_attribute(lambda o: faker.sentence())
-    mor_general_moor_description = factory.lazy_attribute(lambda o: faker.text())
-    mor_notes = factory.lazy_attribute(lambda o: faker.text())
+    mor_name = factory.LazyAttribute(lambda o: faker.name())
+    mor_max_depth = factory.LazyAttribute(lambda o: faker.random_int(0, 1000))
+    mor_link_setup_image = factory.LazyAttribute(lambda o: faker.url())
+    mor_additional_equipment = factory.LazyAttribute(lambda o: faker.sentence())
+    mor_general_moor_description = factory.LazyAttribute(lambda o: faker.text())
+    mor_notes = factory.LazyAttribute(lambda o: faker.text())
 
     @staticmethod
     def get_valid_data():
@@ -328,9 +326,9 @@ class PrjFactory(factory.django.DjangoModelFactory):
         model = models.PrjProject
         django_get_or_create = ('name',)
 
-    name = factory.lazy_attribute(lambda o: faker.name())
-    description_en = factory.lazy_attribute(lambda o: faker.text())
-    prj_url = factory.lazy_attribute(lambda o: faker.url())
+    name = factory.LazyAttribute(lambda o: faker.name())
+    description_en = factory.LazyAttribute(lambda o: faker.text())
+    prj_url = factory.LazyAttribute(lambda o: faker.url())
 
     @staticmethod
     def get_valid_data():
@@ -348,10 +346,10 @@ class RciFactory(factory.django.DjangoModelFactory):
         model = models.RciChannelInfo
 
     rec_id = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RecFactory")
-    rci_name = factory.lazy_attribute(lambda o: faker.word())
-    rci_size = factory.lazy_attribute(lambda o: faker.random_int(0, 12))
-    rci_gain = factory.lazy_attribute(lambda o: faker.random_int(0, 12))
-    rci_volts = factory.lazy_attribute(lambda o: faker.pyfloat(left_digits=3, right_digits=1))
+    rci_name = factory.LazyAttribute(lambda o: faker.word())
+    rci_size = factory.LazyAttribute(lambda o: faker.random_int(0, 12))
+    rci_gain = factory.LazyAttribute(lambda o: faker.random_int(0, 12))
+    rci_volts = factory.LazyAttribute(lambda o: faker.pyfloat(left_digits=3, right_digits=1))
 
     @staticmethod
     def get_valid_data():
@@ -398,10 +396,10 @@ class ReeFactory(factory.django.DjangoModelFactory):
         model = models.ReeRecordingEvent
 
     rec_id = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RecFactory")
-    ret_id = factory.lazy_attribute(lambda o: models.RetRecordingEventType.objects.get(pk=faker.random_int(1, 6)))
+    ret_id = factory.LazyAttribute(lambda o: models.RetRecordingEventType.objects.get(pk=faker.random_int(1, 6)))
     rtt_id = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RttFactory")
-    ree_date = factory.lazy_attribute(lambda o: faker.date())
-    ree_time = factory.lazy_attribute(lambda o: faker.time())
+    ree_date = factory.LazyAttribute(lambda o: faker.date())
+    ree_time = factory.LazyAttribute(lambda o: faker.time())
     tea_id = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.TeaFactory")
 
     @staticmethod
@@ -427,8 +425,8 @@ class RetFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.RetRecordingEventType
 
-    ret_name = factory.lazy_attribute(lambda o: faker.word())
-    ret_desc = factory.lazy_attribute(lambda o: faker.text())
+    ret_name = factory.LazyAttribute(lambda o: faker.word())
+    ret_desc = factory.LazyAttribute(lambda o: faker.text())
 
     @staticmethod
     def get_valid_data():
@@ -444,8 +442,8 @@ class RscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.RscRecordingSchedule
 
-    rsc_name = factory.lazy_attribute(lambda o: faker.word())
-    rsc_period = factory.lazy_attribute(lambda o: faker.random_int(1, 1000000))
+    rsc_name = factory.LazyAttribute(lambda o: faker.word())
+    rsc_period = factory.LazyAttribute(lambda o: faker.random_int(1, 1000000))
 
     @staticmethod
     def get_valid_data():
@@ -461,11 +459,11 @@ class RstFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.RstRecordingStage
 
-    rst_channel_no = factory.lazy_attribute(lambda o: faker.random_int(0, 9))
+    rst_channel_no = factory.LazyAttribute(lambda o: faker.random_int(0, 9))
     rsc = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RscFactory")
-    rst_active = factory.lazy_attribute(lambda o: faker.random_element(elements=("A", "S")))
-    rst_duration = factory.lazy_attribute(lambda o: faker.random_int(0, 10000))
-    rst_rate = factory.lazy_attribute(lambda o: faker.pyfloat(left_digits=5, right_digits=2))
+    rst_active = factory.LazyAttribute(lambda o: faker.random_element(elements=("A", "S")))
+    rst_duration = factory.LazyAttribute(lambda o: faker.random_int(0, 10000))
+    rst_rate = factory.LazyAttribute(lambda o: faker.pyfloat(left_digits=5, right_digits=2))
 
     @staticmethod
     def get_valid_data():
@@ -486,9 +484,9 @@ class RttFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.RttTimezoneCode
 
-    rtt_abb = factory.lazy_attribute(lambda o: faker.word()[0:5])
-    rtt_name = factory.lazy_attribute(lambda o: faker.word())
-    rtt_offset = factory.lazy_attribute(lambda o: faker.random_int(-12, 12))
+    rtt_abb = factory.LazyAttribute(lambda o: faker.word()[0:5])
+    rtt_name = factory.LazyAttribute(lambda o: faker.word())
+    rtt_offset = factory.LazyAttribute(lambda o: faker.random_int(-12, 12))
 
     @staticmethod
     def get_valid_data():
@@ -506,13 +504,13 @@ class StnFactory(factory.django.DjangoModelFactory):
         model = models.StnStation
         django_get_or_create = ('stn_code',)
 
-    stn_name = factory.lazy_attribute(lambda o: faker.name())
+    stn_name = factory.LazyAttribute(lambda o: faker.name())
     stn_code = factory.Iterator(_stn_codes_)
     stn_revision = 1
-    stn_planned_lat = factory.lazy_attribute(lambda o: faker.pydecimal(left_digits=2, right_digits=5))
-    stn_planned_lon = factory.lazy_attribute(lambda o: faker.pydecimal(left_digits=2, right_digits=5))
-    stn_planned_depth = factory.lazy_attribute(lambda o: faker.random_int(0, 1000))
-    stn_notes = factory.lazy_attribute(lambda o: faker.text())
+    stn_planned_lat = factory.LazyAttribute(lambda o: faker.pydecimal(left_digits=2, right_digits=5))
+    stn_planned_lon = factory.LazyAttribute(lambda o: faker.pydecimal(left_digits=2, right_digits=5))
+    stn_planned_depth = factory.LazyAttribute(lambda o: faker.random_int(0, 1000))
+    stn_notes = factory.LazyAttribute(lambda o: faker.text())
 
     @staticmethod
     def get_valid_data():
@@ -534,11 +532,11 @@ class SteFactory(factory.django.DjangoModelFactory):
         model = models.SteStationEvent
 
     dep = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.DepFactory")
-    set_type = factory.lazy_attribute(lambda o: models.SetStationEventCode.objects.all()[
+    set_type = factory.LazyAttribute(lambda o: models.SetStationEventCode.objects.all()[
         faker.random_int(0, models.SetStationEventCode.objects.count() - 1)])
 
     crs = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.CruiseFactory")
-    ste_date = factory.lazy_attribute(lambda o: faker.date())
+    ste_date = factory.LazyAttribute(lambda o: faker.date())
     rtt_id = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RttFactory")
 
     @staticmethod
@@ -563,9 +561,9 @@ class TeaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TeaTeamMember
 
-    tea_abb = factory.lazy_attribute(lambda o: faker.word())
-    tea_last_name = factory.lazy_attribute(lambda o: faker.word())
-    tea_first_name = factory.lazy_attribute(lambda o: faker.word())
+    tea_abb = factory.LazyAttribute(lambda o: faker.word())
+    tea_last_name = factory.LazyAttribute(lambda o: faker.word())
+    tea_first_name = factory.LazyAttribute(lambda o: faker.word())
 
     @staticmethod
     def get_valid_data():
