@@ -184,7 +184,7 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
         year = form.cleaned_data["year"] if form.cleaned_data["year"] else "None"
 
         if report == 1:
-            return HttpResponseRedirect(reverse("grais:spp_sample_xlsx", kwargs={"species_list": species_list}))
+            return HttpResponseRedirect(reverse("grais:spp_sample_xlsx", kwargs={"year": year, "species_list": species_list}))
         elif report == 2:
             return HttpResponseRedirect(reverse("grais:od1_report", kwargs={"year": year})) if form.cleaned_data[
                 "year"] else HttpResponseRedirect(reverse("grais:od1_report"))
@@ -209,8 +209,8 @@ class ReportSearchFormView(GraisAccessRequiredMixin, CommonFormView):
 
 @login_required(login_url='/accounts/login/')
 @user_passes_test(has_grais_crud, login_url='/accounts/denied/')
-def species_sample_spreadsheet_export(request, species_list):
-    file_url = reports.generate_species_sample_spreadsheet(species_list)
+def species_sample_spreadsheet_export(request, year, species_list):
+    file_url = reports.generate_species_sample_spreadsheet(year, species_list)
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
