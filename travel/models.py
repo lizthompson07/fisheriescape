@@ -737,9 +737,9 @@ class Traveller(models.Model):
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a research scientist (RES)?"))
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
-    address = models.CharField(max_length=1000, verbose_name=_("address"), blank=True, null=True)
-    phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
-    email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
+    address = models.CharField(max_length=1000, verbose_name=_("work address"), blank=True, null=True)
+    phone = models.CharField(max_length=1000, verbose_name=_("work phone"), blank=True, null=True)
+    email = models.EmailField(verbose_name=_("work email"), blank=True, null=True)
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True, null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"))
@@ -929,7 +929,7 @@ class Reviewer(models.Model):
         (6, _("Expenditure Initiation")),
         (7, _("RDG (Expenditure Initiation)")),  # this is temporary until RDG is actually looped into the process
     )
-    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")  # todo remove the non-null!!!!
+    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers", blank=False, null=True)  # todo remove the non-null!!!!
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.IntegerField(verbose_name=_("role"), choices=role_choices)

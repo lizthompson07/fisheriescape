@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-03 13:17-0300\n"
+"POT-Creation-Date: 2021-05-12 08:17-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1651,8 +1651,8 @@ msgstr "Nouveau"
 #: .\shared_models\models.py:658 .\shared_models\models.py:664
 #: .\shared_models\models.py:766 .\shared_models\models.py:767
 #: .\shared_models\models.py:943 .\shared_models\models.py:944
-#: .\shared_models\utils.py:22 .\shared_models\views.py:888
-#: .\shared_models\views.py:939 .\shared_models\views.py:1039
+#: .\shared_models\utils.py:22 .\shared_models\views.py:893
+#: .\shared_models\views.py:944 .\shared_models\views.py:1044
 #: .\shares\models.py:61 .\staff\views.py:34 .\staff\views.py:221
 #: .\staff\views.py:222
 msgid "name"
@@ -3855,7 +3855,7 @@ msgstr ""
 msgid "admin"
 msgstr ""
 
-#: .\shared_models\models.py:217 .\shared_models\views.py:758
+#: .\shared_models\models.py:217 .\shared_models\views.py:763
 msgid "Regions - Sectors (NCR)"
 msgstr ""
 
@@ -3871,7 +3871,7 @@ msgstr ""
 msgid "Branches - Directorates (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:255 .\shared_models\views.py:690
+#: .\shared_models\models.py:255 .\shared_models\views.py:695
 msgid "branch"
 msgstr "direction"
 
@@ -4244,8 +4244,8 @@ msgid "Financial Coding"
 msgstr "Résumé financier:"
 
 #: .\shared_models\templates\shared_models\org_index.html:44
-#: .\shared_models\views.py:947 .\shared_models\views.py:955
-#: .\shared_models\views.py:968 .\shared_models\views.py:977
+#: .\shared_models\views.py:952 .\shared_models\views.py:960
+#: .\shared_models\views.py:973 .\shared_models\views.py:982
 #, fuzzy
 #| msgid "Project"
 msgid "Project Codes"
@@ -4448,79 +4448,79 @@ msgstr "Mis à jour :"
 msgid "Delete Confirmation"
 msgstr "Informations concernant le voyageur"
 
-#: .\shared_models\views.py:519
+#: .\shared_models\views.py:524
 msgid "Warning"
 msgstr ""
 
-#: .\shared_models\views.py:521
+#: .\shared_models\views.py:526
 msgid "These are shared tables for all of DM Apps."
 msgstr ""
 
-#: .\shared_models\views.py:522 .\shared_models\views.py:529
+#: .\shared_models\views.py:527 .\shared_models\views.py:534
 msgid "Please be careful when editing."
 msgstr ""
 
-#: .\shared_models\views.py:523
+#: .\shared_models\views.py:528
 msgid "DM Apps Shared Settings"
 msgstr ""
 
-#: .\shared_models\views.py:528 .\shared_models\views.py:530
+#: .\shared_models\views.py:533 .\shared_models\views.py:535
 #, fuzzy
 msgid "DFO Organization Spreadsheet"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:545
+#: .\shared_models\views.py:550
 msgid "section"
 msgstr "section"
 
-#: .\shared_models\views.py:551 .\shared_models\views.py:571
-#: .\shared_models\views.py:587 .\shared_models\views.py:598
-#: .\shared_models\views.py:624 .\shared_models\views.py:644
-#: .\shared_models\views.py:660 .\shared_models\views.py:671
-#: .\shared_models\views.py:696 .\shared_models\views.py:716
-#: .\shared_models\views.py:732 .\shared_models\views.py:743
-#: .\shared_models\views.py:764 .\shared_models\views.py:780
-#: .\shared_models\views.py:796 .\shared_models\views.py:807
-#: .\shared_models\views.py:829 .\shared_models\views.py:845
-#: .\shared_models\views.py:861 .\shared_models\views.py:872
-#: .\shared_models\views.py:1074 .\shared_models\views.py:1086
+#: .\shared_models\views.py:556 .\shared_models\views.py:576
+#: .\shared_models\views.py:592 .\shared_models\views.py:603
+#: .\shared_models\views.py:629 .\shared_models\views.py:649
+#: .\shared_models\views.py:665 .\shared_models\views.py:676
+#: .\shared_models\views.py:701 .\shared_models\views.py:721
+#: .\shared_models\views.py:737 .\shared_models\views.py:748
+#: .\shared_models\views.py:769 .\shared_models\views.py:785
+#: .\shared_models\views.py:801 .\shared_models\views.py:812
+#: .\shared_models\views.py:834 .\shared_models\views.py:850
+#: .\shared_models\views.py:866 .\shared_models\views.py:877
+#: .\shared_models\views.py:1079 .\shared_models\views.py:1091
 #, fuzzy
 msgid "DFO Orgs"
 msgstr "Secteurs du MPO"
 
-#: .\shared_models\views.py:618
+#: .\shared_models\views.py:623
 msgid "division"
 msgstr "division"
 
-#: .\shared_models\views.py:822
+#: .\shared_models\views.py:827
 #, fuzzy
 msgid "Organizations - Sectors (NCR)"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:895 .\shared_models\views.py:903
-#: .\shared_models\views.py:916 .\shared_models\views.py:925
+#: .\shared_models\views.py:900 .\shared_models\views.py:908
+#: .\shared_models\views.py:921 .\shared_models\views.py:930
 msgid "Responsibility Center"
 msgstr ""
 
-#: .\shared_models\views.py:989
+#: .\shared_models\views.py:994
 msgid "Create a New DM Apps User"
 msgstr "Créer un nouveau utilisateur de Applis GD"
 
-#: .\shared_models\views.py:991
+#: .\shared_models\views.py:996
 msgid "Please use extreme vigilance with this form."
 msgstr ""
 
-#: .\shared_models\views.py:992
+#: .\shared_models\views.py:997
 msgid ""
 "After this form is submitted, the new user will receive a confirmation e-"
 "mail."
 msgstr ""
 
-#: .\shared_models\views.py:1023
+#: .\shared_models\views.py:1028
 msgid "The user '{}' was created and an email was sent"
 msgstr ""
 
-#: .\shared_models\views.py:1040 .\shiny\views.py:30
+#: .\shared_models\views.py:1045 .\shiny\views.py:30
 msgid "description"
 msgstr "description"
 

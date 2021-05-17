@@ -106,7 +106,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         meeting = get_object_or_404(models.Meeting, pk=pk)
         if qp.get("maximize_attendance"):
-            invitees = meeting.invitees.filter(status__in=[0, 1])
+            invitees = meeting.invitees.filter(status__in=[1, ])
             for invitee in invitees:
                 invitee.maximize_attendance()
             return Response(None, status.HTTP_204_NO_CONTENT)
