@@ -53,10 +53,14 @@ class DepFactory(factory.django.DjangoModelFactory):
 class EcaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EcaCalibrationEvent
+        exclude = ("emm",)
+
+    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
+                             eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
 
     eca_date = factory.LazyAttribute(lambda o: faker.date())
     eca_attachment = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
-    eca_hydrophone = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqhFactory")
+    eca_hydrophone = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory", emm=emm)
 
     @staticmethod
     def get_valid_data():
@@ -277,14 +281,19 @@ class EqrFactory(factory.django.DjangoModelFactory):
 class EtrFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EtrTechnicalRepairEvent
+        exclude = ('emm',)
+
+    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
+                             eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
 
     eqp = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
-    hyd = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqhFactory")
+    hyd = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory", emm=emm)
 
     @staticmethod
     def get_valid_data():
+        emm = EmmFactory(eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
         eqp = EqpFactory()
-        hyd = EqhFactory()
+        hyd = EqpFactory(emm=emm)
 
         valid_data = {
             'eqp': eqp.pk,
@@ -349,7 +358,7 @@ class RciFactory(factory.django.DjangoModelFactory):
     rci_name = factory.LazyAttribute(lambda o: faker.word())
     rci_size = factory.LazyAttribute(lambda o: faker.random_int(0, 12))
     rci_gain = factory.LazyAttribute(lambda o: faker.random_int(0, 12))
-    rci_volts = factory.LazyAttribute(lambda o: faker.pyfloat(left_digits=3, right_digits=1))
+    rci_volts = factory.LazyAttribute(lambda o: faker.pyfloat(left_digits=2, right_digits=20))
 
     @staticmethod
     def get_valid_data():
@@ -359,7 +368,7 @@ class RciFactory(factory.django.DjangoModelFactory):
             "rci_name": faker.word(),
             "rci_size": faker.random_int(0, 12),
             "rci_gain": faker.random_int(0, 12),
-            "rci_volts": faker.pyfloat(left_digits=3, right_digits=1)
+            "rci_volts": faker.pyfloat(left_digits=2, right_digits=20)
         }
 
         return valid_data
