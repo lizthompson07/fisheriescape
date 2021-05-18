@@ -95,10 +95,12 @@ class ElectrofishingParser(DataParser):
 
         self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id, loc_id=loc)
 
-        cnt_caught = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_caught_key], loc_pk=loc.pk,
-                                     cnt_code="Fish Caught")
-        cnt_obs = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_obs_key], loc_pk=loc.pk,
-                                  cnt_code="Fish Observed")
+        cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_caught_key], loc_pk=loc.pk,
+                                                  cnt_code="Fish Caught")
+        self.row_entered += cnt_entered
+        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_obs_key], loc_pk=loc.pk,
+                                               cnt_code="Fish Observed")
+        self.row_entered += cnt_entered
 
         if cnt_caught:
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt_caught, row[self.settings_key],
@@ -170,17 +172,19 @@ class ElectrofishingParser(DataParser):
                                                          return_contx=True)
 
             if utils.nan_to_none(row[self.group_key]):
-                utils.enter_cnt(cleaned_data, self.data[(self.data[self.rive_key] == row[self.rive_key]) &
-                                                        (self.data[self.group_key] == row[self.group_key]) &
-                                                        (self.data[self.tank_key] == row[self.tank_key]) &
-                                                        (self.data[self.coll_key] == row[self.coll_key])][
-                    self.fish_caught_key].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
+                self.row_entered += utils.enter_cnt(cleaned_data, self.data[
+                    (self.data[self.rive_key] == row[self.rive_key]) &
+                    (self.data[self.group_key] == row[self.group_key]) &
+                    (self.data[self.tank_key] == row[self.tank_key]) &
+                    (self.data[self.coll_key] == row[self.coll_key])
+                ][self.fish_caught_key].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )[1]
             else:
-                utils.enter_cnt(cleaned_data, self.data[(self.data[self.rive_key] == row[self.rive_key]) &
-                                                        (self.data[self.coll_key] == row[self.coll_key]) &
-                                                        (self.data[self.tank_key] == row[self.tank_key]) &
-                                                        (self.data[self.group_key].isnull())][
-                    self.fish_caught_key].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )
+                self.row_entered += utils.enter_cnt(cleaned_data, self.data[
+                    (self.data[self.rive_key] == row[self.rive_key]) &
+                    (self.data[self.coll_key] == row[self.coll_key]) &
+                    (self.data[self.tank_key] == row[self.tank_key]) &
+                    (self.data[self.group_key].isnull())
+                ][self.fish_caught_key].sum(), contx_pk=contx.pk, cnt_code="Fish in Container", )[1]
 
 
 class ColdbrookElectrofishingParser(ElectrofishingParser):

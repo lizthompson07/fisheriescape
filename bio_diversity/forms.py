@@ -458,7 +458,7 @@ class FishToContForm(forms.Form):
     new_grp_id = forms.ModelChoiceField(required=False, queryset=models.Group.objects.all().select_related("stok_id", "coll_id"), label=_("New Group"))
     grp_prog_id = forms.ModelChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Program Group"), label=_("Program Group"))
     perc_id = forms.ModelChoiceField(required=False, queryset=models.PersonnelCode.objects.all(), label=_("Personnel"))
-    num_fish = forms.IntegerField(required=True, max_value=1000)
+    num_fish = forms.IntegerField(required=True, max_value=1000000)
     move_date = forms.DateField(required=True, label=_("Date of transfer"))
 
     created_date = forms.DateField(required=True)

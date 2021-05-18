@@ -117,7 +117,7 @@ def coldbrook_picks_parser(cleaned_data):
 
             # HU Picks:
             hu_pick_cnt = utils.enter_cnt(cleaned_data, row["HU transfer TOTAL"], hu_contx.pk,
-                                          cnt_code="HU Transfer Loss")
+                                          cnt_code="HU Transfer Loss")[0]
 
             hu_pick_tuples = [("Morts", None), ("Weak-Eyed", "Weak-Eyed"), ("Pre-Hatch", "Pre-Hatch")]
 
@@ -136,7 +136,7 @@ def coldbrook_picks_parser(cleaned_data):
 
             # track eggs moving out:
             all_eggs_out = 0
-            out_cnt = utils.enter_cnt(cleaned_data, 0, hu_contx.pk, cnt_code="Eggs Removed")
+            out_cnt = utils.enter_cnt(cleaned_data, 0, hu_contx.pk, cnt_code="Eggs Removed")[0]
             for move_cnt, move_cup, move_weight, cnt_code in move_tuples:
                 if not math.isnan(row[move_cnt]):
                     utils.enter_cnt_det(cleaned_data, out_cnt, row[move_cnt], "Program Group", cnt_code)
@@ -177,7 +177,7 @@ def coldbrook_picks_parser(cleaned_data):
                                                            return_cup_contx=True)
 
                 # add the positive counts
-                cnt = utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Eggs Added", )
+                cnt = utils.enter_cnt(cleaned_data, row[move_cnt], cup_contx.pk, cnt_code="Eggs Added", )[0]
                 if utils.nan_to_none(move_weight):
                     utils.enter_cnt_det(cleaned_data, cnt, row[move_weight], "Weight")
                 utils.enter_cnt_det(cleaned_data, cnt, row[move_cnt], "Program Group", cnt_code)
@@ -191,7 +191,7 @@ def coldbrook_picks_parser(cleaned_data):
                 end_contx = utils.create_movement_evnt(row["trays"], draw, cleaned_data, move_date,
                                                        grp_pk=row["grps"].pk, return_end_contx=True)
                 end_cnt = utils.enter_cnt(cleaned_data, row["# of Generals"], end_contx.pk,
-                                          cnt_code="Egg Count")
+                                          cnt_code="Egg Count")[0]
                 utils.enter_cnt_det(cleaned_data, end_cnt, row["Actual Wt of Generals"], "Weight")
             else:
                 log_data += "\n Draw {} from {} not found".format(draw, row["General Location stack.tray"])

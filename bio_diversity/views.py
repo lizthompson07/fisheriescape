@@ -816,7 +816,7 @@ class CommonContDetails(CommonDetails):
         obj_list = list(dict.fromkeys(obj_list))
         obj_field_list = ["perc_id", "role_id", "evnt_id"]
         obj_mixin = mixins.TeamMixin
-        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["team"] = {"div_title": "{} Members".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": obj_list,
                                            "field_list": obj_field_list,
@@ -971,7 +971,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         loc_set = self.object.location.all()
         loc_field_list = ["locc_id", "rive_id", "subr_id", "start_date|Start Date"]
         obj_mixin = mixins.LocMixin
-        context["context_dict"]["loc"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["loc"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
                                           "objects_list": loc_set,
                                           "field_list": loc_field_list,
@@ -981,7 +981,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                                     ).distinct().select_related("grp_id", "grp_id__stok_id", "grp_id__coll_id")
         indv_field_list = ["ufid", "pit_tag", "grp_id", "indv_valid"]
         obj_mixin = mixins.IndvMixin
-        context["context_dict"]["indv"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["indv"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": indv_set,
                                            "field_list": indv_field_list,
@@ -991,7 +991,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                               ).distinct().select_related("stok_id", "coll_id", "spec_id")
         grp_field_list = ["stok_id", "grp_year", "coll_id", "spec_id", ]
         obj_mixin = mixins.GrpMixin
-        context["context_dict"]["grp"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["grp"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
                                           "objects_list": grp_set,
                                           "field_list": grp_field_list,
@@ -1000,7 +1000,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         tank_set = models.Tank.objects.filter(contxs__evnt_id=self.object).distinct()
         tank_field_list = ["name"]
         obj_mixin = mixins.TankMixin
-        context["context_dict"]["tank"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["tank"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": tank_set,
                                            "field_list": tank_field_list,
@@ -1009,7 +1009,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         trof_set = models.Trough.objects.filter(contxs__evnt_id=self.object).distinct()
         trof_field_list = ["name"]
         obj_mixin = mixins.TrofMixin
-        context["context_dict"]["trof"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["trof"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": trof_set,
                                            "field_list": trof_field_list,
@@ -1018,7 +1018,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         heat_set = models.HeathUnit.objects.filter(contxs__evnt_id=self.object).distinct()
         heat_field_list = ["name"]
         obj_mixin = mixins.HeatMixin
-        context["context_dict"]["heat"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["heat"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": heat_set,
                                            "field_list": heat_field_list,
@@ -1027,7 +1027,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         prot_set = models.Protocol.objects.filter(prog_id=self.object.prog_id, evntc_id=self.object.evntc_id).distinct()
         prot_field_list = ["name", "evntc_id", "start_date", "end_date", ]
         obj_mixin = mixins.ProtMixin
-        context["context_dict"]["prot"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["prot"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": prot_set,
                                            "field_list": prot_field_list,
@@ -1037,7 +1037,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                                  ).distinct().select_related("indv_id")
         pair_field_list = ["start_date", "indv_id", "cross", ]
         obj_mixin = mixins.PairMixin
-        context["context_dict"]["pair"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": pair_set,
                                            "field_list": pair_field_list,
@@ -1047,7 +1047,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                                  ).distinct().select_related("perc_id", "loc_id", "role_id")
         obj_field_list = ["perc_id", "role_id", "loc_id"]
         obj_mixin = mixins.TeamMixin
-        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["team"] = {"div_title": "{} Members".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": obj_set,
                                            "field_list": obj_field_list,
@@ -1138,7 +1138,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
         evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_date|Start Date"]
         obj_mixin = mixins.EvntMixin
-        context["context_dict"]["evnt"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["evnt"] = {"div_title": "{} History".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": evnt_list,
                                            "field_list": evnt_field_list,
@@ -1182,7 +1182,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         obj_list = list(dict.fromkeys(obj_list))
         obj_field_list = ["perc_id", "role_id", "evnt_id"]
         obj_mixin = mixins.TeamMixin
-        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["team"] = {"div_title": "{} Members".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": obj_list,
                                            "field_list": obj_field_list,
@@ -1204,7 +1204,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         pair_list = [anix.pair_id for anix in anix_set]
         pair_field_list = ["start_date", "indv_id", "prio_id"]
         obj_mixin = mixins.PairMixin
-        context["context_dict"]["pair"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": pair_list,
                                            "field_list": pair_field_list,
@@ -1287,7 +1287,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_datetime"]
         obj_mixin = mixins.EvntMixin
-        context["context_dict"]["evnt"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["evnt"] = {"div_title": "{} History".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": evnt_list,
                                            "field_list": evnt_field_list,
@@ -1308,7 +1308,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         pair_list.extend([pair for pair in self.object.pairings.all().select_related('prio_id', 'indv_id')])
         pair_field_list = ["start_date", "indv_id", "prio_id"]
         obj_mixin = mixins.PairMixin
-        context["context_dict"]["pair"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": pair_list,
                                            "field_list": pair_field_list,
@@ -1325,7 +1325,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         obj_list = list(dict.fromkeys(obj_list))
         obj_field_list = ["perc_id", "role_id", "evnt_id"]
         obj_mixin = mixins.TeamMixin
-        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["team"] = {"div_title": "{} Members".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": obj_list,
                                            "field_list": obj_field_list,
@@ -1334,7 +1334,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         sire_set = self.object.sires.all().select_related('prio_id', 'indv_id')
         sire_field_list = ["prio_id", "pair_id", "choice"]
         obj_mixin = mixins.SireMixin
-        context["context_dict"]["sire"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["sire"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": sire_set,
                                            "field_list": sire_field_list,
@@ -1397,12 +1397,12 @@ class LocDetails(mixins.LocMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"].extend(["env", "team", "cnt"])
+        context["table_list"].extend(["env", "team", "locd", "cnt"])
 
         env_set = self.object.env_condition.all()
         env_field_list = ["envc_id", "env_val", "start_datetime|Date", ]
         obj_mixin = mixins.EnvMixin
-        context["context_dict"]["env"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["env"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
                                           "objects_list": env_set,
                                           "field_list": env_field_list,
@@ -1411,17 +1411,26 @@ class LocDetails(mixins.LocMixin, CommonDetails):
         cnt_set = self.object.counts.all()
         cnt_field_list = ["cntc_id", "spec_id", "cnt", "est"]
         obj_mixin = mixins.CntMixin
-        context["context_dict"]["cnt"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["cnt"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
                                           "objects_list": cnt_set,
                                           "field_list": cnt_field_list,
+                                          "single_object": obj_mixin.model.objects.first()}
+
+        locd_set = self.object.loc_dets.all()
+        locd_field_list = ["locdc_id", "ldsc_id", "det_val", "detail_date"]
+        obj_mixin = mixins.LocdMixin
+        context["context_dict"]["locd"] = {"div_title": "{}s".format(obj_mixin.title),
+                                          "sub_model_key": obj_mixin.key,
+                                          "objects_list": locd_set,
+                                          "field_list": locd_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
         obj_set = models.TeamXRef.objects.filter(loc_id=self.object
                                                  ).distinct().select_related("perc_id", "role_id")
         obj_field_list = ["perc_id", "role_id"]
         obj_mixin = mixins.TeamMixin
-        context["context_dict"]["team"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["team"] = {"div_title": "{} Members".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": obj_set,
                                            "field_list": obj_field_list,
@@ -1462,7 +1471,7 @@ class PairDetails(mixins.PairMixin, CommonDetails):
         sire_set = self.object.sires.all()
         sire_field_list = ["indv_id", "prio_id", "choice"]
         obj_mixin = mixins.SireMixin
-        context["context_dict"]["sire"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["sire"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": sire_set,
                                            "field_list": sire_field_list,
@@ -1478,7 +1487,7 @@ class PairDetails(mixins.PairMixin, CommonDetails):
         spwnd_set = self.object.spawning_details.all()
         spwnd_field_list = ["spwndc_id", "det_val", "qual_id"]
         obj_mixin = mixins.SpwndMixin
-        context["context_dict"]["spwnd"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["spwnd"] = {"div_title": "{}s".format(obj_mixin.title),
                                             "sub_model_key": obj_mixin.key,
                                             "objects_list": spwnd_set,
                                             "field_list": spwnd_field_list,
@@ -1505,7 +1514,7 @@ class ProgDetails(mixins.ProgMixin, CommonDetails):
         prot_set = self.object.protocols.all()
         prot_field_list = ["name", "protc_id", "start_date"]
         obj_mixin = mixins.ProtMixin
-        context["context_dict"]["prot"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["prot"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": prot_set,
                                            "field_list": prot_field_list,
@@ -1558,7 +1567,7 @@ class RelcDetails(mixins.RelcMixin, CommonDetails):
         obj_set = self.object.locations.all()
         obj_field_list = ["locc_id", "start_date|Date"]
         obj_mixin = mixins.LocMixin
-        context["context_dict"]["loc"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["loc"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
                                           "objects_list": obj_set,
                                           "field_list": obj_field_list,
@@ -1577,7 +1586,7 @@ class RiveDetails(mixins.RiveMixin, CommonDetails):
         obj_set = self.object.sites.all()
         obj_field_list = ["name", "subr_id", "trib_id"]
         obj_mixin = mixins.RelcMixin
-        context["context_dict"]["relc"] = {"div_title": "{} Details".format(obj_mixin.title),
+        context["context_dict"]["relc"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
                                            "objects_list": obj_set,
                                            "field_list": obj_field_list,

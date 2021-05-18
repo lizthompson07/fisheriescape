@@ -147,8 +147,8 @@ class GenericGrpParser(DataParser):
             start_grp_id = self.start_grp_dict[row["grp_key"]]
             start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, None,
                                                            grp_pk=start_grp_id.pk, return_contx=True)
-            utils.enter_cnt(cleaned_data, sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
-                            start_contx.pk, cnt_code="Fish Removed from Container")
+            self.row_entered += utils.enter_cnt(cleaned_data, sum(end_grp_data[end_grp_data["grp_key"] == row["grp_key"]][0]),
+                                                start_contx.pk, cnt_code="Fish Removed from Container")[1]
 
             if len(grps) > 0:
                 end_grp_id = grps[0]
@@ -166,7 +166,7 @@ class GenericGrpParser(DataParser):
             end_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
                                                    row["datetime"],
                                                    grp_pk=end_grp_id.pk, return_end_contx=True)
-            utils.enter_cnt(cleaned_data, row[0], end_contx.pk)
+            self.row_entered += utils.enter_cnt(cleaned_data, row[0], end_contx.pk)[1]
         self.data_dict = self.data.to_dict("records")
 
     def row_parser(self, row):

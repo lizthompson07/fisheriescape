@@ -1342,6 +1342,8 @@ class Location(BioModel):
         if self.relc_id and not self.subr_id:
             self.sube_id = self.relc_id.subr_id
         self.set_relc_latlng()
+        if not self.relc_id and not (self.loc_lon and self.loc_lat):
+            raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -1358,7 +1360,7 @@ class LocationDet(BioDet):
     # locd tag
     anidc_id = None
     adsc_id = None
-    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name=_("Location"),
+    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name=_("Location"), related_name="loc_dets",
                                db_column="LOCATION_ID")
     locdc_id = models.ForeignKey('LocationDetCode', on_delete=models.CASCADE, verbose_name=_("Location Detail Code"),
                                  db_column="LOC_DET_ID")

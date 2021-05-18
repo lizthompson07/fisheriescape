@@ -25,7 +25,7 @@ class DistributionParser(DataParser):
     relm_key = "Release Method"
     temp_key = "River Temp"
     truck_temp = "Truck Temp"
-    aclimation_key = "Acclimation Time (mins)"
+    acclimation_key = "Acclimation Time (mins)"
     lifestage_key = "Lifestage"
     len_key = "Len (cm)"
     weight_key = "Weight (Kg)"
@@ -35,42 +35,59 @@ class DistributionParser(DataParser):
     temp_envc_id = None
     truck_locdc_id = None
     relm_locdc_id = None
+    acclimation_locdc_id = None
+    lifestage_locdc_id = None
     locc_id = None
+    len_anidc_id = None
+    weight_anidc_id = None
     driver_role_id = None
 
     header = 2
+    converters = {tank_key: str, trof_key: str, 'Year': str, 'Month': str, 'Day': str}
+
 
     def data_preper(self):
         self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
         self.truck_locdc_id = models.LocationDetCode.objects.filter(name="Truck").get()
         self.relm_locdc_id = models.LocationDetCode.objects.filter(name="Release Method").get()
+        self.acclimation_locdc_id = models.LocationDetCode.objects.filter(name="Acclimation Time").get()
+        self.lifestage_locdc_id = models.LocationDetCode.objects.filter(name="Lifestage").get()
         self.locc_id = models.LocCode.objects.filter(name__icontains="Distribution site").get()
+        self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
         self.driver_role_id = models.RoleCode.objects.filter(name__iexact="Driver").get()
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
 
-        tank_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
-        indv, grps = tank_id.fish_in_cont(at_date=row_date)
-        grp_id = None
-        for grp in grps:
-            if grp.stok_id.name == row[self.stok_key]:
-                grp_id = grp
-                break
-        if not grp_id:
-            raise Exception("\n No group found in container: {}".format(tank_id.__str__()))
+        # need to find contanier and group for row:
+        cont_id = None
+        if utils.nan_to_none(row[self.tank_key]):
+            if "," in str(row[self.tank_key]):
+                tank_list = str(row[self.tank_key]).split(",")
+                # TODO
 
+            cont_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
+        elif utils.nan_to_none(row[self.trof_key]):
+            if "," in row[self.trof_key]:
+                trof_list = row[self.trof_key].split(",")
+                # TODO
+
+            cont_id = models.Trough.objects.filter(name__iexact=row[self.trof_key], facic_id__name=cleaned_data["facic_id"]).get()
+        grp_year, coll = utils.year_coll_splitter(row[self.year_coll_key])
+        grp_list = utils.get_grp(row[self.stok_key], grp_year, coll, cont=cont_id, at_date=row_date, prog_str=row[self.prog_key])
+        if not grp_list:
+            raise Exception("\n No group found in container: {}".format(cont_id.__str__()))
+        grp_id = grp_list[0]
         self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-        self.row_entered += utils.enter_contx(tank_id, cleaned_data)
+        self.row_entered += utils.enter_contx(cont_id, cleaned_data)
 
         relc_id = None
         rive_id = models.RiverCode.objects.filter(name__icontains=row[self.stok_key]).get()
         if utils.nan_to_none(row[self.site_key]):
-            relc_qs = models.ReleaseSiteCode.objects.filter(name__icontains=row[self.site_key],
-                                                            rive_id=rive_id)
-            if len(relc_qs) == 1:
-                relc_id = relc_qs.get()
+            relc_id = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key], rive_id=rive_id).get()
+
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                               locc_id=self.locc_id,
                               rive_id=rive_id,
@@ -97,11 +114,21 @@ class DistributionParser(DataParser):
         self.team_parser(row[self.driver_key], row, loc_id=loc, role_id=self.driver_role_id)
 
         self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id, loc_id=loc)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.truck_key],
+                                             self.truck_locdc_id.pk, None)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.relm_key], self.relm_locdc_id.pk,
+                                             row[self.relm_key])
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
+                                             self.acclimation_locdc_id.pk, None)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.truck_key], self.truck_locdc_id.pk, None)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.lifestage_key],
+                                             self.lifestage_locdc_id.pk, row[self.lifestage_key])
 
-        cnt = utils.enter_cnt(cleaned_data, cnt_value=row["NFish"], loc_pk=loc.pk, cnt_code="Fish Distributed")
+        cnt, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.num_key], loc_pk=loc.pk, cnt_code="Fish Distributed")
+        self.row_entered += cnt_entered
 
-        # if utils.enter_cnt_det(cleaned_data, cnt, row["Temp???"], "Electrofishing Settings"):
-        #     row_entered = True
+        self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.len_key], self.len_anidc_id.name)
+        self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.weight_key], self.weight_anidc_id.name)
 
 
 class MactaquacDistributionParser(DistributionParser):

@@ -276,6 +276,7 @@ urlpatterns = [
     
     path('create/locd/', views.LocdCreate.as_view(), name="create_locd"),
     path('details/locd/<int:pk>/', views.LocdDetails.as_view(), name="details_locd"),
+    path('details/locd/<str:back>/<int:back_id>/<int:pk>/', views.LocdDetails.as_view(), name="details_locd"),
     path('list/locd/', views.LocdList.as_view(), name="list_locd"),
     path('update/locd/<int:pk>/', views.LocdUpdate.as_view(), name="update_locd"),
     

@@ -554,7 +554,7 @@ def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None, return_team=Fal
         team.clean()
         team.save()
         row_entered = True
-    except ValidationError:
+    except (ValidationError, IntegrityError):
         team = models.TeamXRef.objects.filter(perc_id=team.perc_id, evnt_id=team.evnt_id, loc_id=team.loc_id,
                                               role_id=team.role_id).get()
     if return_team:
@@ -639,6 +639,7 @@ def enter_anix_contx(tank, cleaned_data):
 
 def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fish in Container", est=False):
     cnt = False
+    entered = False
     if not math.isnan(cnt_value):
         cnt = models.Count(loc_id_id=loc_pk,
                            contx_id_id=contx_pk,
@@ -652,12 +653,13 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
         try:
             cnt.clean()
             cnt.save()
+            entered = True
         except ValidationError:
             cnt = models.Count.objects.filter(loc_id=cnt.loc_id, contx_id=cnt.contx_id, cntc_id=cnt.cntc_id).get()
             if cnt_code == "Mortality":
                 cnt.cnt += 1
                 cnt.save()
-    return cnt
+    return cnt, entered
 
 
 def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual="Good"):
@@ -821,6 +823,40 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str,
     try:
         indvd.clean()
         indvd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
+
+
+def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str, comments=None):
+    row_entered = False
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
+    if ldsc_str:
+        locd = models.LocationDet(loc_id_id=loc_pk,
+                                  locdc_id_id=locdc_pk,
+                                  ldsc_id=models.LocDetSubjCode.objects.filter(name=ldsc_str).get(),
+                                  det_val=det_value,
+                                  detail_date=det_date,
+                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  comments=comments,
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    else:
+        locd = models.LocationDet(loc_id_id=loc_pk,
+                                  locdc_id_id=locdc_pk,
+                                  det_val=det_value,
+                                  detail_date=det_date,
+                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    try:
+        locd.clean()
+        locd.save()
         row_entered = True
     except (ValidationError, IntegrityError):
         pass

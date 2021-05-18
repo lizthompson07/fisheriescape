@@ -64,6 +64,7 @@
 
     {% for key, value in context_dict.items %}
         {% if key in table_list %}
+
             {%  include "bio_diversity/details_table_block.html" with context_dict=value %}
         {% endif %}
     {% endfor %}
