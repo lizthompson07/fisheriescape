@@ -19,11 +19,14 @@ class CommonTestFixtures(common_tests.CommonTest):
 class TestDepDeleteView(CommonTestFixtures):
     view = views.DepDeleteView
     model = models.DepDeployment
+    factory = factory.DepFactory
+    signature = 'whalesdb:delete_dep'
+    url = '/en/whalesdb/delete/dep/'
 
     def setUp(self):
         super().setUp()
-        self.instance = factory.DepFactory()
-        self.test_url = reverse_lazy('whalesdb:delete_dep', args=[self.instance.pk, ])
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
         self.expected_template = 'whalesdb/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
@@ -46,18 +49,21 @@ class TestDepDeleteView(CommonTestFixtures):
     @tag("correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("whalesdb:delete_dep", f"/en/whalesdb/delete/dep/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
 
 
 @tag("delete", "emm")
 class TestEmmDeleteView(CommonTestFixtures):
     view = views.EmmDeleteView
     model = models.EmmMakeModel
+    factory = factory.EmmFactory
+    signature = 'whalesdb:delete_emm'
+    url = '/en/whalesdb/delete/emm/'
 
     def setUp(self):
         super().setUp()
-        self.instance = factory.EmmFactory()
-        self.test_url = reverse_lazy('whalesdb:delete_emm', args=[self.instance.pk, ])
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
         self.expected_template = 'whalesdb/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
@@ -80,7 +86,7 @@ class TestEmmDeleteView(CommonTestFixtures):
     @tag("correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("whalesdb:delete_emm", f"/en/whalesdb/delete/emm/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
 
     # For the make and model deletion, often the Emm is linked in a one to one relationship with either a
     # hydrophone or a recorder, This causes issues with the standard CommonDeleteView I copied from the SCUBA
@@ -88,7 +94,7 @@ class TestEmmDeleteView(CommonTestFixtures):
     def test_delete_eqr(self):
         emm = factory.EmmFactory(eqt=models.EqtEquipmentTypeCode.objects.get(pk=1))
         eqr = factory.EqrFactory(emm=emm)
-        test_url = reverse_lazy('whalesdb:delete_emm', args=[eqr.emm.pk, ])
+        test_url = reverse_lazy(self.signature, args=[eqr.emm.pk, ])
         self.assert_success_url(test_url, user=self.user)
 
         # for delete views...
@@ -97,7 +103,7 @@ class TestEmmDeleteView(CommonTestFixtures):
     def test_delete_eqh(self):
         emm = factory.EmmFactory(eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
         eqh = factory.EqhFactory(emm=emm)
-        test_url = reverse_lazy('whalesdb:delete_emm', args=[eqh.emm.pk, ])
+        test_url = reverse_lazy(self.signature, args=[eqh.emm.pk, ])
         self.assert_success_url(test_url, user=self.user)
 
         # for delete views...
@@ -108,11 +114,14 @@ class TestEmmDeleteView(CommonTestFixtures):
 class TestEqpDeleteView(CommonTestFixtures):
     view = views.EqpDeleteView
     model = models.EqpEquipment
+    factory = factory.EqpFactory
+    signature = 'whalesdb:delete_eqp'
+    url = '/en/whalesdb/delete/eqp/'
 
     def setUp(self):
         super().setUp()
-        self.instance = factory.EqpFactory()
-        self.test_url = reverse_lazy('whalesdb:delete_eqp', args=[self.instance.pk, ])
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
         self.expected_template = 'whalesdb/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
@@ -135,18 +144,21 @@ class TestEqpDeleteView(CommonTestFixtures):
     @tag("correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("whalesdb:delete_eqp", f"/en/whalesdb/delete/eqp/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
 
 
 @tag("delete", "mor")
 class TestMorDeleteView(CommonTestFixtures):
     view = views.MorDeleteView
     model = models.MorMooringSetup
+    factory = factory.MorFactory
+    signature = 'whalesdb:delete_mor'
+    url = '/en/whalesdb/delete/mor/'
 
     def setUp(self):
         super().setUp()
         self.instance = factory.MorFactory()
-        self.test_url = reverse_lazy('whalesdb:delete_mor', args=[self.instance.pk, ])
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
         self.expected_template = 'whalesdb/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
@@ -170,18 +182,64 @@ class TestMorDeleteView(CommonTestFixtures):
     @tag("correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("whalesdb:delete_mor", f"/en/whalesdb/delete/mor/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
+
+
+@tag("delete", "rec")
+class TestRecDeleteView(CommonTestFixtures):
+    view = views.RecDeleteView
+    model = models.RecDataset
+    factory = factory.RecFactory
+    signature = 'whalesdb:delete_rec'
+    url = '/en/whalesdb/delete/rec/'
+
+    def setUp(self):
+        super().setUp()
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
+
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit")
+    def test_submit(self):
+        data = self.factory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
+
+    @tag("correct_url", "pop")
+    def test_correct_pop_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/pop/", [self.instance.pk, "pop"])
 
 
 @tag("delete", "ree")
 class TestReeDeleteView(CommonTestFixtures):
     view = views.ReeDeleteView
     model = models.ReeRecordingEvent
+    factory = factory.ReeFactory
+    signature = 'whalesdb:delete_ree'
+    url = '/en/whalesdb/delete/ree/'
 
     def setUp(self):
         super().setUp()
-        self.instance = factory.ReeFactory()
-        self.test_url = reverse_lazy('whalesdb:delete_ree', args=[self.instance.pk, ])
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
         self.expected_template = 'whalesdb/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
@@ -196,7 +254,7 @@ class TestReeDeleteView(CommonTestFixtures):
 
     @tag("submit")
     def test_submit(self):
-        data = factory.MorFactory.get_valid_data()
+        data = self.factory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
         # for delete views...
@@ -205,18 +263,21 @@ class TestReeDeleteView(CommonTestFixtures):
     @tag("correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("whalesdb:delete_ree", f"/en/whalesdb/delete/ree/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
 
 
 @tag("delete", "rsc")
 class TestRscDeleteView(CommonTestFixtures):
     view = views.RscDeleteView
     model = models.RscRecordingSchedule
+    factory = factory.RscFactory
+    signature = 'whalesdb:delete_rsc'
+    url = '/en/whalesdb/delete/rsc/'
 
     def setUp(self):
         super().setUp()
-        self.instance = factory.RscFactory()
-        self.test_url = reverse_lazy('whalesdb:delete_rsc', args=[self.instance.pk, ])
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
         self.expected_template = 'whalesdb/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
@@ -231,7 +292,7 @@ class TestRscDeleteView(CommonTestFixtures):
 
     @tag("submit")
     def test_submit(self):
-        data = factory.RscFactory.get_valid_data()
+        data = self.factory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
         # for delete views...
@@ -240,18 +301,21 @@ class TestRscDeleteView(CommonTestFixtures):
     @tag("correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("whalesdb:delete_rsc", f"/en/whalesdb/delete/rsc/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
 
 
 @tag("delete", "stn")
 class TestStnDeleteView(CommonTestFixtures):
     view = views.StnDeleteView
     model = models.StnStation
+    factory = factory.StnFactory
+    signature = 'whalesdb:delete_stn'
+    url = '/en/whalesdb/delete/stn/'
 
     def setUp(self):
         super().setUp()
-        self.instance = factory.StnFactory()
-        self.test_url = reverse_lazy('whalesdb:delete_stn', args=[self.instance.pk, ])
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
         self.expected_template = 'whalesdb/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
@@ -266,7 +330,7 @@ class TestStnDeleteView(CommonTestFixtures):
 
     @tag("submit")
     def test_submit(self):
-        data = factory.StnFactory.get_valid_data()
+        data = self.factory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
         # for delete views...
@@ -275,7 +339,45 @@ class TestStnDeleteView(CommonTestFixtures):
     @tag("correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("whalesdb:delete_stn", f"/en/whalesdb/delete/stn/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
+
+
+@tag("delete", "ste")
+class TestSteDeleteView(CommonTestFixtures):
+    view = views.SteDeleteView
+    model = models.SteStationEvent
+    factory = factory.SteFactory
+    signature = 'whalesdb:delete_ste'
+    url = '/en/whalesdb/delete/ste/'
+
+    def setUp(self):
+        super().setUp()
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, "pop",])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
+
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit")
+    def test_submit(self):
+        data = self.factory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/pop/", [self.instance.pk, "pop",])
 
 
 # The models.TeaTeamMember object is not *required* by anything that uses it so it's ok to delete
@@ -284,10 +386,13 @@ class TestStnDeleteView(CommonTestFixtures):
 class TestDeleteTea(CommonTestFixtures):
 
     model = models.TeaTeamMember
+    factory = factory.TeaFactory
+    signature = 'whalesdb:delete_tea'
+    url = '/en/whalesdb/delete/tea/'
 
     def setUp(self):
-        self.instance = factory.TeaFactory()
-        self.test_url = reverse_lazy('whalesdb:delete_tea', args=[self.instance.pk, ])
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, ])
         self.user = self.get_and_login_user(in_group="whalesdb_admin")
 
     @tag("access")
@@ -305,4 +410,4 @@ class TestDeleteTea(CommonTestFixtures):
     @tag("correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("whalesdb:delete_tea", f"/en/whalesdb/delete/tea/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk, ])

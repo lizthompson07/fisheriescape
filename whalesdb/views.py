@@ -857,6 +857,9 @@ class RecList(mixins.RecMixin, CommonList):
         {"name": "rec_end_date"},
     ]
 
+    delete_url = "whalesdb:delete_rec"
+    delete_confirm = False
+
 
 class RetList(mixins.RetMixin, CommonList):
     filterset_class = filters.RetFilter
@@ -1045,12 +1048,23 @@ class MorDeleteView(mixins.MorMixin, CommonDeleteView):
     success_url = reverse_lazy("whalesdb:list_mor")
 
 
+class RecDeleteView(mixins.RecMixin, CommonDeleteView):
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+
+        return reverse_lazy('whalesdb:list_rec')
+
 class ReeDeleteView(mixins.ReeMixin, CommonDeleteView):
     success_url = reverse_lazy('shared_models:close_me')
 
 
 class RscDeleteView(mixins.RscMixin, CommonDeleteView):
     success_url = reverse_lazy('whalesdb:list_rsc')
+
+
+class SteDeleteView(mixins.SteMixin, CommonDeleteView):
+    success_url = reverse_lazy('shared_models:close_me')
 
 
 class StnDeleteView(mixins.StnMixin, CommonDeleteView):
@@ -1076,14 +1090,6 @@ class CommonDelete(UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
-
-class RecDelete(mixins.RecMixin, CommonDelete):
-    pass
-
-
-class SteDelete(mixins.SteMixin, CommonDelete):
-    pass
 
 
 class CruDelete(mixins.CruMixin, UserPassesTestMixin, DeleteView):

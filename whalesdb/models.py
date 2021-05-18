@@ -385,6 +385,9 @@ class ReeRecordingEvent(models.Model):
                                verbose_name=_("Team Member"))
     ree_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
+    def __str__(self):
+        return f'{self.rec_id} - {self.ret_id} - {self.ree_date}'
+
 
 class RetRecordingEventType(models.Model):
     ret_name = models.CharField(max_length=50, verbose_name=_("Name"))

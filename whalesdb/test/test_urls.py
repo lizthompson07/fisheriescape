@@ -371,7 +371,7 @@ class URLTest(TestCase):
     @tag('ste', 'url', 'delete', 'pop')
     def test_url_delete_set_pop_ste_view(self):
         # The Station Event object requires a Deployment and a station event type
-        self.basic_en_url_test('whalesdb:delete_ste', 'whalesdb/delete/ste/1/pop/', views.SteDelete, [1,'pop'])
+        self.basic_en_url_test('whalesdb:delete_ste', 'whalesdb/delete/ste/1/pop/', views.SteDeleteView, [1,'pop'])
 
     @tag('ste', 'url', 'update', 'pop')
     def test_url_update_set_pop_ste_view(self):
@@ -415,7 +415,11 @@ class URLTest(TestCase):
 
     @tag('rec', 'url', 'delete')
     def test_url_delete_rec_view(self):
-        self.basic_en_url_test('whalesdb:delete_rec', 'whalesdb/delete/rec/1/pop/', views.RecDelete, [1, 'pop'])
+        self.basic_en_url_test('whalesdb:delete_rec', 'whalesdb/delete/rec/1/', views.RecDeleteView, [1])
+
+    @tag('rec', 'url', 'delete', 'pop')
+    def test_url_delete_pop_rec_view(self):
+        self.basic_en_url_test('whalesdb:delete_rec', 'whalesdb/delete/rec/1/pop/', views.RecDeleteView, [1, 'pop'])
 
     @tag('ret', 'url', 'create')
     def test_url_create_ret_view(self):

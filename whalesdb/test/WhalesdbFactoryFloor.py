@@ -382,6 +382,7 @@ class RecFactory(factory.django.DjangoModelFactory):
     rsc_id = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RscFactory")
     rtt_in_water = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RttFactory")
     rtt_dataset = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RttFactory")
+    rec_start_date = factory.LazyAttribute(lambda o: faker.date())
 
     @staticmethod
     def get_valid_data():
@@ -389,12 +390,14 @@ class RecFactory(factory.django.DjangoModelFactory):
         rsc_id = RscFactory()
         rtt_in_water = RttFactory()
         rtt_dataset = RttFactory()
+        rec_start_date = faker.date()
 
         valid_data = {
             'eda_id': eda_id.pk,
             'rsc_id': rsc_id.pk,
             'rtt_in_water': rtt_in_water.pk,
-            'rtt_dataset': rtt_dataset.pk
+            'rtt_dataset': rtt_dataset.pk,
+            'rec_start_date': rec_start_date
         }
 
         return valid_data
