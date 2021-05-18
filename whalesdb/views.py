@@ -575,6 +575,11 @@ class EmmDetails(mixins.EmmMixin, CommonDetails):
     template_name = 'whalesdb/details_emm.html'
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating', 'emm_description']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(f"emm auth: {context['auth']}")
+        return context
+
 
 class EtrDetails(mixins.EtrMixin, CommonDetails):
     fields = ['eqp', 'hyd', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
@@ -592,6 +597,7 @@ class EqpDetails(mixins.EqpMixin, CommonDetails):
             channels[hyd.ecp_channel_no] = hyd
 
         context["channels"] = channels
+        print(f"eqp auth: {context['auth']}")
         return context
 
 
