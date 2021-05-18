@@ -788,20 +788,33 @@ class MortForm(forms.Form):
             contx, data_entered = utils.enter_tank_contx(tank.name, cleaned_data, grp_pk=grp.id, return_contx=True)
             utils.enter_cnt(cleaned_data, cnt_value=1, contx_pk=contx.id, cnt_code="Mortality")
 
+        ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
+
         if cleaned_data["indv_length"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_length"], "Length", None)
+            len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_length"],
+                              len_anidc_id.pk, None)
         if cleaned_data["indv_mass"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_mass"], "Weight", None)
+            weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_mass"],
+                              weight_anidc_id.pk, None)
         if cleaned_data["indv_vial"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_vial"], "Vial", None)
+            vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_vial"],
+                              vial_anidc_id.pk, None)
         if cleaned_data["scale_envelope"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["scale_envelope"], "Scale Envelope", None)
+            envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["scale_envelope"],
+                              envelope_anidc_id.pk, None)
         if cleaned_data["indv_gender"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_gender"], "Gender", None)
+            sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_gender"],
+                              sex_anidc_id.pk, None)
 
         if cleaned_data["observations"].count() != 0:
             for adsc in cleaned_data["observations"]:
-                utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.name, adsc.name, None)
+                utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.pk, adsc.name,
+                                  None)
 
 
 class OrgaForm(CreatePrams):

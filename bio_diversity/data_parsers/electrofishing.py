@@ -166,7 +166,7 @@ class ElectrofishingParser(DataParser):
                 anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_anix=True)
                 if utils.nan_to_none(row[self.group_key]):
                     utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None,
-                                     "Program Group", row[self.group_key])
+                                     None, anidc_str="Program Group", adsc_str=row[self.group_key])
 
             contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, True, None, grp.pk,
                                                          return_contx=True)

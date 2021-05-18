@@ -103,7 +103,8 @@ def coldbrook_picks_parser(cleaned_data):
             utils.enter_contx(row["trays"], shocking_cleaned_data, None, grp_pk=row["grps"].pk)
             shock_anix = utils.enter_anix(shocking_cleaned_data, grp_pk=row["grps"].pk, return_anix=True)
             dev_at_shocking = row["grps"].get_development(shock_date)
-            utils.enter_grpd(shock_anix.pk, shocking_cleaned_data, shock_date, dev_at_shocking, "Development")
+            utils.enter_grpd(shock_anix.pk, shocking_cleaned_data, shock_date, dev_at_shocking, None,
+                             anidc_str="Development")
 
             # HU Transfer:
             move_date = datetime.strptime(row["Date Transferred to HU"], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
@@ -113,7 +114,7 @@ def coldbrook_picks_parser(cleaned_data):
             hu_anix = utils.enter_anix(hu_cleaned_data, grp_pk=row["grps"].pk, return_anix=True)
             hu_contx, data_entered = utils.enter_contx(row["trays"], hu_cleaned_data, None, grp_pk=row["grps"].pk, return_contx=True)
             dev_at_hu_transfer = row["grps"].get_development(hu_move_date)
-            utils.enter_grpd(hu_anix.pk, hu_cleaned_data, hu_move_date, dev_at_hu_transfer, "Development")
+            utils.enter_grpd(hu_anix.pk, hu_cleaned_data, hu_move_date, dev_at_hu_transfer, None, anidc_str="Development")
 
             # HU Picks:
             hu_pick_cnt = utils.enter_cnt(cleaned_data, row["HU transfer TOTAL"], hu_contx.pk,
@@ -166,10 +167,12 @@ def coldbrook_picks_parser(cleaned_data):
                 else:
                     final_grp = final_grp[0]
                 final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk, return_anix=True)
-                utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), "Parent Group",
-                                 frm_grp_id=row["grps"])
-                utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, None, "Program Group", adsc_str=cnt_code)
-                utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, dev_at_hu_transfer, "Development")
+                utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, row["grps"].__str__(), None,
+                                 anidc_str="Parent Group", frm_grp_id=row["grps"])
+                utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, None, None, anidc_str="Program Group",
+                                 adsc_str=cnt_code)
+                utils.enter_grpd(final_grp_anix.pk, cleaned_data, move_date, dev_at_hu_transfer, None,
+                                 anidc_str="Development")
 
                 # create movement for the new group, create 2 contx's and 3 anix's
                 # tray contx is contx used tyo link the positive counts

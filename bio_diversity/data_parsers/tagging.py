@@ -32,6 +32,11 @@ class TaggingParser(DataParser):
     grp_id = None
     anix_indv = None
 
+    vial_anidc_id = None
+    len_anidc_id = None
+    weight_anidc_id = None
+    ani_health_anidc_id = None
+
     def data_preper(self):
         if len(self.data[self.group_key].unique()) > 1 or len(self.data[self.stok_key].unique()) > 1:
             self.log_data += "\n WARNING: Form only designed for use with single group. Check \"Group\" column and" \
@@ -39,6 +44,10 @@ class TaggingParser(DataParser):
 
         self.tagger_code = models.RoleCode.objects.filter(name__iexact="Tagger").get()
         self.salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
+        self.vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
+        self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
 
         year, coll = utils.year_coll_splitter(self.data[self.group_key][0])
         grp_qs = models.Group.objects.filter(stok_id__name=self.data_dict[0][self.stok_key],
@@ -95,10 +104,12 @@ class TaggingParser(DataParser):
         self.row_entered += anix_entered
         self.anix_indv = anix_indv
 
-        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key], "Length", None)
-        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.weight_key], "Weight",
-                                              None)
-        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.vial_key], "Vial", None)
+        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key],
+                                              self.len_anidc_id.pk, None)
+        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.weight_key],
+                                              self.weight_anidc_id.pk, None)
+        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.vial_key],
+                                              self.vial_anidc_id.pk, None)
 
         if utils.nan_to_none(row[self.crew_key]):
             perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
@@ -148,18 +159,26 @@ class MactaquacTaggingParser(TaggingParser):
         row_datetime = utils.get_row_date(row)
         if utils.y_n_to_bool(row[self.precocity_key]):
             self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_datetime.date(), None,
-                                                  "Animal Health", "Precocity")
+                                                  self.ani_health_anidc_id.pk, "Precocity")
 
 
 class ColdbrookTaggingParser(TaggingParser):
     box_key = "Box"
     location_key = "Location"
 
+    box_anidc_id = None
+    boxl_anidc_id = None
+
+    def data_preper(self):
+        super(ColdbrookTaggingParser, self).data_preper()
+        self.box_anidc_id = models.AnimalDetCode.objects.filter(name="Box")
+        self.boxl_anidc_id = models.AnimalDetCode.objects.filter(name="Box Location")
+
     def row_parser(self, row):
         super().row_parser(row)
         row_datetime = utils.get_row_date(row)
         row_date = row_datetime.date()
-        self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.box_key], "Box",
-                                              None)
+        self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.box_key],
+                                              self.box_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.location_key],
-                                              "Box Location", None)
+                                              self.boxl_anidc_id.pk, None)
