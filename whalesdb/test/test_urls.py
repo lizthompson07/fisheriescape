@@ -291,6 +291,10 @@ class URLTest(TestCase):
     def test_url_details_prj_view(self):
         self.basic_en_url_test('whalesdb:details_prj', 'whalesdb/details/prj/1/', views.PrjDetails, [1])
 
+    @tag('prj', 'url', 'delete')
+    def test_url_delete_prj_view(self):
+        self.basic_en_url_test('whalesdb:delete_prj', 'whalesdb/delete/prj/1/', views.PrjDeleteView, [1])
+
     @tag('prm', 'url', 'managed')
     def test_url_managed_prm_view(self):
         self.basic_en_url_test('whalesdb:managed_prm', 'whalesdb/settings/managed-prm/', views.PrmMangedView)

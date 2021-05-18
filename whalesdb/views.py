@@ -846,6 +846,9 @@ class PrjList(mixins.PrjMixin, CommonList):
     filterset_class = filters.PrjFilter
     fields = ['tname|Name', 'tdescription|Description']
 
+    delete_url = "whalesdb:delete_prj"
+    delete_confirm = False
+
 
 class RecList(mixins.RecMixin, CommonList):
     filterset_class = filters.RecFilter
@@ -1048,12 +1051,17 @@ class MorDeleteView(mixins.MorMixin, CommonDeleteView):
     success_url = reverse_lazy("whalesdb:list_mor")
 
 
+class PrjDeleteView(mixins.PrjMixin, CommonDeleteView):
+    success_url = reverse_lazy('whalesdb:list_prj')
+
+
 class RecDeleteView(mixins.RecMixin, CommonDeleteView):
     def get_success_url(self):
         if 'pop' in self.kwargs:
             return reverse_lazy('shared_models:close_me')
 
         return reverse_lazy('whalesdb:list_rec')
+
 
 class ReeDeleteView(mixins.ReeMixin, CommonDeleteView):
     success_url = reverse_lazy('shared_models:close_me')

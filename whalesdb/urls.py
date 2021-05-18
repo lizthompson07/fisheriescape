@@ -85,6 +85,7 @@ urlpatterns = [
     path('update/prj/<int:pk>/<str:pop>/', views.PrjUpdate.as_view(), name="update_prj"),
     path('details/prj/<int:pk>/', views.PrjDetails.as_view(), name="details_prj"),
     path('list/prj/', views.PrjList.as_view(), name="list_prj"),
+    path('delete/prj/<int:pk>/', views.PrjDeleteView.as_view(), name="delete_prj"),
 
     path('create/rsc/', views.RscCreate.as_view(), name="create_rsc"),
     path('update/rsc/<int:pk>/', views.RscUpdate.as_view(), name="update_rsc"),
