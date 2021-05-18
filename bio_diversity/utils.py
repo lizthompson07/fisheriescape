@@ -941,7 +941,7 @@ def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
                                  )
     else:
         sampd = models.SampleDet(samp_id_id=samp_pk,
-                                 anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                 anidc_id_id=anidc_pk,
                                  det_val=det_value,
                                  detail_date=det_date,
                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
