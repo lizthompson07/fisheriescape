@@ -1399,7 +1399,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"].extend(["env", "team", "locd", "grp", "cnt"])
+        context["table_list"].extend(["env", "team", "locd", "grp", "indv", "cnt"])
 
         env_set = self.object.env_condition.all()
         env_field_list = ["envc_id", "env_val", "start_datetime|Date", ]
@@ -1419,9 +1419,10 @@ class LocDetails(mixins.LocMixin, CommonDetails):
                                           "field_list": cnt_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
-        anix_set = self.object.animal_details.all().select_related("grp_id", "grp_id__stok_id", "grp_id__coll_id")
+        anix_set = self.object.animal_details.filter(grp_id__isnull=False).select_related("grp_id", "grp_id__stok_id",
+                                                                                          "grp_id__coll_id")
         grp_list = [anix.grp_id for anix in anix_set]
-        grp_field_list = ["stok_id", "grp_year", "coll_id"]
+        grp_field_list = ["stok_id", "grp_year|Year", "coll_id"]
         obj_mixin = mixins.GrpMixin
         context["context_dict"]["grp"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
@@ -1429,14 +1430,26 @@ class LocDetails(mixins.LocMixin, CommonDetails):
                                           "field_list": grp_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
+        anix_set = self.object.animal_details.filter(indv_id__isnull=False).select_related("indv_id",
+                                                                                           "indv_id__stok_id",
+                                                                                           "indv_id__coll_id")
+        indv_list = [anix.indv_id for anix in anix_set]
+        indv_field_list = ["pit_tag", "stok_id", "indv_year", "coll_id"]
+        obj_mixin = mixins.IndvMixin
+        context["context_dict"]["indv"] = {"div_title": "{}s".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": indv_list,
+                                           "field_list": indv_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
         locd_set = self.object.loc_dets.all()
         locd_field_list = ["locdc_id", "ldsc_id", "det_val", "detail_date"]
         obj_mixin = mixins.LocdMixin
         context["context_dict"]["locd"] = {"div_title": "{}s".format(obj_mixin.title),
-                                          "sub_model_key": obj_mixin.key,
-                                          "objects_list": locd_set,
-                                          "field_list": locd_field_list,
-                                          "single_object": obj_mixin.model.objects.first()}
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": locd_set,
+                                           "field_list": locd_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
 
         obj_set = models.TeamXRef.objects.filter(loc_id=self.object
                                                  ).distinct().select_related("perc_id", "role_id")

@@ -1,8 +1,7 @@
-from datetime import datetime
 
-import pytz
 from django.core.exceptions import ValidationError
-import pandas as pd
+from django.db.models import Count as django_Count
+from django.db.models import Q
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -96,7 +95,7 @@ class DistributionParser(DataParser):
                               loc_lat=utils.round_no_nan(row[self.lat_key], 5),
                               loc_lon=utils.round_no_nan(row[self.lon_key], 5),
                               loc_date=row_date,
-                              comments=row[self.comment_key],
+                              comments=utils.nan_to_none(row[self.comment_key]),
                               created_by=cleaned_data["created_by"],
                               created_date=cleaned_data["created_date"],
                               )
@@ -170,7 +169,7 @@ class DistributionIndvParser(DataParser):
     len_anidc_id = None
     weight_anidc_id = None
     vial_anidc_id = None
-    tissue_anidc_id = None
+    ani_health_anidc_id = None
     driver_role_id = None
 
     sex_dict = calculation_constants.sex_dict
@@ -190,7 +189,7 @@ class DistributionIndvParser(DataParser):
         self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
         self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
         self.vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
-        self.tissue_anidc_id = models.AnimalDetCode.objects.filter(name="Tissue Sample").get()
+        self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
         self.driver_role_id = models.RoleCode.objects.filter(name__iexact="Driver").get()
 
     def row_parser(self, row):
@@ -211,8 +210,8 @@ class DistributionIndvParser(DataParser):
                 # TODO
 
             cont_id = models.Trough.objects.filter(name__iexact=row[self.trof_key], facic_id__name=cleaned_data["facic_id"]).get()
-        indv_id = models.Individual.objects.filter(pit_tag__iexact=row[self.pit_key])
-        self.row_entered += utils.enter_anix(cleaned_data, grp_pk=indv_id.pk, return_sucess=True)
+        indv_id = models.Individual.objects.filter(pit_tag__iexact=row[self.pit_key]).get()
+        self.row_entered += utils.enter_anix(cleaned_data, indv_pk=indv_id.pk, return_sucess=True)
         self.row_entered += utils.enter_contx(cont_id, cleaned_data)
 
         relc_id = None
@@ -227,7 +226,7 @@ class DistributionIndvParser(DataParser):
                               loc_lat=utils.round_no_nan(row[self.lat_key], 5),
                               loc_lon=utils.round_no_nan(row[self.lon_key], 5),
                               loc_date=row_date,
-                              comments=row[self.comment_key],
+                              comments=utils.nan_to_none(row[self.comment_key]),
                               created_by=cleaned_data["created_by"],
                               created_date=cleaned_data["created_date"],
                               )
@@ -268,5 +267,23 @@ class DistributionIndvParser(DataParser):
                                                   self.sex_anidc_id)
         if row[self.tissue_key] == "Y":
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.tissue_key],
-                                                  self.tissue_anidc_id)
+                                                  self.ani_health_anidc_id, "Tissue Sample")
+
+        if utils.nan_to_none(row[self.comment_key]):
+            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix, row_date)
+            self.row_entered += data_entered
+            if not comments_parsed:
+                self.log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row[self.comment_key])
+
+        # remove fish from system
+        indv_id.indv_valid = False
+        indv_id.save()
+
+    def data_cleaner(self):
+        cleaned_data = self.cleaned_data
+        loc_list = models.Location.objects.filter(evnt_id=cleaned_data["evnt_id"]).annotate(
+            indv_cnt=django_Count('animal_details', filter=Q(animal_details__indv_id__isnull=False)))
+        for loc in loc_list:
+            if loc.indv_cnt != 0:
+                utils.enter_cnt(cleaned_data, loc.indv_cnt, loc_pk=loc.pk, cnt_code="Fish Distributed")
 

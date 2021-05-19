@@ -89,7 +89,7 @@ class SpawningParser(DataParser):
                               cross=row[self.tray_key],
                               valid=True,
                               indv_id=indv_female,
-                              comments=row[self.comment_key_pair],
+                              comments=utils.nan_to_none(row[self.comment_key_pair]),
                               created_by=cleaned_data["created_by"],
                               created_date=cleaned_data["created_date"],
                               )
@@ -105,7 +105,7 @@ class SpawningParser(DataParser):
                            pair_id=pair,
                            indv_id=indv_male,
                            choice=row[self.choice_key],
-                           comments=row[self.comment_key_m],
+                           comments=utils.nan_to_none(row[self.comment_key_m]),
                            created_by=cleaned_data["created_by"],
                            created_date=cleaned_data["created_date"],
                            )

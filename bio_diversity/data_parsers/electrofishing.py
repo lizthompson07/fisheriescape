@@ -153,7 +153,7 @@ class ElectrofishingParser(DataParser):
                               end_lat=utils.round_no_nan(row[self.end_lat], 5),
                               end_lon=utils.round_no_nan(row[self.end_lon], 5),
                               loc_date=row_datetime,
-                              comments=row[self.comment_key],
+                              comments=utils.nan_to_none(row[self.comment_key]),
                               created_by=cleaned_data["created_by"],
                               created_date=cleaned_data["created_date"],
                               )
@@ -188,7 +188,6 @@ class ElectrofishingParser(DataParser):
                                              self.fishing_time_locdc_id.pk)
         self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.voltage_key],
                                              self.voltage_locdc_id.pk)
-
 
 
 class ColdbrookElectrofishingParser(ElectrofishingParser):
