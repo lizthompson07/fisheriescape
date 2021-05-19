@@ -14,7 +14,6 @@ urlpatterns = [
     path('create/cru/', views.CruCreate.as_view(), name="create_cru"),
     path('details/cru/<int:pk>/', views.CruDetails.as_view(), name="details_cru"),
     path('update/cru/<int:pk>/', views.CruUpdate.as_view(), name="update_cru"),
-    path('delete/cru/<int:pk>/', views.CruDelete.as_view(), name="delete_cru"),
 
     path('create/dep/', views.DepCreate.as_view(), name="create_dep"),
     path('create/dep/<str:pop>/', views.DepCreate.as_view(), name="create_dep"),
@@ -32,7 +31,7 @@ urlpatterns = [
 
     path('create/ecp/<int:eqr>/<str:pop>/', views.EcpCreate.as_view(), name="create_ecp"),
     path('update/ecp/<int:pk>/<str:pop>/', views.EcpUpdate.as_view(), name="update_ecp"),
-    path('delete/ecp/<int:emm>/<int:ecp>/', views.ecp_delete, name="delete_ecp"),
+    path('delete/ecp/<int:pk>/<str:pop>/', views.EcpDeleteView.as_view(), name="delete_ecp"),
 
     path('create/ecc/<int:eca>/<str:pop>/', views.EccCreate.as_view(), name="create_ecc"),
     path('delete/ecc/<int:pk>/<str:pop>/', views.EccDeleteView.as_view(), name="delete_ecc"),
@@ -71,6 +70,7 @@ urlpatterns = [
     path('details/etr/<int:pk>/', views.EtrDetails.as_view(), name="details_etr"),
     path('update/etr/<int:pk>/', views.EtrUpdate.as_view(), name="update_etr"),
     path('update/etr/<int:pk>/<str:pop>/', views.EtrUpdate.as_view(), name="update_etr"),
+    path('delete/etr/<int:pk>/', views.EtrDeleteView.as_view(), name="delete_etr"),
 
     path('create/mor/', views.MorCreate.as_view(), name="create_mor"),
     path('create/mor/<str:pop>/', views.MorCreate.as_view(), name="create_mor"),

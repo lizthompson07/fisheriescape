@@ -126,6 +126,43 @@ class TestEccDeleteView(CommonTestFixtures):
         self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/pop/", [self.instance.pk, 'pop',])
 
 
+@tag("delete", "ecp")
+class TestEcpDeleteView(CommonTestFixtures):
+    view = views.EcpDeleteView
+    model = models.EcpChannelProperty
+    factory = factory.EcpFactory
+    signature = 'whalesdb:delete_ecp'
+    url = '/en/whalesdb/delete/ecp/'
+
+    def setUp(self):
+        super().setUp()
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk, 'pop'])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
+
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit")
+    def test_submit(self):
+        self.assert_success_url(self.test_url, user=self.user)
+
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/pop/", [self.instance.pk, 'pop'])
+
+
 @tag("delete", "eda")
 class TestEdaDeleteView(CommonTestFixtures):
     view = views.EdaDeleteView
@@ -286,6 +323,43 @@ class TestMorDeleteView(CommonTestFixtures):
     def test_submit(self):
         data = factory.MorFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url(self.signature, f"{self.url}{self.instance.pk}/", [self.instance.pk])
+
+
+@tag("delete", "etr")
+class TestEtrDeleteView(CommonTestFixtures):
+    view = views.EtrDeleteView
+    model = models.EtrTechnicalRepairEvent
+    factory = factory.EtrFactory
+    signature = 'whalesdb:delete_etr'
+    url = '/en/whalesdb/delete/etr/'
+
+    def setUp(self):
+        super().setUp()
+        self.instance = self.factory.create()
+        self.test_url = reverse_lazy(self.signature, args=[self.instance.pk])
+        self.expected_template = 'whalesdb/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalesdb_admin")
+
+    @tag("view")
+    def test_view_class(self):
+        self.assert_inheritance(self.view, views.CommonDeleteView)
+
+    @tag("access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("submit")
+    def test_submit(self):
+        self.assert_success_url(self.test_url, user=self.user)
 
         # for delete views...
         self.assertEqual(self.model.objects.filter(pk=self.instance.pk).count(), 0)

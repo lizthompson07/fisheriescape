@@ -201,6 +201,9 @@ class EtrTechnicalRepairEvent(models.Model):
     etr_dep_affe = models.TextField(blank=True, null=True, verbose_name=_("Deployment(s) Affected"))
     etr_rec_affe = models.BooleanField(default=False, verbose_name=_("Has a Recording been Affected"))
 
+    def __str__(self):
+        return f"{self.eqp} - {self.etr_date} : {self.etr_issue_desc}"
+
 
 class PrmParameterCode(shared_models.Lookup):
     name = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Parameter Code"))
@@ -321,6 +324,8 @@ class SteStationEvent(models.Model):
     ste_logs = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Log Location"))
     ste_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Notes"))
 
+    def __str__(self):
+        return f"{self.dep} : {self.set_type.tname} - {self.ste_date}"
 
 class StnStation(models.Model):
     stn_name = models.CharField(max_length=100, verbose_name=_("Name"))

@@ -21,17 +21,17 @@ from .utils import AdminRequiredMixin
 from . import mixins, reports
 
 
-def ecp_delete(request, emm, ecp):
-    if utils.whales_authorized(request.user):
-        ecp_channel = models.EcpChannelProperty.objects.get(eqr=emm, ecp_channel_no=ecp)
-        ehe_list = models.EheHydrophoneEvent.objects.filter(rec__emm=emm, ecp_channel_no=ecp)
-        for ehe in ehe_list:
-            ehe.delete()
-        ecp_channel.delete()
-        messages.success(request, _("The make/model channel has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+# def ecp_delete(request, emm, ecp):
+#     if utils.whales_authorized(request.user):
+#         ecp_channel = models.EcpChannelProperty.objects.get(eqr=emm, ecp_channel_no=ecp)
+#         ehe_list = models.EheHydrophoneEvent.objects.filter(rec__emm=emm, ecp_channel_no=ecp)
+#         for ehe in ehe_list:
+#             ehe.delete()
+#         ecp_channel.delete()
+#         messages.success(request, _("The make/model channel has been successfully deleted."))
+#         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+#     else:
+#         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
 def tea_delete(request, pk):
@@ -507,6 +507,8 @@ class DepDetails(mixins.DepMixin, CommonDetails):
     template_name = 'whalesdb/details_dep.html'
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
+    delete_url = "whalesdb:delete_dep"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -541,9 +543,10 @@ class EmmDetails(mixins.EmmMixin, CommonDetails):
     template_name = 'whalesdb/details_emm.html'
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating', 'emm_description']
 
+    delete_url = "whalesdb:delete_emm"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        print(f"emm auth: {context['auth']}")
         return context
 
 
@@ -712,7 +715,6 @@ class CruList(mixins.CruMixin, CommonList):
     ]
 
     details_url = "whalesdb:details_cru"
-    delete_url = "whalesdb:delete_cru"
 
     def test_func(self):
         return utils.whales_authorized(self.request.user)
@@ -804,6 +806,9 @@ class EtrList(mixins.EtrMixin, CommonList):
         {"name": "etr_dep_affe"},
         {"name": "etr_rec_affe"},
     ]
+
+    delete_url = "whalesdb:delete_etr"
+    delete_confirm = False
 
 
 class MorList(mixins.MorMixin, CommonList):
@@ -1027,6 +1032,10 @@ class EccDeleteView(mixins.EccMixin, CommonDeleteView):
     pass
 
 
+class EcpDeleteView(mixins.EcpMixin, CommonDeleteView):
+    pass
+
+
 class EdaDeleteView(mixins.EdaMixin, CommonDeleteView):
     pass
 
@@ -1047,6 +1056,10 @@ class EmmDeleteView(mixins.EmmMixin, CommonDeleteView):
 
 
 class EqpDeleteView(mixins.EqpMixin, CommonDeleteView):
+    pass
+
+
+class EtrDeleteView(mixins.EtrMixin, CommonDeleteView):
     pass
 
 
@@ -1084,40 +1097,6 @@ class SteDeleteView(mixins.SteMixin, CommonDeleteView):
 
 class StnDeleteView(mixins.StnMixin, CommonDeleteView):
     pass
-
-
-class CommonDelete(UserPassesTestMixin, DeleteView):
-    success_url = reverse_lazy("shared_models:close_me")
-    template_name = 'whalesdb/delete_confirm.html'
-    success_message = 'The dataset was successfully deleted!'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['title_msg'] = _("Are you sure you want to delete the following from the database?")
-        context['confirm_msg'] = _("You will not be able to recover this object.")
-
-        return context
-
-    def test_func(self):
-        return utils.whales_authorized(self.request.user)
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-
-class CruDelete(mixins.CruMixin, UserPassesTestMixin, DeleteView):
-    success_url = reverse_lazy('whalesdb:list_cru')
-    success_message = 'The cruise was successfully deleted!'
-    template_name = 'whalesdb/delete_cruise_confirm.html'
-
-    def test_func(self):
-        return utils.whales_authorized(self.request.user)
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 def delete_managed(request, key, pk):
