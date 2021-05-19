@@ -32,6 +32,9 @@ class ElectrofishingParser(DataParser):
 
     temp_envc_id = None
     leader_code = None
+    settings_locdc_id = None
+    voltage_locdc_id = None
+    fishing_time_locdc_id = None
 
     loc = None
     locc_id = None
@@ -40,6 +43,9 @@ class ElectrofishingParser(DataParser):
     def data_preper(self):
         self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
         self.leader_code = models.RoleCode.objects.filter(name__iexact="Crew Lead").get()
+        self.settings_locdc_id = models.LocationDetCode.objects.filter(name__iexact="Electrofishing Settings").get()
+        self.voltage_locdc_id = models.LocationDetCode.objects.filter(name__iexact="Voltage").get()
+        self.fishing_time_locdc_id = models.LocationDetCode.objects.filter(name__iexact="Electrofishing Seconds").get()
 
         for river_name in self.data[self.rive_key].unique():
             self.river_dict[river_name] = models.RiverCode.objects.filter(name__icontains=river_name).get()
@@ -102,18 +108,12 @@ class ElectrofishingParser(DataParser):
                                                cnt_code="Fish Observed")
         self.row_entered += cnt_entered
 
-        if cnt_caught:
-            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt_caught, row[self.settings_key],
-                                                    "Electrofishing Settings")
-            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt_caught, row[self.fishing_time_key],
-                                                    "Electrofishing Seconds")
-            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt_caught, row[self.voltage_key], "Voltage")
-        if cnt_obs:
-            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt_obs, row[self.settings_key],
-                                                    "Electrofishing Settings")
-            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt_obs, row[self.fishing_time_key],
-                                                    "Electrofishing Seconds")
-            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt_obs, row[self.voltage_key], "Voltage")
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.settings_key],
+                                             self.settings_locdc_id.pk)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.fishing_time_key],
+                                             self.fishing_time_locdc_id.pk)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.voltage_key],
+                                             self.voltage_locdc_id.pk)
 
     def data_cleaner(self):
         cleaned_data = self.cleaned_data

@@ -832,7 +832,7 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, adsc_str, 
     return row_entered
 
 
-def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str, comments=None):
+def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=None, comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
