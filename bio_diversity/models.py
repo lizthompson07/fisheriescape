@@ -1398,6 +1398,7 @@ class LocationDetCode(BioLookup):
 
 
 class LocDetSubjCode(BioLookup):
+    # ldsc tag
     locdc_id = models.ForeignKey("LocationDetCode", on_delete=models.CASCADE, db_column="LOC_DET_ID",
                                  verbose_name=_("Location detail code"))
 
