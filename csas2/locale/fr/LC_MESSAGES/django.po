@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-12 08:17-0300\n"
+"POT-Creation-Date: 2021-05-17 09:40-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -91,7 +91,7 @@ msgid "external"
 msgstr ""
 
 #: .\csas2\emails.py:22 .\csas2\emails.py:42 .\csas2\utils.py:264
-#: .\csas2\views.py:468
+#: .\csas2\views.py:469
 #, fuzzy
 #| msgid "end latitude"
 msgid "dates"
@@ -483,7 +483,7 @@ msgstr ""
 msgid "language of request"
 msgstr ""
 
-#: .\csas2\models.py:81 .\csas2\views.py:466 .\csas2\views.py:471
+#: .\csas2\models.py:81 .\csas2\views.py:467 .\csas2\views.py:472
 #, fuzzy
 #| msgid "site"
 msgid "title"
@@ -503,7 +503,7 @@ msgstr ""
 msgid "DFO client"
 msgstr "région"
 
-#: .\csas2\models.py:86 .\csas2\views.py:228
+#: .\csas2\models.py:86 .\csas2\views.py:229
 #, fuzzy
 #| msgid "section"
 msgid "section"
@@ -623,8 +623,8 @@ msgstr ""
 msgid "reference number"
 msgstr ""
 
-#: .\csas2\models.py:127 .\csas2\views.py:243 .\csas2\views.py:250
-#: .\csas2\views.py:269 .\csas2\views.py:293 .\csas2\views.py:314
+#: .\csas2\models.py:127 .\csas2\views.py:244 .\csas2\views.py:251
+#: .\csas2\views.py:270 .\csas2\views.py:294 .\csas2\views.py:315
 msgid "CSAS Requests"
 msgstr ""
 
@@ -738,7 +738,7 @@ msgid "Posting notification date"
 msgstr ""
 
 #: .\csas2\models.py:290 .\csas2\models.py:545 .\csas2\utils.py:36
-#: .\csas2\views.py:142
+#: .\csas2\views.py:143
 msgid "name"
 msgstr "nom"
 
@@ -1161,9 +1161,9 @@ msgstr ""
 msgid "Home"
 msgstr "Accueil"
 
-#: .\csas2\templates\csas2\base\_nav_left_auth.html:10 .\csas2\views.py:152
-#: .\csas2\views.py:160 .\csas2\views.py:168 .\csas2\views.py:185
-#: .\csas2\views.py:200
+#: .\csas2\templates\csas2\base\_nav_left_auth.html:10 .\csas2\views.py:153
+#: .\csas2\views.py:161 .\csas2\views.py:169 .\csas2\views.py:186
+#: .\csas2\views.py:201
 #, fuzzy
 #| msgid "last name"
 msgid "Contacts"
@@ -1189,7 +1189,7 @@ msgstr ""
 msgid "Manage DFO Organizations"
 msgstr ""
 
-#: .\csas2\templates\csas2\base\_nav_left_auth.html:34 .\csas2\views.py:535
+#: .\csas2\templates\csas2\base\_nav_left_auth.html:34 .\csas2\views.py:536
 msgid "Manage Process Postings"
 msgstr ""
 
@@ -1600,12 +1600,12 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: .\csas2\templates\csas2\index.html:46 .\csas2\views.py:456
-#: .\csas2\views.py:483 .\csas2\views.py:509 .\csas2\views.py:525
-#: .\csas2\views.py:549 .\csas2\views.py:591 .\csas2\views.py:638
-#: .\csas2\views.py:708 .\csas2\views.py:729 .\csas2\views.py:762
-#: .\csas2\views.py:819 .\csas2\views.py:925 .\csas2\views.py:946
-#: .\csas2\views.py:967 .\csas2\views.py:988
+#: .\csas2\templates\csas2\index.html:46 .\csas2\views.py:457
+#: .\csas2\views.py:484 .\csas2\views.py:510 .\csas2\views.py:526
+#: .\csas2\views.py:550 .\csas2\views.py:592 .\csas2\views.py:639
+#: .\csas2\views.py:709 .\csas2\views.py:730 .\csas2\views.py:763
+#: .\csas2\views.py:820 .\csas2\views.py:926 .\csas2\views.py:947
+#: .\csas2\views.py:974 .\csas2\views.py:995
 msgid "Processes"
 msgstr ""
 
@@ -1614,7 +1614,7 @@ msgid "Create modify or view the status of a CSAS Processes"
 msgstr ""
 
 #: .\csas2\templates\csas2\index.html:58
-#: .\csas2\templates\csas2\process_detail\main.html:199 .\csas2\views.py:918
+#: .\csas2\templates\csas2\process_detail\main.html:199 .\csas2\views.py:919
 #, fuzzy
 #| msgid "comment"
 msgid "Documents"
@@ -1954,7 +1954,7 @@ msgstr ""
 msgid "HTML (fr)"
 msgstr ""
 
-#: .\csas2\templates\csas2\process_detail\main.html:60 .\csas2\views.py:548
+#: .\csas2\templates\csas2\process_detail\main.html:60 .\csas2\views.py:549
 msgid "Initiate ToR"
 msgstr ""
 
@@ -2238,111 +2238,111 @@ msgstr "nom"
 msgid "job title"
 msgstr ""
 
-#: .\csas2\views.py:83
+#: .\csas2\views.py:84
 msgid "Last login to DM Apps"
 msgstr ""
 
-#: .\csas2\views.py:146
+#: .\csas2\views.py:147
 msgid "Linked to DM Apps user?"
 msgstr ""
 
-#: .\csas2\views.py:186
+#: .\csas2\views.py:187
 msgid "New Contact"
 msgstr ""
 
-#: .\csas2\views.py:227
+#: .\csas2\views.py:228
 #, fuzzy
 #| msgid "Region"
 msgid "region"
 msgstr "Région"
 
-#: .\csas2\views.py:242
+#: .\csas2\views.py:243
 msgid "My CSAS Requests"
 msgstr ""
 
-#: .\csas2\views.py:254 .\csas2\views.py:301 .\csas2\views.py:317
-#: .\csas2\views.py:338
+#: .\csas2\views.py:255 .\csas2\views.py:302 .\csas2\views.py:318
+#: .\csas2\views.py:339
 #, fuzzy
 #| msgid "Reports"
 msgid "Request"
 msgstr "Rapports"
 
-#: .\csas2\views.py:270 .\csas2\views.py:484
+#: .\csas2\views.py:271 .\csas2\views.py:485
 #, fuzzy
 #| msgid "gravel"
 msgid "Save"
 msgstr "gravier"
 
-#: .\csas2\views.py:323
+#: .\csas2\views.py:324
 msgid "Proceed"
 msgstr ""
 
-#: .\csas2\views.py:328
+#: .\csas2\views.py:329
 msgid "Do you wish to un-submit the following request?"
 msgstr ""
 
-#: .\csas2\views.py:330
+#: .\csas2\views.py:331
 msgid "Do you wish to submit the following request?"
 msgstr ""
 
-#: .\csas2\views.py:335
+#: .\csas2\views.py:336
 msgid "Please ensure the following items have been completed:"
 msgstr ""
 
-#: .\csas2\views.py:357
+#: .\csas2\views.py:358
 msgid "Clone a CSAS Request"
 msgstr ""
 
-#: .\csas2\views.py:358
+#: .\csas2\views.py:359
 msgid "Please update the request details"
 msgstr ""
 
-#: .\csas2\views.py:430
+#: .\csas2\views.py:431
 msgid "advisory type"
 msgstr ""
 
-#: .\csas2\views.py:434
+#: .\csas2\views.py:435
 msgid "science advisors"
 msgstr ""
 
-#: .\csas2\views.py:448
+#: .\csas2\views.py:449
 msgid "My CSAS Processes"
 msgstr ""
 
-#: .\csas2\views.py:449
+#: .\csas2\views.py:450
 msgid "CSAS Processes"
 msgstr ""
 
-#: .\csas2\views.py:459 .\csas2\views.py:512 .\csas2\views.py:528
-#: .\csas2\views.py:565 .\csas2\views.py:601 .\csas2\views.py:641
-#: .\csas2\views.py:714 .\csas2\views.py:735 .\csas2\views.py:778
-#: .\csas2\views.py:822 .\csas2\views.py:932 .\csas2\views.py:950
-#: .\csas2\views.py:971 .\csas2\views.py:991
+#: .\csas2\views.py:460 .\csas2\views.py:513 .\csas2\views.py:529
+#: .\csas2\views.py:566 .\csas2\views.py:602 .\csas2\views.py:642
+#: .\csas2\views.py:715 .\csas2\views.py:736 .\csas2\views.py:779
+#: .\csas2\views.py:823 .\csas2\views.py:933 .\csas2\views.py:957
+#: .\csas2\views.py:978 .\csas2\views.py:998
 msgid "Process"
 msgstr ""
 
-#: .\csas2\views.py:554 .\csas2\views.py:596
+#: .\csas2\views.py:555 .\csas2\views.py:597
 msgid ""
 "This process has already been posted therefore changes to the ToR will "
 "automatically trigger a notification to be sent to the national CSAS team."
 msgstr ""
 
-#: .\csas2\views.py:768
+#: .\csas2\views.py:769
 msgid ""
 "This process has already been posted therefore changes to the meeting "
 "details will automatically trigger a notification to be sent to the national "
 "CSAS team."
 msgstr ""
 
-#: .\csas2\views.py:853 .\csas2\views.py:870
+#: .\csas2\views.py:854 .\csas2\views.py:871
 msgid "A notification email was sent off to the national office!"
 msgstr ""
 
-#: .\csas2\views.py:917
+#: .\csas2\views.py:918
 msgid "My Docs"
 msgstr ""
 
-#: .\csas2\views.py:1004
+#: .\csas2\views.py:1011
 #, fuzzy
 #| msgid "Reports"
 msgid "CSAS Reports"
