@@ -128,8 +128,6 @@ class ElectrofishingParser(DataParser):
             contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, True, None, grp.pk,
                                                          return_contx=True)
 
-            self.row_entered += utils.enter_cnt(cleaned_data, self.data[data_rows][self.fish_caught_key].sum(),
-                                                contx_pk=contx.pk, cnt_code="Fish in Container", )[1]
             self.data_dict = self.data.to_dict("records")
 
     def row_parser(self, row):

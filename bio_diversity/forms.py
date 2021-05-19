@@ -8,7 +8,7 @@ from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from bio_diversity.data_parsers.distributions import MactaquacDistributionParser, ColdbrookDistributionParser
+from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser
 
 from bio_diversity import models
@@ -310,10 +310,10 @@ class DataForm(CreatePrams):
                 success = parser.success
             # -----------------------------DISTRIBUTION----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Distribution":
-                if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    parser = MactaquacDistributionParser(cleaned_data)
-                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    parser = ColdbrookDistributionParser(cleaned_data)
+                if cleaned_data["data_type"].__str__() == "Individual":
+                    parser = DistributionIndvParser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Group":
+                    parser = DistributionParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # -------------------------GENERAL DATA ENTRY-------------------------------------------

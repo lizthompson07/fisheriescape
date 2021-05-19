@@ -9,6 +9,7 @@ from collections import Counter
 import pytz
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -838,13 +839,15 @@ class Group(BioModel):
         fish_count = 0
 
         # ordered oldest to newest
-        cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
-                                       contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
+        cnt_set = Count.objects.filter(Q(contx_id__animal_details__grp_id=self,
+                                         contx_id__evnt_id__start_datetime__lte=at_date) |
+                                       Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
+            .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
         absolute_codes = ["Egg Count", ]
-        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added"]
+        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added", "Fish Caught"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
-                          "Fish Removed from Container"]
+                          "Fish Removed from Container", "Fish Distributed"]
 
         for cnt in cnt_set:
             if cnt.cntc_id.name in add_codes:

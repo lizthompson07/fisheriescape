@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.db.models import F
+from django.db.models import F, Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
@@ -279,13 +279,13 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
 
-            if evntc.__str__() in ["Egg Development", "Measuring", "Maturity Sorting"]:
+            if evntc.__str__() in ["Egg Development", "Measuring", "Maturity Sorting", "Distribution"]:
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
                 if evntc.__str__() == "Egg Development":
                     data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
-                elif evntc.__str__() in ["Measuring", "Maturity Sorting"]:
+                elif evntc.__str__() in ["Measuring", "Maturity Sorting", "Distribution"]:
                     data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
             else:
@@ -1162,7 +1162,9 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        cnt_set = models.Count.objects.filter(contx_id__animal_details__grp_id=self.object).distinct().select_related("cntc_id")
+        cnt_set = models.Count.objects.filter(Q(contx_id__animal_details__grp_id=self.object) |
+                                              Q(loc_id__animal_details__grp_id=self.object))\
+            .distinct().select_related("cntc_id")
         cnt_field_list = ["cntc_id", "cnt", "est", "date"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "Counts",
