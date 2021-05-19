@@ -60,6 +60,24 @@ class EccCalibrationValue(models.Model):
     ecc_sensitivity = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Sensitivity"))
 
 
+class EcpChannelProperty(models.Model):
+    eqr = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"),
+                            related_name="channels")
+    ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
+    eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', on_delete=models.DO_NOTHING, db_column='eqa_adc_bits',
+                                     verbose_name=_("ADC Bits"))
+    ecp_voltage_range_min = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
+                                                verbose_name=_("Maximum voltage"))
+    ecp_voltage_range_max = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
+                                                verbose_name=_("Minimum voltage"))
+
+    class Meta:
+        unique_together = (('ecp_channel_no', 'eqr'),)
+
+    def __str__(self):
+        return "{}: {}".format(_("Channel"), self.ecp_channel_no)
+
+
 class EdaEquipmentAttachment(models.Model):
     eqp = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING, verbose_name=_("Equipment"),
                             related_name='deployments')
@@ -82,24 +100,6 @@ class EmmMakeModel(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.emm_make, self.emm_model)
-
-
-class EcpChannelProperty(models.Model):
-    eqr = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"),
-                            related_name="channels")
-    ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
-    eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', on_delete=models.DO_NOTHING, db_column='eqa_adc_bits',
-                                     verbose_name=_("ADC Bits"))
-    ecp_voltage_range_min = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
-                                                verbose_name=_("Maximum voltage"))
-    ecp_voltage_range_max = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
-                                                verbose_name=_("Minimum voltage"))
-
-    class Meta:
-        unique_together = (('ecp_channel_no', 'eqr'),)
-
-    def __str__(self):
-        return "{}: {}".format(_("Channel"), self.ecp_channel_no)
 
 
 class EheHydrophoneEvent(models.Model):
@@ -349,7 +349,7 @@ class RciChannelInfo(models.Model):
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
     rci_gain = models.IntegerField(blank=True, null=True, verbose_name=_("Gain"))
-    rci_volts = models.DecimalField(max_digits=14, decimal_places=10, blank=True, null=True, verbose_name=_("Voltage"))
+    rci_volts = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True, verbose_name=_("Volts per bit"))
 
 
 class RecDataset(models.Model):
@@ -384,6 +384,9 @@ class ReeRecordingEvent(models.Model):
     tea_id = models.ForeignKey("TeaTeamMember", blank=True, null=True, on_delete=models.DO_NOTHING,
                                verbose_name=_("Team Member"))
     ree_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
+
+    def __str__(self):
+        return f'{self.rec_id} - {self.ret_id} - {self.ree_date}'
 
 
 class RetRecordingEventType(models.Model):

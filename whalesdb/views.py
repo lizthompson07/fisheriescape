@@ -1,17 +1,19 @@
 import datetime
 
-from django.views.generic import TemplateView, DetailView, DeleteView
+from django.views.generic import DetailView, DeleteView
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf import settings
 
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext
+from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
 
 from whalesdb import forms, models, filters, utils
 from django.contrib.auth.mixins import UserPassesTestMixin
 from shared_models.views import CommonTemplateView, CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView, \
-    CommonHardDeleteView, CommonFormsetView, CommonFormView
+    CommonHardDeleteView, CommonFormsetView, CommonFormView, CommonFormMixin
 
 import json
 import shared_models.models as shared_models
@@ -20,8 +22,8 @@ from . import mixins, reports
 
 
 def ecc_delete(request, pk):
-    ecc = models.EccCalibrationValue.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
+        ecc = models.EccCalibrationValue.objects.get(pk=pk)
         ecc.delete()
         messages.success(request, _("The value curve has been successfully deleted."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -43,8 +45,8 @@ def ecp_delete(request, emm, ecp):
 
 
 def eda_delete(request, pk):
-    eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
+        eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
         eda.delete()
         messages.success(request, _("The attachment has been successfully removed."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -52,24 +54,9 @@ def eda_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
-def dep_delete(request, pk):
-    dep = models.DepDeployment.objects.get(pk=pk)
-    if utils.whales_authorized(request.user):
-        edas = dep.attachments.all()
-        for eda in edas:
-            recs = eda.dataset.all()
-            recs.delete()
-            eda.delete()
-        dep.delete()
-        messages.success(request, _("The deployment has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
-
-
 def rst_delete(request, pk):
-    rst = models.RstRecordingStage.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
+        rst = models.RstRecordingStage.objects.get(pk=pk)
         rst.delete()
         messages.success(request, _("The recording stage has been successfully deleted."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -85,6 +72,19 @@ def rci_delete(request, pk):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
+def tea_delete(request, pk):
+    user_test_result = utils.whales_authorized(request.user)
+    if user_test_result and request.user.is_authenticated:
+        tea = models.TeaTeamMember.objects.get(pk=pk)
+        tea.delete()
+        messages.success(request, _("The team member has been successfully removed."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    elif not request.user.is_authenticated:
+        return HttpResponseRedirect('/accounts/login/?next={}'.format(reverse_lazy("whalesdb:delete_tea", args=[pk, ])))
+    else:
+        return HttpResponseRedirect('/accounts/denied/')
 
 
 class ReportView(CommonFormView):
@@ -575,6 +575,11 @@ class EmmDetails(mixins.EmmMixin, CommonDetails):
     template_name = 'whalesdb/details_emm.html'
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating', 'emm_description']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(f"emm auth: {context['auth']}")
+        return context
+
 
 class EtrDetails(mixins.EtrMixin, CommonDetails):
     fields = ['eqp', 'hyd', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
@@ -592,6 +597,7 @@ class EqpDetails(mixins.EqpMixin, CommonDetails):
             channels[hyd.ecp_channel_no] = hyd
 
         context["channels"] = channels
+        print(f"eqp auth: {context['auth']}")
         return context
 
 
@@ -640,6 +646,7 @@ class CommonList(CommonAuthFilterView):
     site_css = 'whalesdb/base/whales_css.css'
     home_url_name = "whalesdb:index"
     new_btn_text = "+"
+    delete_confirm = True
 
     # fields to be used as columns to display an object in the filter view table
     fields = []
@@ -705,7 +712,7 @@ class CommonList(CommonAuthFilterView):
         context['row_object_url_name'] = context['details_url'] = self.get_details_url()
         context['update_url'] = self.get_update_url()
         context['delete_url'] = self.get_delete_url()
-
+        context['delete_confirm'] = self.delete_confirm
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
         context['auth'] = utils.whales_authorized(self.request.user)
@@ -764,6 +771,7 @@ class DepList(mixins.DepMixin, CommonList):
     ]
 
     delete_url = "whalesdb:delete_dep"
+    delete_confirm = False
 
     queryset = models.DepDeployment.objects.all().select_related("stn", "prj", "mor")
 
@@ -783,7 +791,6 @@ class EcaList(mixins.EcaMixin, CommonList):
     ]
 
 
-
 class EmmList(mixins.EmmMixin, CommonList):
     filterset_class = filters.EmmFilter
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating']
@@ -793,6 +800,9 @@ class EmmList(mixins.EmmMixin, CommonList):
         {"name": "emm_model"},
         {"name": "emm_depth_rating"},
     ]
+
+    delete_url = "whalesdb:delete_emm"
+    delete_confirm = False
 
 
 class EqpList(mixins.EqpMixin, CommonList):
@@ -805,6 +815,9 @@ class EqpList(mixins.EqpMixin, CommonList):
         {"name": "eqp_retired"},
         {"name": "eqp_deployed"},
     ]
+
+    delete_url = "whalesdb:delete_eqp"
+    delete_confirm = False
 
 
 class EtrList(mixins.EtrMixin, CommonList):
@@ -831,10 +844,16 @@ class MorList(mixins.MorMixin, CommonList):
         {"name": "mor_notes"},
     ]
 
+    delete_url = "whalesdb:delete_mor"
+    delete_confirm = False
+
 
 class PrjList(mixins.PrjMixin, CommonList):
     filterset_class = filters.PrjFilter
     fields = ['tname|Name', 'tdescription|Description']
+
+    delete_url = "whalesdb:delete_prj"
+    delete_confirm = False
 
 
 class RecList(mixins.RecMixin, CommonList):
@@ -846,6 +865,9 @@ class RecList(mixins.RecMixin, CommonList):
         {"name": "rec_start_date"},
         {"name": "rec_end_date"},
     ]
+
+    delete_url = "whalesdb:delete_rec"
+    delete_confirm = False
 
 
 class RetList(mixins.RetMixin, CommonList):
@@ -867,6 +889,9 @@ class RscList(mixins.RscMixin, CommonList):
         {"name": "rsc_period"},
     ]
 
+    delete_url = "whalesdb:delete_rsc"
+    delete_confirm = False
+
 
 class StnList(mixins.StnMixin, CommonList):
     filterset_class = filters.StnFilter
@@ -876,6 +901,9 @@ class StnList(mixins.StnMixin, CommonList):
         {"name": "stn_code"},
         {"name": "stn_revision"},
     ]
+
+    delete_url = "whalesdb:delete_stn"
+    delete_confirm = False
 
 
 class TeaList(mixins.TeaMixin, CommonList):
@@ -888,6 +916,173 @@ class TeaList(mixins.TeaMixin, CommonList):
     ]
 
     details_url = False
+    delete_url = "whalesdb:delete_tea"
+    delete_confirm = False
+
+
+class CommonDeleteView(UserPassesTestMixin, CommonFormMixin, DeleteView):
+    success_message = _('The Recording Schedule was successfully deleted!')
+    template_name = 'whalesdb/confirm_delete.html'
+    container_class = "container jumbotron curvy"
+
+    # set this to false if you do not want the delete button to be greyed out if there are related objects
+    delete_protection = True
+    submit_text = None
+
+    def get_h1(self):
+        if self.h1:
+            return self.h1
+        else:
+            return gettext(
+                "Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
+                    self.model._meta.verbose_name,
+                    self.get_object(),
+                ))
+
+    def get_submit_text(self):
+        if self.submit_text:
+            return self.submit_text
+        else:
+            return gettext("Delete")
+
+    def get_related_names(self):
+        """if a related_names list was provided, this will turn the simple list into a more complex list that is ready for template digestion"""
+        my_list = list()
+        field_map_dict = type(self.get_object())._meta.fields_map
+        for field in field_map_dict:
+            # some of these might be M2M fields...
+            temp_related_name = field_map_dict[field].related_name
+
+            if not temp_related_name:
+                related_name = f"{field}_set"
+            elif "+" not in temp_related_name:
+                related_name = field_map_dict[field].related_name
+            else:
+                related_name = None
+
+            if related_name:
+                try:
+                    my_list.append(
+                        {
+                            "title": getattr(type(self.get_object()),
+                                             related_name).rel.related_model._meta.verbose_name_plural,
+                            "qs": getattr(self.get_object(), related_name).all()
+                        }
+                    )
+                except AttributeError:
+                    pass
+        return my_list
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_delete_protection(self):
+        if not self.delete_protection:
+            return False
+        else:
+            # the user wants delete protection to be turned on
+
+            # go through each related field. If there is a related object, we set set a flag and exit the loop
+            field_map_dict = type(self.get_object())._meta.fields_map
+            for field in field_map_dict:
+                temp_related_name = field_map_dict[field].related_name
+
+                if not temp_related_name:
+                    related_name = f"{field}_set"
+                elif "+" not in temp_related_name:
+                    related_name = field_map_dict[field].related_name
+                else:
+                    related_name = None
+
+                # the second we find a related object, we are done here.
+                try:
+                    getattr(self.get_object(), related_name)
+                except:
+                    pass
+                else:
+                    attr = getattr(self.get_object(), related_name)
+                    attr_type = getattr(type(self.get_object()), related_name)
+                    if not isinstance(attr_type, ReverseOneToOneDescriptor) and related_name and attr.count():
+                        return True
+            # if we got to this point, delete protection should be set to false, since there are no related objects
+            return False
+
+    def get_active_page_name_crumb(self):
+        if self.active_page_name_crumb:
+            return self.active_page_name_crumb
+        else:
+            return gettext("Delete Confirmation")
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        context["model_name"] = self.get_object()._meta.verbose_name
+        context["related_names"] = self.get_related_names()
+        context["delete_protection"] = self.get_delete_protection()
+        return context
+
+
+class EmmDeleteView(mixins.EmmMixin, CommonDeleteView):
+    success_url = reverse_lazy('whalesdb:list_emm')
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs["pk"]
+        emm = models.EmmMakeModel.objects.get(pk=pk)
+        if emm.eqt.pk == 4 and models.EqhHydrophoneProperty.objects.filter(emm=emm).count() > 0:
+            eqh = models.EqhHydrophoneProperty.objects.get(emm=emm)
+            eqh.delete()
+        elif models.EqrRecorderProperties.objects.filter(emm=emm).count() > 0:
+            eqr = models.EqrRecorderProperties.objects.get(emm=emm)
+            eqr.delete()
+
+        return super().delete(request, *args, **kwargs)
+
+
+class DepDeleteView(mixins.DepMixin, CommonDeleteView):
+    success_url = reverse_lazy("whalesdb:list_dep")
+
+
+class EqpDeleteView(mixins.EqpMixin, CommonDeleteView):
+    success_url = reverse_lazy("whalesdb:list_eqp")
+
+
+class MorDeleteView(mixins.MorMixin, CommonDeleteView):
+    success_url = reverse_lazy("whalesdb:list_mor")
+
+
+class PrjDeleteView(mixins.PrjMixin, CommonDeleteView):
+    success_url = reverse_lazy('whalesdb:list_prj')
+
+
+class RecDeleteView(mixins.RecMixin, CommonDeleteView):
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+
+        return reverse_lazy('whalesdb:list_rec')
+
+
+class ReeDeleteView(mixins.ReeMixin, CommonDeleteView):
+    success_url = reverse_lazy('shared_models:close_me')
+
+
+class RscDeleteView(mixins.RscMixin, CommonDeleteView):
+    success_url = reverse_lazy('whalesdb:list_rsc')
+
+
+class SteDeleteView(mixins.SteMixin, CommonDeleteView):
+    success_url = reverse_lazy('shared_models:close_me')
+
+
+class StnDeleteView(mixins.StnMixin, CommonDeleteView):
+    success_url = reverse_lazy("whalesdb:list_stn")
 
 
 class CommonDelete(UserPassesTestMixin, DeleteView):
@@ -909,14 +1104,6 @@ class CommonDelete(UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
-
-class RecDelete(mixins.RecMixin, CommonDelete):
-    pass
-
-
-class SteDelete(mixins.SteMixin, CommonDelete):
-    pass
 
 
 class CruDelete(mixins.CruMixin, UserPassesTestMixin, DeleteView):
