@@ -175,7 +175,7 @@ class DistributionIndvParser(DataParser):
     sex_dict = calculation_constants.sex_dict
 
     header = 2
-    converters = {tank_key: str, trof_key: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {tank_key: str, trof_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
     sheet_name = "Individuals"
 
     def data_preper(self):

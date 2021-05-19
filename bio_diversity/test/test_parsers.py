@@ -7,6 +7,7 @@ from django.forms import model_to_dict
 from django.test import tag
 from datetime import datetime
 from bio_diversity import forms, models
+from bio_diversity.data_parsers.distributions import DistributionIndvParser
 from bio_diversity.data_parsers.electrofishing import MactaquacElectrofishingParser
 from bio_diversity.data_parsers.generic import GenericGrpParser, GenericIndvParser
 from bio_diversity.data_parsers.tagging import MactaquacTaggingParser
@@ -27,16 +28,19 @@ class TestParsers(CommonTest):
         self.electrofishing_evntc = models.EventCode.objects.filter(name="Electrofishing").get()
         self.tagging_evntc = models.EventCode.objects.filter(name="PIT Tagging").get()
         self.measuring_evntc = models.EventCode.objects.filter(name="Measuring").get()
+        self.dist_evntc = models.EventCode.objects.filter(name="Distribution").get()
 
         # used to get the full path from the static directory
         self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing.xlsx")
         self.tagging_test_data = finders.find("test\\parser_test_files\\test-tagging.xlsx")
         self.measuring_test_data = finders.find("test\\parser_test_files\\test-generic-group.xlsx")
         self.measuring_indv_test_data = finders.find("test\\parser_test_files\\test-generic-indv.xlsx")
+        self.dist_indv_test_data = finders.find("test\\parser_test_files\\test-indv-distribution.xlsx")
 
         self.electrofishing_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.electrofishing_evntc, facic_id=mactaquac_facic)
         self.tagging_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.tagging_evntc, facic_id=mactaquac_facic)
         self.measuring_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.measuring_evntc, facic_id=mactaquac_facic)
+        self.dist_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.dist_evntc, facic_id=mactaquac_facic)
 
         self.cleaned_data = {
             "facic_id": mactaquac_facic,
@@ -70,6 +74,13 @@ class TestParsers(CommonTest):
         # Generic Individual parser
         self.cleaned_data["data_csv"] = self.measuring_indv_test_data
         parser = GenericIndvParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+        # Distirbution Individual parser
+        self.cleaned_data["evnt_id"] = self.dist_evnt
+        self.cleaned_data["evntc_id"] = self.dist_evntc
+        self.cleaned_data["data_csv"] = self.dist_indv_test_data
+        parser = DistributionIndvParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
 
 

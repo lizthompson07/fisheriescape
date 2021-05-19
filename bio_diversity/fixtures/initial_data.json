@@ -3255,5 +3255,31 @@
         "unit_id": null,
         "loc_subj_flag": false
     }
+},
+{
+    "model": "bio_diversity.locdetsubjcode",
+    "pk": 1,
+    "fields": {
+        "name": "Buckets",
+        "nom": null,
+        "description_en": "Fish transported from truck to river in buckets.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "locdc_id": 2
+    }
+},
+{
+    "model": "bio_diversity.locdetsubjcode",
+    "pk": 2,
+    "fields": {
+        "name": "Boot",
+        "nom": null,
+        "description_en": "Fish moved from truck to river in rubber \"boot\"",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "locdc_id": 2
+    }
 }
 ]
