@@ -110,6 +110,8 @@ class DistributionParser(DataParser):
                                                  relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
 
+        self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
+
         self.team_parser(row[self.crew_key], row, loc_id=loc)
         self.team_parser(row[self.driver_key], row, loc_id=loc, role_id=self.driver_role_id)
 

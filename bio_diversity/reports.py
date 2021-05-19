@@ -167,17 +167,24 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
     ws_indv['B2'].value = end_date
     # start writing data at row 3 in the sheet
     row_count = 4
-    cnt_slots = "EFGHIJKLMNOPQRST"
+    cnt_slots = "FGHIJKLMNOPQRSTU"
     for site in sites_list:
         site_name = site.name
         rive_name = site.rive_id.name
         site_locations = [location for location in locations_list if location.relc_id.pk == site.pk]
+
         for site_location in site_locations:
+            grps = [anix.grp_id.__str__() for anix in site_location.animal_details.all()]
+            if len(grps) == 1:
+                grps = grps[0]
+            if not grps:
+                grps = ""
             loc_cnt_qs = cnt_qs.filter(loc_id_id=site_location.pk)
             ws_indv['A' + str(row_count)].value = rive_name
             ws_indv['B' + str(row_count)].value = site_name
             ws_indv['C' + str(row_count)].value = site_location.start_date
             ws_indv['D' + str(row_count)].value = site_location.locc_id.name
+            ws_indv['E' + str(row_count)].value = grps
             cnt_col = 0
             for cnt in loc_cnt_qs:
                 ws_indv[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
