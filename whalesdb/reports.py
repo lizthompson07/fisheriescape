@@ -62,7 +62,12 @@ def report_deployment_summary(query_params):
                 in_end_time = dataset.rec_end_time
                 in_end = "{} {}".format(in_end_date, in_end_time)
 
-                hydro = q.eqp.hydrophones.filter(ehe_date__lte=in_start_date).order_by("ehe_date").last()
+                hydro = q.eqp.hydrophones.all()
+                if in_start_date:
+                    hydro = hydro.filter(ehe_date__lte=in_start_date)
+
+                hydro = hydro.order_by("ehe_date").last()
+
                 hyd = hydro.hyd if hydro else "----"
                 writer.writerow([q.pk, year, month, dep_evt.dep.dep_name, dep_evt.dep.stn, lat, lon, depth, eqp,
                                 hyd, dataset.rtt_dataset, dataset.rsc_id, in_start,
