@@ -180,6 +180,12 @@ invitee_status_choices = (
     (3, 'Tentative'),
 )
 
+invitee_role_categories = (
+    (1, 'client lead'),
+    (2, 'steering committee member'),
+    (3, 'science lead'),
+)
+
 cost_category_choices = (
     (1, 'Translation'),
     (2, 'Travel'),

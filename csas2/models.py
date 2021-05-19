@@ -551,12 +551,12 @@ class MeetingCost(GenericCost):
 
 class MeetingFile(GenericFile):
     meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
-    is_somp = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this the completed SoMP?"))
     file = models.FileField(upload_to=meeting_directory_path)
 
 
 class InviteeRole(SimpleLookup):
-    pass
+    category = models.IntegerField(null=True, blank=True, choices=model_choices.invitee_role_categories, verbose_name=_("special category"))
+
 
 
 class Invitee(models.Model):
