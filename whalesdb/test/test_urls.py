@@ -93,7 +93,7 @@ class URLTest(TestCase):
 
     @tag('ecc', 'url', 'delete')
     def test_url_delete_ecc_view(self):
-        self.basic_en_url_test('whalesdb:delete_ecc', 'whalesdb/delete/ecc/1/', views.ecc_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_ecc', 'whalesdb/delete/ecc/1/pop/', views.EccDeleteView, [1, 'pop'])
 
     @tag('eca', 'url', 'list')
     def test_url_list_eca_view(self):
@@ -110,6 +110,10 @@ class URLTest(TestCase):
     @tag('eca', 'url', 'update', 'pop')
     def test_url_update_eca_view(self):
         self.basic_en_url_test('whalesdb:update_eca', 'whalesdb/update/eca/1/', views.EcaUpdate, [1])
+
+    @tag('eca', 'url', 'delete')
+    def test_url_delete_eca_view(self):
+        self.basic_en_url_test('whalesdb:delete_eca', 'whalesdb/delete/eca/1/', views.EcaDeleteView, [1])
 
     @tag('ecp', 'url', 'create', 'pop')
     def test_url_create_pop_ecp_view(self):
@@ -133,7 +137,7 @@ class URLTest(TestCase):
 
     @tag('eda', 'url', 'delete', 'pop')
     def test_url_delete_pop_eda_view(self):
-        self.basic_en_url_test('whalesdb:delete_eda', 'whalesdb/delete/eda/1/', views.eda_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_eda', 'whalesdb/delete/eda/1/pop/', views.EdaDeleteView, [1, 'pop'])
 
     @tag('emm', 'url', 'create')
     def test_url_create_emm_view(self):
@@ -305,7 +309,7 @@ class URLTest(TestCase):
 
     @tag('ree', 'url', 'delete')
     def test_url_update_ree_view(self):
-        self.basic_en_url_test('whalesdb:delete_ree', 'whalesdb/delete/ree/1/', views.ReeDeleteView, [1])
+        self.basic_en_url_test('whalesdb:delete_ree', 'whalesdb/delete/ree/1/pop/', views.ReeDeleteView, [1, 'pop'])
 
     @tag('rsc', 'url', 'create')
     def test_url_create_rsc_view(self):
@@ -333,7 +337,7 @@ class URLTest(TestCase):
 
     @tag('rst', 'url', 'delete')
     def test_url_delete_rst_view(self):
-        self.basic_en_url_test('whalesdb:delete_rst', 'whalesdb/delete/rst/1/', views.rst_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_rst', 'whalesdb/delete/rst/1/pop/', views.RstDeleteView, [1, 'pop'])
 
     @tag('set', 'url', 'managed')
     def test_url_managed_set_view(self):
@@ -439,7 +443,7 @@ class URLTest(TestCase):
 
     @tag('rci', 'url', 'delete', 'pop')
     def test_url_delete_rci_pop_ste_view(self):
-        self.basic_en_url_test('whalesdb:delete_rci', 'whalesdb/delete/rci/1/', views.rci_delete, [1])
+        self.basic_en_url_test('whalesdb:delete_rci', 'whalesdb/delete/rci/1/pop/', views.RciDeleteView, [1, 'pop'])
 
     @tag('ree', 'url', 'create', 'pop')
     def test_url_create_set_pop_ree_view(self):
