@@ -1,6 +1,7 @@
 from django import forms
 from whalesdb import models
 from django.forms import modelformset_factory
+from django.utils.translation import gettext_lazy as _
 
 import shared_models.models as shared_models
 import inspect
@@ -12,26 +13,22 @@ class ReportSearchForm(forms.Form):
         (1, "Deployment Summary Report (csv)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.ChoiceField(required=False)
-    month = forms.ChoiceField(required=False)
-    station = forms.ChoiceField(required=False)
+    start_date = forms.DateField(required=False)
+    end_date = forms.DateField(required=False)
+    station = forms.MultipleChoiceField(required=False, label=_("Station (Leave blank to select all, shift/ctrl to control selection)"))
+    project = forms.MultipleChoiceField(required=False, label=_("Project (Leave blank to select all, shift/ctrl to control selection)"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        deployment_qs = models.DepDeployment.objects.all()
-        YEAR_CHOICES = [(None, "------",)]
-        YEAR_CHOICES += [(y[0], y[0],) for idx, y in enumerate(deployment_qs.order_by("-dep_year").values_list("dep_year").distinct())]
+        STN_CHOICES = [(y.pk, str(y),) for idx, y in enumerate(models.StnStation.objects.all().order_by("stn_name"))]
 
-        MONTH_CHOICES = [(None, "------",)]
-        MONTH_CHOICES += [(y[0], y[0],) for idx, y in enumerate(deployment_qs.order_by("dep_month").values_list("dep_month").distinct())]
+        PRJ_CHOICES = [(y.pk, str(y),) for idx, y in enumerate(models.PrjProject.objects.all().order_by("name"))]
 
-        STN_CHOICES = [(None, "All",)]
-        STN_CHOICES += [(y.pk, str(y),) for idx, y in enumerate(models.StnStation.objects.all().order_by("stn_name"))]
-
-        self.fields['year'].choices = YEAR_CHOICES
-        self.fields['month'].choices = MONTH_CHOICES
+        self.fields['start_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+        self.fields['end_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
         self.fields['station'].choices = STN_CHOICES
+        self.fields['project'].choices = PRJ_CHOICES
 
 
 class CruForm(forms.ModelForm):

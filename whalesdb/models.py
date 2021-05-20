@@ -121,6 +121,9 @@ class EheHydrophoneEvent(models.Model):
     class Meta:
         ordering = ["ehe_date", "pk"]
 
+    def __str__(self):
+        return f"{self.ecp_channel_no} : {self.ehe_date}"
+
 
 class EprEquipmentParameter(models.Model):
     emm = models.ForeignKey(EmmMakeModel, on_delete=models.DO_NOTHING, verbose_name=_("Equipment"))
