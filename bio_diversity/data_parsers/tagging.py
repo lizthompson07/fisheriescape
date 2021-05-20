@@ -16,7 +16,9 @@ class TaggingParser(DataParser):
     pit_key = "PIT tag"
     comment_key = "Comments"
     len_key = "Length (cm)"
+    len_key_mm = "Length (mm)"
     weight_key = "Weight (g)"
+    weight_key_kg = "Weight (kg)"
     vial_key = "Vial"
     crew_key = "Tagger"
 
@@ -103,11 +105,18 @@ class TaggingParser(DataParser):
         anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
         self.anix_indv = anix_indv
-
-        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key],
-                                              self.len_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.weight_key],
-                                              self.weight_anidc_id.pk, None)
+        if self.len_key_mm in row.keys():
+            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key_mm] / 10.0,
+                                                  self.len_anidc_id.pk, None)
+        if self.len_key in row.keys():
+            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key],
+                                                  self.len_anidc_id.pk, None)
+        if self.weight_key_kg in row.keys():
+            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, 1000 * row[self.weight_key_kg],
+                                                  self.weight_anidc_id.pk, None)
+        if self.weight_key in row.keys():
+            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.weight_key],
+                                                  self.weight_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.vial_key],
                                               self.vial_anidc_id.pk, None)
 

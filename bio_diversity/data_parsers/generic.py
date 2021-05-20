@@ -11,7 +11,9 @@ class GenericIndvParser(DataParser):
     pit_key = "PIT"
     sex_key = "Sex"
     len_key = "Length (cm)"
+    len_key_mm = "Length (mm)"
     weight_key = "Weight (g)"
+    weight_key_kg = "Weight (kg)"
     vial_key = "Vial"
     envelope_key = "Scale Envelope"
     precocity_key = "Precocity (Y/N)"
@@ -60,10 +62,18 @@ class GenericIndvParser(DataParser):
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date,
                                                   self.sex_dict[row[self.sex_key]],
                                                   self.sex_anidc_id.pk, None, None)
-        self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key],
-                                              self.len_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.weight_key],
-                                              self.weight_anidc_id.pk, None)
+        if self.len_key_mm in row.keys():
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key_mm] / 10.0,
+                                                  self.len_anidc_id.pk, None)
+        if self.len_key in row.keys():
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key],
+                                                  self.len_anidc_id.pk, None)
+        if self.weight_key_kg in row.keys():
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, 1000 * row[self.weight_key_kg],
+                                                  self.weight_anidc_id.pk, None)
+        if self.weight_key in row.keys():
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.weight_key],
+                                                  self.weight_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.vial_key],
                                               self.vial_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.envelope_key],
@@ -100,7 +110,9 @@ class GenericGrpParser(DataParser):
     samp_key = "Sample"
     sex_key = "Sex"
     len_key = "Length (cm)"
+    len_key_mm = "Length (mm)"
     weight_key = "Weight (g)"
+    weight_key_kg = "Weight (kg)"
     vial_key = "Vial"
     envelope_key = "Scale Envelope"
     precocity_key = "Precocity (Y/N)"
@@ -221,10 +233,18 @@ class GenericGrpParser(DataParser):
             if utils.nan_to_none(row[self.sex_key]):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date,
                                                       self.sex_dict[row[self.sex_key]], self.sex_anidc_id.pk)
-            self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.len_key],
-                                                  self.len_anidc_id.pk, )
-            self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.weight_key],
-                                                  self.weight_anidc_id.pk, )
+            if self.len_key in row.keys():
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.len_key],
+                                                      self.len_anidc_id.pk, )
+            if self.len_key_mm in row.keys():
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.len_key_mm] / 10.0,
+                                                      self.len_anidc_id.pk, )
+            if self.weight_key in row.keys():
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.weight_key],
+                                                      self.weight_anidc_id.pk, )
+            if self.weight_key_kg in row.keys():
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date,
+                                                      1000 * row[self.weight_key_kg], self.weight_anidc_id.pk, )
             self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vial_key],
                                                   self.vial_anidc_id.pk)
             if utils.y_n_to_bool(row[self.precocity_key]):
