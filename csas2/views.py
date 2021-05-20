@@ -681,7 +681,7 @@ class TermsOfReferenceHTMLDetailView(LoginAccessRequiredMixin, CommonDetailView)
 ############
 
 class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/list.html'
+    template_name = 'csas2/meeting_list.html'
     filterset_class = filters.MeetingFilter
     paginate_by = 25
     home_url_name = "csas2:index"
@@ -689,17 +689,25 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'process', "class": "", "width": ""},
-        {"name": 'type', "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'coordinator', "class": "", "width": ""},
-        {"name": 'client', "class": "", "width": ""},
-        {"name": 'section.full_name', "class": "", "width": ""},
+        {"name": 'process', "class": "", "width": "400px"},
+        {"name": 'tname|{}'.format("title"), "class": "", "width": "400px"},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'display_dates|{}'.format(_("dates")), "class": "", "width": ""},
+        {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
     ]
 
     def get_queryset(self):
-        return models.Meeting.objects.filter(hide_from_list=False).annotate(
-            search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qp = self.request.GET
+        qs = models.Meeting.objects.all()
+        if qp.get("personalized"):
+            qs = utils.get_related_meetings(self.request.user)
+        qs = qs.annotate(search_term=Concat(
+            'name',
+            Value(" "),
+            'nom',
+            output_field=TextField())
+        ).order_by("start_date")
+        return qs
 
 
 class MeetingDetailView(LoginAccessRequiredMixin, CommonDetailView):

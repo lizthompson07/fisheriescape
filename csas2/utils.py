@@ -258,7 +258,6 @@ def get_process_field_list(process):
 def get_meeting_field_list():
     my_list = [
         'process',
-        'type',
         'location',
         'attendees',
         'display_dates|{}'.format(_("dates")),
@@ -312,6 +311,16 @@ def get_related_docs(user):
      they are a process advisor
      """
     qs = models.Document.objects.filter(document_type__hide_from_list=False).filter(Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors__person__dmapps_user=user)).distinct()
+    return qs
+
+
+def get_related_meetings(user):
+    """give me a user and I'll send back a queryset with all related docs, i.e.
+     they are an author ||
+     they are a process coordinator ||
+     they are a process advisor
+     """
+    qs = models.Meeting.objects.filter(invitees__person__dmapps_user=user).distinct()
     return qs
 
 
