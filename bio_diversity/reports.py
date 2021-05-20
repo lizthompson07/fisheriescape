@@ -174,7 +174,7 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
         site_locations = [location for location in locations_list if location.relc_id.pk == site.pk]
 
         for site_location in site_locations:
-            grps = [anix.grp_id.__str__() for anix in site_location.animal_details.all()]
+            grps = [anix.grp_id.__str__() for anix in site_location.animal_details.filter(grp_id__isnull=False)]
             if len(grps) == 1:
                 grps = grps[0]
             if not grps:
