@@ -228,7 +228,7 @@ class TestPrjDetails(CommonDetailsTest, TestCase):
         stn_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_prj', args=(stn_dic['prj_1'].pk,))
-        self.test_expected_template = 'whalesdb/whales_details.html'
+        self.test_expected_template = 'whalesdb/details_prj.html'
 
     # Test that the context contains the proper fields
     def test_context_fields_prj(self):
