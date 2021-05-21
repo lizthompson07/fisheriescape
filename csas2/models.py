@@ -2,6 +2,7 @@ from datetime import timedelta
 from uuid import uuid4
 
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Sum
@@ -354,6 +355,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             mystr += f", {listrify(self.other_regions.all())}"
         return mystr
 
+
 class TermsOfReference(MetadataFields):
     process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
     context_en = models.TextField(blank=True, null=True, verbose_name=_("context (en)"), help_text=_("English"))
@@ -429,6 +431,10 @@ class Meeting(SimpleLookup, MetadataFields):
 
     start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
+    time_description_en = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("meeting times (en)"), default="9am to 4pm (Atlantic)",
+                                help_text=_("Make sure to include timezone"))
+    time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("meeting times (fr)"), default="9h à 16h (Atlantique)",
+                                           help_text=_("Make sure to include timezone"))
     est_quarter = models.IntegerField(choices=model_choices.meeting_quarter_choices, verbose_name=_("estimated quarter"), blank=True, null=True)
     est_year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("estimated year"))
 
@@ -548,6 +554,11 @@ class Meeting(SimpleLookup, MetadataFields):
         qs = self.invitees.filter(roles__category=1).distinct()
         if qs.exists():
             return listrify([f"{invitee.person} ({invitee.person.affiliation})" for invitee in qs])
+
+    @property
+    def display_dates_deluxe(self):
+        mystr = f"{self.display_dates}<br><em>({naturaltime(self.start_date)})</em>"
+        return mark_safe(mystr)
 
 
 class MeetingNote(GenericNote):

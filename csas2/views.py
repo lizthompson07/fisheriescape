@@ -692,7 +692,7 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'process', "class": "", "width": "400px"},
         {"name": 'tname|{}'.format("title"), "class": "", "width": "400px"},
         {"name": 'location', "class": "", "width": ""},
-        {"name": 'display_dates|{}'.format(_("dates")), "class": "", "width": ""},
+        {"name": 'display_dates_deluxe|{}'.format(_("dates")), "class": "", "width": ""},
         {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
     ]
 

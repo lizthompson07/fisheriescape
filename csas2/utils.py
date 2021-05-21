@@ -309,7 +309,13 @@ def get_related_processes(user):
      they are a coordinator ||
      they are an advisor
      """
-    qs = models.Process.objects.filter(Q(coordinator=user) | Q(advisors=user) | Q(csas_requests__client=user)).distinct()
+    qs = models.Process.objects.filter(
+        Q(coordinator=user) |
+        Q(advisors=user) |
+        Q(editors=user) |
+        Q(csas_requests__client=user) |
+        Q(meetings__invitees__roles__category__isnull=False)
+    ).distinct()
     return qs
 
 
