@@ -560,6 +560,13 @@ class Meeting(SimpleLookup, MetadataFields):
         mystr = f"{self.display_dates}<br><em>({naturaltime(self.start_date)})</em>"
         return mark_safe(mystr)
 
+    @property
+    def ttime(self):
+        my_str = self.time_description_en
+        if getattr(self, str(_("time_description_en"))):
+            my_str = "{}".format(getattr(self, str(_("time_description_en"))))
+        return my_str
+
 
 class MeetingNote(GenericNote):
     ''' a note pertaining to a meeting'''

@@ -364,6 +364,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     somp_notification_date = serializers.SerializerMethodField()
     is_posted = serializers.SerializerMethodField()
     has_tor = serializers.SerializerMethodField()
+    ttime = serializers.SerializerMethodField()
+
+    def get_ttime(self, instance):
+        return instance.ttime
 
     def get_has_tor(self, instance):
         return hasattr(instance, "tor")

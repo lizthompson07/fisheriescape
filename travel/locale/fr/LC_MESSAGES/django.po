@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-17 09:40-0300\n"
+"POT-Creation-Date: 2021-05-21 07:48-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -52,19 +52,19 @@ msgstr ""
 "Si vous sélectionnez le rôle \"autre\", vous devez également fournir une "
 "description de ce rôle."
 
-#: .\travel\api\views.py:76
+#: .\travel\api\views.py:77
 msgid "This function can only be used with an unreviewed trip."
 msgstr ""
 "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
 "encore à l'état de brouillon."
 
-#: .\travel\api\views.py:78 .\travel\api\views.py:138 .\travel\views.py:561
+#: .\travel\api\views.py:79 .\travel\api\views.py:139 .\travel\views.py:561
 msgid "You do not have the permissions to reset the reviewer list"
 msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
 "des examinateurs"
 
-#: .\travel\api\views.py:80 .\travel\api\views.py:140
+#: .\travel\api\views.py:81 .\travel\api\views.py:141
 #, fuzzy
 #| msgid "This function can only be used with an unreviewed trip."
 msgid "This endpoint cannot be used without a query param"
@@ -72,13 +72,13 @@ msgstr ""
 "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
 "encore à l'état de brouillon."
 
-#: .\travel\api\views.py:136 .\travel\views.py:559
+#: .\travel\api\views.py:137 .\travel\views.py:559
 msgid "This function can only be used when the trip request is still a draft"
 msgstr ""
 "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
 "encore à l'état de brouillon"
 
-#: .\travel\api\views.py:164
+#: .\travel\api\views.py:165
 #, fuzzy
 #| msgid "You do not have the permissions to reset the reviewer list"
 msgid "You do not have the permissions to view this request."
@@ -86,7 +86,7 @@ msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
 "des examinateurs"
 
-#: .\travel\api\views.py:210
+#: .\travel\api\views.py:211
 msgid ""
 "This function can only be used with requests that are sitting at the ADM "
 "level."
@@ -94,13 +94,13 @@ msgstr ""
 "Cette fonction ne peut être utilisée qu'avec les demandes qui se trouvent au "
 "niveau ADM."
 
-#: .\travel\api\views.py:212
+#: .\travel\api\views.py:213
 msgid "You do not have the permissions to cherry pick the approval"
 msgstr ""
 "Vous ne disposez pas des autorisations nécessaires pour sélectionner "
 "l'approbation"
 
-#: .\travel\api\views.py:260 .\travel\api\views.py:324
+#: .\travel\api\views.py:261 .\travel\api\views.py:325
 msgid ""
 "Manually overridden by {user} with the following rationale: \n"
 " {comments}"
@@ -108,17 +108,17 @@ msgstr ""
 "Remplacé manuellement par {user} avec le raisonnement suivant : \n"
 " {comments}"
 
-#: .\travel\api\views.py:272 .\travel\api\views.py:317
+#: .\travel\api\views.py:273 .\travel\api\views.py:318
 msgid "You do not have the necessary permission to modify this reviewer."
 msgstr ""
 "Vous n'avez pas l'autorisation nécessaire pour modifier cet examinateur."
 
-#: .\travel\api\views.py:284 .\travel\api\views.py:344
+#: .\travel\api\views.py:285 .\travel\api\views.py:345
 msgid "You do not have the necessary permission to delete this reviewer."
 msgstr ""
 "Vous n'avez pas l'autorisation nécessaire pour supprimer cet examinateur."
 
-#: .\travel\api\views.py:298
+#: .\travel\api\views.py:299
 #, fuzzy
 #| msgid "You do not have the permissions to reset the reviewer list"
 msgid "You do not have the permissions to view this list"
@@ -126,12 +126,12 @@ msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
 "des examinateurs"
 
-#: .\travel\api\views.py:533
+#: .\travel\api\views.py:551
 msgid "Verify now"
 msgstr "Vérifier"
 
 #. Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-#: .\travel\api\views.py:542
+#: .\travel\api\views.py:560
 msgid ""
 "<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip"
 "{pluralization} requiring attention!!"
@@ -139,7 +139,7 @@ msgstr ""
 "<b>AVERTISSEMENT ADMINISTRATIF :</b> {region} La région a {unverified_trips} "
 "voyage non vérifié{pluralization} nécessitant une intervention!!"
 
-#: .\travel\api\views.py:548
+#: .\travel\api\views.py:566
 #, fuzzy
 #| msgid ""
 #| "<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified "
@@ -151,7 +151,7 @@ msgstr ""
 "<b>AVERTISSEMENT ADMINISTRATIF :</b> {region} La région a {unverified_trips} "
 "voyage non vérifié{pluralization} nécessitant une intervention!!"
 
-#: .\travel\api\views.py:551
+#: .\travel\api\views.py:569
 #, fuzzy
 #| msgid ""
 #| "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
@@ -164,7 +164,7 @@ msgstr ""
 "{pluralization} requiring attention!!"
 
 #. Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-#: .\travel\api\views.py:561
+#: .\travel\api\views.py:579
 msgid ""
 "<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
 "{pluralization} requiring attention!!"
