@@ -286,7 +286,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 class PrjProject(shared_models.Lookup):
     name = models.CharField(unique=True, max_length=255, verbose_name=_("Name"))
     prj_url = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("URL"))
-    lead = models.CharField(max_length=255, default="None", verbose_name=_('Project Lead/PI'))
+    lead = models.CharField(max_length=255, verbose_name=_('Project Lead/PI'))
 
 
 class SetStationEventCode(shared_models.Lookup):

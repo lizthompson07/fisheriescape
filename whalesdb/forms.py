@@ -252,7 +252,7 @@ class PrjForm(forms.ModelForm):
 
     class Meta:
         model = models.PrjProject
-        fields = ["name", "description_en", "prj_url"]
+        fields = ["name", "description_en", "lead", "prj_url"]
         widgets = {
             'description_en': forms.Textarea(attrs={"rows": 2}),
         }
