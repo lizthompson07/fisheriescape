@@ -40,12 +40,16 @@ class DataParser:
      consists of two functions: a wrapper and a parser. The wrapper (eg. load_data) checks if self.success is still 
      true, catches errors from running the corresponding parser function (eg. data_loader) which should be overwritten 
      for each specific parser."""
-    def __init__(self, cleaned_data):
+    def __init__(self, cleaned_data, autorun=True):
         self.cleaned_data = cleaned_data
-        self.load_data()
-        self.prep_data()
-        self.iterate_rows()
-        self.clean_data()
+        if autorun:
+            self.load_data()
+            self.prep_data()
+            self.iterate_rows()
+            self.clean_data()
+        else:
+            # to run only selection of parser functions
+            pass
 
     def load_data(self):
         try:
@@ -640,6 +644,8 @@ def enter_anix_contx(tank, cleaned_data):
 def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fish in Container", est=False):
     cnt = False
     entered = False
+    if cnt_value is None:
+        return False, False
     if not math.isnan(cnt_value):
         cnt = models.Count(loc_id_id=loc_pk,
                            contx_id_id=contx_pk,
@@ -1266,7 +1272,9 @@ def y_n_to_bool(test_item):
 
 def round_no_nan(data, precision):
     # data can be nan, decimal, float, etc.
-    if math.isnan(data) or data is None:
+    if data is None:
+        return None
+    elif math.isnan(data):
         return None
     else:
         return round(decimal.Decimal(data), precision)

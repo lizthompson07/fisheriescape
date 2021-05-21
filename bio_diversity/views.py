@@ -962,6 +962,7 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
+    template_name =  'bio_diversity/details_evnt.html'
     fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "start_date|Start Date", "start_time|Start Time",
               "end_date|End Date", "end_time|End Time", "comments", "created_by", "created_date", ]
 
@@ -969,7 +970,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
         loc_set = self.object.location.all()
-        loc_field_list = ["locc_id", "rive_id", "subr_id", "start_date|Start Date"]
+        loc_field_list = ["locc_id", "rive_id", "subr_id", "relc_id", "start_date|Start Date"]
         obj_mixin = mixins.LocMixin
         context["context_dict"]["loc"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
@@ -1066,6 +1067,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing" or evnt_code == "Bypass Collection" or evnt_code == "Smolt Wheel Collection":
             context["table_list"].extend(["data", "team", "loc", "grp", "tank", "prot", "evntf"])
+            context["coll_btn"] = True
         elif evnt_code == "PIT Tagging":
             context["table_list"].extend(["data", "team", "indv", "grp", "tank", "prot", "evntf"])
         elif evnt_code == "Egg Development":
@@ -2954,9 +2956,8 @@ class HelpTextHardDeleteView(SiteLoginRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("bio_diversity:manage_help_texts")
 
 
-class FishtocontFormView(mixins.FishtocontMixin, SiteLoginRequiredMixin, CommonFormView):
+class BioCommonFormView(SiteLoginRequiredMixin, CommonFormView):
     template_name = 'shared_models/shared_entry_form.html'
-
     nav_menu = 'bio_diversity/bio_diversity_nav.html'
     site_css = 'bio_diversity/bio_diversity.css'
     home_url_name = "bio_diversity:index"
@@ -2965,6 +2966,38 @@ class FishtocontFormView(mixins.FishtocontMixin, SiteLoginRequiredMixin, CommonF
         init = super().get_initial()
         init["created_by"] = self.request.user.username
         init["created_date"] = date.today
+        return init
+
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return None
+        return self.nav_menu
+
+    # Upon success most creation views will be redirected to the Individual List view. To send
+    # a successful creation view somewhere else, override this method
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:list_indv")
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+        return success_url
+
+
+class AddCollFishFormView(mixins.AddCollFishMixin, BioCommonFormView):
+
+    def get_initial(self):
+        init = super().get_initial()
+        init["coll_date"] = date.today
+        if self.kwargs.get("evnt"):
+            init["evnt_id"] = models.Event.objects.filter(pk=self.kwargs.get("evnt")).get()
+
+        return init
+
+
+class FishtocontFormView(mixins.FishtocontMixin, BioCommonFormView):
+
+    def get_initial(self):
+        init = super().get_initial()
         init["move_date"] = date.today
 
         cont = utils.get_cont_from_tag(self.kwargs.get("cont_type"), self.kwargs.get("cont_id"))
@@ -2981,42 +3014,11 @@ class FishtocontFormView(mixins.FishtocontMixin, SiteLoginRequiredMixin, CommonF
 
         return init
 
-    def get_nav_menu(self):
-        if self.kwargs.get("pop"):
-            return None
 
-        return self.nav_menu
-
-    # Upon success most creation views will be redirected to the Individual List view. To send
-    # a successful creation view somewhere else, override this method
-    def get_success_url(self):
-        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:list_indv")
-
-        if self.kwargs.get("pop"):
-            # create views intended to be pop out windows should close the window upon success
-            success_url = reverse_lazy("shared_models:close_me_no_refresh")
-
-        return success_url
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-        return super().form_valid(form)
-
-
-class MortFormView(mixins.MortMixin, SiteLoginRequiredMixin, CommonFormView):
-    template_name = 'shared_models/shared_entry_form.html'
-
-    nav_menu = 'bio_diversity/bio_diversity_nav.html'
-    site_css = 'bio_diversity/bio_diversity.css'
-    home_url_name = "bio_diversity:index"
+class MortFormView(mixins.MortMixin, BioCommonFormView):
 
     def get_initial(self):
         init = super().get_initial()
-        init["created_by"] = self.request.user.username
-        init["created_date"] = date.today
         init["mort_date"] = date.today
         if self.kwargs.get("iorg") == "indv":
             init["indv_mort"] = self.kwargs.get("pk")
@@ -3024,37 +3026,8 @@ class MortFormView(mixins.MortMixin, SiteLoginRequiredMixin, CommonFormView):
             init["grp_mort"] = self.kwargs.get("pk")
         return init
 
-    def get_nav_menu(self):
-        if self.kwargs.get("pop"):
-            return None
 
-        return self.nav_menu
-
-    # Upon success most creation views will be redirected to the Individual List view. To send
-    # a successful creation view somewhere else, override this method
-    def get_success_url(self):
-        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:list_indv")
-
-        if self.kwargs.get("pop"):
-            # create views intended to be pop out windows should close the window upon success
-            success_url = reverse_lazy("shared_models:close_me_no_refresh")
-
-        return success_url
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-        return super().form_valid(form)
-
-
-class ReportFormView(mixins.ReportMixin, SiteLoginRequiredMixin, CommonFormView):
-    template_name = 'shared_models/shared_entry_form.html'
-
-    nav_menu = 'bio_diversity/bio_diversity_nav.html'
-    site_css = 'bio_diversity/bio_diversity.css'
-    home_url_name = "bio_diversity:index"
+class ReportFormView(mixins.ReportMixin, BioCommonFormView):
     h1 = _("Facility Reports")
 
     def get_context_data(self, **kwargs):

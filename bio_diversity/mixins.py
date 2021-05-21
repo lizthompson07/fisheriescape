@@ -21,6 +21,13 @@ class AnixMixin:
     admin_only = False
 
 
+class AddCollFishMixin:
+    key = "add_coll_fish"
+    form_class = forms.AddCollFishForm
+    title = _("Add Fish to Collection")
+    admin_only = False
+
+
 class AdscMixin:
     key = "adsc"
     form_class = forms.AdscForm

@@ -1,0 +1,15 @@
+{% extends "bio_diversity/bio_details.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block model_buttons %}
+    {% if coll_btn %}
+        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_fish_to_cont' object.pk 'pop'%}')" title="{% trans 'Add Collection' %}">{% trans 'Add Collection' %}</a>
+    {% endif %}
+{% endblock model_buttons %}
+
+
+

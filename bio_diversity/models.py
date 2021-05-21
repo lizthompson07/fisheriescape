@@ -391,6 +391,8 @@ class Count(BioModel):
     def date(self):
         if self.contx_id:
             return self.contx_id.evnt_id.start_date
+        if self.loc_id:
+            return self.loc_id.loc_date.date()
         else:
             return None
 

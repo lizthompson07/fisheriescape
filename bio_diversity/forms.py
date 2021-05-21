@@ -1,6 +1,7 @@
 import inspect
 from datetime import date, datetime
 
+import pandas as pd
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -9,7 +10,8 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
-from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser
+from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
+    ElectrofishingParser
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -129,6 +131,67 @@ class AnixForm(CreatePrams):
         widgets = {
             'final_contx_flag': forms.NullBooleanSelect()
         }
+
+
+class AddCollFishForm(forms.Form):
+    evnt_id = forms.ModelChoiceField(required=True, queryset=models.Event.objects.all(), label=_("Event"))
+    coll_date = forms.DateField(required=True, label=_("Collection Date"))
+    coll_time = forms.TimeField(required=False, label=_("Collection Time"))
+    rive_id = forms.ModelChoiceField(required=True, queryset=models.RiverCode.objects.all(), label=_("River"))
+    coll_id = forms.ModelChoiceField(required=True, queryset=models.Collection.objects.all(), label=_("Collection"))
+    grp_prog_id = forms.ModelChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Program Group"), label=_("Program Group"))
+    end_tank = forms.ModelChoiceField(required=True, queryset=models.Tank.objects.all(), label=_("Destination Pond"))
+    site_id = forms.ModelChoiceField(required=True, queryset=models.ReleaseSiteCode.objects.all(), label=_("Site"))
+    fish_caught = forms.IntegerField(required=True, max_value=1000000)
+    crew_id = forms.ModelChoiceField(required=True, queryset=models.PersonnelCode.objects.all(), label=_("Crew"))
+    created_date = forms.DateField(required=True)
+    created_by = forms.CharField(required=True, max_length=32)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        self.fields['evnt_id'].widget = forms.HiddenInput()
+        self.fields['coll_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-date"})
+        self.fields['coll_time'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-time"})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        parser = ElectrofishingParser(cleaned_data, autorun=False)
+        if cleaned_data["grp_prog_id"]:
+            prog_name = cleaned_data["grp_prog_id"].name
+        else:
+            prog_name = None
+        month_str = date(1900, cleaned_data["coll_date"].month, 1).strftime('%b')
+        data_dict = {parser.tank_key: cleaned_data["end_tank"].name,
+                     parser.year_key: str(cleaned_data["coll_date"].year),
+                     parser.month_key: month_str,
+                     parser.day_key: str(cleaned_data["coll_date"].day),
+                     # parser.time_key: cleaned_data["coll_time"],
+                     parser.rive_key: cleaned_data["rive_id"].name,
+                     parser.group_key: prog_name,
+                     parser.coll_key: cleaned_data["coll_id"].name,
+                     parser.site_key: cleaned_data["site_id"].name,
+                     parser.fish_caught_key: cleaned_data["fish_caught"],
+                     parser.crew_key: cleaned_data["crew_id"].initials,
+                     parser.lat_key: None,
+                     parser.end_lat: None,
+                     parser.lon_key: None,
+                     parser.end_lon: None,
+                     parser.temp_key: None,
+                     parser.fish_obs_key: None,
+                     parser.fishing_time_key: None,
+                     parser.voltage_key: None,
+                     parser.settings_key: None,
+                     parser.comment_key: None,
+                     }
+        cleaned_data["evntc_id"] = cleaned_data["evnt_id"].evntc_id
+        cleaned_data["facic_id"] = cleaned_data["evnt_id"].facic_id
+        parser.data = pd.DataFrame([data_dict])
+        parser.data_preper()
+        parser.iterate_rows()
 
 
 class AdscForm(CreatePrams):
