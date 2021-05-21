@@ -422,21 +422,23 @@ class Meeting(SimpleLookup, MetadataFields):
     process = models.ForeignKey(Process, related_name='meetings', on_delete=models.CASCADE, verbose_name=_("process"), editable=False)
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
-    # consider removing since this is redundant with process type!! maybe just a flag for a planning meeting
-    # type = models.IntegerField(choices=model_choices.meeting_type_choices, verbose_name=_("type of meeting"))
     is_planning = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a planning meeting?"))
     is_virtual = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("Is this a virtual meeting?"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"),
                                 help_text=_("City, State/Province, Country or Virtual"))
-
-    start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
-    end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
-    time_description_en = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("meeting times (en)"),
-                                help_text=_("e.g.: 9am to 4pm (Atlantic)"))
-    time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("meeting times (fr)"),
+    start_date = models.DateTimeField(verbose_name=_("initial activity date"), null=True)
+    end_date = models.DateTimeField(verbose_name=_("anticipated end date"), null=True)
+    is_estimate = models.BooleanField(default=False, choices=model_choices.yes_no_choices, verbose_name=_("The dates provided above are approximations"),
+                                      help_text=_("By selecting yes, the meeting date will be displayed in the 'quarter/year' format, e.g.: Summer 2024"))
+    time_description_en = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (en)"),
+                                           help_text=_("e.g.: 9am to 4pm (Atlantic)"))
+    time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (fr)"),
                                            help_text=_("p. ex. : 9h à 16h (Atlantique)"))
-    est_quarter = models.IntegerField(choices=model_choices.meeting_quarter_choices, verbose_name=_("estimated quarter"), blank=True, null=True)
-    est_year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("estimated year"))
+
+    # delete me
+    est_quarter = models.IntegerField(verbose_name=_("estimated quarter"), blank=True, null=True, editable=False)
+    # delete me
+    est_year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("estimated year"), editable=False)
 
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
@@ -445,19 +447,11 @@ class Meeting(SimpleLookup, MetadataFields):
                                     editable=False)
 
     def save(self, *args, **kwargs):
-        if self.start_date:
-            self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
-        else:
-            est_fy = self.est_year
-            if self.est_quarter != 4:
-                est_fy += 1
-            self.fiscal_year_id = est_fy
+        self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
 
         if self.is_virtual:
             self.location = 'Virtual / Virtuel'
-        if self.start_date:
-            self.est_quarter = get_quarter(self.start_date)
-            self.est_year = self.start_date.year
+
         super().save(*args, **kwargs)
 
     @property
@@ -494,9 +488,8 @@ class Meeting(SimpleLookup, MetadataFields):
 
     @property
     def display_dates(self):
-        start = date(self.start_date) if self.start_date else None
-        if start:
-            dates = f'{start}'
+        if not self.is_estimate:
+            dates = f'{date(self.start_date)}'
             if self.end_date and self.end_date != self.start_date:
                 end = date(self.end_date)
                 dates += f' &rarr; {end}'
@@ -504,12 +497,13 @@ class Meeting(SimpleLookup, MetadataFields):
             dates += f' ({days_display})'
             return dates
         else:
-            return f"{self.get_est_quarter_display()} {self.est_year}"
+            est_quarter = get_quarter(self.start_date)
+            return f"{est_quarter} {self.start_date.year}"
 
     @property
     def tor_display_dates(self):
-        start = date(self.start_date) if self.start_date else None
-        if start:
+        if not self.is_estimate:
+            start = date(self.start_date)
             lang = get_language()
             if lang == 'fr':
                 dates = f'Le {start}'
@@ -523,7 +517,8 @@ class Meeting(SimpleLookup, MetadataFields):
                     dates += f' to {end}'
             return dates
         else:
-            return f"{self.get_est_quarter_display()} {self.est_year}"
+            est_quarter = get_quarter(self.start_date)
+            return f"{est_quarter} {self.start_date.year}"
 
     @property
     def expected_publications_en(self):

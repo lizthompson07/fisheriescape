@@ -355,12 +355,14 @@ def get_person_field_list():
     return my_list
 
 
-def get_quarter(date):
+def get_quarter(date, as_int=False):
     if date.month in [1, 2, 3]:
-        return 4
+        quarter = 4 if as_int else _("Winter")
     elif date.month in [4, 5, 6]:
-        return 1
+        quarter = 1 if as_int else _("Spring")
     elif date.month in [7, 8, 9]:
-        return 2
+        quarter = 2 if as_int else _("Summer")
     else:
-        return 3
+        quarter = 3 if as_int else _("Fall")
+    return quarter
+

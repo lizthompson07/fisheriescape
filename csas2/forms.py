@@ -222,7 +222,6 @@ class ProcessForm(forms.ModelForm):
         required=False,
     )
 
-
     class Meta:
         model = models.Process
         fields = [
@@ -261,6 +260,7 @@ class ProcessForm(forms.ModelForm):
             self.fields["committee_members"].choices = person_choices
             self.fields["science_leads"].choices = person_choices
             self.fields["client_leads"].choices = person_choices
+            person_choices.insert(0, (None, "-----"))
             self.fields["chair"].choices = person_choices
 
     def clean(self):
@@ -297,38 +297,15 @@ class MeetingForm(forms.ModelForm):
         "is_virtual",
         "location",
         "date_range",
-        "est_quarter",
-        "est_year",
+        "is_estimate",
     ]
-    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Meeting dates"), required=False,
-                                 help_text=gettext_lazy("This can be left blank if not currently known"))
+    date_range = forms.CharField(widget=forms.TextInput(attrs=attr_fp_date_range), label=gettext_lazy("Meeting dates"), required=True,
+                                 help_text=gettext_lazy("You can provide an approximate date."))
 
     class Meta:
         model = models.Meeting
         exclude = ["start_date", "end_date"]
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # make sure that the lead_region is not also listed in the other_regions field
-        date_range = cleaned_data.get("date_range")
-        est_quarter = cleaned_data.get("est_quarter")
-        est_year = cleaned_data.get("est_year")
-
-        if not date_range and (not est_year or not est_quarter):
-            error_msg = gettext("Must enter either a date range OR an estimated quarter / year!")
-            raise forms.ValidationError(error_msg)
-        return self.cleaned_data
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        meeting_quarter_choices = (
-            (None, "-----"),
-            (1, gettext("Spring (April - June)")),
-            (2, gettext("Summer (July - September)")),
-            (3, gettext("Fall (October - December)")),
-            (4, gettext("Winter (January - March)")),
-        )
-        self.fields["est_quarter"].choices = meeting_quarter_choices
 
 
 class DocumentForm(forms.ModelForm):

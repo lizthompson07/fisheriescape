@@ -61,12 +61,13 @@ process_status_choices = (
 #     (3, _("Keystone")),
 # )
 
-meeting_quarter_choices = (
-    (1, _("Spring")),
-    (2, _("Summer")),
-    (3, _("Fall")),
-    (4, _("Winter")),
-)
+# meeting_quarter_choices = (
+#     (1, _("Spring")),
+#     (2, _("Summer")),
+#     (3, _("Fall")),
+#     (4, _("Winter")),
+# )
+#
 
 note_type_choices = (
     (1, 'General comment'),

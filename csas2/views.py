@@ -23,7 +23,7 @@ from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group, get_quarter
-
+from datetime import timedelta
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
@@ -502,13 +502,14 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
         # create the steering committee meeting if the user wants to...
         create_sc_meeting = form.cleaned_data.get("create_steering_committee_meeting")
         if create_sc_meeting:
+            future_date = timezone.now() + timedelta(days=14)
             meeting = models.Meeting.objects.create(
                 process=obj,
                 is_planning=True,
                 name="Steering committee meeting",
                 nom="Réunion du comité de pilotage",
-                est_year=timezone.now().year,
-                est_quarter=get_quarter(timezone.now()),
+                start_date=future_date,
+                end_date=future_date,
             )
             scm_roles = models.InviteeRole.objects.filter(category=3)
             if scm_roles.exists():
@@ -526,13 +527,14 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
         # create the keystone meeting if the user wants to...
         create_keystone_meeting = form.cleaned_data.get("create_keystone_meeting")
         if create_keystone_meeting:
+            future_date = timezone.now() + timedelta(days=90)
             meeting = models.Meeting.objects.create(
                 process=obj,
                 is_planning=False,
                 name="TBD",
                 nom="à déterminer",
-                est_year=timezone.now().year,
-                est_quarter=get_quarter(timezone.now()),
+                start_date=future_date,
+                end_date=future_date,
             )
             # since we know this is the keystone meeting, let's make the connections with the TOR
             models.TermsOfReference.objects.create(process=obj, meeting=meeting)
@@ -542,11 +544,11 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
             if science_lead_roles.exists():
                 science_leads = form.cleaned_data.get("science_leads")
                 for person in science_leads:
-                    invitee = models.Invitee.objects.create(
+                    invitee = models.Invitee.objects.get_or_create(
                         meeting=meeting,
                         person_id=person,
                         region=obj.lead_region,
-                    )
+                    )[0]
                     invitee.roles.add(science_lead_roles.first())
             else:
                 messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'science lead' role in the system."))
@@ -556,11 +558,11 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
             if client_lead_roles.exists():
                 client_leads = form.cleaned_data.get("client_leads")
                 for person in client_leads:
-                    invitee = models.Invitee.objects.create(
+                    invitee = models.Invitee.objects.get_or_create(
                         meeting=meeting,
                         person_id=person,
                         region=obj.lead_region,
-                    )
+                    )[0]
                     invitee.roles.add(client_lead_roles.first())
             else:
                 messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'client lead' role in the system."))
@@ -569,11 +571,11 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
             chair_roles = models.InviteeRole.objects.filter(category=1)
             if chair_roles.exists():
                 chair = form.cleaned_data.get("chair")
-                invitee = models.Invitee.objects.create(
+                invitee = models.Invitee.objects.get_or_create(
                     meeting=meeting,
                     person_id=chair,
                     region=obj.lead_region,
-                )
+                )[0]
                 invitee.roles.add(chair_roles.first())
             else:
                 messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'chair' role in the system."))
@@ -814,9 +816,6 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
-
-    def get_initial(self):
-        return dict(est_year=timezone.now().year, est_quarter=get_quarter(timezone.now()))
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}
