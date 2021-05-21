@@ -510,6 +510,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                 nom="Réunion du comité de pilotage",
                 start_date=future_date,
                 end_date=future_date,
+                is_estimate=True,
             )
             scm_roles = models.InviteeRole.objects.filter(category=3)
             if scm_roles.exists():
@@ -535,6 +536,7 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
                 nom="à déterminer",
                 start_date=future_date,
                 end_date=future_date,
+                is_estimate=True,
             )
             # since we know this is the keystone meeting, let's make the connections with the TOR
             models.TermsOfReference.objects.create(process=obj, meeting=meeting)
