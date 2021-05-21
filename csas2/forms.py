@@ -40,10 +40,10 @@ class TripRequestTimestampUpdateForm(forms.ModelForm):
     class Meta:
         model = models.CSASRequest
         fields = [
-            "notes",
+            "has_funding", # just a random field
         ]
         widgets = {
-            "notes": forms.HiddenInput()
+            "has_funding": forms.HiddenInput()
         }
 
 

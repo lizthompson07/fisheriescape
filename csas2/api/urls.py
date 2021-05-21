@@ -4,6 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'requests', views.CSASRequestViewSet)
+router.register(r'csas_request-notes', views.CSASRequestNoteViewSet)
 router.register(r'request-reviews', views.CSASRequestReviewViewSet)
 router.register(r'processes', views.ProcessViewSet)
 router.register(r'process-notes', views.ProcessNoteViewSet)

@@ -110,7 +110,6 @@ class CSASRequest(MetadataFields):
     prioritization = models.IntegerField(blank=True, null=True, verbose_name=_("How would you classify the prioritization of this request?"),
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
-    notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
     # non-editable fields
     status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
@@ -218,6 +217,12 @@ class CSASRequest(MetadataFields):
     @property
     def region(self):
         return self.section.division.branch.region.tname
+
+
+
+class CSASRequestNote(GenericNote):
+    ''' a note pertaining to a csas request'''
+    csas_request = models.ForeignKey(CSASRequest, related_name='notes', on_delete=models.CASCADE)
 
 
 class CSASRequestReview(MetadataFields):
@@ -435,16 +440,14 @@ class Meeting(SimpleLookup, MetadataFields):
     time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("description of meeting times (fr)"),
                                            help_text=_("p. ex. : 9h à 16h (Atlantique)"))
 
-    # delete me
-    est_quarter = models.IntegerField(verbose_name=_("estimated quarter"), blank=True, null=True, editable=False)
-    # delete me
-    est_year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("estimated year"), editable=False)
-
     # non-editable
     somp_notification_date = models.DateTimeField(blank=True, null=True, editable=False, verbose_name=_("CSAS office notified about SoMP"))
     # calculated
     fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("fiscal year"), related_name="meetings",
                                     editable=False)
+
+    class Meta:
+        ordering = ["start_date", _("name")]
 
     def save(self, *args, **kwargs):
         self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)

@@ -462,6 +462,22 @@ class DocumentNoteSerializer(serializers.ModelSerializer):
         return instance.get_type_display()
 
 
+class CSASRequestNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CSASRequestNote
+        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+
+    type_display = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+
+    def get_last_modified(self, instance):
+        return instance.last_modified
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
+
+
 class DocumentCostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.DocumentCost

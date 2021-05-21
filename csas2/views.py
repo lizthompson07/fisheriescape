@@ -788,7 +788,7 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
             Value(" "),
             'nom',
             output_field=TextField())
-        ).order_by("start_date")
+        ).order_by("start_date", _("name"))
         return qs
 
 
