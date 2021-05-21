@@ -1214,6 +1214,9 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "field_list": pair_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
+        context["heritage_set"] = self.object.get_parent_history()
+        context["heritage_field_list"] = ["Degrees Removed", "Group", "Date Removed"]
+
         indv_set = models.Individual.objects.filter(grp_id_id=self.object.pk)
         indv_field_list = ["pit_tag", "indv_valid"]
         obj_mixin = mixins.IndvMixin
@@ -1344,12 +1347,15 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                            "field_list": sire_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
+        context["heritage_set"] = self.object.get_parent_history()
+        context["heritage_field_list"] = ["Degrees Removed", "Group", "Date Removed"]
+
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
                                                           indvt_id__isnull=True, pair_id__isnull=True).select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
         context["cont_evnt_field_list"] = [
-            "Evnt",
+            "Event",
             "Date",
             "Direction"
             "Container",

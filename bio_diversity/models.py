@@ -907,6 +907,32 @@ class Group(BioModel):
 
         return dev
 
+    def get_parent_grp(self, at_date=utils.naive_to_aware(datetime.now())):
+        # gets parent groups this group came from.
+        grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
+                                           anidc_id__name="Parent Group",
+                                           frm_grp_id__isnull=False,
+                                           detail_date__lte=at_date,
+                                           ).select_related("frm_grp_id", "frm_grp_id__stok_id", "frm_grp_id__coll_id")
+        return grpd_set
+
+    def get_parent_history(self):
+        parent_grps = []
+        new_grpd_qs = []
+        grpd_qs = self.get_parent_grp()
+        depth = 1
+        while True:
+            for grpd in grpd_qs:
+                parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
+                new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
+            if new_grpd_qs:
+                grpd_qs = new_grpd_qs
+                depth += 1
+            else:
+                break
+
+        return parent_grps
+
     def prog_group(self):
         # gets program groups this group may be a part of.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
@@ -1142,6 +1168,12 @@ class Individual(BioModel):
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
         return current_cont_list
+
+    def get_parent_history(self):
+        parent_grps = [(0, self.grp_id, None)]
+        if self.grp_id:
+            parent_grps.extend(self.grp_id.get_parent_history())
+        return parent_grps
 
     def individual_detail(self, anidc_name="Length"):
         latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").first()
