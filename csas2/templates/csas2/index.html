@@ -34,9 +34,9 @@
             <div class="card-body">
               <h5 class="card-title"> {% trans "Requests" %} </h5>
               <p class="card-text">{% trans "Create modify or view the status of a CSAS Request" %}</p>
-              <a href="{% url 'csas2:request_list' %}?personalized=true" class="btn btn-warning">{% trans "My" %}</a>
-              <a href="{% url 'csas2:request_list' %}" class="btn btn-primary">{% trans "All" %}</a>
-              <a href="{% url 'csas2:request_new' %}" class="btn btn-success">{% trans "New" %}</a>
+              <a href="{% url 'csas2:request_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All requests" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
+              <a href="{% url 'csas2:request_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "Requests connected to you" %}"><span class="mdi mdi-heart"></span></a>
+              <a href="{% url 'csas2:request_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New request" %}"><span class="mdi mdi-plus text-light"></span></a>
             </div>
           </div>
         </div>
@@ -45,9 +45,9 @@
             <div class="card-body">
               <h5 class="card-title">{% trans "Processes" %}</h5>
               <p class="card-text">{% trans "Create modify or view the status of a CSAS Processes" %}</p>
-              <a href="{% url 'csas2:process_list' %}?personalized=true" class="btn btn-warning">{% trans "My" %}</a>
-              <a href="{% url 'csas2:process_list' %}" class="btn btn-primary">{% trans "All" %}</a>
-              <a href="{% url 'csas2:process_new' %}" class="btn btn-success">{% trans "New" %}</a>
+              <a href="{% url 'csas2:process_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All CSAS processes" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
+              <a href="{% url 'csas2:process_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "CSAS processes connected to you" %}"><span class="mdi mdi-heart"></span></a>
+              <a href="{% url 'csas2:request_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New process" %}"><span class="mdi mdi-plus text-light"></span></a>
             </div>
           </div>
         </div>
@@ -57,9 +57,8 @@
             <div class="card-body">
               <h5 class="card-title">{% trans "Documents" %}</h5>
               <p class="card-text">{% trans "Find a CSAS Document" %}</p>
-              <a href="{% url 'csas2:document_list' %}?personalized=true" class="btn btn-warning">{% trans "My" %}</a>
-              <a href="{% url 'csas2:document_list' %}" class="btn btn-primary">{% trans "All" %}</a>
-
+              <a href="{% url 'csas2:document_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All docuemnts" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
+              <a href="{% url 'csas2:document_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "CSAS documents connected to you" %}"><span class="mdi mdi-heart"></span></a>
             </div>
           </div>
         </div>
@@ -69,9 +68,8 @@
             <div class="card-body">
               <h5 class="card-title">{% trans "Meetings" %}</h5>
               <p class="card-text">{% trans "Find a CSAS Meeting" %}</p>
-              <a href="{% url 'csas2:meeting_list' %}?personalized=true" class="btn btn-warning">{% trans "My" %}</a>
-              <a href="{% url 'csas2:meeting_list' %}" class="btn btn-primary">{% trans "All" %}</a>
-
+              <a href="{% url 'csas2:meeting_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All meetings" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
+              <a href="{% url 'csas2:meeting_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "CSAS meetings connected to you" %}"><span class="mdi mdi-heart"></span></a>
             </div>
           </div>
         </div>

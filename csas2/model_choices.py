@@ -185,6 +185,8 @@ invitee_role_categories = (
     (2, 'client lead'),
     (3, 'steering committee member'),
     (4, 'science lead'),
+    (5, 'csas coordinator'),
+    (6, 'science advisor'),
 )
 
 cost_category_choices = (

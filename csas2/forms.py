@@ -185,7 +185,44 @@ class MeetingFileForm(forms.ModelForm):
         if meeting.is_planning:
             del self.fields["is_somp"]
 
+
 class ProcessForm(forms.ModelForm):
+    create_steering_committee_meeting = forms.BooleanField(
+        help_text=gettext_lazy("By checking this box, a draft steering committee meeting will be automatically created upon submitting this form."),
+        label=gettext_lazy("Create a placeholder steering committee meeting?"),
+        required=False,
+    )
+    committee_members = forms.MultipleChoiceField(
+        help_text=gettext_lazy("These individuals will be added as meeting invitees and tagged with the role of 'Steering Committee Member'."),
+        label=gettext_lazy("Steering committee members"),
+        widget=forms.SelectMultiple(attrs=chosen_js),
+        required=False,
+    )
+    create_keystone_meeting = forms.BooleanField(
+        help_text=gettext_lazy("By checking this box, a draft keystone meeting will be automatically created upon submitting this form."),
+        label=gettext_lazy("Create a placeholder keystone meeting?"),
+        required=False,
+    )
+    science_leads = forms.MultipleChoiceField(
+        help_text=gettext_lazy("These individuals will be added as meeting invitees and tagged with the role of 'Science Lead'."),
+        label=gettext_lazy("Science leads"),
+        widget=forms.SelectMultiple(attrs=chosen_js),
+        required=False,
+    )
+    client_leads = forms.MultipleChoiceField(
+        help_text=gettext_lazy("These individuals will be added as meeting invitees and tagged with the role of 'Client Lead'."),
+        label=gettext_lazy("Client leads"),
+        widget=forms.SelectMultiple(attrs=chosen_js),
+        required=False,
+    )
+    chair = forms.ChoiceField(
+        help_text=gettext_lazy("This individual will be added as a meeting invitee and tagged with the role of 'chair'."),
+        label=gettext_lazy("Chair"),
+        widget=forms.Select(attrs=chosen_js),
+        required=False,
+    )
+
+
     class Meta:
         model = models.Process
         fields = [
@@ -212,10 +249,19 @@ class ProcessForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {nz(obj.ref_number,'')} ({obj.fiscal_year})") for obj in
+        request_choices = [(obj.id, f"{obj.id} - {str(obj)} {nz(obj.ref_number, '')} ({obj.fiscal_year})") for obj in
                            models.CSASRequest.objects.filter(submission_date__isnull=False)]
         super().__init__(*args, **kwargs)
         self.fields["csas_requests"].choices = request_choices
+        if kwargs.get("instance"):
+            del self.fields["create_steering_committee_meeting"]
+            del self.fields["science_leads"]
+        else:
+            person_choices = [(p.id, f"{p} ({p.email})") for p in Person.objects.all()]
+            self.fields["committee_members"].choices = person_choices
+            self.fields["science_leads"].choices = person_choices
+            self.fields["client_leads"].choices = person_choices
+            self.fields["chair"].choices = person_choices
 
     def clean(self):
         cleaned_data = super().clean()

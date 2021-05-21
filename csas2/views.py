@@ -13,7 +13,6 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
-from django.views.generic import CreateView
 
 from lib.functions.custom_functions import fiscal_year, truncate
 from shared_models.models import Person, FiscalYear
@@ -479,7 +478,7 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
 class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     model = models.Process
     form_class = forms.ProcessForm
-    template_name = 'csas2/form.html'
+    template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     submit_text = gettext_lazy("Save")
@@ -499,6 +498,85 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
+        obj.save()
+        # create the steering committee meeting if the user wants to...
+        create_sc_meeting = form.cleaned_data.get("create_steering_committee_meeting")
+        if create_sc_meeting:
+            meeting = models.Meeting.objects.create(
+                process=obj,
+                is_planning=True,
+                name="Steering committee meeting",
+                nom="Réunion du comité de pilotage",
+                est_year=timezone.now().year,
+                est_quarter=get_quarter(timezone.now()),
+            )
+            scm_roles = models.InviteeRole.objects.filter(category=3)
+            if scm_roles.exists():
+                committee_members = form.cleaned_data.get("committee_members")
+                for person in committee_members:
+                    invitee = models.Invitee.objects.create(
+                        meeting=meeting,
+                        person_id=person,
+                        region=obj.lead_region,
+                    )
+                    invitee.roles.add(scm_roles.first())
+            else:
+                messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'steering committee member' role in the system."))
+
+        # create the keystone meeting if the user wants to...
+        create_keystone_meeting = form.cleaned_data.get("create_keystone_meeting")
+        if create_keystone_meeting:
+            meeting = models.Meeting.objects.create(
+                process=obj,
+                is_planning=False,
+                name="TBD",
+                nom="à déterminer",
+                est_year=timezone.now().year,
+                est_quarter=get_quarter(timezone.now()),
+            )
+            # since we know this is the keystone meeting, let's make the connections with the TOR
+            models.TermsOfReference.objects.create(process=obj, meeting=meeting)
+
+            # add the science leads
+            science_lead_roles = models.InviteeRole.objects.filter(category=4)
+            if science_lead_roles.exists():
+                science_leads = form.cleaned_data.get("science_leads")
+                for person in science_leads:
+                    invitee = models.Invitee.objects.create(
+                        meeting=meeting,
+                        person_id=person,
+                        region=obj.lead_region,
+                    )
+                    invitee.roles.add(science_lead_roles.first())
+            else:
+                messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'science lead' role in the system."))
+
+            # add the client leads
+            client_lead_roles = models.InviteeRole.objects.filter(category=2)
+            if client_lead_roles.exists():
+                client_leads = form.cleaned_data.get("client_leads")
+                for person in client_leads:
+                    invitee = models.Invitee.objects.create(
+                        meeting=meeting,
+                        person_id=person,
+                        region=obj.lead_region,
+                    )
+                    invitee.roles.add(client_lead_roles.first())
+            else:
+                messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'client lead' role in the system."))
+
+            # add the chair
+            chair_roles = models.InviteeRole.objects.filter(category=1)
+            if chair_roles.exists():
+                chair = form.cleaned_data.get("chair")
+                invitee = models.Invitee.objects.create(
+                    meeting=meeting,
+                    person_id=chair,
+                    region=obj.lead_region,
+                )
+                invitee.roles.add(chair_roles.first())
+            else:
+                messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'chair' role in the system."))
         return super().form_valid(form)
 
 

@@ -30,6 +30,8 @@
   var $is_deferred = $("#id_is_deferred");
   var $is_virtual = $("#id_is_virtual");
   var $date_range = $("#id_date_range");
+  var $steering_committee_meeting = $("#id_create_steering_committee_meeting");
+  var $keystone_meeting = $("#id_create_keystone_meeting");
 
   $(document).ready(function () {
     // Stuff to do as soon as the DOM is ready
@@ -39,6 +41,8 @@
     refreshDeferredSection();
     refreshVirtualSection();
     refreshDatesSection();
+    refreshCommitteeMeetingSection();
+    refreshKeystoneMeetingSection();
   });
 
   function refreshMultiregionalSection() {
@@ -93,6 +97,27 @@
     }
   }
 
+  function refreshCommitteeMeetingSection() {
+    if ($steering_committee_meeting.prop("checked")) {
+      $(".committee_members_div").removeClass("gone");
+    } else {
+      $(".committee_members_div").addClass("gone");
+    }
+  }
+
+  function refreshKeystoneMeetingSection() {
+    if ($keystone_meeting.prop("checked")) {
+      $(".science_leads_div").removeClass("gone");
+      $(".client_leads_div").removeClass("gone");
+      $(".chair_div").removeClass("gone");
+    } else {
+      $(".science_leads_div").addClass("gone");
+      $(".client_leads_div").addClass("gone");
+      $(".chair_div").addClass("gone");
+    }
+  }
+
+
   $is_multiregional.change(function () {
     refreshMultiregionalSection();
   })
@@ -117,6 +142,12 @@
   })
   $date_range.change(function () {
     refreshDatesSection();
+  })
+  $steering_committee_meeting.change(function () {
+    refreshCommitteeMeetingSection();
+  })
+  $keystone_meeting.change(function () {
+    refreshKeystoneMeetingSection();
   })
 
   </script>

@@ -431,10 +431,10 @@ class Meeting(SimpleLookup, MetadataFields):
 
     start_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
-    time_description_en = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("meeting times (en)"), default="9am to 4pm (Atlantic)",
-                                help_text=_("Make sure to include timezone"))
-    time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("meeting times (fr)"), default="9h à 16h (Atlantique)",
-                                           help_text=_("Make sure to include timezone"))
+    time_description_en = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("meeting times (en)"),
+                                help_text=_("e.g.: 9am to 4pm (Atlantic)"))
+    time_description_fr = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("meeting times (fr)"),
+                                           help_text=_("p. ex. : 9h à 16h (Atlantique)"))
     est_quarter = models.IntegerField(choices=model_choices.meeting_quarter_choices, verbose_name=_("estimated quarter"), blank=True, null=True)
     est_year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("estimated year"))
 
@@ -613,7 +613,6 @@ class Invitee(models.Model):
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name="meeting_invites", blank=True, null=True,
                                verbose_name=_("DFO Region (if applicable)"))
     roles = models.ManyToManyField(InviteeRole, verbose_name=_("Function(s)"))
-    # role = models.IntegerField(choices=model_choices.invitee_role_choices, verbose_name=_("Function"), default=1)
     status = models.IntegerField(choices=model_choices.invitee_status_choices, verbose_name=_("status"), default=0)
     invitation_sent_date = models.DateTimeField(verbose_name=_("date invitation was sent"), editable=False, blank=True, null=True)
     resources_received = models.ManyToManyField("MeetingResource", editable=False)
