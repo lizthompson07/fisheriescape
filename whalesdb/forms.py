@@ -252,11 +252,16 @@ class PrjForm(forms.ModelForm):
 
     class Meta:
         model = models.PrjProject
-        fields = ["name", "nom", "description_en", "description_fr", "prj_url"]
+        fields = ["name", "description_en", "prj_url"]
         widgets = {
             'description_en': forms.Textarea(attrs={"rows": 2}),
-            'description_fr': forms.Textarea(attrs={"rows": 2}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['name'].label = _("Project Name")
+        self.fields['description_en'].label = _("Description")
 
 
 class RciForm(forms.ModelForm):
