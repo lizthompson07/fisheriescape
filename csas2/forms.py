@@ -200,10 +200,12 @@ class ProcessForm(forms.ModelForm):
             'other_regions',
             'coordinator',
             'advisors',
+            'editors',
         ]
         widgets = {
             'csas_requests': forms.SelectMultiple(attrs=chosen_js),
             'advisors': forms.SelectMultiple(attrs=chosen_js),
+            'editors': forms.SelectMultiple(attrs=chosen_js),
             'coordinator': forms.Select(attrs=chosen_js),
             'lead_region': forms.Select(attrs=chosen_js),
             'other_regions': forms.SelectMultiple(attrs=chosen_js),

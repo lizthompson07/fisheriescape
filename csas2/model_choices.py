@@ -181,9 +181,10 @@ invitee_status_choices = (
 )
 
 invitee_role_categories = (
-    (1, 'client lead'),
-    (2, 'steering committee member'),
-    (3, 'science lead'),
+    (1, 'chair'),
+    (2, 'client lead'),
+    (3, 'steering committee member'),
+    (4, 'science lead'),
 )
 
 cost_category_choices = (

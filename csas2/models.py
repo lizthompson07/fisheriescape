@@ -278,6 +278,8 @@ class Process(SimpleLookupWithUUID, MetadataFields):
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_coordinator_processes", verbose_name=_("Lead coordinator"),
                                     blank=True)
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("DFO Science advisors"))
+    editors = models.ManyToManyField(User, blank=True, verbose_name=_("process editors"), related_name="process_editors",
+                                     help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
 
     # non-editable
     is_posted = models.BooleanField(default=False, verbose_name=_("is posted on CSAS website?"))
@@ -322,6 +324,35 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         if hasattr(self, "tor") and self.tor.meeting:
             return self.tor.meeting.chair
 
+    @property
+    def client_sectors(self):
+        return listrify(set([r.section for r in self.csas_requests.all()]))
+
+    @property
+    def science_leads(self):
+        qs = Invitee.objects.filter(meeting__process=self, roles__category=4).distinct()
+        if qs.exists():
+            return listrify([f"{invitee.person}" for invitee in qs])
+
+    @property
+    def client_leads(self):
+        qs = Invitee.objects.filter(meeting__process=self, roles__category=2).distinct()
+        if qs.exists():
+            return listrify([f"{invitee.person}" for invitee in qs])
+
+    @property
+    def committee_members(self):
+        qs = Invitee.objects.filter(meeting__process=self, roles__category=3).distinct()
+        if qs.exists():
+            return listrify([f"{invitee.person}" for invitee in qs])
+
+    @property
+    def regions(self):
+        mystr = self.lead_region
+        if self.other_regions.exists():
+            mystr = f"<u>{mystr}</u>"
+            mystr += f", {listrify(self.other_regions.all())}"
+        return mystr
 
 class TermsOfReference(MetadataFields):
     process = models.OneToOneField(Process, on_delete=models.CASCADE, related_name="tor", editable=False)
@@ -514,8 +545,7 @@ class Meeting(SimpleLookup, MetadataFields):
 
     @property
     def chair(self):
-        chair_role = InviteeRole.objects.get(name__icontains="chair")
-        qs = self.invitees.filter(roles=chair_role).distinct()
+        qs = self.invitees.filter(roles__category=1).distinct()
         if qs.exists():
             return listrify([f"{invitee.person} ({invitee.person.affiliation})" for invitee in qs])
 
@@ -556,7 +586,6 @@ class MeetingFile(GenericFile):
 
 class InviteeRole(SimpleLookup):
     category = models.IntegerField(null=True, blank=True, choices=model_choices.invitee_role_categories, verbose_name=_("special category"))
-
 
 
 class Invitee(models.Model):

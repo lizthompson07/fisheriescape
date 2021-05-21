@@ -429,10 +429,10 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'tname|{}'.format("title"), "class": "", "width": "300px"},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
-        {"name": 'lead_region', "class": "", "width": ""},
-        {"name": 'other_regions', "class": "", "width": ""},
+        {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'advisors|{}'.format(_("science advisors")), "class": "", "width": ""},
+        {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
     ]
 
     def get_queryset(self):
