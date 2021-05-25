@@ -419,7 +419,7 @@ class Incident(LatLongFields):
             properties=dict(
                 name=self.name,
                 pk=self.pk,
-                type=str(self.get_incident_type_display()), #if this is not filled in this method fails though, need to make separate one for error handling
+                type=str(self.get_incident_type_display()), #if this is not filled in this method fails though, need to make separate one for error handling, seems to work making it a string
                 species=self.species.name,
                 date=str(self.first_report),
             ),
