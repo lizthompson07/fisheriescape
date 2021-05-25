@@ -336,21 +336,21 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def science_leads(self):
-        qs = Invitee.objects.filter(meeting__process=self, roles__category=4).distinct()
+        qs = Person.objects.filter(meeting_invites__meeting__process=self, meeting_invites__roles__category=4).distinct()
         if qs.exists():
-            return listrify([f"{invitee.person}" for invitee in qs])
+            return listrify([f"{person}" for person in qs])
 
     @property
     def client_leads(self):
-        qs = Invitee.objects.filter(meeting__process=self, roles__category=2).distinct()
+        qs = Person.objects.filter(meeting_invites__meeting__process=self, meeting_invites__roles__category=2).distinct()
         if qs.exists():
-            return listrify([f"{invitee.person}" for invitee in qs])
+            return listrify([f"{person}" for person in qs])
 
     @property
     def committee_members(self):
-        qs = Invitee.objects.filter(meeting__process=self, roles__category=3).distinct()
+        qs = Person.objects.filter(meeting_invites__meeting__process=self, meeting_invites__roles__category=3).distinct()
         if qs.exists():
-            return listrify([f"{invitee.person}" for invitee in qs])
+            return listrify([f"{person}" for person in qs])
 
     @property
     def regions(self):
