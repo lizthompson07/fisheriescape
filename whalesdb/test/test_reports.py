@@ -1,6 +1,7 @@
 import datetime
 import csv as csv_reader
 from django.test import TestCase, tag
+from django.http import QueryDict
 from . import WhalesdbFactoryFloor as whale_factory
 from .. import models
 from .. import reports
@@ -9,8 +10,8 @@ from .. import reports
 class TestDepSummary(TestCase):
     fixtures = ['initial_whale_data.json', 'institute.json']
 
-    EXPECTED_HEADER = ['EDA_ID', 'Year', 'Month', 'Deployment', 'Station', 'Latitude', 'Longitude', 'Depth_m',
-                       'Equipment make_model_serial', 'Hydrophone make_model_serial', 'Dataset timezone',
+    EXPECTED_HEADER = ['EDA_ID', 'Year', 'Month', 'Deployment', 'Station', "Project", 'Latitude', 'Longitude',
+                       'Depth_m', 'Equipment make_model_serial', 'Hydrophone make_model_serial', 'Dataset timezone',
                        'Recording schedule', 'In-water_start', 'In-water_end', 'Dataset notes']
 
     EXPECTED_COUNT_2014 = 3
@@ -20,8 +21,10 @@ class TestDepSummary(TestCase):
     EXPECTED_YEAR_COL = 1
     EXPECTED_MONTH_COL = 2
     EXPECTED_STATION_COL = 4
+    EXPECTED_PROJECT_COL = 5
 
     EXPECTED_STATION_PK = -1
+    EXPECTED_PROJECT_PK = -1
 
     def setUp(self):
         super().setUp()
@@ -38,8 +41,13 @@ class TestDepSummary(TestCase):
 
         # added a station specifically for querying something that wasn't randomly created
         stn = whale_factory.StnFactory.create(stn_name="Test Station", stn_code="TST", stn_revision=1)
+
+        # added a project specifically for querying something that wasn't randomly created
+        prj = whale_factory.PrjFactory.create(name="Test project", description_en="Some Project", prj_url="http://test.com")
+
         self.EXPECTED_STATION_PK = stn.pk
-        whale_factory.DepFactory.create(stn=stn, dep_year=2014)
+        self.EXPECTED_PROJECT_PK = prj.pk
+        whale_factory.DepFactory.create(stn=stn, prj=prj, dep_year=2014)
 
         dep_objs = models.DepDeployment.objects.all()
 
@@ -54,7 +62,7 @@ class TestDepSummary(TestCase):
 
     # test that all data objects are returned in the csv
     def test_response_no_prams(self):
-        lst = {}
+        lst = QueryDict()
         response = reports.report_deployment_summary(lst)
 
         self.assertIsNotNone(response)
@@ -87,9 +95,9 @@ class TestDepSummary(TestCase):
         self.assertEqual(c_2013, self.EXPECTED_COUNT_2013)
         self.assertEqual(c_2014, self.EXPECTED_COUNT_2014)
 
-    # test that a year filter can be applied to the data objects returned in the csv
-    def test_response_year_query(self):
-        lst = {'year': 2014}
+    # test that a start_date filter can be applied to the data objects returned in the csv
+    def test_response_start_date_query(self):
+        lst = QueryDict('start_date=2014-01-01')
         response = reports.report_deployment_summary(lst)
 
         self.assertIsNotNone(response)
@@ -108,11 +116,12 @@ class TestDepSummary(TestCase):
             else:
                 self.fail("Unexpeted year '{}' found in data".format(cur))
 
+        # we should only have objects that were entered for or after the year 2014
         self.assertEqual(c_2014, self.EXPECTED_COUNT_2014)
 
-    # test that a year filter can be applied to the data objects returned in the csv
-    def test_response_month_query(self):
-        lst = {'month': 13}
+    # test that an end_date filter can be applied to the data objects returned in the csv
+    def test_response_end_date_query(self):
+        lst = QueryDict('end_date=2013-12-31')
         response = reports.report_deployment_summary(lst)
 
         self.assertIsNotNone(response)
@@ -120,17 +129,22 @@ class TestDepSummary(TestCase):
         csv = csv_reader.reader(response.content.decode('utf-8').splitlines(), delimiter=',')
         header = next(csv, None)
         # only month 13 deployments should be returned
-        res_count = 0
+        row_count = 0
+        cur = -1
         for line in csv:
-            month = line[self.EXPECTED_MONTH_COL]
-            self.assertEqual(int(month), 13)
-            res_count += 1
+            # element 2 of the csv should be the year
+            cur = line[self.EXPECTED_YEAR_COL] if cur == -1 or line[self.EXPECTED_YEAR_COL] <= cur else \
+                self.fail('Elements are not sorted')
+            if int(cur) == 2014:
+                self.fail("Unexpeted year '{}' found in data".format(cur))
+            else:
+                row_count += 1
 
-        self.assertEqual(res_count, 1)
+        self.assertEqual(row_count, (self.EXPECTED_COUNT_2012 + self.EXPECTED_COUNT_2013))
 
     # test that a station filter can be applied to the data objects returned in the csv
     def test_response_stn_query(self):
-        lst = {'station': self.EXPECTED_STATION_PK}
+        lst = QueryDict(f'station={self.EXPECTED_STATION_PK}')
         response = reports.report_deployment_summary(lst)
 
         self.assertIsNotNone(response)
@@ -143,6 +157,25 @@ class TestDepSummary(TestCase):
         for line in csv:
             stn = line[self.EXPECTED_STATION_COL]
             self.assertEqual(stn, str(expected_station))
+            res_count += 1
+
+        self.assertEqual(res_count, 1)
+
+    # test that a Project filter can be applied to the data objects returned in the csv
+    def test_response_prj_query(self):
+        lst = QueryDict(f'project={self.EXPECTED_PROJECT_PK}')
+        response = reports.report_deployment_summary(lst)
+
+        self.assertIsNotNone(response)
+
+        expected_project = models.PrjProject.objects.get(pk=self.EXPECTED_PROJECT_PK)
+        csv = csv_reader.reader(response.content.decode('utf-8').splitlines(), delimiter=',')
+        header = next(csv, None)
+        # only month 13 deployments should be returned
+        res_count = 0
+        for line in csv:
+            stn = line[self.EXPECTED_PROJECT_COL]
+            self.assertEqual(stn, str(expected_project))
             res_count += 1
 
         self.assertEqual(res_count, 1)

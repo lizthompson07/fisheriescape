@@ -40,20 +40,23 @@
 {{ block.super }}
   <script>
       function hideAll() {
-    $(".year_div").addClass("gone");
-    $(".month_div").addClass("gone");
+    $(".start_date_div").addClass("gone");
+    $(".end_date_div").addClass("gone");
     $(".station_div").addClass("gone");
-    $("#id_year").prop("required", false);
-    $("#id_month").prop("required", false);
+    $(".project_div").addClass("gone");
+    $("#id_start_date").prop("required", false);
+    $("#id_end_date").prop("required", false);
     $("#id_station").prop("required", false);
+    $("#id_project").prop("required", false);
   }
 
   function configureForm() {
     var reportChoice = $("#id_report")[0].value;
     if (reportChoice == "1") {
-      $(".year_div").removeClass("gone");
-      $(".month_div").removeClass("gone");
+      $(".start_date_div").removeClass("gone");
+      $(".end_date_div").removeClass("gone");
       $(".station_div").removeClass("gone");
+      $(".project_div").removeClass("gone");
     }
   }
 
