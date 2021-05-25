@@ -12,6 +12,9 @@
         <a class="btn btn-primary disabled" href="#" onclick="return pop('{% url 'bio_diversity:create_mort' 'indv' object.pk  'pop'%}')" title="{% trans 'Record Mortality' %}">{% trans 'Record Mortality' %}</a>
     {% endif %}
     <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_growth' 'indv' object.pk  'pop'%}')" title="{% trans 'Plot Growth Chart' %}">{% trans 'Plot Growth Chart' %}</a>
+    {% if report_url %}
+        <a class="btn btn-primary" href={{report_url}} title="{% trans 'Create Individual Report' %}">{% trans 'Create Individual Report' %}</a>
+    {% endif %}
 {% endblock model_buttons %}
 
 

@@ -279,18 +279,19 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
 
-            if evntc.__str__() in ["Egg Development", "Measuring", "Maturity Sorting", "Distribution"]:
+            if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
-                if evntc.__str__() == "Egg Development":
-                    data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
-                elif evntc.__str__() in ["Measuring", "Maturity Sorting", "Distribution"]:
-                    data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
+                data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
-            else:
+            elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+            else:
+                self.get_form_class().base_fields["data_type"].required = True
+                data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
+                self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
         return init
 
     def get_context_data(self, **kwargs):
@@ -962,7 +963,7 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
-    template_name =  'bio_diversity/details_evnt.html'
+    template_name = 'bio_diversity/details_evnt.html'
     fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "start_date|Start Date", "start_time|Start Time",
               "end_date|End Date", "end_time|End Time", "comments", "created_by", "created_date", ]
 
@@ -1066,26 +1067,9 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
 
         evnt_code = self.object.evntc_id.__str__()
         if evnt_code == "Electrofishing" or evnt_code == "Bypass Collection" or evnt_code == "Smolt Wheel Collection":
-            context["table_list"].extend(["data", "team", "loc", "grp", "tank", "prot", "evntf"])
             context["coll_btn"] = True
-        elif evnt_code == "PIT Tagging":
-            context["table_list"].extend(["data", "team", "indv", "grp", "tank", "prot", "evntf"])
-        elif evnt_code == "Egg Development":
-            context["table_list"].extend(["data", "team", "grp", "trof", "heat", "prot", "evntf"])
-        elif evnt_code == "Maturity Sorting":
-            context["table_list"].extend(["data", "team", "indv", "grp", "tank", "prot", "evntf"])
-        elif evnt_code == "Water Quality Record":
-            context["table_list"].extend(["data", "team", "tank", "prot", "evntf"])
-        elif evnt_code == "Spawning":
-            context["table_list"].extend(["data", "team", "indv", "pair", "grp", "evntf", "prot", "evntf"])
-        elif evnt_code == "Treatment":
-            context["table_list"].extend(["data", "team", "tank", "trof", "prot", "evntf"])
-        elif evnt_code == "Movement":
-            context["table_list"].extend(["indv", "team", "grp", "tank", "trof", "prot", "evntf"])
-        elif evnt_code == "Mortality":
-            context["table_list"].extend(["indv", "team", "grp", "evntf"])
-        else:
-            context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf", "prot"])
+
+        context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf", "prot"])
 
         return context
 
@@ -1366,6 +1350,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context["calculated_properties"]["Length (cm)"] = self.object.individual_detail("Length")
         context["calculated_properties"]["Weight (g)"] = self.object.individual_detail("Weight")
         context["calculated_properties"]["Gender"] = self.object.individual_detail("Gender")
+
+        context["report_url"] = reverse("bio_diversity:individual_report_file") + f"?indv_pk={self.object.pk}"
         return context
 
 
@@ -3115,6 +3101,20 @@ def site_report_file(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="site_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
+    raise Http404
+
+
+@login_required()
+def indvidual_report_file(request):
+    indv_pk = request.GET.get("indv_pk")
+    indv_id = models.Individual.objects.filter(pk=indv_pk).get()
+    if indv_id:
+        file_url = reports.generate_individual_report(indv_id)
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="individual_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+                return response
     raise Http404
 
 

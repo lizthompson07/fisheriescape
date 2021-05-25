@@ -11,7 +11,7 @@ from bokeh.plotting import figure
 from bokeh.resources import CDN
 from django.db.models.functions import Concat
 from openpyxl import load_workbook
-from bio_diversity import models
+from bio_diversity import models, utils
 from dm_apps import settings
 
 
@@ -129,7 +129,6 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
 
 
 def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
-    # report is given a stock code and returns location of all associated fish
     if not start_date:
         start_date = datetime.min.replace(tzinfo=pytz.UTC)
     if not end_date:
@@ -191,6 +190,77 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
                 ws_indv[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
                 cnt_col += 2
             row_count += 1
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
+def generate_individual_report(indv_id):
+
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
+                                      "individual_report_template.xlsx")
+
+    wb = load_workbook(filename=template_file_path)
+    ws_evnt = wb['Event History']
+    ws_hist = wb['Heritage']
+    ws_cont = wb['Containers']
+    ws_treat = wb['Treatments']
+    # -----------------Heritage Sheet---------------
+    prnt_grp_set = indv_id.get_parent_history()
+    row_count = 5
+    true_false_dict = {True: "Yes", False: "No"}
+    for grp_tuple in prnt_grp_set:
+        grp_id = grp_tuple[1]
+        conts = ', '.join([cont.__str__() for cont in grp_id.current_cont()])
+        ws_hist['A' + str(row_count)].value = grp_tuple[2]
+        ws_hist['B' + str(row_count)].value = grp_tuple[0]
+        ws_hist['C' + str(row_count)].value = grp_id.__str__()
+        ws_hist['D' + str(row_count)].value = true_false_dict[grp_id.grp_valid]
+        ws_hist['E' + str(row_count)].value = conts
+        row_count += 1
+
+
+    # -----------Events Sheet------------------
+    # put in start and end dates
+    ws_evnt['B2'].value = datetime.today().date()
+    ws_evnt['B3'].value = indv_id.animal_details.first().evnt_id.facic_id.name
+    ws_evnt['E2'].value = indv_id.__str__()
+    ws_evnt['E3'].value = indv_id.pit_tag
+
+    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
+                                                  indvt_id__isnull=True, pair_id__isnull=True) \
+        .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
+    evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
+
+    row_count = 6
+    for evnt in evnt_list:
+        ws_evnt['A' + str(row_count)].value = evnt.start_date
+        ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
+        ws_evnt['C' + str(row_count)].value = ""
+        ws_evnt['D' + str(row_count)].value = indv_id.current_cont(at_date=evnt.start_date)[0].name
+        row_count += 1
+
+
+    #-----------------Container Sheet------------------------
+    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                  indvt_id__isnull=True, pair_id__isnull=True).select_related(
+        'contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
+    contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+    cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+    row_count = 5
+    for cont_evnt in cont_evnt_list:
+        ws_cont['A' + str(row_count)].value = cont_evnt[1]
+        ws_cont['B' + str(row_count)].value = cont_evnt[0]
+        ws_cont['C' + str(row_count)].value = cont_evnt[3]
+        ws_cont['D' + str(row_count)].value = cont_evnt[2]
+        row_count += 1
 
     wb.save(target_file_path)
 

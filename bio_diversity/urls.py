@@ -376,6 +376,7 @@ urlpatterns = [
     path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
     path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
     path('reports/site_report_file/', views.site_report_file, name="site_report_file"),
+    path('reports/individual_report_file/', views.indvidual_report_file, name="individual_report_file"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
