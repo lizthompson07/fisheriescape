@@ -685,6 +685,9 @@ class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
     form_class = forms.TripForm
     home_url_name = "travel:index"
 
+    def get_initial(self):
+        return dict(is_adm_approval_required=None)
+
     def get_template_names(self):
         return 'travel/trip_form_popout.html' if self.request.GET.get("pop") else 'travel/trip_form.html'
 

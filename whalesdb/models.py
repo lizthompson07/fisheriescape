@@ -59,6 +59,27 @@ class EccCalibrationValue(models.Model):
     ecc_frequency = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Frequency"))
     ecc_sensitivity = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Sensitivity"))
 
+    def __str__(self):
+        return f"{self.ecc_frequency} - {self.ecc_sensitivity}"
+
+
+class EcpChannelProperty(models.Model):
+    eqr = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"),
+                            related_name="channels")
+    ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
+    eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', on_delete=models.DO_NOTHING, db_column='eqa_adc_bits',
+                                     verbose_name=_("ADC Bits"))
+    ecp_voltage_range_min = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
+                                                verbose_name=_("Maximum voltage"))
+    ecp_voltage_range_max = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
+                                                verbose_name=_("Minimum voltage"))
+
+    class Meta:
+        unique_together = (('ecp_channel_no', 'eqr'),)
+
+    def __str__(self):
+        return "{}: {}".format(_("Channel"), self.ecp_channel_no)
+
 
 class EdaEquipmentAttachment(models.Model):
     eqp = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING, verbose_name=_("Equipment"),
@@ -84,24 +105,6 @@ class EmmMakeModel(models.Model):
         return "{} {}".format(self.emm_make, self.emm_model)
 
 
-class EcpChannelProperty(models.Model):
-    eqr = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"),
-                            related_name="channels")
-    ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
-    eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', on_delete=models.DO_NOTHING, db_column='eqa_adc_bits',
-                                     verbose_name=_("ADC Bits"))
-    ecp_voltage_range_min = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
-                                                verbose_name=_("Maximum voltage"))
-    ecp_voltage_range_max = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True,
-                                                verbose_name=_("Minimum voltage"))
-
-    class Meta:
-        unique_together = (('ecp_channel_no', 'eqr'),)
-
-    def __str__(self):
-        return "{}: {}".format(_("Channel"), self.ecp_channel_no)
-
-
 class EheHydrophoneEvent(models.Model):
     ehe_date = models.DateField(verbose_name=_("Attachment Date"))
 
@@ -117,6 +120,9 @@ class EheHydrophoneEvent(models.Model):
 
     class Meta:
         ordering = ["ehe_date", "pk"]
+
+    def __str__(self):
+        return f"{self.ecp_channel_no} : {self.ehe_date}"
 
 
 class EprEquipmentParameter(models.Model):
@@ -198,6 +204,9 @@ class EtrTechnicalRepairEvent(models.Model):
     etr_dep_affe = models.TextField(blank=True, null=True, verbose_name=_("Deployment(s) Affected"))
     etr_rec_affe = models.BooleanField(default=False, verbose_name=_("Has a Recording been Affected"))
 
+    def __str__(self):
+        return f"{self.eqp} - {self.etr_date} : {self.etr_issue_desc}"
+
 
 class PrmParameterCode(shared_models.Lookup):
     name = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Parameter Code"))
@@ -277,13 +286,14 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 class PrjProject(shared_models.Lookup):
     name = models.CharField(unique=True, max_length=255, verbose_name=_("Name"))
     prj_url = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("URL"))
+    lead = models.CharField(max_length=255, verbose_name=_('Project Lead/PI'))
 
 
 class SetStationEventCode(shared_models.Lookup):
     name = models.CharField(unique=True, max_length=50, verbose_name=_("Type"))
 
     def __str__(self):
-        return "{} - {}".format(self.tname, self.tdescription)
+        return f"{self.tname} - {self.tdescription}"
 
 
 class SteStationEvent(models.Model):
@@ -310,7 +320,7 @@ class SteStationEvent(models.Model):
     ste_lon_mcal = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True,
                                        verbose_name=_("MCAL Longitude"))
     ste_depth_mcal = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True,
-                                         verbose_name=_("MCAL Depth"))
+                                         verbose_name=_("MCAL Depth (m)"))
     ste_team = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Team"))
     ste_instrument_cond = models.CharField(max_length=4000, blank=True, null=True,
                                            verbose_name=_("Instrument Condition"))
@@ -318,6 +328,8 @@ class SteStationEvent(models.Model):
     ste_logs = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Log Location"))
     ste_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Notes"))
 
+    def __str__(self):
+        return f"{self.dep} : {self.set_type.tname} - {self.ste_date}"
 
 class StnStation(models.Model):
     stn_name = models.CharField(max_length=100, verbose_name=_("Name"))
@@ -340,7 +352,7 @@ class StnStation(models.Model):
         if stlist[0][0] == self.stn_revision:
             current = "Current"
 
-        return "{}: {} Revision {} ({})".format(self.stn_code, self.stn_name, self.stn_revision, current)
+        return f"{self.stn_code}: {self.stn_name} Revision {self.stn_revision} ({current})"
 
 
 class RciChannelInfo(models.Model):
@@ -349,7 +361,10 @@ class RciChannelInfo(models.Model):
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
     rci_gain = models.IntegerField(blank=True, null=True, verbose_name=_("Gain"))
-    rci_volts = models.DecimalField(max_digits=14, decimal_places=10, blank=True, null=True, verbose_name=_("Voltage"))
+    rci_volts = models.DecimalField(max_digits=22, decimal_places=20, blank=True, null=True, verbose_name=_("Volts per bit"))
+
+    def __str__(self):
+        return f'{self.rec_id} - {self.rci_name}'
 
 
 class RecDataset(models.Model):
@@ -385,6 +400,9 @@ class ReeRecordingEvent(models.Model):
                                verbose_name=_("Team Member"))
     ree_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
+    def __str__(self):
+        return f'{self.rec_id} - {self.ret_id} - {self.ree_date}'
+
 
 class RetRecordingEventType(models.Model):
     ret_name = models.CharField(max_length=50, verbose_name=_("Name"))
@@ -394,7 +412,7 @@ class RetRecordingEventType(models.Model):
         ordering = ('ret_name',)
 
     def __str__(self):
-        return "{} : {}".format(self.ret_name, self.ret_desc)
+        return f"{self.ret_name} : {self.ret_desc}"
 
 
 class RscRecordingSchedule(models.Model):
@@ -405,7 +423,7 @@ class RscRecordingSchedule(models.Model):
         ordering = ('rsc_name',)
 
     def __str__(self):
-        return "{} : {}".format(self.rsc_name, self.rsc_period)
+        return f"{self.rsc_name} : {self.rsc_period}"
 
 
 class RstRecordingStage(models.Model):
@@ -414,6 +432,9 @@ class RstRecordingStage(models.Model):
     rst_active = models.CharField(max_length=1, verbose_name=_("(A)ctive or (S)leep"))
     rst_duration = models.BigIntegerField(verbose_name=_("Duration"))
     rst_rate = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True, verbose_name=_("Rate (Hz)"))
+
+    def __str__(self):
+        return f"{self.rsc} - {self.rst_channel_no}"
 
 
 class RttTimezoneCode(models.Model):
@@ -425,7 +446,7 @@ class RttTimezoneCode(models.Model):
         ordering = ('rtt_offset', )
 
     def __str__(self):
-        return "{}".format(self.rtt_abb)
+        return f"{self.rtt_abb}"
 
 
 class TeaTeamMember(models.Model):
@@ -438,7 +459,7 @@ class TeaTeamMember(models.Model):
         ordering = ('tea_last_name', 'tea_first_name')
 
     def __str__(self):
-        return "{}, {} ({})".format(self.tea_last_name, self.tea_first_name, self.tea_abb)
+        return f"{self.tea_last_name}, {self.tea_first_name} ({self.tea_abb})"
 
 
 # This is a special table used to house application help text

@@ -1,7 +1,7 @@
 from gettext import gettext as _
 
 from django.db.models import Q
-from django.template.defaultfilters import date, pluralize
+from django.template.defaultfilters import date, pluralize, slugify
 from django.urls import reverse
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from lib.functions.custom_functions import truncate
 from shared_models.api.serializers import RegionSerializer, DivisionSerializer, SectionSerializer
 from shared_models.api.views import CurrentUserAPIView, FiscalYearListAPIView
 from shared_models.models import FiscalYear, Region, Division, Section, Organization
@@ -360,9 +361,26 @@ class FileViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
+        if self.request.FILES.get("file"):
+            filename = self.request.FILES["file"].name
+            suffix = ""
+            if len(filename.split(".") > 1):
+                suffix = f'.{filename.split(".")[-1]}'
+                filename = filename.split(".")[0]
+            filename = truncate(slugify(filename), 20, False)
+            self.request.FILES["file"].name = f"{filename}{suffix}"
         serializer.save()
 
     def perform_update(self, serializer):
+        if self.request.FILES.get("file"):
+            filename = self.request.FILES["file"].name
+            suffix = ""
+            if len(filename.split(".")) > 1:
+                suffix = f'.{filename.split(".")[-1]}'
+                filename = filename.split(".")[0]
+            filename = truncate(slugify(filename), 20, False)
+            self.request.FILES["file"].name = f"{filename}{suffix}"
+            print(self.request.FILES["file"].name)
         serializer.save(updated_by=self.request.user)
 
 

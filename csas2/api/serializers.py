@@ -364,6 +364,10 @@ class MeetingSerializer(serializers.ModelSerializer):
     somp_notification_date = serializers.SerializerMethodField()
     is_posted = serializers.SerializerMethodField()
     has_tor = serializers.SerializerMethodField()
+    ttime = serializers.SerializerMethodField()
+
+    def get_ttime(self, instance):
+        return instance.ttime
 
     def get_has_tor(self, instance):
         return hasattr(instance, "tor")
@@ -456,6 +460,22 @@ class DocumentNoteSerializer(serializers.ModelSerializer):
 
     def get_type_display(self, instance):
         return instance.get_type_display()
+
+
+class CSASRequestNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CSASRequestNote
+        exclude = ["updated_at", "created_at"]  # "slug", 'author'
+
+    type_display = serializers.SerializerMethodField()
+    last_modified = serializers.SerializerMethodField()
+
+    def get_last_modified(self, instance):
+        return instance.last_modified
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
 
 
 class DocumentCostSerializer(serializers.ModelSerializer):
@@ -567,6 +587,7 @@ class ProcessSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     advisors = serializers.SerializerMethodField()
+    editors = serializers.SerializerMethodField()
     chair = serializers.SerializerMethodField()
     coordinator = serializers.StringRelatedField()
     fiscal_year = serializers.StringRelatedField()
@@ -578,6 +599,22 @@ class ProcessSerializer(serializers.ModelSerializer):
     scope_type = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
     posting_request_date = serializers.SerializerMethodField()
+    client_sectors = serializers.SerializerMethodField()
+    science_leads = serializers.SerializerMethodField()
+    client_leads = serializers.SerializerMethodField()
+    committee_members = serializers.SerializerMethodField()
+
+    def get_committee_members(self, instance):
+        return instance.committee_members
+
+    def get_client_leads(self, instance):
+        return instance.client_leads
+
+    def get_science_leads(self, instance):
+        return instance.science_leads
+
+    def get_client_sectors(self, instance):
+        return instance.client_sectors
 
     def get_posting_request_date(self, instance):
         if instance.posting_request_date:
@@ -585,6 +622,9 @@ class ProcessSerializer(serializers.ModelSerializer):
 
     def get_advisors(self, instance):
         return listrify(instance.advisors.all())
+
+    def get_editors(self, instance):
+        return listrify(instance.editors.all())
 
     def get_chair(self, instance):
         return instance.chair

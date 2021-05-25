@@ -16,7 +16,7 @@ from shared_models.api.views import _get_labels
 from shared_models.models import Person, Language, Region
 from . import serializers
 from .pagination import StandardResultsSetPagination
-from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly
+from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
 from .. import models, emails, model_choices, utils
 
 
@@ -47,6 +47,27 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
     queryset = models.CSASRequest.objects.all()
+
+
+class CSASRequestNoteViewSet(viewsets.ModelViewSet):
+    queryset = models.CSASRequestNote.objects.all()
+    serializer_class = serializers.CSASRequestNoteSerializer
+    permission_classes = [RequestNotesPermission]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("csas_request"):
+            csas_request = get_object_or_404(models.CSASRequest, pk=qp.get("csas_request"))
+            qs = csas_request.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a csas request"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 
 class CSASRequestReviewViewSet(viewsets.ModelViewSet):
@@ -106,7 +127,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         meeting = get_object_or_404(models.Meeting, pk=pk)
         if qp.get("maximize_attendance"):
-            invitees = meeting.invitees.filter(status__in=[0, 1])
+            invitees = meeting.invitees.filter(status__in=[1, ])
             for invitee in invitees:
                 invitee.maximize_attendance()
             return Response(None, status.HTTP_204_NO_CONTENT)

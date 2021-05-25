@@ -39,7 +39,7 @@
                 <tr><th>{% trans 'Name' %}</th><th>{% trans 'Size (Gb)' %}</th><th>{% trans 'Gain' %}</th><th>{% trans 'Volts' %}</th><th></th></tr></thead>
                 <tbody>
             {% for rci in rec.channels.all %}
-            <tr><td>{{rci.rci_name}}</td><td>{{rci.rci_size}}</td><td>{{rci.rci_gain}}</td><td>{{rci.rci_volts}}</td><td>{% if auth %}<a class="btn btn-danger" href="{% url 'whalesdb:delete_rci' rci.pk %}" >X</a>{% endif %}</td></tr>
+            <tr><td>{{rci.rci_name}}</td><td>{{rci.rci_size}}</td><td>{{rci.rci_gain}}</td><td>{{rci.rci_volts}}</td><td>{% if auth %}<a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:delete_rci' rci.pk 'pop' %}','id_channels')" title="{% trans 'Add' %}">X</a>{% endif %}</td></tr>
             {% endfor %}
                 </tbody>
             </table>
@@ -69,7 +69,10 @@
                         <h3>{{ree.ret_id.ret_name}}</h3>
                     </span>
                     <span class="px-1">
-                        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:update_ree' ree.pk 'pop' %}','id_events')">*</a>
+                        {% if auth %}
+                        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:update_ree' ree.pk 'pop' %}','id_events')">{% trans '>' %}</a>
+                        <a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:delete_ree' ree.pk 'pop' %}','id_events')">{% trans 'X' %}</a>
+                        {% endif %}
                     </span>
                 </div>
                 <table class="table" >
@@ -88,6 +91,9 @@
                             <td>{{ree.ree_time}}</td>
                             <td>{{ree.rtt_id}}</td>
                             {% endwith %}
+                        </tr>
+                        <tr>
+                            <td colspan="4">{% trans 'Notes' %}: {{ree.ree_notes}}</td>
                         </tr>
                     </tbody>
                 </table>

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-03 13:18-0300\n"
+"POT-Creation-Date: 2021-05-21 11:19-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -183,6 +183,6 @@ msgstr "Commentaires / Bugs"
 msgid "DM Apps Tickets"
 msgstr "Tickets de Applis GD"
 
-#: .\tickets\views.py:284
+#: .\tickets\views.py:285
 msgid "Log a Ticket"
 msgstr "Créer une demande"

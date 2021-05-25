@@ -1,0 +1,45 @@
+{% extends 'csas2/list.html' %}
+{% load verbose_names %}
+{% load custom_filters %}
+
+{% block head %}
+  {% for field in field_list %}
+    {% if "role" in field.name %}
+      {% if  request.GET.personalized == "true" %}
+        <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+          {% get_verbose_label random_object field.name %}
+        </th>
+      {% endif %}
+    {% else %}
+      <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+        {% get_verbose_label random_object field.name %}
+      </th>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
+
+
+{% block table_tr %}
+  {% url row_object_url_name object.id as my_url %}
+  <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %} {% if open_row_in_new_tab %}newtab{% endif %}>
+    {% for field in field_list %}
+      {% if "role" in field.name %}
+        {% if  request.GET.personalized == "true" %}
+          <td class="{{ field.class }}">
+            {% for invitee in object.invitees.all %}
+              {% if invitee.person.dmapps_user == request.user %}
+                {% for role in invitee.roles.all %}
+                  {{ role|nz:"n/a" }}<br>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </td>
+        {% endif %}
+      {% else %}
+        <td class="{{ field.class }}">
+          {% get_field_value object field.name safe=True %}
+        </td>
+      {% endif %}
+    {% endfor %}
+  </tr>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "shared_models/generic_confirm_delete.html" %}
+
+{% block jquery_import %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+
+{% block bug_create %}
+  {% include "whalesdb/base/_bug_url.html" %}
+{% endblock bug_create %}
+
+{% block title %}
+  {% include "whalesdb/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block header %}
+  {{ block.super }}
+  {% include "whalesdb/base/_style.html" %}
+  {% include "whalesdb/base/_background_img.html" %}
+{% endblock %}
+
+{% block body %}
+  {{ block.super }}
+{% endblock body %}
+
+{% block left_auth %}
+  {% include "whalesdb/base/whales_nav_menu.html" %}
+{% endblock left_auth %}
+
+

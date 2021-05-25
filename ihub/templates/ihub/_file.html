@@ -2,69 +2,65 @@
 {% load humanize %}
 {% load i18n %}
 
-<div class="">
-  <h3>
-    {% trans "Files:" %}
-  </h3>
+<div class="card entry-card mb-3">
+  <div class="card-header">
+    <h5 class="card-title"> {% trans "Files" %}</h5>
+  </div>
+  <div class="card-body">
+    {% if object.files.count == 0 %}
+      <em>
+        {% trans "No files have been attached to this entry" %}
+      </em><br>
+    {% else %}
+
+      <table class="table table-sm" style="width: auto">
+        <tr>
+          <th>
+            {% trans "Link" %}
+          </th>
+          <th>
+            {% trans "Caption" %}
+          </th>
+          <th>
+            {% trans "Date Uploaded" %}
+          </th>
+        </tr>
+        <tbody>
+        {% for obj in object.files.all %}
+          <tr>
+            <td>
+              <a href="{{ obj.file.url }}">
+                <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
+              </a>
+            </td>
+            <td>
+              {{ obj.caption }}
+            </td>
+            <td>
+              {{ obj.date_uploaded|date:"F d, Y" }}
+            </td>
+
+
+            <td>
+              <a href="#"
+                 onclick="return popitup('{% url 'ihub:file_edit' obj.id %}','popoutWindow')">
+                <span class="mdi mdi-pencil" data-toggle="tooltip" title="Edit"></span>
+              </a>
+            </td>
+            <td>
+              <a class="file-delete-me" href="#" val="{{ obj.id }}">
+                <span class="mdi mdi-delete" data-toggle="tooltip" title="Delete"></span>
+              </a>
+              <a id="file-secrect-delete-btn-{{ obj.id }}"
+                 href="{% url 'ihub:file_delete' obj.id %}" class="hidden"></a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+    <div class="mt-3">
+      <a href="#" pop-href="{% url 'ihub:file_new' object.id %}">      {% trans "(Add file)" %}    </a>
+    </div>
+  </div>
 </div>
-
-
-{% if object.files.count == 0 %}
-  <em>
-    {% trans "No files have been attached to this entry" %}
-  </em><br>
-{% else %}
-
-  <table class="table table-sm" style="width: auto">
-    <tr>
-      <th>
-        {% trans "Link" %}
-      </th>
-      <th>
-        {% trans "Caption" %}
-      </th>
-      <th>
-        {% trans "Date Uploaded" %}
-      </th>
-    </tr>
-    <tbody>
-    {% for obj in object.files.all %}
-      <tr>
-        <td>
-          <a href="{{ obj.file.url }}">
-            <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
-          </a>
-        </td>
-        <td>
-          {{ obj.caption }}
-        </td>
-        <td>
-          {{ obj.date_uploaded|date:"F d, Y" }}
-        </td>
-
-
-        <td>
-          <a href="#"
-             onclick="return popitup('{% url 'ihub:file_edit' obj.id %}','popoutWindow')">
-            <span class="mdi mdi-pencil" data-toggle="tooltip" title="Edit"></span>
-          </a>
-        </td>
-        <td>
-          <a class="file-delete-me" href="#" val="{{ obj.id }}">
-            <span class="mdi mdi-delete" data-toggle="tooltip" title="Delete"></span>
-          </a>
-          <a id="file-secrect-delete-btn-{{ obj.id }}"
-             href="{% url 'ihub:file_delete' obj.id %}" class="hidden"></a>
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-{% endif %}
-<a class="" href="#"
-   onclick="return popitup('{% url 'ihub:file_new' object.id %}','popoutWindow')">
-  {% trans "(Add file)" %}
-</a>
-<br>
-<br>
-<br>
