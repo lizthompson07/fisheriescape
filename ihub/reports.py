@@ -4,7 +4,7 @@ from datetime import datetime
 import xlsxwriter as xlsxwriter
 from django.conf import settings
 from django.db.models import Q
-from django.template.defaultfilters import yesno
+from django.template.defaultfilters import yesno, slugify
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -306,9 +306,11 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
 
     # each org should be represented on a separate worksheet
     # therefore determine an appropriate org list
-
+    org_counter = 0
     for org in org_list:
-        my_ws = workbook.add_worksheet(name=org.abbrev)
+        org_abbrev = slugify(org.abbrev) if org.abbrev else f"missing_abbrev_{org_counter}"
+        org_counter += 1
+        my_ws = workbook.add_worksheet(name=org_abbrev)
 
         # create the col_max column to store the length of each header
         # should be a maximum column width to 100
@@ -348,8 +350,8 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
                                 obj.get_type_display().upper(),
                                 obj.note,
                                 obj.status,
-                                obj.author.first_name,
-                                obj.author.last_name,
+                                obj.author.first_name if obj.author else "",
+                                obj.author.last_name if obj.author else "",
                                 obj.creation_date.strftime("%Y-%m-%d"),
                             )
                             if not count == max_count:
@@ -450,6 +452,7 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_t
                                          })
         except:
             print("problem with summary row")
+        i += 1
 
     workbook.close()
     return target_url
@@ -690,7 +693,6 @@ def consultation_instructions_export_spreadsheet(orgs=None):
             j += 1
 
         my_ws.write_row(i, 0, data_row, normal_format)
-        i += 1
 
     # set column widths
     for j in range(0, len(col_max)):

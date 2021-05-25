@@ -239,6 +239,13 @@ class FeedmMixin:
     admin_only = False
 
 
+class FishtocontMixin:
+    key = "fish_to_cont"
+    form_class = forms.FishToContForm
+    title = _("Add Fish to Container")
+    admin_only = True
+
+
 class GrpMixin:
     key = "grp"
     form_class = forms.GrpForm
@@ -277,7 +284,7 @@ class ImgMixin:
     key = "img"
     form_class = forms.ImgForm
     model = models.Image
-    title = _("Image")
+    title = _("Doccuments")
     admin_only = False
 
 
@@ -285,7 +292,7 @@ class ImgcMixin:
     key = "imgc"
     form_class = forms.ImgcForm
     model = models.ImageCode
-    title = _("Image Code")
+    title = _("Document Code")
     admin_only = True
 
 

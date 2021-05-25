@@ -49,12 +49,13 @@ def listrify(iterable, separator=", "):
         return str([str(i) for i in iterable]).replace("[", "").replace("]", "").replace("'", "").replace('"', "").replace(", ", separator)
 
 
-def truncate(my_str, max_length):
+def truncate(my_str, max_length, ellipsis=True):
     """
     This function takes a string an will return a string with a max length of var max_length
     """
+    suffix = "..." if ellipsis else ""
     if len(my_str) > max_length:
-        return "{}...".format(my_str[:max_length])
+        return "{}{}".format(my_str[:max_length], suffix)
     else:
         return my_str
 

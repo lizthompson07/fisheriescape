@@ -1,0 +1,26 @@
+{% extends "whalesdb/whales_details.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block field_override %}
+        <div class="card border border-dark my-1">
+            <h5 class="card-header">{% trans title %}</h5>
+            <div class="card-body">
+            {% for field in fields %}
+                <div class="row" >
+                <div class="container">
+                    <span class="font-weight-bold">{% get_verbose_label object field %} : </span>
+                {% if field.title == 'Prj_Url' and object.prj_url %}
+                    <span>{% if object.prj_url|slice:":4" in 'http' %}<a href="{{object.prj_url}}">{% endif %}{{object.prj_url}}{% if object.prj_url|slice:":4" in 'http' %}</a>{% endif %}</span>
+                {% else %}
+                    <span>{% get_field_value object field%}</span>
+                {% endif %}
+            </div>
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+{% endblock %}

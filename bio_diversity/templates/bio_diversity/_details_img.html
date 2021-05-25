@@ -17,7 +17,7 @@
             <div><span class="font-weight-bold">{% get_verbose_label img 'trayd_id' %} : </span><span>{% get_field_value img 'trayd_id' %}</span></div>
             <div><span class="font-weight-bold">{% get_verbose_label img 'cup_id' %} : </span><span>{% get_field_value img 'cupd_id' %}</span></div>
             <div><span class="font-weight-bold">{% get_verbose_label img 'img_png' %} : </span><span>{% if img.img_png %}
-                <a href="{{ MEDIA_URL }}{{img.img_png.url}}">Preview Image</a>
+                <a href="{{ MEDIA_URL }}{{img.img_png.url}}">Preview Document</a>
             {% endif %} </span></div>
             <div><span class="font-weight-bold">{% get_verbose_label img 'comments' %} : </span><span>{% get_field_value img 'comments' %}</span></div>
             <div><span class="font-weight-bold">{% get_verbose_label img 'created_by' %} : </span><span>{% get_field_value img 'created_by' %}</span></div>

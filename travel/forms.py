@@ -20,6 +20,11 @@ YES_NO_CHOICES = (
     (True, gettext_lazy("Yes")),
     (False, gettext_lazy("No")),
 )
+YES_NO_NULL_CHOICES = (
+    (None, "-----"),
+    (True, gettext_lazy("Yes")),
+    (False, gettext_lazy("No")),
+)
 INT_YES_NO_CHOICES = (
     (None, "-----"),
     (1, gettext_lazy("Yes")),
@@ -117,7 +122,7 @@ class TripRequestForm(forms.ModelForm):
                                                                         "division__branch",
                                                                         "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
-        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Trip.objects.filter(start_date__gte=timezone.now()-timedelta(days=14))]
+        trip_choices = [(t.id, f'{t} ({t.get_status_display()})') for t in models.Trip.objects.filter(start_date__gte=timezone.now() - timedelta(days=14))]
         trip_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -232,6 +237,7 @@ class TripForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['start_date'].widget.format = '%Y-%m-%d'
         self.fields['end_date'].widget.format = '%Y-%m-%d'
+        self.fields['is_adm_approval_required'].choices = YES_NO_NULL_CHOICES
 
     def clean(self):
         cleaned_data = super().clean()

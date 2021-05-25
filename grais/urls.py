@@ -127,7 +127,7 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', shared_views.ReportSearchFormView.as_view(), name="reports"),  # tested
-    path('reports/species-by-sample-spreadsheet/<str:species_list>/', shared_views.species_sample_spreadsheet_export, name="spp_sample_xlsx"),  # tested
+    path('reports/species-by-sample-spreadsheet/<str:species_list>/<str:year>/', shared_views.species_sample_spreadsheet_export, name="spp_sample_xlsx"),  # tested
     path('reports/biofouling-presence-absence/', shared_views.biofouling_presence_absence_spreadsheet_export, name="biofouling_pa_xlsx"),  # tested
     path('reports/opendata1/<int:year>/', shared_views.export_open_data_ver1, name="od1_report"),  # tested
     path('reports/opendata1/', shared_views.export_open_data_ver1, name="od1_report"),  # tested

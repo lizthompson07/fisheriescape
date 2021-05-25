@@ -37,7 +37,13 @@
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
       {% if object.tor %}
-        <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_edit' object.tor.id %}">
+        {% url 'csas2:tor_edit' object.tor.id as tor_url %}
+      {% else %}
+        {% url 'csas2:tor_new' object.id as tor_url %}
+      {% endif %}
+
+      {% if object.tor %}
+        <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Modify ToR" %}
         </a>
         <div class="neighbours">
@@ -56,7 +62,7 @@
           </div>
         </div>
       {% else %}
-        <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_new' object.id %}">
+        <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
           <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate ToR" %}
         </a>
       {% endif %}
@@ -64,8 +70,6 @@
 
     <div class="row">
       <div class="col-8">
-
-
         <div class="mb-5">
           <div v-if="loading" class="loading mb-3 mt-3 mt-5">
             <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
@@ -73,12 +77,8 @@
             </div>
           </div>
           <table v-else class="table table-sm" style="width: auto">
-            {#            {% for field in process_field_list %}#}
-            {#              {% verbose_td_display object field th_width="300px" %}#}
-            {#            {% endfor %}#}
-
             <tr>
-              <th class="text-left" v-html="processLabels.fiscal_year"></th>
+              <th class="text-left w300" v-html="processLabels.fiscal_year"></th>
               <td class="text-left">${process.fiscal_year|nz}</td>
             </tr>
             <tr>
@@ -106,19 +106,62 @@
             <tr>
               <th class="text-left">{% trans "Meeting Chair" %}</th>
               <td class="text-left">
-                <em v-if="!process.has_tor">{% trans "The terms of reference have not yet been initiated for this process." %}</em>
-                <em v-else-if="!process.has_tor_meeting">{% trans "Terms of reference has not been linked to a meeting." %}</em>
+                <em v-if="!process.has_tor">
+                  {% blocktrans %}
+                    The <a href="{{ tor_url }}">terms of reference</a> has not yet been initiated for this process.
+                  {% endblocktrans %}
+                </em>
+                <em v-else-if="!process.has_tor_meeting">
+                  {% blocktrans %}
+                    The <a href="{{ tor_url }}"> terms of reference </a> has not been linked to a meeting.
+                  {% endblocktrans %}
+                </em>
                 <span v-else>${process.chair|nz}</span>
               </td>
             </tr>
             <tr>
+              <th class="text-left">{% trans "Science Lead" %}</th>
+              <td class="text-left">
+                <em v-if="!process.science_leads">{% trans "No science leads have been tagged in any meetings." %}</em>
+                <span v-else>${process.science_leads|nz}</span>
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Client leads" %}</th>
+              <td class="text-left">
+                <em v-if="!process.client_leads">{% trans "No client leads have been tagged in any meetings." %}</em>
+                <span v-else>${process.client_leads|nz}</span>
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Client sector(s)" %}</th>
+              <td class="text-left">
+                ${process.client_sectors|nz}
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Steering Committee Members" %}</th>
+              <td class="text-left">
+                <em v-if="!process.committee_members">{% trans "No steering committee members have been tagged in any meetings." %}</em>
+                <span v-else>${process.committee_members|nz}</span>
+              </td>
+            </tr>
+
+
+            <tr>
               <th class="text-left" v-html="processLabels.coordinator"></th>
               <td class="text-left">${process.coordinator|nz}</td>
             </tr>
+
             <tr>
               <th class="text-left" v-html="processLabels.advisors"></th>
               <td class="text-left">${process.advisors|nz}</td>
             </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.editors"></th>
+              <td class="text-left">${process.editors|nz}</td>
+            </tr>
+
             <tr>
               <th class="text-left" v-html="processLabels.lead_region"></th>
               <td class="text-left">${process.lead_region|nz}</td>
@@ -244,8 +287,6 @@
 
     {# end #}
   </div>
-
-
 
 
 {% endblock %}

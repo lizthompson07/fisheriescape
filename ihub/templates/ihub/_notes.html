@@ -3,74 +3,61 @@
 {% load humanize %}
 {% load i18n %}
 {% get_current_language as LANG %}
+<div class="card entry-card mb-3">
+  <div class="card-header">
+    <h5 class="card-title"> {% trans "Actions, Next Steps or Comments" %}</h5>
+  </div>
+  <div class="card-body">
 
 
-<div class="">
-  <h3>
-    {% trans "Actions, Next Steps or Comments:" %}
-  </h3>
+    {% if object.notes.count == 0 %}
+      <br><em>
+      {% trans "No Actions, next steps or comments have been added to this entry..." %}
+    </em><br>
+    {% else %}
+      <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+          <th>
+            {% trans "Type" %}
+          </th>
+          <th style="width: 55%">
+            {% trans "Note" %}
+          </th>
+          <th>
+            {% trans "Status" %}
+          </th>
+          <th>
+            {% trans "Creation / Last modified" %}
+          </th>
+        </tr>
+        <tbody>
+        {% for obj in object.notes.all %}
+          <tr href="{% url 'ihub:note_edit' obj.id %}" pop>
+            <td>{{ obj.get_type_display }}</td>
+            <td>{{ obj.note_html|safe }}</td>
+            <td>
+              <div class="px-1 py-1" style="background-color: {{ obj.status.color }}">{{ obj.status }}</div>
+            </td>
+            <td>{{ obj.metadata }}</td>
+
+
+            <td>
+              <a class="note-delete-me" href="#" val="{{ obj.id }}">
+                <span class="mdi mdi-delete" data-toggle="tooltip" title="Delete"></span>
+              </a>
+              <a id="note-secrect-delete-btn-{{ obj.id }}"
+                 href="{% url 'ihub:note_delete' obj.id %}" class="hidden stop"></a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    <div class="mt-3">
+      <a href="#" pop-href="{% url 'ihub:note_new' object.id %}">      {% trans "(Add note)" %}    </a>
+    </div>
+
+  </div>
 </div>
-
-
-
-
-{% if object.notes.count == 0 %}
-  <br><em>
-  {% trans "No Actions, next steps or comments have been added to this entry..." %}
-</em><br>
-{% else %}
-
-
-
-  <table class="table table-hover table-sm" style="width: auto">
-    <tr>
-      <th>
-        {% trans "Type" %}
-      </th>
-      <th>
-        {% trans "Creation date" %}
-      </th>
-      <th>
-        {% trans "Author" %}
-      </th>
-      <th>
-        {% trans "Note" %}
-      </th>
-      <th>
-        {% trans "Status" %}
-      </th>
-      <th>
-        {% trans "Last modified" %}
-      </th>
-    </tr>
-    <tbody>
-    {% for obj in object.notes.all %}
-      <tr href="{% url 'ihub:note_edit' obj.id %}" pop>
-        <td>{{ obj.get_type_display }}</td>
-        <td>{{ obj.creation_date|date:"F d, Y" }}</td>
-        <td>{{ obj.author.first_name }} {{ obj.author.last_name }}</td>
-        <td>{{ obj.note }}</td>
-        <td style="background: {{ obj.status.color }};">{{ obj.status }}</td>
-        <td>{{ obj.modified_date|date:"F d, Y" }}</td>
-
-
-        <td>
-          <a class="note-delete-me" href="#" val="{{ obj.id }}">
-            <span class="mdi mdi-delete" data-toggle="tooltip" title="Delete"></span>
-          </a>
-          <a id="note-secrect-delete-btn-{{ obj.id }}"
-             href="{% url 'ihub:note_delete' obj.id %}" class="hidden stop"></a>
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-{% endif %}
-<a class="primary" href="#"
-   onclick="return popitup('{% url 'ihub:note_new' object.id %}','popoutWindow')">
-  {% trans "(Add note)" %}
-</a>
-<br>
-<br>
-<br>
 

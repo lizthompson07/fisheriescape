@@ -112,6 +112,12 @@ def is_advisor(user, process_id):
         return process.advisors.filter(id=user.id).exists()
 
 
+def is_editor(user, process_id):
+    if user.id:
+        process = get_object_or_404(models.Process, pk=process_id)
+        return process.editors.filter(id=user.id).exists()
+
+
 def is_client(user, request_id):
     if user.id:
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
@@ -172,7 +178,10 @@ def can_modify_process(user, process_id, return_as_dict=False):
         my_dict["reason"] = "You do not have the permissions to modify this process"
         process = get_object_or_404(models.Process, pk=process_id)
         # check to see if they are the client
-
+        # are they an editor?
+        if is_editor(user, process.id):
+            my_dict["reason"] = "You can modify this record because you have been tagged as a process editor"
+            my_dict["can_modify"] = True
         # are they an advisor?
         if is_advisor(user, process.id):
             my_dict["reason"] = "You can modify this record because you are a science advisor for this process"
@@ -258,7 +267,6 @@ def get_process_field_list(process):
 def get_meeting_field_list():
     my_list = [
         'process',
-        'type',
         'location',
         'attendees',
         'display_dates|{}'.format(_("dates")),
@@ -301,7 +309,13 @@ def get_related_processes(user):
      they are a coordinator ||
      they are an advisor
      """
-    qs = models.Process.objects.filter(Q(coordinator=user) | Q(advisors=user) | Q(csas_requests__client=user)).distinct()
+    qs = models.Process.objects.filter(
+        Q(coordinator=user) |
+        Q(advisors=user) |
+        Q(editors=user) |
+        Q(csas_requests__client=user) |
+        Q(meetings__invitees__roles__category__isnull=False)
+    ).distinct()
     return qs
 
 
@@ -311,7 +325,18 @@ def get_related_docs(user):
      they are a process coordinator ||
      they are a process advisor
      """
-    qs = models.Document.objects.filter(document_type__hide_from_list=False).filter(Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors__person__dmapps_user=user)).distinct()
+    qs = models.Document.objects.filter(document_type__hide_from_list=False).filter(
+        Q(process__coordinator=user) | Q(process__advisors=user) | Q(authors__person__dmapps_user=user)).distinct()
+    return qs
+
+
+def get_related_meetings(user):
+    """give me a user and I'll send back a queryset with all related docs, i.e.
+     they are an author ||
+     they are a process coordinator ||
+     they are a process advisor
+     """
+    qs = models.Meeting.objects.filter(invitees__person__dmapps_user=user).distinct()
     return qs
 
 
@@ -330,12 +355,14 @@ def get_person_field_list():
     return my_list
 
 
-def get_quarter(date):
+def get_quarter(date, as_int=False):
     if date.month in [1, 2, 3]:
-        return 4
+        quarter = 4 if as_int else _("Winter")
     elif date.month in [4, 5, 6]:
-        return 1
+        quarter = 1 if as_int else _("Spring")
     elif date.month in [7, 8, 9]:
-        return 2
+        quarter = 2 if as_int else _("Summer")
     else:
-        return 3
+        quarter = 3 if as_int else _("Fall")
+    return quarter
+
