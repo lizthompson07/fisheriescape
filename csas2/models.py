@@ -187,7 +187,11 @@ class CSASRequest(MetadataFields):
 
     @property
     def status_class(self):
-        return slugify(self.get_status_display()) if self.status else ""
+        lang = get_language()
+        activate("en")
+        mystr = slugify(self.get_status_display()) if self.status else ""
+        activate(lang)
+        return mystr
 
     @property
     def assistance_display(self):
