@@ -1,5 +1,6 @@
 import django_filters
 from django import forms
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 from shared_models.models import FiscalYear, Section, Branch, Region, Person
@@ -38,6 +39,8 @@ class CSASRequestFilter(django_filters.FilterSet):
     has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"),
                                                  widget=forms.SelectMultiple(attrs=chosen_js), choices=request_status_choices)
+    client = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact')
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,6 +48,7 @@ class CSASRequestFilter(django_filters.FilterSet):
         region_choices = utils.get_region_choices()
         branch_choices = utils.get_branch_choices()
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
+        client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).distinct()]
 
         self.filters['fiscal_year'] = django_filters.MultipleChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
                                                                           label=_("Fiscal year"), widget=forms.SelectMultiple(attrs=chosen_js))
@@ -52,6 +56,7 @@ class CSASRequestFilter(django_filters.FilterSet):
                                                              choices=region_choices)
         self.filters['branch'] = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact',
                                                              choices=branch_choices)
+        self.filters['client'] = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact', choices=client_choices)
 
         try:
             if self.data["region"] != "":
@@ -73,15 +78,18 @@ class ProcessFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title contains"))
     lead_region = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact')
     is_posted = django_filters.ChoiceFilter(field_name="is_posted", label=_("Is Posted?"), lookup_expr='exact', empty_label=_("All"), choices=YES_NO_CHOICES)
+    csas_requests__client = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(processes__isnull=False).distinct()]
         region_choices = [(obj.id, str(obj)) for obj in Region.objects.filter(process_lead_regions__isnull=False).distinct()]
+        client_choices = [(u.id, str(u)) for u in User.objects.filter(csas_client_requests__isnull=False).distinct()]
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices, label=_("Fiscal year"))
         self.filters['lead_region'] = django_filters.ChoiceFilter(field_name="lead_region", label=_("Lead Region"), lookup_expr='exact', choices=region_choices)
+        self.filters['csas_requests__client'] = django_filters.ChoiceFilter(field_name="csas_requests__client", label=_("Request client"), lookup_expr='exact', choices=client_choices)
 
     class Meta:
         model = models.Process
