@@ -941,6 +941,13 @@ class Group(BioModel):
                                            ).select_related("adsc_id")
         return [grpd.adsc_id for grpd in grpd_set]
 
+    def start_date(self):
+        first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
+        if first_evnt:
+            return first_evnt.evnt_id.start_date
+        else:
+            return None
+
 
 class GroupDet(BioDet):
     # grpd tag
@@ -1170,10 +1177,17 @@ class Individual(BioModel):
         return current_cont_list
 
     def get_parent_history(self):
-        parent_grps = [(0, self.grp_id, None)]
+        parent_grps = [(0, self.grp_id, self.start_date())]
         if self.grp_id:
             parent_grps.extend(self.grp_id.get_parent_history())
         return parent_grps
+
+    def start_date(self):
+        first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
+        if first_evnt:
+            return first_evnt.evnt_id.start_date
+        else:
+            return None
 
     def individual_detail(self, anidc_name="Length"):
         latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").first()
