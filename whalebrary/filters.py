@@ -3,6 +3,8 @@ from django import forms
 from . import models
 from django.utils.translation import gettext as _
 
+attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
+
 
 class ItemFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name or description)",
@@ -90,6 +92,11 @@ class FileFilter(django_filters.FilterSet):
 #                                             lookup_expr='icontains', widget=forms.TextInput())
 
 class IncidentFilter(django_filters.FilterSet):
+
+    date_between = django_filters.DateFromToRangeFilter(field_name='first_report',
+                                                        label='Incident (Between these dates)',
+                                                        widget=django_filters.widgets.RangeWidget(attrs=attr_fp_date))
+
     class Meta:
         model = models.Incident
         fields = {
