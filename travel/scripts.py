@@ -11,11 +11,12 @@ from . import models
 from . import utils
 
 
-# def remove_empty_trips():
-#     for trip in models.Trip.objects.all():
-#         if trip.trip_requests.count() == 0:
-#             trip.delete()
-#
+def remove_empty_reviewers():
+    qs = models.Reviewer.objects.filter(request__isnull=True)
+    for obj in qs:
+        if not obj.request:
+            obj.delete()
+
 
 
 def activate_all_users():
