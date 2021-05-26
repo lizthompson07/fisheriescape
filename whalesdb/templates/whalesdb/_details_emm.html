@@ -131,7 +131,7 @@
                 {% elif auth %}
                     <td>
                       <a class="btn btn-primary btn-sm" href="#" onclick="return pop('{% url 'whalesdb:update_ecp' ecp.pk 'pop' %}','cha')" title="{% trans 'Update' %}"> {% trans '>' %} </a>
-                      <button type="button" class="btn btn-danger delete-btn btn-sm my-1" object-name="Channel-{{ecp.ecp_channel_no}}" delete_url="{% url 'whalesdb:delete_ecp' emm.pk ecp.ecp_channel_no %}">X</button>
+                      <a class="btn btn-danger btn-sm" href="#" onclick="return pop('{% url 'whalesdb:delete_ecp' ecp.pk 'pop' %}','cha')" title="{% trans 'Delete' %}"> {% trans 'X' %} </a>
                     </td>
                 {% endif %}
 

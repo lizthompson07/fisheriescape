@@ -13,7 +13,6 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
-from django.views.generic import CreateView
 
 from lib.functions.custom_functions import fiscal_year, truncate
 from shared_models.models import Person, FiscalYear
@@ -24,7 +23,7 @@ from . import models, forms, filters, utils, reports, emails
 from .mixins import LoginAccessRequiredMixin, CsasAdminRequiredMixin, CanModifyRequestRequiredMixin, CanModifyProcessRequiredMixin, \
     CsasNationalAdminRequiredMixin
 from .utils import in_csas_admin_group, get_quarter
-
+from datetime import timedelta
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
     h1 = "home"
@@ -429,10 +428,10 @@ class ProcessListView(LoginAccessRequiredMixin, CommonFilterView):
         {"name": 'tname|{}'.format("title"), "class": "", "width": "300px"},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'scope_type|{}'.format(_("advisory type")), "class": "", "width": ""},
-        {"name": 'lead_region', "class": "", "width": ""},
-        {"name": 'other_regions', "class": "", "width": ""},
+        {"name": 'regions|{}'.format(_("regions")), "class": "", "width": ""},
         {"name": 'coordinator', "class": "", "width": ""},
         {"name": 'advisors|{}'.format(_("science advisors")), "class": "", "width": ""},
+        {"name": 'science_leads|{}'.format(_("science lead(s)")), "class": "", "width": ""},
     ]
 
     def get_queryset(self):
@@ -479,7 +478,7 @@ class ProcessDetailView(LoginAccessRequiredMixin, CommonDetailView):
 class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     model = models.Process
     form_class = forms.ProcessForm
-    template_name = 'csas2/form.html'
+    template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
     submit_text = gettext_lazy("Save")
@@ -499,6 +498,89 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
+        obj.save()
+        # create the steering committee meeting if the user wants to...
+        create_sc_meeting = form.cleaned_data.get("create_steering_committee_meeting")
+        if create_sc_meeting:
+            future_date = timezone.now() + timedelta(days=14)
+            meeting = models.Meeting.objects.create(
+                process=obj,
+                is_planning=True,
+                name="Steering committee meeting",
+                nom="Réunion du comité de pilotage",
+                start_date=future_date,
+                end_date=future_date,
+                is_estimate=True,
+            )
+            scm_roles = models.InviteeRole.objects.filter(category=3)
+            if scm_roles.exists():
+                committee_members = form.cleaned_data.get("committee_members")
+                for person in committee_members:
+                    invitee = models.Invitee.objects.create(
+                        meeting=meeting,
+                        person_id=person,
+                        region=obj.lead_region,
+                    )
+                    invitee.roles.add(scm_roles.first())
+            else:
+                messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'steering committee member' role in the system."))
+
+        # create the keystone meeting if the user wants to...
+        create_keystone_meeting = form.cleaned_data.get("create_keystone_meeting")
+        if create_keystone_meeting:
+            future_date = timezone.now() + timedelta(days=90)
+            meeting = models.Meeting.objects.create(
+                process=obj,
+                is_planning=False,
+                name="TBD",
+                nom="à déterminer",
+                start_date=future_date,
+                end_date=future_date,
+                is_estimate=True,
+            )
+            # since we know this is the keystone meeting, let's make the connections with the TOR
+            models.TermsOfReference.objects.create(process=obj, meeting=meeting)
+
+            # add the science leads
+            science_lead_roles = models.InviteeRole.objects.filter(category=4)
+            if science_lead_roles.exists():
+                science_leads = form.cleaned_data.get("science_leads")
+                for person in science_leads:
+                    invitee = models.Invitee.objects.get_or_create(
+                        meeting=meeting,
+                        person_id=person,
+                        region=obj.lead_region,
+                    )[0]
+                    invitee.roles.add(science_lead_roles.first())
+            else:
+                messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'science lead' role in the system."))
+
+            # add the client leads
+            client_lead_roles = models.InviteeRole.objects.filter(category=2)
+            if client_lead_roles.exists():
+                client_leads = form.cleaned_data.get("client_leads")
+                for person in client_leads:
+                    invitee = models.Invitee.objects.get_or_create(
+                        meeting=meeting,
+                        person_id=person,
+                        region=obj.lead_region,
+                    )[0]
+                    invitee.roles.add(client_lead_roles.first())
+            else:
+                messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'client lead' role in the system."))
+
+            # add the chair
+            chair_roles = models.InviteeRole.objects.filter(category=1)
+            if chair_roles.exists():
+                chair = form.cleaned_data.get("chair")
+                invitee = models.Invitee.objects.get_or_create(
+                    meeting=meeting,
+                    person_id=chair,
+                    region=obj.lead_region,
+                )[0]
+                invitee.roles.add(chair_roles.first())
+            else:
+                messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'chair' role in the system."))
         return super().form_valid(form)
 
 
@@ -681,7 +763,7 @@ class TermsOfReferenceHTMLDetailView(LoginAccessRequiredMixin, CommonDetailView)
 ############
 
 class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
-    template_name = 'csas2/list.html'
+    template_name = 'csas2/meeting_list.html'
     filterset_class = filters.MeetingFilter
     paginate_by = 25
     home_url_name = "csas2:index"
@@ -689,17 +771,25 @@ class MeetingListView(LoginAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'process', "class": "", "width": ""},
-        {"name": 'type', "class": "", "width": ""},
-        {"name": 'tname|{}'.format("title"), "class": "", "width": ""},
-        {"name": 'coordinator', "class": "", "width": ""},
-        {"name": 'client', "class": "", "width": ""},
-        {"name": 'section.full_name', "class": "", "width": ""},
+        {"name": 'process', "class": "", "width": "400px"},
+        {"name": 'tname|{}'.format("title"), "class": "", "width": "400px"},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'display_dates_deluxe|{}'.format(_("dates")), "class": "", "width": ""},
+        {"name": 'role|{}'.format(_("your role(s)")), "class": "", "width": ""},
     ]
 
     def get_queryset(self):
-        return models.Meeting.objects.filter(hide_from_list=False).annotate(
-            search_term=Concat('name', Value(" "), 'nom', output_field=TextField()))
+        qp = self.request.GET
+        qs = models.Meeting.objects.all()
+        if qp.get("personalized"):
+            qs = utils.get_related_meetings(self.request.user)
+        qs = qs.annotate(search_term=Concat(
+            'name',
+            Value(" "),
+            'nom',
+            output_field=TextField())
+        ).order_by("start_date", _("name"))
+        return qs
 
 
 class MeetingDetailView(LoginAccessRequiredMixin, CommonDetailView):
@@ -728,9 +818,6 @@ class MeetingCreateView(CanModifyProcessRequiredMixin, CommonCreateView):
     template_name = 'csas2/js_form.html'
     home_url_name = "csas2:index"
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
-
-    def get_initial(self):
-        return dict(est_year=timezone.now().year, est_quarter=get_quarter(timezone.now()))
 
     def get_parent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_process().id), "url": reverse_lazy("csas2:process_detail", args=[self.get_process().id])}

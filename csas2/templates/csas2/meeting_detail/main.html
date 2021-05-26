@@ -84,6 +84,10 @@
               <td class="text-left" v-html="meeting.display_dates"></td>
             </tr>
             <tr>
+              <th class="text-left">{% trans "Time" %}</th>
+              <td class="text-left" v-html="meeting.ttime"></td>
+            </tr>
+            <tr>
               <th class="text-left">{% trans "Attendees" %}</th>
               <td class="text-left">${meeting.attendees|nz}</td>
             </tr>

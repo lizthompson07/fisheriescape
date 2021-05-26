@@ -40,7 +40,7 @@
                         <td>{{ stage.rst_active }}</td>
                         <td>{{ stage.rst_duration }}</td>
                         <td>{{ stage.rst_rate }}</td>
-                        <td>{% if auth %}<a href="{% url 'whalesdb:delete_rst' stage.pk %}" class="btn btn-danger">{% trans 'Delete' %}</a>{% endif %}</td>
+                        <td>{% if auth %}<a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:delete_rst' stage.pk 'pop' %}','rst_table')" title="{% trans 'Add' %}">X</a>{% endif %}
                     </tr>
         {% endfor %}
                 </tbody>
