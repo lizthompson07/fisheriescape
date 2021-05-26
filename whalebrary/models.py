@@ -339,6 +339,7 @@ class Personnel(models.Model):
 
 class Species(SimpleLookup):
     name_latin = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (latin)"))
+    species_code = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species code"))
 
 
 class Incident(LatLongFields):
@@ -407,17 +408,32 @@ class Incident(LatLongFields):
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
     date_email_sent = models.DateTimeField(blank=True, null=True, verbose_name="date incident emailed")
 
+    @property
+    def incident_id(self):
+        my_str = ""
+
+        if self.incident_type:
+            my_str += f'{self.incident_type}'
+        if self.first_report:
+            my_str += f'{self.first_report.strftime("%Y%m%d")}'
+        if self.species.species_code:
+            my_str += f'{self.species.species_code}'
+        if self.id:
+            my_str += f' (incID #{self.id})'
+        return my_str
+
     def __str__(self):
-        if self.name:
-            return self.name
+        if self.incident_id:
+            return self.incident_id
         else:
-            return None
+            return "None"
 
     def get_leaflet_dict(self):
         json_dict = dict(
             type='Feature',
             properties=dict(
                 name=self.name,
+                id=self.incident_id,
                 pk=self.pk,
                 type=str(self.get_incident_type_display()), #if this is not filled in this method fails though, need to make separate one for error handling, seems to work making it a string
                 species=self.species.name,

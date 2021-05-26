@@ -1344,11 +1344,12 @@ class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
     new_btn_text = "New Incident"
 
     queryset = models.Incident.objects.annotate(
-        search_term=Concat('id', 'name', 'species_count', 'submitted', 'first_report', 'location', 'region', 'species',
+        search_term=Concat('id', 'name', 'location', 'region', 'species__name',
                            output_field=TextField()))
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
+        {"name": 'incident_id|{}'.format(gettext_lazy("Incident ID")), "class": "", "width": "100px"},
         {"name": 'name', "class": "", "width": ""},
         {"name": 'species_count', "class": "", "width": ""},
         {"name": 'submitted', "class": "", "width": ""},
@@ -1369,6 +1370,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Incident
     field_list = [
         'id',
+        'incident_id|{}'.format(gettext_lazy("Incident ID")),
         'name',
         'species_count',
         'submitted',

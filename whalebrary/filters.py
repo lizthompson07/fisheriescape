@@ -85,9 +85,26 @@ class FileFilter(django_filters.FilterSet):
                                             lookup_expr='icontains', widget=forms.TextInput())
 
 
+# class IncidentFilter(django_filters.FilterSet):
+#     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
+#                                             lookup_expr='icontains', widget=forms.TextInput())
+
 class IncidentFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
-                                            lookup_expr='icontains', widget=forms.TextInput())
+    class Meta:
+        model = models.Incident
+        fields = {
+            'region': ['exact'],
+            'species': ['exact'],
+            'incident_type': ['exact'],
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["name"] = django_filters.CharFilter(field_name='search_term',
+                                                         label="Incident (any part of name...)",
+                                                         lookup_expr='icontains',
+                                                         widget=forms.TextInput())
 
 
 class ResightFilter(django_filters.FilterSet):
