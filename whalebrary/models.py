@@ -419,7 +419,7 @@ class Incident(LatLongFields):
         if self.species.species_code:
             my_str += f'{self.species.species_code}'
         if self.id:
-            my_str += f' (incID #{self.id})'
+            my_str += f' (inc.ID #{self.id})'
         return my_str
 
     def __str__(self):
