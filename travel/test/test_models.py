@@ -700,7 +700,7 @@ class TestReviewerModel(CommonTest):
     @tag('Reviewer', 'models', 'mandatory_fields')
     def test_mandatory_fields(self):
         fields_to_check = [
-            'request',
+            # 'request',
             'user',
             'role',
             'status',
