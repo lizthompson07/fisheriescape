@@ -929,7 +929,7 @@ class Reviewer(models.Model):
         (6, _("Expenditure Initiation")),
         (7, _("RDG (Expenditure Initiation)")),  # this is temporary until RDG is actually looped into the process
     )
-    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers", blank=False, null=True)  # todo remove the non-null!!!!
+    request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
     role = models.IntegerField(verbose_name=_("role"), choices=role_choices)
