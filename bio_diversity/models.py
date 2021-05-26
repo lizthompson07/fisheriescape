@@ -1356,21 +1356,22 @@ class Location(BioModel):
     @property
     def point(self):
         # lon = x, lat = y
-        if self.loc_lat and self.loc_lon:
+        if (self.loc_lat is not None) and (self.loc_lon is not None):
             return Point(self.loc_lon, self.loc_lat)
         else:
             return Point()
 
     @property
     def end_point(self):
-        if self.end_lat and self.end_lon:
+        if (self.end_lat is not None) and (self.end_lon is not None):
             return Point(self.end_lon, self.end_lat)
         else:
             return Point()
 
     @property
     def linestring(self):
-        if self.loc_lat and self.loc_lon and self.end_lat and self.end_lon:
+        if (self.loc_lat is not None) and (self.loc_lon is not None) and (self.end_lat is not None) and \
+                (self.end_lon is not None):
             return LineString([(self.loc_lon, self.loc_lat), (self.end_lon, self.end_lat)])
         else:
             return Point()
