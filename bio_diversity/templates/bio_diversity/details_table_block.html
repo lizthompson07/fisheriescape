@@ -3,7 +3,7 @@
 {% load verbose_names %}
 {% load i18n %}
 {% bootstrap_css %}
-{% if context_dict.objects_list %}
+{% if context_dict.objects_list or context_dict.always_show %}
     <div class="card border border-dark my-1" name={{context_dict.sub_model_key|add:"-details"}}>
         <h5 class="card-header">{% trans context_dict.div_title %}
             <span>
