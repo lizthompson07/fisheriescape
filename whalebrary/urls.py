@@ -126,6 +126,15 @@ urlpatterns = [
     path('incident/<int:pk>/delete/', views.IncidentDeleteView.as_view(), name="incident_delete"),
     path('incident/<int:pk>/email/', views.send_incident_email, name="incident_email"),
 
+    # INCIDENT RESIGHT #
+
+    path('resight_list/', views.ResightListView.as_view(), name="resight_list"),
+    # path('resight_detail/<int:pk>/view/', views.ResightDetailView.as_view(), name="resight_detail"),
+    path('resight//<int:incident>/new/', views.ResightCreateView.as_view(), name="resight_new"),
+    path('resight/<int:pk>/edit/', views.ResightUpdateView.as_view(), name="resight_edit"),
+    path('resight/<int:pk>/delete/', views.ResightDeleteView.as_view(), name="resight_delete"),
+    path('resight/<int:pk>/email/', views.send_resight_email, name="resight_email"),
+
     # INCIDENT IMAGES #
 
     path('image_list/', views.ImageListView.as_view(), name="image_list"),
@@ -140,8 +149,12 @@ urlpatterns = [
     path('reports/container_summary/location/<int:location>/', views.ContainerSummaryListView.as_view(), name="report_container"),
     path('reports/sized_item_summary/item_name/<slug:item_name>/', views.SizedItemSummaryListView.as_view(), name="report_sized_item"),
 
+    # PLANNING LINKS #
 
-
+    path('planning_list/', views.PlanningLinkListView.as_view(), name="planning_link_list"),
+    path('planning_list/new/', views.PlanningLinkCreateView.as_view(), name="planning_link_new"),
+    path('planning_list/<int:pk>/edit/', views.PlanningLinkUpdateView.as_view(), name="planning_link_edit"),
+    path('planning_list/<int:pk>/delete/', views.PlanningLinkDeleteView.as_view(), name="planning_link_delete"),
 
 ]
 

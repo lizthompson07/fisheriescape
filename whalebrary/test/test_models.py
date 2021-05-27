@@ -150,6 +150,7 @@ class TestIncidentModel(CommonTest):
     @tag('Incident', 'models', 'props')
     def test_props(self):
         self.assert_has_props(models.Incident, ["coordinates"])
+        self.assert_has_props(models.Incident, ["incident_id"])
 
     @tag('Incident', 'models', 'inheritance')
     def test_inheritance(self):
@@ -179,7 +180,7 @@ class TestIncidentModel(CommonTest):
             (True, 'Yes'),
             (False, 'No'),
         )
-        expected_choices = [field.choices for field in models.Incident._meta.fields if field.name == "exam"][0]
+        expected_choices = [field.choices for field in models.Incident._meta.fields if field.name == "response"][0]
         self.assertEqual(actual_choices, expected_choices)
 
     @tag('Incident', 'models', 'choices')
@@ -241,6 +242,19 @@ class TestIncidentModel(CommonTest):
             ("LS", "LIVE - Stranded"),
         )
         expected_choices = [field.choices for field in models.Incident._meta.fields if field.name == "incident_type"][0]
+        self.assertEqual(actual_choices, expected_choices)
+
+    @tag('Incident', 'models', 'choices')
+    def test_choices_response_type(self):
+        actual_choices = (
+            ("D", "Disentanglement"),
+            ("R", "Refloating"),
+            ("DE", "Documentation / Examination"),
+            ("N", "Necropsy"),
+            ("E", "Education"),
+            ("O", "Other"),
+    )
+        expected_choices = [field.choices for field in models.Incident._meta.fields if field.name == "response_type"][0]
         self.assertEqual(actual_choices, expected_choices)
 
     @tag('Incident', 'models', 'mandatory_fields')

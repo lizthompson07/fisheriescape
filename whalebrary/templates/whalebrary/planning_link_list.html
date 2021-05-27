@@ -1,0 +1,39 @@
+{% extends "whalebrary/list.html" %}
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load verbose_names %}
+
+
+<!--This is a custom block to add my own new button with pop-href before the table-->
+{% block pre_table %}
+    <div align="right">
+        <a href="#" pop-href="{% url "whalebrary:planning_link_new" %}" class="btn btn-primary">Add New</a>
+    </div>
+{% endblock %}
+
+<!--This is a custom block to add formatting in the table-->
+{% block table_tr %}
+    <tr>
+        {% for field in field_list %}
+            <td class="{{ field.class }}">
+                {% block table_td %}
+                    {% get_field_value object field.name safe=True %}
+                {% endblock %}
+            </td>
+        {% endfor %}
+            <td>
+                <a href="#"
+                   pop-href="{% url 'whalebrary:planning_link_edit' object.id %}">
+                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                  pop-href="{% url 'whalebrary:planning_link_delete' object.id %}">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Remove">
+                </a>
+            </td>
+    </tr>
+{% endblock %}
+
