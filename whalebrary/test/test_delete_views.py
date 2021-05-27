@@ -337,6 +337,38 @@ class TestIncidentDeleteView(CommonTest):
         self.assertEqual(models.Incident.objects.filter(pk=self.instance.pk).count(), 0)
 
 
+class TestResightDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ResightFactory()
+        self.test_url = reverse_lazy('whalebrary:resight_delete', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalebrary_edit")
+
+    @tag("Resight", "resight_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ResightDeleteView, CommonPopoutDeleteView)
+        self.assert_inheritance(views.ResightDeleteView, views.WhalebraryEditRequiredMixin)
+
+    @tag("Resight", "resight_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Resight", "resight_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ResightFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.Resight.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("Resight", "resight_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalebrary:resight_delete", f"/en/whalebrary/resight/{self.instance.pk}/delete/", [self.instance.pk])
+
+
 class TestImageDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
