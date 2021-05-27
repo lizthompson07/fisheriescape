@@ -50,6 +50,11 @@ class SimpleLookupWithUUID(SimpleLookup):
 
     uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
 
+    def save(self, *args, **kwargs):
+        if not self.uuid:
+            self.uuid = uuid.uuid4()
+        super().save(*args, **kwargs)
+
 
 class Lookup(SimpleLookup):
     class Meta:

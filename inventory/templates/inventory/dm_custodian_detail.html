@@ -4,167 +4,168 @@
 {% load humanize %}
 {% block content %}
 
-    {% if user.is_authenticated %}
-        {% url 'inventory:my_resource_list' as home_url %}
-    {% else %}
-        {% url 'inventory:resource_list' as home_url %}
-    {% endif %}
+  {% if user.is_authenticated %}
+    {% url 'inventory:my_resource_list' as home_url %}
+  {% else %}
+    {% url 'inventory:resource_list' as home_url %}
+  {% endif %}
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'inventory:dm_custodian_list' %}">All Custodians</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object.full_name }}</li>
-        </ol>
-    </nav>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'inventory:dm_home' %}">Data Management Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'inventory:dm_custodian_list' %}">All Custodians</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ object.full_name }}</li>
+    </ol>
+  </nav>
 
-    <div class="container">
+  <div class="container">
+    <p>
+    <div class="btn-group">
+      <a class="btn btn-warning" href="{% url "inventory:dm_person_edit" object.user_id %}">Edit User Details</a>
+      <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#send_email"> Send Certification
+        Request Email </a>
+
+
+    </div>
+    </p>
+    <div class="row">
+      <div class="col">
+        <h3>User Info:</h3>
         <p>
-        <div class="btn-group">
-            <a class="btn btn-warning" href="{% url "inventory:dm_person_edit" object.user_id %}">Edit User Details</a>
-            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#send_email"> Send Certification
-                Request Email </a>
-
-
-        </div>
+          <b>Username:</b><br>
+          {{ object.user }}
+          <br>
+          <b> Full name: </b><br>
+          {{ object.full_name }}
+          <br>
+          <b> Email address: </b><br>
+          {{ object.user.email }}
+          <br>
+          <b> Language preference: </b><br>
+          {{ object.get_language_display }}
+          <br>
+          <b> Organization: </b><br>
+          {{ object.organization.name_eng }}
         </p>
-        <div class="row">
-            <div class="col">
-                <h3>User Info:</h3>
-                <p>
-                    <b>Username:</b><br>
-                    {{ object.user }}
-                    <br>
-                    <b> Full name: </b><br>
-                    {{ object.full_name }}
-                    <br>
-                    <b> Email address: </b><br>
-                    {{ object.user.email }}
-                    <br>
-                    <b> Language preference: </b><br>
-                    {{ object.get_language_display }}
-                    <br>
-                    <b> Organization: </b><br>
-                    {{ object.organization.name_eng }}
-                </p>
-            </div>
-            <div class="col">
-                <h3>Correspondences:</h3>
-                <ul>
-                    {% for obj in object.user.correspondences.all %}
-                        <li>
-                            {{ obj.date }} UTC- {{ obj.subject }}
-                        </li>
-                    {% empty %}
-                        None
-                    {% endfor %}
-                </ul>
-            </div>
+      </div>
+      <div class="col">
+        <h3>Correspondences:</h3>
+        <ul>
+          {% for obj in object.user.correspondences.all %}
+            <li>
+              {{ obj.date }} UTC- {{ obj.subject }}
+            </li>
+          {% empty %}
+            None
+          {% endfor %}
+        </ul>
+      </div>
 
-        </div>
     </div>
     <div class="indent-med">
-        <div class="row">
-            <div class="col">
+      <div class="row">
+        <div class="col">
 
-                <h3>Resources:</h3>
-                <table class="table table-hover table-sm">
-                    <thead>
-                    <th scope="col">Id</th>
-                    <th scope="col">Title</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Last certified</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for obj in queryset %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'inventory:resource_detail' obj.resource.id %}">{{ obj.resource.id }}</a>
-                            </td>
-                            <td>{{ obj.resource.title_eng }}</td>
-                            {% if obj.resource.status.id == 3 %}
-                                <td class="green-font">
-                                    {% elif obj.resource.status.id == 1 %}
-                                <td class="red-font">
-                                    {% else %}
-                                <td>
-                            {% endif %}
-                            {{ obj.resource.status }}
-                            </td>
-                            {% if obj.resource.certification_history.count > 0 %}
+          <h3>Resources:</h3>
+          <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+              <th scope="col">Id</th>
+              <th scope="col">Title</th>
+              <th scope="col">Status</th>
+              <th scope="col">Last certified</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in queryset %}
+              <tr>
+                <td>
+                  <a href="{% url 'inventory:resource_detail' obj.resource.id %}">{{ obj.resource.id }}</a>
+                </td>
+                <td>{{ obj.resource.title_eng }}</td>
+                {% if obj.resource.status.id == 3 %}
+                  <td class="green-font">
+                    {% elif obj.resource.status.id == 1 %}
+                  <td class="red-font">
+                    {% else %}
+                  <td>
+                {% endif %}
+                {{ obj.resource.status }}
+                </td>
+                {% if obj.resource.certification_history.count > 0 %}
 
-                                {% if now|timedelta:obj.resource.certification_history.first.certification_date < 90 %}
-                                    <td class="good">
-                                        {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 180 %}
-                                    <td class="mild-concern">
+                  {% if now|timedelta:obj.resource.certification_history.first.certification_date < 90 %}
+                    <td class="good">
+                      {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 180 %}
+                    <td class="mild-concern">
 
-                                        {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 270 %}
-                                    <td class="concern">
-                                        {% else %}
-                                    <td class="bad">
-                                {% endif %}
-                            {{ obj.resource.certification_history.first.certification_date|naturaltime }}
-                            {% else %}
-                                <td><span class="red-font"><b>Never</b></span>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
+                      {% elif now|timedelta:obj.resource.certification_history.first.certification_date < 270 %}
+                    <td class="concern">
+                      {% else %}
+                    <td class="bad">
+                  {% endif %}
+                {{ obj.resource.certification_history.first.certification_date|naturaltime }}
+                {% else %}
+                  <td><span class="red-font"><b>Never</b></span>
+                {% endif %}
+              </tr>
+            {% endfor %}
 
 
-                    </tbody>
-                </table>
-                <b>
-                    TOTAL: {{ queryset.count }}
-                </b>
-            </div>
+            </tbody>
+          </table>
+          <b>
+            TOTAL: {{ queryset.count }}
+          </b>
         </div>
-
+      </div>
     </div>
 
-    {#<!-- Send Certification Request Email MODAL -->#}
-    <div class="modal" id="send_email" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle"> Send Certification Request Email </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered">
-                        <tr>
-                            <td><b>From</b></td>
-                            <td>{{ email.from_email }}</td>
-                        </tr>
-                        <tr>
-                            <td><b>To</b></td>
-                            <td>{{ email.to_list }}</td>
-                        </tr>
-                        <tr>
-                            <td><b>Subject</b></td>
-                            <td>{{ email.subject }}</td>
-                        </tr>
-                        <tr>
-                            <td><b>Message</b></td>
+  </div>
 
-                            <td>{{ email.message }}</td>
-
-                        </tr>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-lg btn-primary" data-dismiss="modal">Nevermind</button>
-                    <a href="{% url 'inventory:send_certification_email' object.user_id %}"
-                       class="btn btn-lg btn-warning float-center">Send Away!</a>
-
-                </div>
-            </div>
+  {#<!-- Send Certification Request Email MODAL -->#}
+  <div class="modal" id="send_email" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle"> Send Certification Request Email </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        <div class="modal-body">
+          <table class="table table-bordered">
+            <tr>
+              <td><b>From</b></td>
+              <td>{{ email.from_email }}</td>
+            </tr>
+            <tr>
+              <td><b>To</b></td>
+              <td>{{ email.to_list }}</td>
+            </tr>
+            <tr>
+              <td><b>Subject</b></td>
+              <td>{{ email.subject }}</td>
+            </tr>
+            <tr>
+              <td><b>Message</b></td>
+
+              <td>{{ email.message }}</td>
+
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-primary" data-dismiss="modal">Nevermind</button>
+          <a href="{% url 'inventory:send_certification_email' object.user_id %}"
+             class="btn btn-lg btn-warning float-center">Send Away!</a>
+
+        </div>
+      </div>
     </div>
+  </div>
 
 
 
