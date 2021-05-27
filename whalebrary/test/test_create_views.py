@@ -141,7 +141,6 @@ class TestPersonnelCreateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
 
-#TODO find out about error - because supplier doesn't have to have an item?
 class TestSupplierCreateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -219,7 +218,7 @@ class TestIncidentCreateView(CommonTest):
         data = FactoryFloor.IncidentFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-#TODO same fail as file create view (related to file_field_name="image") -- need to add ImageField case to assert_success_url?
+
 class TestImageCreateView(CommonTest):
     def setUp(self):
         super().setUp()

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from whalebrary.models import Size, Organisation, Training, Order, TransactionCategory
+from whalebrary.models import Size, Organisation, Training, Order, TransactionCategory, PlanningLink
 import datetime
 
 # Register your models here.
@@ -7,6 +7,7 @@ admin.site.register(Size)
 admin.site.register(Organisation)
 admin.site.register(Training)
 admin.site.register(TransactionCategory)
+admin.site.register(PlanningLink)
 
 # custom function to bulk mark received the selected orders in django admin for Order model
 

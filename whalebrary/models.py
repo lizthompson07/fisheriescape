@@ -339,6 +339,7 @@ class Personnel(models.Model):
 
 class Species(SimpleLookup):
     name_latin = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (latin)"))
+    species_code = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species code"))
 
 
 class Incident(LatLongFields):
@@ -371,10 +372,20 @@ class Incident(LatLongFields):
         ("LS", "LIVE - Stranded"),
     )
 
+    RESPONSE_CHOICES = (
+        ("D", "Disentanglement"),
+        ("R", "Refloating"),
+        ("DE", "Documentation / Examination"),
+        ("N", "Necropsy"),
+        ("E", "Education"),
+        ("O", "Other"),
+    )
+
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("incident name"))
     species_count = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species count"))
     submitted = models.BooleanField(choices=BOOL_CHOICES, blank=True, null=True,
                                     verbose_name=_("incident report submitted by Gulf?"))
+    reported_by = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("reported by"))
     first_report = models.DateTimeField(blank=True, null=True, verbose_name=_("date and time first reported"))
     location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("location"))
     region = models.CharField(max_length=255, null=True, blank=True, choices=REGION_CHOICES, verbose_name=_("region"))
@@ -386,7 +397,10 @@ class Incident(LatLongFields):
                                      verbose_name=_("type of Incident"))
     gear_presence = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("gear Presence?"))
     gear_desc = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("gear description"))
-    exam = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("examination conducted?"))
+    response = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("was there a response?"))
+    response_type = models.CharField(max_length=255, blank=True, null=True, choices=RESPONSE_CHOICES, verbose_name=_("response type"))
+    response_by = models.ManyToManyField(Organisation, blank=True, related_name="incidents", verbose_name=_("response by"))
+    response_date = models.DateTimeField(blank=True, null=True, verbose_name=_("date and time of response"))
     necropsy = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("necropsy conducted?"))
     results = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("results"))
     photos = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("photos?"))
@@ -394,19 +408,70 @@ class Incident(LatLongFields):
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
     date_email_sent = models.DateTimeField(blank=True, null=True, verbose_name="date incident emailed")
 
+    @property
+    def incident_id(self):
+        my_str = ""
+
+        if self.incident_type:
+            my_str += f'{self.incident_type}'
+        if self.first_report:
+            my_str += f'{self.first_report.strftime("%Y%m%d")}'
+        if self.species.species_code:
+            my_str += f'{self.species.species_code}'
+        if self.id:
+            my_str += f' (inc.ID #{self.id})'
+        return my_str
+
     def __str__(self):
-        return self.name
+        if self.incident_id:
+            return self.incident_id
+        else:
+            return "None"
 
     def get_leaflet_dict(self):
         json_dict = dict(
             type='Feature',
-            properties=dict(name=self.name, pk=self.pk),
+            properties=dict(
+                name=self.name,
+                id=self.incident_id,
+                pk=self.pk,
+                type=str(self.get_incident_type_display()), #if this is not filled in this method fails though, need to make separate one for error handling, seems to work making it a string
+                species=self.species.name,
+                date=str(self.first_report),
+            ),
             geometry=dict(type='Point', coordinates=list([self.longitude, self.latitude]))
         )
         return json_dict
 
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
+
+
+class Resight(LatLongFields):
+    incident = models.ForeignKey(Incident, on_delete=models.DO_NOTHING, related_name="resights", verbose_name=_("incident"))
+    reported_by = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("reported by"))
+    resight_date = models.DateTimeField(blank=True, null=True, verbose_name=_("date and time of resight"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
+    date_email_sent = models.DateTimeField(blank=True, null=True, verbose_name="date resight incident emailed")
+
+    def __str__(self):
+        my_str = "{}".format(self.id)
+
+        if self.incident.name:
+            my_str += f' ({self.incident.name})'
+        return my_str
+
+    def get_leaflet_resight_dict(self):
+        json_dict = dict(
+            type='Feature',
+            properties=dict(
+                pk=self.pk,
+                date=str(self.resight_date),
+                comments=self.comments,
+            ),
+            geometry=dict(type='Point', coordinates=list([self.longitude, self.latitude]))
+        )
+        return json_dict
 
 
 def image_directory_path(instance, imagename):
@@ -554,3 +619,13 @@ class Order(models.Model):
         else:
             no_str = "---"
             return no_str
+
+
+class PlanningLink(models.Model):
+    year = models.IntegerField(verbose_name=_("planning year"))
+    client = models.CharField(max_length=250, verbose_name=_("client"))
+    description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
+    link = models.URLField(max_length=250, blank=True, null=True, verbose_name=_("link"))
+
+    def __str__(self):
+        return '{} ({})'.format(self.client, self.year)
