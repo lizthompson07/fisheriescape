@@ -1,0 +1,87 @@
+<em>
+    *** un message en français suivra
+</em>
+<br><br>
+<p>
+    A new resight of an incident has been logged with the following details:
+</p>
+<table>
+    <tr>
+        <td><b>Reference number:</b></td>
+        <td>{{ object.id }}</td>
+    </tr>
+    <tr>
+        <td><b>Associated incident name:</b></td>
+        <td>{{ object.incident }}</td>
+    </tr>
+    <tr>
+        <td><b>Reported by:</b></td>
+        <td>{{ object.reported_by }}</td>
+    </tr>
+    <tr>
+        <td><b>Latitude:</b></td>
+        <td>{{ object.latitude }}</td>
+    </tr>
+    <tr>
+        <td><b>Longitude:</b></td>
+        <td>{{ object.longitude }}</td>
+    </tr>
+    <tr>
+        <td><b>Resight date:</b></td>
+        <td>{{ object.resight_date }}</td>
+    </tr>
+    <tr>
+        <td><b>Comments:</b></td>
+        <td>{{ object.comments }}</td>
+    </tr>
+</table>
+
+At any point, more information about this resighting and photos can be viewed
+<a href="{{SITE_FULL_URL}}{% url 'whalebrary:incident_detail' object.incident.id %}">HERE</a>.
+</p>
+
+<hr>
+<br>
+<p>
+    Une nouvelle observation d'un incident a été enregistré avec les détails suivants:
+</p>
+<table>
+    <tr>
+        <td><b>Numéro de réference:</b></td>
+        <td>{{ object.id }}</td>
+    </tr>
+    <tr>
+        <td><b>Nom de l'incident associé:</b></td>
+        <td>{{ object.incident }}</td>
+    </tr>
+    <tr>
+        <td><b>Soumis par:</b></td>
+        <td>{{ object.reported_by }}</td>
+    </tr>
+     <tr>
+        <td><b>Latitude:</b></td>
+        <td>{{ object.latitude }}</td>
+    </tr>
+    <tr>
+        <td><b>Longitude:</b></td>
+        <td>{{ object.longitude }}</td>
+    </tr>
+     <tr>
+        <td><b>Date de relocalisation:</b></td>
+        <td>{{ object.resight_date }}</td>
+    </tr>
+    <tr>
+        <td><b>Commentaires:</b></td>
+        <td>{{ object.comments }}</td>
+    </tr>
+</table>
+
+A tout moment, plus d'informations sur cette relocalisation et les photos peuvent être consultées
+<a href="{{SITE_FULL_URL}}{% url 'whalebrary:incident_detail' object.incident.id %}">ICI</a>.
+</p>
+
+<style media="screen">
+    table, td {
+        border: solid 1px black;
+    }
+</style>

@@ -37,11 +37,6 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Tests for projects (v2)'
 
-#  - script: |
-#      python manage.py test -b travel.test
-#    condition: succeededOrFailed()
-#    displayName: 'Tests for travel'
-
   - script: |
       python manage.py test -b whalesdb.test
     condition: succeededOrFailed()
@@ -61,11 +56,6 @@ steps:
       python manage.py test -b ihub.test
     condition: succeededOrFailed()
     displayName: 'Tests for ihub'
-
-  - script: |
-      python manage.py test -b csas.test
-    condition: succeededOrFailed()
-    displayName: 'Tests for csas'
 
   - script: |
       python manage.py test -b cruises.test
