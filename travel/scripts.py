@@ -18,7 +18,6 @@ def remove_empty_reviewers():
             obj.delete()
 
 
-
 def activate_all_users():
     for u in User.objects.filter(is_active=False):
         u.is_active = True
