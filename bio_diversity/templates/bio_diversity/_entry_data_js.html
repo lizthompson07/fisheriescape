@@ -2,7 +2,17 @@
 
     window.onload = function() {
       setDataFields();
+      $("#loading_fish").hide();
     };
+
+    $("#submit_btn").click(function (e) {
+        setLoadingGif();
+    })
+
+    function setLoadingGif() {
+        $("#submit_btn").hide();
+        $("#loading_fish").show();
+    }
 
     $("#id_data_type").change(function (e) {
         setDataFields();

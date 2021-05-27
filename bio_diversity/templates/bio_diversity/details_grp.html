@@ -17,3 +17,33 @@
 
 
 
+
+{% block detail_tables %}
+    {{ block.super }}
+     {% if "heritage_set" %}
+        <div class="card border border-dark my-1" name="heritage-details">
+            <h5 class="card-header">{% trans "Heritage History" %}</h5>
+            <table class="table table-sm sortable table-hover">
+                <thead>
+                {% for field in heritage_field_list %}
+                <th>{{ field }}</th>
+                {% endfor %}
+                </thead>
+                <tbody>
+                {% for obj in heritage_set %}
+                {# the 1 is to select the group object from obj, which is a tuple#}
+                <tr href="{% url 'bio_diversity:details_grp' 'grp' object.id obj.1.id %}">
+                    {% for field in obj %}
+                    <td>
+                        {{ field }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
+
+

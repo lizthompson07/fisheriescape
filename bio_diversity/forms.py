@@ -1,6 +1,7 @@
 import inspect
 from datetime import date, datetime
 
+import pandas as pd
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -8,8 +9,9 @@ from django.forms import modelformset_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from bio_diversity.data_parsers.distributions import MactaquacDistributionParser, ColdbrookDistributionParser
-from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser
+from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
+from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
+    ElectrofishingParser
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -129,6 +131,67 @@ class AnixForm(CreatePrams):
         widgets = {
             'final_contx_flag': forms.NullBooleanSelect()
         }
+
+
+class AddCollFishForm(forms.Form):
+    evnt_id = forms.ModelChoiceField(required=True, queryset=models.Event.objects.all(), label=_("Event"))
+    coll_date = forms.DateField(required=True, label=_("Collection Date"))
+    coll_time = forms.TimeField(required=False, label=_("Collection Time"))
+    rive_id = forms.ModelChoiceField(required=True, queryset=models.RiverCode.objects.all(), label=_("River"))
+    coll_id = forms.ModelChoiceField(required=True, queryset=models.Collection.objects.all(), label=_("Collection"))
+    grp_prog_id = forms.ModelChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Program Group"), label=_("Program Group"))
+    end_tank = forms.ModelChoiceField(required=True, queryset=models.Tank.objects.all(), label=_("Destination Pond"))
+    site_id = forms.ModelChoiceField(required=True, queryset=models.ReleaseSiteCode.objects.all(), label=_("Site"))
+    fish_caught = forms.IntegerField(required=True, max_value=1000000)
+    crew_id = forms.ModelChoiceField(required=True, queryset=models.PersonnelCode.objects.all(), label=_("Crew"))
+    created_date = forms.DateField(required=True)
+    created_by = forms.CharField(required=True, max_length=32)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        self.fields['evnt_id'].widget = forms.HiddenInput()
+        self.fields['coll_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-date"})
+        self.fields['coll_time'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-time"})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        parser = ElectrofishingParser(cleaned_data, autorun=False)
+        if cleaned_data["grp_prog_id"]:
+            prog_name = cleaned_data["grp_prog_id"].name
+        else:
+            prog_name = None
+        month_str = date(1900, cleaned_data["coll_date"].month, 1).strftime('%b')
+        data_dict = {parser.tank_key: cleaned_data["end_tank"].name,
+                     parser.year_key: str(cleaned_data["coll_date"].year),
+                     parser.month_key: month_str,
+                     parser.day_key: str(cleaned_data["coll_date"].day),
+                     # parser.time_key: cleaned_data["coll_time"],
+                     parser.rive_key: cleaned_data["rive_id"].name,
+                     parser.group_key: prog_name,
+                     parser.coll_key: cleaned_data["coll_id"].name,
+                     parser.site_key: cleaned_data["site_id"].name,
+                     parser.fish_caught_key: cleaned_data["fish_caught"],
+                     parser.crew_key: cleaned_data["crew_id"].initials,
+                     parser.lat_key: None,
+                     parser.end_lat: None,
+                     parser.lon_key: None,
+                     parser.end_lon: None,
+                     parser.temp_key: None,
+                     parser.fish_obs_key: None,
+                     parser.fishing_time_key: None,
+                     parser.voltage_key: None,
+                     parser.settings_key: None,
+                     parser.comment_key: None,
+                     }
+        cleaned_data["evntc_id"] = cleaned_data["evnt_id"].evntc_id
+        cleaned_data["facic_id"] = cleaned_data["evnt_id"].facic_id
+        parser.data = pd.DataFrame([data_dict])
+        parser.data_preper()
+        parser.iterate_rows()
 
 
 class AdscForm(CreatePrams):
@@ -310,10 +373,10 @@ class DataForm(CreatePrams):
                 success = parser.success
             # -----------------------------DISTRIBUTION----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Distribution":
-                if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    parser = MactaquacDistributionParser(cleaned_data)
-                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    parser = ColdbrookDistributionParser(cleaned_data)
+                if cleaned_data["data_type"].__str__() == "Individual":
+                    parser = DistributionIndvParser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Group":
+                    parser = DistributionParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # -------------------------GENERAL DATA ENTRY-------------------------------------------
@@ -458,7 +521,7 @@ class FishToContForm(forms.Form):
     new_grp_id = forms.ModelChoiceField(required=False, queryset=models.Group.objects.all().select_related("stok_id", "coll_id"), label=_("New Group"))
     grp_prog_id = forms.ModelChoiceField(required=False, queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Program Group"), label=_("Program Group"))
     perc_id = forms.ModelChoiceField(required=False, queryset=models.PersonnelCode.objects.all(), label=_("Personnel"))
-    num_fish = forms.IntegerField(required=True, max_value=1000)
+    num_fish = forms.IntegerField(required=True, max_value=1000000)
     move_date = forms.DateField(required=True, label=_("Date of transfer"))
 
     created_date = forms.DateField(required=True)
@@ -674,6 +737,24 @@ class LoccForm(CreatePrams):
         exclude = []
 
 
+class LocdForm(CreatePrams):
+    class Meta:
+        model = models.LocationDet
+        exclude = []
+
+
+class LocdcForm(CreatePrams):
+    class Meta:
+        model = models.LocationDetCode
+        exclude = []
+
+
+class LdscForm(CreatePrams):
+    class Meta:
+        model = models.LocDetSubjCode
+        exclude = []
+
+
 class MapForm(forms.Form):
     north = forms.FloatField(required=False)
     south = forms.FloatField(required=False)
@@ -770,20 +851,33 @@ class MortForm(forms.Form):
             contx, data_entered = utils.enter_tank_contx(tank.name, cleaned_data, grp_pk=grp.id, return_contx=True)
             utils.enter_cnt(cleaned_data, cnt_value=1, contx_pk=contx.id, cnt_code="Mortality")
 
+        ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
+
         if cleaned_data["indv_length"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_length"], "Length", None)
+            len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_length"],
+                              len_anidc_id.pk, None)
         if cleaned_data["indv_mass"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_mass"], "Weight", None)
+            weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_mass"],
+                              weight_anidc_id.pk, None)
         if cleaned_data["indv_vial"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_vial"], "Vial", None)
+            vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_vial"],
+                              vial_anidc_id.pk, None)
         if cleaned_data["scale_envelope"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["scale_envelope"], "Scale Envelope", None)
+            envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["scale_envelope"],
+                              envelope_anidc_id.pk, None)
         if cleaned_data["indv_gender"]:
-            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_gender"], "Gender", None)
+            sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
+            utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], cleaned_data["indv_gender"],
+                              sex_anidc_id.pk, None)
 
         if cleaned_data["observations"].count() != 0:
             for adsc in cleaned_data["observations"]:
-                utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.name, adsc.name, None)
+                utils.enter_indvd(anix.pk, cleaned_data, cleaned_data["mort_date"], None, adsc.anidc_id.pk, adsc.name,
+                                  None)
 
 
 class OrgaForm(CreatePrams):

@@ -321,6 +321,27 @@ class LoccFilter(django_filters.FilterSet):
         fields = ["name", "nom", ]
 
 
+class LocdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.LocationDet
+        fields = ["locdc_id", ]
+
+
+class LocdcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.LocationDetCode
+        fields = ["name", "nom", ]
+
+
+class LdscFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.LocDetSubjCode
+        fields = ["name", "nom", ]
+
+
 class OrgaFilter(django_filters.FilterSet):
 
     name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
