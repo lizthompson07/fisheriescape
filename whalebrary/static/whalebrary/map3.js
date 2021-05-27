@@ -21,7 +21,7 @@ var streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{
 var pointObject = L.geoJSON(pointObj, {
 
     onEachFeature: function (feature, layer) {
-        layer.bindPopup(`Incident: ${feature.properties.name}`);
+        layer.bindPopup(`Incident ID: ${feature.properties.id}<br>Incident Name: ${feature.properties.name}<br>Incident Type: ${feature.properties.type}</br>Species: ${feature.properties.species}</br>Date: ${feature.properties.date}`);
         }
 });
 
@@ -31,7 +31,31 @@ var allPointObject = L.geoJSON(allPointObj, {
 
     onEachFeature: function (feature, layer) {
         myUrl = `http://dmapps/en/whalebrary/incident_detail/${feature.properties.pk}/view/`
-        layer.bindPopup(`Incident: <a href = "${myUrl}">${feature.properties.name}</a>`);
+        layer.bindPopup(`Incident ID: <a href = "${myUrl}">${feature.properties.id}</a><br>Incident Name: ${feature.properties.name}<br>Incident Type: ${feature.properties.type}</br>Species: ${feature.properties.species}</br>Date: ${feature.properties.date}`);
+        }
+});
+
+// Create icon of different colour for resight (see https://awesomeopensource.com/project/pointhi/leaflet-color-markers)
+
+var myIcon = new L.Icon({
+
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+// Create all resight layer and use onEachFeature to show certain info for each feature
+
+var resightObject = L.geoJSON(resightObj, {
+     pointToLayer: function (feature, latlng) {
+                    return L.marker(latlng, {icon: myIcon});
+    },
+
+    onEachFeature: function (feature, layer) {
+       layer.bindPopup(`Resight #: ${feature.properties.pk}<br>Date: ${feature.properties.date}</br>Comments: ${feature.properties.comments}`);
         }
 });
 
@@ -52,7 +76,8 @@ var baseMaps = {
 
 var overlayMaps = {
     "incident": pointObject,
-    "all": allPointObject,
+    "all incidents": allPointObject,
+    "resights": resightObject,
 
 };
 

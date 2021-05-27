@@ -187,7 +187,11 @@ class CSASRequest(MetadataFields):
 
     @property
     def status_class(self):
-        return slugify(self.get_status_display()) if self.status else ""
+        lang = get_language()
+        activate("en")
+        mystr = slugify(self.get_status_display()) if self.status else ""
+        activate(lang)
+        return mystr
 
     @property
     def assistance_display(self):
@@ -336,21 +340,21 @@ class Process(SimpleLookupWithUUID, MetadataFields):
 
     @property
     def science_leads(self):
-        qs = Invitee.objects.filter(meeting__process=self, roles__category=4).distinct()
+        qs = Person.objects.filter(meeting_invites__meeting__process=self, meeting_invites__roles__category=4).distinct()
         if qs.exists():
-            return listrify([f"{invitee.person}" for invitee in qs])
+            return listrify([f"{person}" for person in qs])
 
     @property
     def client_leads(self):
-        qs = Invitee.objects.filter(meeting__process=self, roles__category=2).distinct()
+        qs = Person.objects.filter(meeting_invites__meeting__process=self, meeting_invites__roles__category=2).distinct()
         if qs.exists():
-            return listrify([f"{invitee.person}" for invitee in qs])
+            return listrify([f"{person}" for person in qs])
 
     @property
     def committee_members(self):
-        qs = Invitee.objects.filter(meeting__process=self, roles__category=3).distinct()
+        qs = Person.objects.filter(meeting_invites__meeting__process=self, meeting_invites__roles__category=3).distinct()
         if qs.exists():
-            return listrify([f"{invitee.person}" for invitee in qs])
+            return listrify([f"{person}" for person in qs])
 
     @property
     def regions(self):

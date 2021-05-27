@@ -146,7 +146,7 @@ class TestGrpCnt(CommonTest):
         cnt_one_val = randint(0, 100)
         cnt_two_val = randint(0, 100)
         utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
-        cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")
+        cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")[0]
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_two_val, "Program Group", "PEQU")
         self.assertEqual(self.grp.count_fish_in_group(), init_cnt - cnt_one_val - cnt_two_val)
@@ -165,7 +165,7 @@ class TestGrpCnt(CommonTest):
         end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, None, grp_pk=self.grp.pk, return_contx=True)
 
         utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
-        cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")
+        cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")[0]
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
         utils.enter_cnt(new_cleaned_data, cnt_final_val, end_contx.pk, cnt_code="Egg Count")
         self.assertEqual(self.grp.count_fish_in_group(), cnt_final_val)

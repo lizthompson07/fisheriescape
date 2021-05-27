@@ -110,5 +110,5 @@ def generate_index(path=None, max=500):
 
 
 if __name__ == '__main__':
-    df = generate_index(max=0)
+    df = generate_index(max=20) #set max number of lines to test
     df.to_excel('file_index.xlsx')

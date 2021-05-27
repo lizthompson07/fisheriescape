@@ -3131,5 +3131,155 @@
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-02-25"
     }
+},
+{
+    "model": "bio_diversity.unitcode",
+    "pk": 15,
+    "fields": {
+        "name": "Minutes (min)",
+        "nom": null,
+        "description_en": "Duration of time equal to 60 seconds.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-18"
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 1,
+    "fields": {
+        "name": "Truck",
+        "nom": null,
+        "description_en": "Records the truck that travelled to the location",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 2,
+    "fields": {
+        "name": "Release Method",
+        "nom": null,
+        "description_en": "Describes how fish were released at a location.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 3,
+    "fields": {
+        "name": "Acclimation Time",
+        "nom": null,
+        "description_en": "How long fish are given to acclimate to a different water temperature or type",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-18",
+        "min_val": "0.00000",
+        "max_val": "10000.00000",
+        "unit_id": 15,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 4,
+    "fields": {
+        "name": "Lifestage",
+        "nom": null,
+        "description_en": "Lifestage of fish present at a location.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-18",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 5,
+    "fields": {
+        "name": "Voltage",
+        "nom": null,
+        "description_en": "Voltage of electrofishing unit used when collecting fish.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-19",
+        "min_val": "0.00000",
+        "max_val": "2000.00000",
+        "unit_id": 8,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 6,
+    "fields": {
+        "name": "Electrofishing Seconds",
+        "nom": null,
+        "description_en": "Duration of time spent electrofishing, taken from electrofishing unit.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-19",
+        "min_val": "0.00000",
+        "max_val": "50000.00000",
+        "unit_id": 7,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 7,
+    "fields": {
+        "name": "Electrofishing Settings",
+        "nom": null,
+        "description_en": "Settings used on electrofishing unit.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-19",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locdetsubjcode",
+    "pk": 1,
+    "fields": {
+        "name": "Buckets",
+        "nom": null,
+        "description_en": "Fish transported from truck to river in buckets.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "locdc_id": 2
+    }
+},
+{
+    "model": "bio_diversity.locdetsubjcode",
+    "pk": 2,
+    "fields": {
+        "name": "Boot",
+        "nom": null,
+        "description_en": "Fish moved from truck to river in rubber \"boot\"",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "locdc_id": 2
+    }
 }
 ]

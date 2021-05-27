@@ -20,7 +20,9 @@ urlpatterns = [
     path('details/anix/<int:pk>/', views.AnixDetails.as_view(), name="details_anix"),
     path('list/anix/', views.AnixList.as_view(), name="list_anix"),
     path('update/anix/<int:pk>/', views.AnixUpdate.as_view(), name="update_anix"),
-    
+
+    path('create/addcollfish/<int:evnt>/<str:pop>/', views.AddCollFishFormView.as_view(), name="create_fish_to_cont"),
+
     path('create/adsc/', views.AdscCreate.as_view(), name="create_adsc"),
     path('details/adsc/<int:pk>/', views.AdscDetails.as_view(), name="details_adsc"),
     path('list/adsc/', views.AdscList.as_view(), name="list_adsc"),
@@ -274,6 +276,22 @@ urlpatterns = [
     path('list/locc/', views.LoccList.as_view(), name="list_locc"),
     path('update/locc/<int:pk>/', views.LoccUpdate.as_view(), name="update_locc"),
     
+    path('create/locd/', views.LocdCreate.as_view(), name="create_locd"),
+    path('details/locd/<int:pk>/', views.LocdDetails.as_view(), name="details_locd"),
+    path('details/locd/<str:back>/<int:back_id>/<int:pk>/', views.LocdDetails.as_view(), name="details_locd"),
+    path('list/locd/', views.LocdList.as_view(), name="list_locd"),
+    path('update/locd/<int:pk>/', views.LocdUpdate.as_view(), name="update_locd"),
+    
+    path('create/locdc/', views.LocdcCreate.as_view(), name="create_locdc"),
+    path('details/locdc/<int:pk>/', views.LocdcDetails.as_view(), name="details_locdc"),
+    path('list/locdc/', views.LocdcList.as_view(), name="list_locdc"),
+    path('update/locdc/<int:pk>/', views.LocdcUpdate.as_view(), name="update_locdc"),
+    
+    path('create/ldsc/', views.LdscCreate.as_view(), name="create_ldsc"),
+    path('details/ldsc/<int:pk>/', views.LdscDetails.as_view(), name="details_ldsc"),
+    path('list/ldsc/', views.LdscList.as_view(), name="list_ldsc"),
+    path('update/ldsc/<int:pk>/', views.LdscUpdate.as_view(), name="update_ldsc"),
+    
     path('map/', views.LocMapTemplateView.as_view(), name="loc_map"),
     path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/', views.LocMapTemplateView.as_view(), name="loc_map"),
     path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/riv/<str:rive_id>/', views.LocMapTemplateView.as_view(), name="loc_map"),
@@ -358,6 +376,7 @@ urlpatterns = [
     path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
     path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
     path('reports/site_report_file/', views.site_report_file, name="site_report_file"),
+    path('reports/individual_report_file/', views.indvidual_report_file, name="individual_report_file"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
