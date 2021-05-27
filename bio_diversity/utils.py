@@ -40,12 +40,16 @@ class DataParser:
      consists of two functions: a wrapper and a parser. The wrapper (eg. load_data) checks if self.success is still 
      true, catches errors from running the corresponding parser function (eg. data_loader) which should be overwritten 
      for each specific parser."""
-    def __init__(self, cleaned_data):
+    def __init__(self, cleaned_data, autorun=True):
         self.cleaned_data = cleaned_data
-        self.load_data()
-        self.prep_data()
-        self.iterate_rows()
-        self.clean_data()
+        if autorun:
+            self.load_data()
+            self.prep_data()
+            self.iterate_rows()
+            self.clean_data()
+        else:
+            # to run only selection of parser functions
+            pass
 
     def load_data(self):
         try:
@@ -154,7 +158,7 @@ def get_help_text_dict(model=None, title=''):
 def team_list_splitter(team_str, valid_only=True):
     team_str_list = team_str.split(",")
     team_str_list = [indv_str.strip() for indv_str in team_str_list]
-    all_perc_qs = models.PersonnelCode.objects.filter(perc_valid=True)
+    all_perc_qs = models.PersonnelCode.objects.filter(perc_valid=valid_only)
     found_list = []
     not_found_list = []
     for inits in team_str_list:
@@ -554,7 +558,7 @@ def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None, return_team=Fal
         team.clean()
         team.save()
         row_entered = True
-    except ValidationError:
+    except (ValidationError, IntegrityError):
         team = models.TeamXRef.objects.filter(perc_id=team.perc_id, evnt_id=team.evnt_id, loc_id=team.loc_id,
                                               role_id=team.role_id).get()
     if return_team:
@@ -639,6 +643,9 @@ def enter_anix_contx(tank, cleaned_data):
 
 def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fish in Container", est=False):
     cnt = False
+    entered = False
+    if cnt_value is None:
+        return False, False
     if not math.isnan(cnt_value):
         cnt = models.Count(loc_id_id=loc_pk,
                            contx_id_id=contx_pk,
@@ -652,12 +659,13 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
         try:
             cnt.clean()
             cnt.save()
+            entered = True
         except ValidationError:
             cnt = models.Count.objects.filter(loc_id=cnt.loc_id, contx_id=cnt.contx_id, cntc_id=cnt.cntc_id).get()
             if cnt_code == "Mortality":
                 cnt.cnt += 1
                 cnt.save()
-    return cnt
+    return cnt, entered
 
 
 def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual="Good"):
@@ -757,14 +765,17 @@ def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=
             return None
 
 
-def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=None, frm_grp_id=None, comments=None):
+def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, frm_grp_id=None, comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
             return False
+    if anidc_str:
+        anidc_pk = models.AnimalDetCode.objects.filter(name=anidc_str).get().pk
+
     if adsc_str:
         grpd = models.GroupDet(anix_id_id=anix_pk,
-                               anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                               anidc_id_id=anidc_pk,
                                adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
                                frm_grp_id=frm_grp_id,
                                det_val=det_value,
@@ -776,7 +787,7 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=N
                                )
     else:
         grpd = models.GroupDet(anix_id_id=anix_pk,
-                               anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                               anidc_id_id=anidc_pk,
                                frm_grp_id=frm_grp_id,
                                det_val=det_value,
                                detail_date=det_date,
@@ -793,14 +804,14 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=N
     return row_entered
 
 
-def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str, comments=None):
+def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, adsc_str=None, comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
             return False
     if adsc_str:
         indvd = models.IndividualDet(anix_id_id=anix_pk,
-                                     anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                     anidc_id_id=anidc_pk,
                                      adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
                                      det_val=det_value,
                                      detail_date=det_date,
@@ -811,7 +822,7 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str,
                                      )
     else:
         indvd = models.IndividualDet(anix_id_id=anix_pk,
-                                     anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                     anidc_id_id=anidc_pk,
                                      det_val=det_value,
                                      detail_date=det_date,
                                      qual_id=models.QualCode.objects.filter(name="Good").get(),
@@ -821,6 +832,40 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str,
     try:
         indvd.clean()
         indvd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
+
+
+def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=None, comments=None):
+    row_entered = False
+    if isinstance(det_value, float):
+        if math.isnan(det_value):
+            return False
+    if ldsc_str:
+        locd = models.LocationDet(loc_id_id=loc_pk,
+                                  locdc_id_id=locdc_pk,
+                                  ldsc_id=models.LocDetSubjCode.objects.filter(name=ldsc_str).get(),
+                                  det_val=det_value,
+                                  detail_date=det_date,
+                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  comments=comments,
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    else:
+        locd = models.LocationDet(loc_id_id=loc_pk,
+                                  locdc_id_id=locdc_pk,
+                                  det_val=det_value,
+                                  detail_date=det_date,
+                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+    try:
+        locd.clean()
+        locd.save()
         row_entered = True
     except (ValidationError, IntegrityError):
         pass
@@ -883,13 +928,15 @@ def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=N
     return samp, samp_entered
 
 
-def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=None, comments=None):
+def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, comments=None):
     row_entered = False
     if not nan_to_none(det_value):
         return False
+    if anidc_str:
+        anidc_pk = models.AnimalDetCode.objects.filter(name=anidc_str).get().pk
     if adsc_str:
         sampd = models.SampleDet(samp_id_id=samp_pk,
-                                 anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                 anidc_id_id=anidc_pk,
                                  adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
                                  det_val=det_value,
                                  detail_date=det_date,
@@ -900,7 +947,7 @@ def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=
                                  )
     else:
         sampd = models.SampleDet(samp_id_id=samp_pk,
-                                 anidc_id=models.AnimalDetCode.objects.filter(name=anidc_str).get(),
+                                 anidc_id_id=anidc_pk,
                                  det_val=det_value,
                                  detail_date=det_date,
                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
@@ -916,15 +963,15 @@ def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_str, adsc_str=
     return row_entered
 
 
-def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_str, spwnsc_str, qual_code="Good", comments=None):
+def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_pk, spwnsc_str, qual_code="Good", comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
             return False
     if spwnsc_str:
         spwnd = models.SpawnDet(pair_id_id=pair_pk,
-                                anidc_id=models.SpawnDetCode.objects.filter(name=spwndc_str).get(),
-                                adsc_id=models.SpawnDetSubjCode.objects.filter(name=spwnsc_str).get(),
+                                spwndc_id_id=spwndc_pk,
+                                spwnsc_id=models.SpawnDetSubjCode.objects.filter(name=spwnsc_str).get(),
                                 det_val=det_value,
                                 qual_id=models.QualCode.objects.filter(name=qual_code).get(),
                                 comments=comments,
@@ -933,18 +980,18 @@ def enter_spwnd(pair_pk, cleaned_data, det_value, spwndc_str, spwnsc_str, qual_c
                                 )
     else:
         spwnd = models.SpawnDet(pair_id_id=pair_pk,
-                                spwndc_id=models.SpawnDetCode.objects.filter(name=spwndc_str).get(),
+                                spwndc_id_id=spwndc_pk,
                                 det_val=det_value,
                                 qual_id=models.QualCode.objects.filter(name=qual_code).get(),
                                 created_by=cleaned_data["created_by"],
                                 created_date=cleaned_data["created_date"],
                                 )
-        try:
-            spwnd.clean()
-            spwnd.save()
-            row_entered = True
-        except ValidationError:
-            pass
+    try:
+        spwnd.clean()
+        spwnd.save()
+        row_entered = True
+    except ValidationError:
+        pass
     return row_entered
 
 
@@ -1222,9 +1269,12 @@ def y_n_to_bool(test_item):
     else:
         return False
 
+
 def round_no_nan(data, precision):
     # data can be nan, decimal, float, etc.
-    if math.isnan(data) or data is None:
+    if data is None:
+        return None
+    elif math.isnan(data):
         return None
     else:
         return round(decimal.Decimal(data), precision)

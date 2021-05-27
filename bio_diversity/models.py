@@ -9,6 +9,7 @@ from collections import Counter
 import pytz
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -390,6 +391,8 @@ class Count(BioModel):
     def date(self):
         if self.contx_id:
             return self.contx_id.evnt_id.start_date
+        if self.loc_id:
+            return self.loc_id.loc_date.date()
         else:
             return None
 
@@ -838,13 +841,15 @@ class Group(BioModel):
         fish_count = 0
 
         # ordered oldest to newest
-        cnt_set = Count.objects.filter(contx_id__animal_details__grp_id=self,
-                                       contx_id__evnt_id__start_datetime__lte=at_date).select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
+        cnt_set = Count.objects.filter(Q(contx_id__animal_details__grp_id=self,
+                                         contx_id__evnt_id__start_datetime__lte=at_date) |
+                                       Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
+            .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
         absolute_codes = ["Egg Count", ]
-        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added"]
+        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added", "Fish Caught"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
-                          "Fish Removed from Container"]
+                          "Fish Removed from Container", "Fish Distributed"]
 
         for cnt in cnt_set:
             if cnt.cntc_id.name in add_codes:
@@ -902,6 +907,32 @@ class Group(BioModel):
 
         return dev
 
+    def get_parent_grp(self, at_date=utils.naive_to_aware(datetime.now())):
+        # gets parent groups this group came from.
+        grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
+                                           anidc_id__name="Parent Group",
+                                           frm_grp_id__isnull=False,
+                                           detail_date__lte=at_date,
+                                           ).select_related("frm_grp_id", "frm_grp_id__stok_id", "frm_grp_id__coll_id")
+        return grpd_set
+
+    def get_parent_history(self):
+        parent_grps = []
+        new_grpd_qs = []
+        grpd_qs = self.get_parent_grp()
+        depth = 1
+        while True:
+            for grpd in grpd_qs:
+                parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
+                new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
+            if new_grpd_qs:
+                grpd_qs = new_grpd_qs
+                depth += 1
+            else:
+                break
+
+        return parent_grps
+
     def prog_group(self):
         # gets program groups this group may be a part of.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
@@ -909,6 +940,13 @@ class Group(BioModel):
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
         return [grpd.adsc_id for grpd in grpd_set]
+
+    def start_date(self):
+        first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
+        if first_evnt:
+            return first_evnt.evnt_id.start_date
+        else:
+            return None
 
 
 class GroupDet(BioDet):
@@ -1138,6 +1176,19 @@ class Individual(BioModel):
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
         return current_cont_list
 
+    def get_parent_history(self):
+        parent_grps = [(0, self.grp_id, self.start_date())]
+        if self.grp_id:
+            parent_grps.extend(self.grp_id.get_parent_history())
+        return parent_grps
+
+    def start_date(self):
+        first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
+        if first_evnt:
+            return first_evnt.evnt_id.start_date
+        else:
+            return None
+
     def individual_detail(self, anidc_name="Length"):
         latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").first()
         if latest_indvd:
@@ -1305,21 +1356,22 @@ class Location(BioModel):
     @property
     def point(self):
         # lon = x, lat = y
-        if self.loc_lat and self.loc_lon:
+        if (self.loc_lat is not None) and (self.loc_lon is not None):
             return Point(self.loc_lon, self.loc_lat)
         else:
             return Point()
 
     @property
     def end_point(self):
-        if self.end_lat and self.end_lon:
+        if (self.end_lat is not None) and (self.end_lon is not None):
             return Point(self.end_lon, self.end_lat)
         else:
             return Point()
 
     @property
     def linestring(self):
-        if self.loc_lat and self.loc_lon and self.end_lat and self.end_lon:
+        if (self.loc_lat is not None) and (self.loc_lon is not None) and (self.end_lat is not None) and \
+                (self.end_lon is not None):
             return LineString([(self.loc_lon, self.loc_lat), (self.end_lon, self.end_lat)])
         else:
             return Point()
@@ -1342,6 +1394,8 @@ class Location(BioModel):
         if self.relc_id and not self.subr_id:
             self.sube_id = self.relc_id.subr_id
         self.set_relc_latlng()
+        if not self.relc_id and not (self.loc_lon and self.loc_lat):
+            raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -1352,6 +1406,58 @@ class Location(BioModel):
 class LocCode(BioLookup):
     # locc tag
     pass
+
+
+class LocationDet(BioDet):
+    # locd tag
+    anidc_id = None
+    adsc_id = None
+    loc_id = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name=_("Location"), related_name="loc_dets",
+                               db_column="LOCATION_ID")
+    locdc_id = models.ForeignKey('LocationDetCode', on_delete=models.CASCADE, verbose_name=_("Location Detail Code"),
+                                 db_column="LOC_DET_ID")
+    ldsc_id = models.ForeignKey('LocDetSubjCode', on_delete=models.CASCADE, null=True, blank=True,
+                                verbose_name=_("Location Detail Subjective Code"), db_column="LOC_DET_SUBJ_ID")
+
+    def clean(self):
+        super(BioDet, self).clean()
+        if self.is_numeric() and self.det_val is not None:
+            if float(self.det_val) > self.locdc_id.max_val or float(self.det_val) < self.locdc_id.min_val:
+                raise ValidationError({
+                    "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}"
+                                               .format(self.det_val, self.locdc_id.max_val, self.locdc_id.min_val))
+                })
+
+    def is_numeric(self):
+        if self.locdc_id.min_val is not None and self.locdc_id.max_val is not None:
+            return True
+        else:
+            return False
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['loc_id', 'locdc_id', 'ldsc_id'], name='Location_Detail_Uniqueness')
+        ]
+
+
+class LocationDetCode(BioLookup):
+    # locdc tag
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, blank=True, null=True, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    unit_id = models.ForeignKey("UnitCode", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"),
+                                db_column="UNIT_ID")
+    loc_subj_flag = models.BooleanField(verbose_name=_("Subjective detail?"), db_column="CONT_SUBJ_FLAG")
+
+
+class LocDetSubjCode(BioLookup):
+    # ldsc tag
+    locdc_id = models.ForeignKey("LocationDetCode", on_delete=models.CASCADE, db_column="LOC_DET_ID",
+                                 verbose_name=_("Location detail code"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'locdc_id'], name='LDSC_Uniqueness')
+        ]
 
 
 class Organization(BioLookup):

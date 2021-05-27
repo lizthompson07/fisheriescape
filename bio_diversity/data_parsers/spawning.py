@@ -34,8 +34,18 @@ class SpawningParser(DataParser):
     end_grp_dict = {}
     converters = {pit_key_f: str, pit_key_m: str, 'Year': str, 'Month': str, 'Day': str}
 
-    tagger_code = None
-    salmon_id = None
+    sex_anidc_id = None
+    len_anidc_id = None
+    weight_anidc_id = None
+    fecu_spwndc_id = None
+    dud_spwndc_id = None
+
+    def data_preper(self):
+        self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
+        self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
+        self.fecu_spwndc_id = models.SpawnDetCode.objects.filter(name="Fecundity").get()
+        self.dud_spwndc_id = models.SpawnDetCode.objects.filter(name="Dud").get()
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
@@ -57,15 +67,17 @@ class SpawningParser(DataParser):
         anix_male, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_male.pk)
         self.row_entered += anix_entered
 
-        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, "Female", "Gender", None)
-        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.len_key_f], "Length",
+        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, "Female", self.sex_anidc_id.pk,
                                               None)
+        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.len_key_f],
+                                              self.len_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 * row[self.weight_key_f],
-                                              "Weight", None)
-        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, "Male", "Gender", None)
-        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.len_key_m], "Length", None)
+                                              self.weight_anidc_id.pk, None)
+        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, "Male", self.sex_anidc_id.pk, None)
+        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.len_key_m],
+                                              self.len_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 * row[self.weight_key_m],
-                                              "Weight", None)
+                                              self.weight_anidc_id.pk, None)
 
         # pair
 
@@ -77,7 +89,7 @@ class SpawningParser(DataParser):
                               cross=row[self.tray_key],
                               valid=True,
                               indv_id=indv_female,
-                              comments=row[self.comment_key_pair],
+                              comments=utils.nan_to_none(row[self.comment_key_pair]),
                               created_by=cleaned_data["created_by"],
                               created_date=cleaned_data["created_date"],
                               )
@@ -93,7 +105,7 @@ class SpawningParser(DataParser):
                            pair_id=pair,
                            indv_id=indv_male,
                            choice=row[self.choice_key],
-                           comments=row[self.comment_key_m],
+                           comments=utils.nan_to_none(row[self.comment_key_m]),
                            created_by=cleaned_data["created_by"],
                            created_date=cleaned_data["created_date"],
                            )
@@ -108,9 +120,11 @@ class SpawningParser(DataParser):
 
         # fecu/dud
         if row[self.egg_est_key] > 0:
-            self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, int(row[self.egg_est_key]), "Fecundity", None, "Calculated")
+            self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, int(row[self.egg_est_key]),
+                                                  self.fecu_spwndc_id.pk, None, "Calculated")
         else:
-            self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, row[self.choice_key], "Dud", None, "Good")
+            self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, row[self.choice_key], self.dud_spwndc_id.pk,
+                                                  None, "Good")
 
         # grp
         anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
