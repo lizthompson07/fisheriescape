@@ -19,7 +19,7 @@ from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpPars
 from bio_diversity.data_parsers.picks import mactaquac_picks_parser, coldbrook_picks_parser
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
-from bio_diversity.data_parsers.temperatures import temperature_parser
+from bio_diversity.data_parsers.temperatures import TemperatureParser
 from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser, ColdbrookTreatmentParser
 from bio_diversity.data_parsers.water_quality import WaterQualityParser
 
@@ -354,7 +354,8 @@ class DataForm(CreatePrams):
             # ---------------------------TROUGH TEMPERATURE----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Egg Development" and\
                     cleaned_data["data_type"] == "Temperature":
-                log_data, success = temperature_parser(cleaned_data)
+                parser = TemperatureParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # ---------------------------------PICKS----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Picks":
