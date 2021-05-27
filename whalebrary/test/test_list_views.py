@@ -312,6 +312,37 @@ class TestIncidentListView(CommonTest):
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
 
+class TestResightListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ResightFactory()
+        self.test_url = reverse_lazy('whalebrary:resight_list')
+        self.expected_template = 'whalebrary/list.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Resight", "resight_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ResightListView, CommonFilterView)
+        self.assert_inheritance(views.ResightListView, views.WhalebraryAccessRequired)
+
+    @tag("Resight", "resight_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Resight", "resight_list", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("Resight", "resight_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalebrary:resight_list", f"/en/whalebrary/resight_list/")
+
+
 class TestImageListView(CommonTest):
     def setUp(self):
         super().setUp()

@@ -213,6 +213,19 @@ class IncidentFactory(factory.django.DjangoModelFactory):
         }
 
 
+class ResightFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Resight
+
+    incident = factory.SubFactory(IncidentFactory)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'incident': IncidentFactory().id,
+        }
+
+
 class ImageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Image
