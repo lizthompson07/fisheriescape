@@ -261,10 +261,8 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['google_api_key'] = settings.GOOGLE_API_KEY
         context["field_list"] = [
             'agreement_number',
-            'agreement_lineage',
             'agreement_database',
             'agreement_status',
             'agreement_status_comment',
@@ -276,18 +274,21 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'end_date',
             'region',
             'primary_river',
+            'secondary_river',
+            'lake_system',
+            'watershed',
             'management_area',
             'smu_name',
             'cu_index',
             'cu_name',
-            'outlook',
-            'target_species',
+            'species',
             'salmon_life_cycle',
             'project_type',
             'project_sub_type',
             'project_stage',
             'project_scale',
             'monitoring_approach',
+            'project_theme',
             'core_component',
             'supportive_component',
             'category_comments',
@@ -403,6 +404,7 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
             'outcomes_contact',
             'data_quality_type',
             'data_quality_level',
+            'report_reference',
             'date_last_modified',
             'last_modified_by',
 
@@ -461,8 +463,11 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = models.Method.objects.first()
         context["field_list"] = [
             'project_core_component',
-            'field_method',
-            'method_type',
+            'planning_method_type',
+            'field_work_method_type',
+            'sample_processing_method_type',
+            'data_entry_method_type',
+            'data_analysis_method_type',
             'document_topic',
             'author',
             'publication_year',
@@ -480,23 +485,20 @@ class MethodDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'method_section',
-            'document_number',
-            'document_category',
-            'document_topic',
+            'project_core_component',
+            'planning_method_type',
+            'field_work_method_type',
+            'sample_processing_method_type',
+            'data_entry_method_type',
+            'data_analysis_method_type',
+            'reporting_method_type',
+            'method_document_type',
             'authors',
             'publication_year',
             'title',
             'reference_number',
             'publisher',
             'document_link',
-            'database',
-            'method_category',
-            'method_type',
-            'form_name',
-            'region',
-            'form_category',
-            'form_link',
             'date_last_modified',
             'last_modified_by',
 
@@ -543,42 +545,47 @@ class MethodDeleteView(SpotAccessRequiredMixin, DeleteView):
 
 # DATABASES#
 ############
-class DatabasesUsedListView(SpotAccessRequiredMixin, FilterView):
+class DataListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/database_list.html'
-    filterset_class = filters.DatabasesUsedFilter
-    model = models.DatabasesUsed
-    queryset = models.DatabasesUsed.objects.annotate()
+    filterset_class = filters.DataFilter
+    model = models.Data
+    queryset = models.Data.objects.annotate()
     search_term = Concat('database', 'id', output_field=TextField())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.DatabasesUsed.objects.first()
+        context["my_object"] = models.Data.objects.first()
         context["field_list"] = [
             'species_data',
             'database',
-            'data_owner',
+            'primary_data_contact',
             'data_format',
-            'models_used',
-            'analysis_program',
-            'data_quality',
+            'data_program',
+            'data_program',
+            'data_quality_type',
+            'data_quality_level',
         ]
         return context
 
 
-class DatabasesUsedDetailView(SpotAccessRequiredMixin, DetailView):
-    model = models.DatabasesUsed
+class DataDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.Data
     template_name = 'spot/database_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'species_data',
-            'data_owner',
+            'data_type',
+            'data_subtype',
+            'data_type_comment',
+            'sample_types_included',
+            'primary_data_contact',
             'database',
-            'analysis_program',
-            'models_used',
+            'data_program',
             'data_format',
-            'data_quality',
+            'data_quality_type',
+            'data_quality_level',
             'DFO_analysts',
             'non_DFO_analysts',
             'date_last_modified',
@@ -587,10 +594,10 @@ class DatabasesUsedDetailView(SpotAccessRequiredMixin, DetailView):
         return context
 
 
-class DatabasesUsedUpdateView(SpotAccessRequiredMixin, UpdateView):
+class DataUpdateView(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/database_form.html'
-    model = models.DatabasesUsed
-    form_class = forms.DatabasesUsedForm
+    model = models.Data
+    form_class = forms.DataForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -600,10 +607,10 @@ class DatabasesUsedUpdateView(SpotAccessRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("spot:data_detail", kwargs={"pk": my_data.id}))
 
 
-class DatabasesUsedCreateView(SpotAccessRequiredMixin, CreateView):
+class DataCreateView(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/database_form.html'
-    model = models.DatabasesUsed
-    form_class = forms.DatabasesUsedForm
+    model = models.Data
+    form_class = forms.DataForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
@@ -613,9 +620,9 @@ class DatabasesUsedCreateView(SpotAccessRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("spot:data_detail", kwargs={"pk": my_data.id}))
 
 
-class DatabasesUsedDeleteView(SpotAccessRequiredMixin, DeleteView):
+class DataDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/database_confirm_delete.html'
-    model = models.DatabasesUsed
+    model = models.Data
     success_url = reverse_lazy('spot:data_list')
     success_message = 'The Database was deleted successfully!'
 
@@ -767,10 +774,10 @@ class ReportsListView(SpotAccessRequiredMixin,FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Reports.objects.first()
         context["field_list"] = [
-            'report_topic',
+            'report_topic_program_level',
             'report_timeline',
             'report_purpose',
-            'report_form_project_level',
+            'report_format_project_level',
             'report_client',
             'document_name',
             'document_author',
@@ -788,8 +795,12 @@ class ReportsDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'report_timeline',
-            'report_topic',
-            'report_form_project_level',
+            'report_type',
+            'report_topic_program_level',
+            'report_format_project_level',
+            'report_format_program_level',
+            'fishery_support_link',
+            'report_problem_addressed_content',
             'report_purpose',
             'report_client',
             'document_name',

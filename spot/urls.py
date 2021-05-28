@@ -1,11 +1,16 @@
 from django.urls import path
 from . import views
+from .admin import spot_admin_site
 
 app_name = 'spot'
 
 urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
+
+    # SPOT-ADMIN #
+    ##############
+    path('spot-admin/', spot_admin_site.urls),
 
     # ORGANIZATION #
     ################
@@ -49,11 +54,11 @@ urlpatterns = [
 
     # Databases #
     #############
-    path('datas/', views.DatabasesUsedListView.as_view(), name="data_list"),
-    path('data/new/', views.DatabasesUsedCreateView.as_view(), name="data_new"),
-    path('data/<int:pk>/view/', views.DatabasesUsedDetailView.as_view(), name="data_detail"),
-    path('data/<int:pk>/edit/', views.DatabasesUsedUpdateView.as_view(), name="data_edit"),
-    path('data/<int:pk>/delete/', views.DatabasesUsedDeleteView.as_view(), name="data_delete"),
+    path('datas/', views.DataListView.as_view(), name="data_list"),
+    path('data/new/', views.DataCreateView.as_view(), name="data_new"),
+    path('data/<int:pk>/view/', views.DataDetailView.as_view(), name="data_detail"),
+    path('data/<int:pk>/edit/', views.DataUpdateView.as_view(), name="data_edit"),
+    path('data/<int:pk>/delete/', views.DataDeleteView.as_view(), name="data_delete"),
 
     # Feedback #
     #############

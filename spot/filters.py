@@ -19,8 +19,8 @@ class OrganizationFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search name", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
-        model = models.Project
-        fields = []
+        model = models.Organization
+        fields = ['organization_type', 'province', 'country']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,7 +30,7 @@ class PersonFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
-        model = models.Project
+        model = models.Person
         fields = []
 
     def __init__(self, *args, **kwargs):
@@ -43,7 +43,7 @@ class ProjectFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Project
-        fields = ['target_species', 'region', 'cu_name', 'smu_name', 'project_stage',
+        fields = ['species', 'region', 'cu_name', 'smu_name', 'project_stage',
                   'project_scale', 'project_sub_type', 'monitoring_approach',
                   'project_theme', 'core_component', 'supportive_component',
                   'government_organization', 'DFO_link',]
@@ -68,18 +68,18 @@ class MethodFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
-        model = models.Project
+        model = models.Method
         fields = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
-class DatabasesUsedFilter(django_filters.FilterSet):
+class DataFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
-        model = models.Project
+        model = models.Data
         fields = []
 
     def __init__(self, *args, **kwargs):
@@ -90,7 +90,7 @@ class MeetingsFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
-        model = models.Project
+        model = models.Meetings
         fields = []
 
     def __init__(self, *args, **kwargs):
@@ -101,7 +101,7 @@ class ReportsFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains',widget=forms.TextInput())
 
     class Meta:
-        model = models.Project
+        model = models.Reports
         fields = []
 
     def __init__(self, *args, **kwargs):
@@ -112,7 +112,7 @@ class FeedbackFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Search term", lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
-        model = models.Project
+        model = models.Feedback
         fields = []
 
     def __init__(self, *args, **kwargs):

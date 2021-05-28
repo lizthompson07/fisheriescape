@@ -48,7 +48,7 @@ class OrganizationForm(forms.ModelForm):
 
 class PersonForm(forms.ModelForm):
 
-    organizations = forms.ModelMultipleChoiceField(queryset=models.Organization.objects.all(), widget=forms.SelectMultiple(attrs=attr_chosen_contains))
+    #organizations = forms.ModelMultipleChoiceField(queryset=models.Organization.objects.all(), widget=forms.SelectMultiple(attrs=attr_chosen_contains))
 
     class Meta:
         model = models.Person #ml
@@ -71,7 +71,7 @@ class PersonForm(forms.ModelForm):
 
 class ProjectForm(forms.ModelForm):
 
-    government_organization = forms.ModelMultipleChoiceField(queryset=models.Organization.objects.all(), widget=forms.SelectMultiple(attrs=attr_chosen_contains))
+    #government_organizations = forms.ModelMultipleChoiceField(queryset=models.Organization.objects.all(), widget=forms.SelectMultiple(attrs=attr_chosen_contains))
 
     class Meta:
         model = models.Project
@@ -79,7 +79,7 @@ class ProjectForm(forms.ModelForm):
         widgets = {
             'start_date': forms.SelectDateWidget(years=range(1950, 2050)),
             'end_date': forms.SelectDateWidget(years=range(1950, 2050)),
-            'last_modified_by': forms.HiddenInput(attrs={'class':'form-control', 'type':'date'}),
+            'last_modified_by': forms.HiddenInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_last_modified': forms.HiddenInput(),
         }
         labels = {
@@ -87,7 +87,6 @@ class ProjectForm(forms.ModelForm):
         }
         help_texts = {
             'agreement_number': 'Most current and primary agreement number',
-            'agreement_lineage': 'Alternate or past agreement numbers, or other supportive agreements',
             'agreement_database': 'Primary or originating database where the primary agreement documentation is held',
             'agreement_status': '<b>Complete</b> - Agreement objectives have been met with no active work ongoing <br>'
                                 '<b>Continuing</b> - Work is ongoing that is outlined in the agreement<br>'
@@ -98,7 +97,7 @@ class ProjectForm(forms.ModelForm):
             'region': 'DFO Management regions',
             'primary_river': 'Main river where field work/assessment or data is being collected on',
             'smu_name': 'Stock Management Unit',
-            'target_species': 'Salmon species, do not leave blank',
+            'species': 'Salmon species, do not leave blank',
             'salmon_life_cycle': '<b>Adult</b> - Adult salmon typically residing in the ocean, feeding on smaller fish and maturing<br>'
                                  '<b>Juvenile</b> - Fish in the fry, parr, & smolt stage of life<br>'
                                  '<b>Parr</b> - Older juveniles with prominent parr marks (darker vertical lines)<br>'
@@ -112,7 +111,6 @@ class ProjectForm(forms.ModelForm):
                              '<b>Complete</b> - No further activities are being conducted<br>'
                              '<b>Terminated</b> - Project has been halted with no plans to restart<br>'
                              '<b>Merged</b> - Project has been combined with another',
-            'merged_number': 'Agreement number of project that this project is merged into',
             'project_scale': '<b>Large</b> – Several groups contributing to data collection; project has been ongoing for >5 years; or many resources are devoted to the operation of the project.<br>' 
                              '<b>Medium</b> – One or two groups contributing to data collection; project has been ongoing for <5 years; or a typical amount of resources are devoted to the operation of the project.<br>' 
                              '<b>Small</b> – One group is contributing to data collection; project is only for a year or two; or few resources are devoted to the operation of the project.',
@@ -207,9 +205,9 @@ class MethodForm(forms.ModelForm):
                      'data-container': 'body', 'data-html': "true"})
 
 
-class DatabasesUsedForm(forms.ModelForm):
+class DataForm(forms.ModelForm):
     class Meta:
-        model = models.DatabasesUsed
+        model = models.Data
         fields = '__all__'
         widgets = {
             'last_modified_by': forms.HiddenInput(),
@@ -217,7 +215,7 @@ class DatabasesUsedForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(DatabasesUsedForm, self).__init__(*args, **kwargs)
+        super(DataForm, self).__init__(*args, **kwargs)
         for field in self.fields:
             help_text = self.fields[field].help_text
             self.fields[field].help_text = None
@@ -225,6 +223,7 @@ class DatabasesUsedForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update(
                     {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
                      'data-container': 'body', 'data-html': "true"})
+
 
 class FeedbackForm(forms.ModelForm):
     class Meta:
@@ -244,6 +243,7 @@ class FeedbackForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update(
                     {'class': 'has-popover', 'data-content': help_text, 'data-placement': 'top',
                      'data-container': 'body', 'data-html': "true"})
+
 
 class MeetingsForm(forms.ModelForm):
     class Meta:
