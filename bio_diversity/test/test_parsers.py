@@ -8,9 +8,9 @@ from django.test import tag
 from datetime import datetime
 from bio_diversity import forms, models
 from bio_diversity.data_parsers.distributions import DistributionIndvParser
-from bio_diversity.data_parsers.electrofishing import MactaquacElectrofishingParser
+from bio_diversity.data_parsers.electrofishing import MactaquacElectrofishingParser, ColdbrookElectrofishingParser
 from bio_diversity.data_parsers.generic import GenericGrpParser, GenericIndvParser
-from bio_diversity.data_parsers.tagging import MactaquacTaggingParser
+from bio_diversity.data_parsers.tagging import MactaquacTaggingParser, ColdbrookTaggingParser
 from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser
 from bio_diversity.data_parsers.water_quality import WaterQualityParser
 from bio_diversity.test import BioFactoryFloor
@@ -19,7 +19,7 @@ from bio_diversity.models import PersonnelCode, Pairing, Program, Individual
 
 
 @tag("Electrofishing", 'Parser')
-class TestParsers(CommonTest):
+class TestMactaquacParsers(CommonTest):
     fixtures = ["initial_data.json"]
 
     def setUp(self):
@@ -81,6 +81,48 @@ class TestParsers(CommonTest):
         self.cleaned_data["evntc_id"] = self.dist_evntc
         self.cleaned_data["data_csv"] = self.dist_indv_test_data
         parser = DistributionIndvParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+
+@tag("Electrofishing", 'Parser')
+class TestColdbrookParsers(CommonTest):
+    fixtures = ["initial_data.json"]
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        coldbrook_facic = models.FacilityCode.objects.filter(name="Coldbrook").get()
+        self.electrofishing_evntc = models.EventCode.objects.filter(name="Electrofishing").get()
+        self.tagging_evntc = models.EventCode.objects.filter(name="PIT Tagging").get()
+        self.measuring_evntc = models.EventCode.objects.filter(name="Measuring").get()
+        self.dist_evntc = models.EventCode.objects.filter(name="Distribution").get()
+
+        # used to get the full path from the static directory
+        self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing.xlsx")
+        self.tagging_test_data = finders.find("test\\parser_test_files\\test-tagging-cb.xlsx")
+
+        self.electrofishing_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.electrofishing_evntc, facic_id=coldbrook_facic)
+        self.tagging_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.tagging_evntc, facic_id=coldbrook_facic)
+
+        self.cleaned_data = {
+            "facic_id": coldbrook_facic,
+            "evnt_id": self.electrofishing_evnt,
+            "evntc_id": self.electrofishing_evntc,
+            "data_csv": self.electrofishing_test_data,
+            "created_by": self.electrofishing_evnt.created_by,
+            "created_date": self.electrofishing_evnt.created_date,
+        }
+
+    def test_parser(self):
+        # this is to ignore all of the errors raised and caught in the parsers.  If the parsers crash, they will return
+        # success = False as well as log data of the error
+        parser = ColdbrookElectrofishingParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+        # Tagging parser
+        self.cleaned_data["evnt_id"] = self.tagging_evnt
+        self.cleaned_data["evntc_id"] = self.tagging_evntc
+        self.cleaned_data["data_csv"] = self.tagging_test_data
+        parser = ColdbrookTaggingParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
 
 

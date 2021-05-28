@@ -180,8 +180,8 @@ class ColdbrookTaggingParser(TaggingParser):
 
     def data_preper(self):
         super(ColdbrookTaggingParser, self).data_preper()
-        self.box_anidc_id = models.AnimalDetCode.objects.filter(name="Box")
-        self.boxl_anidc_id = models.AnimalDetCode.objects.filter(name="Box Location")
+        self.box_anidc_id = models.AnimalDetCode.objects.filter(name="Box").get()
+        self.boxl_anidc_id = models.AnimalDetCode.objects.filter(name="Box Location").get()
 
     def row_parser(self, row):
         super().row_parser(row)
