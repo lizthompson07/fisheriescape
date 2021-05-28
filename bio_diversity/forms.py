@@ -494,6 +494,42 @@ class FecuForm(CreateDatePrams):
         exclude = []
 
 
+class FeedHandlerForm(forms.Form):
+    perc_id = forms.ModelChoiceField(required=True, queryset=models.PersonnelCode.objects.all(), label=_("Personnel"))
+    prog_id = forms.ModelChoiceField(required=True, queryset=models.Program.objects.all(), label=_("Program"))
+    feed_date = forms.DateField(required=True)
+    feedc_id = forms.ModelChoiceField(required=True, queryset=models.FeedCode.objects.all(), label=_("Feed Type"))
+    feedm_id = forms.ModelChoiceField(required=True, queryset=models.FeedMethod.objects.all(), label=_("Feeding Method"))
+    amt = forms.IntegerField(required=True, label=_("Feed Size"))
+
+    facic_id = forms.ModelChoiceField(required=True, queryset=models.FacilityCode.objects.all())
+    created_date = forms.DateField(required=True)
+    created_by = forms.CharField(required=True, max_length=32)
+    cont = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['facic_id'].widget = forms.HiddenInput()
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        self.fields['feed_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-date"})
+
+    def set_cont(self, cont):
+        self.cont = cont
+
+    def clean(self):
+        cleaned_data = super(FeedHandlerForm, self).clean()
+        if self.is_valid():
+            cleaned_data["evnt_id"] = utils.create_feed_evnt(cleaned_data)
+            contx_id, entered = utils.enter_contx(self.cont, cleaned_data, return_contx=True)
+            feed_entered = utils.enter_feed(cleaned_data, contx_id, cleaned_data["feedc_id"], cleaned_data["feedm_id"],
+                                            cleaned_data["amt"])
+            if not feed_entered:
+                raise ValidationError("Feeding instance not entered")
+        return cleaned_data
+
+
 class FeedForm(CreatePrams):
     class Meta:
         model = models.Feeding

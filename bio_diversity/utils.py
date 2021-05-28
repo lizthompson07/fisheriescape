@@ -467,6 +467,30 @@ def create_new_evnt(cleaned_data, evntc_name, evnt_date):
     return new_cleaned_data
 
 
+def create_feed_evnt(cleaned_data):
+    new_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Feeding").get(),
+                            facic_id=cleaned_data["facic_id"],
+                            perc_id=cleaned_data["perc_id"],
+                            prog_id=cleaned_data["prog_id"],
+                            start_datetime=cleaned_data["feed_date"],
+                            end_datetime=cleaned_data["feed_date"],
+                            created_by=cleaned_data["created_by"],
+                            created_date=cleaned_data["created_date"],
+                            )
+    try:
+        new_evnt.clean()
+        new_evnt.save()
+    except (ValidationError, IntegrityError):
+        new_evnt = models.Event.objects.filter(evntc_id=new_evnt.evntc_id,
+                                               facic_id=new_evnt.facic_id,
+                                               prog_id=new_evnt.prog_id,
+                                               start_datetime=new_evnt.start_datetime,
+                                               end_datetime=new_evnt.end_datetime,
+                                               ).get()
+
+    return new_evnt
+
+
 def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, return_cup_contx=False):
     # moves eggs from trof-tray to heat.draw.cup, only use the final group as this splits groups
     # cup argument can also be a drawer object
@@ -763,6 +787,27 @@ def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=
             return env
         except (ValidationError, IntegrityError):
             return None
+
+
+def enter_feed(cleaned_data, contx_id, feedc_id, feedm_id, amt, comments=None, freq=None, lot_num=None):
+    feed = models.Feeding(contx_id=contx_id,
+                          feedm_id=feedm_id,
+                          feedc_id=feedc_id,
+                          lot_num=lot_num,
+                          amt=amt,
+                          unit_id=models.UnitCode.objects.filter(name="Feed Size").get(),
+                          comments=comments,
+                          freq=freq,
+                          created_by=cleaned_data["created_by"],
+                          created_date=cleaned_data["created_date"],
+                          )
+    try:
+        feed.clean()
+        feed.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
 
 
 def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, frm_grp_id=None, comments=None):

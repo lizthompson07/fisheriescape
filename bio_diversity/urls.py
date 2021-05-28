@@ -163,9 +163,13 @@ urlpatterns = [
              
     path('create/feed/', views.FeedCreate.as_view(), name="create_feed"),
     path('details/feed/<int:pk>/', views.FeedDetails.as_view(), name="details_feed"),
+    path('details/feed/<str:back>/<int:back_id>/<int:pk>/', views.FeedDetails.as_view(), name="details_feed"),
     path('list/feed/', views.FeedList.as_view(), name="list_feed"),
     path('update/feed/<int:pk>/', views.FeedUpdate.as_view(), name="update_feed"),
-             
+
+    path('create/feedh/<str:cont_type>/<int:cont_id>/<str:pop>/', views.FeedHandlerFormView.as_view(),
+         name="create_feedh"),
+
     path('create/feedc/', views.FeedcCreate.as_view(), name="create_feedc"),
     path('details/feedc/<int:pk>/', views.FeedcDetails.as_view(), name="details_feedc"),
     path('list/feedc/', views.FeedcList.as_view(), name="list_feedc"),

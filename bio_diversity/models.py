@@ -779,6 +779,10 @@ class Feeding(BioModel):
     def __str__(self):
         return "{}-{}-{}".format(self.contx_id.__str__(), self.feedc_id.__str__(), self.feedm_id.__str__())
 
+    @property
+    def feed_date(self):
+        return self.contx_id.evnt_id.start_date
+
 
 class FeedCode(BioLookup):
     # feedc tag

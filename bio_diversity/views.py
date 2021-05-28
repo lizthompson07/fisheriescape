@@ -792,6 +792,15 @@ class CommonContDetails(CommonDetails):
                                            "field_list": envt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
+        feed_set = models.Feeding.objects.filter(**{arg_name: cont_pk}).select_related("feedc_id", "unit_id", "feedm_id", "contx_id__evnt_id")
+        feed_field_list = ["feedc_id", "amt", "unit_id", "feedm_id", "feed_date|Feed Date", ]
+        obj_mixin = mixins.FeedMixin
+        context["context_dict"]["feed"] = {"div_title": "Feeding",
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": feed_set,
+                                           "field_list": feed_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
         indv_list, grp_list = self.object.fish_in_cont(select_fields=["indv_id__grp_id__stok_id",
                                                                       "indv_id__grp_id__coll_id"])
         indv_field_list = ["ufid", "pit_tag", "grp_id", ]
@@ -823,7 +832,7 @@ class CommonContDetails(CommonDetails):
                                            "field_list": obj_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        context["table_list"].extend(["grp_cont", "indv_cont", "env", "envt", "team", "cnt"])
+        context["table_list"].extend(["grp_cont", "indv_cont", "feed", "env", "envt", "team", "cnt"])
 
         return context
 
@@ -3026,6 +3035,18 @@ class FishtocontFormView(mixins.FishtocontMixin, BioCommonFormView):
         else:
             grp_id_list = [grp.id for grp in grp_list]
             self.form_class.base_fields["grp_id"].queryset = models.Group.objects.filter(id__in=grp_id_list).select_related("stok_id", "coll_id")
+
+        return init
+
+
+class FeedHandlerFormView(mixins.FeedHandlerMixin, BioCommonFormView):
+
+    def get_initial(self):
+        init = super().get_initial()
+
+        cont = utils.get_cont_from_tag(self.kwargs.get("cont_type"), self.kwargs.get("cont_id"))
+        self.form_class.set_cont(self.form_class, cont)
+        init["facic_id"] = cont.facic_id
 
         return init
 
