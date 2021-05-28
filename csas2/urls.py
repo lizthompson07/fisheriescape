@@ -10,6 +10,10 @@ urlpatterns = [
     path('settings/document-types/<int:pk>/delete/', views.DocumentTypeHardDeleteView.as_view(), name="delete_document_type"),
     path('settings/invitee-roles/', views.InviteeRoleFormsetView.as_view(), name="manage_invitee_roles"),
     path('settings/invitee-role/<int:pk>/delete/', views.InviteeRoleHardDeleteView.as_view(), name="delete_invitee_role"),
+    # permissions
+    path('settings/user-permissions/', views.UserListView.as_view(), name='user_list'),
+    path('settings/user-permissions/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+
 
     # people #
     ##########
@@ -49,6 +53,7 @@ urlpatterns = [
     path('terms-of-reference/<int:pk>/html/', views.TermsOfReferenceHTMLDetailView.as_view(), name="tor_html"),
 
     # meetings
+    path('meetings/', views.MeetingListView.as_view(), name="meeting_list"),
     path('processes/<int:process>/new-meeting/', views.MeetingCreateView.as_view(), name="meeting_new"),
     path('meetings/<int:pk>/view/', views.MeetingDetailView.as_view(), name="meeting_detail"),
     path('meetings/<int:pk>/edit/', views.MeetingUpdateView.as_view(), name="meeting_edit"),
@@ -62,6 +67,7 @@ urlpatterns = [
     # docs
     path('documents/', views.DocumentListView.as_view(), name="document_list"),
     path('processes/<int:process>/new-document/', views.DocumentCreateView.as_view(), name="document_new"),
+    path('doc-new/', views.DocumentCreateView.as_view(), name="document_new"),
     path('documents/<int:pk>/view/', views.DocumentDetailView.as_view(), name="document_detail"),
     path('documents/<int:pk>/edit/', views.DocumentUpdateView.as_view(), name="document_edit"),
     path('documents/<int:pk>/delete/', views.DocumentDeleteView.as_view(), name="document_delete"),

@@ -25,7 +25,8 @@
             <tbody>
             {% for value in eca.curve_values.all %}
                 <tr>
-                    <td>{{value.ecc_frequency}}</td><td>{{value.ecc_sensitivity}}</td><td><a class="btn btn-danger" href="{% url 'whalesdb:delete_ecc' value.pk %}">X</a></td>
+                    <td>{{value.ecc_frequency}}</td><td>{{value.ecc_sensitivity}}</td>
+                    <td><a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:delete_ecc' value.pk 'pop' %}','curve_value_id')">{% trans 'X' %}</a></td>
                 </tr>
             {% endfor %}
             </tbody>

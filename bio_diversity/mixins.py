@@ -21,6 +21,13 @@ class AnixMixin:
     admin_only = False
 
 
+class AddCollFishMixin:
+    key = "add_coll_fish"
+    form_class = forms.AddCollFishForm
+    title = _("Add Fish to Collection")
+    admin_only = False
+
+
 class AdscMixin:
     key = "adsc"
     form_class = forms.AdscForm
@@ -239,6 +246,13 @@ class FeedmMixin:
     admin_only = False
 
 
+class FishtocontMixin:
+    key = "fish_to_cont"
+    form_class = forms.FishToContForm
+    title = _("Add Fish to Container")
+    admin_only = True
+
+
 class GrpMixin:
     key = "grp"
     form_class = forms.GrpForm
@@ -277,7 +291,7 @@ class ImgMixin:
     key = "img"
     form_class = forms.ImgForm
     model = models.Image
-    title = _("Image")
+    title = _("Doccuments")
     admin_only = False
 
 
@@ -285,7 +299,7 @@ class ImgcMixin:
     key = "imgc"
     form_class = forms.ImgcForm
     model = models.ImageCode
-    title = _("Image Code")
+    title = _("Document Code")
     admin_only = True
 
 
@@ -368,6 +382,30 @@ class LoccMixin:
     model = models.LocCode
     form_class = forms.LoccForm
     title = _("Location Code")
+    admin_only = True
+
+
+class LocdMixin:
+    key = 'locd'
+    model = models.LocationDet
+    form_class = forms.LocdForm
+    title = _("Location Detail")
+    admin_only = False
+
+
+class LocdcMixin:
+    key = 'locdc'
+    model = models.LocationDetCode
+    form_class = forms.LocdcForm
+    title = _("Location Detail Code")
+    admin_only = True
+
+
+class LdscMixin:
+    key = 'ldsc'
+    model = models.LocDetSubjCode
+    form_class = forms.LdscForm
+    title = _("Location Detail Subjective Code")
     admin_only = True
 
 

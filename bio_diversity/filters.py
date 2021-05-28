@@ -75,6 +75,8 @@ class CdscFilter(django_filters.FilterSet):
 
 class CupFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.Cup
         fields = ["name", "nom", "draw_id", ]
@@ -88,6 +90,8 @@ class CupdFilter(django_filters.FilterSet):
 
 
 class DrawFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.Drawer
@@ -112,7 +116,7 @@ class EnvcfFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.EnvCondFile
-        fields = ["env_id", ]
+        fields = ["created_by", ]
 
 
 class EnvscFilter(django_filters.FilterSet):
@@ -215,6 +219,8 @@ class GrpdFilter(django_filters.FilterSet):
 
 class HeatFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.HeathUnit
         fields = ["name", "nom", "facic_id", "manufacturer", "serial_number", "inservice_date",
@@ -315,7 +321,30 @@ class LoccFilter(django_filters.FilterSet):
         fields = ["name", "nom", ]
 
 
+class LocdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.LocationDet
+        fields = ["locdc_id", ]
+
+
+class LocdcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.LocationDetCode
+        fields = ["name", "nom", ]
+
+
+class LdscFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.LocDetSubjCode
+        fields = ["name", "nom", ]
+
+
 class OrgaFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.Organization
@@ -473,6 +502,8 @@ class StokFilter(django_filters.FilterSet):
 
 class SubrFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.SubRiverCode
         fields = ["name", "nom", "rive_id", "trib_id",  "created_by",
@@ -480,6 +511,8 @@ class SubrFilter(django_filters.FilterSet):
 
 
 class TankFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.Tank
@@ -502,6 +535,8 @@ class TeamFilter(django_filters.FilterSet):
 
 class TrayFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.Tray
         fields = ["name", "nom", "trof_id"]
@@ -516,12 +551,16 @@ class TraydFilter(django_filters.FilterSet):
 
 class TribFilter(django_filters.FilterSet):
 
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = models.Tributary
         fields = ["name", "nom", "rive_id", ]
 
 
 class TrofFilter(django_filters.FilterSet):
+
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = models.Trough

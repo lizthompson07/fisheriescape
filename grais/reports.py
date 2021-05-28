@@ -14,7 +14,7 @@ from lib.functions.verbose_field_name import verbose_field_name
 from . import models
 
 
-def generate_species_sample_spreadsheet(species_list=None):
+def generate_species_sample_spreadsheet(year, species_list=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'grais', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -79,18 +79,17 @@ def generate_species_sample_spreadsheet(species_list=None):
         my_ws.write_row(0, 0, header, header_format)
 
         # get a list of samples for each requested species FROM ALL SOURCES
-        sample_list = [models.Sample.objects.get(pk=s["surface__line__sample"]) for s in
-                       models.SurfaceSpecies.objects.filter(species=species).values(
-                           "surface__line__sample").distinct()]
+        samples = models.Sample.objects.all()
+        if year and year != "None":
+            samples = samples.filter(season=int(year))
+        sample_list = [samples.get(pk=s["surface__line__sample"]) for s in
+                       models.SurfaceSpecies.objects.filter(species=species, surface__line__sample__in=samples).values("surface__line__sample").distinct()]
         sample_list.extend(
             [models.Sample.objects.get(pk=s["sample"]) for s in
-             models.SampleSpecies.objects.filter(species=species).values(
-                 "sample").distinct()]
+             models.SampleSpecies.objects.filter(species=species, sample__in=samples).values("sample").distinct()]
         )
         sample_list.extend(
-            [models.Sample.objects.get(pk=s["line__sample"]) for s in
-             models.LineSpecies.objects.filter(species=species).values(
-                 "line__sample").distinct()]
+            [models.Sample.objects.get(pk=s["line__sample"]) for s in models.LineSpecies.objects.filter(species=species, line__sample__in=samples).values("line__sample").distinct()]
         )
         # distill the list
         sample_set = set(sample_list)

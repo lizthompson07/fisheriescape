@@ -33,12 +33,18 @@
       </div>
     </div>
 
-    <div class="mb-3">
+    <div v-if="canModify" class="mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:process_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:process_delete' object.id %}">{% trans "Delete" %}</a>
       {% if object.tor %}
-        <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_edit' object.tor.id %}">
-          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
+        {% url 'csas2:tor_edit' object.tor.id as tor_url %}
+      {% else %}
+        {% url 'csas2:tor_new' object.id as tor_url %}
+      {% endif %}
+
+      {% if object.tor %}
+        <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Modify ToR" %}
         </a>
         <div class="neighbours">
           <div class="dropdown">
@@ -56,38 +62,141 @@
           </div>
         </div>
       {% else %}
-        <a class="btn btn-sm btn-primary ml-3" href="{% url 'csas2:tor_new' object.id %}">
-          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Build ToR" %}
+        <a class="btn btn-sm btn-primary ml-3" href="{{ tor_url }}">
+          <span class="mdi mdi-pencil text-light mr-1"></span>{% trans "Initiate ToR" %}
         </a>
       {% endif %}
-
-      {#      <a class="btn btn-sm btn-primary" href=""></a>#}
     </div>
 
-    <div class="mb-5">
-      <table class="table table-sm" style="width: auto">
-        {% for field in process_field_list %}
-          {% verbose_td_display object field th_width="300px" %}
-        {% endfor %}
-        {# requests #}
-        <tr>
-          <th>
-            {% trans "Connected requests" %}
-          </th>
-          <td>
-            {% if object.csas_requests.exists %}
-              {% for obj in object.csas_requests.all %}
-                <div>
-                  <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj.fiscal_year }} - {{ obj }} ({{ obj.id }})</a>
-                </div>
-              {% endfor %}
-            {% else %}
-              <em>{% trans "There are no requests attached to this process." %}</em>
-            {% endif %}
-          </td>
-        </tr>
+    <div class="row">
+      <div class="col-8">
+        <div class="mb-5">
+          <div v-if="loading" class="loading mb-3 mt-3 mt-5">
+            <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+              <span class="sr-only"></span>
+            </div>
+          </div>
+          <table v-else class="table table-sm" style="width: auto">
+            <tr>
+              <th class="text-left w300" v-html="processLabels.fiscal_year"></th>
+              <td class="text-left">${process.fiscal_year|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Name" %}</th>
+              <td class="text-left">${process.tname|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.is_posted"></th>
+              <td class="text-left">
+                <span class="mr-2">${process.is_posted|yesNo}</span>
+                <button v-if="!process.posting_request_date && !process.is_posted" class="badge badge-pill btn-purple" @click="requestPosting">
+                  {% trans "Request to Post" %}
+                </button>
+                <em v-else-if="!process.is_posted" class=" text-muted">
+                  &mdash; {% trans "Posting request made on" %} ${process.posting_request_date}
+                </em>
+              </td>
+            </tr>
 
-      </table>
+
+            <tr>
+              <th class="text-left">{% trans "Advisory process type" %}</th>
+              <td class="text-left">${process.scope_type|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Meeting Chair" %}</th>
+              <td class="text-left">
+                <em v-if="!process.has_tor">
+                  {% blocktrans %}
+                    The <a href="{{ tor_url }}">terms of reference</a> has not yet been initiated for this process.
+                  {% endblocktrans %}
+                </em>
+                <em v-else-if="!process.has_tor_meeting">
+                  {% blocktrans %}
+                    The <a href="{{ tor_url }}"> terms of reference </a> has not been linked to a meeting.
+                  {% endblocktrans %}
+                </em>
+                <span v-else>${process.chair|nz}</span>
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Science Lead" %}</th>
+              <td class="text-left">
+                <em v-if="!process.science_leads">{% trans "No science leads have been tagged in any meetings." %}</em>
+                <span v-else>${process.science_leads|nz}</span>
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Client leads" %}</th>
+              <td class="text-left">
+                <em v-if="!process.client_leads">{% trans "No client leads have been tagged in any meetings." %}</em>
+                <span v-else>${process.client_leads|nz}</span>
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Client sector(s)" %}</th>
+              <td class="text-left">
+                ${process.client_sectors|nz}
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Steering Committee Members" %}</th>
+              <td class="text-left">
+                <em v-if="!process.committee_members">{% trans "No steering committee members have been tagged in any meetings." %}</em>
+                <span v-else>${process.committee_members|nz}</span>
+              </td>
+            </tr>
+
+
+            <tr>
+              <th class="text-left" v-html="processLabels.coordinator"></th>
+              <td class="text-left">${process.coordinator|nz}</td>
+            </tr>
+
+            <tr>
+              <th class="text-left" v-html="processLabels.advisors"></th>
+              <td class="text-left">${process.advisors|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.editors"></th>
+              <td class="text-left">${process.editors|nz}</td>
+            </tr>
+
+            <tr>
+              <th class="text-left" v-html="processLabels.lead_region"></th>
+              <td class="text-left">${process.lead_region|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="processLabels.other_regions"></th>
+              <td class="text-left">${process.other_regions|nz}</td>
+            </tr>
+            <tr>
+              <th>
+                {% trans "Connected requests" %}
+              </th>
+              <td>
+                {% if object.csas_requests.exists %}
+                  {% for obj in object.csas_requests.all %}
+                    <div>
+                      <a href="{% url 'csas2:request_detail' obj.id %}">{{ obj.fiscal_year }} - {{ obj }} ({{ obj.id }})</a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <em>{% trans "There are no requests attached to this process." %}</em>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th class="text-left">{% trans "Metadata" %}</th>
+              <td class="text-left" v-html="process.metadata"></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {# Notes #}
+      <div class="col">
+        <note-pad v-if="process.id" parent_name="process" :parent_id="process.id" :notes="notes" @update-notes="getNotes"></note-pad>
+      </div>
     </div>
 
 
@@ -98,7 +207,7 @@
       <div class="neighbours">
         <h4>{% trans "Meetings" %}</h4>
       </div>
-      <div class="mb-2 neighbours">
+      <div v-if="canModify" class="mb-2 neighbours">
         <a class="btn btn-sm btn-primary py-0 px-1" href="{% url 'csas2:meeting_new' object.id %}">
           <span class="h5 mdi mdi-plus text-light"></span>
         </a>
@@ -136,7 +245,7 @@
       <div class="neighbours">
         <h4>{% trans "Documents" %}</h4>
       </div>
-      <div class="mb-2 neighbours">
+      <div v-if="canModify" class="mb-2 neighbours">
         <a class="btn btn-sm btn-primary py-0 px-1" href="{% url 'csas2:document_new' object.id %}">
           <span class="h5 mdi mdi-plus text-light"></span>
         </a>
@@ -180,13 +289,13 @@
   </div>
 
 
-
-
 {% endblock %}
 
 
 {% block body_js %}
   {{ block.super }}
+
+  {% include "csas2/components/note_pad.html" %}
   <script type="application/javascript">
   var processId = "{{ object.id }}"
 
@@ -199,18 +308,50 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
+      process: {},
+      loading: false,
       loadingDocs: false,
       loadingMeetings: false,
       docs: [],
       meetings: [],
+      notes: [],
+      processLabels: {}
     },
     methods: {
+      requestPosting() {
+        let userInput = confirm("{% trans 'Are you certain you want to make a request for this process to be posted on the National CSAS website?' %}")
+        if (userInput) {
+          let endpoint = `/api/csas/processes/${processId}/?request_posting=true`;
+          apiService(endpoint, "POST").then(data => {
+            this.getProcess()
+          });
+        }
+      },
       getCurrentUser() {
         let endpoint = `/api/csas/user/?process=${processId}`;
         apiService(endpoint)
             .then(response => {
               this.currentUser = response;
             })
+      },
+      getProcess(update_notes) {
+        this.loading = true;
+        let endpoint = `/api/csas/processes/${processId}/`;
+        apiService(endpoint).then(data => {
+          this.loading = false;
+          if (data) {
+            this.process = data;
+            if (update_notes) this.getNotes();
+            this.getDocuments();
+            this.getMeetings();
+          }
+        });
+      },
+      getNotes() {
+        let endpoint = `/api/csas/process-notes/?process=${processId}`;
+        apiService(endpoint).then(data => {
+          this.notes = data;
+        });
       },
       openPopout(url) {
         popitup(url, 'popoutWindow' + Date.now());
@@ -219,7 +360,7 @@
         window.location.href = url;
       },
       goDocumentDetail(document) {
-        window.location.href = `/csas2/documents/${document.id}/view/`;
+        window.location.href = `/csas-sccs/documents/${document.id}/view/`;
       },
       toggleMeetingLinkage(doc, meeting, event) {
         console.log(event)
@@ -253,6 +394,16 @@
               }
             })
       },
+      getProcessMetadata() {
+        let endpoint = `/api/csas/meta/models/process/`;
+        apiService(endpoint).then(data => {
+          this.processLabels = data.labels;
+        });
+      },
+    },
+    filters: {
+      nz: vueFiltersObject["nz"],
+      yesNo: vueFiltersObject["yesNo"],
     },
     computed: {
       canModify() {
@@ -269,9 +420,9 @@
       }
     },
     created() {
-      this.getDocuments();
-      this.getMeetings();
       this.getCurrentUser();
+      this.getProcess(true);
+      this.getProcessMetadata();
     },
   });
 

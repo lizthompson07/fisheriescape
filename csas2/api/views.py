@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -9,13 +9,14 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from unidecode import unidecode
 
 from shared_models.api.serializers import PersonSerializer
 from shared_models.api.views import _get_labels
 from shared_models.models import Person, Language, Region
 from . import serializers
 from .pagination import StandardResultsSetPagination
-from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly
+from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission
 from .. import models, emails, model_choices, utils
 
 
@@ -36,6 +37,9 @@ class CurrentUserAPIView(APIView):
         elif qp.get("document"):
             doc = get_object_or_404(models.Document, pk=qp.get("document"))
             data["can_modify"] = utils.can_modify_process(request.user, doc.process_id, return_as_dict=True)
+        elif qp.get("meeting"):
+            meeting = get_object_or_404(models.Meeting, pk=qp.get("meeting"))
+            data["can_modify"] = utils.can_modify_process(request.user, meeting.process_id, return_as_dict=True)
         return Response(data)
 
 
@@ -43,6 +47,27 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CSASRequestSerializer
     permission_classes = [CanModifyRequestOrReadOnly]
     queryset = models.CSASRequest.objects.all()
+
+
+class CSASRequestNoteViewSet(viewsets.ModelViewSet):
+    queryset = models.CSASRequestNote.objects.all()
+    serializer_class = serializers.CSASRequestNoteSerializer
+    permission_classes = [RequestNotesPermission]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("csas_request"):
+            csas_request = get_object_or_404(models.CSASRequest, pk=qp.get("csas_request"))
+            qs = csas_request.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a csas request"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 
 class CSASRequestReviewViewSet(viewsets.ModelViewSet):
@@ -78,11 +103,48 @@ class ProcessViewSet(viewsets.ModelViewSet):
             obj.posting_notification_date = timezone.now()
             obj.save()
 
+    def post(self, request, pk):
+        qp = request.query_params
+        process = get_object_or_404(models.Process, pk=pk)
+        if qp.get("request_posting"):
+            if not process.is_posted:
+                email = emails.PostingRequestEmail(request, process)
+                email.send()
+                process.posting_request_date = timezone.now()
+                process.save()
+                msg = _("Success! Your request for a posting has been sent to the National CSAS Office.")
+                return Response(msg, status.HTTP_200_OK)
+            raise ValidationError(_("A request to have this process posted has already occurred."))
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
 
 class MeetingViewSet(viewsets.ModelViewSet):
     queryset = models.Meeting.objects.all().order_by("-created_at")
     serializer_class = serializers.MeetingSerializer
     permission_classes = [CanModifyProcessOrReadOnly]
+
+    def post(self, request, pk):
+        qp = request.query_params
+        meeting = get_object_or_404(models.Meeting, pk=pk)
+        if qp.get("maximize_attendance"):
+            invitees = meeting.invitees.filter(status__in=[1, ])
+            for invitee in invitees:
+                invitee.maximize_attendance()
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("import_from_meeting"):
+            target_meeting = get_object_or_404(models.Meeting, pk=qp.get("import_from_meeting"))
+            invitees = target_meeting.invitees.all()
+            for new_invitee in invitees:
+                if not meeting.invitees.filter(person=new_invitee.person).exists():
+                    i = models.Invitee.objects.create(
+                        meeting=meeting,
+                        person=new_invitee.person,
+                        region=new_invitee.region,
+                    )
+                    for role in new_invitee.roles.all():
+                        i.roles.add(role)
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
@@ -91,6 +153,11 @@ class MeetingViewSet(viewsets.ModelViewSet):
             qs = process.meetings.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+        if qp.get("choices"):
+            qs = models.Meeting.objects.filter(is_planning=False, invitees__isnull=False).distinct().order_by("process__lead_region", "fiscal_year")
+            meeting_choices = [dict(text=m.full_display, value=m.id) for m in qs]
+            meeting_choices.insert(0, dict(text="-----", value=None))
+            return Response(meeting_choices)
         raise ValidationError(_("You need to specify a csas process"))
 
     def perform_create(self, serializer):
@@ -113,6 +180,27 @@ class MeetingNoteViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a meeting"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class ProcessNoteViewSet(viewsets.ModelViewSet):
+    queryset = models.ProcessNote.objects.all()
+    serializer_class = serializers.ProcessNoteSerializer
+    permission_classes = [CanModifyProcessOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("process"):
+            process = get_object_or_404(models.Process, pk=qp.get("process"))
+            qs = process.notes.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a process"))
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -150,10 +238,26 @@ class InviteeViewSet(viewsets.ModelViewSet):
     # pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
+        meeting = get_object_or_404(models.Meeting, pk=self.request.data.get("meeting"))
+        old_chair = meeting.chair
         serializer.save()
+        new_chair = meeting.chair
+
+        # now for the piece about NCR email
+        if meeting.process.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
+            email = emails.UpdatedMeetingEmail(self.request, meeting, old_chair=old_chair, new_chair=new_chair)
+            email.send()
 
     def perform_update(self, serializer):
-        obj = serializer.save(updated_by=self.request.user)
+        meeting = get_object_or_404(models.Invitee, pk=self.kwargs.get("pk")).meeting
+        old_chair = meeting.chair
+        obj = serializer.save()
+        new_chair = meeting.chair
+
+        # now for the piece about NCR email
+        if meeting.process.is_posted and hasattr(meeting, "tor") and (old_chair != new_chair):
+            email = emails.UpdatedMeetingEmail(self.request, meeting, old_chair=old_chair, new_chair=new_chair)
+            email.send()
 
         # it is important to use the try/except approach because this way
         # it can differentiate between  1) no dates value being passed or 2) a null value (i.e. clear all attendance)
@@ -266,6 +370,19 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 pub_number = f"{year}/{p_num}"
                 return Response(dict(pub_number=pub_number), status=status.HTTP_200_OK)
             raise ValidationError(_("Cannot generate a pub number if there is no anticipated posting date."))
+        elif qp.get("get_due_date"):
+            # due date can be guessed based on the document type
+            # but we also have to have a connected meeting!
+            if not doc.document_type.days_due:
+                raise ValidationError(_("Cannot guess at the due date because the document type has not pre-configuration. "
+                                        "Please talk to a national CSAS administrator to have this fixed!"))
+            if not doc.meetings.exists():
+                raise ValidationError(_("Cannot guess at the due date because there are no connected meetings to this document!"))
+            qs = doc.meetings.filter(end_date__isnull=False)
+            if not qs.exists():
+                raise ValidationError(_("Cannot guess at the due date because none of the connected meeting have end dates!"))
+            last_date = qs.order_by("end_date").last().end_date
+            return Response(dict(due_date=last_date), status=status.HTTP_200_OK)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
@@ -284,17 +401,8 @@ class DocumentTrackingViewSet(viewsets.ModelViewSet):
 
         # is there a chair?
         chair_qs = models.Invitee.objects.filter(meeting__process=obj.document.process, roles__name__icontains=_("chair"))
-        print(chair_qs)
         if chair_qs.exists():
             obj.chair = chair_qs.first().person
-
-        # due date can be guessed based on the document type
-        # but we also have to have a connected meeting!
-        if obj.document.document_type.days_due and obj.document.meetings.exists():
-            qs = obj.document.meetings.filter(end_date__isnull=False)
-            if qs.exists():
-                last_date = qs.order_by("end_date").last().end_date
-                obj.due_date = last_date + timedelta(days=obj.document.document_type.days_due)
 
         # assume proof will be sent to lead author. But if there is no lead author, default to next in line
         author_qs = obj.document.authors.order_by("-is_lead")
@@ -441,8 +549,9 @@ class PersonModelMetaAPIView(APIView):
     model = Person
 
     def get(self, request):
-        external_stamp = " ({})".format(_("external"))
-        person_choices = [dict(text="{} {}".format(p, external_stamp if not p.dmapps_user else ""), value=p.id) for p in Person.objects.all()]
+        external_stamp = " ({})".format(_("external").upper())
+        person_choices = [dict(text="{} {}".format(unidecode(str(p)), external_stamp if not p.dmapps_user else ""), value=p.id) for p in
+                          Person.objects.all()]
         person_choices.insert(0, dict(text="-----", value=None))
 
         data = dict()
@@ -490,9 +599,6 @@ class AuthorModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = _get_labels(self.model)
-        person_choices = [dict(text=str(p), value=p.id) for p in Person.objects.all()]
-        person_choices.insert(0, dict(text="-----", value=None))
-        data['person_choices'] = person_choices
         return Response(data)
 
 

@@ -16,6 +16,7 @@
 !projects_summary_template.xlsx
 !/bio_diversity/static/data_templates/*.xlsx
 !/bio_diversity/static/report_templates/*.xlsx
+!/bio_diversity/static/test/parser_test_files/*.xlsx
 *.docx
 !acrdp_template.docx
 !csrf_template_en.docx

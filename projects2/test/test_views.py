@@ -184,7 +184,7 @@ class TestCSRFSubmissionListReportView(CommonTest):
         for i in range(0, 10):
             p = FactoryFloor.ProjectFactory(default_funding_source=csrf_funding_source)
             FactoryFloor.ProjectYearFactory(project=p, start_date=date)
-        self.test_url = reverse_lazy('projects2:export_csrf_submission_list') + f'?year={year};region=None'
+        self.test_url = reverse_lazy('projects2:export_csrf_submission_list') + f'?year={year}&region=None'
         self.user = self.get_and_login_user()
 
     @tag("Reports", "csrf-submission-list", "access")
@@ -623,7 +623,7 @@ class TestProjectStatusSummaryReportView(CommonTest):
         year = fiscal_year(date, sap_style=True)
         for i in range(0, 10):
             FactoryFloor.ProjectYearFactory(start_date=date)
-        self.test_url = reverse_lazy('projects2:export_project_status_summary') + f'?year={year};region=None'
+        self.test_url = reverse_lazy('projects2:export_project_status_summary') + f'?year={year}&region=None'
         self.user = self.get_and_login_user()
 
     @tag("Reports", "project-status-summary", "access")
@@ -1228,7 +1228,7 @@ class TestRegionalStaffAllocationReportView(CommonTest):
             FactoryFloor.ProjectYearFactory(start_date=date)
 
         # At a minimum a year is required
-        self.test_url = reverse_lazy('projects2:export_rsa') + f'?year={year};region=1'
+        self.test_url = reverse_lazy('projects2:export_rsa') + f'?year={year}&region=1'
 
         self.user = self.get_and_login_user()
 

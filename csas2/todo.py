@@ -1,3 +1,7 @@
+# TODO: when we add a function of science lead, this person should have full access to meeting (read / write)
+
+# TODO: vue-select is sensitive to accents!!
+
 # TODO: when entering a new request, it should validate that this is not more than 3 fiscal years ahead!
 # TODO: user permissions menu
 # TODO: invitee -- when adding a new person, (or cloning) the name does not appear in dropdown list

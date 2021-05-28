@@ -1,145 +1,101 @@
-from datetime import datetime
-
-import pytz
 from django.core.exceptions import ValidationError
 import pandas as pd
 
 from bio_diversity import models
 from bio_diversity import utils
+from bio_diversity.utils import DataParser
 
 
-def coldbrook_electrofishing_parser(cleaned_data):
-    log_data = "Loading Data Results: \n"
-    rows_parsed = 0
-    rows_entered = 0
+class ElectrofishingParser(DataParser):
+    rive_key = "River"
+    site_key = "site"
+    lat_key = "Lat"
+    lon_key = "Long"
+    end_lat = "End Lat"
+    end_lon = "End Long"
+    comment_key = "Comments"
+    crew_key = "Crew"
+    crew_lead_key = "crew lead"
+    temp_key = "Temperature"
+    fish_caught_key = "# of salmon collected"
+    fish_obs_key = "# of salmon observed"
+    settings_key = "Settings"
+    fishing_time_key = "fishing seconds"
+    voltage_key = "Voltage"
+    group_key = "Group"
+    coll_key = "Collection"
+    tank_key = "End Tank"
 
-    # load data:
-    try:
-        data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl',
-                             converters={'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
-        data_dict = data.to_dict('records')
-    except Exception as err:
-        log_data += "\n File format not valid: {}".format(err.__str__())
-        return log_data, False
+    header = 2
+    start_grp_dict = {}
+    end_grp_dict = {}
 
-    # set up before iterating over rows:
-    try:
-        temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
-        river_dict = {}
-        for river_name in data["River"].unique():
-            river_dict[river_name] = models.RiverCode.objects.filter(name__iexact=river_name).get()
+    temp_envc_id = None
+    leader_code = None
+    settings_locdc_id = None
+    voltage_locdc_id = None
+    fishing_time_locdc_id = None
 
-        leader_code = models.RoleCode.objects.filter(name__iexact="Crew Lead").get()
+    loc = None
+    locc_id = None
+    river_dict = {}
 
-    except Exception as err:
-        log_data += "\n Error in preparing data: {}".format(err.__str__())
-        return log_data, False
+    def data_preper(self):
+        cleaned_data = self.cleaned_data
+        self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
+        self.leader_code = models.RoleCode.objects.filter(name__iexact="Crew Lead").get()
+        self.settings_locdc_id = models.LocationDetCode.objects.filter(name__iexact="Electrofishing Settings").get()
+        self.voltage_locdc_id = models.LocationDetCode.objects.filter(name__iexact="Voltage").get()
+        self.fishing_time_locdc_id = models.LocationDetCode.objects.filter(name__iexact="Electrofishing Seconds").get()
 
-    # iterate over rows:
-    for row in data_dict:
-        row_parsed = True
-        row_entered = False
-        try:
-            row_datetime = datetime.strptime(row["Year"] + row["Month"] + row["Day"],
-                                             "%Y%b%d").replace(tzinfo=pytz.UTC)
-            relc_id = None
-            rive_id = river_dict[row["River"]]
-            if utils.nan_to_none(row["site"]):
-                relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"])
-                if len(relc_qs) == 1:
-                    relc_id = relc_qs.get()
-            loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                  locc_id=models.LocCode.objects.filter(name__icontains="Electrofishing site").get(),
-                                  rive_id=rive_id,
-                                  relc_id=relc_id,
-                                  loc_lat=utils.round_no_nan(row["Lat"], 5),
-                                  loc_lon=utils.round_no_nan(row["Long"], 5),
-                                  end_lat=utils.round_no_nan(row["End Lat"], 5),
-                                  end_lon=utils.round_no_nan(row["End Long"], 5),
-                                  loc_date=row_datetime,
-                                  comments=row["Comments"],
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"],
-                                  )
-            try:
-                loc.set_relc_latlng()
-                loc.clean()
-                loc.save()
-                row_entered = True
-            except ValidationError:
-                loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
-                                                     rive_id=loc.rive_id, subr_id=loc.subr_id,
-                                                     relc_id=loc.relc_id, loc_lat=loc.loc_lat,
-                                                     loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
+        for river_name in self.data[self.rive_key].unique():
+            self.river_dict[river_name] = models.RiverCode.objects.filter(name__icontains=river_name).get()
 
-            if utils.nan_to_none(row["Crew"]):
-                row_percs, inits_not_found = utils.team_list_splitter(row["Crew"])
-                for perc in row_percs:
-                    utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc)
-                for inits in inits_not_found:
-                    log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
-                                                                                                              row)
+        if self.cleaned_data["evntc_id"].__str__() == "Electrofishing":
+            self.locc_id = models.LocCode.objects.filter(name__icontains="Electrofishing site").get()
+        elif self.cleaned_data["evntc_id"].__str__() == "Smolt Wheel Collection":
+            self.locc_id = models.LocCode.objects.filter(name__icontains="Smolt Wheel site").get()
+        elif self.cleaned_data["evntc_id"].__str__() == "Bypass Collection":
+            self.locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
 
-            if utils.nan_to_none(row["crew lead"]):
-                row_percs, inits_not_found = utils.team_list_splitter(row["crew lead"])
-                for perc in row_percs:
-                    utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc, role_id=leader_code)
-                for inits in inits_not_found:
-                    log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
-                                                                                                              row)
 
-            if utils.enter_env(row["temp"], row_datetime, cleaned_data, temp_envc_id, loc_id=loc, ):
-                row_entered = True
+        # assign groups to columns, add generic group data:
+        self.data["grp_id"] = None
+        river_group_data = self.data.groupby([self.rive_key, self.group_key, self.coll_key, self.tank_key],
+                                             dropna=False).size().reset_index()
 
-            cnt_caught = utils.enter_cnt(cleaned_data, cnt_value=row["# of salmon collected"], loc_pk=loc.pk,
-                                         cnt_code="Fish Caught")
-            cnt_obs = utils.enter_cnt(cleaned_data, cnt_value=row["# of salmon observed"], loc_pk=loc.pk,
-                                      cnt_code="Fish Observed")
+        if not river_group_data[self.tank_key].is_unique:
+            raise Exception("Too many different groups going into same tank. Create multiple events if needed")
 
-            if cnt_caught:
-                if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Settings"], "Electrofishing Settings"):
-                    row_entered = True
-                if utils.enter_cnt_det(cleaned_data, cnt_caught, row["fishing seconds"], "Electrofishing Seconds"):
-                    row_entered = True
-                if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Voltage"], "Voltage"):
-                    row_entered = True
-            if cnt_obs:
-                if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Settings"], "Electrofishing Settings"):
-                    row_entered = True
-                if utils.enter_cnt_det(cleaned_data, cnt_obs, row["fishing seconds"], "Electrofishing Seconds"):
-                    row_entered = True
-                if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Voltage"], "Voltage"):
-                    row_entered = True
-
-        except Exception as err:
-            log_data += "Error parsing row: \n"
-            log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
-            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                        " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-            return log_data, False
-        if row_entered:
-            rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
-
-    # do general actions on data
-    try:
-        for key in river_dict:
-            stok_id = models.StockCode.objects.filter(name__icontains=key).get()
+        for index, row in river_group_data.iterrows():
+            stok_id = models.StockCode.objects.filter(name__icontains=row[self.rive_key]).get()
+            coll_id = models.Collection.objects.filter(name__icontains=row[self.coll_key]).get()
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                               grp_id__stok_id=stok_id,
+                                                              grp_id__coll_id=coll_id,
                                                               indv_id__isnull=True,
                                                               contx_id__isnull=True,
                                                               indvt_id__isnull=True,
                                                               loc_id__isnull=True,
                                                               pair_id__isnull=True)
-            if anix_grp_qs.count() == 0:
+
+            grp_found = False
+            grp = None
+            for anix in anix_grp_qs:
+                anix_prog_grp_names = [adsc.name for adsc in anix.grp_id.prog_group()]
+                if utils.nan_to_none(row[self.group_key]) and row[self.group_key] in anix_prog_grp_names:
+                    grp_found = True
+                    grp = anix.grp_id
+                    break
+                elif not utils.nan_to_none(row[self.group_key]) and not anix_prog_grp_names:
+                    grp_found = True
+                    grp = anix.grp_id
+                    break
+            if not grp_found:
                 grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                    stok_id=stok_id,
-                                   coll_id=models.Collection.objects.filter(name__icontains=data["Collection"]).get(),
-                                   grp_year=data["Year"][0],
+                                   coll_id=coll_id,
+                                   grp_year=self.data[self.year_key][0],
                                    grp_valid=True,
                                    created_by=cleaned_data["created_by"],
                                    created_date=cleaned_data["created_date"],
@@ -151,181 +107,106 @@ def coldbrook_electrofishing_parser(cleaned_data):
                     grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
                                                       grp_year=grp.grp_year, coll_id=grp.coll_id).get()
 
-                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
-            elif anix_grp_qs.count() == 1:
-                anix_grp = anix_grp_qs.get()
-                grp = anix_grp.grp_id
+                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_anix=True)
+                if utils.nan_to_none(row[self.group_key]):
+                    utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None,
+                                     None, anidc_str="Program Group", adsc_str=row[self.group_key])
 
-            contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
+            if utils.nan_to_none(row[self.group_key]):
+                data_rows = (self.data[self.rive_key] == row[self.rive_key]) & \
+                            (self.data[self.group_key] == row[self.group_key]) & \
+                            (self.data[self.tank_key] == row[self.tank_key]) & \
+                            (self.data[self.coll_key] == row[self.coll_key])
+            else:
+                data_rows = (self.data[self.rive_key] == row[self.rive_key]) & \
+                    (self.data[self.coll_key] == row[self.coll_key]) & \
+                    (self.data[self.tank_key] == row[self.tank_key]) & \
+                    (self.data[self.group_key].isnull())
 
-            utils.enter_cnt(cleaned_data, data[data["River"] == key]["# of salmon collected"].sum(), contx_pk=contx.pk,
-                            cnt_code="Fish in Container", )
+            # grp found, assign to all rows:
+            self.data.loc[data_rows, "grp_id"] = grp
+            contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, True, None, grp.pk,
+                                                         return_contx=True)
 
-    except Exception as err:
-        log_data += "Error parsing common data (entering group, placing it in a location and recording the count): \n"
-        log_data += "\n Error: {}".format(err.__str__())
-        log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                    " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-        return log_data, False
+            self.data_dict = self.data.to_dict("records")
 
-    log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-    return log_data, True
+    def row_parser(self, row):
+        cleaned_data = self.cleaned_data
+        row_datetime = utils.get_row_date(row)
+        relc_id = None
+        rive_id = self.river_dict[row[self.rive_key]]
+        if utils.nan_to_none(row[self.site_key]):
+            relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key])
+            if len(relc_qs) == 1:
+                relc_id = relc_qs.get()
 
-
-def mactaquac_electrofishing_parser(cleaned_data):
-    log_data = "Loading Data Results: \n"
-    rows_parsed = 0
-    rows_entered = 0
-
-    # loading data catch:
-    try:
-        data = pd.read_excel(cleaned_data["data_csv"], header=1, engine='openpyxl',
-                             converters={'Year': str, 'Month': str, 'Day': str}).dropna(how="all")
-        data_dict = data.to_dict('records')
-    except Exception as err:
-        log_data += "\n File format not valid: {}".format(err.__str__())
-        return log_data, False
-
-    # prepare rows before iterating:
-    try:
-        temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
-        river_dict = {}
-        for river_name in data["River"].unique():
-            river_dict[river_name] = models.RiverCode.objects.filter(name__iexact=river_name).get()
-
-    except Exception as err:
-        log_data += "\n Error preparing data: {}".format(err.__str__())
-        return log_data, False
-
-    # iterate over rows
-    for row in data_dict:
-        row_parsed = True
-        row_entered = False
+        start_lat = utils.round_no_nan(row[self.lat_key], 5)
+        start_lon = utils.round_no_nan(row[self.lon_key], 5)
+        if not relc_id and not (start_lat and start_lon):
+            raise Exception("Site code not found and lat-long not given for site on row")
+        loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
+                              locc_id=self.locc_id,
+                              rive_id=rive_id,
+                              relc_id=relc_id,
+                              loc_lat=start_lat,
+                              loc_lon=start_lon,
+                              end_lat=utils.round_no_nan(row[self.end_lat], 5),
+                              end_lon=utils.round_no_nan(row[self.end_lon], 5),
+                              loc_date=row_datetime,
+                              comments=utils.nan_to_none(row[self.comment_key]),
+                              created_by=cleaned_data["created_by"],
+                              created_date=cleaned_data["created_date"],
+                              )
         try:
-            row_date = datetime.strptime(str(row["Year"]) + str(row["Month"]) + str(row["Day"]), "%Y%b%d").replace(
-                tzinfo=pytz.UTC)
+            loc.set_relc_latlng()
+            loc.clean()
+            loc.save()
+            self.row_entered = True
+        except ValidationError:
+            loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
+                                                 rive_id=loc.rive_id, subr_id=loc.subr_id,
+                                                 relc_id=loc.relc_id, loc_lat=loc.loc_lat,
+                                                 loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
+        self.loc = loc
+        self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=row["grp_id"].pk, return_sucess=True)
+        if self.loc.loc_lon and self.loc.loc_lat and not self.loc.relc_id:
+            self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n\n{}".format(self.loc.loc_lat, self.loc.loc_lon, row)
+        self.team_parser(row[self.crew_key], row, loc_id=loc)
 
-            relc_id = None
-            rive_id = river_dict[row["River"]]
-            if utils.nan_to_none(row["Location Name"]):
-                relc_qs = models.ReleaseSiteCode.objects.filter(name__icontains=row["Location Name"],
-                                                                rive_id=rive_id)
-                if len(relc_qs) == 1:
-                    relc_id = relc_qs.get()
-            loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                  locc_id=models.LocCode.objects.first(),
-                                  rive_id=rive_id,
-                                  relc_id=relc_id,
-                                  loc_lat=utils.round_no_nan(row["Lat"], 5),
-                                  loc_lon=utils.round_no_nan(row["Long"], 5),
-                                  end_lat=utils.round_no_nan(row["Lat.1"], 5),
-                                  end_lon=utils.round_no_nan(row["Long.1"], 5),
-                                  loc_date=row_date,
-                                  comments=row["Comments"],
-                                  created_by=cleaned_data["created_by"],
-                                  created_date=cleaned_data["created_date"],
-                                  )
-            try:
-                loc.set_relc_latlng()
-                loc.clean()
-                loc.save()
-                row_entered = True
-            except ValidationError:
-                loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id,
-                                                     rive_id=loc.rive_id, subr_id=loc.subr_id,
-                                                     relc_id=loc.relc_id, loc_lat=loc.loc_lat,
-                                                     loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
+        self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id, loc_id=loc)
 
-            if utils.nan_to_none(row["Crew"]):
-                row_percs, inits_not_found = utils.team_list_splitter(row["Crew"])
-                for perc in row_percs:
-                    utils.add_team_member(perc, cleaned_data["evnt_id"], loc_id=loc)
-                for inits in inits_not_found:
-                    log_data += "No valid personnel with initials ({}) from this row in database {}\n".format(inits,
-                                                                                                              row)
+        cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_caught_key], loc_pk=loc.pk,
+                                                  cnt_code="Fish Caught")
+        self.row_entered += cnt_entered
+        cnt_obs, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_obs_key], loc_pk=loc.pk,
+                                               cnt_code="Fish Observed")
+        self.row_entered += cnt_entered
 
-            if utils.enter_env(row["Temperature"], row_date, cleaned_data, temp_envc_id, loc_id=loc, ):
-                row_entered = True
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.settings_key],
+                                             self.settings_locdc_id.pk)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.fishing_time_key],
+                                             self.fishing_time_locdc_id.pk)
+        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.voltage_key],
+                                             self.voltage_locdc_id.pk)
 
-            cnt_caught = utils.enter_cnt(cleaned_data, cnt_value=row["# Fish Collected"], loc_pk=loc.pk,
-                                         cnt_code="Fish Caught")
-            cnt_obs = utils.enter_cnt(cleaned_data, cnt_value=row["# Fish Observed"], loc_pk=loc.pk,
-                                      cnt_code="Fish Observed")
 
-            if cnt_caught:
-                if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Fishing Settings"], "Electrofishing Settings"):
-                    row_entered = True
-                if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Fishing seconds"], "Electrofishing Seconds"):
-                    row_entered = True
-                if utils.enter_cnt_det(cleaned_data, cnt_caught, row["Voltage"], "Voltage"):
-                    row_entered = True
-            if cnt_obs:
-                if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Fishing seconds"], "Electrofishing Seconds"):
-                    row_entered = True
-                if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Fishing seconds"], "Electrofishing Seconds"):
-                    row_entered = True
-                if utils.enter_cnt_det(cleaned_data, cnt_obs, row["Voltage"], "Voltage"):
-                    row_entered = True
+class ColdbrookElectrofishingParser(ElectrofishingParser):
 
-        except Exception as err:
-            log_data += "Error parsing row {}: \n".format(rows_parsed + 1)
-            log_data += str(row)
-            log_data += "\n Error: {}".format(err.__str__())
-            log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                        " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-            return log_data, False
-        if row_entered:
-            rows_entered += 1
-            rows_parsed += 1
-        elif row_parsed:
-            rows_parsed += 1
+    def row_parser(self, row):
+        super().row_parser(row)
 
-    # enter general data once all rows are entered:
+        self.team_parser(row[self.crew_lead_key], row, loc_id=self.loc, role_id=self.leader_code)
 
-    try:
-        for key in river_dict:
-            stok_id = models.StockCode.objects.filter(name__icontains=key).get()
-            anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
-                                                              grp_id__stok_id=stok_id,
-                                                              indv_id__isnull=True,
-                                                              contx_id__isnull=True,
-                                                              indvt_id__isnull=True,
-                                                              loc_id__isnull=True,
-                                                              pair_id__isnull=True)
 
-            if anix_grp_qs.count() == 0:
-                grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                   stok_id=stok_id,
-                                   coll_id=models.Collection.objects.filter(name__icontains=row["Collection"]).get(),
-                                   grp_year=data["Year"][0],
-                                   grp_valid=True,
-                                   created_by=cleaned_data["created_by"],
-                                   created_date=cleaned_data["created_date"],
-                                   )
-                try:
-                    grp.clean()
-                    grp.save()
-                except ValidationError:
-                    grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id,
-                                                      grp_year=grp.grp_year, coll_id=grp.coll_id).get()
-                anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk)
-            elif anix_grp_qs.count() == 1:
-                anix_grp = anix_grp_qs.get()
-                grp = anix_grp.grp_id
+class MactaquacElectrofishingParser(ElectrofishingParser):
+    site_key = "Location Name"
+    end_lat = "Lat.1"
+    end_lon = "Long.1"
+    temp_key = "Temperature"
+    fish_caught_key = "# Fish Collected"
+    fish_obs_key = "# Fish Observed"
+    settings_key = "Fishing Settings"
+    fishing_time_key = "Fishing Seconds"
+    header = 2
+    tank_key = "Destination Pond"
 
-            contx = utils.enter_tank_contx(cleaned_data["tank_id"].name, cleaned_data, True, None, grp.pk, True)
-
-            utils.enter_cnt(cleaned_data, data[data["River"] == key]["# Fish Collected"].sum(), contx_pk=contx.pk,
-                            cnt_code="Fish in Container", )
-
-    except Exception as err:
-        log_data += "Error parsing common data: \n"
-        log_data += "\n Error: {}".format(err.__str__())
-        log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                    " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-        return log_data, False
-
-    log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to" \
-                " database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
-    return log_data, True

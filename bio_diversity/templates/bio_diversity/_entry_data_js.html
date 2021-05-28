@@ -2,14 +2,24 @@
 
     window.onload = function() {
       setDataFields();
+      $("#loading_fish").hide();
     };
 
-    $("#id_egg_data_type").change(function (e) {
+    $("#submit_btn").click(function (e) {
+        setLoadingGif();
+    })
+
+    function setLoadingGif() {
+        $("#submit_btn").hide();
+        $("#loading_fish").show();
+    }
+
+    $("#id_data_type").change(function (e) {
         setDataFields();
     })
 
     function setDataFields() {
-        var e = document.getElementById("id_egg_data_type");
+        var e = document.getElementById("id_data_type");
         var dataType = e.value;
         console.log(dataType)
         if ( dataType=="Temperature" ) {

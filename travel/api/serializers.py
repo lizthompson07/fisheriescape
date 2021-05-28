@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db.models import Q
 from django.template.defaultfilters import slugify, date
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, activate, get_language
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -91,7 +91,11 @@ class TripSerializerLITE(serializers.ModelSerializer):
         return instance.start_date.strftime("%Y-%m-%d")
 
     def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
 
     def get_status_display(self, instance):
         return instance.get_status_display()
@@ -128,7 +132,11 @@ class RequestReviewerSerializerLITE(serializers.ModelSerializer):
         return instance.get_role_display()
 
     def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
 
     def get_status_date(self, instance):
         return date(instance.status_date)
@@ -182,7 +190,11 @@ class TripRequestSerializerLITE(serializers.ModelSerializer):
         return instance.section.shortish_name
 
     def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
 
     def get_status_display(self, instance):
         return instance.get_status_display()
@@ -229,7 +241,11 @@ class RequestReviewerSerializer(serializers.ModelSerializer):
         return instance.get_role_display()
 
     def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
 
     def get_status_date(self, instance):
         return date(instance.status_date)
@@ -433,7 +449,11 @@ class TripRequestSerializer(serializers.ModelSerializer):
         return instance.section.shortish_name
 
     def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
 
     def get_status_display(self, instance):
         return instance.get_status_display()
@@ -480,7 +500,11 @@ class TripReviewerSerializer(serializers.ModelSerializer):
         return instance.get_role_display()
 
     def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
 
     def get_status_date(self, instance):
         return date(instance.status_date)
@@ -562,7 +586,11 @@ class TripSerializer(serializers.ModelSerializer):
         return date(instance.registration_deadline)
 
     def get_status_class(self, instance):
-        return slugify(instance.get_status_display())
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
 
     def get_status_display(self, instance):
         return instance.get_status_display()

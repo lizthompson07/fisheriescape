@@ -25,21 +25,33 @@
   <div id="app" v-cloak>
     <div>
       {% include "shared_models/_generic_breadcrumbs.html" %}
-      <div class="float-left">
-        <span class="mdi mdi-account-group mr-3 h2"></span>
-      </div>
-      <div class="mb-3">
-        <h2 class="">{{ h1|safe }}</h2>
+      <div class="row mb-3">
+        <div class="col-sm-1">
+          <span class="mdi mdi-account-group h1"></span>
+        </div>
+        <div class="col">
+          <h2 class="">{{ h1|safe }}</h2>
+        </div>
       </div>
       {% bootstrap_messages %}
       <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
         <p class="mb-0">
-          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+          <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.can_modify.reason}</span>
+        </p>
+      </div>
+      <div v-if="meeting.is_posted && meeting.has_tor" class="alert alert-warning no-print" role="alert" style="width: 90%">
+        <p class="h6">
+          {% blocktrans %}
+            This meeting / process has already been posted to the national CSAS website.
+            Changes made to
+            <span class="dotted" data-toggle="tooltip" title="Title (English and French), Location, Dates, Chair, Expected Publications (from ToR)">certain fields</span>
+            of this meeting will automatically trigger a notification email to be sent to the national CSAS team.
+          {% endblocktrans %}
         </p>
       </div>
     </div>
 
-    <div class="mb-3">
+    <div v-if="canModify" class="mb-3">
       <a class="btn btn-sm btn-warning" href="{% url 'csas2:meeting_edit' object.id %}">{% trans "Edit" %}</a>
       <a class="btn btn-sm btn-danger" href="{% url 'csas2:meeting_delete' object.id %}">{% trans "Delete" %}</a>
       <button @click="openPopout('{% url 'csas2:meeting_file_new' object.id %}')" class="btn btn-outline-dark btn-sm ml-3">
@@ -72,8 +84,12 @@
               <td class="text-left" v-html="meeting.display_dates"></td>
             </tr>
             <tr>
+              <th class="text-left">{% trans "Time" %}</th>
+              <td class="text-left" v-html="meeting.ttime"></td>
+            </tr>
+            <tr>
               <th class="text-left">{% trans "Attendees" %}</th>
-              <td class="text-left" v-html="meeting.attendees"></td>
+              <td class="text-left">${meeting.attendees|nz}</td>
             </tr>
 
             <tr>
@@ -142,7 +158,7 @@
 
       {# Notes #}
       <div class="col">
-        {% include "csas2/meeting_detail/_notes.html" %}
+        <note-pad v-if="meeting.id" parent_name="meeting" :parent_id="meeting.id" :notes="notes" @update-notes="getNotes"></note-pad>
       </div>
 
 
@@ -158,14 +174,13 @@
 
 {% block body_js %}
   {{ block.super }}
-
-  {% include "csas2/meeting_detail/components/note_editor.html" %}
-  {% include "csas2/meeting_detail/components/note_card.html" %}
+  {% include "csas2/components/note_pad.html" %}
   {% include "csas2/meeting_detail/components/resource_editor.html" %}
   {% include "csas2/meeting_detail/components/invitee_editor.html" %}
   {% include "csas2/meeting_detail/components/email-overlay.html" %}
   {% include "csas2/meeting_detail/components/attendance-overlay.html" %}
   {% include "csas2/meeting_detail/components/cost_editor.html" %}
+  {% include "csas2/meeting_detail/components/invitee_importer.html" %}
 
   <script type="application/javascript">
   var meetingId = "{{ object.id }}";
@@ -179,7 +194,6 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: {},
-      canModify: false,
       loadingMeeting: false,
 
       meeting: {},
@@ -195,8 +209,22 @@
       meetingLabels: {}
     },
     methods: {
+      attendAll() {
+        if (!this.meeting.start_date) {
+          alert("{% trans "You cannot use this function unless you have a meeting start and end date selected :)" %}");
+        } else {
+
+          let userInput = confirm("{% trans 'This will set the attendance of all invitees whose status is `accepted` or `invited` to 100%. \n\n Do you wish to proceed?' %}")
+          if (userInput) {
+            let endpoint = `/api/csas/meetings/${meetingId}/?maximize_attendance=true`;
+            apiService(endpoint, "POST").then(() => {
+              this.getInvitees();
+            })
+          }
+        }
+      },
       getCurrentUser() {
-        let endpoint = `/api/csas/user/`;
+        let endpoint = `/api/csas/user/?meeting=${meetingId}`;
         apiService(endpoint)
             .then(response => {
               this.currentUser = response;
@@ -297,17 +325,18 @@
         apiService(endpoint).then(data => {
           if (data) {
             this.meeting = data;
-            if (update_notes) this.notes = this.getNotes();
-            this.invitees = this.getInvitees();
-            this.resources = this.getResources();
-            this.costs = this.getCosts();
+            if (update_notes) this.getNotes();
+            this.getInvitees();
+            this.getResources();
+            this.getCosts();
           }
         });
       },
-
-
     },
     computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
       attendeeCount() {
         if (this.meeting && this.meeting.attendees && this.meeting.attendees.length) {
           return this.meeting.attendees.split(",").length;
@@ -327,6 +356,7 @@
       nz: vueFiltersObject["nz"],
     },
     created() {
+      this.getCurrentUser();
       this.getMeetingMetadata();
       this.getMeeting(true);
     },

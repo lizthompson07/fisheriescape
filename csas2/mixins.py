@@ -91,7 +91,6 @@ class CanModifyProcessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             elif self.kwargs.get("meeting"):
                 meeting = get_object_or_404(models.Meeting, pk=self.kwargs.get("meeting"))
                 process_id = meeting.process_id
-
         finally:
             if process_id:
                 return can_modify_process(self.request.user, process_id)

@@ -166,6 +166,7 @@ class TicketDetailView(LoginRequiredMixin, CommonDetailView):
             "date_modified",
             "date_closed",
             "resolved_email_date",
+            "notes_html",
         ]
 
         context["field_group_4"] = [

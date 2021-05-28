@@ -44,7 +44,7 @@ process_scope_choices = (
 process_type_choices = (
     (1, _('Advisory Meeting')),
     (2, _('Science Response Process')),
-    (3, _('Peer Review')),
+    # (3, _('Peer Review')),
 )
 
 process_status_choices = (
@@ -61,17 +61,17 @@ process_status_choices = (
 #     (3, _("Keystone")),
 # )
 
-meeting_quarter_choices = (
-    (1, _("Spring")),
-    (2, _("Summer")),
-    (3, _("Fall")),
-    (4, _("Winter")),
-)
+# meeting_quarter_choices = (
+#     (1, _("Spring")),
+#     (2, _("Summer")),
+#     (3, _("Fall")),
+#     (4, _("Winter")),
+# )
+#
 
 note_type_choices = (
-    (1, 'To Do'),
-    (2, 'Next step'),
-    (3, 'General comment'),
+    (1, 'General comment'),
+    (2, 'To Do'),
 )
 
 # document_type_choices = (
@@ -179,6 +179,15 @@ invitee_status_choices = (
     (1, 'Accepted'),
     (2, 'Declined'),
     (3, 'Tentative'),
+)
+
+invitee_role_categories = (
+    (1, 'chair'),
+    (2, 'client lead'),
+    (3, 'steering committee member'),
+    (4, 'science lead'),
+    (5, 'csas coordinator'),
+    (6, 'science advisor'),
 )
 
 cost_category_choices = (

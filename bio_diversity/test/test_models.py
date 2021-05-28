@@ -23,8 +23,8 @@ class TestGrpModel(CommonTest):
             "created_by": self.evnt.created_by,
             "created_date": self.evnt.created_date,
         }
-        self.contx = utils.enter_contx(self.trof, self.cleaned_data, None, return_contx=True)
-        self.contx_two = utils.enter_contx(self.trof_two, self.cleaned_data, None, return_contx=True)
+        self.contx, data_entered = utils.enter_contx(self.trof, self.cleaned_data, None, return_contx=True)
+        self.contx_two, data_entered = utils.enter_contx(self.trof_two, self.cleaned_data, None, return_contx=True)
         temp_envc = models.EnvCode.objects.filter(name="Temperature").get()
         # add ten days worth of temp data to the trough
         for temp in range(0, 10):
@@ -40,7 +40,7 @@ class TestGrpModel(CommonTest):
         utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
         grp_dev = self.grp.get_development()
         # compare to hard coded value corresponding to 10 days of sequential temperature increases:
-        self.assertEqual(round(grp_dev, 3),  5.826)
+        self.assertEqual(round(grp_dev, 3),  5.579)
 
     def test_movement_development(self):
         # test grp placed in trof and moved to second trof
@@ -49,7 +49,7 @@ class TestGrpModel(CommonTest):
         utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
         utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
         grp_dev = self.grp.get_development()
-        self.assertEqual(round(grp_dev, 3), 28.101)
+        self.assertEqual(round(grp_dev, 3), 27.854)
 
     def test_development_after_detail(self):
         # test grp placed in trof, has development recorded go off of that and don't double count
@@ -58,8 +58,8 @@ class TestGrpModel(CommonTest):
 
         det_date = self.evnt_date + timedelta(days=5)
         det_evnt_cleaned_data = utils.create_new_evnt(self.cleaned_data, "Picking", det_date)
-        anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk)
-        utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10, "Development")
+        anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk, return_anix=True)
+        utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10,  None, anidc_str="Development")
         grp_dev = self.grp.get_development()
         self.assertEqual(round(grp_dev, 3), 14.015)
 
@@ -69,8 +69,8 @@ class TestGrpModel(CommonTest):
         det_date = self.evnt_date + timedelta(days=5)
         move_date = self.evnt_date + timedelta(days=10)
         det_evnt_cleaned_data = utils.create_new_evnt(self.cleaned_data, "Picking", det_date)
-        anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk)
-        utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10, "Development")
+        anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk, return_anix=True)
+        utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10, None, anidc_str="Development")
         utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
         utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
         grp_dev = self.grp.get_development()

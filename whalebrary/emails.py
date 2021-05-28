@@ -14,6 +14,16 @@ class NewIncidentEmail(Email):
                           self.instance.first_report.strftime("%B %d, %Y @ %I:%M %p %Z"))
 
 
+class NewResightEmail(Email):
+
+    email_template_path = 'whalebrary/email_resight.html'
+    recipient_list = ["WhaleSightings.XMAR@dfo-mpo.gc.ca",
+                        "DFO.GLFWhales-BaleinesGLF.MPO@dfo-mpo.gc.ca"
+                    ]
+
+    def get_subject(self):
+
+        return 'RESIGHTING {} - {}'.format(self.instance.incident, self.instance.resight_date.strftime("%B %d, %Y @ %I:%M %p %Z"))
 
 # class NewIncidentEmail:
 #
