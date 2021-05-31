@@ -16,6 +16,7 @@
         {% endfor %}
         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_maturity_rate' model_key object.pk  'pop'%}')" title="{% trans 'Plot Maturity Rate' %}">{% trans 'Plot Maturity Rate' %}</a>
         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_temp_data' model_key object.pk  'pop'%}')" title="{% trans 'Plot Temperature Data' %}">{% trans 'Plot Temperature Data' %}</a>
+        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_oxy_data' model_key object.pk  'pop'%}')" title="{% trans 'Plot Oxygen Data' %}">{% trans 'Plot Oxygen Data' %}</a>
         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_fish_to_cont' model_key object.pk  'pop'%}')" title="{% trans 'Add fish to container' %}">{% trans 'Add fish to container' %}</a>
         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_feedh' model_key object.pk  'pop'%}')" title="{% trans 'Set container feed' %}">{% trans 'Set container feed' %}</a>
         </div>
