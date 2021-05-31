@@ -380,7 +380,6 @@ def generate_growth_chart(plot_fish):
     p_len.x(x=x_len_data, y=y_len_data, size=10)
     p_weight.x(x=x_weight_data, y=y_weight_data, size=10)
 
-
     # ------------------------Data File------------------------------
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.csv"

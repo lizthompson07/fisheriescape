@@ -761,8 +761,8 @@ class Fecundity(BioDateModel):
 
 class Feeding(BioModel):
     # feed tag
-    contx_id = models.OneToOneField('ContainerXRef', unique=True, on_delete=models.CASCADE,
-                                    verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, verbose_name=_("Container Cross Reference"),
+                                 db_column="CONTAINER_XREF_ID")
     feedm_id = models.ForeignKey('FeedMethod', on_delete=models.CASCADE, verbose_name=_("Feeding Method"),
                                  db_column="FEEDMETHOD_ID")
     feedc_id = models.ForeignKey('FeedCode', on_delete=models.CASCADE, verbose_name=_("Feeding Code"),

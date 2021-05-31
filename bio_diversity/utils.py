@@ -794,6 +794,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=
 
 
 def enter_feed(cleaned_data, contx_id, feedc_id, feedm_id, amt, comments=None, freq=None, lot_num=None):
+    row_entered = False
     feed = models.Feeding(contx_id=contx_id,
                           feedm_id=feedm_id,
                           feedc_id=feedc_id,
