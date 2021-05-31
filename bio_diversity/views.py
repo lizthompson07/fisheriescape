@@ -766,6 +766,7 @@ class CommonContDetails(CommonDetails):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['java_script'] = 'bio_diversity/_cont_details_js.html'
         cont_pk = self.object.pk
         arg_name = "contx_id__{}_id_id".format(self.key)
         env_set = models.EnvCondition.objects.filter(**{arg_name: cont_pk}).select_related("envc_id", "envsc_id")
