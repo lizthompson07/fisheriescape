@@ -187,6 +187,10 @@ def daily_dev(degree_day):
     return dev
 
 
+def condition_factor(len_cm, weight_g):
+    return 100 * float(weight_g) / (float(len_cm) ** 3)
+
+
 def parse_concentration(concentration_str):
     if "%" in concentration_str:
         return Decimal(float(concentration_str.rstrip("%"))/100)

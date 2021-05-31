@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import F, Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
@@ -284,14 +283,17 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
-                self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
-            elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing", "Bypass Collection", "Smolt Wheel Collection"]:
+                self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
+                                                                                   label=_("Type of data entry"))
+            elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
+                                     "Bypass Collection", "Smolt Wheel Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
-                self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
+                self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
+                                                                                   label=_("Type of data entry"))
         return init
 
     def get_context_data(self, **kwargs):
@@ -354,7 +356,8 @@ class EnvtcCreate(mixins.EnvtcMixin, CommonCreate):
 
 class EvntCreate(mixins.EvntMixin, CommonCreate):
     def get_success_url(self):
-        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(self.key), kwargs={'pk': self.object.pk})
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:details_{}".format(
+            self.key), kwargs={'pk': self.object.pk})
 
         if self.kwargs.get("pop"):
             # create views intended to be pop out windows should close the window upon success
@@ -792,7 +795,8 @@ class CommonContDetails(CommonDetails):
                                            "field_list": envt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        feed_set = models.Feeding.objects.filter(**{arg_name: cont_pk}).select_related("feedc_id", "unit_id", "feedm_id", "contx_id__evnt_id")
+        feed_set = models.Feeding.objects.filter(**{arg_name: cont_pk}).select_related("feedc_id", "unit_id",
+                                                                                       "feedm_id", "contx_id__evnt_id")
         feed_field_list = ["feedc_id", "amt", "unit_id", "feedm_id", "feed_date|Feed Date", ]
         obj_mixin = mixins.FeedMixin
         context["context_dict"]["feed"] = {"div_title": "Feeding",
@@ -936,7 +940,7 @@ class EnvDetails(mixins.EnvMixin, CommonDetails):
             envcf_set = [self.object.envcf_id]
         else:
             envcf_set = None
-        envcf_field_list = ["env_pdf", "created_date" ]
+        envcf_field_list = ["env_pdf", "created_date"]
         obj_mixin = mixins.EnvcfMixin
         context["context_dict"]["envcf"] = {"div_title": "Environment Condition Files",
                                             "sub_model_key": obj_mixin.key,
@@ -1079,7 +1083,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         if evnt_code == "Electrofishing" or evnt_code == "Bypass Collection" or evnt_code == "Smolt Wheel Collection":
             context["coll_btn"] = True
 
-        context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf", "prot"])
+        context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf",
+                                      "prot"])
 
         return context
 
@@ -1140,7 +1145,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "field_list": evnt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        grp_set = models.GroupDet.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anidc_id', "adsc_id")
+        grp_set = models.GroupDet.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anidc_id',
+                                                                                                        "adsc_id")
         grpd_field_list = ["anidc_id", "adsc_id", "det_val", "grpd_valid", "detail_date"]
         obj_mixin = mixins.GrpdMixin
         context["context_dict"]["grpd"] = {"div_title": "{} ".format(obj_mixin.title),
@@ -1149,7 +1155,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "field_list": grpd_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        obj_set = models.Sample.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anix_id__evnt_id', 'loc_id', 'sampc_id')
+        obj_set = models.Sample.objects.filter(anix_id__grp_id=self.object).distinct()\
+            .select_related('anix_id__evnt_id', 'loc_id', 'sampc_id')
         obj_field_list = ["samp_num", "sampc_id", "samp_date|Sample Date"]
         obj_mixin = mixins.SampMixin
         context["context_dict"]["samp"] = {"div_title": "{} ".format(obj_mixin.title),
@@ -1170,7 +1177,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
 
         anix_set = self.object.animal_details.filter(loc_id__isnull=False).select_related("loc_id", "loc_id__locc_id",
-                                                                                         "loc_id__relc_id")
+                                                                                          "loc_id__relc_id")
         loc_set = list(dict.fromkeys([anix.loc_id for anix in anix_set]))
         loc_field_list = ["relc_id", "locc_id", "loc_date"]
         obj_mixin = mixins.LocMixin
@@ -1240,7 +1247,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
 
 class GrpdDetails(mixins.GrpdMixin, CommonDetails):
-    fields = ["anidc_id",  "det_val", "adsc_id", "qual_id", "grpd_valid",  "frm_grp_id", "detail_date", "comments", "created_by", "created_date", ]
+    fields = ["anidc_id",  "det_val", "adsc_id", "qual_id", "grpd_valid",  "frm_grp_id", "detail_date", "comments",
+              "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -1249,8 +1257,8 @@ class GrpdDetails(mixins.GrpdMixin, CommonDetails):
 
 
 class HeatDetails(mixins.HeatMixin, CommonDetails):
-    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
-              "created_by", "created_date", ]
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "manufacturer", "serial_number",
+              "inservice_date", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1284,8 +1292,8 @@ class ImgcDetails(mixins.ImgcMixin, CommonDetails):
 
 class IndvDetails(mixins.IndvMixin, CommonDetails):
     template_name = 'bio_diversity/details_indv.html'
-    fields = ["grp_id", "spec_id", "stok_id", "coll_id", "indv_year", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
-              "created_date", ]
+    fields = ["grp_id", "spec_id", "stok_id", "coll_id", "indv_year", "ufid", "pit_tag", "indv_valid", "comments",
+              "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass fields/sample object to template
@@ -1367,7 +1375,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context["heritage_field_list"] = ["Degrees Removed", "Group", "Date Removed"]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, pair_id__isnull=True).select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
+                                                          indvt_id__isnull=True, pair_id__isnull=True)\
+            .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
         context["cont_evnt_field_list"] = [
@@ -1376,11 +1385,15 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "Direction"
             "Container",
         ]
+        indv_len = self.object.individual_detail("Length")
+        indv_weight = self.object.individual_detail("Weight")
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group()
         context["calculated_properties"]["Current Tank"] = self.object.current_cont()
-        context["calculated_properties"]["Length (cm)"] = self.object.individual_detail("Length")
-        context["calculated_properties"]["Weight (g)"] = self.object.individual_detail("Weight")
+        context["calculated_properties"]["Length (cm)"] = indv_len
+        context["calculated_properties"]["Weight (g)"] = indv_weight
+        context["calculated_properties"]["Condition Factor"] = utils.round_no_nan(utils.condition_factor
+                                                                                  (indv_len, indv_weight), 4)
         context["calculated_properties"]["Gender"] = self.object.individual_detail("Gender")
 
         context["report_url"] = reverse("bio_diversity:individual_report_file") + f"?indv_pk={self.object.pk}"
@@ -1388,7 +1401,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
 
 class IndvdDetails(mixins.IndvdMixin, CommonDetails):
-    fields = ["anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "detail_date", "comments", "created_by", "created_date", ]
+    fields = ["anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "detail_date", "comments", "created_by",
+              "created_date", ]
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):
@@ -1512,7 +1526,8 @@ class OrgaDetails(mixins.OrgaMixin, CommonDetails):
 
 
 class PairDetails(mixins.PairMixin, CommonDetails):
-    fields = ["indv_id", "start_date", "end_date", "prio_id", "pair_prio_id", "cross", "valid", "comments", "created_by", "created_date", ]
+    fields = ["indv_id", "start_date", "end_date", "prio_id", "pair_prio_id", "cross", "valid", "comments",
+              "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -3092,6 +3107,7 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
 @login_required()
 def facility_tank_report(request):
     facic_pk = request.GET.get("facic_pk")
+    file_url = None
     if facic_pk:
         file_url = reports.generate_facility_tank_report(facic_pk)
 
@@ -3109,6 +3125,7 @@ def stock_code_report(request):
     stok_pk = request.GET.get("stok_pk")
     on_date = request.GET.get("on_date")
     stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
+    file_url = None
     if stok_id and on_date:
         on_date = datetime.strptime(on_date, "%Y-%m-%d").replace(tzinfo=pytz.UTC)
         file_url = reports.generate_stock_code_report(stok_id, on_date)
@@ -3178,6 +3195,7 @@ class GrowthChartView(PlotView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         fish_pk = self.kwargs.get("pk")
+        plot_fish = None
         if self.kwargs.get("iorg") == "indv":
             plot_fish = models.Individual.objects.filter(pk=fish_pk).get()
         elif self.kwargs.get("iorg") == "grp":
@@ -3194,6 +3212,7 @@ class MaturityRateView(PlotView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cont_pk = self.kwargs.get("pk")
+        cont = None
         if self.kwargs.get("cont") == "tank":
             cont = models.Tank.objects.filter(pk=cont_pk).get()
         elif self.kwargs.get("cont") == "trof":

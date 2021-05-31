@@ -336,8 +336,28 @@ def generate_growth_chart(plot_fish):
         x_weight_data.append(datetime.combine(weight_det.detail_date, datetime.min.time()))
         y_weight_data.append(weight_det.det_val)
 
+    x_cond_data = []
+    y_cond_data = []
+    if type(plot_fish) == models.Individual:
+        for len_det in len_dets:
+            weight_det = weight_dets.filter(detail_date=len_det.detail_date).first()
+            if weight_det:
+                x_cond_data.append(datetime.combine(len_det.detail_date, datetime.min.time()))
+                y_cond_data.append(utils.condition_factor(len_det.det_val, weight_det.det_val))
+
     # create a new plot
     title_eng = "Growth Chart for fish"
+
+    if x_cond_data:
+        p_cond = figure(
+            tools="pan,box_zoom,wheel_zoom,reset,save",
+            x_axis_type='datetime',
+            x_axis_label='Date',
+            y_axis_label='Condition Factor',
+            plot_width=600, plot_height=300,
+        )
+        p_cond.axis.axis_label_text_font_style = 'normal'
+        p_cond.x(x=x_cond_data, y=y_cond_data, size=10)
 
     p_len = figure(
         tools="pan,box_zoom,wheel_zoom,reset,save",
@@ -360,6 +380,7 @@ def generate_growth_chart(plot_fish):
     p_len.x(x=x_len_data, y=y_len_data, size=10)
     p_weight.x(x=x_weight_data, y=y_weight_data, size=10)
 
+
     # ------------------------Data File------------------------------
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.csv"
@@ -370,7 +391,10 @@ def generate_growth_chart(plot_fish):
         writer.writerow(["Growth information for Fish {}".format(plot_fish.__str__())])
         writer.writerow(["Date", " Length (cm)", " Date", " Weight (g)"])
         writer.writerows(itertools.zip_longest(x_len_data, y_len_data, x_weight_data, y_weight_data))
-    scirpt, div = components(column(p_len, p_weight), CDN)
+    if x_cond_data:
+        scirpt, div = components(column(p_len, p_weight, p_cond), CDN)
+    else:
+        scirpt, div = components(column(p_len, p_weight), CDN)
     return scirpt, div, target_url
 
 
