@@ -777,6 +777,9 @@ class CommonContDetails(CommonDetails):
                                           "objects_list": env_set,
                                           "field_list": env_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
+        envc_used = env_set.values('envc_id').distinct()
+        context["envc_set"] = models.EnvCode.objects.filter(id__in=envc_used)
+
 
         cnt_set = models.Count.objects.filter(**{arg_name: cont_pk}).select_related("cntc_id")
         cnt_field_list = ["cntc_id", "cnt", "est", "date"]
@@ -3231,25 +3234,27 @@ class MaturityRateView(PlotView):
 
 class PlotEnvData(PlotView):
     title = ""
-    envc_name = ""
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
         cont_pk = self.kwargs.get("pk")
+        envc_pk = self.kwargs.get("envc_pk")
+        envc_id = models.EnvCode.objects.filter(id=envc_pk).get()
+        self.title = "{} Data".format(envc_id.name)
         env_set = []
-        envc_name = self.envc_name
+        context = super().get_context_data(**kwargs)
+
         if self.kwargs.get("cont") == "tank":
-            env_set = models.EnvCondition.objects.filter(contx_id__tank_id=cont_pk, envc_id__name=envc_name)
+            env_set = models.EnvCondition.objects.filter(contx_id__tank_id=cont_pk, envc_id=envc_id)
         elif self.kwargs.get("cont") == "trof":
-            env_set = models.EnvCondition.objects.filter(contx_id__trof_id=cont_pk, envc_id__name=envc_name)
+            env_set = models.EnvCondition.objects.filter(contx_id__trof_id=cont_pk, envc_id=envc_id)
         elif self.kwargs.get("cont") == "tray":
             trof_pk = models.Tray.objects.filter(pk=cont_pk).get().trof_id.pk
-            env_set = models.EnvCondition.objects.filter(contx_id__trof_id=trof_pk, envc_id__name=envc_name)
+            env_set = models.EnvCondition.objects.filter(contx_id__trof_id=trof_pk, envc_id=envc_id)
 
         x_data = [env.start_datetime for env in env_set]
         y_data = [env.env_val for env in env_set]
-        context["the_script"], context["the_div"], file_url = reports.plot_date_data(x_data, y_data, envc_name,
-                                                                                     "{} data".format(envc_name))
+        context["the_script"], context["the_div"], file_url = reports.plot_date_data(x_data, y_data, envc_id.name,
+                                                                                     "{} data".format(envc_id.name))
         context["data_file_url"] = reverse("bio_diversity:plot_data_file") + f"?file_url={file_url}"
         return context
 
