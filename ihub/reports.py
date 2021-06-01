@@ -7,7 +7,7 @@ from django.template.defaultfilters import yesno, slugify
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from lib.functions.custom_functions import nz, listrify
+from lib.functions.custom_functions import nz, listrify, truncate
 from lib.templatetags.verbose_names import get_verbose_label
 from masterlist import models as ml_models
 from shared_models.models import Region
@@ -775,9 +775,7 @@ def generate_consultation_report(orgs, sectors, statuses, from_date, to_date, en
 
     entry_list.distinct()
 
-    # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
-
     # create formatting
     title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
     header_format = workbook.add_format(
@@ -786,73 +784,87 @@ def generate_consultation_report(orgs, sectors, statuses, from_date, to_date, en
     normal_format = workbook.add_format({
         "align": 'left', "text_wrap": True, 'num_format': 'mm/dd/yyyy', "valign": 'top',
     })
+    highlighted_format = workbook.add_format({
+        "align": 'left', "text_wrap": True, 'num_format': 'mm/dd/yyyy', "valign": 'top', "bg_color": "yellow"
+    })
 
-    # define the header
-    header = [
-        "Title",
-        "Status",
-        "Persons/lead ( from contact)",
-        "DFO programs involved (DFO Sectors)",
-        "letter sent (initial activity date)",
-        "Response Requested by",
-        "Proponent",
-        "FAA triggered (Yes/No)",
-        "Comments (actions, next steps, comments, followups)",
-    ]
+    # we want a sheet for every sector
+    sector_ids = []
+    for e in entry_list:
+        for s in e.sectors.all():
+            sector_ids.append(s.id)
 
-    my_ws = workbook.add_worksheet(name="report")
+    sectors = ml_models.Sector.objects.filter(id__in=sector_ids)
+    for s in sectors:
+        my_ws = workbook.add_worksheet(name=truncate(s.name, 30, False))
+        entries = s.entries.filter(id__in=[e.id for e in entry_list])
 
-    # create the col_max column to store the length of each header
-    # should be a maximum column width to 100
-    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-    my_ws.write(0, 0, "iHub Consultation Report", title_format)
-    my_ws.write_row(2, 0, header, header_format)
-    i = 3
-    for e in entry_list.all():
-
-        people = nz(listrify([p for p in e.people.all()], "\n\n"), "") + nz(sectors, "")
-
-        notes = ""
-        if e.notes.exists():
-            for n in e.notes.all():
-                if not entry_note_types or (n.type in entry_note_types):
-                    if not entry_note_statuses or (n.status_id in entry_note_statuses):
-                        if len(notes):
-                            notes += "\n\n*************************\n" + str(n)
-                        else:
-                            notes = str(n)
-
-        data_row = [
-            e.title,
-            str(e.status),
-            people,
-            e.sectors_str,
-            e.initial_date.strftime("%m/%d/%Y") if e.initial_date else " ---",
-            e.response_requested_by.strftime("%m/%d/%Y") if e.response_requested_by else " ---",
-            e.proponent,
-            yesno(e.is_faa_required, "yes,no,no"),
-            notes.replace("\\r\\n", "\r\n"),
+        # define the header
+        header = [
+            "Title",
+            "Organizations",
+            "Status",
+            "Persons/lead",
+            "DFO programs involved",
+            "letter sent",
+            "Response Requested by",
+            "Proponent",
+            "FAA triggered (Yes/No)",
+            "Comments",
         ]
 
-        # adjust the width of the columns based on the max string length in each col
-        ## replace col_max[j] if str length j is bigger than stored value
 
-        j = 0
-        for d in data_row:
-            # if new value > stored value... replace stored value
-            if len(str(d)) > col_max[j]:
-                if len(str(d)) < 75:
-                    col_max[j] = len(str(d))
-                else:
-                    col_max[j] = 75
-            j += 1
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+        my_ws.write_row(0, 0, header, header_format)
+        i = 1
+        for e in entries.all():
+            people = nz(listrify([p for p in e.people.all()], "\n\n"), "")
+            notes = ""
+            if e.notes.exists():
+                for n in e.notes.all():
+                    if not entry_note_types or (n.type in entry_note_types):
+                        if not entry_note_statuses or (n.status_id in entry_note_statuses):
+                            if len(notes):
+                                notes += "\n\n*************************\n" + str(n)
+                            else:
+                                notes = str(n)
 
-        my_ws.write_row(i, 0, data_row, normal_format)
-        i += 1
+            data_row = [
+                e.title,
+                e.orgs_str,
+                str(e.status),
+                people,
+                e.sectors_str,
+                e.initial_date.strftime("%m/%d/%Y") if e.initial_date else " ---",
+                e.response_requested_by.strftime("%m/%d/%Y") if e.response_requested_by else " ---",
+                e.proponent,
+                yesno(e.is_faa_required, "yes,no,no"),
+                notes.replace("\\r\\n", "\r\n"),
+            ]
 
-    # set column widths
-    for j in range(0, len(col_max)):
-        my_ws.set_column(j, j, width=col_max[j] * 1.1)
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            j = 0
+            for d in data_row:
+                # if new value > stored value... replace stored value
+                if len(str(d)) > col_max[j]:
+                    if len(str(d)) < 75:
+                        col_max[j] = len(str(d))
+                    else:
+                        col_max[j] = 75
+                j += 1
+            format = normal_format
+            if e.sectors.count() > 1:
+                format = highlighted_format
+            my_ws.write_row(i, 0, data_row, format)
+            i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
     return target_url
