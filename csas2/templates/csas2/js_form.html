@@ -29,7 +29,8 @@
   var $has_funding = $("#id_has_funding");
   var $is_deferred = $("#id_is_deferred");
   var $is_virtual = $("#id_is_virtual");
-  var $date_range = $("#id_date_range");
+  var $steering_committee_meeting = $("#id_create_steering_committee_meeting");
+  var $keystone_meeting = $("#id_create_keystone_meeting");
 
   $(document).ready(function () {
     // Stuff to do as soon as the DOM is ready
@@ -38,7 +39,8 @@
     refreshFundingSection();
     refreshDeferredSection();
     refreshVirtualSection();
-    refreshDatesSection();
+    refreshCommitteeMeetingSection();
+    refreshKeystoneMeetingSection();
   });
 
   function refreshMultiregionalSection() {
@@ -83,15 +85,26 @@
     }
   }
 
-  function refreshDatesSection() {
-    if ($date_range.val() && $date_range.val() !== "") {
-      $(".est_quarter_div").addClass("gone");
-      $(".est_year_div").addClass("gone");
+  function refreshCommitteeMeetingSection() {
+    if ($steering_committee_meeting.prop("checked")) {
+      $(".committee_members_div").removeClass("gone");
     } else {
-      $(".est_quarter_div").removeClass("gone");
-      $(".est_year_div").removeClass("gone");
+      $(".committee_members_div").addClass("gone");
     }
   }
+
+  function refreshKeystoneMeetingSection() {
+    if ($keystone_meeting.prop("checked")) {
+      $(".science_leads_div").removeClass("gone");
+      $(".client_leads_div").removeClass("gone");
+      $(".chair_div").removeClass("gone");
+    } else {
+      $(".science_leads_div").addClass("gone");
+      $(".client_leads_div").addClass("gone");
+      $(".chair_div").addClass("gone");
+    }
+  }
+
 
   $is_multiregional.change(function () {
     refreshMultiregionalSection();
@@ -112,11 +125,11 @@
   $is_virtual.change(function () {
     refreshVirtualSection();
   })
-  $date_range.change(function () {
-    refreshDatesSection();
+  $steering_committee_meeting.change(function () {
+    refreshCommitteeMeetingSection();
   })
-  $date_range.change(function () {
-    refreshDatesSection();
+  $keystone_meeting.change(function () {
+    refreshKeystoneMeetingSection();
   })
 
   </script>

@@ -21,7 +21,7 @@
             <tr v-for="n, index in generalNotes" :key="n.id">
               <td class="pb-3">
                 <div class="mb-2">
-                  <em class="small mb-1" v-html="n.last_modified"></em><br><span :class="{strike:n.is_complete}">${n.note}</span>
+                  <em class="small mb-1" v-html="n.last_modified"></em><br><span>${n.note}</span>
                 </div>
                 <div class="btn-group">
                   <button v-if="!n.is_complete" class="btn btn-xs px-0 py-0 mr-2" @click="openOverlay(n)">

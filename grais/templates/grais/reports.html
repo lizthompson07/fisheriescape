@@ -107,6 +107,7 @@
             var reportChoice = $("#id_report").val();
             // species count report
             if (reportChoice == 1) {
+                $(".year_div").removeClass("gone");
                 $(".species_div").removeClass("gone");
                 $("#id_species").prop('required', true);
                 $("#id_species").multiSelect();

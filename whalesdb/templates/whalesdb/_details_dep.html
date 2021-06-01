@@ -66,13 +66,16 @@
                                     {% if auth %}
                                         <td>
                                             {# Cannot remove an attachment after a deployment has been made #}
-                                            <a class="btn btn-danger" href="{% url 'whalesdb:delete_eda' att.id %}">X</a>
+                                            <a class="btn btn-danger my-1" href="#" onclick="return pop('{% url 'whalesdb:delete_eda' att.id 'pop' %}','id_attachments')">X</a><br />
                                         </td>
                                     {% endif %}
                                         <td>
                                             <a href="{% url 'whalesdb:details_eqp' att.eqp.pk %}">{{att.eqp}}</a>
                                         </td><td>
                                             {% if att.dataset.all %}
+                                                {% if auth %}
+                                                    <a class="btn btn-primary my-1" href="{% url 'whalesdb:create_rec' att.pk %}">+</a><br />
+                                                {% endif %}
                                                 {% for ds in att.dataset.all %}
                                                     <a class="btn btn-primary my-1" href="{% url 'whalesdb:details_rec' ds.id %}">{{ ds.rec_start_date }}</a>
                                     {% if auth %}
@@ -80,9 +83,6 @@
                                     {% endif %}
                                                 {% endfor %}
                                             {% endif %}
-                                    {% if auth %}
-                                            <a class="btn btn-primary my-1" href="{% url 'whalesdb:create_rec' att.pk %}">+</a>
-                                    {% endif %}
                                         </td>
                                         </tr>
                                     {% endfor %}

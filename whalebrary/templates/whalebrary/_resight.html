@@ -1,0 +1,71 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load verbose_names %}
+
+<style>
+    .thead-incident {
+        color: black;
+        background-color: #5cb85c;
+        text-align: center;
+        {#justify-content: center;#}
+    }
+</style>
+
+<div class="">
+    <h3>
+        {% trans "Resights:" %}
+    </h3>
+</div>
+
+{% if object.resights.count == 0 %}
+    <em>
+        {% trans "No resightings have been added to this entry" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-bordered table-striped table-sm" style="width: auto">
+        <thead class="thead-incident">
+        <tr>
+            {% for field in resight_field_list %}
+            <th>
+                {% get_verbose_label random_resight field %}
+            </th>
+            {% endfor %}
+        </tr>
+        <tbody>
+         {% for obj in object.resights.all %}
+        <tr>
+            {% for field in resight_field_list %}
+            <td>
+                {% get_field_value obj field %}
+            </td>
+            {% endfor %}
+            <td>
+                <a href="#"
+                   pop-href="{% url 'whalebrary:resight_edit' obj.id %}">
+                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                   pop-href="{% url 'whalebrary:resight_delete' obj.id %}">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                </a>
+            </td>
+            <td>
+                <a href="{% url 'whalebrary:resight_email' obj.id %}" data-toggle="tooltip" title="Email">
+                    <span class="icon mdi mdi-email"></span>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+
+
+
+
+

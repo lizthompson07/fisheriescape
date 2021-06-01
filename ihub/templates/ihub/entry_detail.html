@@ -6,11 +6,15 @@
 {% load i18n %}
 {% load humanize %}
 
+{% block title_area %}
+  <div class="my-3">
+    <p class="h1">{{ h1 }}</p>
+  </div>
+{% endblock %}
+
 {% block subcontent %}
 
-
-
-  <div class="btns mb-3">
+  <div class="btns mb-5">
     <a class="btn btn-sm btn-warning" href="{% url 'ihub:entry_edit' object.id %}">
       {% trans "Edit" %}
     </a>
@@ -20,50 +24,60 @@
   </div>
 
   <div class="row">
-    <div class="col-4">
-      <h3>
-        {% trans "Entry Detail:" %}
-      </h3>
+    <div class="col-5">
 
-      <table class="table table-sm table-striped">
-        {% for field in field_list %}
-          {% if field == "organizations" %}
-            <tr>
-              <th>
-                {% get_verbose_label instance=object field_name=field %}
-              </th>
-              <td>
-                {% for org in object.organizations.all %}
-                  <a href="{% url 'ihub:org_detail' org.id %}" target="_blank">
-                    {{ org }}
-                  </a><br>
-                {% endfor %}
-              </td>
-            </tr>
+      <div class="card entry-card mb-3">
+        <div class="card-header">
+          <h5 class="card-title"> {% trans "Entry Detail" %}</h5>
+        </div>
+        <div class="card-body">
+          <table class="table table-sm">
+            {% for field in field_list %}
+              {% if field == "organizations" %}
+                <tr>
+                  <th style="width: 150px">
+                    {% get_verbose_label instance=object field_name=field %}
+                  </th>
+                  <td>
+                    {% for org in object.organizations.all %}
+                      <a href="{% url 'ihub:org_detail' org.id %}" target="_blank">{{ org }}</a><br>
+                    {% endfor %}
+                  </td>
+                </tr>
+              {% else %}
+                {% verbose_td_display instance=object field_name=field date_format="%d-%b-%Y" %}
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+
+      <div class="card entry-card mb-3">
+        <div class="card-header">
+          <h5 class="card-title"> {% trans "Funding Detail" %}</h5>
+        </div>
+        <div class="card-body">
+          {% if object.has_funding_detail %}
+
+            <table class="table table-sm">
+              {% for field in field_list_1 %}
+                {% if field == "fiscal_year" %}
+                  {% verbose_td_display instance=object field_name=field th_width="150px" %}
+                {% else %}
+                  {% verbose_td_display instance=object field_name=field format="currency" %}
+                {% endif %}
+              {% endfor %}
+            </table>
           {% else %}
-            {% verbose_td_display instance=object field_name=field date_format="%d-%b-%Y" %}
-
+            <div class="">
+              {% trans "There are no funding details available for this entry." %}
+            </div>
           {% endif %}
-        {% endfor %}
-      </table>
-      <br>
-      <h3>
-        {% trans "Funding Detail:" %}
-      </h3>
 
-      <table class="table table-sm table-striped">
-        {% for field in field_list_1 %}
-          {% if field == "fiscal_year" %}
-            {% verbose_td_display instance=object field_name=field %}
-          {% else %}
-            {% verbose_td_display instance=object field_name=field format="currency" %}
-          {% endif %}
-        {% endfor %}
-      </table>
-
-      <br>
+        </div>
+      </div>
     </div>
-    <div class="col-6">
+    <div class="col">
       {% include "ihub/_people.html" %}
       {% include "ihub/_notes.html" %}
       {% include "ihub/_file.html" %}

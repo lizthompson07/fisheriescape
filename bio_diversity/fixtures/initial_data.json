@@ -49,22 +49,6 @@
 },
 {
     "model": "bio_diversity.animaldetcode",
-    "pk": 4,
-    "fields": {
-        "name": "Program Group",
-        "nom": null,
-        "description_en": "Program a groupd of fish belong to, eg EQU.",
-        "description_fr": "",
-        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-01-15",
-        "min_val": "0.00000",
-        "max_val": "100000.00000",
-        "unit_id": 11,
-        "ani_subj_flag": false
-    }
-},
-{
-    "model": "bio_diversity.animaldetcode",
     "pk": 6,
     "fields": {
         "name": "Gender",
@@ -225,14 +209,62 @@
 },
 {
     "model": "bio_diversity.animaldetcode",
-    "pk": 15,
+    "pk": 16,
+    "fields": {
+        "name": "Parent Group",
+        "nom": null,
+        "description_en": "group of origin for a group",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-30",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.animaldetcode",
+    "pk": 17,
+    "fields": {
+        "name": "Program Group",
+        "nom": null,
+        "description_en": "If the animal is part of some sub program group.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "min_val": "0.00000",
+        "max_val": "100000.00000",
+        "unit_id": 11,
+        "ani_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.animaldetcode",
+    "pk": 18,
     "fields": {
         "name": "Development",
         "nom": null,
-        "description_en": "",
+        "description_en": "How much a group of eggs has developed, based on degree days as follows:  100/EXP(6.002994*EXP(DEGREE_DAYS*-0.03070758))",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-15",
+        "created_date": "2021-04-09",
+        "min_val": "0.00000",
+        "max_val": "100.00000",
+        "unit_id": 10,
+        "ani_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.animaldetcode",
+    "pk": 19,
+    "fields": {
+        "name": "Electrofishing Settings",
+        "nom": null,
+        "description_en": "Settings used on electrofishing equipment during use..",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-15",
         "min_val": null,
         "max_val": null,
         "unit_id": null,
@@ -427,11 +459,11 @@
     "fields": {
         "name": "EQU",
         "nom": null,
-        "description_en": "group is part of EQU",
+        "description_en": "",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-15",
-        "anidc_id": 4
+        "created_date": "2021-04-06",
+        "anidc_id": 17
     }
 },
 {
@@ -440,11 +472,115 @@
     "fields": {
         "name": "PEQU",
         "nom": null,
-        "description_en": "group is part of PEQU",
+        "description_en": "",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-15",
-        "anidc_id": 4
+        "created_date": "2021-04-06",
+        "anidc_id": 17
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 18,
+    "fields": {
+        "name": "EQU A",
+        "nom": null,
+        "description_en": "First pool of EQU eggs",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "anidc_id": 16
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 19,
+    "fields": {
+        "name": "EQU B",
+        "nom": null,
+        "description_en": "Second pool of EQU eggs",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "anidc_id": 16
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 20,
+    "fields": {
+        "name": "Weak-Eyed",
+        "nom": null,
+        "description_en": "Describes a pick before heath unit transfer.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-07",
+        "anidc_id": 14
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 21,
+    "fields": {
+        "name": "Pre-Hatch",
+        "nom": null,
+        "description_en": "Describes a pick taken during heath unit transfer",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-07",
+        "anidc_id": 14
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 22,
+    "fields": {
+        "name": "A Pool",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-27",
+        "anidc_id": 17
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 23,
+    "fields": {
+        "name": "B Pool",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-27",
+        "anidc_id": 17
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 24,
+    "fields": {
+        "name": "Odell",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-27",
+        "anidc_id": 17
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 25,
+    "fields": {
+        "name": "Parr Marks",
+        "nom": null,
+        "description_en": "Parr marks present on an individual",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-10",
+        "anidc_id": 7
     }
 },
 {
@@ -591,50 +727,239 @@
     "model": "bio_diversity.countcode",
     "pk": 6,
     "fields": {
-        "name": "Eggs Added",
+        "name": "Egg Picks",
         "nom": null,
-        "description_en": "Eggs added to a container",
+        "description_en": "Count representing the eggs picked out of a tray or cup during the development process",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-05"
+        "created_date": "2021-03-23"
     }
 },
 {
     "model": "bio_diversity.countcode",
     "pk": 7,
     "fields": {
-        "name": "Eggs Removed",
+        "name": "Shock Loss",
         "nom": null,
-        "description_en": "Eggs removed from a container",
+        "description_en": "",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-05"
+        "created_date": "2021-03-23"
     }
 },
 {
     "model": "bio_diversity.countcode",
     "pk": 8,
     "fields": {
-        "name": "Egg Count",
+        "name": "Counter Count",
         "nom": null,
-        "description_en": "Eggs in a container",
+        "description_en": "",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-05"
+        "created_date": "2021-03-23"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 9,
+    "fields": {
+        "name": "Fecundity Estimate",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-23"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 10,
+    "fields": {
+        "name": "Photo Count",
+        "nom": null,
+        "description_en": "A count made based off a photo of a collection of eggs",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 11,
+    "fields": {
+        "name": "Cleaning Loss",
+        "nom": null,
+        "description_en": "Eggs picked out during the cleaning process",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 12,
+    "fields": {
+        "name": "Spawning Loss",
+        "nom": null,
+        "description_en": "Eggs lost and picked out following a spawning process",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 13,
+    "fields": {
+        "name": "Eggs Removed",
+        "nom": null,
+        "description_en": "Eggs were removed from a container. Examples include eggs selected for a sub program such as EQU.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 14,
+    "fields": {
+        "name": "Egg Count",
+        "nom": null,
+        "description_en": "Eggs placed into a container",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 15,
+    "fields": {
+        "name": "Eggs Added",
+        "nom": null,
+        "description_en": "Eggs going into a container",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-31"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 16,
+    "fields": {
+        "name": "EQU Eggs B",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-31"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 17,
+    "fields": {
+        "name": "PEQU Eggs",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 18,
+    "fields": {
+        "name": "HU Transfer Loss",
+        "nom": null,
+        "description_en": "Loss recorded before transfering eggs to a heath unit",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-07"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 19,
+    "fields": {
+        "name": "Fish Distributed",
+        "nom": null,
+        "description_en": "Fish taken from a tank for distribution in a river.  \r\nAlso fish distributed in river.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-26"
+    }
+},
+{
+    "model": "bio_diversity.countcode",
+    "pk": 20,
+    "fields": {
+        "name": "Fish Removed from Container",
+        "nom": null,
+        "description_en": "Fish taken out of a container.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-30"
     }
 },
 {
     "model": "bio_diversity.cup",
-    "pk": 1,
+    "pk": 6,
     "fields": {
         "nom": null,
-        "description_en": "Test Cup in drawer in heath unit",
-        "description_fr": "",
+        "description_en": "Autogenerated by parser",
+        "description_fr": null,
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-17",
-        "name": "C1",
+        "created_date": "2021-04-13",
+        "name": "2",
         "draw_id": 1,
-        "start_date": "2021-03-17",
+        "start_date": "2021-03-26",
+        "end_date": null
+    }
+},
+{
+    "model": "bio_diversity.cup",
+    "pk": 7,
+    "fields": {
+        "nom": null,
+        "description_en": "Autogenerated by parser",
+        "description_fr": null,
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-13",
+        "name": "3",
+        "draw_id": 2,
+        "start_date": "2021-03-26",
+        "end_date": null
+    }
+},
+{
+    "model": "bio_diversity.cup",
+    "pk": 8,
+    "fields": {
+        "nom": null,
+        "description_en": "Autogenerated by parser",
+        "description_fr": null,
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-13",
+        "name": "2",
+        "draw_id": 4,
+        "start_date": "2021-03-26",
+        "end_date": null
+    }
+},
+{
+    "model": "bio_diversity.cup",
+    "pk": 9,
+    "fields": {
+        "nom": null,
+        "description_en": "Autogenerated by parser",
+        "description_fr": null,
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-13",
+        "name": "10",
+        "draw_id": 3,
+        "start_date": "2021-03-26",
         "end_date": null
     }
 },
@@ -647,8 +972,99 @@
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-03-17",
-        "name": "D1",
+        "name": "1",
         "heat_id": 1
+    }
+},
+{
+    "model": "bio_diversity.drawer",
+    "pk": 2,
+    "fields": {
+        "nom": null,
+        "description_en": "6th drawer in heath unit 1",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26",
+        "name": "6",
+        "heat_id": 1
+    }
+},
+{
+    "model": "bio_diversity.drawer",
+    "pk": 3,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26",
+        "name": "3",
+        "heat_id": 3
+    }
+},
+{
+    "model": "bio_diversity.drawer",
+    "pk": 4,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26",
+        "name": "4",
+        "heat_id": 2
+    }
+},
+{
+    "model": "bio_diversity.drawer",
+    "pk": 5,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-30",
+        "name": "8",
+        "heat_id": 4
+    }
+},
+{
+    "model": "bio_diversity.drawer",
+    "pk": 6,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-30",
+        "name": "6",
+        "heat_id": 4
+    }
+},
+{
+    "model": "bio_diversity.drawer",
+    "pk": 7,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "name": "1",
+        "heat_id": 4
+    }
+},
+{
+    "model": "bio_diversity.drawer",
+    "pk": 8,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "name": "2",
+        "heat_id": 4
     }
 },
 {
@@ -911,10 +1327,70 @@
     "fields": {
         "name": "Picking",
         "nom": null,
-        "description_en": "Egg mortalities collected from a tray",
+        "description_en": "Describes event in which dead eggs are picked out of troughs and heath units.",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-02-15"
+        "created_date": "2021-03-26"
+    }
+},
+{
+    "model": "bio_diversity.eventcode",
+    "pk": 13,
+    "fields": {
+        "name": "Heath Unit Transfer",
+        "nom": null,
+        "description_en": "Event in egg development in which eggs are transfered to heath units.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-07"
+    }
+},
+{
+    "model": "bio_diversity.eventcode",
+    "pk": 14,
+    "fields": {
+        "name": "Shocking",
+        "nom": null,
+        "description_en": "Shock the eggs by dumping them into cold water and then performing a picking.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-13"
+    }
+},
+{
+    "model": "bio_diversity.eventcode",
+    "pk": 15,
+    "fields": {
+        "name": "Smolt Wheel Collection",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-23"
+    }
+},
+{
+    "model": "bio_diversity.eventcode",
+    "pk": 16,
+    "fields": {
+        "name": "Bypass Collection",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-23"
+    }
+},
+{
+    "model": "bio_diversity.eventcode",
+    "pk": 17,
+    "fields": {
+        "name": "Distribution",
+        "nom": null,
+        "description_en": "Distribute fish of varying life stages back into the rivers.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-26"
     }
 },
 {
@@ -974,11 +1450,59 @@
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-03-17",
-        "name": "HU1",
-        "facic_id": 2,
+        "name": "1",
+        "facic_id": 1,
         "manufacturer": "Heath Unit Inc.",
         "inservice_date": "2021-03-17",
         "serial_number": "123456"
+    }
+},
+{
+    "model": "bio_diversity.heathunit",
+    "pk": 2,
+    "fields": {
+        "nom": null,
+        "description_en": "A  heathunit",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26",
+        "name": "3",
+        "facic_id": 1,
+        "manufacturer": "Heath Unit Inc.",
+        "inservice_date": "2021-01-01",
+        "serial_number": "Abc"
+    }
+},
+{
+    "model": "bio_diversity.heathunit",
+    "pk": 3,
+    "fields": {
+        "nom": null,
+        "description_en": "A heath unit",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-26",
+        "name": "2",
+        "facic_id": 1,
+        "manufacturer": "Heath Unit Inc.",
+        "inservice_date": "2021-01-01",
+        "serial_number": "Def"
+    }
+},
+{
+    "model": "bio_diversity.heathunit",
+    "pk": 4,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-30",
+        "name": "10",
+        "facic_id": 1,
+        "manufacturer": "Heath Unit Inc.",
+        "inservice_date": "2020-03-01",
+        "serial_number": "ghi"
     }
 },
 {
@@ -1042,6 +1566,46 @@
     }
 },
 {
+    "model": "bio_diversity.helptext",
+    "pk": 9,
+    "fields": {
+        "field_name": "min_lat",
+        "eng_text": "South",
+        "fra_text": "",
+        "model": "ReleaseSiteCode"
+    }
+},
+{
+    "model": "bio_diversity.helptext",
+    "pk": 10,
+    "fields": {
+        "field_name": "max_lat",
+        "eng_text": "North",
+        "fra_text": "",
+        "model": "ReleaseSiteCode"
+    }
+},
+{
+    "model": "bio_diversity.helptext",
+    "pk": 11,
+    "fields": {
+        "field_name": "min_lon",
+        "eng_text": "West",
+        "fra_text": "",
+        "model": "ReleaseSiteCode"
+    }
+},
+{
+    "model": "bio_diversity.helptext",
+    "pk": 12,
+    "fields": {
+        "field_name": "max_lon",
+        "eng_text": "East",
+        "fra_text": "",
+        "model": "ReleaseSiteCode"
+    }
+},
+{
     "model": "bio_diversity.imagecode",
     "pk": 1,
     "fields": {
@@ -1101,6 +1665,42 @@
     }
 },
 {
+    "model": "bio_diversity.loccode",
+    "pk": 7,
+    "fields": {
+        "name": "Bypass Site",
+        "nom": null,
+        "description_en": "Site where fish are collected from a bypass",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-23"
+    }
+},
+{
+    "model": "bio_diversity.loccode",
+    "pk": 8,
+    "fields": {
+        "name": "Smolt Wheel Site",
+        "nom": null,
+        "description_en": "Location of a smolt wheel",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-23"
+    }
+},
+{
+    "model": "bio_diversity.loccode",
+    "pk": 9,
+    "fields": {
+        "name": "Distribution Site",
+        "nom": null,
+        "description_en": "Location where fish are returned to the rivers at.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-26"
+    }
+},
+{
     "model": "bio_diversity.organization",
     "pk": 6,
     "fields": {
@@ -1144,7 +1744,7 @@
         "created_date": "2021-03-18",
         "perc_last_name": "Bond",
         "perc_first_name": "Shelley",
-        "initials": null,
+        "initials": "SB",
         "perc_valid": true
     }
 },
@@ -1180,7 +1780,19 @@
         "created_date": "2021-03-18",
         "perc_last_name": "Jenkins",
         "perc_first_name": "Jesse",
-        "initials": null,
+        "initials": "JJ",
+        "perc_valid": true
+    }
+},
+{
+    "model": "bio_diversity.personnelcode",
+    "pk": 14,
+    "fields": {
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-07",
+        "perc_last_name": "Dummy",
+        "perc_first_name": "Test",
+        "initials": "TD",
         "perc_valid": true
     }
 },
@@ -1511,6 +2123,63 @@
     }
 },
 {
+    "model": "bio_diversity.releasesitecode",
+    "pk": 7,
+    "fields": {
+        "name": "Fundy PWR Mouth",
+        "nom": null,
+        "description_en": "Mouth of PWR at Bay of Fundy",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-30",
+        "rive_id": 31,
+        "trib_id": null,
+        "subr_id": null,
+        "min_lat": "45.54950",
+        "max_lat": "45.55050",
+        "min_lon": "-65.01250",
+        "max_lon": "-65.01430"
+    }
+},
+{
+    "model": "bio_diversity.releasesitecode",
+    "pk": 8,
+    "fields": {
+        "name": "Covered Bridge parking lot",
+        "nom": null,
+        "description_en": "Parking lot by the covered bridge in Fundy on pwr",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-07",
+        "rive_id": 31,
+        "trib_id": null,
+        "subr_id": null,
+        "min_lat": "45.55212",
+        "max_lat": "45.55412",
+        "min_lon": "-65.01364",
+        "max_lon": "-65.01064"
+    }
+},
+{
+    "model": "bio_diversity.releasesitecode",
+    "pk": 9,
+    "fields": {
+        "name": "Inland Fundy",
+        "nom": null,
+        "description_en": "another test site on PWR",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-08",
+        "rive_id": 31,
+        "trib_id": null,
+        "subr_id": null,
+        "min_lat": "45.57221",
+        "max_lat": "45.57311",
+        "min_lon": "-65.04087",
+        "max_lon": "-65.03950"
+    }
+},
+{
     "model": "bio_diversity.rivercode",
     "pk": 1,
     "fields": {
@@ -1592,6 +2261,54 @@
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-02-25"
+    }
+},
+{
+    "model": "bio_diversity.rolecode",
+    "pk": 1,
+    "fields": {
+        "name": "Tagger",
+        "nom": null,
+        "description_en": "Personnel that inserts pit tags into fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-20"
+    }
+},
+{
+    "model": "bio_diversity.rolecode",
+    "pk": 2,
+    "fields": {
+        "name": "Crew Lead",
+        "nom": null,
+        "description_en": "Personnel in charge of a crew on a field trip.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-21"
+    }
+},
+{
+    "model": "bio_diversity.rolecode",
+    "pk": 3,
+    "fields": {
+        "name": "Driver",
+        "nom": null,
+        "description_en": "Personnel in charge of driving a vehicle.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-26"
+    }
+},
+{
+    "model": "bio_diversity.samplecode",
+    "pk": 1,
+    "fields": {
+        "name": "Individual Sample",
+        "nom": null,
+        "description_en": "Sample involving a single individual.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-03"
     }
 },
 {
@@ -1695,6 +2412,30 @@
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-02-25"
+    }
+},
+{
+    "model": "bio_diversity.stockcode",
+    "pk": 16,
+    "fields": {
+        "name": "PWR",
+        "nom": null,
+        "description_en": "Fish from the point wolf river",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-16"
+    }
+},
+{
+    "model": "bio_diversity.stockcode",
+    "pk": 17,
+    "fields": {
+        "name": "PET",
+        "nom": null,
+        "description_en": "Petticodiac River Stock",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-10"
     }
 },
 {
@@ -2025,48 +2766,150 @@
     }
 },
 {
-    "model": "bio_diversity.tray",
-    "pk": 1,
+    "model": "bio_diversity.tank",
+    "pk": 24,
     "fields": {
         "nom": null,
-        "description_en": "tray with cross number one in it.",
+        "description_en": "",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-10",
+        "created_date": "2021-04-27",
+        "name": "A Pool",
+        "facic_id": 1
+    }
+},
+{
+    "model": "bio_diversity.tank",
+    "pk": 25,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-27",
+        "name": "B Pool",
+        "facic_id": 1
+    }
+},
+{
+    "model": "bio_diversity.tank",
+    "pk": 26,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-27",
+        "name": "SP22C",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.tank",
+    "pk": 27,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-28",
+        "name": "SP9",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.tank",
+    "pk": 28,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-28",
+        "name": "SP10",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.tank",
+    "pk": 29,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-06",
+        "name": "SP22A",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.tank",
+    "pk": 30,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-06",
+        "name": "SP15",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.tank",
+    "pk": 31,
+    "fields": {
+        "nom": null,
+        "description_en": "Large Pond 24",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-10",
+        "name": "LP24",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.tank",
+    "pk": 32,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-10",
+        "name": "SP18",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.tray",
+    "pk": 19,
+    "fields": {
+        "nom": null,
+        "description_en": "Auto generated tray",
+        "description_fr": null,
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-13",
         "name": "1",
         "trof_id": 1,
-        "start_date": "2020-03-10",
-        "end_date": null
+        "start_date": "2021-02-01",
+        "end_date": "2021-03-26"
     }
 },
 {
     "model": "bio_diversity.tray",
-    "pk": 2,
-    "fields": {
-        "nom": "2",
-        "description_en": "A second test tray",
-        "description_fr": "",
-        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-11",
-        "name": "2",
-        "trof_id": 1,
-        "start_date": "2020-11-05",
-        "end_date": null
-    }
-},
-{
-    "model": "bio_diversity.tray",
-    "pk": 3,
+    "pk": 20,
     "fields": {
         "nom": null,
-        "description_en": "third tray",
-        "description_fr": "",
+        "description_en": "Auto generated tray",
+        "description_fr": null,
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-03-17",
-        "name": "3",
+        "created_date": "2021-04-13",
+        "name": "2",
         "trof_id": 1,
-        "start_date": "2021-03-17",
-        "end_date": "2021-04-21"
+        "start_date": "2021-02-01",
+        "end_date": "2021-03-26"
     }
 },
 {
@@ -2080,6 +2923,45 @@
         "created_date": "2021-01-26",
         "name": "9",
         "facic_id": 1
+    }
+},
+{
+    "model": "bio_diversity.trough",
+    "pk": 2,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-23",
+        "name": "1",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.trough",
+    "pk": 3,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-23",
+        "name": "2",
+        "facic_id": 2
+    }
+},
+{
+    "model": "bio_diversity.trough",
+    "pk": 4,
+    "fields": {
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-03-23",
+        "name": "3",
+        "facic_id": 2
     }
 },
 {
@@ -2248,6 +3130,156 @@
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-02-25"
+    }
+},
+{
+    "model": "bio_diversity.unitcode",
+    "pk": 15,
+    "fields": {
+        "name": "Minutes (min)",
+        "nom": null,
+        "description_en": "Duration of time equal to 60 seconds.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-18"
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 1,
+    "fields": {
+        "name": "Truck",
+        "nom": null,
+        "description_en": "Records the truck that travelled to the location",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 2,
+    "fields": {
+        "name": "Release Method",
+        "nom": null,
+        "description_en": "Describes how fish were released at a location.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 3,
+    "fields": {
+        "name": "Acclimation Time",
+        "nom": null,
+        "description_en": "How long fish are given to acclimate to a different water temperature or type",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-18",
+        "min_val": "0.00000",
+        "max_val": "10000.00000",
+        "unit_id": 15,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 4,
+    "fields": {
+        "name": "Lifestage",
+        "nom": null,
+        "description_en": "Lifestage of fish present at a location.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-18",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 5,
+    "fields": {
+        "name": "Voltage",
+        "nom": null,
+        "description_en": "Voltage of electrofishing unit used when collecting fish.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-19",
+        "min_val": "0.00000",
+        "max_val": "2000.00000",
+        "unit_id": 8,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 6,
+    "fields": {
+        "name": "Electrofishing Seconds",
+        "nom": null,
+        "description_en": "Duration of time spent electrofishing, taken from electrofishing unit.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-19",
+        "min_val": "0.00000",
+        "max_val": "50000.00000",
+        "unit_id": 7,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locationdetcode",
+    "pk": 7,
+    "fields": {
+        "name": "Electrofishing Settings",
+        "nom": null,
+        "description_en": "Settings used on electrofishing unit.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-19",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "loc_subj_flag": false
+    }
+},
+{
+    "model": "bio_diversity.locdetsubjcode",
+    "pk": 1,
+    "fields": {
+        "name": "Buckets",
+        "nom": null,
+        "description_en": "Fish transported from truck to river in buckets.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "locdc_id": 2
+    }
+},
+{
+    "model": "bio_diversity.locdetsubjcode",
+    "pk": 2,
+    "fields": {
+        "name": "Boot",
+        "nom": null,
+        "description_en": "Fish moved from truck to river in rubber \"boot\"",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-17",
+        "locdc_id": 2
     }
 }
 ]

@@ -225,9 +225,22 @@ class IncidentForm(forms.ModelForm):
             'submitted': forms.CheckboxInput,
             'first_report': forms.TextInput(attrs=attr_fp_date_time),
             'gear_presence': forms.CheckboxInput,
-            'exam': forms.CheckboxInput,
+            'response': forms.CheckboxInput,
+            'response_by': forms.SelectMultiple(attrs=chosen_js),
+            'response_date': forms.TextInput(attrs=attr_fp_date_time),
             'necropsy': forms.CheckboxInput,
             'photos': forms.CheckboxInput,
+            'date_email_sent': forms.HiddenInput(),
+        }
+
+
+class ResightForm(forms.ModelForm):
+    class Meta:
+        model = models.Resight
+        fields = "__all__"
+        widgets = {
+            'resight_date': forms.TextInput(attrs=attr_fp_date_time),
+            'incident': forms.HiddenInput(),
             'date_email_sent': forms.HiddenInput(),
         }
 
@@ -267,3 +280,9 @@ class ReportGeneratorForm(forms.Form):
         self.fields['report'].choices = report_choices
         self.fields['location'].choices = location_choices
         self.fields['item_name'].choices = item_name_choices
+
+
+class PlanningLinkForm(forms.ModelForm):
+    class Meta:
+        model = models.PlanningLink
+        fields = "__all__"

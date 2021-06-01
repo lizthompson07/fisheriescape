@@ -1635,6 +1635,115 @@ class LoccFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class LocdFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.LocationDet
+
+    loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
+    locdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocdcFactory")
+    det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
+    detail_date = factory.lazy_attribute(lambda o: faker.date())
+    ldsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LdscFactory")
+    qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        loc = LocFactory()
+        ldsc = LdscFactory()
+        qual = QualFactory()
+        locdc = LocdcFactory()
+        obj = LocdFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'loc_id': loc.pk,
+            'locdc_id': locdc.pk,
+            'det_val': obj.det_val,
+            "detail_date": obj.detail_date,
+            'ldsc_id': ldsc.pk,
+            'qual_id': qual.pk,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class LocdcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.LocationDetCode
+        django_get_or_create = ('name',)
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(0, 10))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(20, 30))
+    unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
+    loc_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        unit = UnitFactory()
+        obj = LocdcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'min_val': obj.min_val,
+            'max_val': obj.max_val,
+            'unit_id': unit.pk,
+            'cont_subj_flag': obj.loc_subj_flag,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class LdscFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.LocDetSubjCode
+        django_get_or_create = ('name',)
+
+    locdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocdcFactory")
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        locdc = LocdcFactory()
+        obj = LdscFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'locdc_id': locdc.pk,
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class OrgaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Organization
@@ -1970,10 +2079,10 @@ class RelcFactory(factory.django.DjangoModelFactory):
     rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
     trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
     subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
-    min_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
-    max_lat = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
-    min_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
-    max_lon = factory.lazy_attribute(lambda o: faker.random_int(1, 90))
+    min_lat = factory.lazy_attribute(lambda o: faker.random_int(0, 45))
+    max_lat = factory.lazy_attribute(lambda o: faker.random_int(50, 90))
+    min_lon = factory.lazy_attribute(lambda o: faker.random_int(0, 45))
+    max_lon = factory.lazy_attribute(lambda o: faker.random_int(50, 90))
 
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -2139,6 +2248,7 @@ class SampdFactory(factory.django.DjangoModelFactory):
     det_val = factory.lazy_attribute(lambda o: faker.random_int(10, 20))
     adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
+    detail_date = factory.lazy_attribute(lambda o: faker.date())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -2159,6 +2269,7 @@ class SampdFactory(factory.django.DjangoModelFactory):
             'det_val': obj.det_val,
             'adsc_id': adsc.pk,
             'qual_id': qual.pk,
+            'detail_date': obj.detail_date,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
