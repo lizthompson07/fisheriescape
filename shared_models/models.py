@@ -669,7 +669,7 @@ class Language(models.Model):
         ordering = [_('name'), ]
 
 
-class River(models.Model):
+class River(MetadataFields):
     name = models.CharField(max_length=255)
     fishing_area_code = models.CharField(max_length=255, blank=True, null=True)
     maritime_river_code = models.IntegerField(blank=True, null=True)

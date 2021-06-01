@@ -1,7 +1,8 @@
 from django import forms
-from django.core import validators
-from shared_models import models as shared_models
+from django.forms import modelformset_factory
 
+from lib.templatetags.custom_filters import nz
+from shared_models import models as shared_models
 from . import models
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -32,18 +33,13 @@ class RiverSiteForm(forms.ModelForm):
             "directions": forms.Textarea(attrs={"rows": "3", }),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if kwargs.get("instance") or kwargs.get("initial"):
-            self.fields["river"].widget = forms.HiddenInput()
-
 
 class SampleForm(forms.ModelForm):
     class Meta:
         model = models.Sample
         exclude = ["last_modified", 'season']
         widgets = {
-            "site": forms.HiddenInput(),
+            "site": forms.Select(attrs=chosen_js),
             "last_modified_by": forms.HiddenInput(),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
             "notes": forms.Textarea(attrs={"rows": "3", }),
@@ -51,13 +47,19 @@ class SampleForm(forms.ModelForm):
             "departure_date": forms.DateTimeInput(attrs=attr_fp_date_time),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        site_choices = [(obj.id, f"{obj.river} --> {obj.name} ({nz(obj.province, 'unknown prov.')})") for obj in models.RiverSite.objects.all()]
+        site_choices.insert(0, (None, "-----"))
+        self.fields["site"].choices = site_choices
+
+
 class EntryForm(forms.ModelForm):
     class Meta:
         model = models.Entry
         fields = "__all__"
         widgets = {
             'species': forms.HiddenInput(),
-            'sample': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={"rows": "3"}),
             "date_tagged": forms.DateTimeInput(attrs=attr_fp_date),
         }
@@ -87,3 +89,67 @@ class ReportSearchForm(forms.Form):
         site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.all() if obj.samples.count() > 0]
         self.fields['sites'].choices = site_choices
 
+
+class SampleTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.SampleType
+        fields = "__all__"
+
+
+SampleTypeFormset = modelformset_factory(
+    model=models.SampleType,
+    form=SampleTypeForm,
+    extra=1,
+)
+
+
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = models.Status
+        fields = "__all__"
+
+
+StatusFormset = modelformset_factory(
+    model=models.Status,
+    form=StatusForm,
+    extra=1,
+)
+
+
+class SexForm(forms.ModelForm):
+    class Meta:
+        model = models.Sex
+        fields = "__all__"
+
+
+SexFormset = modelformset_factory(
+    model=models.Sex,
+    form=SexForm,
+    extra=1,
+)
+
+
+class LifeStageForm(forms.ModelForm):
+    class Meta:
+        model = models.LifeStage
+        fields = "__all__"
+
+
+LifeStageFormset = modelformset_factory(
+    model=models.LifeStage,
+    form=LifeStageForm,
+    extra=1,
+)
+
+
+class OriginForm(forms.ModelForm):
+    class Meta:
+        model = models.Origin
+        fields = "__all__"
+
+
+OriginFormset = modelformset_factory(
+    model=models.Origin,
+    form=OriginForm,
+    extra=1,
+)

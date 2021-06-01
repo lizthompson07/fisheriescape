@@ -5,14 +5,14 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from lib.functions.custom_functions import nz, listrify
+from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
+from shared_models.models import MetadataFields
 
 
-class RiverSite(models.Model):
+class RiverSite(MetadataFields):
     name = models.CharField(max_length=255, verbose_name=_("site name"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='river_sites', blank=True, null=True)
-    river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='river_sites', blank=True, null=True)
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='river_sites', blank=False, null=True)
     stream_order = models.IntegerField(blank=True, null=True)
     elevation_m = models.FloatField(blank=True, null=True, verbose_name=_("elevation (m)"))
     latitude_n = models.FloatField(blank=True, null=True)
@@ -24,6 +24,9 @@ class RiverSite(models.Model):
     directions = models.TextField(blank=True, null=True)
     exclude_data_from_site = models.BooleanField(default=False, verbose_name=_("Exclude all data from this site?"))
 
+    # non-editable
+    river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='river_sites', blank=True, null=True, editable=False)
+
     def __str__(self):
         try:
             return "{} ({})".format(self.name, self.river.name)
@@ -31,7 +34,8 @@ class RiverSite(models.Model):
             return "{}".format(self.name)
 
     class Meta:
-        ordering = ['province', 'name']
+        ordering = ['river', 'name']
+
 
 class LifeStage(models.Model):
     name = models.CharField(max_length=255)
@@ -44,7 +48,7 @@ class LifeStage(models.Model):
         ordering = ['name', ]
 
 
-class Species(models.Model):
+class Species(MetadataFields):
     common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
     common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
     life_stage = models.ForeignKey(LifeStage, related_name='species', on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -54,6 +58,8 @@ class Species(models.Model):
     tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
     aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
     notes = models.TextField(max_length=255, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_spp_created_by')
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_spp_updated_by')
 
     def __str__(self):
         my_str = getattr(self, str(_("common_name_eng")))
@@ -68,6 +74,7 @@ class Species(models.Model):
 
     class Meta:
         ordering = ['common_name_eng']
+        verbose_name_plural = _("species")
 
     def get_absolute_url(self):
         return reverse("trapnet:species_detail", kwargs={"pk": self.id})
@@ -129,7 +136,7 @@ class SampleType(models.Model):
         ordering = ['name', ]
 
 
-class Sample(models.Model):
+class Sample(MetadataFields):
     site = models.ForeignKey(RiverSite, related_name='samples', on_delete=models.DO_NOTHING)
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING)
     arrival_date = models.DateTimeField(verbose_name="arrival date/time")
@@ -158,6 +165,9 @@ class Sample(models.Model):
     last_modified = models.DateTimeField(blank=True, null=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
                                          related_name="wheel_sample_last_modified_by")
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_updated_by')
+
 
     @property
     def species_list(self):
@@ -203,7 +213,7 @@ class Status(models.Model):
 
     class Meta:
         ordering = ['name', ]
-
+        verbose_name_plural = _("statuses")
 
 class Sex(models.Model):
     name = models.CharField(max_length=255)
@@ -217,9 +227,7 @@ class Sex(models.Model):
         ordering = ['name', ]
 
 
-class Entry(models.Model):
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries")
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries")
+class Entry(MetadataFields):
     first_tag = models.CharField(max_length=50, blank=True, null=True)
     last_tag = models.CharField(max_length=50, blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="entries")
@@ -236,9 +244,12 @@ class Entry(models.Model):
     tags_removed = models.CharField(max_length=250, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
+    # non-editable
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="entries", editable=False)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="entries", editable=False)
+
     def save(self, *args, **kwargs):
         return super().save(*args, **kwargs)
 
-    # class Meta:
-    # unique_together = [["trap", "species"], ]
-    # ordering = ["-sample__year"] THIS IS WAY TOO SLOW!
+    class Meta:
+        verbose_name_plural = "entries"
