@@ -88,18 +88,18 @@ class LifeStageHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
 
 
 class OriginFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
-    template_name = 'shared_models/formset.html'
+    template_name = 'trapnet/formset.html'
     h1 = "Manage Origins"
     queryset = models.Origin.objects.all()
     formset_class = forms.OriginFormset
-    success_url_name = "shared_models:manage_origins"
-    home_url_name = "shared_models:index"
-    delete_url_name = "shared_models:delete_origin"
+    success_url_name = "trapnet:manage_origins"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_origin"
 
 
 class OriginHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
     model = models.Origin
-    success_url = reverse_lazy("shared_models:manage_origins")
+    success_url = reverse_lazy("trapnet:manage_origins")
 
 
 # SPECIES #

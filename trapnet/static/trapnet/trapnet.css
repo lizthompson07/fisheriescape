@@ -216,3 +216,12 @@ label.filter {
 .unsaved-borders > thead > tr > th, .unsaved-borders > tbody > tr > td  {
     border: red 1px solid;
 }
+
+
+.info-card {
+    box-shadow: 0 10px 18px 0 rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 253, 253, .85);
+    transition: 0.3s;
+    margin: 10px;
+    border-radius: 10px;
+}
