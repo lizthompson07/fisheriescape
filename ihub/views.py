@@ -153,7 +153,6 @@ class PersonUpdateView(iHubEditRequiredMixin, CommonUpdateView):
         object.save()
         return super().form_valid(form)
 
-    
 
 class PersonUpdateViewPopout(iHubEditRequiredMixin, CommonPopoutUpdateView):
     model = ml_models.Person
@@ -527,7 +526,7 @@ class EntryPersonCreateView(iHubEditRequiredMixin, CommonPopoutCreateView):
     model = models.EntryPerson
     template_name = 'ihub/entry_person_form_popout.html'
     form_class = forms.EntryPersonForm
-    h1= gettext_lazy("New Entry Person")
+    h1 = gettext_lazy("New Entry Person")
 
     def get_initial(self):
         entry = models.Entry.objects.get(pk=self.kwargs['entry'])
@@ -678,7 +677,10 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
         from_date = nz(form.cleaned_data["from_date"], "None")
         to_date = nz(form.cleaned_data["to_date"], "None")
         entry_note_types = listrify(form.cleaned_data["entry_note_types"])
+        entry_note_types_all = listrify(form.cleaned_data["entry_note_types_all"])
         entry_note_statuses = listrify(form.cleaned_data["entry_note_statuses"])
+        org_regions = listrify(form.cleaned_data["org_regions"])
+        entry_regions = listrify(form.cleaned_data["entry_regions"])
 
         if report == 1:  # capacity report
             qry = f'?sectors={nz(sectors, "None")}&' \
@@ -712,7 +714,6 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
                   f'report_title={nz(report_title, "None")}&' \
                   f'entry_note_types={nz(entry_note_types, "None")}&' \
                   f'entry_note_statuses={nz(entry_note_statuses, "None")}'
-
             if format == 'pdf':
                 return HttpResponseRedirect(reverse("ihub:consultation_log_pdf") + qry)
             else:
@@ -726,6 +727,18 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
             return HttpResponseRedirect(
                 f'{reverse("ihub:consultation_instructions_xlsx")}?orgs={orgs_w_consultation_instructions}'
             )
+        elif report == 9:  # Engagement Update Log
+            qry = f'?sectors={nz(sectors, "None")}&' \
+                  f'from_date={nz(from_date, "None")}&' \
+                  f'to_date={nz(to_date, "None")}&' \
+                  f'orgs={nz(orgs, "None")}&' \
+                  f'statuses={nz(statuses, "None")}&' \
+                  f'entry_note_types={nz(entry_note_types_all, "None")}&' \
+                  f'entry_note_statuses={nz(entry_note_statuses, "None")}&' \
+                  f'org_regions={nz(org_regions, "None")}&' \
+                  f'entry_regions={nz(entry_regions, "None")}'
+            return HttpResponseRedirect(reverse("ihub:consultation_report") + qry)
+
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
@@ -785,6 +798,29 @@ def consultation_log_export_spreadsheet(request):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="Engagement Update Log ({}).xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def consultation_report(request):
+    # first, filter out the "none" placeholder
+    sectors = request.GET["sectors"]
+    orgs = request.GET["orgs"]
+    statuses = request.GET["statuses"]
+    from_date = request.GET["from_date"]
+    to_date = request.GET["to_date"]
+    entry_note_types = request.GET["entry_note_types"]
+    entry_note_statuses = request.GET["entry_note_statuses"]
+    org_regions = request.GET["org_regions"]
+    entry_regions = request.GET["entry_regions"]
+
+    file_url = reports.generate_consultation_report(orgs, sectors, statuses, from_date, to_date, entry_note_types, entry_note_statuses, org_regions, entry_regions)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="Consultation Report ({}).xlsx"'.format(
                 timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404

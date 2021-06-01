@@ -89,6 +89,8 @@ urlpatterns = [
     path('reports/consultation-instructions/xlsx/', views.consultation_instructions_export_spreadsheet,
          name="consultation_instructions_xlsx"),
 
+    path('reports/consultation-report/', views.consultation_report, name="consultation_report"),
+
     # SETTINGS #
     ############
 
