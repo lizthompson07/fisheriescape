@@ -1036,7 +1036,7 @@ def export_project_summary(request):
 
         # start writing data at row 2 in the sheet
         row_count = 3
-        for item in qs.filter(project__fiscal_years=year):
+        for item in qs.filter(fiscal_year=year):
             project = item.project
 
             functional_group = project.functional_group if project.functional_group else None
@@ -1066,8 +1066,8 @@ def export_project_summary(request):
             ws['F' + str(row_count)].value = nz(theme.tname, "") if theme else ""
             ws['G' + str(row_count)].value = nz(functional_group.tname, "") if functional_group else ""
             ws['H' + str(row_count)].value = str(primary_funding if primary_funding else "")
-            ws['I' + str(row_count)].value = nz(project.start_date, "")
-            ws['J' + str(row_count)].value = nz(project.end_date, "")
+            ws['I' + str(row_count)].value = nz(str(project.start_date)[0:10], "")
+            ws['J' + str(row_count)].value = nz(str(project.end_date)[0:10], "")
             ws['K' + str(row_count)].value = listrify(project.fiscal_years.all())
             ws['L' + str(row_count)].value = listrify(project.funding_sources.all())
             ws['M' + str(row_count)].value = nz(leads, "")
