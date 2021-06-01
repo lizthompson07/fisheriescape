@@ -286,7 +286,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
-                                     "Bypass Collection", "Smolt Wheel Collection"]:
+                                     "Bypass Collection", "Smolt Wheel Collection", "Master Entry"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:

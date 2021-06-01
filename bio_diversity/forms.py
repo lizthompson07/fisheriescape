@@ -16,6 +16,7 @@ from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingPar
 from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
+from bio_diversity.data_parsers.master import MasterParser
 from bio_diversity.data_parsers.picks import mactaquac_picks_parser, coldbrook_picks_parser
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
@@ -333,6 +334,11 @@ class DataForm(CreatePrams):
             # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
                 parser = WaterQualityParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
+
+            # ---------------------------MASTER----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Master Entry":
+                parser = MasterParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # -------------------------------SPAWNING----------------------------------------

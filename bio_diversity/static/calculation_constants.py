@@ -5,6 +5,7 @@ DEVELOPMENT_BETA = -0.03070758
 
 sex_dict = {"M": "Male",
             "F": "Female",
+            "IT": "Immature",
             "I": "Immature"}
 
 # Pairing priority options
