@@ -23,7 +23,7 @@
       {% if "audio" in field.name|lower %}
         <td>
           {% if object.audio_file %}
-            <a href="{{ object.audio_file.url }}">Listen</a>
+            <a href="{{ object.audio_file.url }}" class="btn btn-xs btn-outline-primary"><span class="mdi mdi-volume-high h5 text-primary"></span></a>
           {% else %}
             ---
           {% endif %}
