@@ -223,7 +223,7 @@ class OrganizationListView(SiteLoginRequiredMixin, CommonFilterView):
             'province__nom', Value(" "),
             'province__abbrev_eng', Value(" "),
             'province__abbrev_fre', output_field=TextField()))
-
+    paginate_by = 100
     field_list = [
         {"name": 'name_eng', "class": "", "width": ""},
         {"name": 'name_ind', "class": "", "width": ""},
