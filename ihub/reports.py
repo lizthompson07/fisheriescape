@@ -797,8 +797,12 @@ def generate_consultation_report(orgs, sectors, statuses, from_date, to_date, en
             sector_ids.append(s.id)
 
     sectors = ml_models.Sector.objects.filter(id__in=sector_ids)
+    # there is a problem: some of the sectors have duplicate names, especially when truncated..
     for s in sectors:
-        my_ws = workbook.add_worksheet(name=truncate(s.name, 20, False) + f" ({s.region.abbrev})")
+        sector_name = truncate(s.name, 30, False)
+        if ml_models.Sector.objects.filter(name__icontains=sector_name).count() > 1:
+            sector_name = truncate(s.name, 25, False) + f" ({s.id})"
+        my_ws = workbook.add_worksheet(name=sector_name)
         entries = s.entries.filter(id__in=[e.id for e in entry_list])
 
         # define the header
