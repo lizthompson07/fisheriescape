@@ -280,6 +280,35 @@ class TestIncidentUpdateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
 
+class TestResightUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ResightFactory()
+        self.test_url = reverse_lazy('whalebrary:resight_edit', args=[self.instance.pk, ])
+        self.expected_template = 'whalebrary/form.html'
+        self.user = self.get_and_login_user(in_group="whalebrary_edit")
+
+    @tag("Resight", "resight_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ResightUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.ResightUpdateView, views.WhalebraryEditRequiredMixin)
+
+    @tag("Resight", "resight_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Resight", "resight_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ResightFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Resight", "resight_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalebrary:resight_edit", f"/en/whalebrary/resight/{self.instance.pk}/edit/", [self.instance.pk])
+
+
 class TestImageUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
