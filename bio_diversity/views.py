@@ -286,7 +286,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
-                                     "Bypass Collection", "Smolt Wheel Collection", "Master Entry"]:
+                                     "Bypass Collection", "Smolt Wheel Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
@@ -304,7 +304,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
 
-            if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record"]:
+            if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
+                             "master entry"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
@@ -779,7 +780,6 @@ class CommonContDetails(CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
         envc_used = env_set.values('envc_id').distinct()
         context["envc_set"] = models.EnvCode.objects.filter(id__in=envc_used)
-
 
         cnt_set = models.Count.objects.filter(**{arg_name: cont_pk}).select_related("cntc_id")
         cnt_field_list = ["cntc_id", "cnt", "est", "date"]

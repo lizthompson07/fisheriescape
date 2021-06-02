@@ -8,10 +8,9 @@ from bio_diversity.static import calculation_constants
 from bio_diversity.utils import DataParser
 
 
-class MasterParser(DataParser):
+class MasterIndvParser(DataParser):
     sex_dict = calculation_constants.sex_dict
     tank_key = "Tank"
-    group_key = "Group"
     stok_key = "Stock"
     year_coll_key = "Collection"
     pit_key = "PIT Tag"
@@ -19,6 +18,7 @@ class MasterParser(DataParser):
     sex_key = "Sex"
 
     header = 2
+    sheet_name = "Individual"
     converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     salmon_id = None
@@ -72,3 +72,80 @@ class MasterParser(DataParser):
             if not comments_parsed:
                 self.log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row[self.pit_key],
                                                                                              row[self.comment_key])
+
+
+class MasterGrpParser(DataParser):
+    tank_key = "Tank"
+    group_key = "Group"
+    stok_key = "Stock"
+    year_coll_key = "Collection"
+    cnt_key = "Number of Fish"
+    comment_key = "Comments"
+
+    header = 2
+    sheet_name = "Group"
+    converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
+
+    salmon_id = None
+    prog_grp_anidc = None
+
+    def data_preper(self):
+        self.salmon_id = models.SpeciesCode.objects.filter(name__iexact="Salmon").get()
+        self.prog_grp_anidc = models.AnimalDetCode.objects.filter(name__iexact="Program Group").get()
+
+    def row_parser(self, row):
+        cleaned_data = self.cleaned_data
+        year, coll = utils.year_coll_splitter(row[self.year_coll_key])
+        row_datetime = utils.get_row_date(row)
+        row_date = row_datetime.date()
+        comments = None
+        if utils.nan_to_none(row[self.comment_key]):
+            comments = utils.nan_to_none(row[self.comment_key])
+
+        tank_id = models.Tank.objects.filter(name=row[self.tank_key]).get()
+        prog_grp_id = None
+        if utils.nan_to_none(row[self.group_key]):
+            prog_grp_id = models.AniDetSubjCode.objects.filter(anidc_id=self.prog_grp_anidc,
+                                                               name__icontains=row[self.group_key]).get()
+
+        grp_list = utils.get_grp(row[self.stok_key], year, coll, cont=tank_id, at_date=row_datetime,
+                                 prog_grp=prog_grp_id)
+        if grp_list:
+            grp_id = grp_list[0]
+        else:
+            grp_id = models.Group(spec_id=self.salmon_id,
+                                  stok_id=models.StockCode.objects.filter(name=row[self.stok_key]).get(),
+                                  coll_id=models.Collection.objects.filter(name__icontains=coll).get(),
+                                  grp_year=year,
+                                  grp_valid=True,
+                                  comments=comments,
+                                  created_by=cleaned_data["created_by"],
+                                  created_date=cleaned_data["created_date"],
+                                  )
+            try:
+                grp_id.clean()
+                grp_id.save()
+                self.row_entered = True
+            except (ValidationError, IntegrityError) as err:
+                raise Exception("Error creating new group: {}".format(err))
+
+        anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
+        self.row_entered += anix_entered
+
+        if utils.nan_to_none(row[self.group_key]):
+            self.row_entered += utils.enter_grpd(anix.pk, cleaned_data, row_datetime, None,
+                                                 self.prog_grp_anidc.pk, adsc_str=row[self.group_key])
+
+        contx, contx_entered = utils.enter_contx(tank_id, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
+        self.row_entered += contx_entered
+
+        cnt, cnt_entered = utils.enter_cnt(cleaned_data, utils.nan_to_none(row[self.cnt_key]), contx_pk=contx.pk,
+                                           cnt_code="Fish Count")
+        self.row_entered += cnt_entered
+
+        if utils.nan_to_none(row[self.comment_key]):
+            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix,
+                                                                 det_date=row_datetime.date())
+            self.row_entered += data_entered
+            if not comments_parsed:
+                self.log_data += "Unparsed comment on row:\n {} \n\n".format(row[self.comment_key])

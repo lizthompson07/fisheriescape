@@ -188,7 +188,10 @@ def daily_dev(degree_day):
 
 
 def condition_factor(len_cm, weight_g):
-    return 100 * float(weight_g) / (float(len_cm) ** 3)
+    if len_cm is not None and weight_g is not None:
+        return 100 * float(weight_g) / (float(len_cm) ** 3)
+    else:
+        return None
 
 
 def parse_concentration(concentration_str):
