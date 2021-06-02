@@ -721,14 +721,16 @@ def generate_consultation_report(orgs, sectors, statuses, from_date, to_date, en
         from_date = None
     if to_date == "None":
         to_date = None
-    if entry_note_types == "None":
-        entry_note_types = None
     if org_regions == "None":
         org_regions = None
     if entry_regions == "None":
         entry_regions = None
+
+    if entry_note_types == "None":
+        entry_note_types = None
     else:
         entry_note_types = [int(i) for i in entry_note_types.split(",")] if entry_note_types else None
+
     if entry_note_statuses == "None":
         entry_note_statuses = None
     else:
