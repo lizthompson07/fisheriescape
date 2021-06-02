@@ -904,6 +904,18 @@
     }
 },
 {
+    "model": "bio_diversity.countcode",
+    "pk": 21,
+    "fields": {
+        "name": "Fish Count",
+        "nom": null,
+        "description_en": "Absolute count of fish.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-30"
+    }
+},
+{
     "model": "bio_diversity.cup",
     "pk": 6,
     "fields": {
@@ -1391,6 +1403,18 @@
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-04-26"
+    }
+},
+{
+    "model": "bio_diversity.eventcode",
+    "pk": 18,
+    "fields": {
+        "name": "Master Entry",
+        "nom": null,
+        "description_en": "Initial population of database",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-05-26"
     }
 },
 {

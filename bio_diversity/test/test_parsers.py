@@ -10,6 +10,7 @@ from bio_diversity import forms, models
 from bio_diversity.data_parsers.distributions import DistributionIndvParser
 from bio_diversity.data_parsers.electrofishing import MactaquacElectrofishingParser, ColdbrookElectrofishingParser
 from bio_diversity.data_parsers.generic import GenericGrpParser, GenericIndvParser
+from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
 from bio_diversity.data_parsers.tagging import MactaquacTaggingParser, ColdbrookTaggingParser
 from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser
 from bio_diversity.data_parsers.water_quality import WaterQualityParser
@@ -123,6 +124,43 @@ class TestColdbrookParsers(CommonTest):
         self.cleaned_data["evntc_id"] = self.tagging_evntc
         self.cleaned_data["data_csv"] = self.tagging_test_data
         parser = ColdbrookTaggingParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+
+
+@tag("Master", 'Parser')
+class TestMasterParser(CommonTest):
+    fixtures = ["initial_data.json"]
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        mactaquac_facic = models.FacilityCode.objects.filter(name="Mactaquac").get()
+        self.master_entry_evntc = models.EventCode.objects.filter(name="Master Entry").get()
+
+        # used to get the full path from the static directory
+        self.master_entry_test_data = finders.find("test\\parser_test_files\\test-master_entry.xlsx")
+
+        self.master_entry_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.master_entry_evntc, facic_id=mactaquac_facic)
+
+        self.cleaned_data = {
+            "facic_id": mactaquac_facic,
+            "evnt_id": self.master_entry_evnt,
+            "evntc_id": self.master_entry_evntc,
+            "data_csv": self.master_entry_test_data,
+            "created_by": self.master_entry_evnt.created_by,
+            "created_date": self.master_entry_evnt.created_date,
+        }
+
+    def test_indv_parser(self):
+        # this is to ignore all of the errors raised and caught in the parsers.  If the parsers crash, they will return
+        # success = False as well as log data of the error
+        parser = MasterIndvParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+    def test_grp_parser(self):
+        # this is to ignore all of the errors raised and caught in the parsers.  If the parsers crash, they will return
+        # success = False as well as log data of the error
+        parser = MasterGrpParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
 
 
