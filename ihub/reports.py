@@ -798,7 +798,7 @@ def generate_consultation_report(orgs, sectors, statuses, from_date, to_date, en
 
     sectors = ml_models.Sector.objects.filter(id__in=sector_ids)
     for s in sectors:
-        my_ws = workbook.add_worksheet(name=truncate(s.name, 30, False))
+        my_ws = workbook.add_worksheet(name=truncate(s.name, 20, False) + f" ({s.region.abbrev})")
         entries = s.entries.filter(id__in=[e.id for e in entry_list])
 
         # define the header
