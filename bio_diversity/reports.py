@@ -94,7 +94,7 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
 
     template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
                                       "stock_code_report_template.xlsx")
-    indv_qs = models.Individual.objects.filter(stok_id=stok_id, indv_valid=True)
+    indv_qs = models.Individual.objects.filter(stok_id=stok_id).select_related("stok_id", "coll_id")
     grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
 
     wb = load_workbook(filename=template_file_path)
@@ -112,6 +112,8 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     except KeyError:
         print("Individuals is not a valid name of a worksheet")
 
+    ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
+    ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
     # start writing data at row 3 in the sheet
     row_count = 3
     for item in indv_qs:
@@ -119,6 +121,20 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
         ws_indv['B' + str(row_count)].value = item.indv_year
         ws_indv['C' + str(row_count)].value = item.coll_id.name
         ws_indv['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
+
+        item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
+                                                         adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
+        indvd_str = ""
+        for indvd in item_indvd:
+            indvd_str += "{}, ".format(indvd.adsc_id.name)
+        ws_indv['E' + str(row_count)].value = indvd_str
+
+        item_sexd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Gender",
+                                                         anix_id__indv_id=item).select_related("adsc_id").first()
+        if item_sexd:
+            ws_indv['F' + str(row_count)].value = str(item_sexd.det_val)
+        ws_indv['G' + str(row_count)].value = str(item.indv_valid)
+
         row_count += 1
 
     row_count = 3

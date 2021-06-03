@@ -1408,6 +1408,24 @@ class IndvdDetails(mixins.IndvdMixin, CommonDetails):
     fields = ["anidc_id",  "det_val", "adsc_id", "qual_id", "indvd_valid", "detail_date", "comments", "created_by",
               "created_date", ]
 
+    def get_context_data(self, **kwargs):
+        # use this to pass fields/sample object to template
+        context = super().get_context_data(**kwargs)
+        context["table_list"].extend(["indv"])
+
+        indv_set = []
+        if self.object.anix_id.indv_id:
+            indv_set = [self.object.anix_id.indv_id]
+        indv_field_list = ["stok_id", "indv_year", "coll_id"]
+        obj_mixin = mixins.IndvMixin
+        context["context_dict"]["indv"] = {"div_title": "{}s".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": indv_set,
+                                           "field_list": indv_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
+        return context
+
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):
     fields = ["indvtc_id", "lot_num", "dose", "unit_id", "start_time|Start Time", "end_date|End Date",
@@ -2132,7 +2150,7 @@ class IndvdList(mixins.IndvdMixin, GenericList):
     field_list = [
         {"name": 'anidc_id', "class": "", "width": ""},
     ]
-    queryset = models.Individual.objects.all().select_related("anidc_id")
+    queryset = models.IndividualDet.objects.all().select_related("anidc_id")
     filterset_class = filters.IndvdFilter
 
 
