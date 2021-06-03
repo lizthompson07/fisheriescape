@@ -511,7 +511,7 @@ class FeedHandlerForm(forms.Form):
     feed_date = forms.DateField(required=True)
     feedc_id = forms.ModelChoiceField(required=True, queryset=models.FeedCode.objects.all(), label=_("Feed Type"))
     feedm_id = forms.ModelChoiceField(required=True, queryset=models.FeedMethod.objects.all(), label=_("Feeding Method"))
-    amt = forms.IntegerField(required=True, label=_("Feed Size"))
+    amt = forms.DecimalField(required=True, label=_("Feed Size"))
 
     facic_id = forms.ModelChoiceField(required=True, queryset=models.FacilityCode.objects.all())
     created_date = forms.DateField(required=True)
@@ -532,6 +532,8 @@ class FeedHandlerForm(forms.Form):
     def clean(self):
         cleaned_data = super(FeedHandlerForm, self).clean()
         if self.is_valid():
+            cleaned_data["feed_date"] = utils.naive_to_aware(cleaned_data["feed_date"])
+            cleaned_data["created_date"] = utils.naive_to_aware(cleaned_data["created_date"])
             cleaned_data["evnt_id"] = utils.create_feed_evnt(cleaned_data)
             contx_id, entered = utils.enter_contx(self.cont, cleaned_data, return_contx=True)
             feed_entered = utils.enter_feed(cleaned_data, contx_id, cleaned_data["feedc_id"], cleaned_data["feedm_id"],

@@ -243,6 +243,14 @@ class BioCont(BioLookup):
     def degree_days(self, start_date, end_date):
         return []
 
+    def cont_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__lte=at_date).order_by("-evnt_id__start_datetime").first()
+        if feed_contx:
+            cont_feed = feed_contx.feeding_set.select_related("feedc_id", "feedm_id").all()
+        else:
+            cont_feed = []
+        return cont_feed
+
 
 class AnimalDetCode(BioLookup):
     # anidc tag

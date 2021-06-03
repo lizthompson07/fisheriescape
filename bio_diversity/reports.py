@@ -70,6 +70,13 @@ def generate_facility_tank_report(facic_id):
             ws['C' + str(row_count)].value = cnt
             ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
 
+            feed_qs = item.cont_feed()
+            feed_str = ""
+            for feed in feed_qs:
+                feed_str += "#{} {}, ".format(feed.amt, feed.feedc_id.name)
+
+            ws['E' + str(row_count)].value = feed_str
+
             row_count += 1
 
     wb.save(target_file_path)
