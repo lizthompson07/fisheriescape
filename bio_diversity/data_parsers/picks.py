@@ -14,7 +14,6 @@ from bio_diversity.utils import DataParser
 
 # ED = egg development
 class EDInitParser(DataParser):
-    # used to create F1 groups, place them in trays and associate a count with them
     stock_key = "Stock"
     trof_key = "Trough"
     cross_key = "Cross"
@@ -26,13 +25,8 @@ class EDInitParser(DataParser):
     sheet_name = "Init"
     converters = {trof_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
-    prnt_grp_anidc_id = None
-    prog_grp_anidc_id = None
-
     def data_preper(self):
         cleaned_data = self.cleaned_data
-        self.prnt_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Parent Group").get()
-        self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
 
         trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
         len(trof_qs)  # force eval of lazy qs
@@ -75,36 +69,52 @@ class EDInitParser(DataParser):
                                  " \n\n".format(row[self.stock_key], row[self.cross_key], row[self.comment_key])
 
 
-def mactaquac_picks_parser(cleaned_data):
-    log_data = "Loading Data Results: \n"
-    rows_parsed = 0
-    rows_entered = 0
-    try:
-        data = pd.read_excel(cleaned_data["data_csv"], engine='openpyxl', sheet_name="LOSS", header=None).dropna(
-            how="all")
-        data_dict = data.to_dict('records')
-    except Exception as err:
-        log_data += "\n File format not valid: {}".format(err.__str__())
-        return log_data, False
-    trof_dfs = np.split(data, data.index[data[0] == "Trough Number"])
+# ED = egg development
+class EDPickParser(DataParser):
+    # used to create record picks taken from groups
+    stock_key = "Stock"
+    trof_key = "Trough"
+    cross_key = "Cross"
+    pick_key = "Pick Count"
+    pickc_key = "Pick Type"
+    crew_key = "Crew"
+    comment_key = "Comments"
 
-    for trof_df in trof_dfs[1:]:
-        trof_df = trof_df.rename(columns=trof_df.iloc[0]).reset_index(drop=True)
-        trof_df = trof_df.drop(0).drop(trof_df.index[trof_df["Tray Number"] == "Totals"]).reset_index(drop=True)
+    header = 2
+    sheet_name = "Picking"
+    converters = {trof_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
-        trof = models.Trough.objects.filter(name=trof_df["Trough Number"][1], facic_id=cleaned_data["facic_id"]).get()
-        utils.enter_trof_contx(trof.name, cleaned_data)
-        pick_dates_df = trof_df.iloc[[0]].dropna(axis=1).drop(trof_df.iloc[[0]].iloc[:, 0:1], axis=1)
-        pick_date = datetime.now().date()
-        for row in trof_df.to_dict("records")[1:]:
-            tray = models.Tray.objects.filter(trof_id=trof, name=row["Tray Number"], end_date__isnull=True).get()
-            cross_grp = models.Group.objects.filter(animal_details__contx_id__tray_id=tray).get()
-            contx, data_entered = utils.enter_contx(tray, cleaned_data, grp_pk=cross_grp.pk, return_contx=True)
-            utils.create_picks_evnt(cleaned_data, tray, cross_grp.pk, row["Picks"], pick_date, "Egg Picks")
+    def data_preper(self):
+        cleaned_data = self.cleaned_data
 
-    log_data += "\n\n\n {} of {} rows entered to " \
-                "database".format(rows_entered, len(data_dict))
-    return log_data, True
+        trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
+        len(trof_qs)  # force eval of lazy qs
+        trof_dict = {trof.name: trof for trof in trof_qs}
+        self.data["trof_id"] = self.data.apply(lambda row: trof_dict[row[self.trof_key]], axis=1)
+
+        stok_qs = models.StockCode.objects.all()
+        len(stok_qs)  # force eval of lazy qs
+        stok_dict = {stok.name: stok for stok in stok_qs}
+        self.data["stok_id"] = self.data.apply(lambda row: stok_dict[row[self.stock_key]], axis=1)
+
+        self.data_dict = self.data.to_dict('records')
+
+    def row_parser(self, row):
+        cleaned_data = self.cleaned_data
+        row_date = utils.get_row_date(row)
+        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
+                                                indv_id__stok_id=row["stok_id"]).get()
+
+        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id').get()
+        grp_id = anix_id.grp_id
+        tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.cross_key]).get()
+        perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
+
+        self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[self.pick_key], row_date,
+                                                    row[self.pickc_key], perc_list[0])
+        for inits in inits_not_found:
+            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
 
 class ColdbrookPickParser(DataParser):
@@ -194,7 +204,7 @@ class ColdbrookPickParser(DataParser):
         for date_key, pick_key, pick_code in self.pick_tuples:
             pick_datetime = datetime.strptime(row[date_key], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
             utils.create_picks_evnt(cleaned_data, row["trays"], row["grps"].pk, row[pick_key], pick_datetime,
-                                    pick_code)
+                                    pick_code, cleaned_data["evnt_id"].perc_id)
 
         # Shocking:
         shock_date = datetime.strptime(row[self.shock_date_key], "%Y-%b-%d").replace(tzinfo=pytz.UTC)
