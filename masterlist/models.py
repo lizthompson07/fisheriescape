@@ -19,10 +19,12 @@ YESNO_CHOICES = (
 
 
 class Sector(SimpleLookup):
+    name = models.CharField(unique=False, max_length=255, verbose_name=_("name (en)"))
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=False, null=True)
 
     class Meta:
         ordering = ["region", _("name"), ]
+        unique_together = (("region", "name"), )
 
     def __str__(self):
         mystr = self.tname
