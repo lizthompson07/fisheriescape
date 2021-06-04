@@ -945,13 +945,21 @@ class Group(BioModel):
 
         return parent_grps
 
-    def prog_group(self):
+    def prog_group(self, get_string=False):
         # gets program groups this group may be a part of.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
                                            anidc_id__name="Program Group",
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
-        return [grpd.adsc_id for grpd in grpd_set]
+        prog_grp_list = [grpd.adsc_id for grpd in grpd_set]
+        if get_string:
+            prog_str = ""
+            for prog_grp in prog_grp_list:
+                prog_str += "{}, ".format(prog_grp.name)
+
+            return prog_str
+        else:
+            return prog_grp_list
 
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()

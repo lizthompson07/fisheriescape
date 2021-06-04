@@ -1243,7 +1243,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         context["calculated_properties"] = {}
-        context["calculated_properties"]["Programs"] = self.object.prog_group()
+        context["calculated_properties"]["Programs"] = self.object.prog_group(get_str=True)
         context["calculated_properties"]["Current Tank"] = self.object.current_cont()
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()

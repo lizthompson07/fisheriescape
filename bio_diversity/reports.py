@@ -151,6 +151,41 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     return target_url
 
 
+def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
+    cnt_slots = "GHIJKLMNOPQRSTUV"
+    grps = [(anix.grp_id.__str__(), anix.grp_id.prog_group(get_string=True)) for anix in
+            site_location.animal_details.filter(grp_id__isnull=False).select_related("grp_id__stok_id",
+                                                                                     "grp_id__coll_id")]
+    indvs = ["{}-{}-{}".format(anix_tup[0], anix_tup[1], anix_tup[2])
+             for anix_tup in
+             site_location.animal_details.filter(indv_id__isnull=False).values_list("indv_id__stok_id__name",
+                                                                                    "indv_id__indv_year",
+                                                                                    "indv_id__coll_id__name",).distinct()]
+    if len(grps) >= 1:
+        coll_str = grps[0][0]
+        grp_str = grps[0][1]
+    elif len(indvs) >= 1:
+        coll_str = indvs[0]
+        grp_str = ""
+    else:
+        coll_str = ""
+        grp_str = ""
+    loc_cnt_qs = models.Count.objects.filter(loc_id_id=site_location.pk).select_related("cntc_id")
+    ws['A' + str(row_count)].value = rive_name
+    ws['B' + str(row_count)].value = site_name
+    ws['C' + str(row_count)].value = site_location.start_date
+    ws['D' + str(row_count)].value = site_location.locc_id.name
+    ws['E' + str(row_count)].value = coll_str
+    ws['F' + str(row_count)].value = grp_str
+    cnt_col = 0
+    for cnt in loc_cnt_qs:
+        ws[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
+        ws[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
+        cnt_col += 2
+    row_count += 1
+    return row_count
+
+
 def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
     if not start_date:
         start_date = datetime.min.replace(tzinfo=pytz.UTC)
@@ -178,41 +213,28 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
     except KeyError:
         print("Individuals is not a valid name of a worksheet")
 
-    loc_pk_list = [loc.pk for loc in locations_list]
-    # pre fetch counts:
-    cnt_qs = models.Count.objects.filter(loc_id_id__in=loc_pk_list).select_related("cntc_id")
-    # force the qurey to run:
-    len(cnt_qs)
-
     # put in start and end dates
     ws_indv['B1'].value = start_date
     ws_indv['B2'].value = end_date
     # start writing data at row 3 in the sheet
     row_count = 4
-    cnt_slots = "FGHIJKLMNOPQRSTU"
+    # locations with no sites
+    no_sites_list = [location for location in locations_list if not location.relc_id]
+    locations_list = [location for location in locations_list if location.relc_id]
     for site in sites_list:
         site_name = site.name
         rive_name = site.rive_id.name
         site_locations = [location for location in locations_list if location.relc_id.pk == site.pk]
 
         for site_location in site_locations:
-            grps = [anix.grp_id.__str__() for anix in site_location.animal_details.filter(grp_id__isnull=False)]
-            if len(grps) == 1:
-                grps = grps[0]
-            if not grps:
-                grps = ""
-            loc_cnt_qs = cnt_qs.filter(loc_id_id=site_location.pk)
-            ws_indv['A' + str(row_count)].value = rive_name
-            ws_indv['B' + str(row_count)].value = site_name
-            ws_indv['C' + str(row_count)].value = site_location.start_date
-            ws_indv['D' + str(row_count)].value = site_location.locc_id.name
-            ws_indv['E' + str(row_count)].value = grps
-            cnt_col = 0
-            for cnt in loc_cnt_qs:
-                ws_indv[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
-                ws_indv[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
-                cnt_col += 2
-            row_count += 1
+            row_count = write_location_to_sheet(ws_indv, site_location, row_count, rive_name, site_name)
+
+    for location in no_sites_list:
+        if location.rive_id:
+            rive_name = location.rive_id.name
+        else:
+            rive_name = None
+        row_count = write_location_to_sheet(ws_indv, location, row_count, rive_name, None)
 
     wb.save(target_file_path)
 
