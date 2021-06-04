@@ -8,32 +8,30 @@
 
 {% block subcontent %}
   {% trans 'New' as default_new_btn_text %}
-  {% if object_list.exists %}
-    {% if filter %}
-      {% block filter %}
-        <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
-          <div class="row">
-            {% for field in filter.form %}
-              <div class="col">
-                {% bootstrap_field field placeholder="" size="small" %}
-              </div>
-            {% endfor %}
+  {% if filter %}
+    {% block filter %}
+      <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
+        <div class="row">
+          {% for field in filter.form %}
             <div class="col">
-              <br>
-              <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-              <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+              {% bootstrap_field field placeholder="" size="small" %}
             </div>
+          {% endfor %}
+          <div class="col">
+            <br>
+            <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
           </div>
-        </form>
-      {% endblock %}
-      <br>
-      {% if paginate_by %}
-        {% paginate paginate_by filter.qs as filter_list %}
-      {% endif %}
-
+        </div>
+      </form>
+    {% endblock %}
+    <br>
+    {% if paginate_by %}
+      {% paginate paginate_by filter.qs as filter_list %}
     {% endif %}
+  {% endif %}
 
-
+  {% if object_list.exists %}
     {% if filter %}
       {% if filter_list %}
         {% echo filter_list as list %}
