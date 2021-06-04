@@ -12,6 +12,69 @@ from bio_diversity import utils
 from bio_diversity.utils import DataParser
 
 
+# ED = egg development
+class EDInitParser(DataParser):
+    # used to create F1 groups, place them in trays and associate a count with them
+    stock_key = "Stock"
+    trof_key = "Trough"
+    cross_key = "Cross"
+    fecu_key = "Fecundity"
+    crew_key = "Crew"
+    comment_key = "Comments"
+
+    header = 2
+    sheet_name = "Init"
+    converters = {trof_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
+
+    prnt_grp_anidc_id = None
+    prog_grp_anidc_id = None
+
+    def data_preper(self):
+        cleaned_data = self.cleaned_data
+        self.prnt_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Parent Group").get()
+        self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
+
+        trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
+        len(trof_qs)  # force eval of lazy qs
+        trof_dict = {trof.name: trof for trof in trof_qs}
+        self.data["trof_id"] = self.data.apply(lambda row: trof_dict[row[self.trof_key]], axis=1)
+
+        stok_qs = models.StockCode.objects.all()
+        len(stok_qs)  # force eval of lazy qs
+        stok_dict = {stok.name: stok for stok in stok_qs}
+        self.data["stok_id"] = self.data.apply(lambda row: stok_dict[row[self.stock_key]], axis=1)
+
+        self.data_dict = self.data.to_dict('records')
+
+    def row_parser(self, row):
+        # need to: find the pair's group, link it to it's pairing, create a tray, and add the count.
+        cleaned_data = self.cleaned_data
+        row_date = utils.get_row_date(row)
+        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
+                                                indv_id__stok_id=row["stok_id"]).get()
+
+        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id').get()
+        grp_id = anix_id.grp_id
+        self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
+
+        tray_id = utils.create_tray(row["trof_id"], row[self.cross_key], row_date, cleaned_data)
+        contx, contx_entered = utils.enter_contx(tray_id, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
+        self.row_entered += contx_entered
+
+        cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fecu_key], contx_pk=contx.pk, cnt_code="Photo Count")
+        self.row_entered += cnt_entered
+
+        self.team_parser(row[self.crew_key], row)
+
+        if utils.nan_to_none(row[self.comment_key]):
+            comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_id, row_date)
+            self.row_entered += data_entered
+            if not comments_parsed:
+                self.log_data += "Unparsed comment on row with stock ({}), cross ({}): \n {}" \
+                                 " \n\n".format(row[self.stock_key], row[self.cross_key], row[self.comment_key])
+
+
 def mactaquac_picks_parser(cleaned_data):
     log_data = "Loading Data Results: \n"
     rows_parsed = 0

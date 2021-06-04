@@ -1223,13 +1223,22 @@ class Individual(BioModel):
         else:
             return None
 
-    def prog_group(self):
+    def prog_group(self, get_string=False):
         # gets program groups this group may be a part of.
         indvd_set = IndividualDet.objects.filter(anix_id__indv_id=self,
                                                  anidc_id__name="Program Group",
                                                  adsc_id__isnull=False,
                                                  ).select_related("adsc_id")
-        return [indvd.adsc_id for indvd in indvd_set]
+
+        prog_grp_list = [indvd.adsc_id for indvd in indvd_set]
+        if get_string:
+            prog_str = ""
+            for prog_grp in prog_grp_list:
+                prog_str += "{}, ".format(prog_grp.name)
+
+            return prog_str
+        else:
+            return prog_grp_list
 
 
 class IndividualDet(BioDet):

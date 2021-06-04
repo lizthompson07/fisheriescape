@@ -17,7 +17,7 @@ from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
 from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
-from bio_diversity.data_parsers.picks import mactaquac_picks_parser, ColdbrookPickParser
+from bio_diversity.data_parsers.picks import mactaquac_picks_parser, ColdbrookPickParser, EDInitParser
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
 from bio_diversity.data_parsers.temperatures import TemperatureParser
@@ -374,6 +374,14 @@ class DataForm(CreatePrams):
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
                     parser = ColdbrookPickParser(cleaned_data)
                     log_data, success = parser.log_data, parser.success
+
+            # ---------------------------------ED INIT----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Initial":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    parser = EDInitParser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    parser = EDInitParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # ------------------------------MEASURING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Measuring":
@@ -1145,6 +1153,7 @@ class TrofForm(CreatePrams):
     class Meta:
         model = models.Trough
         exclude = []
+        fields = ['name', 'nom', 'facic_id', 'description_en', 'description_fr', 'created_date', 'created_by']
 
 
 class TrofdForm(CreateDatePrams):

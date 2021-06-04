@@ -282,7 +282,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
-                data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'))
+                data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'),
+                              ('Initial', 'Initial'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
@@ -305,7 +306,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             context["title"] = "Add {} data".format(evnt_code)
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                             "master entry"]:
+                             "master entry", "egg development"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
@@ -1243,7 +1244,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         context["calculated_properties"] = {}
-        context["calculated_properties"]["Programs"] = self.object.prog_group(get_str=True)
+        context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
         context["calculated_properties"]["Current Tank"] = self.object.current_cont()
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()
@@ -1392,7 +1393,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         indv_len = self.object.individual_detail("Length")
         indv_weight = self.object.individual_detail("Weight")
         context["calculated_properties"] = {}
-        context["calculated_properties"]["Programs"] = self.object.prog_group()
+        context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
         context["calculated_properties"]["Current Tank"] = self.object.current_cont()
         context["calculated_properties"]["Length (cm)"] = indv_len
         context["calculated_properties"]["Weight (g)"] = indv_weight
