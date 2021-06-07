@@ -1,3 +1,4 @@
+import copy
 import math
 from datetime import datetime, timedelta
 
@@ -226,11 +227,21 @@ class EDHUParser(DataParser):
             cup_contx = utils.create_egg_movement_evnt(tray_id, cont, cleaned_data, row_date, final_grp.pk,
                                                        return_cup_contx=True)
 
+            move_cleaned_data = cleaned_data.copy()
+            move_cleaned_data["evnt_id"] = cup_contx.evnt_id
+            cnt_contx = cup_contx
+            cnt_contx.pk = None
+            cnt_contx.tray_id = tray_id
+            try:
+                cnt_contx.save()
+            except IntegrityError:
+                cnt_contx = models.ContainerXRef.objects.filter(pk=cup_contx.pk).get()
+            self.data_entered += utils.enter_anix(move_cleaned_data, grp_pk=final_grp.pk, contx_pk=cnt_contx.pk)
             # add the positive counts
-            cnt = utils.enter_cnt(cleaned_data, row[self.cnt_key], cup_contx.pk, cnt_code="Eggs Added", )[0]
+            cnt = utils.enter_cnt(move_cleaned_data, row[self.cnt_key], cnt_contx.pk, cnt_code="Eggs Added", )[0]
             if utils.nan_to_none(self.weight_key):
-                utils.enter_cnt_det(cleaned_data, cnt, row[self.weight_key], "Weight")
-            utils.enter_cnt_det(cleaned_data, cnt, row[self.cnt_key], "Program Group", row[self.prog_key])
+                utils.enter_cnt_det(move_cleaned_data, cnt, row[self.weight_key], "Weight")
+            utils.enter_cnt_det(move_cleaned_data, cnt, row[self.cnt_key], "Program Group", row[self.prog_key])
         else:
             # Move main group to drawer, and add end date to tray:
             draw = utils.get_draw_from_dot(str(row[self.cont_key]), cleaned_data)

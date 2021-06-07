@@ -59,7 +59,6 @@ class DataParser:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
             self.success = False
 
-
     def data_reader(self):
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
                                converters=self.converters, sheet_name=self.sheet_name)
@@ -531,11 +530,9 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, ret
     if grp_pk:
         enter_anix(new_cleaned_data, grp_pk=grp_pk)
     tray_contx, data_entered = enter_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk, return_contx=True)
-    if tray_contx:
-        row_entered = True
+    row_entered += data_entered
     cup_contx, data_entered = enter_contx(cup, new_cleaned_data, True, None, grp_pk=grp_pk, return_contx=True)
-    if cup_contx:
-        row_entered = True
+    row_entered += data_entered
     if return_cup_contx:
         return cup_contx
     else:
@@ -1082,6 +1079,11 @@ def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         tank_id=contx.tank_id,
+                                                        tray_id__isnull=True,
+                                                        cup_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
             row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag, return_sucess=True)
@@ -1109,6 +1111,11 @@ def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         trof_id=contx.trof_id,
+                                                        tray_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        cup_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
             row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag, return_sucess=True)
@@ -1136,6 +1143,11 @@ def enter_tray_contx(tray, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         tray_id=contx.tray_id,
+                                                        cup_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
             row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
@@ -1164,6 +1176,11 @@ def enter_cup_contx(cup, cleaned_data, final_flag=None, indv_pk=None, grp_pk=Non
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         cup_id=contx.cup_id,
+                                                        tray_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
 
         draw_contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -1217,6 +1234,11 @@ def enter_draw_contx(draw, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         draw_id=contx.draw_id,
+                                                        tray_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        cup_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
 
         heat_contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -1258,6 +1280,11 @@ def enter_heat_contx(heat, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         heat_id=contx.heat_id,
+                                                        tray_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        cup_id__isnull=True,
                                                         team_id=contx.team_id).get()
 
         if indv_pk or grp_pk:
