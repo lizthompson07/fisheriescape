@@ -579,7 +579,7 @@ class MorDetails(mixins.MorMixin, CommonDetails):
 
 class PrjDetails(mixins.PrjMixin, CommonDetails):
     template_name = 'whalesdb/details_prj.html'
-    fields = ['name', 'description_en', 'prj_url']
+    fields = ['name', 'description_en', 'lead', 'prj_url']
     creation_form_height = 725
 
 
