@@ -230,6 +230,13 @@ class FeedMixin:
     admin_only = False
 
 
+class FeedHandlerMixin:
+    key = "feedh"
+    form_class = forms.FeedHandlerForm
+    title = _("Feeding")
+    admin_only = False
+
+
 class FeedcMixin:
     key = "feedc"
     form_class = forms.FeedcForm

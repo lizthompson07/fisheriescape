@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from django.test import tag
 from bio_diversity.test import BioFactoryFloor
-from bio_diversity import models, utils
+from bio_diversity import utils
 from shared_models.test.common_tests import CommonTest
 from random import randint
 
@@ -120,7 +120,8 @@ class TestGrpCnt(CommonTest):
             "created_by": self.evnt.created_by,
             "created_date": self.evnt.created_date,
         }
-        self.contx, data_entered = utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
+        self.contx, data_entered = utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk,
+                                                     return_contx=True)
 
     def test_zero_cnt(self):
         # test that with no details present, count returns zero
@@ -136,7 +137,12 @@ class TestGrpCnt(CommonTest):
         # add two counts in different containers and make sure group record proper count
         cnt_val = randint(0, 100)
         utils.enter_cnt(self.cleaned_data, cnt_val, self.contx.pk, cnt_code="Fish in Container")
-        contx, data_entered = utils.enter_contx(self.final_tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
+        # sometimes factories will reuse an event/tank which will prevent new contx's and cnt's from being entered.
+        # this loop ensures that new data does get added
+        data_entered = False
+        while not data_entered:
+            contx, data_entered = utils.enter_contx(self.final_tank, self.cleaned_data, True, grp_pk=self.grp.pk,
+                                                    return_contx=True)
         utils.enter_cnt(self.cleaned_data, cnt_val, contx.pk, cnt_code="Fish in Container")
         self.assertEqual(self.grp.count_fish_in_group(), 2 * cnt_val)
 
@@ -162,12 +168,11 @@ class TestGrpCnt(CommonTest):
         next_day_evnt.save()
         new_cleaned_data = self.cleaned_data.copy()
         new_cleaned_data["evnt_id"] = next_day_evnt
-        end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, None, grp_pk=self.grp.pk, return_contx=True)
+        end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, None, grp_pk=self.grp.pk,
+                                                    return_contx=True)
 
         utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
         cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")[0]
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
         utils.enter_cnt(new_cleaned_data, cnt_final_val, end_contx.pk, cnt_code="Egg Count")
         self.assertEqual(self.grp.count_fish_in_group(), cnt_final_val)
-
-

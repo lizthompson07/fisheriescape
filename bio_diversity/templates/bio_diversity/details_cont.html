@@ -9,14 +9,27 @@
     <div class="card border border-dark my-1">
         <h5 class="card-header">{% trans title %}</h5>
         <div class="card-body">
-        {% for field in fields %}
-        <div class="row" >
-                <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
-        </div>
-        {% endfor %}
-        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_maturity_rate' model_key object.pk  'pop'%}')" title="{% trans 'Plot Maturity Rate' %}">{% trans 'Plot Maturity Rate' %}</a>
-        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_temp_data' model_key object.pk  'pop'%}')" title="{% trans 'Plot Temperature Data' %}">{% trans 'Plot Temperature Data' %}</a>
-        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_fish_to_cont' model_key object.pk  'pop'%}')" title="{% trans 'Add fish to container' %}">{% trans 'Add fish to container' %}</a>
+            {% for field in fields %}
+            <div class="row" >
+                    <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
+            </div>
+            {% endfor %}
+            <div class="row" >
+                <span>
+                    <select name="plot_type" class="form-control form-control-sm" title="" required="" id="id_plot">
+                        <option value="0" selected="">Choose Plot Type</option>
+                        {% for envc in envc_set %}
+                            <option value="{% url 'bio_diversity:plot_env_data' envc.pk model_key object.pk 'pop'%}">{{envc.name}}</option>
+                        {% endfor %}
+                    </select>
+                </span>
+            <a class="btn btn-primary" id="plot_btn" href="#" title="{% trans 'Plot' %}">{% trans 'Plot' %}</a>
+            </div>
+            <row>
+                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_maturity_rate' model_key object.pk  'pop'%}')" title="{% trans 'Plot Maturity Rate' %}">{% trans 'Plot Maturity Rate' %}</a>
+                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_fish_to_cont' model_key object.pk  'pop'%}')" title="{% trans 'Add fish to container' %}">{% trans 'Add fish to container' %}</a>
+                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_feedh' model_key object.pk  'pop'%}')" title="{% trans 'Set container feed' %}">{% trans 'Set container feed' %}</a>
+            </row>
         </div>
     </div>
 {% endblock field_override %}

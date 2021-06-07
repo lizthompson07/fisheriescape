@@ -16,10 +16,11 @@ from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingPar
 from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
-from bio_diversity.data_parsers.picks import mactaquac_picks_parser, coldbrook_picks_parser
+from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
+from bio_diversity.data_parsers.picks import EDInitParser, EDPickParser
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
-from bio_diversity.data_parsers.temperatures import temperature_parser
+from bio_diversity.data_parsers.temperatures import TemperatureParser
 from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser, ColdbrookTreatmentParser
 from bio_diversity.data_parsers.water_quality import WaterQualityParser
 
@@ -335,6 +336,15 @@ class DataForm(CreatePrams):
                 parser = WaterQualityParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
+            # ---------------------------MASTER----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Master Entry":
+                if cleaned_data["data_type"].__str__() == "Individual":
+                    parser = MasterIndvParser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Group":
+                    parser = MasterGrpParser(cleaned_data)
+
+                log_data, success = parser.log_data, parser.success
+
             # -------------------------------SPAWNING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Spawning":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
@@ -354,14 +364,24 @@ class DataForm(CreatePrams):
             # ---------------------------TROUGH TEMPERATURE----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Egg Development" and\
                     cleaned_data["data_type"] == "Temperature":
-                log_data, success = temperature_parser(cleaned_data)
+                parser = TemperatureParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # ---------------------------------PICKS----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Picks":
                 if cleaned_data["facic_id"].__str__() == "Mactaquac":
-                    log_data, success = mactaquac_picks_parser(cleaned_data)
+                    parser = EDPickParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    log_data, success = coldbrook_picks_parser(cleaned_data)
+                    parser = EDPickParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
+
+            # ---------------------------------ED INIT----------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Initial":
+                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                    parser = EDInitParser(cleaned_data)
+                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
+                    parser = EDInitParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
 
             # ------------------------------MEASURING----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Measuring":
@@ -491,6 +511,44 @@ class FecuForm(CreateDatePrams):
     class Meta:
         model = models.Fecundity
         exclude = []
+
+
+class FeedHandlerForm(forms.Form):
+    perc_id = forms.ModelChoiceField(required=True, queryset=models.PersonnelCode.objects.all(), label=_("Personnel"))
+    prog_id = forms.ModelChoiceField(required=True, queryset=models.Program.objects.all(), label=_("Program"))
+    feed_date = forms.DateField(required=True)
+    feedc_id = forms.ModelChoiceField(required=True, queryset=models.FeedCode.objects.all(), label=_("Feed Type"))
+    feedm_id = forms.ModelChoiceField(required=True, queryset=models.FeedMethod.objects.all(), label=_("Feeding Method"))
+    amt = forms.DecimalField(required=True, label=_("Feed Size"))
+
+    facic_id = forms.ModelChoiceField(required=True, queryset=models.FacilityCode.objects.all())
+    created_date = forms.DateField(required=True)
+    created_by = forms.CharField(required=True, max_length=32)
+    cont = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['facic_id'].widget = forms.HiddenInput()
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        self.fields['feed_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                 "class": "fp-date"})
+
+    def set_cont(self, cont):
+        self.cont = cont
+
+    def clean(self):
+        cleaned_data = super(FeedHandlerForm, self).clean()
+        if self.is_valid():
+            cleaned_data["feed_date"] = utils.naive_to_aware(cleaned_data["feed_date"])
+            cleaned_data["created_date"] = utils.naive_to_aware(cleaned_data["created_date"])
+            cleaned_data["evnt_id"] = utils.create_feed_evnt(cleaned_data)
+            contx_id, entered = utils.enter_contx(self.cont, cleaned_data, return_contx=True)
+            feed_entered = utils.enter_feed(cleaned_data, contx_id, cleaned_data["feedc_id"], cleaned_data["feedm_id"],
+                                            cleaned_data["amt"])
+            if not feed_entered:
+                raise ValidationError("Feeding instance not entered")
+        return cleaned_data
 
 
 class FeedForm(CreatePrams):
@@ -1095,6 +1153,7 @@ class TrofForm(CreatePrams):
     class Meta:
         model = models.Trough
         exclude = []
+        fields = ['name', 'nom', 'facic_id', 'description_en', 'description_fr', 'created_date', 'created_by']
 
 
 class TrofdForm(CreateDatePrams):
