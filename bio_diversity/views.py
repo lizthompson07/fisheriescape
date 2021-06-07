@@ -282,8 +282,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
-                data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'),
-                              ('Initial', 'Initial'))
+                data_types = ((None, "---------"), (0, 'Temperature'), (1, 'Picks'),
+                              (2, 'Initial'), (3, 'Heath Unit Transfer'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
@@ -915,7 +915,7 @@ class CupdDetails(mixins.CupdMixin, CommonDetails):
               "created_by", "created_date", ]
 
 
-class DrawDetails(mixins.DrawMixin, CommonDetails):
+class DrawDetails(mixins.DrawMixin, CommonContDetails):
     fields = ["heat_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):

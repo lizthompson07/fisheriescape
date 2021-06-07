@@ -12,3 +12,6 @@ sex_dict = {"M": "Male",
 prio_dict = {"H": "High",
              "M": "Normal",
              "P": "Low"}
+
+
+yes_values = ["Y", "y", "Yes", 1]

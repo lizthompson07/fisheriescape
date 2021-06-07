@@ -144,7 +144,11 @@ class TestLocModel(CommonTest):
         self.loc.end_lat = self.relc.min_lat
         self.loc.end_lon = self.relc.min_lon
         self.loc.save()
-        self.assertEqual(self.loc.relc_id, self.relc)
+        self.assertEqual(self.loc.relc_id, self.relc, msg="loc points: {}-{}, {}-{}. Relc points: {}-{}, "
+                                                          "{}-{}".format(self.loc.loc_lon, self.loc.loc_lat,
+                                                                         self.loc.end_lon, self.loc.end_lat,
+                                                                         self.relc.min_lon, self.relc.min_lat,
+                                                                         self.relc.max_lon, self.relc.max_lat))
 
     def test_find_relc_from_line(self):
         # test that with the line intersecting the relc, but with neither point inside, the relc is still found

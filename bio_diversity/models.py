@@ -662,7 +662,7 @@ class Event(BioTimeModel):
             return False
 
     def __str__(self):
-        return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.start_date)
+        return "{}-{}".format(self.evntc_id.__str__(), self.start_date)
 
     class Meta:
         constraints = [
@@ -917,7 +917,7 @@ class Group(BioModel):
 
         dev += sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
 
-        return dev
+        return utils.round_no_nan(dev, 5)
 
     def get_parent_grp(self, at_date=utils.naive_to_aware(datetime.now())):
         # gets parent groups this group came from.

@@ -59,6 +59,7 @@ class DataParser:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
             self.success = False
 
+
     def data_reader(self):
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
                                converters=self.converters, sheet_name=self.sheet_name)
@@ -77,20 +78,21 @@ class DataParser:
         pass
 
     def iterate_rows(self):
-        for row in self.data_dict:
-            if self.success:
-                self.row_entered = False
-                try:
-                    self.row_parser(row)
-                except Exception as err:
-                    err_msg = common_err_parser(err)
-                    self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
-                    self.log_data += str(row)
-                    self.parsed_row_counter()
-                    self.success = False
-                self.rows_parsed += 1
-                if self.row_entered:
-                    self.rows_entered += 1
+        if self.success:
+            for row in self.data_dict:
+                if self.success:
+                    self.row_entered = False
+                    try:
+                        self.row_parser(row)
+                    except Exception as err:
+                        err_msg = common_err_parser(err)
+                        self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
+                        self.log_data += str(row)
+                        self.parsed_row_counter()
+                        self.success = False
+                    self.rows_parsed += 1
+                    if self.row_entered:
+                        self.rows_entered += 1
 
     def row_parser(self, row):
         pass

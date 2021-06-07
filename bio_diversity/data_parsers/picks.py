@@ -6,9 +6,11 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 import pandas as pd
 import numpy as np
+from django.db.models import Q
 
 from bio_diversity import models
 from bio_diversity import utils
+from bio_diversity.static.calculation_constants import yes_values
 from bio_diversity.utils import DataParser
 
 
@@ -102,6 +104,7 @@ class EDPickParser(DataParser):
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
+        self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
                                                 indv_id__stok_id=row["stok_id"]).get()
 
@@ -113,6 +116,140 @@ class EDPickParser(DataParser):
 
         self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[self.pick_key], row_date,
                                                     row[self.pickc_key], perc_list[0])
+        for inits in inits_not_found:
+            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
+
+
+# ED = egg development
+# HU = Heath Unit
+class EDHUParser(DataParser):
+    # used to create record movements into heath units
+    stock_key = "Stock"
+    trof_key = "Trough"
+    cross_key = "Cross"
+    prog_key = "Program"
+    cnt_key = "Count"
+    weight_key = "Weight (g)"
+    cont_key = "Destination"
+    loss_key = "Transfer Loss"
+    final_key = "Final (Y/N)"
+    crew_key = "Crew"
+    comment_key = "Comments"
+
+    header = 2
+    sheet_name = "HU Transfer"
+    converters = {trof_key: str, cross_key: str, cont_key:str, 'Year': str, 'Month': str, 'Day': str}
+
+    def data_preper(self):
+        cleaned_data = self.cleaned_data
+
+        trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
+        len(trof_qs)  # force eval of lazy qs
+        trof_dict = {trof.name: trof for trof in trof_qs}
+        self.data["trof_id"] = self.data.apply(lambda row: trof_dict[row[self.trof_key]], axis=1)
+
+        stok_qs = models.StockCode.objects.all()
+        len(stok_qs)  # force eval of lazy qs
+        stok_dict = {stok.name: stok for stok in stok_qs}
+        self.data["stok_id"] = self.data.apply(lambda row: stok_dict[row[self.stock_key]], axis=1)
+
+        self.data_dict = self.data.to_dict('records')
+
+    def row_parser(self, row):
+        cleaned_data = self.cleaned_data
+        # get tray, group, and row date
+        row_date = utils.get_row_date(row)
+
+        tray_qs = models.Tray.objects.filter(trof_id=row["trof_id"], name=row[self.cross_key])
+        tray_id = tray_qs.filter(Q(start_date__lte=row_date, end_date__gte=row_date) | Q(end_date__isnull=True)).get()
+        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
+                                                indv_id__stok_id=row["stok_id"]).get()
+
+        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id').get()
+        grp_id = anix_id.grp_id
+        # want to shift the hu move event, so that the counting math always works out.
+        hu_move_date = row_date + timedelta(minutes=1)
+        hu_cleaned_data = utils.create_new_evnt(cleaned_data, "Heath Unit Transfer", hu_move_date)
+        hu_anix, data_entered = utils.enter_anix(hu_cleaned_data, grp_pk=grp_id.pk)
+        self.row_entered += data_entered
+        hu_contx, data_entered = utils.enter_contx(tray_id, hu_cleaned_data, None, grp_pk=grp_id.pk,
+                                                   return_contx=True)
+        self.row_entered += data_entered
+        # record development
+        dev_at_hu_transfer = grp_id.get_development(hu_move_date)
+        utils.enter_grpd(hu_anix.pk, hu_cleaned_data, hu_move_date, dev_at_hu_transfer, None,
+                         anidc_str="Development")
+        self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
+
+        # HU Picks:
+        self.row_entered += utils.enter_cnt(cleaned_data, row[self.loss_key], hu_contx.pk,
+                                            cnt_code="HU Transfer Loss")[1]
+
+        # generate new group, cup, and movement event:
+        cont = utils.get_cont_from_dot(row[self.cont_key], cleaned_data, row_date)
+        self.row_entered += utils.enter_contx(cont, cleaned_data)
+        if not utils.nan_to_none(row[self.final_key]) in yes_values:
+            # NEW GROUPS TAKEN FROM INITIAL
+            out_cnt = utils.enter_cnt(cleaned_data, 0, hu_contx.pk, cnt_code="Eggs Removed")[0]
+            utils.enter_cnt_det(cleaned_data, out_cnt, row[self.cnt_key], "Program Group", row[self.prog_key])
+
+            indv, final_grp = cont.fish_in_cont(row_date)
+            if not final_grp:
+                final_grp = models.Group(spec_id=grp_id.spec_id,
+                                         coll_id=grp_id.coll_id,
+                                         grp_year=grp_id.grp_year,
+                                         stok_id=grp_id.stok_id,
+                                         grp_valid=True,
+                                         created_by=cleaned_data["created_by"],
+                                         created_date=cleaned_data["created_date"],
+                                         )
+                try:
+                    final_grp.clean()
+                    final_grp.save()
+                except (ValidationError, IntegrityError):
+                    return None
+            else:
+                # MAIN GROUP GETTING MOVED
+                final_grp = final_grp[0]
+            final_grp_anix = utils.enter_anix(cleaned_data, grp_pk=final_grp.pk, return_anix=True)
+            self.row_entered += utils.enter_anix(hu_cleaned_data, grp_pk=final_grp.pk, return_sucess=True)
+            self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, grp_id.__str__(), None,
+                                                 anidc_str="Parent Group", frm_grp_id=grp_id)
+            self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, None, None,
+                                                 anidc_str="Program Group", adsc_str=row[self.prog_key])
+            self.row_entered += utils.enter_grpd(final_grp_anix.pk, cleaned_data, row_date, dev_at_hu_transfer, None,
+                                                 anidc_str="Development")
+
+            # create movement for the new group, create 2 contx's and 3 anix's
+            # cup contx is contx used tyo link the positive counts
+            cup_contx = utils.create_egg_movement_evnt(tray_id, cont, cleaned_data, row_date, final_grp.pk,
+                                                       return_cup_contx=True)
+
+            # add the positive counts
+            cnt = utils.enter_cnt(cleaned_data, row[self.cnt_key], cup_contx.pk, cnt_code="Eggs Added", )[0]
+            if utils.nan_to_none(self.weight_key):
+                utils.enter_cnt_det(cleaned_data, cnt, row[self.weight_key], "Weight")
+            utils.enter_cnt_det(cleaned_data, cnt, row[self.cnt_key], "Program Group", row[self.prog_key])
+        else:
+            # Move main group to drawer, and add end date to tray:
+            draw = utils.get_draw_from_dot(str(row[self.cont_key]), cleaned_data)
+            if draw:
+                end_contx = utils.create_movement_evnt(tray_id, draw, cleaned_data, row_date,
+                                                       grp_pk=grp_id.pk, return_end_contx=True)
+                tray_id.end_date = row_date
+                tray_id.save()
+                end_cnt = utils.enter_cnt(cleaned_data, row[self.cnt_key], end_contx.pk,
+                                          cnt_code="Egg Count")[0]
+                utils.enter_cnt_det(cleaned_data, end_cnt, row[self.weight_key], "Weight")
+            else:
+                self.log_data += "\n Draw {} from {} not found".format(draw, row[self.cont_key])
+
+            # link cup to egg development event
+            utils.enter_contx(cont, cleaned_data, None)
+
+        perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
+
         for inits in inits_not_found:
             self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
