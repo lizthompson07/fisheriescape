@@ -70,6 +70,13 @@ def generate_facility_tank_report(facic_id):
             ws['C' + str(row_count)].value = cnt
             ws['D' + str(row_count)].value = str(', '.join(set(year_coll_set)))
 
+            feed_qs = item.cont_feed()
+            feed_str = ""
+            for feed in feed_qs:
+                feed_str += "#{} {}, ".format(feed.amt, feed.feedc_id.name)
+
+            ws['E' + str(row_count)].value = feed_str
+
             row_count += 1
 
     wb.save(target_file_path)
@@ -87,7 +94,7 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
 
     template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
                                       "stock_code_report_template.xlsx")
-    indv_qs = models.Individual.objects.filter(stok_id=stok_id, indv_valid=True)
+    indv_qs = models.Individual.objects.filter(stok_id=stok_id).select_related("stok_id", "coll_id")
     grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
 
     wb = load_workbook(filename=template_file_path)
@@ -105,6 +112,8 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     except KeyError:
         print("Individuals is not a valid name of a worksheet")
 
+    ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
+    ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
     # start writing data at row 3 in the sheet
     row_count = 3
     for item in indv_qs:
@@ -112,6 +121,20 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
         ws_indv['B' + str(row_count)].value = item.indv_year
         ws_indv['C' + str(row_count)].value = item.coll_id.name
         ws_indv['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
+
+        item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
+                                                         adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
+        indvd_str = ""
+        for indvd in item_indvd:
+            indvd_str += "{}, ".format(indvd.adsc_id.name)
+        ws_indv['E' + str(row_count)].value = indvd_str
+
+        item_sexd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Gender",
+                                                         anix_id__indv_id=item).select_related("adsc_id").first()
+        if item_sexd:
+            ws_indv['F' + str(row_count)].value = str(item_sexd.det_val)
+        ws_indv['G' + str(row_count)].value = str(item.indv_valid)
+
         row_count += 1
 
     row_count = 3
@@ -126,6 +149,41 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     wb.save(target_file_path)
 
     return target_url
+
+
+def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
+    cnt_slots = "GHIJKLMNOPQRSTUV"
+    grps = [(anix.grp_id.__str__(), anix.grp_id.prog_group(get_string=True)) for anix in
+            site_location.animal_details.filter(grp_id__isnull=False).select_related("grp_id__stok_id",
+                                                                                     "grp_id__coll_id")]
+    indvs = ["{}-{}-{}".format(anix_tup[0], anix_tup[1], anix_tup[2])
+             for anix_tup in
+             site_location.animal_details.filter(indv_id__isnull=False).values_list("indv_id__stok_id__name",
+                                                                                    "indv_id__indv_year",
+                                                                                    "indv_id__coll_id__name",).distinct()]
+    if len(grps) >= 1:
+        coll_str = grps[0][0]
+        grp_str = grps[0][1]
+    elif len(indvs) >= 1:
+        coll_str = indvs[0]
+        grp_str = ""
+    else:
+        coll_str = ""
+        grp_str = ""
+    loc_cnt_qs = models.Count.objects.filter(loc_id_id=site_location.pk).select_related("cntc_id")
+    ws['A' + str(row_count)].value = rive_name
+    ws['B' + str(row_count)].value = site_name
+    ws['C' + str(row_count)].value = site_location.start_date
+    ws['D' + str(row_count)].value = site_location.locc_id.name
+    ws['E' + str(row_count)].value = coll_str
+    ws['F' + str(row_count)].value = grp_str
+    cnt_col = 0
+    for cnt in loc_cnt_qs:
+        ws[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
+        ws[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
+        cnt_col += 2
+    row_count += 1
+    return row_count
 
 
 def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
@@ -155,41 +213,28 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
     except KeyError:
         print("Individuals is not a valid name of a worksheet")
 
-    loc_pk_list = [loc.pk for loc in locations_list]
-    # pre fetch counts:
-    cnt_qs = models.Count.objects.filter(loc_id_id__in=loc_pk_list).select_related("cntc_id")
-    # force the qurey to run:
-    len(cnt_qs)
-
     # put in start and end dates
     ws_indv['B1'].value = start_date
     ws_indv['B2'].value = end_date
     # start writing data at row 3 in the sheet
     row_count = 4
-    cnt_slots = "FGHIJKLMNOPQRSTU"
+    # locations with no sites
+    no_sites_list = [location for location in locations_list if not location.relc_id]
+    locations_list = [location for location in locations_list if location.relc_id]
     for site in sites_list:
         site_name = site.name
         rive_name = site.rive_id.name
         site_locations = [location for location in locations_list if location.relc_id.pk == site.pk]
 
         for site_location in site_locations:
-            grps = [anix.grp_id.__str__() for anix in site_location.animal_details.filter(grp_id__isnull=False)]
-            if len(grps) == 1:
-                grps = grps[0]
-            if not grps:
-                grps = ""
-            loc_cnt_qs = cnt_qs.filter(loc_id_id=site_location.pk)
-            ws_indv['A' + str(row_count)].value = rive_name
-            ws_indv['B' + str(row_count)].value = site_name
-            ws_indv['C' + str(row_count)].value = site_location.start_date
-            ws_indv['D' + str(row_count)].value = site_location.locc_id.name
-            ws_indv['E' + str(row_count)].value = grps
-            cnt_col = 0
-            for cnt in loc_cnt_qs:
-                ws_indv[cnt_slots[cnt_col] + str(row_count)].value = cnt.cntc_id.name
-                ws_indv[cnt_slots[cnt_col + 1] + str(row_count)].value = cnt.cnt
-                cnt_col += 2
-            row_count += 1
+            row_count = write_location_to_sheet(ws_indv, site_location, row_count, rive_name, site_name)
+
+    for location in no_sites_list:
+        if location.rive_id:
+            rive_name = location.rive_id.name
+        else:
+            rive_name = None
+        row_count = write_location_to_sheet(ws_indv, location, row_count, rive_name, None)
 
     wb.save(target_file_path)
 
@@ -336,8 +381,28 @@ def generate_growth_chart(plot_fish):
         x_weight_data.append(datetime.combine(weight_det.detail_date, datetime.min.time()))
         y_weight_data.append(weight_det.det_val)
 
+    x_cond_data = []
+    y_cond_data = []
+    if type(plot_fish) == models.Individual:
+        for len_det in len_dets:
+            weight_det = weight_dets.filter(detail_date=len_det.detail_date).first()
+            if weight_det:
+                x_cond_data.append(datetime.combine(len_det.detail_date, datetime.min.time()))
+                y_cond_data.append(utils.condition_factor(len_det.det_val, weight_det.det_val))
+
     # create a new plot
     title_eng = "Growth Chart for fish"
+
+    if x_cond_data:
+        p_cond = figure(
+            tools="pan,box_zoom,wheel_zoom,reset,save",
+            x_axis_type='datetime',
+            x_axis_label='Date',
+            y_axis_label='Condition Factor',
+            plot_width=600, plot_height=300,
+        )
+        p_cond.axis.axis_label_text_font_style = 'normal'
+        p_cond.x(x=x_cond_data, y=y_cond_data, size=10)
 
     p_len = figure(
         tools="pan,box_zoom,wheel_zoom,reset,save",
@@ -370,7 +435,10 @@ def generate_growth_chart(plot_fish):
         writer.writerow(["Growth information for Fish {}".format(plot_fish.__str__())])
         writer.writerow(["Date", " Length (cm)", " Date", " Weight (g)"])
         writer.writerows(itertools.zip_longest(x_len_data, y_len_data, x_weight_data, y_weight_data))
-    scirpt, div = components(column(p_len, p_weight), CDN)
+    if x_cond_data:
+        scirpt, div = components(column(p_len, p_weight, p_cond), CDN)
+    else:
+        scirpt, div = components(column(p_len, p_weight), CDN)
     return scirpt, div, target_url
 
 

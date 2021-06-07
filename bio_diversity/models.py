@@ -243,6 +243,14 @@ class BioCont(BioLookup):
     def degree_days(self, start_date, end_date):
         return []
 
+    def cont_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__lte=at_date).order_by("-evnt_id__start_datetime").first()
+        if feed_contx:
+            cont_feed = feed_contx.feeding_set.select_related("feedc_id", "feedm_id").all()
+        else:
+            cont_feed = []
+        return cont_feed
+
 
 class AnimalDetCode(BioLookup):
     # anidc tag
@@ -761,8 +769,8 @@ class Fecundity(BioDateModel):
 
 class Feeding(BioModel):
     # feed tag
-    contx_id = models.OneToOneField('ContainerXRef', unique=True, on_delete=models.CASCADE,
-                                    verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, verbose_name=_("Container Cross Reference"),
+                                 db_column="CONTAINER_XREF_ID")
     feedm_id = models.ForeignKey('FeedMethod', on_delete=models.CASCADE, verbose_name=_("Feeding Method"),
                                  db_column="FEEDMETHOD_ID")
     feedc_id = models.ForeignKey('FeedCode', on_delete=models.CASCADE, verbose_name=_("Feeding Code"),
@@ -778,6 +786,10 @@ class Feeding(BioModel):
 
     def __str__(self):
         return "{}-{}-{}".format(self.contx_id.__str__(), self.feedc_id.__str__(), self.feedm_id.__str__())
+
+    @property
+    def feed_date(self):
+        return self.contx_id.evnt_id.start_date
 
 
 class FeedCode(BioLookup):
@@ -846,7 +858,7 @@ class Group(BioModel):
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
             .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
-        absolute_codes = ["Egg Count", ]
+        absolute_codes = ["Egg Count", "Fish Count" ]
         add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added", "Fish Caught"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
                           "Fish Removed from Container", "Fish Distributed"]
@@ -933,13 +945,21 @@ class Group(BioModel):
 
         return parent_grps
 
-    def prog_group(self):
+    def prog_group(self, get_string=False):
         # gets program groups this group may be a part of.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
                                            anidc_id__name="Program Group",
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
-        return [grpd.adsc_id for grpd in grpd_set]
+        prog_grp_list = [grpd.adsc_id for grpd in grpd_set]
+        if get_string:
+            prog_str = ""
+            for prog_grp in prog_grp_list:
+                prog_str += "{}, ".format(prog_grp.name)
+
+            return prog_str
+        else:
+            return prog_grp_list
 
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
@@ -1203,13 +1223,22 @@ class Individual(BioModel):
         else:
             return None
 
-    def prog_group(self):
+    def prog_group(self, get_string=False):
         # gets program groups this group may be a part of.
         indvd_set = IndividualDet.objects.filter(anix_id__indv_id=self,
                                                  anidc_id__name="Program Group",
                                                  adsc_id__isnull=False,
                                                  ).select_related("adsc_id")
-        return [indvd.adsc_id for indvd in indvd_set]
+
+        prog_grp_list = [indvd.adsc_id for indvd in indvd_set]
+        if get_string:
+            prog_str = ""
+            for prog_grp in prog_grp_list:
+                prog_str += "{}, ".format(prog_grp.name)
+
+            return prog_str
+        else:
+            return prog_grp_list
 
 
 class IndividualDet(BioDet):

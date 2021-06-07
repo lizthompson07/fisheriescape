@@ -87,8 +87,8 @@
                                 {% else %}
                                 ---
                             {% endif %}</td>
-                            <td>{{ree.ree_date}}</td>
-                            <td>{{ree.ree_time}}</td>
+                            <td>{{ree.ree_date|date:"Y-m-d"}}</td>
+                            <td>{{ree.ree_time|date:"H:i:s"}}</td>
                             <td>{{ree.rtt_id}}</td>
                             {% endwith %}
                         </tr>
