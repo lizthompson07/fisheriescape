@@ -1,4 +1,6 @@
 from datetime import timedelta
+from decimal import Decimal
+
 from django.test import tag
 from datetime import datetime, timedelta
 from bio_diversity.test import BioFactoryFloor
@@ -40,7 +42,7 @@ class TestGrpModel(CommonTest):
         utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
         grp_dev = self.grp.get_development()
         # compare to hard coded value corresponding to 10 days of sequential temperature increases:
-        self.assertEqual(round(grp_dev, 3),  5.579)
+        self.assertEqual(round(grp_dev, 3),  round(Decimal(5.579), 3))
 
     def test_movement_development(self):
         # test grp placed in trof and moved to second trof
@@ -49,7 +51,7 @@ class TestGrpModel(CommonTest):
         utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
         utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
         grp_dev = self.grp.get_development()
-        self.assertEqual(round(grp_dev, 3), 27.854)
+        self.assertEqual(round(grp_dev, 3), round(Decimal(27.854), 3))
 
     def test_development_after_detail(self):
         # test grp placed in trof, has development recorded go off of that and don't double count
@@ -61,7 +63,7 @@ class TestGrpModel(CommonTest):
         anix = utils.enter_anix(det_evnt_cleaned_data, grp_pk=self.grp.pk, return_anix=True)
         utils.enter_grpd(anix.pk, det_evnt_cleaned_data, det_date, 10,  None, anidc_str="Development")
         grp_dev = self.grp.get_development()
-        self.assertEqual(round(grp_dev, 3), 14.015)
+        self.assertEqual(round(grp_dev, 3), round(Decimal(14.015), 3))
 
     def test_move_and_detail_development(self):
         # test grp placed in trof, get a detail recorded and then moved to second trof
@@ -74,7 +76,7 @@ class TestGrpModel(CommonTest):
         utils.create_movement_evnt(None, self.trof, self.cleaned_data, entry_date, grp_pk=self.grp.pk)
         utils.create_movement_evnt(self.trof, self.trof_two, self.cleaned_data, move_date, grp_pk=self.grp.pk)
         grp_dev = self.grp.get_development()
-        self.assertEqual(round(grp_dev, 3), 36.291)
+        self.assertEqual(round(grp_dev, 3), round(Decimal(36.291), 3))
 
 
 @tag("Grpd", 'models')
@@ -157,7 +159,11 @@ class TestLocModel(CommonTest):
         self.loc.end_lat = self.relc.max_lat + 1
         self.loc.end_lon = self.relc.max_lon + 1
         self.loc.save()
-        self.assertEqual(self.loc.relc_id, self.relc)
+        self.assertEqual(self.loc.relc_id, self.relc, msg="loc points: {}-{}, {}-{}. Relc points: {}-{}, "
+                                                          "{}-{}".format(self.loc.loc_lon, self.loc.loc_lat,
+                                                                         self.loc.end_lon, self.loc.end_lat,
+                                                                         self.relc.min_lon, self.relc.min_lat,
+                                                                         self.relc.max_lon, self.relc.max_lat))
 
     def test_point_in_different_relc(self):
         # test that with a relc declared and a point in a different relc, the relc is not replaced
