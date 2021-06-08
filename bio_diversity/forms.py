@@ -288,6 +288,7 @@ class DataForm(CreatePrams):
     data_types = (None, '---------')
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
+    pickc_id = forms.ModelChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
@@ -366,6 +367,8 @@ class DataForm(CreatePrams):
                 if cleaned_data["data_type"] == "0":
                     parser = TemperatureParser(cleaned_data)
                 elif cleaned_data["data_type"] == "1":
+                    if not cleaned_data["pickc_id"]:
+                        self.add_error('pickc_id', gettext("Must choose a picking code"))
                     parser = EDPickParser(cleaned_data)
                 elif cleaned_data["data_type"] == "2":
                     parser = EDInitParser(cleaned_data)

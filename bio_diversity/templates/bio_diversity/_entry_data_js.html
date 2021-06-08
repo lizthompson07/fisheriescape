@@ -22,11 +22,19 @@
         var e = document.getElementById("id_data_type");
         var dataType = e.value;
         console.log(dataType)
-        if ( dataType=="Temperature" ) {
+        if ( dataType==0 ) {
             $("#id_trof_id").parent().show();
+            $("#id_pickc_id").parent().hide();
+
+        }
+        else if ( dataType==1 ) {
+            $("#id_pickc_id").parent().show();
+            $("#id_trof_id").parent().hide();
+
         }
         else  {
             $("#id_trof_id").parent().hide();
+            $("#id_pickc_id").parent().hide();
         }
     }
 </script>

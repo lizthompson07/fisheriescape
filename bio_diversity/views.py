@@ -273,6 +273,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             init['facic_id'] = evnt.facic_id
             self.get_form_class().base_fields["data_csv"].required = True
             self.get_form_class().base_fields["trof_id"].required = False
+            self.get_form_class().base_fields["pickc_id"].required = False
 
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
@@ -282,7 +283,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
-                data_types = ((None, "---------"), (0, 'Temperature'), (1, 'Picks'),
+                data_types = ((-1, "---------"), (0, 'Temperature'), (1, 'Picks'),
                               (2, 'Initial'), (3, 'Heath Unit Transfer'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))

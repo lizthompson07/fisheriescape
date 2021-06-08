@@ -18,7 +18,7 @@ class SpawningParser(DataParser):
     prio_key_f = "Pri. F"
     prio_key_m = "Pri. M"
     prio_key_pair = "Pri."
-    tray_key = "Tray #"
+    cross_key = "Tray #"
     comment_key_f = "Comments, F"
     comment_key_m = "Comments, M"
     comment_key_pair = "Comments"
@@ -86,7 +86,7 @@ class SpawningParser(DataParser):
                                   name__iexact=prio_dict[row[self.prio_key_f]]).get(),
                               pair_prio_id=models.PriorityCode.objects.filter(
                                   name__iexact=prio_dict[row[self.prio_key_pair]]).get(),
-                              cross=row[self.tray_key],
+                              cross=row[self.cross_key],
                               valid=True,
                               indv_id=indv_female,
                               comments=utils.nan_to_none(row[self.comment_key_pair]),
@@ -187,7 +187,7 @@ class SpawningParser(DataParser):
 
 
 class MactaquacSpawningParser(SpawningParser):
-    pass
+    cross_key = "Cross"
 
 
 class ColdbrookSpawningParser(SpawningParser):

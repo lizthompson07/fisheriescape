@@ -20,13 +20,14 @@ class EDInitParser(DataParser):
     stock_key = "Stock"
     trof_key = "Trough"
     cross_key = "Cross"
+    tray_key = "Tray"
     fecu_key = "Fecundity"
     crew_key = "Crew"
     comment_key = "Comments"
 
     header = 2
     sheet_name = "Init"
-    converters = {trof_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -55,7 +56,7 @@ class EDInitParser(DataParser):
         grp_id = anix_id.grp_id
         self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
 
-        tray_id = utils.create_tray(row["trof_id"], row[self.cross_key], row_date, cleaned_data)
+        tray_id = utils.create_tray(row["trof_id"], row[self.tray_key], row_date, cleaned_data)
         contx, contx_entered = utils.enter_contx(tray_id, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
         self.row_entered += contx_entered
 
@@ -78,17 +79,20 @@ class EDPickParser(DataParser):
     stock_key = "Stock"
     trof_key = "Trough"
     cross_key = "Cross"
+    tray_key = "Tray"
     pick_key = "Pick Count"
-    pickc_key = "Pick Type"
     crew_key = "Crew"
     comment_key = "Comments"
 
+    pickc_id = None
     header = 2
     sheet_name = "Picking"
-    converters = {trof_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
+
+        self.pickc_id = cleaned_data["pickc_id"]
 
         trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
         len(trof_qs)  # force eval of lazy qs
@@ -112,11 +116,11 @@ class EDPickParser(DataParser):
         anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
                                                       grp_id__isnull=False).select_related('grp_id').get()
         grp_id = anix_id.grp_id
-        tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.cross_key]).get()
+        tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.tray_key]).get()
         perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
 
         self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[self.pick_key], row_date,
-                                                    row[self.pickc_key], perc_list[0])
+                                                    self.pickc_id.name, perc_list[0])
         for inits in inits_not_found:
             self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
@@ -128,6 +132,7 @@ class EDHUParser(DataParser):
     stock_key = "Stock"
     trof_key = "Trough"
     cross_key = "Cross"
+    tray_key = "Tray"
     prog_key = "Program"
     cnt_key = "Count"
     weight_key = "Weight (g)"
@@ -139,7 +144,7 @@ class EDHUParser(DataParser):
 
     header = 2
     sheet_name = "HU Transfer"
-    converters = {trof_key: str, cross_key: str, cont_key:str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {trof_key: str, cross_key: str, tray_key: str, cont_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -161,7 +166,7 @@ class EDHUParser(DataParser):
         # get tray, group, and row date
         row_date = utils.get_row_date(row)
 
-        tray_qs = models.Tray.objects.filter(trof_id=row["trof_id"], name=row[self.cross_key])
+        tray_qs = models.Tray.objects.filter(trof_id=row["trof_id"], name=row[self.tray_key])
         tray_id = tray_qs.filter(Q(start_date__lte=row_date, end_date__gte=row_date) | Q(end_date__isnull=True)).get()
         pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
                                                 indv_id__stok_id=row["stok_id"]).get()
@@ -236,7 +241,7 @@ class EDHUParser(DataParser):
                 cnt_contx.save()
             except IntegrityError:
                 cnt_contx = models.ContainerXRef.objects.filter(pk=cup_contx.pk).get()
-            self.data_entered += utils.enter_anix(move_cleaned_data, grp_pk=final_grp.pk, contx_pk=cnt_contx.pk)
+            self.row_entered += utils.enter_anix(move_cleaned_data, grp_pk=final_grp.pk, contx_pk=cnt_contx.pk)
             # add the positive counts
             cnt = utils.enter_cnt(move_cleaned_data, row[self.cnt_key], cnt_contx.pk, cnt_code="Eggs Added", )[0]
             if utils.nan_to_none(self.weight_key):

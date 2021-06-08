@@ -19,7 +19,7 @@ class MasterIndvParser(DataParser):
 
     header = 2
     sheet_name = "Individual"
-    converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {tank_key: str, pit_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     salmon_id = None
     sex_anidc_id = None
