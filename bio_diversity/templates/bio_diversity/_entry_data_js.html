@@ -6,7 +6,7 @@
     };
 
     $("#submit_btn").click(function (e) {
-        show = {% if form.errors %} true {% else %} false {% endif %}
+        show = {% if form.errors %} false {% else %} true {% endif %};
         if ( show )  {
             setLoadingGif();
         }

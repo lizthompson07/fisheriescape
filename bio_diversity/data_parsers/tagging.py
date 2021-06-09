@@ -102,6 +102,9 @@ class TaggingParser(DataParser):
             out_tank = models.Tank.objects.filter(name=row[self.to_tank_key]).get()
             self.row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
                                                       indv_pk=indv.pk)
+            # if tagged fish goes back into same tank, still link fish to tank:
+            if in_tank == out_tank:
+                utils.enter_contx(in_tank, cleaned_data, True, indv_pk=indv.pk)
 
         anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
@@ -174,7 +177,7 @@ class MactaquacTaggingParser(TaggingParser):
 class ColdbrookTaggingParser(TaggingParser):
     box_key = "Box"
     location_key = "Location"
-    precocity_key = "Precocity (1/0)"
+    precocity_key = "pp"
 
     box_anidc_id = None
     boxl_anidc_id = None

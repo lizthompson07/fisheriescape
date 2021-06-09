@@ -162,6 +162,7 @@ class EDShockingParser(EDPickParser):
                              anidc_str="Development")
             self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
 
+
 # ED = egg development
 # HU = Heath Unit
 class EDHUParser(DataParser):
@@ -179,8 +180,13 @@ class EDHUParser(DataParser):
     crew_key = "Crew"
     comment_key = "Comments"
 
+    end_trof_key = "End Trough"
+    end_tray_key = "End Tray"
+    heatl_key = "Heath Unit Location"
+    tank_key = "Tank"
+
     header = 2
-    sheet_name = "HU Transfer"
+    sheet_name = "Transfer"
     converters = {trof_key: str, cross_key: str, tray_key: str, cont_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def data_preper(self):
@@ -230,7 +236,19 @@ class EDHUParser(DataParser):
                                             cnt_code="HU Transfer Loss")[1]
 
         # generate new group, cup, and movement event:
-        cont = utils.get_cont_from_dot(row[self.cont_key], cleaned_data, row_date)
+        cont = None
+        if utils.nan_to_none(row[self.end_tray_key]):
+            trof_id = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"], name=row[self.end_trof_key]).get()
+            tray_qs = models.Tray.objects.filter(trof_id=trof_id, name=row[self.tray_key])
+            cont = tray_qs.filter(
+                Q(start_date__lte=row_date, end_date__gte=row_date) | Q(end_date__isnull=True)).get()
+        elif utils.nan_to_none(row[self.end_trof_key]):
+            cont = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"], name=row[self.end_trof_key]).get()
+        elif utils.nan_to_none(row[self.heatl_key]):
+            cont = utils.get_cont_from_dot(row[self.cont_key], cleaned_data, row_date)
+        elif utils.nan_to_none(row[self.tank_key]):
+            cont = models.Tank.objects.filter(facic_id=cleaned_data["facic_id"], name=row[self.tank_key])
+
         self.row_entered += utils.enter_contx(cont, cleaned_data)
         if not utils.y_n_to_bool(row[self.final_key]):
             # NEW GROUPS TAKEN FROM INITIAL
@@ -265,20 +283,20 @@ class EDHUParser(DataParser):
                                                  anidc_str="Development")
 
             # create movement for the new group, create 2 contx's and 3 anix's
-            # cup contx is contx used tyo link the positive counts
-            cup_contx = utils.create_egg_movement_evnt(tray_id, cont, cleaned_data, row_date, final_grp.pk,
+            # cup contx is contx used to link the positive counts
+            cont_contx = utils.create_egg_movement_evnt(tray_id, cont, cleaned_data, row_date, final_grp.pk,
                                                        return_cup_contx=True)
 
             move_cleaned_data = cleaned_data.copy()
-            move_cleaned_data["evnt_id"] = cup_contx.evnt_id
-            cnt_contx = cup_contx
+            move_cleaned_data["evnt_id"] = cont_contx.evnt_id
+            cnt_contx = cont_contx
             cnt_contx.pk = None
             cnt_contx.tray_id = tray_id
             try:
                 cnt_contx.save()
             except IntegrityError:
-                cnt_contx = models.ContainerXRef.objects.filter(pk=cup_contx.pk).get()
-            self.row_entered += utils.enter_anix(move_cleaned_data, grp_pk=final_grp.pk, contx_pk=cnt_contx.pk)
+                cnt_contx = models.ContainerXRef.objects.filter(pk=cont_contx.pk).get()
+            self.row_entered += utils.enter_anix(move_cleaned_data, grp_pk=final_grp.pk, contx_pk=cnt_contx.pk, return_sucess=True)
             # add the positive counts
             cnt = utils.enter_cnt(move_cleaned_data, row[self.cnt_key], cnt_contx.pk, cnt_code="Eggs Added", )[0]
             if utils.nan_to_none(self.weight_key):
@@ -286,9 +304,8 @@ class EDHUParser(DataParser):
             utils.enter_cnt_det(move_cleaned_data, cnt, row[self.cnt_key], "Program Group", row[self.prog_key])
         else:
             # Move main group to drawer, and add end date to tray:
-            draw = utils.get_draw_from_dot(str(row[self.cont_key]), cleaned_data)
-            if draw:
-                end_contx = utils.create_movement_evnt(tray_id, draw, cleaned_data, row_date,
+            if cont:
+                end_contx = utils.create_movement_evnt(tray_id, cont, cleaned_data, row_date,
                                                        grp_pk=grp_id.pk, return_end_contx=True)
                 tray_id.end_date = row_date
                 tray_id.save()
@@ -296,7 +313,7 @@ class EDHUParser(DataParser):
                                           cnt_code="Egg Count")[0]
                 utils.enter_cnt_det(cleaned_data, end_cnt, row[self.weight_key], "Weight")
             else:
-                self.log_data += "\n Draw {} from {} not found".format(draw, row[self.cont_key])
+                self.log_data += "\n Draw {} from {} not found".format(cont, row[self.cont_key])
 
             # link cup to egg development event
             utils.enter_contx(cont, cleaned_data, None)
