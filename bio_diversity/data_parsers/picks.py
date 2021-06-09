@@ -80,19 +80,20 @@ class EDPickParser(DataParser):
     trof_key = "Trough"
     cross_key = "Cross"
     tray_key = "Tray"
-    pick_key = "Pick Count"
     crew_key = "Crew"
     comment_key = "Comments"
 
-    pickc_id = None
     header = 2
     sheet_name = "Picking"
+    shocking =False
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
 
-        self.pickc_id = cleaned_data["pickc_id"]
+        for pickc_id in cleaned_data["pickc_id"]:
+            if pickc_id.name not in self.data.keys():
+                raise Exception("No column named {} in worksheet to match pick types choices".format(pickc_id.name))
 
         trof_qs = models.Trough.objects.filter(facic_id=cleaned_data["facic_id"])
         len(trof_qs)  # force eval of lazy qs
@@ -119,10 +120,17 @@ class EDPickParser(DataParser):
         tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True, name=row[self.tray_key]).get()
         perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
 
-        self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[self.pick_key], row_date,
-                                                    self.pickc_id.name, perc_list[0])
+        for pickc_id in cleaned_data["pickc_id"]:
+            if utils.nan_to_none(row[pickc_id.name]):
+                self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
+                                                            row_date, pickc_id.name, perc_list[0], self.shocking)
         for inits in inits_not_found:
             self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
+
+
+class EDShockingParser(EDPickParser):
+    shocking = True
+    sheet_name = "Shocking"
 
 
 # ED = egg development

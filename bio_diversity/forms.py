@@ -17,7 +17,7 @@ from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
 from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
-from bio_diversity.data_parsers.picks import EDInitParser, EDPickParser, EDHUParser
+from bio_diversity.data_parsers.picks import EDInitParser, EDPickParser, EDHUParser, EDShockingParser
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
 from bio_diversity.data_parsers.temperatures import TemperatureParser
@@ -288,7 +288,7 @@ class DataForm(CreatePrams):
     data_types = (None, '---------')
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
-    pickc_id = forms.ModelChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
+    pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
@@ -374,6 +374,8 @@ class DataForm(CreatePrams):
                     parser = EDInitParser(cleaned_data)
                 elif cleaned_data["data_type"] == "3":
                     parser = EDHUParser(cleaned_data)
+                elif cleaned_data["data_type"] == "4":
+                    parser = EDShockingParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # ------------------------------MEASURING----------------------------------------

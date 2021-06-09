@@ -367,12 +367,26 @@ class ContainerXRef(BioModel):
         ]
 
     def __str__(self):
-        return "Container X Ref for {}".format(self.evnt_id.__str__())
+        return "{}-{}".format(self.evnt_id.__str__(), self.container)
 
     def clean(self):
         super(ContainerXRef, self).clean()
         if not (self.tank_id or self.tray_id or self.trof_id or self.heat_id or self.draw_id or self.cup_id):
             raise ValidationError("You must specify at least one container to reference to the event")
+
+    @property
+    def container(self):
+        cnt = 0
+        cont = None
+        for cont_id in [self.cup_id, self.draw_id, self.tray_id, self.tank_id, self.trof_id, self.heat_id]:
+            if cont_id:
+                cont = cont_id
+                cnt += 1
+        if cnt == 1:
+            return cont
+        else:
+            return None
+
 
 
 class Count(BioModel):
@@ -858,8 +872,8 @@ class Group(BioModel):
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
             .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
-        absolute_codes = ["Egg Count", "Fish Count" ]
-        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added", "Fish Caught"]
+        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", ]
+        add_codes = ["Fish in Container", "Photo Count", "Eggs Added", "Fish Caught"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
                           "Fish Removed from Container", "Fish Distributed"]
 

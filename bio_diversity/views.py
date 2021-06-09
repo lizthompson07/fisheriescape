@@ -284,7 +284,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((-1, "---------"), (0, 'Temperature'), (1, 'Picks'),
-                              (2, 'Initial'), (3, 'Heath Unit Transfer'))
+                              (2, 'Initial'), (3, 'Heath Unit Transfer'), (4, 'Shocking'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
@@ -1173,8 +1173,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         cnt_set = models.Count.objects.filter(Q(contx_id__animal_details__grp_id=self.object) |
                                               Q(loc_id__animal_details__grp_id=self.object))\
-            .distinct().select_related("cntc_id", "loc_id__relc_id")
-        cnt_field_list = ["cntc_id", "loc_id.relc_id", "cnt", "est", "date"]
+            .distinct().select_related("cntc_id", "loc_id__relc_id", "contx_id")
+        cnt_field_list = ["cntc_id", "loc_id.relc_id", "contx_id.container.name|Container", "cnt", "est", "date"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "Counts",
                                           "sub_model_key": obj_mixin.key,

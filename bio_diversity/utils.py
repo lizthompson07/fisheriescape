@@ -539,11 +539,15 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, ret
         return row_entered
 
 
-def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id):
+def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False):
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
+    if shocking:
+        evntc_id = models.EventCode.objects.filter(name="Shocking").get()
+    else:
+        evntc_id = models.EventCode.objects.filter(name="Picking").get()
 
-    pick_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Picking").get(),
+    pick_evnt = models.Event(evntc_id=evntc_id,
                              facic_id=cleaned_data["evnt_id"].facic_id,
                              perc_id=perc_id,
                              prog_id=cleaned_data["evnt_id"].prog_id,
