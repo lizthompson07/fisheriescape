@@ -6,7 +6,10 @@
     };
 
     $("#submit_btn").click(function (e) {
-        setLoadingGif();
+        show = {% if form.errors %} true {% else %} false {% endif %}
+        if ( show )  {
+            setLoadingGif();
+        }
     })
 
     function setLoadingGif() {

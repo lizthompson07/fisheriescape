@@ -11,7 +11,6 @@ from django.db.models import Q
 
 from bio_diversity import models
 from bio_diversity import utils
-from bio_diversity.static.calculation_constants import yes_values
 from bio_diversity.utils import DataParser
 
 
@@ -85,7 +84,6 @@ class EDPickParser(DataParser):
 
     header = 2
     sheet_name = "Picking"
-    shocking =False
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     def data_preper(self):
@@ -123,15 +121,46 @@ class EDPickParser(DataParser):
         for pickc_id in cleaned_data["pickc_id"]:
             if utils.nan_to_none(row[pickc_id.name]):
                 self.row_entered += utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
-                                                            row_date, pickc_id.name, perc_list[0], self.shocking)
+                                                            row_date, pickc_id.name, perc_list[0])
         for inits in inits_not_found:
             self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
 
 class EDShockingParser(EDPickParser):
-    shocking = True
     sheet_name = "Shocking"
 
+    def row_parser(self, row):
+        cleaned_data = self.cleaned_data
+        row_date = utils.get_row_date(row)
+        self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
+        pair_id = models.Pairing.objects.filter(cross=row[self.cross_key], end_date__isnull=True,
+                                                indv_id__stok_id=row["stok_id"]).get()
+
+        anix_id = models.AniDetailXref.objects.filter(pair_id=pair_id,
+                                                      grp_id__isnull=False).select_related('grp_id').get()
+        grp_id = anix_id.grp_id
+        tray_id = models.Tray.objects.filter(trof_id=row["trof_id"], end_date__isnull=True,
+                                             name=row[self.tray_key]).get()
+        perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
+
+        grp_anix = None
+        for pickc_id in cleaned_data["pickc_id"]:
+            if utils.nan_to_none(row[pickc_id.name]):
+                grp_anix, evnt_entered = utils.create_picks_evnt(cleaned_data, tray_id, grp_id.pk, row[pickc_id.name],
+                                                                 row_date, pickc_id.name, perc_list[0], shocking=True,
+                                                                 return_anix=True)
+                self.row_entered += evnt_entered
+        for inits in inits_not_found:
+            self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
+
+        # record development
+        if grp_anix:
+            pick_evnt_cleaned_data = cleaned_data.copy()
+            pick_evnt_cleaned_data["evnt_id"] = grp_anix.evnt_id
+            dev_at_pick = grp_id.get_development(row_date)
+            utils.enter_grpd(grp_anix.pk, pick_evnt_cleaned_data, row_date, dev_at_pick, None,
+                             anidc_str="Development")
+            self.row_entered += utils.enter_contx(row["trof_id"], cleaned_data)
 
 # ED = egg development
 # HU = Heath Unit
@@ -203,7 +232,7 @@ class EDHUParser(DataParser):
         # generate new group, cup, and movement event:
         cont = utils.get_cont_from_dot(row[self.cont_key], cleaned_data, row_date)
         self.row_entered += utils.enter_contx(cont, cleaned_data)
-        if not utils.nan_to_none(row[self.final_key]) in yes_values:
+        if not utils.y_n_to_bool(row[self.final_key]):
             # NEW GROUPS TAKEN FROM INITIAL
             out_cnt = utils.enter_cnt(cleaned_data, 0, hu_contx.pk, cnt_code="Eggs Removed")[0]
             utils.enter_cnt_det(cleaned_data, out_cnt, row[self.cnt_key], "Program Group", row[self.prog_key])

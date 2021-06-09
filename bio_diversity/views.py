@@ -1173,7 +1173,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         cnt_set = models.Count.objects.filter(Q(contx_id__animal_details__grp_id=self.object) |
                                               Q(loc_id__animal_details__grp_id=self.object))\
-            .distinct().select_related("cntc_id", "loc_id__relc_id", "contx_id")
+            .distinct().select_related("cntc_id", "loc_id__relc_id", *utils.contx_conts)
         cnt_field_list = ["cntc_id", "loc_id.relc_id", "contx_id.container.name|Container", "cnt", "est", "date"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "Counts",
@@ -1224,7 +1224,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         anix_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
                                                      indvt_id__isnull=True, pair_id__isnull=False).select_related('pair_id')
         pair_list = [anix.pair_id for anix in anix_set]
-        pair_field_list = ["start_date", "indv_id", "prio_id"]
+        pair_field_list = ["start_date", "indv_id", "cross", "prio_id"]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,

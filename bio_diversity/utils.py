@@ -12,6 +12,10 @@ from bio_diversity import models
 from bio_diversity.static.calculation_constants import *
 
 
+contx_conts = ["contx_id__cup_id", "contx_id__draw_id", "contx_id__heat_id", "contx_id__tank_id", "contx_id__tray_id",
+               "contx_id__trof_id"]
+
+
 class DataParser:
 
     # values to explain the results of parsing
@@ -539,7 +543,7 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, ret
         return row_entered
 
 
-def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False):
+def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False, return_anix=False):
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
     if shocking:
@@ -569,14 +573,17 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
                                                 ).get()
 
     new_cleaned_data["evnt_id"] = pick_evnt
+    anix = None
     if grp_pk:
-        enter_anix(new_cleaned_data, grp_pk=grp_pk)
+        anix = enter_anix(new_cleaned_data, grp_pk=grp_pk, return_anix=True)
     contx, data_entered = enter_contx(tray, new_cleaned_data, None, grp_pk=grp_pk, return_contx=True)
     if contx:
         row_entered = True
         enter_cnt(cleaned_data, pick_cnt, contx_pk=contx.pk, cnt_code=cnt_code)
-
-    return row_entered
+    if return_anix:
+        return anix, row_entered
+    else:
+        return row_entered
 
 
 def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None, return_team=False):
@@ -1350,7 +1357,7 @@ def y_n_to_bool(test_item):
             return False
         elif test_item:
             return True
-    elif test_item.upper() == "Y":
+    elif test_item.upper() in ["Y", "y", "Yes", 1, "1"]:
         return True
     else:
         return False
