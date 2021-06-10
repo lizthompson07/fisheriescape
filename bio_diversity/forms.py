@@ -301,8 +301,13 @@ class DataForm(CreatePrams):
     def clean(self):
         cleaned_data = super().clean()
 
+        if cleaned_data["data_type"] == '0':
+            if cleaned_data["trof_id"] is None:
+                self.add_error("trof_id", "Field Cannot Be Empty")
+
         if not self.is_valid():
             return cleaned_data
+
         log_data = ""
         success = False
         parser = None

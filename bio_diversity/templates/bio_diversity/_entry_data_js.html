@@ -5,11 +5,8 @@
       $("#loading_fish").hide();
     };
 
-    $("#submit_btn").click(function (e) {
-        show = {% if form.errors %} false {% else %} true {% endif %};
-        if ( show )  {
-            setLoadingGif();
-        }
+    $('form').on('submit', function(e){
+        setLoadingGif();
     })
 
     function setLoadingGif() {
@@ -24,7 +21,6 @@
     function setDataFields() {
         var e = document.getElementById("id_data_type");
         var dataType = e.value;
-        console.log(dataType)
         if ( dataType==0 ) {
             $("#id_trof_id").parent().show();
             $("#id_pickc_id").parent().hide();

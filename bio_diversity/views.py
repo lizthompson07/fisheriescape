@@ -282,6 +282,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
+                self.get_form_class().base_fields["pickc_id"].widget = forms.SelectMultiple(
+                    attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
                 data_types = ((-1, "---------"), (0, 'Temperature'), (1, 'Picks'),
                               (2, 'Initial'), (3, 'Heath Unit Transfer'), (4, 'Shocking'))
