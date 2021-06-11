@@ -167,13 +167,9 @@ def generate_detail_report(adsc_id):
     indvd_set = models.IndividualDet.objects.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False).\
         select_related("anix_id__indv_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id",)
     indv_list = list(dict.fromkeys([indvd.anix_id.indv_id for indvd in indvd_set]))
-    indvd_set = models.IndividualDet.objects.filter(adsc_id=adsc_id, anix_id__grp_id__isnull=False).\
-        select_related("anix_id__grp_id", "anix_id__grp_id__stok_id", "anix_id__grp_id__coll_id",)
     sampd_set = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id__isnull=False).\
         select_related("samp_id__anix_id__grp_id", "samp_id__anix_id__grp_id__stok_id", "samp_id__anix_id__grp_id__coll_id",)
-    grp_list = list(dict.fromkeys([indvd.anix_id.grp_id for indvd in indvd_set]))
-    grp_samp_list = list(dict.fromkeys([sampd.samp_id.anix_id.grp_id for sampd in sampd_set]))
-    grp_list.extend(grp_samp_list)
+    grp_list = list(dict.fromkeys([sampd.samp_id.anix_id.grp_id for sampd in sampd_set]))
 
     wb = load_workbook(filename=template_file_path)
 
@@ -211,6 +207,15 @@ def generate_detail_report(adsc_id):
         ws_grp['B' + str(row_count)].value = item.grp_year
         ws_grp['C' + str(row_count)].value = item.coll_id.name
         ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+        ws_grp['E' + str(row_count)].value = item.grp_valid
+
+        sampd_qs = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id=item).order_by("-detail_date")
+        ws_grp['F' + str(row_count)].value = len(sampd_qs)
+        ws_grp['G' + str(row_count)].value = sampd_qs.first().detail_date
+        ws_grp['H' + str(row_count)].value = sampd_qs.last().detail_date
+        ws_grp['I' + str(row_count)].value = sampd_qs.first().samp_id.anix_id.evnt_id.__str__()
+        ws_grp['J' + str(row_count)].value = sampd_qs.last().samp_id.anix_id.evnt_id.__str__()
+        row_count += 1
 
     wb.save(target_file_path)
 

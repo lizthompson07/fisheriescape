@@ -392,6 +392,19 @@ def comment_parser(comment_str, anix_indv, det_date):
     return parsed, data_entered
 
 
+def samp_comment_parser(comment_str, cleaned_data, samp_pk, det_date):
+    data_entered = False
+    com_key_dict = get_comment_keywords_dict()
+    parser_list = com_key_dict.keys()
+    parsed = False
+    for term in parser_list:
+        if term.lower() in comment_str.lower():
+            parsed = True
+            adsc = com_key_dict[term]
+            data_entered = enter_sampd(samp_pk, cleaned_data, det_date, adsc.name, adsc.anidc_id.pk, adsc_str=adsc.name)
+    return parsed, data_entered
+
+
 def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None, return_end_contx=False):
     row_entered = False
     end_contx = False

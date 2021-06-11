@@ -31,8 +31,10 @@
             $("#id_trof_id").parent().hide();
 
         }
-        else  {
-            $("#id_trof_id").parent().hide();
+        else if ( dataType==2 || dataType==3 || dataType==-1 ) {
+            if ( $(id_trof_id).parent().is(":visible")) {
+                $("#id_trof_id").parent().hide();
+            }
             $("#id_pickc_id").parent().hide();
         }
     }
