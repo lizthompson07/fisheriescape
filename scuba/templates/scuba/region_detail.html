@@ -78,8 +78,7 @@
   <script type="application/javascript">
   function initialize() {
     map = new L.Map("map", {
-      center: new L.LatLng({{ object.sites.first.get_coordinates.x }}, {{ object.sites.first.get_coordinates.y }}),
-      zoom: 14,
+      zoom: 10,
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -87,10 +86,9 @@
     }).addTo(map)
 
     var coords = [];
-
     {% for site in object.sites.all %}
       {% if site.get_coordinates %}
-        latLong = [{{site.latitude}}, {{ site.longitude }}]
+        latLong = [{{site.get_coordinates.x}}, {{ site.get_coordinates.y }}];
         L.marker(
             latLong, {title: '{{site}}',}
         ).addTo(map).bindPopup("<b>Site name:</b> {{site.name}}");
@@ -99,6 +97,7 @@
     {% endfor %}
 
     map.fitBounds(coords);
+    if(coords.length === 1) map.setZoom(12);
 
   }
 
