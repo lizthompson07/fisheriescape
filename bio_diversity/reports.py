@@ -151,6 +151,72 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     return target_url
 
 
+def generate_detail_report(adsc_id):
+    # report is given an animal detail subjective code (skinny/precocious) and returns
+    # all fish with that detail
+    # group and that detail count
+    # container breakdown of the detail
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
+                                      "detail_report_template.xlsx")
+    indvd_set = models.IndividualDet.objects.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False).\
+        select_related("anix_id__indv_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id",)
+    indv_list = list(dict.fromkeys([indvd.anix_id.indv_id for indvd in indvd_set]))
+    indvd_set = models.IndividualDet.objects.filter(adsc_id=adsc_id, anix_id__grp_id__isnull=False).\
+        select_related("anix_id__grp_id", "anix_id__grp_id__stok_id", "anix_id__grp_id__coll_id",)
+    sampd_set = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id__isnull=False).\
+        select_related("samp_id__anix_id__grp_id", "samp_id__anix_id__grp_id__stok_id", "samp_id__anix_id__grp_id__coll_id",)
+    grp_list = list(dict.fromkeys([indvd.anix_id.grp_id for indvd in indvd_set]))
+    grp_samp_list = list(dict.fromkeys([sampd.samp_id.anix_id.grp_id for sampd in sampd_set]))
+    grp_list.extend(grp_samp_list)
+
+    wb = load_workbook(filename=template_file_path)
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws_indv = wb['Individuals']
+    ws_grp = wb['Groups']
+
+    ws_indv['A1'].value = "Detail: {}".format(adsc_id.name)
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in indv_list:
+        ws_indv['A' + str(row_count)].value = item.pit_tag
+        ws_indv['B' + str(row_count)].value = item.stok_id.name
+        ws_indv['C' + str(row_count)].value = item.indv_year
+        ws_indv['D' + str(row_count)].value = item.coll_id.name
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+        ws_indv['F' + str(row_count)].value = item.individual_detail("Gender")
+        ws_indv['G' + str(row_count)].value = item.indv_valid
+
+        indvd_qs = models.IndividualDet.objects.filter(adsc_id=adsc_id, anix_id__indv_id=item).order_by("-detail_date")
+        ws_indv['H' + str(row_count)].value = len(indvd_qs)
+        ws_indv['I' + str(row_count)].value = indvd_qs.first().detail_date
+        ws_indv['J' + str(row_count)].value = indvd_qs.last().detail_date
+        ws_indv['K' + str(row_count)].value = indvd_qs.first().anix_id.evnt_id.__str__()
+        ws_indv['L' + str(row_count)].value = indvd_qs.last().anix_id.evnt_id.__str__()
+
+        row_count += 1
+
+    ws_grp['A1'].value = "Detail: {}".format(adsc_id.name)
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in grp_list:
+        ws_grp['A' + str(row_count)].value = item.stok_id.name
+        ws_grp['B' + str(row_count)].value = item.grp_year
+        ws_grp['C' + str(row_count)].value = item.coll_id.name
+        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
 def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
     cnt_slots = "GHIJKLMNOPQRSTUV"
     grps = [(anix.grp_id.__str__(), anix.grp_id.prog_group(get_string=True)) for anix in

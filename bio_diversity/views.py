@@ -3125,6 +3125,9 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}&on_date={form.cleaned_data['on_date']}")
             else:
                 return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}")
+        elif report == 3:
+            adsc_pk = int(form.cleaned_data["adsc_id"].pk)
+            return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("bio_diversity:reports"))
@@ -3163,6 +3166,22 @@ def stock_code_report(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dmapps stock codes report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
+            return response
+    raise Http404
+
+
+@login_required()
+def detail_report(request):
+    adsc_pk = request.GET.get("adsc_pk")
+    adsc_id = models.AniDetSubjCode.objects.filter(pk=adsc_pk).get()
+    file_url = None
+    if adsc_id:
+        file_url = reports.generate_detail_report(adsc_id)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps details report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404
 
@@ -3404,3 +3423,4 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         if form.cleaned_data.get("rive_id"):
             kwarg_dict["rive_id"] = form.cleaned_data.get("rive_id").name
         return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs=kwarg_dict))
+

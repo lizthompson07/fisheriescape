@@ -1021,6 +1021,7 @@ class ReportForm(forms.Form):
         (None, "------"),
         (1, "Facility Tanks Report (xlsx)"),
         (2, "River Code Report Report (xlsx)"),
+        (3, "Details Report (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     facic_id = forms.ModelChoiceField(required=False,
@@ -1029,6 +1030,9 @@ class ReportForm(forms.Form):
     stok_id = forms.ModelChoiceField(required=False,
                                      queryset=models.StockCode.objects.all(),
                                      label=_("Stock Code"))
+    adsc_id = forms.ModelChoiceField(required=False,
+                                     queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),
+                                     label=_("Search Detail"))
     on_date = forms.DateField(required=False, label=_("Report Date"))
 
     def __init__(self, *args, **kwargs):
