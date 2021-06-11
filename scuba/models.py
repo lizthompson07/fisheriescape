@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
@@ -7,7 +8,7 @@ from shapely.geometry import MultiPoint, Point
 
 from scuba.utils import calc_nautical_dist
 from shared_models import models as shared_models
-from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup
+from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, MetadataFields
 from shared_models.utils import decdeg2dm, dm2decdeg
 
 
@@ -191,7 +192,7 @@ class Sample(models.Model):
         return reverse("scuba:sample_detail", args=[self.pk])
 
 
-class Dive(models.Model):
+class Dive(MetadataFields):
     heading_choices = (
         ('n', _("North")),
         ('ne', _("Northeast")),
@@ -241,7 +242,7 @@ class Dive(models.Model):
             return round(dist * 1852, 2)
 
 
-class Section(models.Model):
+class Section(MetadataFields):
     interval_choices = (
         (1, "1 (0-5m)"),
         (2, "2 (5-10m)"),
@@ -311,7 +312,7 @@ class Section(models.Model):
         return mark_safe(my_str)
 
 
-class Observation(models.Model):
+class Observation(MetadataFields):
     sex_choices = (
         ('u', _("0 - unknown")),
         ('m', _("1 - male")),
@@ -334,6 +335,9 @@ class Observation(models.Model):
     carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
     certainty_rating = models.IntegerField(verbose_name=_("length certainty"), default=1, choices=certainty_rating_choices)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='scuba_obs_created_by')
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='scuba_obs_updated_by')
 
     @property
     def sex_special_display(self):

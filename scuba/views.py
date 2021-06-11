@@ -362,9 +362,7 @@ class DiveCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
         sample = self.get_sample()
         return dict(
             sample=sample.id,
-            start_descent=sample.datetime,
-            start_final_ascent=sample.datetime,
-            reach_surface=sample.datetime,
+            start_descent=sample.datetime.strftime("%Y-%m-%dT")+"08:00",
         )
 
     def get_sample(self):
@@ -380,6 +378,7 @@ class DiveCreateView(ScubaCRUDAccessRequiredMixin, CommonCreateView):
         obj = form.save(commit=False)
         sample = self.get_sample()
         obj.sample = sample
+        obj.created_by = self.request.user
         return super().form_valid(form)
 
 
@@ -397,6 +396,10 @@ class DiveUpdateView(ScubaCRUDAccessRequiredMixin, CommonUpdateView):
     def get_grandparent_crumb(self):
         return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
 
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
 
 class DiveDeleteView(ScubaCRUDAccessRequiredMixin, CommonDeleteView):
     model = models.Dive
@@ -432,6 +435,7 @@ class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
         'side',
         'width_m',
         'comment',
+        'metadata',
     ]
 
     def get_parent_crumb(self):
