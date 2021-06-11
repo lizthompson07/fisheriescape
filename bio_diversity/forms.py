@@ -520,6 +520,7 @@ class FeedHandlerForm(forms.Form):
     feedc_id = forms.ModelChoiceField(required=True, queryset=models.FeedCode.objects.all(), label=_("Feed Type"))
     feedm_id = forms.ModelChoiceField(required=True, queryset=models.FeedMethod.objects.all(), label=_("Feeding Method"))
     amt = forms.DecimalField(required=True, label=_("Feed Size"))
+    freq = forms.CharField(required=False, max_length=32, label=_("Feed Frequency"))
 
     facic_id = forms.ModelChoiceField(required=True, queryset=models.FacilityCode.objects.all())
     created_date = forms.DateField(required=True)
@@ -545,7 +546,7 @@ class FeedHandlerForm(forms.Form):
             cleaned_data["evnt_id"] = utils.create_feed_evnt(cleaned_data)
             contx_id, entered = utils.enter_contx(self.cont, cleaned_data, return_contx=True)
             feed_entered = utils.enter_feed(cleaned_data, contx_id, cleaned_data["feedc_id"], cleaned_data["feedm_id"],
-                                            cleaned_data["amt"])
+                                            cleaned_data["amt"], freq=cleaned_data["freq"])
             if not feed_entered:
                 raise ValidationError("Feeding instance not entered")
         return cleaned_data

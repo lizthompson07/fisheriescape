@@ -62,6 +62,10 @@ class DataParser:
         except Exception as err:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
             self.success = False
+        if self.data is None:
+            self.log_data += "\n No data in file.  Possible reasons include: incorrect sheet name or incorrect number" \
+                             " of lines above the header row, which should be {}.".format(self.header)
+            self.success = False
 
     def data_reader(self):
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
@@ -813,9 +817,9 @@ def enter_feed(cleaned_data, contx_id, feedc_id, feedm_id, amt, comments=None, f
                           feedc_id=feedc_id,
                           lot_num=lot_num,
                           amt=amt,
+                          freq=freq,
                           unit_id=models.UnitCode.objects.filter(name="Feed Size").get(),
                           comments=comments,
-                          freq=freq,
                           created_by=cleaned_data["created_by"],
                           created_date=cleaned_data["created_date"],
                           )
