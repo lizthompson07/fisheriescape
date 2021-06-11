@@ -4,7 +4,6 @@ from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.templatetags.static import static
 from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy, gettext as _
 
@@ -12,7 +11,7 @@ from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from shared_models.models import River
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFormView, CommonUpdateView, CommonCreateView, \
-    CommonDeleteView, CommonDetailView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView
+    CommonDeleteView, CommonDetailView, CommonFilterView
 from . import filters
 from . import forms
 from . import models
@@ -480,102 +479,16 @@ class SampleDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
-# OBSERVATIONS #
-################
-
-class EntryInsertView(TrapNetAccessRequiredMixin, CommonTemplateView):
-    template_name = "trapnet/obs_insert.html"
-    h1 = "Add / Modify Entries"
+class SampleDataEntryVueJSView(TrapNetAdminRequiredMixin, CommonDetailView):
+    model = models.Sample
+    template_name = 'trapnet/data_entry.html'
     home_url_name = "trapnet:index"
     grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
-
-    def get_sample(self):
-        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+    container_class = "container-fluid"
 
     def get_parent_crumb(self):
-        return {"title": self.get_sample(), "url": reverse("trapnet:sample_detail", args=[self.get_sample().id])}
+        return {"title": self.get_object(), "url": reverse("trapnet:sample_detail", args=[self.get_object().id])}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        sample = models.Sample.objects.get(pk=self.kwargs['sample'])
-        context['sample'] = sample
-
-        queryset = models.Species.objects.all()
-        # get a list of species
-        species_list = []
-        for obj in queryset:
-            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} - {} - <em>{}</em> </span>'.format(
-                reverse("trapnet:obs_new", kwargs={"sample": sample.id, "species": obj.id}),
-                static("admin/img/icon-addlink.svg"),
-                obj.code,
-                str(obj),
-                obj.scientific_name,
-            )
-            species_list.append(html_insert)
-        context['species_list'] = species_list
-        context['obs_field_list'] = [
-            'species',
-            'first_tag',
-            'last_tag',
-            'status',
-            'origin',
-            'frequency',
-            'fork_length',
-            'total_length',
-            'weight',
-            'sex',
-            'smolt_age',
-            'location_tagged',
-            'date_tagged',
-            'scale_id_number',
-            'tags_removed',
-            'notes',
-        ]
-        context['my_obs_object'] = models.Entry.objects.first()
-        return context
-
-
-class EntryCreateView(TrapNetAccessRequiredMixin, CommonPopoutCreateView):
-    model = models.Entry
-    form_class = forms.EntryForm
-
-    def get_sample(self):
-        return get_object_or_404(models.Sample, pk=self.kwargs['sample'])
-
-    def get_species(self):
-        return get_object_or_404(models.Species, pk=self.kwargs['species'])
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        species = models.Species.objects.get(id=self.kwargs['species'])
-        sample = models.Sample.objects.get(id=self.kwargs['sample'])
-        context['species'] = species
-        context['sample'] = sample
-        return context
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.sample = self.get_sample()
-        obj.species = self.get_species()
-        obj.created_by = self.request.user
-        return super().form_valid(form)
-
-
-class EntryUpdateView(TrapNetAccessRequiredMixin, CommonPopoutUpdateView):
-    model = models.Entry
-    form_class = forms.EntryForm
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.updated_by = self.request.user
-        return super().form_valid(form)
-
-
-def species_observation_delete(request, pk):
-    object = models.Entry.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, "The species has been successfully deleted from {}.".format(object.sample))
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 # REPORTS #

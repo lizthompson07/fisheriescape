@@ -49,13 +49,7 @@ urlpatterns = [
     path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
-
-    # ENTRY #
-    #########
-    path('samples/<int:sample>/entry/insert/', views.EntryInsertView.as_view(), name="obs_insert"),
-    path('samples/<int:sample>/new-entry/add/species/<int:species>/', views.EntryCreateView.as_view(), name="obs_new"),
-    path('entries/<int:pk>/edit/', views.EntryUpdateView.as_view(), name="obs_edit"),
-    path('entries/<int:pk>/delete/', views.species_observation_delete, name="obs_delete"),
+    path('samples/<int:pk>/data-entry/', views.SampleDataEntryVueJSView.as_view(), name="sample_data_entry"),
 
     # Reports #
     ###########

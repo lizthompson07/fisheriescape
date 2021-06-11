@@ -4,13 +4,24 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.timesince import timeuntil, timesince
 from django.utils.translation import gettext as _
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields
+from shared_models.models import MetadataFields, SimpleLookup
+
+
+class CodeModel(SimpleLookup):
+    code = models.CharField(max_length=5, blank=True, null=True, unique=True)
+
+    @property
+    def choice(self):
+        return f"{self.code} - {self.tname}"
+
+    class Meta:
+        ordering = ['code', ]
+        abstract = True
 
 
 class RiverSite(MetadataFields):
@@ -70,10 +81,13 @@ class Species(MetadataFields):
             my_str += " ({})".format(self.life_stage)
         return my_str
 
-    # This is just for the sake of views.SpeciesListView
     @property
     def full_name(self):
         return str(self)
+
+    @property
+    def search_name(self):
+        return f"{self.full_name} / {self.scientific_name} ({self.code})"
 
     class Meta:
         ordering = ['common_name_eng']
@@ -81,8 +95,6 @@ class Species(MetadataFields):
 
     def get_absolute_url(self):
         return reverse("trapnet:species_detail", kwargs={"pk": self.id})
-
-
 
 
 class SampleType(models.Model):
@@ -167,7 +179,7 @@ class Sample(MetadataFields):
 
     @property
     def duration(self):
-        diff = self.departure_date -self.arrival_date
+        diff = self.departure_date - self.arrival_date
         days, seconds = diff.days, diff.seconds
         hours = days * 24 + seconds // 3600
         minutes = (seconds % 3600) // 60
@@ -196,14 +208,6 @@ class Sample(MetadataFields):
         return "Sample {}".format(self.id)
 
     @property
-    def air_temp(self):
-        return _("<u>arrival:</u> {arrival} | <u>max:</u> {max} | <u>min:</u> {min}").format(
-            arrival=nz(self.air_temp_arrival, "---"),
-            max=nz(self.max_air_temp, "---"),
-            min=nz(self.min_air_temp, "---"),
-        )
-
-    @property
     def arrival_departure(self):
         return mark_safe(_("{arrival} &rarr; {departure} ({duration})").format(
             arrival=self.arrival_date.strftime("%Y-%m-%d %H:%M"),
@@ -212,8 +216,16 @@ class Sample(MetadataFields):
         ))
 
     @property
+    def air_temp(self):
+        return _("<u>arrival:</u> {arrival}; <u>max:</u> {max} <u>min:</u> {min}").format(
+            arrival=nz(self.air_temp_arrival, "---"),
+            max=nz(self.max_air_temp, "---"),
+            min=nz(self.min_air_temp, "---"),
+        )
+
+    @property
     def water(self):
-        return mark_safe(_("<u>Depth (m):</u> {depth}&plusmn;{delta} | <u>Discharge (m<sup>3</sup>/s):</u> {dischard}").format(
+        return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}; <u>discharge (m<sup>3</sup>/s):</u> {dischard}").format(
             depth=nz(self.water_depth_m, "---"),
             delta=nz(self.water_level_delta_m, "---"),
             dischard=nz(self.discharge_m3_sec, "---"),
@@ -221,60 +233,36 @@ class Sample(MetadataFields):
 
     @property
     def rpms(self):
-        return mark_safe(_("<u>@start (m):</u> {start}| <u>@end:</u> {end}").format(
+        return mark_safe(_("<u>@start (m):</u> {start}; <u>@end:</u> {end}").format(
             start=nz(self.rpm_arrival, "---"),
             end=nz(self.rpm_departure, "---"),
         ))
 
     @property
     def wind(self):
-        return _("<u>speed:</u> {speed} | <u>direction:</u> {dir}").format(
+        return _("<u>speed:</u> {speed}; <u>direction:</u> {dir}").format(
             speed=nz(self.get_wind_speed_display(), "---"),
             dir=nz(self.get_wind_direction_display(), "---"),
         )
 
     @property
     def water_temp(self):
-        return _("<u>@shore:</u> {shore} | <u>@trap:</u> {trap}").format(
+        return _("<u>@shore:</u> {shore} <u>@trap:</u> {trap}").format(
             shore=nz(self.water_temp_shore_c, "---"),
             trap=nz(self.water_temp_trap_c, "---"),
         )
 
-class Origin(models.Model):
-    code = models.CharField(max_length=5)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
 
-    def __str__(self):
-        return "{} - {}".format(self.code, getattr(self, str(_("name"))))
-
-    class Meta:
-        ordering = ['name', ]
+class Origin(CodeModel):
+    pass
 
 
-class Status(models.Model):
-    code = models.CharField(max_length=5)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return "{} - {}".format(self.code, getattr(self, str(_("name"))))
-
-    class Meta:
-        ordering = ['name', ]
-        verbose_name_plural = _("statuses")
+class Status(CodeModel):
+    pass
 
 
-class Sex(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-    code = models.CharField(max_length=5, blank=True, null=True)
-
-    def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
-
-    class Meta:
-        ordering = ['name', ]
+class Sex(CodeModel):
+    pass
 
 
 class Entry(MetadataFields):
@@ -284,7 +272,7 @@ class Entry(MetadataFields):
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     frequency = models.IntegerField(blank=True, null=True, verbose_name=_("frequency"))
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
-    total_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="entries", blank=True, null=True)
     smolt_age = models.IntegerField(blank=True, null=True)

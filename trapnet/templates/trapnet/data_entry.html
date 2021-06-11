@@ -1,0 +1,318 @@
+{% extends 'trapnet/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load static %}
+
+{% block title_area %}{% endblock %}
+
+{% block subcontent %}
+  <style>
+  .v-select{
+      background-color: white;
+  }
+  </style>
+  <div class="h3">  {% trans "Data Entry Mode for " %} {{ object }}  </div>
+
+  <div id="app" v-cloak>
+    <div class="mb-3">
+      <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <div class="row">
+          <div class="col-4">
+
+            {# New observation #}
+            <div :class="{card:true, 'edit':!observation.id, 'mild-concern':observation.id}">
+              <div :class="{'card-header lead':true, 'concern':observation.id}">
+                {% trans "Form" %}
+              </div>
+              <div class="card-body">
+                <div v-if="errorMsg" class="alert alert-danger mb-3" role="alert">
+                  ${errorMsg}
+                </div>
+                <div v-if="successMsg" class="alert alert-success mb-3" role="alert">
+                  ${successMsg}
+                </div>
+                <form @submit.prevent="updateObservation">
+                  <table class="table table-sm">
+                    <tr>
+                      <td class="w-25">
+                        <label for="">${labels.species}</label>
+                      </td>
+                      <td>
+                        <v-select
+                          ref="start"
+                          v-model="observation.species"
+                          :options="speciesChoices"
+                          :reduce="choice => choice.value"
+                          label="text"
+                          class="no-borders"
+                          :clearable=false
+                          required
+                        ></v-select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.status}</label></td>
+                      <td>
+                        <select v-model="observation.status" class="form-control">
+                          <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.origin}</label></td>
+                      <td>
+                        <select v-model="observation.origin" class="form-control">
+                          <option v-for="c in originChoices" :value="c.value" :label="c.text"></option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.sex}</label></td>
+                      <td>
+                        <select v-model="observation.sex" class="form-control">
+                          <option v-for="c in sexChoices" :value="c.value" :label="c.text"></option>
+                        </select>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td><label for="">${labels.fork_length}</label></td>
+                      <td><input type="number" step="any" v-model="observation.fork_length" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.total_length}</label></td>
+                      <td><input type="number" step="any" v-model="observation.total_length" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.weight}</label></td>
+                      <td><input type="number" step="any" v-model="observation.weight" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.age}</label></td>
+                      <td><input type="number" v-model="observation.age" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.location_tagged}</label></td>
+                      <td><input type="text" v-model="observation.location_tagged" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.date_tagged}</label></td>
+                      <td><input type="date" v-model="observation.date_tagged" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.scale_id_number}</label></td>
+                      <td><input type="text" v-model="observation.scale_id_number" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.tags_removed}</label></td>
+                      <td><input type="text" v-model="observation.tags_removed" class="form-control"/></td>
+                    </tr>
+                    <tr>
+                      <td><label for="">${labels.notes}</label></td>
+                      <td><input type="text" v-model="observation.notes" class="form-control"/></td>
+                    </tr>
+
+                  </table>
+
+                  <div class="form-group col">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                      <span v-if="!observation.id">{% trans "Add" %}</span>
+                      <span v-else>{% trans "Save" %}</span>
+                    </button>
+                    <button v-if="observation.id" type="button" class="btn btn-sm btn-secondary" @click="primeObservation">
+                      {% trans "Cancel" %}
+                    </button>
+                  </div>
+              </div>
+              </form>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card" style="">
+              <div class="card-header lead">{% trans "Observations" %}</div>
+              <div class="card-body">
+                <table class="table table-sm table-bordered small">
+                  <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>${labels.species}</th>
+                    <th>${labels.origin}</th>
+                    <th>${labels.status}</th>
+                    <th>${labels.sex}</th>
+                    <th>${labels.fork_length}</th>
+                    <th>${labels.total_length}</th>
+                    <th>${labels.weight}</th>
+                    <th>${labels.age}</th>
+                    <th>${labels.location_tagged}</th>
+                    <th>${labels.date_tagged}</th>
+                    <th>${labels.scale_id_number}</th>
+                    <th>${labels.tags_removed}</th>
+                    <th>${labels.notes}</th>
+                  </tr>
+                  </thead>
+                  <tr v-for="o, index in observations" :key="o.id" :class="{'mild-concern':o.id===observation.id}">
+                    <td class="small">${index+1}</td>
+                    <td class="small">${o.species_display|nz}</td>
+                    <td class="small">${o.origin_display|nz}</td>
+                    <td class="small">${o.status_display|nz}</td>
+                    <td class="small">${o.sex_display|nz}</td>
+                    <td class="small">${o.fork_length|nz}</td>
+                    <td class="small">${o.total_length|nz}</td>
+                    <td class="small">${o.weight|nz}</td>
+                    <td class="small">${o.age|nz}</td>
+                    <td class="small">${o.location_tagged|nz}</td>
+                    <td class="small">${o.date_tagged_display|nz}</td>
+                    <td class="small">${o.scale_id_number|nz}</td>
+                    <td class="small">${o.tags_removed|nz}</td>
+                    <td class="small">${o.notes|nz}</td>
+                    <td style="width: 75px;">
+                      <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
+                      <button class="btn btn-xs btn-danger" @click="deleteObservation(o)"><span class="mdi mdi-delete text-light"></span></button>
+                    </td>
+                  </tr>
+                </table>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script type="application/javascript">
+  sampleId = {{ object.id }};
+
+
+  // register components
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      loading: false,
+      errorMsg: null,
+      succesMsg: null,
+      successMsg: null,
+      observations: [],
+      labels: {},
+      observation: {},
+      speciesChoices: [],
+      sexChoices: [],
+      originChoices: [],
+      statusChoices: [],
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/trapnet/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      primeObservation() {
+        this.observation = {
+          sample: sampleId,
+        }
+        this.$nextTick(() => {
+          this.$refs.start.$refs.search.focus()
+        })
+      },
+      getObservations() {
+        this.loading = true;
+        let endpoint = `/api/trapnet/observations/?sample=${sampleId}`;
+        apiService(endpoint).then(data => {
+          this.observations = data;
+          this.loading = false;
+          this.primeObservation();
+        });
+      },
+      editObservation(obs){
+        const o = JSON.parse(JSON.stringify(obs));
+        o.date_tagged= o.date_tagged_display
+        this.observation = o;
+      },
+      updateObservation() {
+        this.errorMsg = null;
+        this.successMsg = null;
+        let endpoint;
+        let method;
+        if (this.observation.id) {
+          endpoint = `/api/trapnet/observations/${this.observation.id}/`;
+          method = "PUT";
+        } else {
+          this.observation.sample = sampleId
+          endpoint = `/api/trapnet/observations/`;
+          method = "POST";
+        }
+        if (this.observation.date_tagged) this.observation.date_tagged += "T12:00:00";
+
+        apiService(endpoint, method, this.observation)
+            .then(response => {
+              if (!response.id) this.errorMsg = groomJSON(response);
+              else {
+                if (this.observation.id) {
+                  this.successMsg = "{% trans "Success! The observation was updated." %}"
+                } else {
+                  this.successMsg = "{% trans "Success! A new observation has been added." %}"
+                }
+                this.getObservations()              }
+            })
+      },
+
+      getObservationMetadata() {
+        let endpoint = `/api/trapnet/observations/?get_labels=true`;
+        apiService(endpoint).then(data => {
+          this.labels = data.labels;
+          this.speciesChoices = data.species_choices;
+          this.sexChoices = data.sex_choices;
+          this.statusChoices = data.status_choices;
+          this.originChoices = data.origin_choices;
+        });
+      },
+      deleteObservation(obs) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this observation?' %}")
+        if (userInput) {
+          let endpoint = `/api/trapnet/observations/${obs.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getObservations();
+          })
+        }
+      },
+    },
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+    },
+    filters: {
+      floatformat: vueFiltersObject["floatformat"],
+      nz: vueFiltersObject["nz"],
+    },
+    created() {
+      this.getCurrentUser();
+      this.getObservations();
+      this.getObservationMetadata();
+    },
+  });
+
+
+  </script>
+
+
+{% endblock %}
+

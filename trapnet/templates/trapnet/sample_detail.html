@@ -19,7 +19,7 @@
   <div class="mb-3">
     <a class="btn btn-warning" href="{% url 'trapnet:sample_edit' object.id %}">Edit</a>
     <a class="btn btn-danger" href="{% url 'trapnet:sample_delete' object.id %}">Delete</a>
-    <a class="btn btn-primary" href="{% url 'trapnet:obs_insert' object.id %}">Add / Modify Entries</a>
+    <a class="btn btn-primary" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Data Entry Mode" %}</a>
   </div>
 
   <div class="row">
