@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
+from django.utils.translation import gettext
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -40,11 +41,10 @@ class SampleForm(forms.ModelForm):
         exclude = ["last_modified", 'season']
         widgets = {
             "site": forms.Select(attrs=chosen_js),
-            "last_modified_by": forms.HiddenInput(),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
             "notes": forms.Textarea(attrs={"rows": "3", }),
-            "arrival_date": forms.DateTimeInput(attrs=attr_fp_date_time),
-            "departure_date": forms.DateTimeInput(attrs=attr_fp_date_time),
+            "arrival_date": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+            "departure_date": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
         }
 
     def __init__(self, *args, **kwargs):
@@ -52,6 +52,15 @@ class SampleForm(forms.ModelForm):
         site_choices = [(obj.id, f"{obj.river} --> {obj.name} ({nz(obj.province, 'unknown prov.')})") for obj in models.RiverSite.objects.all()]
         site_choices.insert(0, (None, "-----"))
         self.fields["site"].choices = site_choices
+
+    def clean(self):
+        cleaned_data = super().clean()
+        arrival_date = cleaned_data.get("arrival_date")
+        departure_date = cleaned_data.get("departure_date")
+        if departure_date < arrival_date:
+            self.add_error('departure_date', gettext(
+                "The departure date must be after the arrival date!"
+            ))
 
 
 class EntryForm(forms.ModelForm):

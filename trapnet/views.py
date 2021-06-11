@@ -385,7 +385,7 @@ class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
     row_object_url_name = "trapnet:sample_detail"
     home_url_name = "trapnet:index"
     paginate_by = 25
-    container_class = "container-fluid"
+    container_class = "container"
     field_list = [
         {"name": 'season', "class": "", "width": ""},
         {"name": 'sample_type', "class": "", "width": ""},
@@ -437,23 +437,15 @@ class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
         field_list = [
             'site',
             'sample_type',
-            'arrival_date',
-            'departure_date',
-            'air_temp_arrival',
-            'min_air_temp',
-            'max_air_temp',
+            'arrival_departure|{}'.format(_("arrival / departure")),
+            'air_temp|{}'.format(_("air temperature (°C)")),
             'percent_cloud_cover',
+            'wind|{}'.format(_("wind")),
             'precipitation_category',
             'precipitation_comment',
-            'wind_speed',
-            'wind_direction',
-            'water_depth_m',
-            'water_level_delta_m',
-            'discharge_m3_sec',
-            'water_temp_shore_c',
-            'water_temp_trap_c',
-            'rpm_arrival',
-            'rpm_departure',
+            'water_temp|{}'.format(_("water temperature (°C)")),
+            'water|{}'.format(_("water")),
+            'rpms|{}'.format(_("RPMs")),
             'operating_condition',
             'operating_condition_comment',
             'notes',
