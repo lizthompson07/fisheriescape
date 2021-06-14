@@ -485,10 +485,10 @@ class SampleDataEntryVueJSView(TrapNetAdminRequiredMixin, CommonDetailView):
     home_url_name = "trapnet:index"
     grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
     container_class = "container-fluid"
+    active_page_name_crumb = gettext_lazy("Data Entry Mode")
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("trapnet:sample_detail", args=[self.get_object().id])}
-
 
 
 # REPORTS #

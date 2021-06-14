@@ -19,12 +19,11 @@
   <div class="mb-3">
     <a class="btn btn-warning" href="{% url 'trapnet:sample_edit' object.id %}">Edit</a>
     <a class="btn btn-danger" href="{% url 'trapnet:sample_delete' object.id %}">Delete</a>
-    <a class="btn btn-primary" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Data Entry Mode" %}</a>
+    <a class="btn btn-primary" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Observation Data Entry Mode" %}</a>
   </div>
 
   <div class="row">
     <div class="col">
-
       <div class="mb-3">
         <p class="lead">{% trans "Sample Details" %}</p>
         <table class="table table-sm table-bordered">
@@ -46,9 +45,7 @@
           </tr>
         </table>
       </div>
-
     </div>
-
     <div class="col">
       <div id="map"></div>
       <br><br>

@@ -202,7 +202,7 @@ class Sample(MetadataFields):
         # unique_together = [["start_date", "station"], ]
 
     def get_absolute_url(self):
-        return reverse("trapnet:trap_detail", kwargs={"pk": self.id})
+        return reverse("trapnet:sample_detail", kwargs={"pk": self.id})
 
     def __str__(self):
         return "Sample {}".format(self.id)
@@ -303,7 +303,7 @@ class Observation(MetadataFields):
     age = models.IntegerField(blank=True, null=True, verbose_name=_("age"))
     location_tagged = models.CharField(max_length=500, blank=True, null=True)
     date_tagged = models.DateTimeField(blank=True, null=True, verbose_name="date tagged")
-    tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
+    tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"), unique=True)
     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"))
     tags_removed = models.CharField(max_length=250, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)

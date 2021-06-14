@@ -27,7 +27,7 @@ class CurrentUserAPIView(APIView):
 ##############
 
 class ObservationViewSet(ModelViewSet):
-    queryset = models.Observation.objects.all()
+    queryset = models.Observation.objects.order_by("-id")
     serializer_class = serializers.ObservationSerializer
     permission_classes = [TrapnetCRUDOrReadOnly]
 
@@ -41,7 +41,7 @@ class ObservationViewSet(ModelViewSet):
         qp = request.query_params
         if qp.get("sample"):
             sample = get_object_or_404(models.Sample, pk=qp.get("sample"))
-            qs = sample.observations.all()
+            qs = sample.observations.order_by("species", "-tag_number")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         if qp.get("get_labels"):
