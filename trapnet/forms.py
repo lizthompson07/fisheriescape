@@ -63,15 +63,21 @@ class SampleForm(forms.ModelForm):
             ))
 
 
-class EntryForm(forms.ModelForm):
+class ObservationForm(forms.ModelForm):
     class Meta:
-        model = models.Entry
+        model = models.Observation
         fields = "__all__"
         widgets = {
-            'species': forms.HiddenInput(),
-            'notes': forms.Textarea(attrs={"rows": "3"}),
-            "date_tagged": forms.DateTimeInput(attrs=attr_fp_date),
+            'sample': forms.HiddenInput(),
         }
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        fields = "__all__"
+
+
 
 
 class ReportSearchForm(forms.Form):

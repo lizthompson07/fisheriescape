@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
@@ -16,7 +17,6 @@ urlpatterns = [
     path('settings/life-stage/<int:pk>/delete/', views.LifeStageHardDeleteView.as_view(), name="delete_life_stage"),
     path('settings/origins/', views.OriginFormsetView.as_view(), name="manage_origins"),
     path('settings/origin/<int:pk>/delete/', views.OriginHardDeleteView.as_view(), name="delete_origin"),
-
 
     # SPECIES #
     ###########
@@ -50,6 +50,18 @@ urlpatterns = [
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
     path('samples/<int:pk>/data-entry/', views.SampleDataEntryVueJSView.as_view(), name="sample_data_entry"),
+
+    # OBSERVATION #
+    ###############
+    path('observations/<int:pk>/view/', views.ObservationDetailView.as_view(), name="obs_detail"),
+    path('observations/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="obs_edit"),
+    path('observations/<int:pk>/delete/', views.ObservationDeleteView.as_view(), name="obs_delete"),
+
+    # FILES #
+    #########
+    path('observations/<int:obs>/new-file/', views.FileCreateView.as_view(), name='file_new'),
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
+    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 
     # Reports #
     ###########

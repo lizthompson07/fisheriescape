@@ -1,6 +1,9 @@
+import os
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -40,7 +43,7 @@ class RiverSite(MetadataFields):
     exclude_data_from_site = models.BooleanField(default=False, verbose_name=_("Exclude all data from this site?"))
 
     # non-editable
-    river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='sites', blank=True, null=True, editable=False)
+    river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='sites', editable=False)
 
     def get_point(self):
         if self.latitude and self.longitude:
@@ -299,6 +302,7 @@ class Entry(MetadataFields):
 
 
 class Observation(MetadataFields):
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations")
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
@@ -313,8 +317,60 @@ class Observation(MetadataFields):
     tags_removed = models.CharField(max_length=250, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="observations")
 
     def save(self, *args, **kwargs):
         return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.species)
+
+
+def file_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'trapnet/observation_{0}/{1}'.format(instance.observation.id, filename)
+
+
+class File(MetadataFields):
+    observation = models.ForeignKey(Observation, related_name="files", on_delete=models.CASCADE, editable=False)
+    caption = models.CharField(max_length=255)
+    image = models.ImageField(upload_to=file_directory_path)
+
+    class Meta:
+        ordering = ['caption']
+
+    def __str__(self):
+        return self.caption
+
+
+@receiver(models.signals.post_delete, sender=File)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
+
+
+@receiver(models.signals.pre_save, sender=File)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = File.objects.get(pk=instance.pk).image
+    except File.DoesNotExist:
+        return False
+
+    new_file = instance.image
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+

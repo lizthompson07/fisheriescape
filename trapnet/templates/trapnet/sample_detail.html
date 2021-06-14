@@ -19,65 +19,133 @@
   <div class="mb-3">
     <a class="btn btn-warning" href="{% url 'trapnet:sample_edit' object.id %}">Edit</a>
     <a class="btn btn-danger" href="{% url 'trapnet:sample_delete' object.id %}">Delete</a>
-    <a class="btn btn-primary" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Observation Data Entry Mode" %}</a>
   </div>
 
-  <div class="row">
-    <div class="col">
-      <div class="mb-3">
-        <p class="lead">{% trans "Sample Details" %}</p>
-        <table class="table table-sm table-bordered">
-          {% for field in field_list %}
-            {% verbose_td_display object field display_time=True %}
-          {% endfor %}
-        </table>
-      </div>
-      <div class="mb-3">
-        <p class="lead">{% trans "Entry Summary" %}</p>
-        <table class="table table-sm table-bordered">
-          <tr>
-            <th>Total number of entries</th>
-            <td>{{ object.entries.count }}</td>
-          </tr>
-          <tr>
-            <th>Species caught</th>
-            <td>{{ object.species_list }}</td>
-          </tr>
-        </table>
+  <div class="row mb-5">
+    <div class="col-7">
+
+      <div class="card">
+        <div class="card-header lead">
+          {% trans "Sample Detail" %}
+        </div>
+        <div class="card-body">
+          <table class="table table-sm table-bordered">
+            {% for field in field_list %}
+              {% if field == "site" %}
+                <tr>
+                  <th>{% get_verbose_label object "site" %}</th>
+                  <td><a href="{% url 'trapnet:site_detail' object.site.id %}">{{ object.site }}</a></td>
+                </tr>
+              {% else %}
+                {% verbose_td_display object field display_time=True %}
+              {% endif %}
+            {% endfor %}
+            <tr>
+              <th>Total number of observations</th>
+              <td>{{ object.observations.count }}</td>
+            </tr>
+            <tr>
+              <th>Species caught</th>
+              <td>{{ object.species_list }}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
     <div class="col">
-      <div id="map"></div>
-      <br><br>
+      <div class="card">
+        <div class="card-header lead">
+          {% trans "Site Map" %}
+        </div>
+        <div class="card-body">
+          {% if object.site.get_point %}
+            <div id="map"></div>
+          {% else %}
+            <em>{% trans "The site associated with this sample has no coordinates." %}</em>
+          {% endif %}
+        </div>
+      </div>
 
     </div>
   </div>
-  <br><br>
+  <div class="mb-5">
+    <div class="card">
+      <div class="card-header lead">
+        <div class="float-right">
+          <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
+
+        </div>
+        {% trans "Observations" %}
+      </div>
+      <div class="card-body">
+        {% if not object.observations.exists %}
+          <em>{% trans "There are no observations associated with this sample." %}</em>
+        {% else %}
+          <table class="table table-sm table-hover table-small-10">
+            <thead>
+            <tr>
+              {% for field in obs_field_list %}
+                <th>
+                  {% get_verbose_label object.observations.first field %}
+                </th>
+              {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for obs in object.observations.all %}
+              <tr href="{% url 'trapnet:obs_detail' obs.id %}">
+                {% for field in obs_field_list %}
+                  <td>
+                    {% get_field_value obs field %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+      </div>
+    </div>
   </div>
 {% endblock %}
 
 {% block body_js %}
-  <script>
+  <script type="application/javascript">
+  function initialize() {
+    let coords = [];
+    map = new L.Map("map", {
+      center: new L.LatLng(46.13845952180798, -64.7906431818189),
+      zoom: 6,
+    });
 
-  // Initialize and add the map
-  function initMap() {
-    // The location of Uluru
-    var uluru = {lat: {{object.site.latitude_n}}, lng: {{object.site.longitude_w}}};
-    // The map, centered at Uluru
-    var map = new google.maps.Map(
-        document.getElementById('map'), {
-          zoom: 17,
-          center: uluru,
-          mapTypeId: google.maps.MapTypeId.SATELLITE,
-        });
-    // The marker, positioned at Uluru
-    var marker = new google.maps.Marker({position: uluru, map: map});
+    {% if object.site.get_point %}
+      latLong = [{{object.site.get_point.x}}, {{ object.site.get_point.y }}]
+      coords.push(latLong)
+      L.marker(
+          latLong, {
+            title: '{{object.site}}',
+          }
+      ).addTo(map).bindPopup('<a href="{% url 'trapnet:site_detail' object.site.id %}">{{object.site}}</a>');
+    {% endif %}
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox/satellite-streets-v10',
+      tileSize: 512,
+      zoomOffset: -1,
+      accessToken: '{{mapbox_api_key}}'
+    }).addTo(map);
+
+    map.fitBounds(coords);
   }
-  </script>
-  <script async defer
-          src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
-  </script>
 
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    initialize()
 
+  });
+  </script>
 
 {% endblock %}

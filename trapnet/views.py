@@ -11,7 +11,7 @@ from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from shared_models.models import River
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonTemplateView, CommonFormView, CommonUpdateView, CommonCreateView, \
-    CommonDeleteView, CommonDetailView, CommonFilterView
+    CommonDeleteView, CommonDetailView, CommonFilterView, CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView
 from . import filters
 from . import forms
 from . import models
@@ -427,40 +427,35 @@ class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
     template_name = 'trapnet/sample_detail.html'
     home_url_name = "trapnet:index"
     parent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+    field_list = [
+        'site',
+        'sample_type',
+        'arrival_departure|{}'.format(_("arrival / departure")),
+        'air_temp|{}'.format(_("air temperature (°C)")),
+        'percent_cloud_cover',
+        'wind|{}'.format(_("wind")),
+        'precipitation_category',
+        'precipitation_comment',
+        'water_temp|{}'.format(_("water temperature (°C)")),
+        'water|{}'.format(_("water")),
+        'rpms|{}'.format(_("RPMs")),
+        'operating_condition',
+        'operating_condition_comment',
+        'notes',
+        'season',
+        'metadata',
+    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['google_api_key'] = settings.GOOGLE_API_KEY
-
-        field_list = [
-            'site',
-            'sample_type',
-            'arrival_departure|{}'.format(_("arrival / departure")),
-            'air_temp|{}'.format(_("air temperature (°C)")),
-            'percent_cloud_cover',
-            'wind|{}'.format(_("wind")),
-            'precipitation_category',
-            'precipitation_comment',
-            'water_temp|{}'.format(_("water temperature (°C)")),
-            'water|{}'.format(_("water")),
-            'rpms|{}'.format(_("RPMs")),
-            'operating_condition',
-            'operating_condition_comment',
-            'notes',
-            'season',
-            'metadata',
-        ]
-        context['field_list'] = field_list
-
         context['obs_field_list'] = [
             'species',
             'status',
             'origin',
-            'frequency',
-            'fork_length',
-            'total_length',
+            'sex',
+            'tag_number',
+            'scale_id_number',
         ]
-        context['my_obs_object'] = models.Entry.objects.first()
 
         return context
 
@@ -490,12 +485,110 @@ class SampleDataEntryVueJSView(TrapNetAdminRequiredMixin, CommonDetailView):
         return {"title": self.get_object(), "url": reverse("trapnet:sample_detail", args=[self.get_object().id])}
 
 
+# OBSERVATIONS #
+################
+
+class ObservationUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
+    model = models.Observation
+    form_class = forms.ObservationForm
+    template_name = 'trapnet/form.html'
+    home_url_name = "trapnet:index"
+    greatgrandparent_crumb = {"title": _("Observations"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("trapnet:obs_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class ObservationDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
+    model = models.Observation
+    template_name = 'trapnet/obs_detail.html'
+    home_url_name = "trapnet:index"
+    grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+    field_list = [
+        'id',
+        'species',
+        'status',
+        'origin',
+        'sex',
+        'fork_length',
+        'total_length',
+        'weight',
+        'age',
+        'location_tagged',
+        'date_tagged',
+        'tag_number',
+        'scale_id_number',
+        'tags_removed',
+        'notes',
+        'metadata',
+    ]
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+
+
+class ObservationDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
+    model = models.Observation
+    template_name = 'trapnet/confirm_delete.html'
+    home_url_name = "trapnet:index"
+    greatgrandparent_crumb = {"title": _("Observations"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("trapnet:obs_detail", args=[self.get_object().id])}
+
+    def get_success_url(self):
+        return self.get_grandparent_crumb()["url"]
+
+
+# FILES #
+#########
+
+class FileCreateView(TrapNetAdminRequiredMixin, CommonPopoutCreateView):
+    model = models.File
+    form_class = forms.FileForm
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obs = get_object_or_404(models.Observation,pk=self.kwargs.get("obs"))
+        obj.observation = obs
+        return super().form_valid(form)
+
+
+class FileUpdateView(TrapNetAdminRequiredMixin, CommonPopoutUpdateView):
+    model = models.File
+    form_class = forms.FileForm
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class FileDeleteView(TrapNetAdminRequiredMixin, CommonPopoutDeleteView):
+    model = models.File
+
+
 # REPORTS #
 ###########
 
 class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
     template_name = 'trapnet/report_search.html'
     form_class = forms.ReportSearchForm
+    h1 = " "
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
