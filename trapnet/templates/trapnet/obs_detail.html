@@ -30,23 +30,8 @@
         <div class="card-body">
           <table class="table table-sm table-bordered">
             {% for field in field_list %}
-              {% if field == "site" %}
-                <tr>
-                  <th>{% get_verbose_label object "site" %}</th>
-                  <td><a href="{% url 'trapnet:site_detail' object.site.id %}">{{ object.site }}</a></td>
-                </tr>
-              {% else %}
                 {% verbose_td_display object field display_time=True %}
-              {% endif %}
             {% endfor %}
-            <tr>
-              <th>{% trans "Total number of observations" %}</th>
-              <td>{{ object.observations.count }}</td>
-            </tr>
-            <tr>
-              <th>{% trans "Species caught" %}</th>
-              <td>{{ object.species_list }}</td>
-            </tr>
           </table>
         </div>
       </div>
