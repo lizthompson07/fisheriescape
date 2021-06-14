@@ -23,6 +23,8 @@ class SampleFilter(django_filters.FilterSet):
         fields = {
             'season': ['exact'],
             'site': ['exact'],
+            'sample_type': ['exact'],
+            'observations__species': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
