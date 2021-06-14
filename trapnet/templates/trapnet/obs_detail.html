@@ -40,11 +40,11 @@
               {% endif %}
             {% endfor %}
             <tr>
-              <th>Total number of observations</th>
+              <th>{% trans "Total number of observations" %}</th>
               <td>{{ object.observations.count }}</td>
             </tr>
             <tr>
-              <th>Species caught</th>
+              <th>{% trans "Species caught" %}</th>
               <td>{{ object.species_list }}</td>
             </tr>
           </table>

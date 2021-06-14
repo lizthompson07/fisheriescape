@@ -196,7 +196,7 @@ class Sample(MetadataFields):
 
     @property
     def species_list(self):
-        my_list = list(set([str(obs.species) for obs in self.entries.all()]))
+        my_list = list(set([str(obs.species) for obs in self.observations.all()]))
         my_list.sort()
         return mark_safe(listrify(my_list, "<br>"))
 

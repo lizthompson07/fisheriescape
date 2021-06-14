@@ -617,7 +617,7 @@ class ReportSearchFormView(TrapNetAccessRequiredMixin, CommonFormView):
             return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 2}))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
-            return HttpResponseRedirect(reverse("trapnet:report_search"))
+            return HttpResponseRedirect(reverse("trapnet:reports"))
 
 
 def export_sample_data(request, year, sites):
