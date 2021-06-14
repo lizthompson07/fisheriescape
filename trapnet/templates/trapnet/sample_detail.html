@@ -40,14 +40,6 @@
                 {% verbose_td_display object field display_time=True %}
               {% endif %}
             {% endfor %}
-            <tr>
-              <th>Total number of observations</th>
-              <td>{{ object.observations.count }}</td>
-            </tr>
-            <tr>
-              <th>Species caught</th>
-              <td>{{ object.species_list }}</td>
-            </tr>
           </table>
         </div>
       </div>
@@ -81,7 +73,7 @@
         {% if not object.observations.exists %}
           <em>{% trans "There are no observations associated with this sample." %}</em>
         {% else %}
-          <table class="table table-sm table-hover table-small-10">
+          <table class="table table-sm table-hover table-small-10 sortable">
             <thead>
             <tr>
               {% for field in obs_field_list %}

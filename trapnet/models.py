@@ -196,9 +196,16 @@ class Sample(MetadataFields):
 
     @property
     def species_list(self):
-        my_list = list(set([str(obs.species) for obs in self.observations.all()]))
+        spp = Species.objects.filter(observations__sample=self).distinct()
+        my_list = list([f"{sp} ({sp.observations.filter(sample=self).count()})" for sp in spp])
         my_list.sort()
         return mark_safe(listrify(my_list, "<br>"))
+
+    @property
+    def tag_list(self):
+        my_list = list([obs.tag_number for obs in self.observations.filter(tag_number__isnull=False)])
+        my_list.sort()
+        return mark_safe(listrify(my_list))
 
     def save(self, *args, **kwargs):
         self.season = self.arrival_date.year

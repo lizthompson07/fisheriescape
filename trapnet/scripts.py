@@ -2,10 +2,140 @@ import csv
 import datetime
 import os
 
-from lib.templatetags.custom_filters import nz
-from . import models
-from shared_models import models as shared_models
+from django.db import IntegrityError
+from django.utils import timezone
 
+from lib.templatetags.custom_filters import nz
+from shared_models import models as shared_models
+from . import models
+
+
+def delete_observations():
+    models.Observation.objects.all().delete()
+
+
+"""
+
+  function extractNumber(numberStr) {
+    result = ""
+    for (var i = 0; i < numberStr.length; i++) {
+      if (Number(numberStr[i]) || Number(numberStr[i]) === 0) {
+        result += numberStr[i]
+      }
+    }
+    return Number(result)
+  }
+
+  function extractPrefix(numberStr) {
+    result = ""
+    for (var i = 0; i < numberStr.length; i++) {
+      if (!Number(numberStr[i])) {
+        result += numberStr[i]
+      }
+    }
+    return result
+  }
+"""
+
+
+def get_prefix(mystr):
+    if mystr:
+        result = ""
+        for char in mystr:
+            if not char.isdigit():
+                result += char
+        if len(result):
+            return result
+
+
+def get_number_suffix(mystr):
+    if mystr:
+        result = ""
+        for char in mystr:
+            if char.isdigit():
+                result += char
+        if len(result):
+            return int(result)
+
+
+def check_entries_2_obs():
+    for entry in models.Entry.objects.filter(
+            first_tag__isnull=False,
+            last_tag__isnull=True,
+            frequency__isnull=False
+    ):
+        if entry.frequency > 1:
+            print(entry.first_tag, entry.frequency)
+
+
+#     # remove all previous observations
+# from trapnet.models import Entry
+# print(Entry.objects.filter(
+#     first_tag__isnull=False,
+#     last_tag__isnull=False,
+#     frequency__isnull=True
+# ).count())
+# for e in Entry.objects.filter(
+#     first_tag__isnull=False,
+#     last_tag__isnull=False,
+#     frequency__isnull=True
+# ):
+#     print(e, e.first_tag, e.last_tag)
+
+def entries_2_obs():
+    # remove all previous observations
+    delete_observations()
+    now = timezone.now()
+    for entry in models.Entry.objects.all():
+        kwargs = {
+            "sample": entry.sample,
+            "species": entry.species,
+            "status": entry.status,
+            "origin": entry.origin,
+            "sex": entry.sex,
+            "fork_length": entry.fork_length,
+            "total_length": entry.total_length,
+            "weight": entry.weight,
+            "age": entry.smolt_age,
+            "location_tagged": entry.location_tagged,
+            "date_tagged": entry.date_tagged,
+            "tag_number": entry.first_tag,
+            "scale_id_number": entry.scale_id_number,
+            "tags_removed": entry.tags_removed,
+            "notes": entry.notes,
+            "created_at": now,
+        }
+
+        # determine if this is a single observation
+        if not entry.last_tag and (entry.frequency == 1 or entry.frequency is None):
+            try:
+                obs = models.Observation.objects.create(**kwargs)
+            except IntegrityError:
+                print("Duplicate tag number!! Entry Id:", entry.id, "tag number: ", entry.first_tag)
+                tag = f'{entry.first_tag}dup{models.Observation.objects.filter(tag_number__contains=entry.first_tag).count()}'
+                kwargs["tag_number"] = tag
+                obs = models.Observation.objects.create(**kwargs)
+        else:
+            start_tag_prefix = get_prefix(entry.first_tag)
+            start_tag = get_number_suffix(entry.first_tag)
+            end_tag = get_number_suffix(entry.last_tag)
+
+            if start_tag and end_tag:
+                diff = end_tag - start_tag
+                for i in range(0, diff):
+                    tag = f"{start_tag_prefix}{start_tag + i}"
+                    kwargs["tag_number"] = tag
+                    obs = models.Observation.objects.create(**kwargs)
+            elif start_tag and entry.frequency:
+                for i in range(0, entry.frequency):
+                    tag = f"{start_tag_prefix}{start_tag + i}"
+                    kwargs["tag_number"] = tag
+                    obs = models.Observation.objects.create(**kwargs)
+            elif entry.frequency:
+                for i in range(0, entry.frequency):
+                    obs = models.Observation.objects.create(**kwargs)
+            else:
+                obs = models.Observation.objects.create(**kwargs)
 
 def population_parents():
     for river in shared_models.River.objects.all():
@@ -97,11 +227,11 @@ def import_smolt_2():
 
                     # check to see if there is a direct hit using only year, month, day
                     my_samples = models.Sample.objects.filter(
-                            site=site,
-                            arrival_date__year=int(row["Year"]),
-                            arrival_date__month=int(row["Month"]),
-                            arrival_date__day=int(row["Day"]),
-                        )
+                        site=site,
+                        arrival_date__year=int(row["Year"]),
+                        arrival_date__month=int(row["Month"]),
+                        arrival_date__day=int(row["Day"]),
+                    )
                     if my_samples.count() == 0:
                         print("big problem for obs id={}. no sample found for site={}, date={}/{}/{}".format(
                             row["id"],

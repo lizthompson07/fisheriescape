@@ -441,8 +441,9 @@ class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
         'rpms|{}'.format(_("RPMs")),
         'operating_condition',
         'operating_condition_comment',
+        'species_list|{}'.format(_("species caught")),
+        'tag_list|{}'.format(_("tags issued")),
         'notes',
-        'season',
         'metadata',
     ]
 
