@@ -84,10 +84,10 @@ def check_entries_2_obs():
 #     print(e, e.first_tag, e.last_tag)
 
 def create_obs(kwargs):
-    print("dealing with dup")
     try:
         models.Observation.objects.create(**kwargs)
     except IntegrityError:
+        print("dealing with dup")
         old_tag = kwargs.get("tag_number")
         print("Duplicate tag number!! ", old_tag)
         new_tag = f'{old_tag}.{randint(1, 1000)}'
