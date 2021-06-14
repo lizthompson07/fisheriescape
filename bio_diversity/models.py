@@ -1676,7 +1676,7 @@ class ReleaseSiteCode(BioLookup):
     @property
     def bbox(self):
         # lon = x, lat = y
-        if self.min_lat and self.min_lon and self.max_lat and self.max_lon:
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             bbox = box(
                     float(self.min_lon),
                     float(self.min_lat),
