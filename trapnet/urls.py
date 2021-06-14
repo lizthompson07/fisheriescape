@@ -53,6 +53,7 @@ urlpatterns = [
 
     # OBSERVATION #
     ###############
+    path('observations/', views.ObservationListView.as_view(), name="obs_list"),
     path('observations/<int:pk>/view/', views.ObservationDetailView.as_view(), name="obs_detail"),
     path('observations/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="obs_edit"),
     path('observations/<int:pk>/delete/', views.ObservationDeleteView.as_view(), name="obs_delete"),

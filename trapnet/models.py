@@ -332,6 +332,8 @@ class Observation(MetadataFields):
     def __str__(self):
         return str(self.species)
 
+    class Meta:
+        ordering = ["sample__arrival_date", "species", "tag_number"]
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>

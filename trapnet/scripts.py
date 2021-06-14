@@ -1,6 +1,7 @@
 import csv
 import datetime
 import os
+from random import randint
 
 from django.db import IntegrityError
 from django.utils import timezone
@@ -82,6 +83,19 @@ def check_entries_2_obs():
 # ):
 #     print(e, e.first_tag, e.last_tag)
 
+def create_obs(kwargs):
+    print("dealing with dup")
+    try:
+        models.Observation.objects.create(**kwargs)
+    except IntegrityError:
+        old_tag = kwargs.get("tag_number")
+        print("Duplicate tag number!! ", old_tag)
+        new_tag = f'{old_tag}.{randint(1, 1000)}'
+        kwargs["tag_number"] = new_tag
+        print("Duplicate tag number!! ", old_tag, " to ", new_tag)
+        models.Observation.objects.create(**kwargs)
+
+
 def entries_2_obs():
     # remove all previous observations
     delete_observations()
@@ -108,13 +122,7 @@ def entries_2_obs():
 
         # determine if this is a single observation
         if not entry.last_tag and (entry.frequency == 1 or entry.frequency is None):
-            try:
-                obs = models.Observation.objects.create(**kwargs)
-            except IntegrityError:
-                print("Duplicate tag number!! Entry Id:", entry.id, "tag number: ", entry.first_tag)
-                tag = f'{entry.first_tag}dup{models.Observation.objects.filter(tag_number__contains=entry.first_tag).count()}'
-                kwargs["tag_number"] = tag
-                obs = models.Observation.objects.create(**kwargs)
+            create_obs(kwargs)
         else:
             start_tag_prefix = get_prefix(entry.first_tag)
             start_tag = get_number_suffix(entry.first_tag)
@@ -125,17 +133,18 @@ def entries_2_obs():
                 for i in range(0, diff):
                     tag = f"{start_tag_prefix}{start_tag + i}"
                     kwargs["tag_number"] = tag
-                    obs = models.Observation.objects.create(**kwargs)
+                    create_obs(kwargs)
             elif start_tag and entry.frequency:
                 for i in range(0, entry.frequency):
                     tag = f"{start_tag_prefix}{start_tag + i}"
                     kwargs["tag_number"] = tag
-                    obs = models.Observation.objects.create(**kwargs)
+                    create_obs(kwargs)
             elif entry.frequency:
                 for i in range(0, entry.frequency):
-                    obs = models.Observation.objects.create(**kwargs)
+                    create_obs(kwargs)
             else:
-                obs = models.Observation.objects.create(**kwargs)
+                create_obs(kwargs)
+
 
 def population_parents():
     for river in shared_models.River.objects.all():

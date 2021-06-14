@@ -489,6 +489,26 @@ class SampleDataEntryVueJSView(TrapNetAdminRequiredMixin, CommonDetailView):
 # OBSERVATIONS #
 ################
 
+
+class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
+    model = models.Observation
+    filterset_class = filters.ObservationFilter
+    template_name = 'trapnet/list.html'
+    # new_object_url_name = "trapnet:sample_new"
+    row_object_url_name = "trapnet:obs_detail"
+    home_url_name = "trapnet:index"
+    paginate_by = 25
+    container_class = "container"
+    field_list = [
+        {"name": 'sample', "class": "", "width": ""},
+        {"name": 'sample.site', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'sex', "class": "", "width": ""},
+        {"name": 'tag_number', "class": "", "width": ""},
+        {"name": 'scale_id_number', "class": "", "width": ""},
+    ]
+
 class ObservationUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
     model = models.Observation
     form_class = forms.ObservationForm
