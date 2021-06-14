@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
     ElectrofishingParser
+from bio_diversity.static.calculation_constants import sfa_nums
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -824,6 +825,9 @@ class MapForm(forms.Form):
     rive_id = forms.ModelChoiceField(queryset=models.RiverCode.objects.all(), required=False, label=_("River Code"))
     subr_id = forms.ModelChoiceField(queryset=models.SubRiverCode.objects.all(), required=False, label=_("Sub River Code"))
     trib_id = forms.ModelChoiceField(queryset=models.Tributary.objects.all(), required=False, label=_("Tributary"))
+    sfa_choices = [(item, item) for item in sfa_nums]
+    sfa_choices.insert(0, (None, "---"))
+    sfa = forms.ChoiceField(choices=sfa_choices, required=False)
 
     def clean(self):
         cleaned_data = super().clean()

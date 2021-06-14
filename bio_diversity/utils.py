@@ -1,3 +1,5 @@
+import json
+import os
 from datetime import datetime
 import decimal
 import math
@@ -8,9 +10,12 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned, Obj
 from django.db import IntegrityError
 from django.http import JsonResponse
 from decimal import Decimal
+
+from shapely.geometry import GeometryCollection, shape, Polygon
+
 from bio_diversity import models
 from bio_diversity.static.calculation_constants import *
-
+from dm_apps import settings
 
 contx_conts = ["contx_id__cup_id", "contx_id__draw_id", "contx_id__heat_id", "contx_id__tank_id", "contx_id__tray_id",
                "contx_id__trof_id"]
@@ -212,6 +217,19 @@ def parse_concentration(concentration_str):
         return Decimal(1.0/float(concentration_str))
     else:
         return None
+
+
+def load_sfas():
+    sfa_file_name = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "map_layers",
+                                 "salmon_fishing_areas.geojson")
+
+    f = open(sfa_file_name,)
+    json_sfa = json.load(f)
+
+    sfa_dict = {}
+    for feature in json_sfa["features"]:
+        sfa_dict[feature["properties"]["SFA"]] = shape(feature["geometry"])
+    return sfa_dict
 
 
 def get_cont_evnt(contx_tuple):

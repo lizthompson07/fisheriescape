@@ -3341,6 +3341,24 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
 
         context["sites"] = site_qs
 
+        if self.kwargs.get("sfa"):
+            sfa_poly = utils.load_sfas()[int(self.kwargs.get("sfa"))]
+            new_loc_list = []
+            new_line_loc_list = []
+            new_site_list = []
+            for loc in location_qs:
+                if sfa_poly.contains(loc.point) or sfa_poly.contains(loc.end_point):
+                    if loc.end_point:
+                        new_line_loc_list.append(loc)
+                    else:
+                        new_loc_list.append(loc)
+            for site in site_qs:
+                if sfa_poly.intersects(site.bbox):
+                    new_site_list.append(site)
+            context["locations"] = new_loc_list
+            context["line_locations"] = new_line_loc_list
+            context["sites"] = new_site_list
+
         # start by determining which locations do not have spatial data
         non_spatial_location_list = []
         for loc in models.Location.objects.all():
@@ -3372,12 +3390,8 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             captured_site_list = []
             for loc in location_qs:
                 if loc not in non_spatial_location_list:
-                    captured = False
                     # check to see if the bbox overlaps with any record points
                     if bbox.contains(loc.point) or bbox.contains(loc.end_point):
-                        captured = True
-                    # if checked through all records and nothing found, add to non-spatial list
-                    if captured:
                         captured_locations_list.append(loc)
             for site in site_qs:
                 # check to see if the bbox overlaps with any record points
@@ -3386,6 +3400,23 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         else:
             captured_locations_list = []
             captured_site_list = []
+
+        if self.kwargs.get("sfa"):
+            sfa_poly = utils.load_sfas()[int(self.kwargs.get("sfa"))]
+            new_loc_list = []
+            new_line_loc_list = []
+            new_site_list = []
+            for loc in captured_locations_list:
+                if sfa_poly.contains(loc.point) or sfa_poly.contains(loc.end_point):
+                    if loc.end_point:
+                        new_line_loc_list.append(loc)
+                    else:
+                        new_loc_list.append(loc)
+            for site in captured_site_list:
+                if sfa_poly.intersects(site.bbox):
+                    new_site_list.append(site)
+            captured_locations_list = new_loc_list
+            captured_site_list = new_site_list
 
         report_file_url = reports.generate_sites_report(captured_site_list, captured_locations_list, start_date, end_date)
 
@@ -3408,6 +3439,7 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             "south": self.kwargs.get("s"),
             "east": self.kwargs.get("e"),
             "west": self.kwargs.get("w"),
+            "sfa": self.kwargs.get("sfa"),
             "start_date": start_date,
             "end_date": end_date,
         }
@@ -3418,10 +3450,13 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             "s": form.cleaned_data.get("south"),
             "e": form.cleaned_data.get("east"),
             "w": form.cleaned_data.get("west"),
-            "start": form.cleaned_data.get("start_date"),
-            "end": form.cleaned_data.get("end_date"),
+            "start": form.cleaned_data.get("start_date").strftime("%Y-%m-%d"),
+            "end": form.cleaned_data.get("end_date").strftime("%Y-%m-%d"),
+
         }
         if form.cleaned_data.get("rive_id"):
             kwarg_dict["rive_id"] = form.cleaned_data.get("rive_id").name
+        if form.cleaned_data.get("sfa"):
+            kwarg_dict["sfa"] = form.cleaned_data.get("sfa")
         return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs=kwarg_dict))
 
