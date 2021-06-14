@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from shapely.geometry import Point
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
@@ -29,8 +30,8 @@ class RiverSite(MetadataFields):
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='river_sites', blank=False, null=True)
     stream_order = models.IntegerField(blank=True, null=True)
     elevation_m = models.FloatField(blank=True, null=True, verbose_name=_("elevation (m)"))
-    latitude_n = models.FloatField(blank=True, null=True)
-    longitude_w = models.FloatField(blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
     epsg_id = models.CharField(max_length=255, blank=True, null=True)
     coordinate_resolution = models.FloatField(blank=True, null=True)
     coordinate_precision = models.FloatField(blank=True, null=True)
@@ -39,7 +40,11 @@ class RiverSite(MetadataFields):
     exclude_data_from_site = models.BooleanField(default=False, verbose_name=_("Exclude all data from this site?"))
 
     # non-editable
-    river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='river_sites', blank=True, null=True, editable=False)
+    river = models.ForeignKey(shared_models.River, on_delete=models.DO_NOTHING, related_name='sites', blank=True, null=True, editable=False)
+
+    def get_point(self):
+        if self.latitude and self.longitude:
+            return Point(self.latitude, self.longitude)
 
     def __str__(self):
         try:

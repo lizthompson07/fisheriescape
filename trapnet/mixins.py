@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 
@@ -18,6 +19,7 @@ class TrapNetAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = is_admin(self.request.user)
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context
 
 
@@ -35,4 +37,5 @@ class TrapNetAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_admin"] = is_admin(self.request.user)
+        context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         return context

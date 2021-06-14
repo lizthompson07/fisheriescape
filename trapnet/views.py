@@ -209,6 +209,7 @@ class RiverListView(TrapNetAccessRequiredMixin, CommonFilterView):
         {"name": 'parent_cgndb_id', "class": "", "width": ""},
         {"name": 'nbadw_water_body_id', "class": "", "width": ""},
         {"name": 'display_hierarchy|River hierarchy', "class": "", "width": ""},
+        {"name": 'site_count|# sites', "class": "", "width": ""},
     ]
 
 
@@ -255,9 +256,6 @@ class RiverDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
             'directions',
         ]
         context['my_site_object'] = models.RiverSite.objects.first()
-        site_list = [[obj.name, obj.latitude_n, obj.longitude_w] for obj in self.object.river_sites.all() if
-                     obj.latitude_n and obj.longitude_w]
-        context['site_list'] = site_list
         return context
 
 
@@ -391,6 +389,7 @@ class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
         {"name": 'site', "class": "", "width": ""},
         {"name": 'arrival_date', "class": "", "width": ""},
         {"name": 'departure_date', "class": "", "width": ""},
+        {"name": 'observations', "class": "", "width": ""},
     ]
 
 

@@ -1,6 +1,7 @@
 {% extends "trapnet/base.html" %}
 {% load static %}
 {% load verbose_names %}
+{% load i18n %}
 
 {% block header %}
   {{ block.super }}
@@ -49,7 +50,11 @@
       </div>
 
       <div class="col">
-        <div id="map"></div>
+        {% if object.sites.exists %}
+          <div id="map"></div>
+        {% else %}
+          <em>{% trans "There are no sites on file for this river." %}</em>
+        {% endif %}
       </div>
     </div>
     {#  Station list  #}
@@ -64,7 +69,7 @@
         <a href="{% url 'trapnet:site_new' object.id %}" class="btn btn-sm btn-primary">New Site</a>
       </div>
     </div>
-    {% if object.river_sites.count == 0 %}
+    {% if object.sites.count == 0 %}
       <em>No sites have been entered for this river</em>
     {% else %}
       <table class="table table-sm table-hover sortable">
@@ -76,7 +81,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for obj in object.river_sites.all %}
+        {% for obj in object.sites.all %}
           {% url 'trapnet:site_detail' obj.id as my_url %}
           <tr href="{{ my_url }}">
             {% for field in site_field_list %}
@@ -92,50 +97,45 @@
 {% endblock %}
 {% block body_js %}
 
-
-  <script>
+  <script type="application/javascript">
   function initialize() {
-    var locations = {{ site_list | safe }}
+    let coords = [];
+    map = new L.Map("map", {
+      center: new L.LatLng(46.13845952180798, -64.7906431818189),
+      zoom: 6,
+    });
 
-        window.map = new google.maps.Map(document.getElementById('map'), {
-          mapTypeId: google.maps.MapTypeId.SATELLITE
-        });
+    {% if object.sites.exists %}
+      {% for site in object.sites.all %}
+        {% if site.get_point %}
+          latLong = [{{site.get_point.x}}, {{ site.get_point.y }}]
+          coords.push(latLong)
+          L.marker(
+              latLong, {
+                title: '{{object}}',
+              }
+          ).addTo(map).bindPopup('<a href="{% url 'trapnet:site_detail' site.id %}">{{site}}</a>');
+        {% endif %}
+      {% endfor %}
+    {% endif %}
 
-    var infowindow = new google.maps.InfoWindow();
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox/satellite-streets-v10',
+      tileSize: 512,
+      zoomOffset: -1,
+      accessToken: '{{mapbox_api_key}}'
+    }).addTo(map);
 
-    var bounds = new google.maps.LatLngBounds();
-
-    for (i = 0; i < locations.length; i++) {
-      marker = new google.maps.Marker({
-        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-        map: map,
-        label: {text: locations[i][0], color: "#fffff9"},
-        //icon: locations[i][3]
-      });
-
-      bounds.extend(marker.position);
-      google.maps.event.addListener(marker, 'click', (function (marker, i) {
-        return function () {
-          infowindow.setContent(locations[i][0]);
-          infowindow.open(map, marker);
-        }
-      })(marker, i));
-    }
-
-    map.fitBounds(bounds);
-
+    map.fitBounds(coords);
   }
 
-  function loadScript() {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-    document.body.appendChild(script);
-  }
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    initialize()
 
-  window.onload = loadScript();
-
+  });
   </script>
-
 
 {% endblock %}
