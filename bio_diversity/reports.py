@@ -328,6 +328,7 @@ def generate_individual_report(indv_id):
     ws_hist = wb['Heritage']
     ws_cont = wb['Containers']
     ws_treat = wb['Treatments']
+    ws_dets = wb['Details']
 
     # -----------------Heritage Sheet---------------
     prnt_grp_set = indv_id.get_parent_history()
@@ -411,6 +412,34 @@ def generate_individual_report(indv_id):
             ws_cont['C' + str(row_count)].value = cont_evnt[3]
             ws_cont['D' + str(row_count)].value = cont_evnt[2]
             row_count += 1
+
+
+    #-----------------Details Sheet------------------------
+    indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct().\
+        order_by("anidc_id__name", "adsc_id", "-detail_date").select_related("anidc_id", "adsc_id", )
+    row_count = 5
+    for indvd in indvd_set:
+        adsc_name = ""
+        if indvd.adsc_id:
+            adsc_name = indvd.adsc_id.name
+        ws_dets['A' + str(row_count)].value = indvd.detail_date
+        ws_dets['B' + str(row_count)].value = indvd.anidc_id.name
+        ws_dets['C' + str(row_count)].value = adsc_name
+        ws_dets['D' + str(row_count)].value = indvd.det_val
+        ws_dets['E' + str(row_count)].value = indv_id.current_cont(indvd.detail_date)[0].name
+        row_count += 1
+
+    indvt_set = models.IndTreatment.objects.filter(anix_id__indv_id=indv_id).distinct().select_related("indvtc_id",
+                                                                                                           "unit_id")
+    row_count = 5
+    for indvt in indvt_set:
+        ws_dets['H' + str(row_count)].value = indvt.start_date
+        ws_dets['I' + str(row_count)].value = indvt.indvtc_id.name
+        ws_dets['J' + str(row_count)].value = indvt.dose
+        ws_dets['K' + str(row_count)].value = indvt.unit_id.name
+        row_count += 1
+
+
     wb.save(target_file_path)
 
     return target_url
