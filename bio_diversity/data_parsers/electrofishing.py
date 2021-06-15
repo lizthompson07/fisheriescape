@@ -75,7 +75,6 @@ class ElectrofishingParser(DataParser):
                                                               grp_id__coll_id=coll_id,
                                                               indv_id__isnull=True,
                                                               contx_id__isnull=True,
-                                                              indvt_id__isnull=True,
                                                               loc_id__isnull=True,
                                                               pair_id__isnull=True)
 

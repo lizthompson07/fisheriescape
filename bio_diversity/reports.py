@@ -350,8 +350,7 @@ def generate_individual_report(indv_id):
     ws_evnt['E2'].value = indv_id.__str__()
     ws_evnt['E3'].value = indv_id.pit_tag
 
-    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                  indvt_id__isnull=True, pair_id__isnull=True) \
+    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True, pair_id__isnull=True) \
         .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
                                                             'evnt_id__prog_id', 'evnt_id__perc_id')
     evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
@@ -369,8 +368,7 @@ def generate_individual_report(indv_id):
         start_date = utils.naive_to_aware(grp_id.start_date())
         end_date = utils.naive_to_aware(grp_tuple[2])
         anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, pair_id__isnull=True,
-                                                     evnt_id__start_datetime__lte=end_date,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date)\
             .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
                                                                 'evnt_id__prog_id', 'evnt_id__perc_id')
@@ -383,8 +381,7 @@ def generate_individual_report(indv_id):
             row_count += 1
 
     #-----------------Container Sheet------------------------
-    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                  indvt_id__isnull=True, pair_id__isnull=True)\
+    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
         .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
         .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
@@ -402,8 +399,7 @@ def generate_individual_report(indv_id):
         start_date = utils.naive_to_aware(grp_id.start_date())
         end_date = utils.naive_to_aware(grp_tuple[2])
         anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, pair_id__isnull=True,
-                                                     evnt_id__start_datetime__lte=end_date,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date)\
             .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')

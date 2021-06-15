@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 import pandas as pd
+from django.db.models.functions import Length
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -13,7 +14,7 @@ class TaggingParser(DataParser):
     group_key = "Group"
     stok_key = "Stock"
     ufid_key = "Universal Fish ID"
-    pit_key = "PIT tag"
+    pit_key = "PIT Tag #"
     comment_key = "Comments"
     len_key = "Length (cm)"
     len_key_mm = "Length (mm)"
@@ -178,6 +179,8 @@ class ColdbrookTaggingParser(TaggingParser):
     box_key = "Box"
     location_key = "Location"
     precocity_key = "pp"
+    indt_key = "Treatment"
+    indt_amt_key = "Amount"
 
     box_anidc_id = None
     boxl_anidc_id = None
@@ -195,3 +198,9 @@ class ColdbrookTaggingParser(TaggingParser):
                                               self.box_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.location_key],
                                               self.boxl_anidc_id.pk, None)
+
+        if utils.nan_to_none(row[self.indt_key]) and utils.nan_to_none(row[self.indt_amt_key]):
+            indvtc_id = models.IndTreatCode.objects.filter(name__icontains=row[self.indt_key]).get()
+            unit_id = models.UnitCode.objects.filter(name__icontains="gram").order_by(Length('name').asc()).first()
+            self.row_entered += utils.enter_indvt(self.anix_indv.pk, self.cleaned_data, row_datetime,
+                                                  row[self.indt_amt_key], indvtc_id.pk, unit_id=unit_id)

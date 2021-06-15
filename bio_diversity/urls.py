@@ -240,6 +240,7 @@ urlpatterns = [
 
     path('create/indvt/', views.IndvtCreate.as_view(), name="create_indvt"),
     path('details/indvt/<int:pk>/', views.IndvtDetails.as_view(), name="details_indvt"),
+    path('details/indvt/<str:back>/<int:back_id>/<int:pk>/', views.IndvtDetails.as_view(), name="details_indvt"),
     path('list/indvt/', views.IndvtList.as_view(), name="list_indvt"),
     path('update/indvt/<int:pk>/', views.IndvtUpdate.as_view(), name="update_indvt"),
 

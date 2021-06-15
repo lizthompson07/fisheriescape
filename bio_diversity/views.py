@@ -856,7 +856,7 @@ class AnidcDetails(mixins.AnidcMixin, CommonDetails):
 
 
 class AnixDetails(mixins.AnixMixin, CommonDetails):
-    fields = ["evnt_id", "loc_id", "indvt_id", "indv_id", "pair_id", "grp_id", "created_by",
+    fields = ["evnt_id", "loc_id", "indv_id", "pair_id", "grp_id", "created_by",
               "created_date", ]
 
 
@@ -1142,7 +1142,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "samp", "loc", "pair", "team", "cont"])
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True)\
+                                                     indv_id__isnull=True, pair_id__isnull=True)\
             .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
 
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
@@ -1214,7 +1214,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, pair_id__isnull=True)
+                                                          pair_id__isnull=True)
 
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
@@ -1225,7 +1225,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         ]
 
         anix_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, pair_id__isnull=False).select_related('pair_id')
+                                                     pair_id__isnull=False).select_related('pair_id')
         pair_list = [anix.pair_id for anix in anix_set]
         pair_field_list = ["start_date", "indv_id", "cross", "prio_id"]
         obj_mixin = mixins.PairMixin
@@ -1308,10 +1308,10 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         # use this to pass fields/sample object to template
         context = super().get_context_data(**kwargs)
         context["title"] = "Individual: {}".format(self.object.__str__())
-        context["table_list"].extend(["evnt", "indvd", "pair", "team", "loc", "cont", "sire"])
+        context["table_list"].extend(["evnt", "indvd", "indvt", "pair", "team", "loc", "cont", "sire"])
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, pair_id__isnull=True)\
+                                                          pair_id__isnull=True)\
             .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_datetime"]
@@ -1329,6 +1329,15 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                             "sub_model_key": obj_mixin.key,
                                             "objects_list": indvd_set,
                                             "field_list": indvd_field_list,
+                                            "single_object": obj_mixin.model.objects.first()}
+
+        indvt_set = models.IndTreatment.objects.filter(anix_id__indv_id=self.object).distinct().select_related("indvtc_id", "unit_id")
+        indvt_field_list = ["indvtc_id", "dose", "unit_id", "detail_date"]
+        obj_mixin = mixins.IndvtMixin
+        context["context_dict"]["indvt"] = {"div_title": "{} ".format(obj_mixin.title),
+                                            "sub_model_key": obj_mixin.key,
+                                            "objects_list": indvt_set,
+                                            "field_list": indvt_field_list,
                                             "single_object": obj_mixin.model.objects.first()}
 
         anix_set = self.object.animal_details.filter(loc_id__isnull=False).select_related("loc_id", "loc_id__locc_id",
@@ -1384,7 +1393,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context["heritage_field_list"] = ["Degrees Removed", "Group", "Date Removed"]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, pair_id__isnull=True)\
+                                                          pair_id__isnull=True)\
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]

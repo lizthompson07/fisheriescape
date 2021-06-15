@@ -660,16 +660,15 @@ def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
     return tray
 
 
-def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, team_pk=None, final_flag=None, return_sucess=False, return_anix=False):
+def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, team_pk=None, final_flag=None, return_sucess=False, return_anix=False):
     row_entered = False
-    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk, team_pk]):
+    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, team_pk]):
         anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                     indv_id_id=indv_pk,
                                     contx_id_id=contx_pk,
                                     loc_id_id=loc_pk,
                                     pair_id_id=pair_pk,
                                     grp_id_id=grp_pk,
-                                    indvt_id_id=indvt_pk,
                                     team_id_id=team_pk,
                                     final_contx_flag=final_flag,
                                     created_by=cleaned_data["created_by"],
@@ -687,7 +686,6 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
                                                        pair_id=anix.pair_id,
                                                        grp_id=anix.grp_id,
                                                        team_id=anix.team_id,
-                                                       indvt_id=anix.indvt_id,
                                                        ).get()
         if return_anix:
             return anix
@@ -930,6 +928,31 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, adsc_str=N
     try:
         indvd.clean()
         indvd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
+
+
+def enter_indvt(anix_pk, cleaned_data, treat_datetime, dose, indvtc_pk, treat_endtime=None, lot_num=None, unit_id=None):
+    row_entered = False
+    if isinstance(dose, float):
+        if math.isnan(dose):
+            return False
+
+    indvt = models.IndTreatment(anix_id_id=anix_pk,
+                                indvtc_id_id=indvtc_pk,
+                                lot_num=lot_num,
+                                dose=dose,
+                                start_datetime=treat_datetime,
+                                end_datetime=treat_endtime,
+                                unit_id=unit_id,
+                                created_by=cleaned_data["created_by"],
+                                created_date=cleaned_data["created_date"],
+                                )
+    try:
+        indvt.clean()
+        indvt.save()
         row_entered = True
     except (ValidationError, IntegrityError):
         pass
@@ -1392,7 +1415,10 @@ def y_n_to_bool(test_item):
             return False
         elif test_item:
             return True
-    elif test_item.upper() in ["Y", "y", "Yes", 1, "1"]:
+    elif type(test_item) == int:
+        if test_item:
+            return True
+    elif test_item.upper() in ["Y", "YES", "1"]:
         return True
     else:
         return False

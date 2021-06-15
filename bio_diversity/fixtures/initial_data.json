@@ -3281,6 +3281,20 @@
     }
 },
 {
+    "model": "bio_diversity.indtreatcode",
+    "pk": 1,
+    "fields": {
+        "name": "MS-222",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-15",
+        "rec_dose": "2 g",
+        "manufacturer": "Medication Supplier"
+    }
+},
+{
     "model": "bio_diversity.locdetsubjcode",
     "pk": 1,
     "fields": {

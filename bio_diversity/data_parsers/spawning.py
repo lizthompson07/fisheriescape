@@ -136,7 +136,6 @@ class SpawningParser(DataParser):
                                                           pair_id=pair,
                                                           indv_id__isnull=True,
                                                           contx_id__isnull=True,
-                                                          indvt_id__isnull=True,
                                                           loc_id__isnull=True,
                                                           )
         if anix_grp_qs.count() == 0:
