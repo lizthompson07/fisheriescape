@@ -56,6 +56,7 @@ var resightObject = L.geoJSON(resightObj, {
 
     onEachFeature: function (feature, layer) {
        layer.bindPopup(`Resight #: ${feature.properties.pk}<br>Date: ${feature.properties.date}</br>Comments: ${feature.properties.comments}`);
+       layer.bindTooltip(`${feature.properties.pk}`, {permanent: true, direction: 'top', offset: [1,10], className: 'pop-style'});
         }
 });
 

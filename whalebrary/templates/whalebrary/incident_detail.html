@@ -39,6 +39,18 @@
                      {{ object.response_date }}
                   </td>
                 </tr>
+            {% elif field == "data_folder" %}
+                <tr>
+                  <th>
+                    {% get_verbose_label instance=object field_name=field %}
+                  </th>
+                  <td>
+{#                     {{ object.data_folder }}#}
+                        <a href="{{ object.data_folder}}" >
+                             Open Location
+                        </a>
+                  </td>
+                </tr>
             {% else %}
                 {% verbose_td_display object field %}
           {% endif %}
@@ -68,6 +80,6 @@
 
   </script>
 
-  <script src="{% static 'whalebrary/map3.js' %}?version=1.9"></script>
+  <script src="{% static 'whalebrary/map3.js' %}?version=2.0"></script>
 
 {% endblock %}
