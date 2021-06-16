@@ -4,7 +4,10 @@
 <script type="text/x-template" id="multiple-overlay-template">
 <div class="">
 
-  <button class="btn btn-sm btn-success" @click="openDialog" type="button" ref="dup">
+  <button v-if="obs.status" class="btn btn-sm btn-success" @click="openDialog" type="button" ref="dup">
+    <span class="mdi mdi-content-duplicate text-light mr-2"></span> {% trans "Add Multiple" %}
+  </button>
+  <button v-else class="btn btn-sm btn-success" disabled type="button">
     <span class="mdi mdi-content-duplicate text-light mr-2"></span> {% trans "Add Multiple" %}
   </button>
 
@@ -60,7 +63,7 @@
                 <div class="form-group">
                   <label for="">{% trans "Starting Tag Number:" %}</label>
                   <p class="lead">
-                    ${startTagNumber}
+                    ${paddedStartTagNumber}
                   </p>
                 </div>
                 <div class="form-group">
@@ -137,12 +140,13 @@ Vue.component("multiple-overlay", {
           shouldIncrement: this.shouldIncrement,
           totalObservations: this.totalObservations,
           tagPrefix: this.tagPrefix,
-          startTagNumber: this.startTagNumber
+          startTagNumber: this.startTagNumber.number,
+          padding: this.startTagNumber.padding,
         }
         if (this.endTag) {
           // we have to figure out the total number of observations based on the endTag number
-          let startNumber = this.startTagNumber;
-          let endNumber = extractNumber(this.endTag);
+          let startNumber = this.startTagNumber.number;
+          let endNumber = extractNumber(this.endTag).number;
           if (endNumber < startNumber) this.error = '{% trans 'The end tag number is smaller than the start tag number' %}'
           else {
             returnObj.shouldIncrement = true; // always for this scenario!
@@ -168,6 +172,11 @@ Vue.component("multiple-overlay", {
     startTagNumber() {
       if (this.obs.tag_number) {
         return extractNumber(this.obs.tag_number)
+      }
+    },
+    paddedStartTagNumber() {
+      if (this.startTagNumber) {
+        return String(this.startTagNumber.number).padStart(this.startTagNumber.padding, "0")
       }
     },
   }

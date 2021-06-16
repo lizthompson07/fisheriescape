@@ -177,7 +177,8 @@
                     <td class="">${o.notes|nz}</td>
                     <td style="width: 100px;">
                       <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
-                      <button class="btn btn-xs btn-success" @click="duplicateObservation(o)"><span class="mdi mdi-content-duplicate text-light"></span></button>
+                      <button class="btn btn-xs btn-success" @click="duplicateObservation(o)"><span class="mdi mdi-content-duplicate text-light"></span>
+                      </button>
                       <button class="btn btn-xs btn-danger" @click="deleteObservation(o)"><span class="mdi mdi-close text-light"></span></button>
                     </td>
                   </tr>
@@ -209,13 +210,13 @@
         result += numberStr[i]
       }
     }
-    return Number(result)
+    return {number: Number(result), padding: result.length}
   }
 
   function extractPrefix(numberStr) {
     result = ""
     for (var i = 0; i < numberStr.length; i++) {
-      if (!Number(numberStr[i])) {
+      if (!Number(numberStr[i]) && Number(numberStr[i]) !== 0) {
         result += numberStr[i]
       }
     }
@@ -285,7 +286,7 @@
           this.observation = JSON.parse(JSON.stringify(templateObservation));
           this.observation.date_tagged = this.observation.date_tagged_display
           if (instructions.shouldIncrement && instructions.tagPrefix && instructions.startTagNumber) {
-            this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber)
+            this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
           }
           this.updateObservation();
         }
