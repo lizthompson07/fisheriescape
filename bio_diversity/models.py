@@ -1019,6 +1019,10 @@ class GroupDet(BioDet):
 
         super(GroupDet, self).save(*args, **kwargs)
 
+    @property
+    def evnt(self):
+        return self.anix_id.evnt_id
+
 
 class HeathUnit(BioCont):
     # heat tag
@@ -1291,6 +1295,10 @@ class IndividualDet(BioDet):
                         self.indvd_valid = False
 
         super(IndividualDet, self).save(*args, **kwargs)
+
+    @property
+    def evnt(self):
+        return self.anix_id.evnt_id
 
 
 class IndTreatCode(BioLookup):

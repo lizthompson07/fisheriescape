@@ -60,7 +60,7 @@ class GenericIndvParser(DataParser):
 
         if utils.nan_to_none(row[self.sex_key]):
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date,
-                                                  self.sex_dict[row[self.sex_key]],
+                                                  self.sex_dict[row[self.sex_key].upper()],
                                                   self.sex_anidc_id.pk, None, None)
         if self.len_key_mm in row.keys():
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key_mm] / 10.0,

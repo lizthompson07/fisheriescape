@@ -32,6 +32,7 @@
                 <tbody>
                 {% for obj in heritage_set %}
                 {# the 1 is to select the group object from obj, which is a tuple#}
+                {% if obj.1 %}
                 <tr href="{% url 'bio_diversity:details_grp' 'grp' object.id obj.1.id %}">
                     {% for field in obj %}
                     <td>
@@ -39,6 +40,7 @@
                     </td>
                     {% endfor %}
                 </tr>
+                {% endif %}
                 {% endfor %}
                 </tbody>
             </table>

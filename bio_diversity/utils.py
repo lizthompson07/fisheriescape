@@ -900,11 +900,15 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=N
     return row_entered
 
 
-def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, adsc_str=None, comments=None):
+def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
             return False
+
+    if anidc_str:
+        anidc_pk = models.AnimalDetCode.objects.filter(name=anidc_str).get().pk
+
     if adsc_str:
         indvd = models.IndividualDet(anix_id_id=anix_pk,
                                      anidc_id_id=anidc_pk,

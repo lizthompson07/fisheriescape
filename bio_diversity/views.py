@@ -291,7 +291,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
-                                     "Bypass Collection", "Smolt Wheel Collection"]:
+                                     "Bypass Collection", "Smolt Wheel Collection", "Salmon Ladder Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
@@ -1156,7 +1156,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         grp_set = models.GroupDet.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anidc_id',
                                                                                                         "adsc_id")
-        grpd_field_list = ["anidc_id", "adsc_id", "det_val", "grpd_valid", "detail_date"]
+        grpd_field_list = ["anidc_id", "adsc_id", "evnt|Event", "det_val", "grpd_valid", "detail_date"]
         obj_mixin = mixins.GrpdMixin
         context["context_dict"]["grpd"] = {"div_title": "{} ".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1322,8 +1322,8 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                            "field_list": evnt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=self.object).distinct().select_related("anidc_id", "adsc_id", )
-        indvd_field_list = ["anidc_id", "adsc_id", "det_val", "indvd_valid", "detail_date"]
+        indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=self.object).distinct().select_related("anidc_id", "adsc_id", "anix_id__evnt_id", "anix_id__evnt_id__evntc_id",)
+        indvd_field_list = ["anidc_id", "adsc_id", "evnt|Event", "det_val", "indvd_valid", "detail_date"]
         obj_mixin = mixins.IndvdMixin
         context["context_dict"]["indvd"] = {"div_title": "{} ".format(obj_mixin.title),
                                             "sub_model_key": obj_mixin.key,
