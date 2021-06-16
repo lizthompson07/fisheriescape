@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields, LatLongFields, UnilingualSimpleLookup
+from shared_models.models import MetadataFields, LatLongFields, UnilingualSimpleLookup, SimpleLookup
 
 YES_NO_CHOICES = (
     (True, "Yes"),
@@ -683,6 +683,10 @@ class GCProbeMeasurement(MetadataFields):
 
     def __str__(self):
         return "Probe measurement {}".format(self.id)
+
+
+class Bait(UnilingualSimpleLookup):
+    pass
 
 
 class Trap(MetadataFields, LatLongFields):
