@@ -3349,7 +3349,7 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             site_qs = site_qs.filter(rive_id__name=self.kwargs.get("rive_id"))
 
         context["sites"] = site_qs
-
+        sfa_poly = None
         if self.kwargs.get("sfa"):
             sfa_poly = utils.load_sfas()[int(self.kwargs.get("sfa"))]
             new_loc_list = []
@@ -3411,7 +3411,6 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             captured_site_list = []
 
         if self.kwargs.get("sfa"):
-            sfa_poly = utils.load_sfas()[int(self.kwargs.get("sfa"))]
             new_loc_list = []
             new_line_loc_list = []
             new_site_list = []

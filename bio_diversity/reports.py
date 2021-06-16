@@ -327,7 +327,6 @@ def generate_individual_report(indv_id):
     ws_evnt = wb['Event History']
     ws_hist = wb['Heritage']
     ws_cont = wb['Containers']
-    ws_treat = wb['Treatments']
     ws_dets = wb['Details']
 
     # -----------------Heritage Sheet---------------
@@ -413,7 +412,6 @@ def generate_individual_report(indv_id):
             ws_cont['D' + str(row_count)].value = cont_evnt[2]
             row_count += 1
 
-
     #-----------------Details Sheet------------------------
     indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct().\
         order_by("anidc_id__name", "adsc_id", "-detail_date").select_related("anidc_id", "adsc_id", )
@@ -438,7 +436,6 @@ def generate_individual_report(indv_id):
         ws_dets['J' + str(row_count)].value = indvt.dose
         ws_dets['K' + str(row_count)].value = indvt.unit_id.name
         row_count += 1
-
 
     wb.save(target_file_path)
 
