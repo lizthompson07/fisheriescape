@@ -695,14 +695,10 @@ class Trap(MetadataFields, LatLongFields):
         (1, 'Fukui'),
         (2, 'Minnow'),
     )
-    # Choices for bait_type
-    BAIT_TYPE_CHOICES = (
-        (1, 'Herring'),
-    )
     sample = models.ForeignKey(GCSample, related_name='traps', on_delete=models.DO_NOTHING, editable=False)
     trap_number = models.IntegerField()
     trap_type = models.IntegerField(default=1, choices=TRAP_TYPE_CHOICES)
-    bait_type = models.IntegerField(default=1, choices=BAIT_TYPE_CHOICES)
+    bait_type = models.ForeignKey(Bait, related_name='traps', on_delete=models.DO_NOTHING)
     depth_at_set_m = models.FloatField(blank=True, null=True, verbose_name="depth at set (m)")
     gps_waypoint = models.IntegerField(blank=True, null=True, verbose_name="GPS waypoint")
     notes = models.TextField(blank=True, null=True)
