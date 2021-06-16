@@ -12,6 +12,10 @@
       text-align: left;
   }
 
+  .leaflet-popup-tip-container {
+    display: none;
+}
+
 /*.leaflet-container {*/
 /*  width: 25%;*/
 /*  height: 45%;*/
