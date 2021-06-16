@@ -283,6 +283,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
+                self.get_form_class().base_fields["trof_id"].queryset = models.Trough.objects.filter(facic_id=evnt.facic_id).order_by("name")
                 self.get_form_class().base_fields["pickc_id"].widget = forms.SelectMultiple(
                     attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
