@@ -17,6 +17,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetAccessRequiredMixin, TrapNetAdminRequiredMixin
+from .utils import get_sample_field_list
 
 
 class IndexTemplateView(TrapNetAccessRequiredMixin, CommonTemplateView):
@@ -25,20 +26,6 @@ class IndexTemplateView(TrapNetAccessRequiredMixin, CommonTemplateView):
 
 
 # Settings
-
-class SampleTypeFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
-    template_name = 'trapnet/formset.html'
-    h1 = "Manage Sample Types"
-    queryset = models.SampleType.objects.all()
-    formset_class = forms.SampleTypeFormset
-    success_url_name = "trapnet:manage_sample_types"
-    home_url_name = "trapnet:index"
-    delete_url_name = "trapnet:delete_sample_type"
-
-
-class SampleTypeHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
-    model = models.SampleType
-    success_url = reverse_lazy("trapnet:manage_sample_types")
 
 
 class StatusFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
@@ -459,25 +446,9 @@ class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
     template_name = 'trapnet/sample_detail.html'
     home_url_name = "trapnet:index"
     parent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
-    field_list = [
-        'site',
-        'sample_type',
-        'arrival_departure|{}'.format(_("arrival / departure")),
-        'air_temp|{}'.format(_("air temperature (°C)")),
-        'percent_cloud_cover',
-        'wind|{}'.format(_("wind")),
-        'precipitation_category',
-        'precipitation_comment',
-        'water_temp|{}'.format(_("water temperature (°C)")),
-        'water|{}'.format(_("water")),
-        'rpms|{}'.format(_("RPMs")),
-        'operating_condition',
-        'operating_condition_comment',
-        'species_list|{}'.format(_("species caught")),
-        'tag_list|{}'.format(_("tags issued")),
-        'notes',
-        'metadata',
-    ]
+
+    def get_field_list(self):
+        return get_sample_field_list(self.get_object())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

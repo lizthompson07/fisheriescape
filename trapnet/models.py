@@ -1,4 +1,5 @@
 import os
+import statistics
 
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -14,6 +15,7 @@ from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import MetadataFields, SimpleLookup
+from shared_models.utils import remove_nulls
 
 
 class CodeModel(SimpleLookup):
@@ -105,20 +107,12 @@ class Species(MetadataFields):
         return reverse("trapnet:species_detail", kwargs={"pk": self.id})
 
 
-class SampleType(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-    code = models.CharField(max_length=5, blank=True, null=True)
+class Electrofisher(SimpleLookup):
+    model_number = models.CharField(max_length=255, blank=True, null=True)
+    serial_number = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("name"))))
-
-    class Meta:
-        ordering = ['name', ]
-
-
-class Electrofisher(SimpleLookup):
-    pass
+        return f"{self.tname} (s/n: {nz(self.serial_number, '---')})"
 
 
 class Sample(MetadataFields):
@@ -155,7 +149,7 @@ class Sample(MetadataFields):
         (3, _("not operational")),
     )
     sample_type_choices = (
-        (1, _("Rotary Screw Trap (RST)")),
+        (1, _("Rotary Screw Trap")),
         (2, _("Electrofishing")),
     )
 
@@ -172,7 +166,6 @@ class Sample(MetadataFields):
     crew_seine = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (seine)"))
     crew_dipnet = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (dipnet)"))
     crew_extras = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (extras)"))
-
 
     # site description
     percent_riffle = models.FloatField(blank=True, null=True, verbose_name=_("riffle"), validators=(MinValueValidator(0), MaxValueValidator(1)))
@@ -211,8 +204,8 @@ class Sample(MetadataFields):
     discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="discharge (m3/s)")
     water_temp_c = models.FloatField(null=True, blank=True, verbose_name="water temperature (°C)")
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
-    water_cond = models.FloatField(null=True, blank=True, verbose_name="Water Conductivity (Specific)",
-                                   help_text=_("THe measurement is to 1 decimal place in micro siemens (µS)"))
+    water_cond = models.FloatField(null=True, blank=True, verbose_name="specific conductivity (µS)",
+                                   help_text=_("The measurement is to 1 decimal place in micro siemens (µS)"))
     overhanging_veg_left = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Left"))
     overhanging_veg_right = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"))
     max_overhanging_veg_left = models.IntegerField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Left"))
@@ -234,7 +227,8 @@ class Sample(MetadataFields):
     operating_condition = models.IntegerField(blank=True, null=True, choices=operating_condition_choices)
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
 
-    electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True, null=True)
+    electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
+                                      null=True)
     electrofisher_voltage = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher voltage (V)"))
     electrofisher_output = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output (amps)"))
     electrofisher_frequency = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher frequency (Hz)"))
@@ -248,7 +242,22 @@ class Sample(MetadataFields):
         Full wetted width:
         (average of the left and right bank lengths)    X    (average of the lower, middle, and upper stream widths)
         """
-        return
+        errors = list()
+        if not self.bank_length_left:
+            errors.append("missing left bank length")
+        if not self.bank_length_right:
+            errors.append("missing right bank length")
+        if not self.width_lower:
+            errors.append("missing lower stream width")
+        if not self.width_middle:
+            errors.append("missing middle stream width")
+        if not self.width_upper:
+            errors.append("missing upper stream width")
+        if len(errors):
+            return mark_safe(f"<em class='text-muted'>{listrify(errors)}</em>")
+        else:
+            return statistics.mean([self.bank_length_left, self.bank_length_right]) * statistics.mean(
+                [self.width_lower, self.width_middle, self.width_upper])
 
     @property
     def substrate_profile(self):
@@ -279,6 +288,15 @@ class Sample(MetadataFields):
             if attr and attr > 0:
                 my_str += f"{int(attr * 100)}% {substrate}<br> "
         return mark_safe(my_str)
+
+    def get_avg_depth(self, which_depth):
+        d1 = getattr(self, f"depth_1_{which_depth}")
+        d2 = getattr(self, f"depth_2_{which_depth}")
+        d3 = getattr(self, f"depth_3_{which_depth}")
+        depths = [d1, d2, d3]
+        remove_nulls(depths)
+        if len(depths):
+            return round(statistics.mean(depths), 3)
 
     @property
     def site_profile(self):
@@ -337,7 +355,7 @@ class Sample(MetadataFields):
         return reverse("trapnet:sample_detail", kwargs={"pk": self.id})
 
     def __str__(self):
-        return "Sample {}".format(self.id)
+        return "{} ({})".format(self.get_sample_type_display(), self.id)
 
     @property
     def arrival_departure(self):
@@ -356,12 +374,19 @@ class Sample(MetadataFields):
         )
 
     @property
-    def water(self):
-        return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}; <u>discharge (m<sup>3</sup>/s):</u> {dischard}").format(
-            depth=nz(self.water_depth_m, "---"),
-            delta=nz(self.water_level_delta_m, "---"),
-            dischard=nz(self.discharge_m3_sec, "---"),
-        ))
+    def water_depth_display(self):
+        if self.sample_type == 1:
+            return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}; <u>discharge (m<sup>3</sup>/s):</u> {dischard}").format(
+                depth=nz(self.water_depth_m, "---"),
+                delta=nz(self.water_level_delta_m, "---"),
+                dischard=nz(self.discharge_m3_sec, "---"),
+            ))
+        elif self.sample_type == 2:
+            return mark_safe(_("<u>avg. lower depth (cm):</u> {d1}<br> <u>avg. middle depth (cm):</u> {d2}<br> <u>avg. upper depth (cm):</u> {d3}").format(
+                d1=nz(self.get_avg_depth("lower"), "---"),
+                d2=nz(self.get_avg_depth("middle"), "---"),
+                d3=nz(self.get_avg_depth("upper"), "---"),
+            ))
 
     @property
     def rpms(self):
@@ -379,18 +404,23 @@ class Sample(MetadataFields):
 
     @property
     def water_temp(self):
-        return _("<u>@shore:</u> {shore} <u>@trap:</u> {trap}").format(
-            shore=nz(self.water_temp_shore_c, "---"),
-            trap=nz(self.water_temp_trap_c, "---"),
-        )
+        my_str = _("<u>general:</u> {shore}").format(shore=nz(self.water_temp_c, "---"))
+        if self.water_temp_trap_c:
+            my_str += _("<br><u>@trap:</u> {trap}").format(trap=nz(self.water_temp_trap_c, "---"))
+        return my_str
+
+    @property
+    def electrofisher_params(self):
+        return mark_safe(
+            f"voltage (V) &rarr; {nz(self.electrofisher_voltage, '---')} <br>output (amps) &rarr; {nz(self.electrofisher_output, '---')} <br>frequency (Hz) &rarr; {nz(self.electrofisher_frequency, '---')} ")
 
 
 class Sweep(MetadataFields):
     sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.DO_NOTHING)
     sweep_time = models.IntegerField(blank=True, null=True, verbose_name=_("sweep time"), help_text=_("in seconds"))
     sweep_number = models.FloatField(blank=True, null=True, verbose_name=_("sweep number"),
-                                     help_text=_("open sites are always 0.5. Clsoed sites begin at 0.5, but then are depleted starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"))
-
+                                     help_text=_(
+                                         "open sites are always 0.5. Clsoed sites begin at 0.5, but then are depleted starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"))
 
 
 class Origin(CodeModel):

@@ -134,19 +134,6 @@ class ReportSearchForm(forms.Form):
         self.fields['sites'].choices = site_choices
 
 
-class SampleTypeForm(forms.ModelForm):
-    class Meta:
-        model = models.SampleType
-        fields = "__all__"
-
-
-SampleTypeFormset = modelformset_factory(
-    model=models.SampleType,
-    form=SampleTypeForm,
-    extra=1,
-)
-
-
 class StatusForm(forms.ModelForm):
     class Meta:
         model = models.Status

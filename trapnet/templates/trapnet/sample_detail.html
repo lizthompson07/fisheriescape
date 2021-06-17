@@ -33,7 +33,7 @@
             {% for field in field_list %}
               {% if field == "site" %}
                 <tr>
-                  <th class="w-25">{% get_verbose_label object "site" %}</th>
+                  <th class="w-35">{% get_verbose_label object "site" %}</th>
                   <td><a href="{% url 'trapnet:site_detail' object.site.id %}">{{ object.site }}</a></td>
                 </tr>
               {% else %}

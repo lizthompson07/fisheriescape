@@ -7,8 +7,6 @@ urlpatterns = [
 
     # SETTINGS #
     ############
-    path('settings/sample-types/', views.SampleTypeFormsetView.as_view(), name="manage_sample_types"),
-    path('settings/sample-type/<int:pk>/delete/', views.SampleTypeHardDeleteView.as_view(), name="delete_sample_type"),
     path('settings/statuses/', views.StatusFormsetView.as_view(), name="manage_statuses"),
     path('settings/status/<int:pk>/delete/', views.StatusHardDeleteView.as_view(), name="delete_status"),
     path('settings/sexes/', views.SexFormsetView.as_view(), name="manage_sexes"),
