@@ -1,90 +1,51 @@
-{% extends "trapnet/trapnet_base.html" %}
+{% extends "trapnet/base.html" %}
 {% load static %}
 {% load verbose_names %}
-{% block content %}
+{% block subcontent %}
+  <div class="mb-3">
+    <a class="btn btn-sm btn-warning" href="{% url 'trapnet:species_edit' object.id %}">Edit</a>
+    <a class="btn btn-sm btn-danger" href="{% url 'trapnet:species_delete' object.id %}">Delete</a>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:species_list' %}"> All Species </a></li>
-            <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
-        </ol>
-    </nav>
+  </div>
 
+  <div class="row">
+    <div class="col">
+      <table class="table table-sm w-50">
+        {% for field in field_list %}
+          {% if field == "tsn" and object.tsn %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
 
-    <style type="text/css">
-        #map {
-            height: 300px; /* The height is 400 pixels */
-            width: 100%; /* The width is the width of the web page */
-        }
+                <a href="https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value={{ object.tsn }}#null"
+                   target="_blank">
+                  {{ object.tsn }}
+                </a>
+              </td>
 
-        .label {
-            font-weight: bold;
-        }
+            </tr>
+          {% elif field == "scientific_name" %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                <em>{% get_field_value object field %}</em>
 
-        strong {
-            font-weight: bold;
-            font-size: 1.2em;
-            margin-bottom: 1.2em;
-        }
+              </td>
 
-
-    </style>
-
-    <div class="container">
-
-        <br>
-        <h1>{{ object }}</h1>
-        <p>
-            <a class="btn btn-warning" href="{% url 'trapnet:species_edit' object.id %}">Edit</a>
-            {% if object.sample_spp.count == 0 %}
-                <a class="btn btn-danger" href="{% url 'trapnet:species_delete' object.id %}">Delete</a>
-            {% else %}
-                <a class="btn btn-danger disabled" href="{% url 'trapnet:species_delete' object.id %}">Delete</a>
-            {% endif %}
-
-        </p>
-
-        <br><br>
-
-        <div class="row">
-            <div class="col">
-                <table class="table table-sm table-striped" style="width: auto;">
-                    {% for field in field_list %}
-                        {% if field == "tsn" and object.tsn %}
-                            <tr>
-                                <th>{% get_verbose_label object field %}</th>
-                                <td>
-
-                                    <a href="https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value={{ object.tsn }}#null"
-                                       target="_blank">
-                                        {{ object.tsn }}
-                                    </a>
-                                </td>
-
-                            </tr>
-                        {% elif field == "scientific_name" %}
-                            <tr>
-                                <th>{% get_verbose_label object field %}</th>
-                                <td>
-                                    <em>{% get_field_value object field %}</em>
-
-                                </td>
-
-                            </tr>
-                        {% else %}
-                            {% verbose_td_display object field %}
-                        {% endif %}
-                    {% endfor %}
-                </table>
-
-            </div>
-
-
-        </div>
-
+            </tr>
+          {% else %}
+            {% verbose_td_display object field %}
+          {% endif %}
+        {% endfor %}
+      </table>
 
     </div>
 
 
-{% endblock content %}
+  </div>
+
+
+  </div>
+
+
+{% endblock %}

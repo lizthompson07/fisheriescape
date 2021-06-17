@@ -7,7 +7,7 @@
 <span id="travellers_head" ref="travellers_head" tabindex="0"></span>
 <div class="card mb-4">
   <h3 class="card-header bg-outline-dark">
-    <div class="float-right" v-if="!travellerToEdit">
+    <div class="float-right" v-if="!travellerToEdit && !trip">
       <button v-if="!isReview && canModify && !travellerToEdit" @click="addTraveller" data-toggle="tooltip" title="{% trans "Add traveller" %}"
               class="btn btn-sm btn-primary ml-2">
         <span class="mdi mdi-plus text-light"></span> {% trans "Add traveller" %}
@@ -220,7 +220,7 @@
                         data-trigger="hover" :title="travellerLabels.departure_location"
                         :data-content="helpText.departure_location"></span>
                 </label>
-                <input type="text" v-model="travellerToEdit.departure_location" class="form-control form-control-sm" required>
+                <input type="text" v-model="travellerToEdit.departure_location" class="form-control form-control-sm">
               </div>
               <div class="form-group">
                 <label for="">

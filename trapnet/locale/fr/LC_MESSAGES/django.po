@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-25 16:06-0300\n"
+"POT-Creation-Date: 2021-06-02 08:25-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 "Language: en\n"
 
-#: .\trapnet\models.py:13
+#: .\trapnet\models.py:14
 msgid "site name"
 msgstr "nom de site"
 
@@ -21,46 +21,120 @@ msgstr ""
 msgid "Exclude all data from this site?"
 msgstr ""
 
-#: .\trapnet\models.py:41 .\trapnet\models.py:81 .\trapnet\models.py:92
-#: .\trapnet\models.py:103 .\trapnet\models.py:114 .\trapnet\models.py:126
-#: .\trapnet\models.py:190 .\trapnet\models.py:202 .\trapnet\models.py:214
+#: .\trapnet\models.py:45 .\trapnet\models.py:88 .\trapnet\models.py:99
+#: .\trapnet\models.py:110 .\trapnet\models.py:121 .\trapnet\models.py:133
+#: .\trapnet\models.py:200 .\trapnet\models.py:212 .\trapnet\models.py:224
 msgid "name"
 msgstr "nom"
 
-#: .\trapnet\models.py:59
+#: .\trapnet\models.py:65
 msgid "common_name_eng"
 msgstr "common_name_fre"
 
-#: .\trapnet\models.py:159
+#: .\trapnet\models.py:77
+msgid "species"
+msgstr ""
+
+#: .\trapnet\models.py:166
 msgid "last modified by"
 msgstr "dernièrement modifié par"
 
-#: .\trapnet\models.py:227
-msgid "frequency"
-msgstr ""
-
-#: .\trapnet\models.py:228 .\trapnet\models.py:229
-msgid "fork length (mm)"
-msgstr ""
-
-#: .\trapnet\models.py:230
-msgid "weight (g)"
+#: .\trapnet\models.py:216
+msgid "statuses"
 msgstr ""
 
 #: .\trapnet\models.py:235
+msgid "frequency"
+msgstr ""
+
+#: .\trapnet\models.py:236 .\trapnet\models.py:237
+msgid "fork length (mm)"
+msgstr ""
+
+#: .\trapnet\models.py:238
+msgid "weight (g)"
+msgstr ""
+
+#: .\trapnet\models.py:243
 msgid "scale ID number"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\river_list.html:36
-#: .\trapnet\templates\trapnet\sample_list.html:45
-#: .\trapnet\templates\trapnet\species_list.html:51
-msgid "(click on a header to sort table)"
-msgstr "(cliquez sur un en-tête pour trier le tableau)"
+#: .\trapnet\templates\trapnet\base\_app_title.html:2
+msgid "TrapNET"
+msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_list.html:49
-msgid "displaying"
-msgstr "afficher"
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:4
+#: .\trapnet\views.py:25
+msgid "Home"
+msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_list.html:49
-msgid "of"
-msgstr "de"
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:10
+msgid "Reports"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:16
+msgid "Settings"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:19
+#: .\trapnet\views.py:119 .\trapnet\views.py:132 .\trapnet\views.py:155
+#: .\trapnet\views.py:168 .\trapnet\views.py:182
+msgid "Species"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:20
+#: .\trapnet\views.py:221 .\trapnet\views.py:244 .\trapnet\views.py:270
+#: .\trapnet\views.py:281 .\trapnet\views.py:296 .\trapnet\views.py:321
+#: .\trapnet\views.py:338 .\trapnet\views.py:364
+msgid "Rivers"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:22
+msgid "Sample Types"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:25
+msgid "Statuses"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:28
+msgid "Sexes"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:31
+msgid "Life Stages"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\base\_nav_left_auth.html:34
+msgid "Origins"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\form.html:36
+msgid "Degrees (DD)"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\form.html:37
+msgid "Minutes (MM.mmmmm)"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\sample_detail.html:29
+msgid "Sample Details"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\sample_detail.html:37
+msgid "Entry Summary"
+msgstr ""
+
+#: .\trapnet\views.py:403 .\trapnet\views.py:419 .\trapnet\views.py:431
+#: .\trapnet\views.py:482 .\trapnet\views.py:498
+msgid "Samples"
+msgstr ""
+
+#~ msgid "(click on a header to sort table)"
+#~ msgstr "(cliquez sur un en-tête pour trier le tableau)"
+
+#~ msgid "displaying"
+#~ msgstr "afficher"
+
+#~ msgid "of"
+#~ msgstr "de"

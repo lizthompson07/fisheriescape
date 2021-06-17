@@ -19,10 +19,12 @@ YESNO_CHOICES = (
 
 
 class Sector(SimpleLookup):
+    name = models.CharField(unique=False, max_length=255, verbose_name=_("name (en)"))
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=False, null=True)
 
     class Meta:
         ordering = ["region", _("name"), ]
+        unique_together = (("region", "name"), )
 
     def __str__(self):
         mystr = self.tname
@@ -69,14 +71,14 @@ class Organization(models.Model):
     mailing_address = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("mailing address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("postal code"))
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province/territory"))
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
     dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("DFO contacts"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
     key_species = models.TextField(blank=True, null=True, verbose_name=_("key species"))
     grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"), blank=False)
-    regions = models.ManyToManyField(shared_models.Region, verbose_name=_("regions"), blank=True)
+    regions = models.ManyToManyField(shared_models.Region, verbose_name=_("regions"), blank=True, related_name="organizations")
     sectors = models.ManyToManyField(Sector, verbose_name=_("DFO sector"), blank=True)
 
     # ihub only

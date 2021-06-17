@@ -404,3 +404,16 @@ WeatherConditionFormset = modelformset_factory(
     form=WeatherConditionForm,
     extra=1,
 )
+
+
+class BaitForm(forms.ModelForm):
+    class Meta:
+        model = models.Bait
+        fields = "__all__"
+
+
+BaitFormset = modelformset_factory(
+    model=models.Bait,
+    form=BaitForm,
+    extra=1,
+)
