@@ -151,6 +151,77 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     return target_url
 
 
+def generate_detail_report(adsc_id):
+    # report is given an animal detail subjective code (skinny/precocious) and returns
+    # all fish with that detail
+    # group and that detail count
+    # container breakdown of the detail
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
+                                      "detail_report_template.xlsx")
+    indvd_set = models.IndividualDet.objects.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False).\
+        select_related("anix_id__indv_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id",)
+    indv_list = list(dict.fromkeys([indvd.anix_id.indv_id for indvd in indvd_set]))
+    sampd_set = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id__isnull=False).\
+        select_related("samp_id__anix_id__grp_id", "samp_id__anix_id__grp_id__stok_id", "samp_id__anix_id__grp_id__coll_id",)
+    grp_list = list(dict.fromkeys([sampd.samp_id.anix_id.grp_id for sampd in sampd_set]))
+
+    wb = load_workbook(filename=template_file_path)
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws_indv = wb['Individuals']
+    ws_grp = wb['Groups']
+
+    ws_indv['A1'].value = "Detail: {}".format(adsc_id.name)
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in indv_list:
+        ws_indv['A' + str(row_count)].value = item.pit_tag
+        ws_indv['B' + str(row_count)].value = item.stok_id.name
+        ws_indv['C' + str(row_count)].value = item.indv_year
+        ws_indv['D' + str(row_count)].value = item.coll_id.name
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+        ws_indv['F' + str(row_count)].value = item.individual_detail("Gender")
+        ws_indv['G' + str(row_count)].value = item.indv_valid
+
+        indvd_qs = models.IndividualDet.objects.filter(adsc_id=adsc_id, anix_id__indv_id=item).order_by("-detail_date")
+        ws_indv['H' + str(row_count)].value = len(indvd_qs)
+        ws_indv['I' + str(row_count)].value = indvd_qs.first().detail_date
+        ws_indv['J' + str(row_count)].value = indvd_qs.last().detail_date
+        ws_indv['K' + str(row_count)].value = indvd_qs.first().anix_id.evnt_id.__str__()
+        ws_indv['L' + str(row_count)].value = indvd_qs.last().anix_id.evnt_id.__str__()
+
+        row_count += 1
+
+    ws_grp['A1'].value = "Detail: {}".format(adsc_id.name)
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in grp_list:
+        ws_grp['A' + str(row_count)].value = item.stok_id.name
+        ws_grp['B' + str(row_count)].value = item.grp_year
+        ws_grp['C' + str(row_count)].value = item.coll_id.name
+        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank()])
+        ws_grp['E' + str(row_count)].value = item.grp_valid
+
+        sampd_qs = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id=item).order_by("-detail_date")
+        ws_grp['F' + str(row_count)].value = len(sampd_qs)
+        ws_grp['G' + str(row_count)].value = sampd_qs.first().detail_date
+        ws_grp['H' + str(row_count)].value = sampd_qs.last().detail_date
+        ws_grp['I' + str(row_count)].value = sampd_qs.first().samp_id.anix_id.evnt_id.__str__()
+        ws_grp['J' + str(row_count)].value = sampd_qs.last().samp_id.anix_id.evnt_id.__str__()
+        row_count += 1
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
 def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
     cnt_slots = "GHIJKLMNOPQRSTUV"
     grps = [(anix.grp_id.__str__(), anix.grp_id.prog_group(get_string=True)) for anix in
@@ -256,7 +327,7 @@ def generate_individual_report(indv_id):
     ws_evnt = wb['Event History']
     ws_hist = wb['Heritage']
     ws_cont = wb['Containers']
-    ws_treat = wb['Treatments']
+    ws_dets = wb['Details']
 
     # -----------------Heritage Sheet---------------
     prnt_grp_set = indv_id.get_parent_history()
@@ -279,8 +350,7 @@ def generate_individual_report(indv_id):
     ws_evnt['E2'].value = indv_id.__str__()
     ws_evnt['E3'].value = indv_id.pit_tag
 
-    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                  indvt_id__isnull=True, pair_id__isnull=True) \
+    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True, pair_id__isnull=True) \
         .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
                                                             'evnt_id__prog_id', 'evnt_id__perc_id')
     evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
@@ -298,8 +368,7 @@ def generate_individual_report(indv_id):
         start_date = utils.naive_to_aware(grp_id.start_date())
         end_date = utils.naive_to_aware(grp_tuple[2])
         anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, pair_id__isnull=True,
-                                                     evnt_id__start_datetime__lte=end_date,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date)\
             .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
                                                                 'evnt_id__prog_id', 'evnt_id__perc_id')
@@ -312,8 +381,7 @@ def generate_individual_report(indv_id):
             row_count += 1
 
     #-----------------Container Sheet------------------------
-    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                  indvt_id__isnull=True, pair_id__isnull=True)\
+    anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
         .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
         .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
@@ -331,8 +399,7 @@ def generate_individual_report(indv_id):
         start_date = utils.naive_to_aware(grp_id.start_date())
         end_date = utils.naive_to_aware(grp_tuple[2])
         anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, pair_id__isnull=True,
-                                                     evnt_id__start_datetime__lte=end_date,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date)\
             .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
@@ -344,6 +411,32 @@ def generate_individual_report(indv_id):
             ws_cont['C' + str(row_count)].value = cont_evnt[3]
             ws_cont['D' + str(row_count)].value = cont_evnt[2]
             row_count += 1
+
+    #-----------------Details Sheet------------------------
+    indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct().\
+        order_by("anidc_id__name", "adsc_id", "-detail_date").select_related("anidc_id", "adsc_id", )
+    row_count = 5
+    for indvd in indvd_set:
+        adsc_name = ""
+        if indvd.adsc_id:
+            adsc_name = indvd.adsc_id.name
+        ws_dets['A' + str(row_count)].value = indvd.detail_date
+        ws_dets['B' + str(row_count)].value = indvd.anidc_id.name
+        ws_dets['C' + str(row_count)].value = adsc_name
+        ws_dets['D' + str(row_count)].value = indvd.det_val
+        ws_dets['E' + str(row_count)].value = indv_id.current_cont(indvd.detail_date)[0].name
+        row_count += 1
+
+    indvt_set = models.IndTreatment.objects.filter(anix_id__indv_id=indv_id).distinct().select_related("indvtc_id",
+                                                                                                           "unit_id")
+    row_count = 5
+    for indvt in indvt_set:
+        ws_dets['H' + str(row_count)].value = indvt.start_date
+        ws_dets['I' + str(row_count)].value = indvt.indvtc_id.name
+        ws_dets['J' + str(row_count)].value = indvt.dose
+        ws_dets['K' + str(row_count)].value = indvt.unit_id.name
+        row_count += 1
+
     wb.save(target_file_path)
 
     return target_url

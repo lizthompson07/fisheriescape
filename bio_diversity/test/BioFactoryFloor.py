@@ -55,7 +55,6 @@ class AnixFactory(factory.django.DjangoModelFactory):
     contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
     final_contx_flag = factory.lazy_attribute(lambda o: faker.boolean())
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
-    indvt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtFactory")
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
     pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
@@ -68,7 +67,6 @@ class AnixFactory(factory.django.DjangoModelFactory):
         evnt = EvntFactory()
         contx = ContxFactory()
         loc = LocFactory()
-        indvt = IndvtFactory()
         indv = IndvFactory()
         pair = PairFactory()
         grp = GrpFactory()
@@ -80,7 +78,6 @@ class AnixFactory(factory.django.DjangoModelFactory):
             'contx_id': contx.pk,
             'final_contx_flag': obj.final_contx_flag,
             'loc_id': loc.pk,
-            'indvt_id': indvt.pk,
             'indv_id': indv.pk,
             'pair_id': pair.pk,
             'grp_id': grp.pk,
@@ -1328,6 +1325,7 @@ class IndvtFactory(factory.django.DjangoModelFactory):
         model = models.IndTreatment
 
     indvtc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtcFactory")
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     lot_num = factory.lazy_attribute(lambda o: faker.word())
     dose = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
@@ -1343,13 +1341,14 @@ class IndvtFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         indvtc = IndvtcFactory()
+        anix = AnixFactory()
         unit = UnitFactory()
         obj = IndvtFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
-
             'indvtc_id': indvtc.pk,
+            'anix_id': anix.pk,
             'lot_num': obj.lot_num,
             'dose': obj.dose,
             'unit_id': unit.pk,

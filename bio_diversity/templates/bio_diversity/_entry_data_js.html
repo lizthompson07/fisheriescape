@@ -5,7 +5,7 @@
       $("#loading_fish").hide();
     };
 
-    $("#submit_btn").click(function (e) {
+    $('form').on('submit', function(e){
         setLoadingGif();
     })
 
@@ -21,12 +21,21 @@
     function setDataFields() {
         var e = document.getElementById("id_data_type");
         var dataType = e.value;
-        console.log(dataType)
-        if ( dataType=="Temperature" ) {
+        if ( dataType==0 ) {
             $("#id_trof_id").parent().show();
+            $("#id_pickc_id").parent().hide();
+
         }
-        else  {
+        else if ( dataType==1 || dataType==4 ) {
+            $("#id_pickc_id").parent().show();
             $("#id_trof_id").parent().hide();
+
+        }
+        else if ( dataType==2 || dataType==3 || dataType==-1 ) {
+            if ( $(id_trof_id).parent().is(":visible")) {
+                $("#id_trof_id").parent().hide();
+            }
+            $("#id_pickc_id").parent().hide();
         }
     }
 </script>
