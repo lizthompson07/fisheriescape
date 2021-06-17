@@ -12,6 +12,10 @@
   .v-select {
       background-color: white;
   }
+  .table-input{
+      width: 100%;
+      height: 25px;
+  }
   </style>
   {#  <div class="h3">  {% trans "Data Entry Mode for " %} {{ object }}  </div>#}
 
@@ -34,9 +38,9 @@
               ${successMsg}
             </div>
             <form @submit.prevent="updateObservation">
-              <table class="table table-sm table-small-12">
+              <table class="my-table table-small-12">
                 <tr>
-                  <td class="w-35">
+                  <td class="w-50">
                     <label for="">${labels.species}</label>
                   </td>
                   <td>
@@ -46,7 +50,7 @@
                       :options="speciesChoices"
                       :reduce="choice => choice.value"
                       label="text"
-                      class="no-borders"
+                      class=""
                       :clearable=false
                       required
                     ></v-select>
@@ -55,7 +59,7 @@
                 <tr>
                   <td><label for="">${labels.status}</label></td>
                   <td>
-                    <select v-model="observation.status" class="form-control" required>
+                    <select v-model="observation.status" class="table-input" required>
                       <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
                     </select>
                   </td>
@@ -63,7 +67,7 @@
                 <tr>
                   <td><label for="">${labels.origin}</label></td>
                   <td>
-                    <select v-model="observation.origin" class="form-control">
+                    <select v-model="observation.origin" class="table-input">
                       <option v-for="c in originChoices" :value="c.value" :label="c.text"></option>
                     </select>
                   </td>
@@ -71,7 +75,7 @@
                 <tr>
                   <td><label for="">${labels.sex}</label></td>
                   <td>
-                    <select v-model="observation.sex" class="form-control">
+                    <select v-model="observation.sex" class="table-input">
                       <option v-for="c in sexChoices" :value="c.value" :label="c.text"></option>
                     </select>
                   </td>
@@ -79,44 +83,44 @@
 
                 <tr>
                   <td><label for="">${labels.fork_length}</label></td>
-                  <td><input type="number" step="any" v-model="observation.fork_length" class="form-control"/></td>
+                  <td><input type="number" step="any" v-model="observation.fork_length" class="table-input"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.total_length}</label></td>
-                  <td><input type="number" step="any" v-model="observation.total_length" class="form-control"/></td>
+                  <td><input type="number" step="any" v-model="observation.total_length" class="table-input"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.weight}</label></td>
-                  <td><input type="number" step="any" v-model="observation.weight" class="form-control"/></td>
+                  <td><input type="number" step="any" v-model="observation.weight" class="table-input"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.tag_number}</label></td>
-                  <td><input type="text" v-model="observation.tag_number" class="form-control"/></td>
+                  <td><input type="text" v-model="observation.tag_number" class="table-input"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.location_tagged}</label></td>
-                  <td><input type="text" v-model="observation.location_tagged" class="form-control"/></td>
+                  <td><input type="text" v-model="observation.location_tagged" class="table-input"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.date_tagged}</label></td>
-                  <td><input type="date" v-model="observation.date_tagged" class="form-control"/></td>
+                  <td><input type="date" v-model="observation.date_tagged" class="table-input"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.scale_id_number}</label></td>
-                  <td><input type="text" v-model="observation.scale_id_number" class="form-control"/></td>
+                  <td><input type="text" v-model="observation.scale_id_number" class="table-input"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.tags_removed}</label></td>
-                  <td><input type="text" v-model="observation.tags_removed" class="form-control"/></td>
+                  <td><input type="text" v-model="observation.tags_removed" class="table-input"/></td>
                 </tr>
                 <tr>
                   <td><label for="">${labels.notes}</label></td>
-                  <td><input type="text" v-model="observation.notes" class="form-control"/></td>
+                  <td><input type="text" v-model="observation.notes" class="table-input"/></td>
                 </tr>
 
               </table>
 
-              <div class="form-group col">
+              <div class="form-group mt-3">
                 <div class="float-right">
                   <multiple-overlay v-if="!observation.id" :obs="observation" @submitted="addMultiple" ref="multiple"></multiple-overlay>
                 </div>
@@ -140,62 +144,62 @@
                 <table class="table table-sm table-small-10">
                   <thead>
                   <tr>
-                    <th>#</th>
-                    <th class="">${labels.species}</th>
-                    <th class="">${labels.status}</th>
-                    <th class="">${labels.origin}</th>
-                    <th class="">${labels.sex}</th>
-                    <th class="">${labels.fork_length}</th>
-                    <th class="">${labels.total_length}</th>
-                    <th class="">${labels.weight}</th>
-                    <th class="">${labels.tag_number}</th>
-                    <th class="">${labels.location_tagged}</th>
-                    <th class="">${labels.date_tagged}</th>
-                    <th class="">${labels.scale_id_number}</th>
-                    <th class="">${labels.tags_removed}</th>
-                    <th class="">${labels.notes}</th>
+                    <th class="w50">#</th>
+                    <th class="w75">${labels.species}</th>
+                    <th class="w75">${labels.status}</th>
+                    <th class="w75">${labels.origin}</th>
+                    <th class="w75">${labels.sex}</th>
+                    <th class="w75">${labels.fork_length}</th>
+                    <th class="w75">${labels.total_length}</th>
+                    <th class="w75">${labels.weight}</th>
+                    <th class="w75">${labels.tag_number}</th>
+                    <th class="w75">${labels.location_tagged}</th>
+                    <th class="w75">${labels.date_tagged}</th>
+                    <th class="w75">${labels.scale_id_number}</th>
+                    <th class="w75">${labels.tags_removed}</th>
+                    <th class="w75">${labels.notes}</th>
                   </tr>
                   </thead>
                   <tbody>
                   <tr v-for="o, index in observations" :key="o.id" :class="{'mild-concern':o.id===observation.id}">
                     <td>${index+1}</td>
-                    <td>${o.species_display|nz}</td>
-                    <td v-if="observation.id !== o.id">${o.status_display|nz}</td>
+                    <td @click="editObservation(o)">${o.species_display|nz}</td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.status_display|nz}</td>
                     <td v-else>
-                      <select v-model="observation.status" class="form-control" required>
+                      <select v-model="observation.status" class="table-input" required @keyup.enter="updateObservation">
                         <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
                       </select>
                     </td>
-                    <td v-if="observation.id !== o.id">${o.origin_display|nz}</td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.origin_display|nz}</td>
                     <td v-else>
-                      <select v-model="observation.origin" class="form-control">
+                      <select v-model="observation.origin" class="table-input" @keyup.enter="updateObservation">
                         <option v-for="c in originChoices" :value="c.value" :label="c.text"></option>
                       </select>
                     </td>
-                    <td v-if="observation.id !== o.id">${o.sex_display|nz}</td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.sex_display|nz}</td>
                     <td v-else>
-                      <select v-model="observation.sex" class="form-control">
+                      <select v-model="observation.sex" class="table-input" @keyup.enter="updateObservation">
                         <option v-for="c in sexChoices" :value="c.value" :label="c.text"></option>
                       </select>
                     </td>
-                    <td v-if="observation.id !== o.id">${o.fork_length|nz}</td>
-                    <td v-else><input type="number" step="any" v-model="observation.fork_length" class="form-control p-0"/></td>
-                    <td v-if="observation.id !== o.id">${o.total_length|nz}</td>
-                    <td v-else><input type="number" step="any" v-model="observation.total_length" class="form-control p-0"/></td>
-                    <td v-if="observation.id !== o.id">${o.weight|nz}</td>
-                    <td v-else><input type="number" step="any" v-model="observation.weight" class="form-control p-0"/></td>
-                    <td v-if="observation.id !== o.id">${o.tag_number|nz}</td>
-                    <td v-else><input type="text" v-model="observation.tag_number" class="form-control p-0"/></td>
-                    <td v-if="observation.id !== o.id">${o.location_tagged|nz}</td>
-                    <td v-else><input type="text" v-model="observation.location_tagged" class="form-control p-0"/></td>
-                    <td v-if="observation.id !== o.id">${o.date_tagged_display|nz}</td>
-                    <td v-else><input type="date" v-model="observation.date_tagged" class="form-control p-0"/></td>
-                    <td v-if="observation.id !== o.id">${o.scale_id_number|nz}</td>
-                    <td v-else><input type="text" v-model="observation.scale_id_number" class="form-control p-0"/></td>
-                    <td v-if="observation.id !== o.id">${o.tags_removed|nz}</td>
-                    <td v-else><input type="text" v-model="observation.tags_removed" class="form-control p-0"/></td>
-                    <td v-if="observation.id !== o.id">${o.notes|nz}</td>
-                    <td v-else><input type="text" v-model="observation.notes" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.fork_length|nz}</td>
+                    <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.fork_length" class="table-input"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.total_length|nz}</td>
+                    <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.total_length" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.weight|nz}</td>
+                    <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.weight" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.tag_number|nz}</td>
+                    <td v-else><input type="text" v-model="observation.tag_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.location_tagged|nz}</td>
+                    <td v-else><input type="text" v-model="observation.location_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.date_tagged_display|nz}</td>
+                    <td v-else><input type="date" v-model="observation.date_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.scale_id_number|nz}</td>
+                    <td v-else><input type="text" v-model="observation.scale_id_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.tags_removed|nz}</td>
+                    <td v-else><input type="text" v-model="observation.tags_removed" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.notes|nz}</td>
+                    <td v-else><input type="text" v-model="observation.notes" @keyup.enter="updateObservation" class="table-input p-0"/></td>
                     <td style="width: 100px;">
                       <div v-if="observation.id !== o.id">
                         <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
