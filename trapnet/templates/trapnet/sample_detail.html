@@ -61,44 +61,86 @@
     </div>
   </div>
   <div class="mb-5">
-    <div class="card">
-      <div class="card-header lead">
-        <div class="float-right">
-          <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
 
+    {% if object.sample_type == 1 %}
+      <div class="card">
+        <div class="card-header lead">
+          <div class="float-right">
+            <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
+          </div>
+          {% trans "Observations" %}
         </div>
-        {% trans "Observations" %}
-      </div>
-      <div class="card-body">
-        {% if not object.observations.exists %}
-          <em>{% trans "There are no observations associated with this sample." %}</em>
-        {% else %}
-          <table class="table table-sm table-hover table-small-10 sortable">
-            <thead>
-            <tr>
-              {% for field in obs_field_list %}
-                <th>
-                  {% get_verbose_label object.observations.first field %}
-                </th>
-              {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-            {% for obs in object.observations.all %}
-              <tr href="{% url 'trapnet:obs_detail' obs.id %}">
+        <div class="card-body">
+          {% if not object.observations.exists %}
+            <em>{% trans "There are no observations associated with this sample." %}</em>
+          {% else %}
+            <table class="table table-sm table-hover table-small-10 sortable">
+              <thead>
+              <tr>
                 {% for field in obs_field_list %}
-                  <td>
-                    {% get_field_value obs field %}
-                  </td>
+                  <th>
+                    {% get_verbose_label object.observations.first field %}
+                  </th>
                 {% endfor %}
               </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        {% endif %}
+              </thead>
+              <tbody>
+              {% for obs in object.observations.all %}
+                <tr href="{% url 'trapnet:obs_detail' obs.id %}">
+                  {% for field in obs_field_list %}
+                    <td>
+                      {% get_field_value obs field %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
 
+        </div>
       </div>
-    </div>
+    {% endif %}
+
+    {% if object.sample_type == 2 %}
+      <div class="card">
+        <div class="card-header lead">
+          <div class="float-right">
+            <a class="btn btn-success btn-sm" href="{% url 'trapnet:sweep_new' object.id %}">{% trans "New" %}</a>
+          </div>
+          {% trans "Sweeps" %}
+        </div>
+        <div class="card-body">
+          {% if not object.sweeps.exists %}
+            <em>{% trans "There are no sweeps associated with this sample." %}</em>
+          {% else %}
+            <table class="table table-sm table-hover sortable">
+              <thead>
+              <tr>
+                {% for field in sweep_field_list %}
+                  <th>
+                    {% get_verbose_label object.sweeps.first field %}
+                  </th>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for sweep in object.sweeps.all %}
+                <tr href="{% url 'trapnet:sweep_detail' sweep.id %}">
+                  {% for field in sweep_field_list %}
+                    <td>
+                      {% get_field_value sweep field %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
   </div>
 {% endblock %}
 

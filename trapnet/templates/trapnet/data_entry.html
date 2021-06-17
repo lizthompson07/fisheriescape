@@ -195,7 +195,8 @@
   {{ block.super }}
   {% include "trapnet/multiple-overlay.html" %}
   <script type="application/javascript">
-  sampleId = {{ object.id }};
+  sampleId = {{ sample_id|safe }};
+  sweepId = {{ sweep_id|safe }};
 
   function extractNumber(numberStr) {
     result = ""
@@ -250,6 +251,7 @@
       primeObservation() {
         this.observation = {
           sample: sampleId,
+          sweep: sweepId,
           origin: "2",
         }
         this.$nextTick(() => {
@@ -258,7 +260,9 @@
       },
       getObservations() {
         this.loading = true;
-        let endpoint = `/api/trapnet/observations/?sample=${sampleId}`;
+        let endpoint ;
+        if(sampleId) endpoint = `/api/trapnet/observations/?sample=${sampleId}`;
+        if(sweepId) endpoint = `/api/trapnet/observations/?sweep=${sweepId}`;
         apiService(endpoint).then(data => {
           this.observations = data;
           this.loading = false;

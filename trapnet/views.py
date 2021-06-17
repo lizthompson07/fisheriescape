@@ -401,6 +401,7 @@ class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
     paginate_by = 25
     container_class = "container"
     field_list = [
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'season', "class": "", "width": ""},
         {"name": 'sample_type', "class": "", "width": ""},
         {"name": 'site', "class": "", "width": ""},
@@ -441,6 +442,7 @@ class SampleCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
             return HttpResponseRedirect(reverse_lazy("trapnet:sample_edit", args=[obj.id]))
         return super().form_valid(form)
 
+
 class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
     model = models.Sample
     template_name = 'trapnet/sample_detail.html'
@@ -460,6 +462,11 @@ class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
             'tag_number',
             'scale_id_number',
         ]
+        context['sweep_field_list'] = [
+            "sweep_number",
+            "sweep_time",
+            "observation_count|{}".format("# observations"),
+        ]
 
         return context
 
@@ -477,16 +484,129 @@ class SampleDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
         return self.get_grandparent_crumb()["url"]
 
 
-class SampleDataEntryVueJSView(TrapNetAdminRequiredMixin, CommonDetailView):
-    model = models.Sample
+class DataEntryVueJSView(TrapNetAdminRequiredMixin, CommonTemplateView):
     template_name = 'trapnet/data_entry.html'
     home_url_name = "trapnet:index"
-    grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+    greatgrandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
     container_class = "container-fluid"
     active_page_name_crumb = gettext_lazy("Data Entry Mode")
+    h1 = " "
+
+    def get_grandparent_crumb(self):
+        if self.kwargs.get("sweep"):
+            sweep = get_object_or_404(models.Sweep, pk=self.kwargs.get("sweep"))
+            return {"title": sweep.sample, "url": reverse("trapnet:sample_detail", args=[sweep.sample.id])}
+        elif self.kwargs.get("sample"):
+            sample = get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+            return {"title": sample, "url": reverse("trapnet:sample_detail", args=[sample.id])}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse("trapnet:sample_detail", args=[self.get_object().id])}
+        if self.kwargs.get("sweep"):
+            sweep = get_object_or_404(models.Sweep, pk=self.kwargs.get("sweep"))
+            return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["sample_id"] = self.kwargs.get("sample", "null")
+        context["sweep_id"] = self.kwargs.get("sweep", "null")
+        return context
+
+
+# SWEEPS #
+##########
+
+class SweepCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
+    model = models.Sweep
+    template_name = 'trapnet/form.html'
+    form_class = forms.SweepForm
+    home_url_name = "trapnet:index"
+    grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_initial(self):
+        sample = self.get_sample()
+        if not sample.sweeps.exists():
+            return dict(sweep_number=0.5)
+        else:
+            last = sample.sweeps.order_by("sweep_number").last().sweep_number
+            next_number = 1 if last == 0.5 else last + 1
+            return dict(sweep_number=next_number)
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("trapnet:sample_detail", args=[self.get_sample().id])}
+
+    def get_sample(self):
+        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.sample = self.get_sample()
+        obj.created_by = self.request.user
+        return super().form_valid(form)
+
+
+class SweepUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
+    model = models.Sweep
+    form_class = forms.SweepForm
+    template_name = 'trapnet/form.html'
+    home_url_name = "trapnet:index"
+    greatgrandparent_crumb = {"title": _("Sweeps"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("trapnet:sweep_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        return super().form_valid(form)
+
+
+class SweepDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
+    model = models.Sweep
+    template_name = 'trapnet/sweep_detail.html'
+    home_url_name = "trapnet:index"
+    grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+    field_list = [
+        'sweep_number',
+        'sweep_time',
+        'species_list|{}'.format(_("species caught")),
+        'tag_list|{}'.format(_("tags issued")),
+        'notes',
+        'metadata',
+    ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['obs_field_list'] = [
+            'species',
+            'status',
+            'origin',
+            'sex',
+            'tag_number',
+            'scale_id_number',
+        ]
+        return context
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+
+
+class SweepDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
+    model = models.Sweep
+    template_name = 'trapnet/confirm_delete.html'
+    home_url_name = "trapnet:index"
+    greatgrandparent_crumb = {"title": _("Sweeps"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("trapnet:sweep_detail", args=[self.get_object().id])}
+
+    def get_success_url(self):
+        return self.get_grandparent_crumb()["url"]
 
 
 # OBSERVATIONS #
@@ -504,7 +624,7 @@ class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
     container_class = "container"
     field_list = [
         {"name": 'sample', "class": "", "width": ""},
-        {"name": 'sample.site', "class": "", "width": ""},
+        {"name": 'sample.site|{}'.format(_("site")), "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'sex', "class": "", "width": ""},
@@ -518,10 +638,19 @@ class ObservationUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
     form_class = forms.ObservationForm
     template_name = 'trapnet/form.html'
     home_url_name = "trapnet:index"
-    greatgrandparent_crumb = {"title": _("Observations"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_greatgrandparent_crumb(self):
+        if self.get_object().sweep:
+            sweep = self.get_object().sweep
+            return {"title": sweep.sample, "url": reverse("trapnet:sample_detail", args=[sweep.sample.id])}
+        else:
+            sample = self.get_object().sample
+            return {"title": sample, "url": reverse("trapnet:sample_detail", args=[sample.id])}
 
     def get_grandparent_crumb(self):
-        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+        if self.get_object().sweep:
+            sweep = self.get_object().sweep
+            return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("trapnet:obs_detail", args=[self.get_object().id])}
@@ -536,7 +665,6 @@ class ObservationDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
     model = models.Observation
     template_name = 'trapnet/obs_detail.html'
     home_url_name = "trapnet:index"
-    grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
     field_list = [
         'id',
         'species',
@@ -555,19 +683,39 @@ class ObservationDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
         'notes',
         'metadata',
     ]
+    greatgrandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_grandparent_crumb(self):
+        if self.get_object().sweep:
+            sweep = self.get_object().sweep
+            return {"title": sweep.sample, "url": reverse("trapnet:sample_detail", args=[sweep.sample.id])}
+        else:
+            sample = self.get_object().sample
+            return {"title": sample, "url": reverse("trapnet:sample_detail", args=[sample.id])}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+        if self.get_object().sweep:
+            sweep = self.get_object().sweep
+            return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
 
 
 class ObservationDeleteView(TrapNetAdminRequiredMixin, CommonDeleteView):
     model = models.Observation
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
-    greatgrandparent_crumb = {"title": _("Observations"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_greatgrandparent_crumb(self):
+        if self.get_object().sweep:
+            sweep = self.get_object().sweep
+            return {"title": sweep.sample, "url": reverse("trapnet:sample_detail", args=[sweep.sample.id])}
+        else:
+            sample = self.get_object().sample
+            return {"title": sample, "url": reverse("trapnet:sample_detail", args=[sample.id])}
 
     def get_grandparent_crumb(self):
-        return {"title": self.get_object().sample, "url": reverse("trapnet:sample_detail", args=[self.get_object().sample.id])}
+        if self.get_object().sweep:
+            sweep = self.get_object().sweep
+            return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("trapnet:obs_detail", args=[self.get_object().id])}
