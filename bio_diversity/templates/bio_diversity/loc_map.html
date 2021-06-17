@@ -116,7 +116,7 @@
             var fishingAreasLayer = new google.maps.Data({map:map});
             var riverLayer =  new google.maps.Data({map:map});
 
-            fishingAreasLayer.loadGeoJson("{% static 'map_layers/salmon_fishing_areas.geojson' %}", {idPropertyName : "OBJECTID"},
+            fishingAreasLayer.loadGeoJson("{% static 'map_layers/salmon_fishing_areas.geojson' %}", {idPropertyName : "SFA"},
                 function(features) {
                     fishingAreasLayer.forEach(function(feature) {
                         feature.setProperty("visible", true);
@@ -134,14 +134,17 @@
             fishingAreasLayer.setStyle(function(feature){
                 return ({
                     strokeColor: 'red',
-                    strokeWeight: 2
+                    strokeWeight: 2,
+                    zIndex: 0
                 });
             });
 
             riverLayer.setStyle(function(feature){
                 return ({
                     strokeColor: 'blue',
-                    strokeWeight: 4
+                    strokeWeight: 4,
+                    zIndex: 1
+
                 });
             });
 
@@ -174,14 +177,11 @@
             let riverInfoWindow = new google.maps.InfoWindow();
 
             riverLayer.addListener("click", (mapsMouseEvent) => {
-            riverInfoWindow.close();
-
-            riverInfoWindow = new google.maps.InfoWindow({position: mapsMouseEvent.latLng,});
-
-            riverInfoWindow.setContent(mapsMouseEvent.feature.getProperty('NAME1'));
-            riverInfoWindow.open(map);
+                riverInfoWindow.close();
+                riverInfoWindow = new google.maps.InfoWindow({position: mapsMouseEvent.latLng,});
+                riverInfoWindow.setContent(mapsMouseEvent.feature.getProperty('NAME1'));
+                riverInfoWindow.open(map);
             });
-
 
             riverLayer.addListener('mouseover', function(event) {
               riverLayer.revertStyle();
@@ -192,6 +192,17 @@
             riverLayer.addListener('mouseout', function(event) {
               riverLayer.revertStyle();
             });
+
+
+            let sfaInfoWindow = new google.maps.InfoWindow();
+
+            fishingAreasLayer.addListener("click", (mapsMouseEvent) => {
+                sfaInfoWindow.close();
+                sfaInfoWindow = new google.maps.InfoWindow({position: mapsMouseEvent.latLng,});
+                sfaInfoWindow.setContent("Area <br> " + String(mapsMouseEvent.feature.getProperty('SFA')));
+                sfaInfoWindow.open(map);
+            });
+
 
 
 
@@ -319,6 +330,7 @@
                 draggable: true,
                 fillColor: '#43ea50',
                 fillOpacity: 0.35,
+                zIndex: 10,
 
             });
             rectangle.setMap(map);
