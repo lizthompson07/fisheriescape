@@ -1,3 +1,5 @@
+import json
+import os
 from datetime import datetime
 import decimal
 import math
@@ -8,8 +10,15 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned, Obj
 from django.db import IntegrityError
 from django.http import JsonResponse
 from decimal import Decimal
+
+from shapely.geometry import GeometryCollection, shape, Polygon
+
 from bio_diversity import models
 from bio_diversity.static.calculation_constants import *
+from dm_apps import settings
+
+contx_conts = ["contx_id__cup_id", "contx_id__draw_id", "contx_id__heat_id", "contx_id__tank_id", "contx_id__tray_id",
+               "contx_id__trof_id"]
 
 
 class DataParser:
@@ -58,6 +67,10 @@ class DataParser:
         except Exception as err:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
             self.success = False
+        if self.data is None:
+            self.log_data += "\n No data in file.  Possible reasons include: incorrect sheet name or incorrect number" \
+                             " of lines above the header row, which should be {}.".format(self.header)
+            self.success = False
 
     def data_reader(self):
         self.data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
@@ -77,20 +90,21 @@ class DataParser:
         pass
 
     def iterate_rows(self):
-        for row in self.data_dict:
-            if self.success:
-                self.row_entered = False
-                try:
-                    self.row_parser(row)
-                except Exception as err:
-                    err_msg = common_err_parser(err)
-                    self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
-                    self.log_data += str(row)
-                    self.parsed_row_counter()
-                    self.success = False
-                self.rows_parsed += 1
-                if self.row_entered:
-                    self.rows_entered += 1
+        if self.success:
+            for row in self.data_dict:
+                if self.success:
+                    self.row_entered = False
+                    try:
+                        self.row_parser(row)
+                    except Exception as err:
+                        err_msg = common_err_parser(err)
+                        self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
+                        self.log_data += str(row)
+                        self.parsed_row_counter()
+                        self.success = False
+                    self.rows_parsed += 1
+                    if self.row_entered:
+                        self.rows_entered += 1
 
     def row_parser(self, row):
         pass
@@ -203,6 +217,19 @@ def parse_concentration(concentration_str):
         return Decimal(1.0/float(concentration_str))
     else:
         return None
+
+
+def load_sfas():
+    sfa_file_name = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "map_layers",
+                                 "salmon_fishing_areas.geojson")
+
+    f = open(sfa_file_name,)
+    json_sfa = json.load(f)
+
+    sfa_dict = {}
+    for feature in json_sfa["features"]:
+        sfa_dict[feature["properties"]["SFA"]] = shape(feature["geometry"])
+    return sfa_dict
 
 
 def get_cont_evnt(contx_tuple):
@@ -383,6 +410,19 @@ def comment_parser(comment_str, anix_indv, det_date):
     return parsed, data_entered
 
 
+def samp_comment_parser(comment_str, cleaned_data, samp_pk, det_date):
+    data_entered = False
+    com_key_dict = get_comment_keywords_dict()
+    parser_list = com_key_dict.keys()
+    parsed = False
+    for term in parser_list:
+        if term.lower() in comment_str.lower():
+            parsed = True
+            adsc = com_key_dict[term]
+            data_entered = enter_sampd(samp_pk, cleaned_data, det_date, adsc.name, adsc.anidc_id.pk, adsc_str=adsc.name)
+    return parsed, data_entered
+
+
 def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_pk=None, grp_pk=None, return_end_contx=False):
     row_entered = False
     end_contx = False
@@ -529,22 +569,24 @@ def create_egg_movement_evnt(tray, cup, cleaned_data, movement_date, grp_pk, ret
     if grp_pk:
         enter_anix(new_cleaned_data, grp_pk=grp_pk)
     tray_contx, data_entered = enter_contx(tray, new_cleaned_data, False, None, grp_pk=grp_pk, return_contx=True)
-    if tray_contx:
-        row_entered = True
+    row_entered += data_entered
     cup_contx, data_entered = enter_contx(cup, new_cleaned_data, True, None, grp_pk=grp_pk, return_contx=True)
-    if cup_contx:
-        row_entered = True
+    row_entered += data_entered
     if return_cup_contx:
         return cup_contx
     else:
         return row_entered
 
 
-def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id):
+def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_code, perc_id, shocking=False, return_anix=False):
     row_entered = False
     new_cleaned_data = cleaned_data.copy()
+    if shocking:
+        evntc_id = models.EventCode.objects.filter(name="Shocking").get()
+    else:
+        evntc_id = models.EventCode.objects.filter(name="Picking").get()
 
-    pick_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Picking").get(),
+    pick_evnt = models.Event(evntc_id=evntc_id,
                              facic_id=cleaned_data["evnt_id"].facic_id,
                              perc_id=perc_id,
                              prog_id=cleaned_data["evnt_id"].prog_id,
@@ -566,14 +608,17 @@ def create_picks_evnt(cleaned_data, tray, grp_pk, pick_cnt, pick_datetime, cnt_c
                                                 ).get()
 
     new_cleaned_data["evnt_id"] = pick_evnt
+    anix = None
     if grp_pk:
-        enter_anix(new_cleaned_data, grp_pk=grp_pk)
+        anix = enter_anix(new_cleaned_data, grp_pk=grp_pk, return_anix=True)
     contx, data_entered = enter_contx(tray, new_cleaned_data, None, grp_pk=grp_pk, return_contx=True)
     if contx:
         row_entered = True
         enter_cnt(cleaned_data, pick_cnt, contx_pk=contx.pk, cnt_code=cnt_code)
-
-    return row_entered
+    if return_anix:
+        return anix, row_entered
+    else:
+        return row_entered
 
 
 def add_team_member(perc_id, evnt_id, loc_id=None, role_id=None, return_team=False):
@@ -615,16 +660,15 @@ def create_tray(trof, tray_name, start_date, cleaned_data, save=True):
     return tray
 
 
-def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, indvt_pk=None, team_pk=None, final_flag=None, return_sucess=False, return_anix=False):
+def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=None, grp_pk=None, team_pk=None, final_flag=None, return_sucess=False, return_anix=False):
     row_entered = False
-    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, indvt_pk, team_pk]):
+    if any([indv_pk, contx_pk, loc_pk, pair_pk, grp_pk, team_pk]):
         anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                     indv_id_id=indv_pk,
                                     contx_id_id=contx_pk,
                                     loc_id_id=loc_pk,
                                     pair_id_id=pair_pk,
                                     grp_id_id=grp_pk,
-                                    indvt_id_id=indvt_pk,
                                     team_id_id=team_pk,
                                     final_contx_flag=final_flag,
                                     created_by=cleaned_data["created_by"],
@@ -642,7 +686,6 @@ def enter_anix(cleaned_data, indv_pk=None, contx_pk=None, loc_pk=None, pair_pk=N
                                                        pair_id=anix.pair_id,
                                                        grp_id=anix.grp_id,
                                                        team_id=anix.team_id,
-                                                       indvt_id=anix.indvt_id,
                                                        ).get()
         if return_anix:
             return anix
@@ -803,9 +846,9 @@ def enter_feed(cleaned_data, contx_id, feedc_id, feedm_id, amt, comments=None, f
                           feedc_id=feedc_id,
                           lot_num=lot_num,
                           amt=amt,
+                          freq=freq,
                           unit_id=models.UnitCode.objects.filter(name="Feed Size").get(),
                           comments=comments,
-                          freq=freq,
                           created_by=cleaned_data["created_by"],
                           created_date=cleaned_data["created_date"],
                           )
@@ -857,11 +900,15 @@ def enter_grpd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=N
     return row_entered
 
 
-def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, adsc_str=None, comments=None):
+def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=None, adsc_str=None, comments=None):
     row_entered = False
     if isinstance(det_value, float):
         if math.isnan(det_value):
             return False
+
+    if anidc_str:
+        anidc_pk = models.AnimalDetCode.objects.filter(name=anidc_str).get().pk
+
     if adsc_str:
         indvd = models.IndividualDet(anix_id_id=anix_pk,
                                      anidc_id_id=anidc_pk,
@@ -885,6 +932,31 @@ def enter_indvd(anix_pk, cleaned_data, det_date, det_value, anidc_pk, adsc_str=N
     try:
         indvd.clean()
         indvd.save()
+        row_entered = True
+    except (ValidationError, IntegrityError):
+        pass
+    return row_entered
+
+
+def enter_indvt(anix_pk, cleaned_data, treat_datetime, dose, indvtc_pk, treat_endtime=None, lot_num=None, unit_id=None):
+    row_entered = False
+    if isinstance(dose, float):
+        if math.isnan(dose):
+            return False
+
+    indvt = models.IndTreatment(anix_id_id=anix_pk,
+                                indvtc_id_id=indvtc_pk,
+                                lot_num=lot_num,
+                                dose=dose,
+                                start_datetime=treat_datetime,
+                                end_datetime=treat_endtime,
+                                unit_id=unit_id,
+                                created_by=cleaned_data["created_by"],
+                                created_date=cleaned_data["created_date"],
+                                )
+    try:
+        indvt.clean()
+        indvt.save()
         row_entered = True
     except (ValidationError, IntegrityError):
         pass
@@ -1080,6 +1152,11 @@ def enter_tank_contx(tank_name, cleaned_data, final_flag=None, indv_pk=None, grp
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         tank_id=contx.tank_id,
+                                                        tray_id__isnull=True,
+                                                        cup_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
             row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag, return_sucess=True)
@@ -1107,6 +1184,11 @@ def enter_trof_contx(trof_name, cleaned_data, final_flag=None, indv_pk=None, grp
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         trof_id=contx.trof_id,
+                                                        tray_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        cup_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
             row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk, final_flag=final_flag, return_sucess=True)
@@ -1134,6 +1216,11 @@ def enter_tray_contx(tray, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         tray_id=contx.tray_id,
+                                                        cup_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
         if indv_pk or grp_pk:
             row_entered += enter_anix(cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk, contx_pk=contx.pk,
@@ -1162,6 +1249,11 @@ def enter_cup_contx(cup, cleaned_data, final_flag=None, indv_pk=None, grp_pk=Non
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         cup_id=contx.cup_id,
+                                                        tray_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
 
         draw_contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -1215,6 +1307,11 @@ def enter_draw_contx(draw, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         draw_id=contx.draw_id,
+                                                        tray_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        cup_id__isnull=True,
+                                                        heat_id__isnull=True,
                                                         team_id=contx.team_id).get()
 
         heat_contx = models.ContainerXRef(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -1256,6 +1353,11 @@ def enter_heat_contx(heat, cleaned_data, final_flag=None, indv_pk=None, grp_pk=N
         except ValidationError:
             contx = models.ContainerXRef.objects.filter(evnt_id=contx.evnt_id,
                                                         heat_id=contx.heat_id,
+                                                        tray_id__isnull=True,
+                                                        tank_id__isnull=True,
+                                                        trof_id__isnull=True,
+                                                        draw_id__isnull=True,
+                                                        cup_id__isnull=True,
                                                         team_id=contx.team_id).get()
 
         if indv_pk or grp_pk:
@@ -1317,7 +1419,10 @@ def y_n_to_bool(test_item):
             return False
         elif test_item:
             return True
-    elif test_item.upper() == "Y":
+    elif type(test_item) == int:
+        if test_item:
+            return True
+    elif test_item.upper() in ["Y", "YES", "1"]:
         return True
     else:
         return False

@@ -98,7 +98,7 @@ class TestAnix(CommonTest):
 
     def test_response_data(self):
         data = self.client.get(self.test_url).data[0]
-        keys = ["id", "evnt_id", "loc_id", "indvt_id", "indv_id", "pair_id", "grp_id"]
+        keys = ["id", "evnt_id", "loc_id", "indv_id", "pair_id", "grp_id"]
         self.assert_dict_has_keys(data, keys)
 
     def test_safe_methods_only(self):
