@@ -131,7 +131,7 @@ Vue.component("multiple-overlay", {
       this.totalObservations = null
     },
     onSubmit() {
-      let msg = '{% trans 'Warning: by proceeding you will be creating more than 20 observations. Are you sure you want to continue?' %}'
+      let msg = '{% trans 'Warning: by proceeding you will be creating more than 10 observations. Are you sure you want to continue?' %}'
       let proceed = true;
       if (this.totalObservations && this.totalObservations > 10) proceed = confirm(msg);
       if (proceed) {
@@ -140,9 +140,12 @@ Vue.component("multiple-overlay", {
           shouldIncrement: this.shouldIncrement,
           totalObservations: this.totalObservations,
           tagPrefix: this.tagPrefix,
-          startTagNumber: this.startTagNumber.number,
-          padding: this.startTagNumber.padding,
         }
+        if(this.startTagNumber) {
+          returnObj.startTagNumber = this.startTagNumber.number
+          returnObj.padding = this.startTagNumber.padding
+        }
+
         if (this.endTag) {
           // we have to figure out the total number of observations based on the endTag number
           let startNumber = this.startTagNumber.number;

@@ -101,6 +101,36 @@ class OriginHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("trapnet:manage_origins")
 
 
+class MaturityFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
+    template_name = 'trapnet/formset.html'
+    h1 = "Manage Maturities"
+    queryset = models.Maturity.objects.all()
+    formset_class = forms.MaturityFormset
+    success_url_name = "trapnet:manage_maturities"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_maturity"
+
+
+class MaturityHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Maturity
+    success_url = reverse_lazy("trapnet:manage_maturities")
+
+
+class ElectrofisherFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
+    template_name = 'trapnet/formset.html'
+    h1 = "Manage Electrofishers"
+    queryset = models.Electrofisher.objects.all()
+    formset_class = forms.ElectrofisherFormset
+    success_url_name = "trapnet:manage_electrofishers"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_electrofisher"
+
+
+class ElectrofisherHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Electrofisher
+    success_url = reverse_lazy("trapnet:manage_electrofishers")
+
+
 # SPECIES #
 ###########
 
@@ -396,7 +426,7 @@ class SampleListView(TrapNetAccessRequiredMixin, CommonFilterView):
 class SampleUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
     model = models.Sample
     form_class = forms.SampleForm
-    template_name = 'trapnet/form.html'
+    template_name = 'trapnet/sample_form.html'
     home_url_name = "trapnet:index"
     grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
 
@@ -412,15 +442,17 @@ class SampleUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
 class SampleCreateView(TrapNetAdminRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
-    template_name = 'trapnet/form.html'
+    template_name = 'trapnet/sample_form.html'
     home_url_name = "trapnet:index"
     parent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
+        super().form_valid(form)
+        if form.cleaned_data.get("stay_on_page"):
+            return HttpResponseRedirect(reverse_lazy("trapnet:sample_edit", args=[obj.id]))
         return super().form_valid(form)
-
 
 class SampleDetailView(TrapNetAccessRequiredMixin, CommonDetailView):
     model = models.Sample
@@ -509,6 +541,7 @@ class ObservationListView(TrapNetAccessRequiredMixin, CommonFilterView):
         {"name": 'scale_id_number', "class": "", "width": ""},
     ]
 
+
 class ObservationUpdateView(TrapNetAdminRequiredMixin, CommonUpdateView):
     model = models.Observation
     form_class = forms.ObservationForm
@@ -583,7 +616,7 @@ class FileCreateView(TrapNetAdminRequiredMixin, CommonPopoutCreateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
-        obs = get_object_or_404(models.Observation,pk=self.kwargs.get("obs"))
+        obs = get_object_or_404(models.Observation, pk=self.kwargs.get("obs"))
         obj.observation = obs
         return super().form_valid(form)
 

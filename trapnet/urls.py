@@ -17,6 +17,12 @@ urlpatterns = [
     path('settings/life-stage/<int:pk>/delete/', views.LifeStageHardDeleteView.as_view(), name="delete_life_stage"),
     path('settings/origins/', views.OriginFormsetView.as_view(), name="manage_origins"),
     path('settings/origin/<int:pk>/delete/', views.OriginHardDeleteView.as_view(), name="delete_origin"),
+    path('settings/maturities/', views.MaturityFormsetView.as_view(), name="manage_maturities"),
+    path('settings/maturities/<int:pk>/delete/', views.MaturityHardDeleteView.as_view(), name="delete_maturity"),
+    path('settings/electrofishers/', views.ElectrofisherFormsetView.as_view(), name="manage_electrofishers"),
+    path('settings/electrofisher/<int:pk>/delete/', views.ElectrofisherHardDeleteView.as_view(), name="delete_electrofisher"),
+
+
 
     # SPECIES #
     ###########

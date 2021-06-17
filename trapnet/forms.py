@@ -36,9 +36,11 @@ class RiverSiteForm(forms.ModelForm):
 
 
 class SampleForm(forms.ModelForm):
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = models.Sample
-        exclude = ["last_modified", 'season']
+        exclude = ['season']
         widgets = {
             "site": forms.Select(attrs=chosen_js),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
@@ -55,12 +57,26 @@ class SampleForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+
+        # make sure departure is after arrival
         arrival_date = cleaned_data.get("arrival_date")
         departure_date = cleaned_data.get("departure_date")
-        if departure_date < arrival_date:
+        if arrival_date and departure_date and departure_date < arrival_date:
             self.add_error('departure_date', gettext(
                 "The departure date must be after the arrival date!"
             ))
+
+        # make sure site characterization is null or 1
+        percent_riffle = cleaned_data.get("percent_riffle")
+        percent_run = cleaned_data.get("percent_run")
+        percent_flat = cleaned_data.get("percent_flat")
+        percent_pool = cleaned_data.get("percent_pool")
+
+        # if (not percent_riffle or not percent_run or not percent_flat or not percent_pool) and (
+        #         percent_riffle + percent_run + percent_flat + percent_pool != 1):
+        #     raise forms.ValidationError(
+        #         gettext("Either site characterization must be left null or must equal to 1")
+        #     )
 
 
 class ObservationForm(forms.ModelForm):
@@ -76,8 +92,6 @@ class FileForm(forms.ModelForm):
     class Meta:
         model = models.File
         fields = "__all__"
-
-
 
 
 class ReportSearchForm(forms.Form):
@@ -166,5 +180,31 @@ class OriginForm(forms.ModelForm):
 OriginFormset = modelformset_factory(
     model=models.Origin,
     form=OriginForm,
+    extra=1,
+)
+
+
+class MaturityForm(forms.ModelForm):
+    class Meta:
+        model = models.Maturity
+        fields = "__all__"
+
+
+MaturityFormset = modelformset_factory(
+    model=models.Maturity,
+    form=MaturityForm,
+    extra=1,
+)
+
+
+class ElectrofisherForm(forms.ModelForm):
+    class Meta:
+        model = models.Electrofisher
+        fields = "__all__"
+
+
+ElectrofisherFormset = modelformset_factory(
+    model=models.Electrofisher,
+    form=ElectrofisherForm,
     extra=1,
 )

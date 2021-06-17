@@ -90,10 +90,6 @@
                       <td><input type="number" step="any" v-model="observation.weight" class="form-control"/></td>
                     </tr>
                     <tr>
-                      <td><label for="">${labels.age}</label></td>
-                      <td><input type="number" v-model="observation.age" class="form-control"/></td>
-                    </tr>
-                    <tr>
                       <td><label for="">${labels.tag_number}</label></td>
                       <td><input type="text" v-model="observation.tag_number" class="form-control"/></td>
                     </tr>
@@ -149,7 +145,6 @@
                     <th class="">${labels.fork_length}</th>
                     <th class="">${labels.total_length}</th>
                     <th class="">${labels.weight}</th>
-                    <th class="">${labels.age}</th>
                     <th class="">${labels.tag_number}</th>
                     <th class="">${labels.location_tagged}</th>
                     <th class="">${labels.date_tagged}</th>
@@ -168,7 +163,6 @@
                     <td class="">${o.fork_length|nz}</td>
                     <td class="">${o.total_length|nz}</td>
                     <td class="">${o.weight|nz}</td>
-                    <td class="">${o.age|nz}</td>
                     <td class="">${o.tag_number|nz}</td>
                     <td class="">${o.location_tagged|nz}</td>
                     <td class="">${o.date_tagged_display|nz}</td>
@@ -256,6 +250,7 @@
       primeObservation() {
         this.observation = {
           sample: sampleId,
+          origin: "2",
         }
         this.$nextTick(() => {
           this.$refs.start.$refs.search.focus()
