@@ -158,25 +158,55 @@
                   </thead>
                   <tbody>
                   <tr v-for="o, index in observations" :key="o.id" :class="{'mild-concern':o.id===observation.id}">
-                    <td class="">${index+1}</td>
-                    <td class="">${o.species_display|nz}</td>
-                    <td class="">${o.status_display|nz}</td>
-                    <td class="">${o.origin_display|nz}</td>
-                    <td class="">${o.sex_display|nz}</td>
-                    <td class="">${o.fork_length|nz}</td>
-                    <td class="">${o.total_length|nz}</td>
-                    <td class="">${o.weight|nz}</td>
-                    <td class="">${o.tag_number|nz}</td>
-                    <td class="">${o.location_tagged|nz}</td>
-                    <td class="">${o.date_tagged_display|nz}</td>
-                    <td class="">${o.scale_id_number|nz}</td>
-                    <td class="">${o.tags_removed|nz}</td>
-                    <td class="">${o.notes|nz}</td>
+                    <td>${index+1}</td>
+                    <td>${o.species_display|nz}</td>
+                    <td v-if="observation.id !== o.id">${o.status_display|nz}</td>
+                    <td v-else>
+                      <select v-model="observation.status" class="form-control" required>
+                        <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+                    <td v-if="observation.id !== o.id">${o.origin_display|nz}</td>
+                    <td v-else>
+                      <select v-model="observation.origin" class="form-control">
+                        <option v-for="c in originChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+                    <td v-if="observation.id !== o.id">${o.sex_display|nz}</td>
+                    <td v-else>
+                      <select v-model="observation.sex" class="form-control">
+                        <option v-for="c in sexChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+                    <td v-if="observation.id !== o.id">${o.fork_length|nz}</td>
+                    <td v-else><input type="number" step="any" v-model="observation.fork_length" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id">${o.total_length|nz}</td>
+                    <td v-else><input type="number" step="any" v-model="observation.total_length" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id">${o.weight|nz}</td>
+                    <td v-else><input type="number" step="any" v-model="observation.weight" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id">${o.tag_number|nz}</td>
+                    <td v-else><input type="text" v-model="observation.tag_number" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id">${o.location_tagged|nz}</td>
+                    <td v-else><input type="text" v-model="observation.location_tagged" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id">${o.date_tagged_display|nz}</td>
+                    <td v-else><input type="date" v-model="observation.date_tagged" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id">${o.scale_id_number|nz}</td>
+                    <td v-else><input type="text" v-model="observation.scale_id_number" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id">${o.tags_removed|nz}</td>
+                    <td v-else><input type="text" v-model="observation.tags_removed" class="form-control p-0"/></td>
+                    <td v-if="observation.id !== o.id">${o.notes|nz}</td>
+                    <td v-else><input type="text" v-model="observation.notes" class="form-control p-0"/></td>
                     <td style="width: 100px;">
-                      <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
-                      <button class="btn btn-xs btn-success" @click="duplicateObservation(o)"><span class="mdi mdi-content-duplicate text-light"></span>
-                      </button>
-                      <button class="btn btn-xs btn-danger" @click="deleteObservation(o)"><span class="mdi mdi-close text-light"></span></button>
+                      <div v-if="observation.id !== o.id">
+                        <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
+                        <button class="btn btn-xs btn-success" @click="duplicateObservation(o)"><span class="mdi mdi-content-duplicate text-light"></span>
+                        </button>
+                        <button class="btn btn-xs btn-danger" @click="deleteObservation(o)"><span class="mdi mdi-close text-light"></span></button>
+                      </div>
+
+                      <div v-else>
+                        <button class="btn btn-xs btn-success" @click="updateObservation"><span class="mdi mdi-check text-light"></span></button>
+                      </div>
                     </td>
                   </tr>
                   </tbody>
