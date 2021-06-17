@@ -206,14 +206,11 @@ class Sample(MetadataFields):
     wind_direction = models.IntegerField(blank=True, null=True, choices=wind_direction_choices)
 
     # water data
-    ##rst
     water_depth_m = models.FloatField(null=True, blank=True, verbose_name="water depth (m)")
     water_level_delta_m = models.FloatField(null=True, blank=True, verbose_name="water level delta (m)")
     discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="discharge (m3/s)")
-    water_temp_shore_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at shore (°C)")
+    water_temp_c = models.FloatField(null=True, blank=True, verbose_name="water temperature (°C)")
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
-    ##electro
-    water_temp_c = models.FloatField(null=True, blank=True, verbose_name="water temperature (°C)", help_text=_("In Celcius, to 1 decimal place"))
     water_cond = models.FloatField(null=True, blank=True, verbose_name="Water Conductivity (Specific)",
                                    help_text=_("THe measurement is to 1 decimal place in micro siemens (µS)"))
     overhanging_veg_left = models.IntegerField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Left"))

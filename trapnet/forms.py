@@ -71,12 +71,27 @@ class SampleForm(forms.ModelForm):
         percent_run = cleaned_data.get("percent_run")
         percent_flat = cleaned_data.get("percent_flat")
         percent_pool = cleaned_data.get("percent_pool")
+        if (percent_riffle or percent_run or percent_flat or percent_pool) and (
+                nz(percent_riffle, 0) + nz(percent_run, 0) + nz(percent_flat, 0) + nz(percent_pool, 0) != 1):
+            raise forms.ValidationError(
+                gettext("Either site characterization must be left null or must equal to 1")
+            )
 
-        # if (not percent_riffle or not percent_run or not percent_flat or not percent_pool) and (
-        #         percent_riffle + percent_run + percent_flat + percent_pool != 1):
-        #     raise forms.ValidationError(
-        #         gettext("Either site characterization must be left null or must equal to 1")
-        #     )
+        # make sure substrate characterization is null or 1
+        percent_fine = cleaned_data.get("percent_fine")
+        percent_sand = cleaned_data.get("percent_sand")
+        percent_gravel = cleaned_data.get("percent_gravel")
+        percent_pebble = cleaned_data.get("percent_pebble")
+        percent_cobble = cleaned_data.get("percent_cobble")
+        percent_rocks = cleaned_data.get("percent_rocks")
+        percent_boulder = cleaned_data.get("percent_boulder")
+        percent_bedrock = cleaned_data.get("percent_bedrock")
+        if (percent_fine or percent_sand or percent_gravel or percent_pebble or percent_cobble or percent_rocks or percent_boulder or percent_bedrock) and (
+                nz(percent_fine, 0) + nz(percent_sand, 0) + nz(percent_gravel, 0) + nz(percent_pebble, 0) + nz(percent_cobble, 0) + nz(percent_rocks, 0) + nz(
+                percent_boulder, 0) + nz(percent_bedrock, 0) != 1):
+            raise forms.ValidationError(
+                gettext("Either substrate characterization must be left null or must equal to 1")
+            )
 
 
 class ObservationForm(forms.ModelForm):

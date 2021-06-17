@@ -149,13 +149,12 @@
 
       <div class="row">
         <div class="col">
-          {% bootstrap_field form.water_temp_shore_c placeholder="" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field form.water_temp_trap_c placeholder="" %}
-        </div>
-        <div class="col">
           {% bootstrap_field form.water_temp_c placeholder="" %}
+        </div>
+        <div class="col">
+          <fieldset {{ rst_disabled_var }} data-toggle="tooltip" title="{{ rst_tip }}">
+            {% bootstrap_field form.water_temp_trap_c placeholder="" %}
+          </fieldset>
         </div>
       </div>
       {% bootstrap_field form.water_cond placeholder="" %}
