@@ -6,7 +6,7 @@
 
 .bigbrand {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.5em;
+    /*font-size: 1.25em;*/
     font-weight: bold;
 }
 
@@ -197,6 +197,20 @@
     }
 }
 
+.circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 15px;
+    color: #fff;
+    line-height: 30px;
+    text-align: center;
+    background: #4c4c4c
+}
+
+.bg-navy {
+    background-color: #041d70;
+}
 
 .awesome {
     /*width: 100%;*/
@@ -319,14 +333,14 @@
     padding: 3px 5px;
 }
 
-.w-30{
+.w-30 {
     width: 30%;
 }
 
-.w-35{
+.w-35 {
     width: 35%;
 }
 
-.w-40{
+.w-40 {
     width: 40%;
 }

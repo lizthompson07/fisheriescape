@@ -94,6 +94,18 @@ class SampleForm(forms.ModelForm):
             )
 
 
+class SweepForm(forms.ModelForm):
+    class Meta:
+        model = models.Sweep
+        exclude = "__all__"
+
+    def clean_sweep_number(self):
+        sweep_number = self.cleaned_data['sweep_number']
+        if (sweep_number != 0.5) and (sweep_number - int(sweep_number) != 0):
+            raise forms.ValidationError("The sweep number must be equal to 0.5 or be a factors of 1!")
+        return sweep_number
+
+
 class ObservationForm(forms.ModelForm):
     class Meta:
         model = models.Observation

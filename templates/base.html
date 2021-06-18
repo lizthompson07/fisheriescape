@@ -47,10 +47,10 @@
 {% block navigation %}
   {# for sites that wish to turn the navigation off, they can by calling this block with show_nav=False. If show_nav is None or True it's displayed #}
   {% if show_nav == None or show_nav %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-navy transparent py-0 fixed-top shadow flex-md-nowrap">
-      <a class="navbar-brand bigbrand" href="{% url 'index' %}">
-        <img src="{% static 'img/icons/iconfinder_cluster-data-group-organize_2205240 - white.png' %}" width="30"
-             class="d-inline-block align-top" alt="" data-toggle="tooltip" title="{% trans "Data Management Home" %}">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-navy transparent py-0 fixed-top shadow flex-md-nowrap" style="font-size: 14px">
+      <a class="navbar-brand" href="{% url 'index' %}">
+        <img src="{% static 'img/icons/iconfinder_cluster-data-group-organize_2205240 - white.png' %}" width="25"
+             class="d-inline-block align-top py-0" alt="" data-toggle="tooltip" title="{% trans "Data Management Home" %}">
       </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
               aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

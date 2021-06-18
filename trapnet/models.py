@@ -4,6 +4,7 @@ import statistics
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -331,8 +332,8 @@ class Sample(MetadataFields):
 
     @property
     def species_list(self):
-        spp = Species.objects.filter(observations__sample=self).distinct()
-        my_list = list([f"{sp} ({sp.observations.filter(sample=self).count()})" for sp in spp])
+        spp = Species.objects.filter(Q(observations__sample=self) | Q(observations__sweep__sample=self)).distinct()
+        my_list = list([f"{sp} ({sp.observations.filter(Q(sample=self) | Q(sweep__sample=self)).count()})" for sp in spp])
         my_list.sort()
         return mark_safe(listrify(my_list, "<br>"))
 
@@ -396,6 +397,29 @@ class Sample(MetadataFields):
         ))
 
     @property
+    def overhanging_veg_display(self):
+        return mark_safe(_("<u>left:</u> {left}; <u>right:</u> {right}").format(
+            left=nz(self.overhanging_veg_left, "---"),
+            right=nz(self.overhanging_veg_right, "---"),
+        ))
+
+    @property
+    def max_overhanging_veg_display(self):
+        return mark_safe(_("<u>left:</u> {left}; <u>right:</u> {right}").format(
+            left=nz(self.max_overhanging_veg_left, "---"),
+            right=nz(self.max_overhanging_veg_right, "---"),
+        ))
+
+    @property
+    def crew_display(self):
+        return mark_safe(_("<u>probe:</u> {probe}<br> <u>seine:</u> {seine}<br> <u>dipnet:</u> {dipnet}<br> <u>extras:</u> {extras}").format(
+            probe=nz(self.crew_probe, "---"),
+            seine=nz(self.crew_seine, "---"),
+            dipnet=nz(self.crew_dipnet, "---"),
+            extras=nz(self.crew_extras, "---"),
+        ))
+
+    @property
     def wind(self):
         return _("<u>speed:</u> {speed}; <u>direction:</u> {dir}").format(
             speed=nz(self.get_wind_speed_display(), "---"),
@@ -416,11 +440,34 @@ class Sample(MetadataFields):
 
 
 class Sweep(MetadataFields):
-    sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.DO_NOTHING)
-    sweep_time = models.IntegerField(blank=True, null=True, verbose_name=_("sweep time"), help_text=_("in seconds"))
-    sweep_number = models.FloatField(blank=True, null=True, verbose_name=_("sweep number"),
-                                     help_text=_(
-                                         "open sites are always 0.5. Clsoed sites begin at 0.5, but then are depleted starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"))
+    sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.DO_NOTHING, editable=False)
+    sweep_number = models.FloatField(verbose_name=_("sweep number"), help_text=_(
+        "open sites are always 0.5. Closed sites begin at 0.5, but then are depleted starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"))
+    sweep_time = models.IntegerField(verbose_name=_("sweep time (seconds)"), help_text=_("in seconds"), default=500)
+    notes = models.TextField(blank=True, null=True)
+
+    @property
+    def observation_count(self):
+        return self.observations.count()
+
+    def __str__(self):
+        return f"Sweep {self.sweep_number}"
+
+    def get_absolute_url(self):
+        return reverse("trapnet:sweep_detail", args=[self.id])
+
+    @property
+    def species_list(self):
+        spp = Species.objects.filter(observations__sweep=self).distinct()
+        my_list = list([f"{sp} ({sp.observations.filter(sweep=self).count()})" for sp in spp])
+        my_list.sort()
+        return mark_safe(listrify(my_list, "<br>"))
+
+    @property
+    def tag_list(self):
+        my_list = list([obs.tag_number for obs in self.observations.filter(tag_number__isnull=False)])
+        my_list.sort()
+        return mark_safe(listrify(my_list))
 
 
 class Origin(CodeModel):
@@ -504,6 +551,8 @@ class Observation(MetadataFields):
     sweep = models.ForeignKey(Sweep, on_delete=models.CASCADE, related_name="observations", blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        if self.sweep:
+            self.sample = self.sweep.sample
         return super().save(*args, **kwargs)
 
     def __str__(self):

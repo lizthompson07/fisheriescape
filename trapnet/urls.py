@@ -20,8 +20,6 @@ urlpatterns = [
     path('settings/electrofishers/', views.ElectrofisherFormsetView.as_view(), name="manage_electrofishers"),
     path('settings/electrofisher/<int:pk>/delete/', views.ElectrofisherHardDeleteView.as_view(), name="delete_electrofisher"),
 
-
-
     # SPECIES #
     ###########
     path('species/', views.SpeciesListView.as_view(), name="species_list"),
@@ -53,7 +51,18 @@ urlpatterns = [
     path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
-    path('samples/<int:pk>/data-entry/', views.SampleDataEntryVueJSView.as_view(), name="sample_data_entry"),
+
+    # SWEEPS #
+    ###############
+    path('samples/<int:sample>/new-sweep/', views.SweepCreateView.as_view(), name='sweep_new'),
+    path('sweeps/<int:pk>/view/', views.SweepDetailView.as_view(), name="sweep_detail"),
+    path('sweeps/<int:pk>/edit/', views.SweepUpdateView.as_view(), name="sweep_edit"),
+    path('sweeps/<int:pk>/delete/', views.SweepDeleteView.as_view(), name="sweep_delete"),
+
+    # DATA ENTRY #
+    ##############
+    path('samples/<int:sample>/data-entry/', views.DataEntryVueJSView.as_view(), name="sample_data_entry"),
+    path('sweeps/<int:sweep>/data-entry/', views.DataEntryVueJSView.as_view(), name="sweep_data_entry"),
 
     # OBSERVATION #
     ###############

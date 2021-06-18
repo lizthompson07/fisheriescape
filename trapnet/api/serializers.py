@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from .. import models
 
@@ -46,3 +48,15 @@ class ObservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Observation
         fields = "__all__"
+
+    def validate(self, attrs):
+        """
+        form validation:
+        - make sure there is at least a sample or a sweep!
+        """
+        sample = attrs.get("sample")
+        sweep = attrs.get("sweep")
+        if not sample and not sweep:
+            msg = _('You must supply either a sample or a sweep!')
+            raise ValidationError(msg)
+        return attrs
