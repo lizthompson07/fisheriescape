@@ -1,157 +1,141 @@
-{% extends "trapnet/trapnet_base.html" %}
+{% extends "trapnet/base.html" %}
 {% load static %}
 {% load verbose_names %}
+{% load i18n %}
 
 {% block header %}
-    <style>
-        /* Set the size of the div element that contains the map */
-        #map {
-            height: 500px; /* The height is 400 pixels */
-            width: 100%; /* The width is the width of the web page */
-        }
-
-        .label {
-            font-weight: bold;
-
-        }
-    </style>
-
-{% endblock header %}
+  {{ block.super }}
+  <style>
+  /* Set the size of the div element that contains the map */
+  #map {
+      height: 500px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+{% endblock %}
 
 
-{% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:river_list' %}"> Rivers </a></li>
-            <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
-        </ol>
-    </nav>
+{% block subcontent %}
 
-    <div class="container-fluid">
+  <div class="container-fluid">
 
-        <br>
-        <h1>{{ object }}</h1>
-        <p>
-            {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
-            <a class="btn btn-warning" href="{% url 'trapnet:river_edit' object.id %}">Edit</a>
-            {#            <a href="{% url 'trapnet:station_new' object.id %}" class="btn btn btn-success ">New Site</a>#}
-
-            <a class="btn btn-danger" href="{% url 'trapnet:river_delete' object.id %}">Delete</a>
-        </p>
-
-        <br><br>
-        <div class="row">
-            <div class="col-4">
-                {# Detail about the site #}
-                {% for field in field_list %}
-                    {% if "cgndb" in field %}
-
-                        <p><span class="label">{% get_verbose_label object field %}</span>
-                            <br>
-                            {% get_field_value object field as my_key %}
-
-                            {% if not my_key == "n/a" %}
-                                <a href="http://geogratis.gc.ca/services/geoname/en/geonames/{{ my_key }}">
-                                    {{ my_key }}
-                                </a>
-                                </p>
-                            {% endif %}
-
-                    {% else %}
-                        {% verbose_field_display object field %}
-                    {% endif %}
-
-
-                {% endfor %}
-            </div>
-
-            <div class="col">
-                <div id="map"></div>
-            </div>
-        </div>
-        {#  Station list  #}
-        <br><br>
-        <div class="row">
-            <div class="col">
-        <h4>
-            <b>Sites on this river:</b>
-        </h4>
-            </div>
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'trapnet:site_new' object.id  %}" class="btn btn-sm btn-primary">New Site</a>
-            </div>
-        </div>
-        {% if object.river_sites.count == 0 %}
-            <em>No sites have been entered for this river</em>
-        {% else %}
-            <table class="table table-sm table-hover sortable">
-                <thead>
-                <tr>
-                    {% for field in site_field_list %}
-                        <th scope="col">{% get_verbose_label my_site_object field %}</th>
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for obj in object.river_sites.all %}
-                    {% url 'trapnet:site_detail' obj.id as my_url %}
-                    <tr href="{{ my_url }}">
-                        {% for field in site_field_list %}
-                            <td>{% get_field_value obj field %}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-
+    <div class="mb-3">
+      <a class="btn btn-warning" href="{% url 'trapnet:river_edit' object.id %}">Edit</a>
+      <a class="btn btn-danger" href="{% url 'trapnet:river_delete' object.id %}">Delete</a>
     </div>
 
+    <div class="row">
+      <div class="col-4">
+        {# Detail about the site #}
+        {% for field in field_list %}
+          {% if "cgndb" in field %}
 
-    <script>
-        function initialize() {
-            var locations = {{ site_list | safe }}
+            <p><span class="label">{% get_verbose_label object field %}</span>
+              <br>
+              {% get_field_value object field as my_key %}
 
-                window.map = new google.maps.Map(document.getElementById('map'), {
-                    mapTypeId: google.maps.MapTypeId.SATELLITE
-                });
+              {% if not my_key == "n/a" %}
+                <a href="http://geogratis.gc.ca/services/geoname/en/geonames/{{ my_key }}">
+                  {{ my_key }}
+                </a>
+                </p>
+              {% endif %}
 
-            var infowindow = new google.maps.InfoWindow();
-
-            var bounds = new google.maps.LatLngBounds();
-
-            for (i = 0; i < locations.length; i++) {
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-                    map: map,
-                    label: {text: locations[i][0], color: "#fffff9"},
-                    //icon: locations[i][3]
-                });
-
-                bounds.extend(marker.position);
-                google.maps.event.addListener(marker, 'click', (function (marker, i) {
-                    return function () {
-                        infowindow.setContent(locations[i][0]);
-                        infowindow.open(map, marker);
-                    }
-                })(marker, i));
-            }
-
-            map.fitBounds(bounds);
-
-        }
-
-        function loadScript() {
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-            document.body.appendChild(script);
-        }
-
-        window.onload = loadScript();
-
-    </script>
+          {% else %}
+            {% verbose_field_display object field %}
+          {% endif %}
 
 
-{% endblock content %}
+        {% endfor %}
+      </div>
+
+      <div class="col">
+        {% if object.sites.exists %}
+          <div id="map"></div>
+        {% else %}
+          <em>{% trans "There are no sites on file for this river." %}</em>
+        {% endif %}
+      </div>
+    </div>
+    {#  Station list  #}
+    <br><br>
+    <div class="row">
+      <div class="col">
+        <h4>
+          <b>Sites on this river:</b>
+        </h4>
+      </div>
+      <div class="col" style="text-align: right; padding-bottom: 10px">
+        <a href="{% url 'trapnet:site_new' object.id %}" class="btn btn-sm btn-primary">New Site</a>
+      </div>
+    </div>
+    {% if object.sites.count == 0 %}
+      <em>No sites have been entered for this river</em>
+    {% else %}
+      <table class="table table-sm table-hover sortable">
+        <thead>
+        <tr>
+          {% for field in site_field_list %}
+            <th scope="col">{% get_verbose_label my_site_object field %}</th>
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for obj in object.sites.all %}
+          {% url 'trapnet:site_detail' obj.id as my_url %}
+          <tr href="{{ my_url }}">
+            {% for field in site_field_list %}
+              <td>{% get_field_value obj field %}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+  </div>
+{% endblock %}
+{% block body_js %}
+
+  <script type="application/javascript">
+  function initialize() {
+    let coords = [];
+    map = new L.Map("map", {
+      center: new L.LatLng(46.13845952180798, -64.7906431818189),
+      zoom: 6,
+    });
+
+    {% if object.sites.exists %}
+      {% for site in object.sites.all %}
+        {% if site.get_point %}
+          latLong = [{{site.get_point.x}}, {{ site.get_point.y }}]
+          coords.push(latLong)
+          L.marker(
+              latLong, {
+                title: '{{object}}',
+              }
+          ).addTo(map).bindPopup('<a href="{% url 'trapnet:site_detail' site.id %}">{{site}}</a>');
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox/satellite-streets-v10',
+      tileSize: 512,
+      zoomOffset: -1,
+      accessToken: '{{mapbox_api_key}}'
+    }).addTo(map);
+
+    map.fitBounds(coords);
+  }
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    initialize()
+
+  });
+  </script>
+
+{% endblock %}

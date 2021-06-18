@@ -283,14 +283,27 @@ class GCProbeMeasurementFactory(factory.django.DjangoModelFactory):
         }
 
 
+class BaitFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Bait
+
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.catch_prase(),
+        }
+
+
 class TrapFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Trap
 
     sample = factory.SubFactory(GCSampleFactory)
+    bait_type = factory.SubFactory(BaitFactory)
     trap_number = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
     trap_type = factory.lazy_attribute(lambda o: 1)
-    bait_type = factory.lazy_attribute(lambda o: 1)
 
     @staticmethod
     def get_valid_data():
@@ -298,7 +311,7 @@ class TrapFactory(factory.django.DjangoModelFactory):
             'sample': GCSampleFactory().id,
             'trap_number': faker.pyint(1, 100),
             'trap_type': 1,
-            'bait_type': 1,
+            'bait_type': BaitFactory().id,
         }
 
 

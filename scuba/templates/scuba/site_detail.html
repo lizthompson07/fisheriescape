@@ -19,15 +19,21 @@
 
   <div class="mb-3 row">
     <div class="col">
-      <table class="table table-sm" style="width: 50%">
+      <table class="table table-sm w-75">
         {% for field in field_list %}
           {% verbose_td_display object field %}
         {% endfor %}
       </table>
     </div>
     <div class="col">
-      <div id="map">
-      </div>
+      {% if object.get_coordinates %}
+        <div id="map"></div>
+      {% else %}
+        <div class="alert alert-danger lead mb-3" role="alert">
+          <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
+          {% trans "None of the transects associated with this site contains any coordinates." %}
+        </div>
+      {% endif %}
     </div>
   </div>
 
@@ -56,12 +62,7 @@
           <tr>
             {% for field in transect_field_list %}
               <td>
-{#                {% if "coordinates" in field %}#}
-{#                  {{ transect.has_coordinates|yesno:"yes,no,no" }}#}
-{#                {% else %}#}
-                  {% get_field_value transect field %}
-{#                {% endif %}#}
-
+                {% get_field_value transect field %}
               </td>
             {% endfor %}
             <td>{{ transect.dives.count }}</td>
@@ -81,54 +82,50 @@
       </table>
 
     {% else %}
-
       <em>{% trans "This site has no transects." %}</em>
-
     {% endif %}
   </div>
 
+  {% if object.get_coordinates %}
+    <script type="application/javascript">
+    function initialize() {
+      map = new L.Map("map", {
+        center: new L.LatLng({{ object.get_coordinates.x }}, {{ object.get_coordinates.y }}),
+        zoom: 14,
+      });
 
-  <script type="application/javascript">
-  function initialize() {
-    map = new L.Map("map", {
-      center: new L.LatLng({{ object.get_coordinates.x }}, {{ object.get_coordinates.y }}),
-      zoom: 14,
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+      let latLong = [{{object.get_coordinates.x}}, {{ object.get_coordinates.y }}];
+      var coords = [latLong,];
+
+      {% for transect in object.transects.all %}
+        {% if transect.get_starting_coordinates and transect.get_ending_coordinates %}
+          var lineCoords = [
+            [{{transect.get_starting_coordinates.x }}, {{transect.get_starting_coordinates.y }}],
+            [{{transect.get_ending_coordinates.x }}, {{transect.get_ending_coordinates.y }}],
+          ];
+          L.polyline([lineCoords], {
+            color: 'black',
+            dashArray: '4',
+            weight: 2,
+          }).addTo(map).bindPopup("Transect: {{transect}}");
+          for (var i = 0; i < lineCoords.length; i++) {
+            coords.push(lineCoords[i])
+          }
+        {% endif %}
+      {% endfor %}
+      map.fitBounds(coords);
+
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
     });
+    </script>
+  {% endif %}
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map)
-    let latLong = [{{object.get_coordinates.x}}, {{ object.get_coordinates.y }}];
-    var coords = [latLong,];
-    L.marker(
-        latLong, {title: '{{site}}',}
-    ).addTo(map).bindPopup("<b>Site name:</b> {{site.name}}");
-
-    {% for transect in object.transects.all %}
-      {% if transect.get_starting_coordinates and transect.get_ending_coordinates %}
-        var lineCoords = [
-          [{{transect.get_starting_coordinates.x }}, {{transect.get_starting_coordinates.y }}],
-          [{{transect.get_ending_coordinates.x }}, {{transect.get_ending_coordinates.y }}],
-        ];
-        L.polyline([lineCoords], {
-          color: 'red',
-          dashArray: '4',
-          weight: 1,
-        }).addTo(map).bindPopup("Transect: {{transect}}}");
-        for (var i = 0; i < lineCoords.length; i++) {
-          coords.push(lineCoords[i])
-        }
-      {% endif %}
-    {% endfor %}
-    map.fitBounds(coords);
-
-
-  }
-
-  $(document).ready(function () {
-    // Stuff to do as soon as the DOM is ready
-    initialize()
-
-  });
-  </script>
 {% endblock %}

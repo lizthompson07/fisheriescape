@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-25 16:06-0300\n"
+"POT-Creation-Date: 2021-06-17 13:15-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -95,7 +95,7 @@ msgid "external"
 msgstr ""
 
 #: .\csas2\emails.py:22 .\csas2\emails.py:42 .\csas2\utils.py:272
-#: .\csas2\views.py:468 .\csas2\views.py:777
+#: .\csas2\views.py:468 .\csas2\views.py:778
 #, fuzzy
 #| msgid "end latitude"
 msgid "dates"
@@ -784,7 +784,7 @@ msgid "Posting notification date"
 msgstr ""
 
 #: .\csas2\models.py:302 .\csas2\models.py:454 .\csas2\models.py:595
-#: .\csas2\utils.py:36 .\csas2\views.py:142 .\csas2\views.py:791
+#: .\csas2\utils.py:36 .\csas2\views.py:142 .\csas2\views.py:792
 msgid "name"
 msgstr "nom"
 
@@ -1261,7 +1261,7 @@ msgstr ""
 msgid "Manage DFO Organizations"
 msgstr ""
 
-#: .\csas2\templates\csas2\base\_nav_left_auth.html:34 .\csas2\views.py:618
+#: .\csas2\templates\csas2\base\_nav_left_auth.html:34 .\csas2\views.py:619
 msgid "Manage Process Postings"
 msgstr ""
 
@@ -1285,7 +1285,7 @@ msgstr ""
 #: .\csas2\templates\csas2\meeting_detail\main.html:55
 #: .\csas2\templates\csas2\person_detail.html:14
 #: .\csas2\templates\csas2\process_detail\main.html:37
-#: .\csas2\templates\csas2\request_detail\main.html:51
+#: .\csas2\templates\csas2\request_detail\main.html:50
 msgid "Edit"
 msgstr "Modifier"
 
@@ -1295,7 +1295,7 @@ msgstr "Modifier"
 #: .\csas2\templates\csas2\meeting_detail\main.html:56
 #: .\csas2\templates\csas2\person_detail.html:15
 #: .\csas2\templates\csas2\process_detail\main.html:38
-#: .\csas2\templates\csas2\request_detail\main.html:55
+#: .\csas2\templates\csas2\request_detail\main.html:54
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -1621,7 +1621,7 @@ msgstr ""
 #: .\csas2\templates\csas2\document_detail\main.html:178
 #: .\csas2\templates\csas2\meeting_detail\main.html:140
 #: .\csas2\templates\csas2\process_detail\main.html:190
-#: .\csas2\templates\csas2\request_detail\main.html:179
+#: .\csas2\templates\csas2\request_detail\main.html:178
 msgid "Metadata"
 msgstr ""
 
@@ -1683,11 +1683,11 @@ msgid "New request"
 msgstr "Rapports"
 
 #: .\csas2\templates\csas2\index.html:43 .\csas2\views.py:456
-#: .\csas2\views.py:483 .\csas2\views.py:592 .\csas2\views.py:608
-#: .\csas2\views.py:632 .\csas2\views.py:674 .\csas2\views.py:721
-#: .\csas2\views.py:799 .\csas2\views.py:820 .\csas2\views.py:850
-#: .\csas2\views.py:907 .\csas2\views.py:1013 .\csas2\views.py:1034
-#: .\csas2\views.py:1061 .\csas2\views.py:1082
+#: .\csas2\views.py:483 .\csas2\views.py:593 .\csas2\views.py:609
+#: .\csas2\views.py:633 .\csas2\views.py:675 .\csas2\views.py:722
+#: .\csas2\views.py:800 .\csas2\views.py:821 .\csas2\views.py:851
+#: .\csas2\views.py:908 .\csas2\views.py:1014 .\csas2\views.py:1035
+#: .\csas2\views.py:1062 .\csas2\views.py:1083
 msgid "Processes"
 msgstr ""
 
@@ -1710,7 +1710,7 @@ msgid "New process"
 msgstr "Nouvelle plongée"
 
 #: .\csas2\templates\csas2\index.html:54
-#: .\csas2\templates\csas2\process_detail\main.html:246 .\csas2\views.py:1006
+#: .\csas2\templates\csas2\process_detail\main.html:246 .\csas2\views.py:1007
 #, fuzzy
 #| msgid "comment"
 msgid "Documents"
@@ -1948,7 +1948,7 @@ msgid ""
 msgstr ""
 
 #: .\csas2\templates\csas2\meeting_detail\main.html:58
-#: .\csas2\templates\csas2\request_detail\main.html:58
+#: .\csas2\templates\csas2\request_detail\main.html:57
 #, fuzzy
 #| msgid "Add Site"
 msgid "Add a File"
@@ -1993,7 +1993,7 @@ msgid "There are no documents linked to this meeting."
 msgstr ""
 
 #: .\csas2\templates\csas2\meeting_detail\main.html:115
-#: .\csas2\templates\csas2\request_detail\main.html:141
+#: .\csas2\templates\csas2\request_detail\main.html:140
 #, fuzzy
 #| msgid "Sites"
 msgid "Files"
@@ -2087,7 +2087,7 @@ msgstr ""
 msgid "HTML (fr)"
 msgstr ""
 
-#: .\csas2\templates\csas2\process_detail\main.html:66 .\csas2\views.py:631
+#: .\csas2\templates\csas2\process_detail\main.html:66 .\csas2\views.py:632
 msgid "Initiate ToR"
 msgstr ""
 
@@ -2237,66 +2237,66 @@ msgstr ""
 msgid "Delete Review"
 msgstr "Supprimer"
 
-#: .\csas2\templates\csas2\request_detail\main.html:32
+#: .\csas2\templates\csas2\request_detail\main.html:31
 msgid "Request ID:"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:44
+#: .\csas2\templates\csas2\request_detail\main.html:43
 #, fuzzy
 #| msgid "start latitude"
 msgid "Start a Review"
 msgstr "latitude de depart"
 
-#: .\csas2\templates\csas2\request_detail\main.html:46
+#: .\csas2\templates\csas2\request_detail\main.html:45
 msgid "Start a Process"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:53
+#: .\csas2\templates\csas2\request_detail\main.html:52
 msgid "Un-Submit"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:53
+#: .\csas2\templates\csas2\request_detail\main.html:52
 #: .\csas2\templates\csas2\request_submit.html:43
 msgid "Submit"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:56
+#: .\csas2\templates\csas2\request_detail\main.html:55
 msgid "Clone Me"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:76 .\csas2\utils.py:209
+#: .\csas2\templates\csas2\request_detail\main.html:75 .\csas2\utils.py:209
 msgid "is carry over?"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:96 .\csas2\utils.py:214
+#: .\csas2\templates\csas2\request_detail\main.html:95 .\csas2\utils.py:214
 msgid "Multiregional / multisector?"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:104 .\csas2\utils.py:216
+#: .\csas2\templates\csas2\request_detail\main.html:103 .\csas2\utils.py:216
 msgid "Assistance from DFO Science?"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:124
+#: .\csas2\templates\csas2\request_detail\main.html:123
 msgid "Client funding?"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:128
+#: .\csas2\templates\csas2\request_detail\main.html:127
 msgid "Client prioritization?"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:157
+#: .\csas2\templates\csas2\request_detail\main.html:156
 msgid "There are no files attached to this request."
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:164
+#: .\csas2\templates\csas2\request_detail\main.html:163
 msgid "Connected processes"
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:174
+#: .\csas2\templates\csas2\request_detail\main.html:173
 msgid "There are no processes attached to this request."
 msgstr ""
 
-#: .\csas2\templates\csas2\request_detail\main.html:271
+#: .\csas2\templates\csas2\request_detail\main.html:270
 msgid "Are you certain you want to delete this review?"
 msgstr ""
 
@@ -2508,11 +2508,11 @@ msgstr ""
 msgid "CSAS Processes"
 msgstr ""
 
-#: .\csas2\views.py:459 .\csas2\views.py:595 .\csas2\views.py:611
-#: .\csas2\views.py:648 .\csas2\views.py:684 .\csas2\views.py:724
-#: .\csas2\views.py:805 .\csas2\views.py:823 .\csas2\views.py:866
-#: .\csas2\views.py:910 .\csas2\views.py:1020 .\csas2\views.py:1044
-#: .\csas2\views.py:1065 .\csas2\views.py:1085
+#: .\csas2\views.py:459 .\csas2\views.py:596 .\csas2\views.py:612
+#: .\csas2\views.py:649 .\csas2\views.py:685 .\csas2\views.py:725
+#: .\csas2\views.py:806 .\csas2\views.py:824 .\csas2\views.py:867
+#: .\csas2\views.py:911 .\csas2\views.py:1021 .\csas2\views.py:1045
+#: .\csas2\views.py:1066 .\csas2\views.py:1086
 msgid "Process"
 msgstr ""
 
@@ -2534,38 +2534,38 @@ msgid ""
 "the system."
 msgstr ""
 
-#: .\csas2\views.py:583
+#: .\csas2\views.py:584
 msgid ""
 "Cannot add invitees to meeting because there is not a 'chair' role in the "
 "system."
 msgstr ""
 
-#: .\csas2\views.py:637 .\csas2\views.py:679
+#: .\csas2\views.py:638 .\csas2\views.py:680
 msgid ""
 "This process has already been posted therefore changes to the ToR will "
 "automatically trigger a notification to be sent to the national CSAS team."
 msgstr ""
 
-#: .\csas2\views.py:778
+#: .\csas2\views.py:779
 msgid "your role(s)"
 msgstr ""
 
-#: .\csas2\views.py:856
+#: .\csas2\views.py:857
 msgid ""
 "This process has already been posted therefore changes to the meeting "
 "details will automatically trigger a notification to be sent to the national "
 "CSAS team."
 msgstr ""
 
-#: .\csas2\views.py:941 .\csas2\views.py:958
+#: .\csas2\views.py:942 .\csas2\views.py:959
 msgid "A notification email was sent off to the national office!"
 msgstr ""
 
-#: .\csas2\views.py:1005
+#: .\csas2\views.py:1006
 msgid "My Docs"
 msgstr ""
 
-#: .\csas2\views.py:1098
+#: .\csas2\views.py:1099
 #, fuzzy
 #| msgid "Reports"
 msgid "CSAS Reports"

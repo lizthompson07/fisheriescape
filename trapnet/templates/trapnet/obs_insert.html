@@ -1,21 +1,10 @@
-{% extends "trapnet/trapnet_base.html" %}
+{% extends "trapnet/base.html" %}
 {% load static %}
 {% load custom_filters %}
 {% load bootstrap4 %}
 {% load verbose_names %}
 
-{% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_list' %}"> Samples </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_detail' sample.id %}"> {{ sample }} </a></li>
-            <li class="breadcrumb-item active" aria-current="page"> Manage entries</li>
-        </ol>
-    </nav>
-
-    <div class="container-fluid">
-        {#  <h1>Add Species to {{sample}}</h1>#}
+{% block subcontent %}
 
         <div class="row">
 
@@ -64,14 +53,16 @@
                         {% else %}
                             <td class="center-col">{% get_field_value object field nullmark="--" %}</td>
                         {% endif %}
-
                     {% endfor %}
+                    <td>
+                      <a href="#" class="delete-me" val="{{ object.id }}"><span class="mdi mdi-delete"></span></a>
+                      <a class="stop" href="{% url 'trapnet:obs_delete' object.id %}" id="secrect-delete-btn-{{ object.id }}"></a>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
 
-    </div>
 
 
 
@@ -81,14 +72,12 @@
 
     <script type="application/javascript">
         var speciesList = {{ species_list |safe }}
-
-
             $(".delete-me").click(function () {
                 var objectId = $(this)[0].getAttribute("val");
-
+                console.log(objectId)
                 var userInput = "";
                 while (userInput !== "n" && userInput !== "y") {
-                    userInput = prompt("Are you sure you want to delete this species from the sample? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+                    userInput = prompt("Are you sure you want to delete this entry from the sample? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
                 }
                 if (userInput === "y") {
                     $("#secrect-delete-btn-" + objectId)[0].click();
@@ -135,4 +124,4 @@
 
     </script>
 
-{% endblock content %}
+{% endblock  %}

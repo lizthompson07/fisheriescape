@@ -1,7 +1,9 @@
 from django import forms
-from django.core import validators
-from shared_models import models as shared_models
+from django.forms import modelformset_factory
+from django.utils.translation import gettext
 
+from lib.templatetags.custom_filters import nz
+from shared_models import models as shared_models
 from . import models
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -32,35 +34,91 @@ class RiverSiteForm(forms.ModelForm):
             "directions": forms.Textarea(attrs={"rows": "3", }),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if kwargs.get("instance") or kwargs.get("initial"):
-            self.fields["river"].widget = forms.HiddenInput()
-
 
 class SampleForm(forms.ModelForm):
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = models.Sample
-        exclude = ["last_modified", 'season']
+        exclude = ['season']
         widgets = {
-            "site": forms.HiddenInput(),
-            "last_modified_by": forms.HiddenInput(),
+            "site": forms.Select(attrs=chosen_js),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
             "notes": forms.Textarea(attrs={"rows": "3", }),
-            "arrival_date": forms.DateTimeInput(attrs=attr_fp_date_time),
-            "departure_date": forms.DateTimeInput(attrs=attr_fp_date_time),
+            "arrival_date": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+            "departure_date": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
         }
 
-class EntryForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        site_choices = [(obj.id, f"{obj.river} --> {obj.name} ({nz(obj.province, 'unknown prov.')})") for obj in models.RiverSite.objects.all()]
+        site_choices.insert(0, (None, "-----"))
+        self.fields["site"].choices = site_choices
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # make sure departure is after arrival
+        arrival_date = cleaned_data.get("arrival_date")
+        departure_date = cleaned_data.get("departure_date")
+        if arrival_date and departure_date and departure_date < arrival_date:
+            self.add_error('departure_date', gettext(
+                "The departure date must be after the arrival date!"
+            ))
+
+        # make sure site characterization is null or 1
+        percent_riffle = cleaned_data.get("percent_riffle")
+        percent_run = cleaned_data.get("percent_run")
+        percent_flat = cleaned_data.get("percent_flat")
+        percent_pool = cleaned_data.get("percent_pool")
+        if (percent_riffle or percent_run or percent_flat or percent_pool) and (
+                nz(percent_riffle, 0) + nz(percent_run, 0) + nz(percent_flat, 0) + nz(percent_pool, 0) != 1):
+            raise forms.ValidationError(
+                gettext("Either site characterization must be left null or must equal to 1")
+            )
+
+        # make sure substrate characterization is null or 1
+        percent_fine = cleaned_data.get("percent_fine")
+        percent_sand = cleaned_data.get("percent_sand")
+        percent_gravel = cleaned_data.get("percent_gravel")
+        percent_pebble = cleaned_data.get("percent_pebble")
+        percent_cobble = cleaned_data.get("percent_cobble")
+        percent_rocks = cleaned_data.get("percent_rocks")
+        percent_boulder = cleaned_data.get("percent_boulder")
+        percent_bedrock = cleaned_data.get("percent_bedrock")
+        if (percent_fine or percent_sand or percent_gravel or percent_pebble or percent_cobble or percent_rocks or percent_boulder or percent_bedrock) and (
+                nz(percent_fine, 0) + nz(percent_sand, 0) + nz(percent_gravel, 0) + nz(percent_pebble, 0) + nz(percent_cobble, 0) + nz(percent_rocks, 0) + nz(
+                percent_boulder, 0) + nz(percent_bedrock, 0) != 1):
+            raise forms.ValidationError(
+                gettext("Either substrate characterization must be left null or must equal to 1")
+            )
+
+
+class SweepForm(forms.ModelForm):
     class Meta:
-        model = models.Entry
+        model = models.Sweep
+        exclude = "__all__"
+
+    def clean_sweep_number(self):
+        sweep_number = self.cleaned_data['sweep_number']
+        if (sweep_number != 0.5) and (sweep_number - int(sweep_number) != 0):
+            raise forms.ValidationError("The sweep number must be equal to 0.5 or be a factors of 1!")
+        return sweep_number
+
+
+class ObservationForm(forms.ModelForm):
+    class Meta:
+        model = models.Observation
         fields = "__all__"
         widgets = {
-            'species': forms.HiddenInput(),
             'sample': forms.HiddenInput(),
-            'notes': forms.Textarea(attrs={"rows": "3"}),
-            "date_tagged": forms.DateTimeInput(attrs=attr_fp_date),
         }
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        fields = "__all__"
 
 
 class ReportSearchForm(forms.Form):
@@ -87,3 +145,80 @@ class ReportSearchForm(forms.Form):
         site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.all() if obj.samples.count() > 0]
         self.fields['sites'].choices = site_choices
 
+
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = models.Status
+        fields = "__all__"
+
+
+StatusFormset = modelformset_factory(
+    model=models.Status,
+    form=StatusForm,
+    extra=1,
+)
+
+
+class SexForm(forms.ModelForm):
+    class Meta:
+        model = models.Sex
+        fields = "__all__"
+
+
+SexFormset = modelformset_factory(
+    model=models.Sex,
+    form=SexForm,
+    extra=1,
+)
+
+
+class LifeStageForm(forms.ModelForm):
+    class Meta:
+        model = models.LifeStage
+        fields = "__all__"
+
+
+LifeStageFormset = modelformset_factory(
+    model=models.LifeStage,
+    form=LifeStageForm,
+    extra=1,
+)
+
+
+class OriginForm(forms.ModelForm):
+    class Meta:
+        model = models.Origin
+        fields = "__all__"
+
+
+OriginFormset = modelformset_factory(
+    model=models.Origin,
+    form=OriginForm,
+    extra=1,
+)
+
+
+class MaturityForm(forms.ModelForm):
+    class Meta:
+        model = models.Maturity
+        fields = "__all__"
+
+
+MaturityFormset = modelformset_factory(
+    model=models.Maturity,
+    form=MaturityForm,
+    extra=1,
+)
+
+
+class ElectrofisherForm(forms.ModelForm):
+    class Meta:
+        model = models.Electrofisher
+        fields = "__all__"
+
+
+ElectrofisherFormset = modelformset_factory(
+    model=models.Electrofisher,
+    form=ElectrofisherForm,
+    extra=1,
+)

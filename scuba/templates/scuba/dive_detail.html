@@ -18,15 +18,19 @@
     <a href="{% url 'scuba:dive_data_entry' object.id %}" class="btn btn-primary btn-sm">{% trans "Data Entry Mode" %}</a>
   </div>
 
-
   <div class="mb-3 row">
     <div class="col">
-      <table class="table table-sm" style="width: 50%">
+      <table class="table table-sm w-75">
         {% for field in field_list %}
           {% if "descent" in field %}
             <tr>
               <th>{% get_verbose_label object field %}</th>
               <td>{{ object.start_descent|time }}</td>
+            </tr>
+          {% elif "transect" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td><a href="{% url 'scuba:site_detail' object.transect.site.id %}">{% trans "Transect" %} {{ object.transect }}</a></td>
             </tr>
           {% else %}
             {% verbose_td_display object field %}
@@ -36,8 +40,13 @@
     </div>
     <div class="col">
       {% if not object.transect.get_starting_coordinates %}
-        <p class="text-muted"><em>{% trans "Cannot display map because transect has no coordinates" %}</em></p>
-
+        <div class="alert alert-danger lead mb-3" role="alert">
+          {% url 'scuba:transect_edit' object.transect.id as transect_url %}
+          <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
+          {% blocktrans with transect_url=transect_url %}
+            This transect associated with this dive is missing some coordinates. Please add some <a href="{{ transect_url }}" target="_blank">here</a>.
+          {% endblocktrans %}
+        </div>
       {% endif %}
       <div id="map">
       </div>
@@ -170,24 +179,13 @@
         [{{object.transect.get_starting_coordinates.x }}, {{object.transect.get_starting_coordinates.y }}],
         [{{object.transect.get_ending_coordinates.x }}, {{object.transect.get_ending_coordinates.y }}],
       ];
+      L.marker(lineCoords[0], {icon: greenIcon}).addTo(map).bindPopup("<b>Start (0m)");
+      L.marker(lineCoords[1], {icon: redIcon}).addTo(map).bindPopup("<b>End (100m)");
       L.polyline([lineCoords], {
         color: 'black',
-        dashArray: '4',
+        dashArray: '3',
         weight: 1,
-      }).addTo(map).bindPopup("Transect: {{object.transect}}}");
-
-      {% if object.get_starting_coordinates and object.get_ending_coordinates %}
-        var lineCoords1 = [
-          [{{object.get_starting_coordinates.x }}, {{object.get_starting_coordinates.y }}],
-          [{{object.get_ending_coordinates.x }}, {{object.get_ending_coordinates.y }}],
-        ];
-        L.polyline([lineCoords1], {
-          color: 'green',
-          dashArray: '4',
-          weight: 1,
-        }).addTo(map).bindPopup("Dive: {{object}}}");
-        lineCoords.concat(lineCoords1)
-      {% endif %}
+      }).addTo(map).bindPopup("Transect: {{object.transect}}").openPopup();
 
       map.fitBounds(lineCoords);
     }

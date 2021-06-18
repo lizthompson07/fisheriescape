@@ -55,6 +55,7 @@ class TestConsultationLogReport(CommonTest):
             reverse_lazy('ihub:report_q', args=[org.id]),
             reverse_lazy('ihub:consultation_instructions_pdf'),
             reverse_lazy('ihub:consultation_instructions_xlsx'),
+            reverse_lazy('ihub:consultation_report') + "?sectors=None&from_date=None&to_date=None&orgs=None&statuses=None&entry_note_types=None&entry_note_statuses=None&org_regions=None&entry_regions=None",
         ]
         self.view = views.ConsultationLogPDFTemplateView
 

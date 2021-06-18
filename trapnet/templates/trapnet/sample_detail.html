@@ -1,101 +1,185 @@
-{% extends "trapnet/trapnet_base.html" %}
+{% extends "trapnet/base.html" %}
 {% load static %}
 {% load verbose_names %}
-
+{% load  i18n %}
 {% block header %}
-    <style>
-        /* Set the size of the div element that contains the map */
-        #map {
-            height: 500px; /* The height is 400 pixels */
-            width: 100%; /* The width is the width of the web page */
-        }
+  {{ block.super }}
+  <style>
+  /* Set the size of the div element that contains the map */
+  #map {
+      height: 500px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
 
-        .label {
-            font-weight: bold;
+{% endblock %}
 
-        }
-    </style>
+{% block subcontent %}
 
-{% endblock header %}
+  <div class="mb-3">
+    <a class="btn btn-warning" href="{% url 'trapnet:sample_edit' object.id %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'trapnet:sample_delete' object.id %}">Delete</a>
+  </div>
 
+  <div class="row mb-5">
+    <div class="col-7">
 
-{% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_list' %}"> Samples </a></li>
-            <li class="breadcrumb-item active" aria-current="page"> {{ object }} </li>
-        </ol>
-    </nav>
-
-    <div class="container-fluid">
-
-        <br>
-        <h1>{{ object }}</h1>
-        <p>
-            {# <a class="btn btn-secondary" href="{% url 'grais:sample_list' %}">Back to List</a> #}
-            <a class="btn btn-warning" href="{% url 'trapnet:trap_edit' object.id %}">Edit</a>
-            {#            <a href="{% url 'trapnet:station_new' object.id %}" class="btn btn btn-success ">New Site</a>#}
-
-            <a class="btn btn-danger" href="{% url 'trapnet:trap_delete' object.id %}">Delete</a>
-            <a class="btn btn-primary" href="{% url 'trapnet:obs_insert' object.id  %}">Add / Modify Entries</a>
-        </p>
-
-        <br><br>
-        <div class="row">
-            <div class="col-4">
-                <h3>Trap Details:</h3>
-                <table class="table table-sm table-striped">
-                    {% for field in field_list %}
-                        {% verbose_td_display object field display_time=True %}
-                    {% endfor %}
-
-                </table>
-            </div>
-
-            <div class="col">
-                <div id="map"></div>
-                <br><br>
-                <h4>
-                    <b>Entry Summary:</b>
-                </h4>
-                <table class="table table-sm table-striped" style="width: 40%">
-                    <tr>
-                        <th>Total number of entries</th>
-                        <td>{{ object.entries.count }}</td>
-                    </tr>
-                    <tr>
-                        <th>Species caught</th>
-                        <td>{{ object.species_list}}</td>
-                    </tr>
-                </table>
-
-            </div>
+      <div class="card">
+        <div class="card-header lead">
+          {% trans "Sample Detail" %}
         </div>
-        <br><br>
+        <div class="card-body">
+          <table class="table table-sm table-bordered">
+            {% for field in field_list %}
+              {% if field == "site" %}
+                <tr>
+                  <th class="w-35">{% get_verbose_label object "site" %}</th>
+                  <td><a href="{% url 'trapnet:site_detail' object.site.id %}">{{ object.site }}</a></td>
+                </tr>
+              {% else %}
+                {% verbose_td_display object field display_time=True %}
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+      </div>
     </div>
+    <div class="col">
+      <div class="card">
+        <div class="card-header lead">
+          {% trans "Site Map" %}
+        </div>
+        <div class="card-body">
+          {% if object.site.get_point %}
+            <div id="map"></div>
+          {% else %}
+            <em>{% trans "The site associated with this sample has no coordinates." %}</em>
+          {% endif %}
+        </div>
+      </div>
 
-    <script>
+    </div>
+  </div>
+  <div class="mb-5">
 
-        // Initialize and add the map
-        function initMap() {
-            // The location of Uluru
-            var uluru = {lat: {{object.site.latitude_n}}, lng: {{object.site.longitude_w}}};
-            // The map, centered at Uluru
-            var map = new google.maps.Map(
-                document.getElementById('map'), {
-                    zoom: 17,
-                    center: uluru,
-                    mapTypeId: google.maps.MapTypeId.SATELLITE,
-                });
-            // The marker, positioned at Uluru
-            var marker = new google.maps.Marker({position: uluru, map: map});
-        }
-    </script>
-    <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
-    </script>
+    {% if object.sample_type == 1 %}
+      <div class="card">
+        <div class="card-header lead">
+          <div class="float-right">
+            <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
+          </div>
+          {% trans "Observations" %}
+        </div>
+        <div class="card-body">
+          {% if not object.observations.exists %}
+            <em>{% trans "There are no observations associated with this sample." %}</em>
+          {% else %}
+            <table class="table table-sm table-hover table-small-10 sortable">
+              <thead>
+              <tr>
+                {% for field in obs_field_list %}
+                  <th>
+                    {% get_verbose_label object.observations.first field %}
+                  </th>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for obs in object.observations.all %}
+                <tr href="{% url 'trapnet:obs_detail' obs.id %}">
+                  {% for field in obs_field_list %}
+                    <td>
+                      {% get_field_value obs field %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
 
+        </div>
+      </div>
+    {% endif %}
 
+    {% if object.sample_type == 2 %}
+      <div class="card">
+        <div class="card-header lead">
+          <div class="float-right">
+            <a class="btn btn-success btn-sm" href="{% url 'trapnet:sweep_new' object.id %}">{% trans "New" %}</a>
+          </div>
+          {% trans "Sweeps" %}
+        </div>
+        <div class="card-body">
+          {% if not object.sweeps.exists %}
+            <em>{% trans "There are no sweeps associated with this sample." %}</em>
+          {% else %}
+            <table class="table table-sm table-hover sortable">
+              <thead>
+              <tr>
+                {% for field in sweep_field_list %}
+                  <th>
+                    {% get_verbose_label object.sweeps.first field %}
+                  </th>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for sweep in object.sweeps.all %}
+                <tr href="{% url 'trapnet:sweep_detail' sweep.id %}">
+                  {% for field in sweep_field_list %}
+                    <td>
+                      {% get_field_value sweep field %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
 
-{% endblock content %}
+  </div>
+{% endblock %}
+
+{% block body_js %}
+  <script type="application/javascript">
+  function initialize() {
+    let coords = [];
+    map = new L.Map("map", {
+      center: new L.LatLng(46.13845952180798, -64.7906431818189),
+      zoom: 6,
+    });
+
+    {% if object.site.get_point %}
+      latLong = [{{object.site.get_point.x}}, {{ object.site.get_point.y }}]
+      coords.push(latLong)
+      L.marker(
+          latLong, {
+            title: '{{object.site}}',
+          }
+      ).addTo(map).bindPopup('<a href="{% url 'trapnet:site_detail' object.site.id %}">{{object.site}}</a>');
+    {% endif %}
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox/satellite-streets-v10',
+      tileSize: 512,
+      zoomOffset: -1,
+      accessToken: '{{mapbox_api_key}}'
+    }).addTo(map);
+
+    map.fitBounds(coords);
+  }
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    initialize()
+
+  });
+  </script>
+
+{% endblock %}

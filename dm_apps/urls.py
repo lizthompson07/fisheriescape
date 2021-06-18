@@ -50,6 +50,10 @@ if settings.INSTALLED_APPS.count("scuba"):
     urlpatterns.append(
         path('api/', include('scuba.api.urls')),
     )
+if settings.INSTALLED_APPS.count("trapnet"):
+    urlpatterns.append(
+        path('api/', include('trapnet.api.urls')),
+    )
 if settings.INSTALLED_APPS.count("edna"):
     urlpatterns.append(
         path('api/', include('edna.api.urls')),

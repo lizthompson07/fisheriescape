@@ -15,6 +15,8 @@ urlpatterns = [
     path('settings/sampler/<int:pk>/delete/', shared_views.SamplerHardDeleteView.as_view(), name="delete_sampler"),  # tested
     path('settings/weather-conditions/', shared_views.WeatherConditionFormsetView.as_view(), name="manage_weather_conditions"),  # tested
     path('settings/weather-condition/<int:pk>/delete/', shared_views.WeatherConditionHardDeleteView.as_view(), name="delete_weather_condition"),  # tested
+    path('settings/baits/', gc_views.BaitFormsetView.as_view(), name="manage_baits"),
+    path('settings/bait/<int:pk>/delete/', gc_views.BaitHardDeleteView.as_view(), name="delete_bait"),
 
     # species
     path('species/', shared_views.SpeciesListView.as_view(), name="species_list"),  # tested

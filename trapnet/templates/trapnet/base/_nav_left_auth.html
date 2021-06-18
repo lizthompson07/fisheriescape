@@ -1,0 +1,46 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'trapnet:index' %}">
+  {% trans "Home" %}
+</a></li>
+
+{% if is_admin %}
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'trapnet:reports' %}">
+      {% trans "Reports" %}
+    </a>
+  </li>
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+      {% trans "Settings" %}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="{% url 'trapnet:species_list' %}">{% trans "Species" %}</a>
+      <a class="dropdown-item" href="{% url 'trapnet:river_list' %}">{% trans "Rivers" %}</a>
+      <a class="dropdown-item" href="{% url 'trapnet:manage_statuses' %}">
+        {% trans "Statuses" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'trapnet:manage_sexes' %}">
+        {% trans "Sexes" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'trapnet:manage_life_stages' %}">
+        {% trans "Life Stages" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'trapnet:manage_origins' %}">
+        {% trans "Origins" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'trapnet:manage_maturities' %}">
+        {% trans "Maturities" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'trapnet:manage_electrofishers' %}">
+        {% trans "Electrofishers" %}
+      </a>
+    </div>
+  </li>
+{% endif %}
+
+
+
+
+

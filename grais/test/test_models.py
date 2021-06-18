@@ -212,14 +212,6 @@ class TestTrapModel(CommonTest):
         expected_choices = [field.choices for field in models.Trap._meta.fields if field.name == "trap_type"][0]
         self.assertEqual(actual_choices, expected_choices)
 
-    @tag('Trap', 'models', 'choices')
-    def test_choices_field_that_has_choices1(self):
-        actual_choices = (
-            (1, 'Herring'),
-        )
-        expected_choices = [field.choices for field in models.Trap._meta.fields if field.name == "bait_type"][0]
-        self.assertEqual(actual_choices, expected_choices)
-
 
 class TestCatchModel(CommonTest):
     def setUp(self):
