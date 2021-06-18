@@ -24,9 +24,13 @@ class SpawningParser(DataParser):
     comment_key_m = "Comments, M"
     comment_key_pair = "Comments"
     len_key_f = "Ln (cm), F"
+    len_key_f_mm = "Ln (mm), F"
     weight_key_f = "Wt (g), F"
+    weight_key_f_kg = "Wt (kg), F"
     len_key_m = "Ln (cm), M"
+    len_key_m_mm = "Ln (mm), M"
     weight_key_m = "Wt (g), M"
+    weight_key_m_kg = "Wt (kg), M"
     choice_key = "Choice"
     egg_est_key = "Exp. #"
 
@@ -42,7 +46,6 @@ class SpawningParser(DataParser):
     dud_spwndc_id = None
 
     sex_dict = calculation_constants.sex_dict
-
 
     def data_preper(self):
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
@@ -73,15 +76,31 @@ class SpawningParser(DataParser):
 
         self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, self.sex_dict["F"], self.sex_anidc_id.pk,
                                               None)
-        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.len_key_f],
-                                              self.len_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 * row[self.weight_key_f],
-                                              self.weight_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.len_key_f):
+            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.len_key_f],
+                                                  self.len_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.len_key_f_mm):
+            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 0.1 * row[self.len_key_f_mm],
+                                                  self.len_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.weight_key_f_kg):
+            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 *
+                                                  row[self.weight_key_f_kg], self.weight_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.weight_key_f):
+            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.weight_key_f],
+                                                  self.weight_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, self.sex_dict["M"], self.sex_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.len_key_m],
-                                              self.len_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 * row[self.weight_key_m],
-                                              self.weight_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.len_key_m):
+            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.len_key_m],
+                                                  self.len_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.len_key_m_mm):
+            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 0.1 * row[self.len_key_m_mm],
+                                                  self.len_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.weight_key_m_kg):
+            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 *
+                                                  row[self.weight_key_m_kg], self.weight_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.weight_key_m):
+            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.weight_key_m],
+                                                  self.weight_anidc_id.pk, None)
 
         # pair
 

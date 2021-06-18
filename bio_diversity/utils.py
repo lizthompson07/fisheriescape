@@ -1413,6 +1413,13 @@ def nan_to_none(test_item):
     return test_item
 
 
+def key_value_in_row(row, key):
+    if key in row.keys():
+        if nan_to_none(row[key]):
+            return True
+    else:
+        return False
+
 def y_n_to_bool(test_item):
     if type(test_item) == float:
         if math.isnan(test_item):

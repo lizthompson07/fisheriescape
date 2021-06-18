@@ -17,7 +17,7 @@ class ElectrofishingParser(DataParser):
     end_lon = "End Long"
     comment_key = "Comments"
     crew_key = "Crew"
-    crew_lead_key = "crew lead"
+    crew_lead_key = "Crew lead"
     temp_key = "Temperature"
     fish_caught_key = "# of salmon collected"
     fish_obs_key = "# of salmon observed"
@@ -59,7 +59,6 @@ class ElectrofishingParser(DataParser):
             self.locc_id = models.LocCode.objects.filter(name__icontains="Smolt Wheel site").get()
         elif self.cleaned_data["evntc_id"].__str__() == "Bypass Collection":
             self.locc_id = models.LocCode.objects.filter(name__icontains="Bypass site").get()
-
 
         # assign groups to columns, add generic group data:
         self.data["grp_id"] = None
@@ -109,11 +108,11 @@ class ElectrofishingParser(DataParser):
                                                       grp_year=grp.grp_year, coll_id=grp.coll_id).get()
 
                 anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_anix=True)
-                if utils.nan_to_none(row[self.group_key]):
+                if utils.key_value_in_row(row, self.group_key):
                     utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None,
                                      None, anidc_str="Program Group", adsc_str=row[self.group_key])
 
-            if utils.nan_to_none(row[self.group_key]):
+            if utils.key_value_in_row(row, self.group_key):
                 data_rows = (self.data[self.rive_key] == row[self.rive_key]) & \
                             (self.data[self.group_key] == row[self.group_key]) & \
                             (self.data[self.tank_key] == row[self.tank_key]) & \
@@ -136,7 +135,7 @@ class ElectrofishingParser(DataParser):
         row_datetime = utils.get_row_date(row)
         relc_id = None
         rive_id = self.river_dict[row[self.rive_key]]
-        if utils.nan_to_none(row[self.site_key]):
+        if utils.key_value_in_row(row, self.site_key):
             relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key])
             if len(relc_qs) == 1:
                 relc_id = relc_qs.get()
@@ -172,9 +171,12 @@ class ElectrofishingParser(DataParser):
         self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=row["grp_id"].pk, return_sucess=True)
         if self.loc.loc_lon and self.loc.loc_lat and not self.loc.relc_id:
             self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n\n{}".format(self.loc.loc_lat, self.loc.loc_lon, row)
+
         self.team_parser(row[self.crew_key], row, loc_id=loc)
 
-        self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id, loc_id=loc)
+        if utils.key_value_in_row(row, self.temp_key):
+            self.row_entered += utils.enter_env(row[self.temp_key], row_datetime, cleaned_data, self.temp_envc_id,
+                                                loc_id=loc)
 
         cnt_caught, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.fish_caught_key], loc_pk=loc.pk,
                                                   cnt_code="Fish Caught")
@@ -183,12 +185,15 @@ class ElectrofishingParser(DataParser):
                                                cnt_code="Fish Observed")
         self.row_entered += cnt_entered
 
-        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.settings_key],
-                                             self.settings_locdc_id.pk)
-        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.fishing_time_key],
-                                             self.fishing_time_locdc_id.pk)
-        self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.voltage_key],
-                                             self.voltage_locdc_id.pk)
+        if utils.key_value_in_row(row, self.settings_key):
+            self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.settings_key],
+                                                 self.settings_locdc_id.pk)
+        if utils.key_value_in_row(row, self.fishing_time_key):
+            self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.fishing_time_key],
+                                                 self.fishing_time_locdc_id.pk)
+        if utils.key_value_in_row(row, self.voltage_key):
+            self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_datetime, row[self.voltage_key],
+                                                 self.voltage_locdc_id.pk)
 
 
 class ColdbrookElectrofishingParser(ElectrofishingParser):
@@ -196,7 +201,8 @@ class ColdbrookElectrofishingParser(ElectrofishingParser):
     def row_parser(self, row):
         super().row_parser(row)
 
-        self.team_parser(row[self.crew_lead_key], row, loc_id=self.loc, role_id=self.leader_code)
+        if utils.key_value_in_row(row, self.crew_lead_key):
+            self.team_parser(row[self.crew_lead_key], row, loc_id=self.loc, role_id=self.leader_code)
 
 
 class MactaquacElectrofishingParser(ElectrofishingParser):
@@ -221,6 +227,7 @@ class SalmonLadderParser(DataParser):
     coll_key = "Collection"
     tank_key = "End Tank"
     len_key = "Length (cm)"
+    len_key_mm = "Length (mm)"
     sex_key = "Sex"
     scale_key = "Scale Sample"
     vial_key = "Vial"
@@ -324,33 +331,32 @@ class SalmonLadderParser(DataParser):
 
         self.team_parser(row[self.crew_key], row, loc_id=loc)
 
-        if utils.nan_to_none(row[self.grp_key]):
+        if utils.key_value_in_row(row, self.grp_key):
             self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
                                                   self.prog_grp_anidc_id.pk, adsc_str=row[self.grp_key])
 
-        if self.len_key in row.keys():
+        if utils.key_value_in_row(row, self.len_key):
             self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, row[self.len_key],
                                                   self.len_anidc_id.pk, None)
 
-        if self.sex_key in row.keys():
-            if utils.nan_to_none(row[self.sex_key]):
-                self.row_entered += utils.enter_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime,
-                                                      self.sex_dict[row[self.sex_key].upper()], self.sex_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.sex_key):
+            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime,
+                                                  self.sex_dict[row[self.sex_key].upper()], self.sex_anidc_id.pk, None)
 
-        if self.vial_key in row.keys():
+        if utils.key_value_in_row(row, self.vial_key):
             self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, row[self.vial_key],
                                                   self.vial_anidc_id.pk, None)
 
-        if self.scale_key in row.keys():
+        if utils.key_value_in_row(row, self.scale_key):
             self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, row[self.scale_key],
                                                   self.envelope_anidc_id.pk, None)
 
-        if self.mort_key in row.keys():
+        if utils.key_value_in_row(row, self.mort_key):
             if utils.y_n_to_bool(row[self.mort_key]):
                 mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv_id, self.cleaned_data, row_datetime)
                 self.row_entered += mort_entered
 
-        if self.wr_key in row.keys():
+        if utils.key_value_in_row(row, self.wr_key):
             if utils.y_n_to_bool(row[self.wr_key]):
                 self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
                                                       self.ani_health_anidc_id.pk, adsc_str=self.wr_adsc_id.name)

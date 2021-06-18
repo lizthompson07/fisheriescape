@@ -110,25 +110,26 @@ class TaggingParser(DataParser):
         anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
         self.anix_indv = anix_indv
-        if self.len_key_mm in row.keys():
+        if utils.key_value_in_row(row, self.len_key_mm):
             self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key_mm] / 10.0,
                                                   self.len_anidc_id.pk, None)
-        if self.len_key in row.keys():
+        if utils.key_value_in_row(row, self.len_key):
             self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key],
                                                   self.len_anidc_id.pk, None)
-        if self.weight_key_kg in row.keys():
+        if utils.key_value_in_row(row, self.weight_key_kg):
             self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, 1000 * row[self.weight_key_kg],
                                                   self.weight_anidc_id.pk, None)
-        if self.weight_key in row.keys():
+        if utils.key_value_in_row(row, self.weight_key):
             self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.weight_key],
                                                   self.weight_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.vial_key],
-                                              self.vial_anidc_id.pk, None)
-        if utils.y_n_to_bool(row[self.precocity_key]):
+        if utils.key_value_in_row(row, self.vial_key):
+            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.vial_key],
+                                                  self.vial_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.precocity_key):
             self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, None,
                                                   self.ani_health_anidc_id.pk, "Precocity")
 
-        if utils.nan_to_none(row[self.crew_key]):
+        if utils.key_value_in_row(row, self.crew_key):
             perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
             for perc_id in perc_list:
                 team_id, team_entered = utils.add_team_member(perc_id, cleaned_data["evnt_id"],
@@ -141,7 +142,7 @@ class TaggingParser(DataParser):
                 self.log_data += "No valid personnel with initials ({}) for row with pit tag" \
                                  " {}\n".format(inits, row[self.pit_key])
 
-        if utils.nan_to_none(row[self.comment_key]):
+        if utils.key_value_in_row(row, self.comment_key):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_indv,
                                                                  det_date=row_datetime.date())
             self.row_entered += data_entered
@@ -194,12 +195,14 @@ class ColdbrookTaggingParser(TaggingParser):
         super().row_parser(row)
         row_datetime = utils.get_row_date(row)
         row_date = row_datetime.date()
-        self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.box_key],
-                                              self.box_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.location_key],
-                                              self.boxl_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.box_key):
+            self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.box_key],
+                                                  self.box_anidc_id.pk, None)
+        if utils.key_value_in_row(row, self.location_key):
+            self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date,
+                                                  row[self.location_key], self.boxl_anidc_id.pk, None)
 
-        if utils.nan_to_none(row[self.indt_key]) and utils.nan_to_none(row[self.indt_amt_key]):
+        if utils.key_value_in_row(row, self.indt_key) and utils.key_value_in_row(row, self.indt_amt_key):
             indvtc_id = models.IndTreatCode.objects.filter(name__icontains=row[self.indt_key]).get()
             unit_id = models.UnitCode.objects.filter(name__icontains="gram").order_by(Length('name').asc()).first()
             self.row_entered += utils.enter_indvt(self.anix_indv.pk, self.cleaned_data, row_datetime,

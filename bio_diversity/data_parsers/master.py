@@ -36,7 +36,7 @@ class MasterIndvParser(DataParser):
         row_datetime = utils.get_row_date(row)
         row_date = row_datetime.date()
         comments = None
-        if utils.nan_to_none(row[self.comment_key]):
+        if utils.key_value_in_row(row, self.comment_key):
             comments = utils.nan_to_none(row[self.comment_key])
         indv = models.Individual(grp_id_id=None,
                                  spec_id=self.salmon_id,
@@ -61,11 +61,11 @@ class MasterIndvParser(DataParser):
 
         anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
-        if utils.nan_to_none(row[self.sex_key]):
+        if utils.key_value_in_row(row, self.sex_key):
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date,
                                                   self.sex_dict[row[self.sex_key].upper()],
                                                   self.sex_anidc_id.pk, None, None)
-        if utils.nan_to_none(row[self.comment_key]):
+        if utils.key_value_in_row(row, self.comment_key):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix,
                                                                  det_date=row_datetime.date())
             self.row_entered += data_entered
@@ -99,7 +99,7 @@ class MasterGrpParser(DataParser):
         row_datetime = utils.get_row_date(row)
         row_date = row_datetime.date()
         comments = None
-        if utils.nan_to_none(row[self.comment_key]):
+        if utils.key_value_in_row(row, self.comment_key):
             comments = utils.nan_to_none(row[self.comment_key])
 
         tank_id = models.Tank.objects.filter(name=row[self.tank_key]).get()
@@ -132,7 +132,7 @@ class MasterGrpParser(DataParser):
         anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=grp_id.pk)
         self.row_entered += anix_entered
 
-        if utils.nan_to_none(row[self.group_key]):
+        if utils.key_value_in_row(row, self.group_key):
             self.row_entered += utils.enter_grpd(anix.pk, cleaned_data, row_datetime, None,
                                                  self.prog_grp_anidc.pk, adsc_str=row[self.group_key])
 
@@ -143,7 +143,7 @@ class MasterGrpParser(DataParser):
                                            cnt_code="Fish Count")
         self.row_entered += cnt_entered
 
-        if utils.nan_to_none(row[self.comment_key]):
+        if utils.key_value_in_row(row, self.comment_key):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix,
                                                                  det_date=row_datetime.date())
             self.row_entered += data_entered
