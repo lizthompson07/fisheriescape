@@ -281,8 +281,6 @@ class AniDetailXref(BioModel):
                                            null=True, db_column="FINAL_CONTAINER_FLAG")
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, db_column="LOCATION_ID",
                                related_name="animal_details", verbose_name=_("Location"))
-    indvt_id = models.ForeignKey("IndTreatment", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
-                                 verbose_name=_("Individual Treatment"), db_column="IND_TREATMENT_ID")
     indv_id = models.ForeignKey("Individual", on_delete=models.CASCADE, null=True, blank=True, db_column="INDIV_ID",
                                 related_name="animal_details", verbose_name=_("Individual"))
     pair_id = models.ForeignKey("Pairing", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
@@ -294,13 +292,13 @@ class AniDetailXref(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indvt_id', 'indv_id', 'pair_id',
+            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id',
                                             'grp_id', 'team_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
         ]
 
     def clean(self):
         super(AniDetailXref, self).clean()
-        if not (self.contx_id or self.loc_id or self.indvt_id or self.indv_id or self.pair_id or self.grp_id):
+        if not (self.contx_id or self.loc_id or self.indv_id or self.pair_id or self.grp_id):
             raise ValidationError("You must specify at least one item to reference to the event")
 
     def __str__(self):
@@ -367,12 +365,26 @@ class ContainerXRef(BioModel):
         ]
 
     def __str__(self):
-        return "Container X Ref for {}".format(self.evnt_id.__str__())
+        return "{}-{}".format(self.evnt_id.__str__(), self.container)
 
     def clean(self):
         super(ContainerXRef, self).clean()
         if not (self.tank_id or self.tray_id or self.trof_id or self.heat_id or self.draw_id or self.cup_id):
             raise ValidationError("You must specify at least one container to reference to the event")
+
+    @property
+    def container(self):
+        cnt = 0
+        cont = None
+        for cont_id in [self.cup_id, self.draw_id, self.tray_id, self.tank_id, self.trof_id, self.heat_id]:
+            if cont_id:
+                cont = cont_id
+                cnt += 1
+        if cnt == 1:
+            return cont
+        else:
+            return None
+
 
 
 class Count(BioModel):
@@ -662,7 +674,7 @@ class Event(BioTimeModel):
             return False
 
     def __str__(self):
-        return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.start_date)
+        return "{}-{}".format(self.evntc_id.__str__(), self.start_date)
 
     class Meta:
         constraints = [
@@ -858,8 +870,8 @@ class Group(BioModel):
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
             .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
-        absolute_codes = ["Egg Count", "Fish Count" ]
-        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added", "Fish Caught"]
+        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", ]
+        add_codes = ["Fish in Container", "Photo Count", "Eggs Added", "Fish Caught"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
                           "Fish Removed from Container", "Fish Distributed"]
 
@@ -917,7 +929,7 @@ class Group(BioModel):
 
         dev += sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
 
-        return dev
+        return utils.round_no_nan(dev, 5)
 
     def get_parent_grp(self, at_date=utils.naive_to_aware(datetime.now())):
         # gets parent groups this group came from.
@@ -1006,6 +1018,10 @@ class GroupDet(BioDet):
                     self.grpd_valid = False
 
         super(GroupDet, self).save(*args, **kwargs)
+
+    @property
+    def evnt(self):
+        return self.anix_id.evnt_id
 
 
 class HeathUnit(BioCont):
@@ -1280,6 +1296,10 @@ class IndividualDet(BioDet):
 
         super(IndividualDet, self).save(*args, **kwargs)
 
+    @property
+    def evnt(self):
+        return self.anix_id.evnt_id
+
 
 class IndTreatCode(BioLookup):
     # indvtc tag
@@ -1289,15 +1309,23 @@ class IndTreatCode(BioLookup):
 
 class IndTreatment(BioTimeModel):
     # indvt tag
+    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_treatments",
+                                verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
     indvtc_id = models.ForeignKey('IndTreatCode', on_delete=models.CASCADE, db_column="IND_TEART_ID",
                                   verbose_name=_("Individual Treatment Code"))
-    lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"), db_column="LOT_NUMBER")
+    lot_num = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Lot Number"), db_column="LOT_NUMBER")
     dose = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"), db_column="DOSE")
     unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"), db_column="UNIT_ID")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{}-{}".format(self.indvtc_id.__str__(), self.lot_num)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['anix_id', 'indvtc_id'],
+                                    name='Individual_Treatment_Uniqueness')
+        ]
 
 
 class Instrument(BioModel):
@@ -1662,7 +1690,7 @@ class ReleaseSiteCode(BioLookup):
     @property
     def bbox(self):
         # lon = x, lat = y
-        if self.min_lat and self.min_lon and self.max_lat and self.max_lon:
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             bbox = box(
                     float(self.min_lon),
                     float(self.min_lat),

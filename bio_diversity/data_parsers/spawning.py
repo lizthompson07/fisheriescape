@@ -8,6 +8,7 @@ from datetime import date, datetime, timedelta
 
 from bio_diversity import models
 from bio_diversity import utils
+from bio_diversity.static import calculation_constants
 from bio_diversity.static.calculation_constants import prio_dict
 from bio_diversity.utils import DataParser
 
@@ -18,7 +19,7 @@ class SpawningParser(DataParser):
     prio_key_f = "Pri. F"
     prio_key_m = "Pri. M"
     prio_key_pair = "Pri."
-    tray_key = "Tray #"
+    cross_key = "Tray #"
     comment_key_f = "Comments, F"
     comment_key_m = "Comments, M"
     comment_key_pair = "Comments"
@@ -39,6 +40,9 @@ class SpawningParser(DataParser):
     weight_anidc_id = None
     fecu_spwndc_id = None
     dud_spwndc_id = None
+
+    sex_dict = calculation_constants.sex_dict
+
 
     def data_preper(self):
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
@@ -67,13 +71,13 @@ class SpawningParser(DataParser):
         anix_male, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_male.pk)
         self.row_entered += anix_entered
 
-        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, "Female", self.sex_anidc_id.pk,
+        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, self.sex_dict["F"], self.sex_anidc_id.pk,
                                               None)
         self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.len_key_f],
                                               self.len_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 * row[self.weight_key_f],
                                               self.weight_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, "Male", self.sex_anidc_id.pk, None)
+        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, self.sex_dict["M"], self.sex_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.len_key_m],
                                               self.len_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 * row[self.weight_key_m],
@@ -86,7 +90,7 @@ class SpawningParser(DataParser):
                                   name__iexact=prio_dict[row[self.prio_key_f]]).get(),
                               pair_prio_id=models.PriorityCode.objects.filter(
                                   name__iexact=prio_dict[row[self.prio_key_pair]]).get(),
-                              cross=row[self.tray_key],
+                              cross=row[self.cross_key],
                               valid=True,
                               indv_id=indv_female,
                               comments=utils.nan_to_none(row[self.comment_key_pair]),
@@ -132,7 +136,6 @@ class SpawningParser(DataParser):
                                                           pair_id=pair,
                                                           indv_id__isnull=True,
                                                           contx_id__isnull=True,
-                                                          indvt_id__isnull=True,
                                                           loc_id__isnull=True,
                                                           )
         if anix_grp_qs.count() == 0:
@@ -187,7 +190,7 @@ class SpawningParser(DataParser):
 
 
 class MactaquacSpawningParser(SpawningParser):
-    pass
+    cross_key = "Cross"
 
 
 class ColdbrookSpawningParser(SpawningParser):

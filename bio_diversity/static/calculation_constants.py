@@ -12,3 +12,5 @@ sex_dict = {"M": "Male",
 prio_dict = {"H": "High",
              "M": "Normal",
              "P": "Low"}
+
+sfa_nums = [15, 16, 17, 18, 19, 20, 21, 22, 23]

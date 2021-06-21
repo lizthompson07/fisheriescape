@@ -1,0 +1,85 @@
+{% extends "trapnet/base.html" %}
+{% load static %}
+{% load verbose_names %}
+{% load  i18n %}
+{% block header %}
+  {{ block.super }}
+  <style>
+  /* Set the size of the div element that contains the map */
+  #map {
+      height: 500px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
+{% endblock %}
+
+{% block subcontent %}
+
+  <div class="mb-3">
+    <a class="btn btn-warning" href="{% url 'trapnet:obs_edit' object.id %}">{% trans "Edit" %}</a>
+    <a class="btn btn-danger" href="{% url 'trapnet:obs_delete' object.id %}">{% trans "Delete" %}</a>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col-7">
+      <div class="card">
+        <div class="card-header lead">
+          {% trans "Observation Detail" %}
+        </div>
+        <div class="card-body">
+          <table class="table table-sm table-bordered">
+            {% for field in field_list %}
+                {% verbose_td_display object field display_time=True %}
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="card-header lead">
+          <div class="float-right">
+            <a href="#" pop-href="{% url 'trapnet:file_new' object.id %}" class="btn btn-sm btn-success">{% trans "New" %}</a>
+          </div>
+          {% trans "Image Attachments" %}
+        </div>
+        <div class="card-body">
+          {% if not object.files.exists %}
+            <em>{% trans "No files have been attached to this observation." %}</em>
+          {% else %}
+            {% for file in object.files.all %}
+              <div class="mb-3">
+                <div class="row">
+                  <div class="col-5">
+                    <a href="{{ file.image.url }}">
+                      <img src="{{ file.image.url }}" alt="{{ file }}" class="img-thumbnail">
+                    </a>
+                  </div>
+                  <div class="col">
+                    <div class="mb-1">
+                      {{ file.caption }}<br>
+                    </div>
+                    <div class="mb-1">
+                      <span class="small">{{ file.metadata }}</span>
+                    </div>
+                    <div class="btn-group" style="vertical-align: top">
+                      <a href="{{ file.image.url }}" class="btn btn-sm btn-primary"><span class="mdi mdi-eye-outline text-light"></span></a>
+                      <a href="#" pop-href="{% url 'trapnet:file_edit' file.id %}" class="btn btn-sm btn-warning"><span class="mdi mdi-pencil"></span></a>
+                      <a href="#" pop-href="{% url 'trapnet:file_delete' file.id %}" class="btn btn-sm btn-danger"><span
+                        class="mdi mdi-delete text-light"></span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <hr>
+            {% endfor %}
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}

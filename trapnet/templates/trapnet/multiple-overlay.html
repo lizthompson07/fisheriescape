@@ -1,0 +1,187 @@
+<!-- template for the modal component -->
+{% load i18n %}
+
+<script type="text/x-template" id="multiple-overlay-template">
+<div class="">
+
+  <button v-if="obs.status" class="btn btn-sm btn-success" @click="openDialog" type="button" ref="dup">
+    <span class="mdi mdi-content-duplicate text-light mr-2"></span> {% trans "Add Multiple" %}
+  </button>
+  <button v-else class="btn btn-sm btn-success" disabled type="button">
+    <span class="mdi mdi-content-duplicate text-light mr-2"></span> {% trans "Add Multiple" %}
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 600px">
+          <div class="modal-header">
+            <h4> {% trans "Multiple on Which Basis?" %}</h4>
+          </div>
+          <div class="modal-body">
+            <div v-if="error" class="alert alert-danger mb-3" role="alert">
+              ${error}
+            </div>
+            <div v-if="!scenario">
+              <div class="mb-3 text-center">
+                <button type="button" class="btn btn-primary" @click="scenario=1;">
+                  {% trans "Total Observations" %}
+                </button>
+              </div>
+              <div class="mb-3 text-center">
+                <button type="button" class="btn btn-primary" @click="scenario=2;" :disabled="!obs.tag_number">
+                  {% trans "End Tag #" %}
+                </button>
+              </div>
+            </div>
+
+
+            <div v-if="scenario===1">
+              <form @submit.prevent="onSubmit">
+                <div class="form-group">
+                  <label for="">{% trans "How many observations would you like to add?" %}</label>
+                  <input v-model="totalObservations" type="number" class="form-control" required>
+                </div>
+                <div class="form-group" v-if="this.shouldIncrement">
+                  <p class="text-muted">
+                    {% trans "Since an initial tag number was provided, each addition specimen will be incremented." %}
+                  </p>
+                </div>
+                <div class="mb-3 text-center">
+                  <button type="submit" class="btn btn-primary">{% trans "Add Multiple" %}</button>
+                </div>
+              </form>
+            </div>
+            <div v-else-if="scenario===2">
+              <form @submit.prevent="onSubmit">
+                <div class="form-group">
+                  <label for="">{% trans "Tag Prefix:" %}</label>
+                  <p class="lead">
+                    ${tagPrefix}
+                  </p>
+                </div>
+                <div class="form-group">
+                  <label for="">{% trans "Starting Tag Number:" %}</label>
+                  <p class="lead">
+                    ${paddedStartTagNumber}
+                  </p>
+                </div>
+                <div class="form-group">
+                  <label for="">{% trans "What is the end tag number?" %}</label>
+                  <input v-model="endTag" type="number" class="form-control" required>
+                  <small class="text-muted form-text">
+                    {% blocktrans %}
+                      This should be a numeric value. E.g., if the end tag is <code>NW1234</code>, you should enter <code>1234</code>.
+                    {% endblocktrans %}
+                  </small>
+                </div>
+                <div class="mb-3 text-center">
+                  <button type="submit" class="btn btn-primary">{% trans "Add Multiple" %}</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="mb-3 text-center">
+              <button type="button" class="btn btn-secondary" @click="closeDialog()">
+                {% trans "Cancel" %}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+</script>
+
+<script type="application/javascript">
+
+Vue.component("multiple-overlay", {
+  template: "#multiple-overlay-template",
+  delimiters: ["${", "}"],
+  name: "multiple-overlay",
+  props: {
+    obs: {
+      required: true
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      error: null,
+      scenario: null,
+      endTag: null,
+      shouldIncrement: false,
+      totalObservations: null,
+    };
+  },
+  methods: {
+    openDialog() {
+      this.error = null;
+      this.overlay = true;
+      this.shouldIncrement = !!this.obs.tag_number;
+    },
+    closeDialog() {
+      this.error = null;
+      this.overlay = false;
+      this.scenario = null;
+      this.endTag = null;
+      this.shouldIncrement = false;
+      this.totalObservations = null
+    },
+    onSubmit() {
+      let msg = '{% trans 'Warning: by proceeding you will be creating more than 10 observations. Are you sure you want to continue?' %}'
+      let proceed = true;
+      if (this.totalObservations && this.totalObservations > 10) proceed = confirm(msg);
+      if (proceed) {
+        this.error = null;
+        returnObj = {
+          shouldIncrement: this.shouldIncrement,
+          totalObservations: this.totalObservations,
+          tagPrefix: this.tagPrefix,
+        }
+        if(this.startTagNumber) {
+          returnObj.startTagNumber = this.startTagNumber.number
+          returnObj.padding = this.startTagNumber.padding
+        }
+
+        if (this.endTag) {
+          // we have to figure out the total number of observations based on the endTag number
+          let startNumber = this.startTagNumber.number;
+          let endNumber = extractNumber(this.endTag).number;
+          if (endNumber < startNumber) this.error = '{% trans 'The end tag number is smaller than the start tag number' %}'
+          else {
+            returnObj.shouldIncrement = true; // always for this scenario!
+            returnObj.totalObservations = endNumber - startNumber + 1;
+          }
+        }
+        if (!this.error) {
+          this.$emit("submitted", returnObj);
+          this.closeDialog();
+        }
+      }
+    },
+
+  },
+  created() {
+  },
+  computed: {
+    tagPrefix() {
+      if (this.obs.tag_number) {
+        return extractPrefix(this.obs.tag_number)
+      }
+    },
+    startTagNumber() {
+      if (this.obs.tag_number) {
+        return extractNumber(this.obs.tag_number)
+      }
+    },
+    paddedStartTagNumber() {
+      if (this.startTagNumber) {
+        return String(this.startTagNumber.number).padStart(this.startTagNumber.padding, "0")
+      }
+    },
+  }
+});
+</script>

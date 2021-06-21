@@ -29,7 +29,9 @@
     </p>
     <p class="mb-3" v-if="(request && !request.trip.is_virtual) || (trip && !trip.is_virtual)">
       <b>{% trans "Departure Location:" %}</b><br>
-      <span class="h6" v-html="t.departure_location"></span>
+      <span v-if="t.departure_location" class="h6" v-html="t.departure_location"></span>
+      <span v-else class="red-font">{% trans "missing departure location!" %}</span>
+
     </p>
     <p class="mb-3">
       <b>${travellerLabels.role}:</b><br>

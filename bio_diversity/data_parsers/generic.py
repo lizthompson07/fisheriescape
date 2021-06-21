@@ -60,7 +60,7 @@ class GenericIndvParser(DataParser):
 
         if utils.nan_to_none(row[self.sex_key]):
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date,
-                                                  self.sex_dict[row[self.sex_key]],
+                                                  self.sex_dict[row[self.sex_key].upper()],
                                                   self.sex_anidc_id.pk, None, None)
         if self.len_key_mm in row.keys():
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key_mm] / 10.0,
@@ -258,7 +258,8 @@ class GenericGrpParser(DataParser):
                                                   self.envelope_anidc_id.pk)
 
             if utils.nan_to_none(row[self.comment_key]):
-                comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], row_anix, row_date)
+                comments_parsed, data_entered = utils.samp_comment_parser(row[self.comment_key], cleaned_data,
+                                                                          row_samp.pk, row_date)
                 self.row_entered += data_entered
                 if not comments_parsed:
                     self.log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row[self.comment_key])

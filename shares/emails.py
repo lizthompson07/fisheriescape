@@ -4,7 +4,6 @@ from django.template import loader
 from dm_apps.context_processor import my_envr
 
 from_email = settings.SITE_FROM_EMAIL
-admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
 
 class SendInstructionsEmail:
@@ -15,9 +14,9 @@ class SendInstructionsEmail:
         self.from_email = from_email
         self.to_list = [object.user.email]
 
-    def load_html_template(self, object):
+    def load_html_template(self, object, ):
         t = loader.get_template('shares/email_instructions.html')
-        context = {'object': object}
+        context = {'object': object, 'request': self.request}
         context.update(my_envr(self.request))
         rendered = t.render(context)
         return rendered

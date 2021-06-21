@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy
@@ -9,7 +9,7 @@ from grais import forms
 from grais import models
 from grais.mixins import GraisAccessRequiredMixin, GraisAdminRequiredMixin, GraisCRUDRequiredMixin
 from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView
+    CommonDetailView, CommonDeleteView, CommonPopoutUpdateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonFormsetView, CommonHardDeleteView
 
 
 # Estuary #
@@ -443,3 +443,18 @@ class CatchObservationTemplateView(GraisAccessRequiredMixin, CommonDetailView):
 
     def get_h1(self):
         return f"{self.kwargs.get('type').title()} Observations"
+
+
+class BaitFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
+    template_name = 'grais/formset.html'
+    h1 = "Manage Bait Types"
+    queryset = models.Bait.objects.all()
+    formset_class = forms.BaitFormset
+    success_url_name = "grais:manage_baits"
+    home_url_name = "grais:index"
+    delete_url_name = "grais:delete_bait"
+
+
+class BaitHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Bait
+    success_url = reverse_lazy("grais:manage_baits")

@@ -314,7 +314,7 @@ def get_related_processes(user):
         Q(advisors=user) |
         Q(editors=user) |
         Q(csas_requests__client=user) |
-        Q(meetings__invitees__roles__category__isnull=False)
+        Q(meetings__invitees__roles__category__isnull=False, meetings__invitees__person__dmapps_user=user)
     ).distinct()
     return qs
 

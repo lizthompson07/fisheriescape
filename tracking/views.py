@@ -289,7 +289,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
         app_list = [
             "project-planning",
             "whalesdb",
-            "csas",
+            "csas-sccs",
             "grais",
             "herman",
             "diets",

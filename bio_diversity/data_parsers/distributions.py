@@ -265,9 +265,8 @@ class DistributionIndvParser(DataParser):
         if utils.nan_to_none(row[self.sex_key]):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, self.sex_dict[row[self.sex_key]],
                                                   self.sex_anidc_id)
-        if row[self.tissue_key] == "Y":
-            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.tissue_key],
-                                                  self.ani_health_anidc_id, "Tissue Sample")
+        if utils.y_n_to_bool(row[self.tissue_key]):
+            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Tissue Sample")
 
         if utils.nan_to_none(row[self.comment_key]):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix, row_date)

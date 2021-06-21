@@ -68,6 +68,10 @@
             <td>${request.benefit_to_dfo | nz}</td>
           </tr>
           <tr>
+            <th style="width: 25%">${requestLabels.needs_gov_vehicle}</th>
+            <td><span :class="{'highlight px-1 py-1':request.needs_gov_vehicle}">${ request.needs_gov_vehicle | yesNo }</span></td>
+          </tr>
+          <tr>
             <th style="width: 25%">{% trans "BTA attendees" %}</th>
             <td>${request.bta_attendees | nz}</td>
           </tr>

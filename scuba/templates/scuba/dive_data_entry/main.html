@@ -47,7 +47,7 @@
                 class="btn btn-sm btn-success">{% trans 'New Section' %}</button>
             </div>
           </div>
-          <table v-if="sections.length" class="custom-table">
+          <table v-if="sections.length" class="w-100">
             <thead>
             <tr>
               {% for field in section_field_list %}
@@ -99,12 +99,12 @@
               <td v-html="section.comment" style="width: 120px"></td>
               <td colspan="6"><em>{% trans "No observations" %}</em></td>
               <td class="text-center">
-                <button
-                  @click="editSection(section)"
-                  class="mdi mdi-pencil h4"></button>
-                <button
-                  @click="deleteSection(section)"
-                  class="mdi mdi-delete h4"></button>
+                <button class="btn btn-sm btn-warning" @click="editSection(section)">
+                  <span class="mdi mdi-pencil h6"></span>
+                </button>
+                <button class="btn btn-sm btn-danger" @click="deleteSection(section)">
+                  <span class="mdi mdi-delete h6 text-light"></span>
+                </button>
               </td>
             </tr>
             </tbody>

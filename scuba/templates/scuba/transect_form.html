@@ -1,0 +1,95 @@
+{% extends 'scuba/form.html' %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+
+{% block form_field %}
+  {% if "latitude" in field.name  or "long" in field.name %}
+    {# do nothing #}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block form_fields %}
+  {{ block.super }}
+
+  <div class="form-group">
+    {% trans "Stating / Ending Coordinates" as txt %}
+    {% bootstrap_label txt %}
+    <table class="table table-sm table-bordered" style="width: auto">
+      <tr>
+        <td></td>
+        <td class="text-center" colspan="2">{% trans "Latitude" %}</td>
+        <td class="text-center" colspan="2">{% trans "Longitude" %}</td>
+      </tr>
+      <tr>
+        <td>{% trans "Starting Coordinates" %}<br>@ 0m</td>
+        <td>{% bootstrap_field form.start_latitude_d placeholder="" show_label=False %}</td>
+        <td>{% bootstrap_field form.start_latitude_mm placeholder="" show_label=False %}</td>
+        <td>{% bootstrap_field form.start_longitude_d placeholder="" show_label=False %}</td>
+        <td>{% bootstrap_field form.start_longitude_mm placeholder="" show_label=False %}</td>
+      </tr>
+      <tr>
+        <td>{% trans "Ending Coordinates" %} <br>@ 100m</td>
+        <td>{% bootstrap_field form.end_latitude_d placeholder="" show_label=False %}</td>
+        <td>{% bootstrap_field form.end_latitude_mm placeholder="" show_label=False %}</td>
+        <td>{% bootstrap_field form.end_longitude_d placeholder="" show_label=False %}</td>
+        <td>{% bootstrap_field form.end_longitude_mm placeholder="" show_label=False %}</td>
+      </tr>
+    </table>
+    <small class="text-muted">{% trans "These will be the coordinates at the 0m and 100m marks of the transect." %}</small>
+  </div>
+
+{% endblock %}
+
+{#<div class="{{ field.name }}_div">#}
+{##}
+{##}
+{#  {% bootstrap_label field.label.upper %}#}
+
+{##}
+{#  {% elif "start_latitude_mm" in field.name %}#}
+{# do nothing #}
+{##}
+{##}
+{#  {% elif "end_longitude_d" in field.name %}#}
+{#  {% bootstrap_label field.label.upper %}#}
+{#  <table class="table table-sm table-bordered" style="width: auto">#}
+{#    <tr>#}
+{#      <td>{{ deg }}</td>#}
+{#      <td>#}
+{#        {% if "start" in field.name %}#}
+{#          {{ form.start_longitude_d }}#}
+{#        {% elif "end" in field.name %}#}
+{#          {{ form.end_longitude_d }}#}
+{#        {% else %}#}
+{#          {{ form.longitude_d }}#}
+{#        {% endif %}#}
+{#      </td>#}
+{#    </tr>#}
+{#    <tr>#}
+{#      <td>{{ min }}</td>#}
+{#      <td>#}
+{#        {% if "start" in field.name %}#}
+{#          {{ form.start_longitude_mm }}#}
+{#        {% elif "end" in field.name %}#}
+{#          {{ form.end_longitude_mm }}#}
+{#        {% else %}#}
+{#          {{ form.longitude_mm }}#}
+{#        {% endif %}#}
+{#      </td>#}
+{##}
+{#    </tr>#}
+{#  </table>#}
+{##}
+{#  {% elif "end_longitude_mm" in field.name %}#}
+{# do nothing #}
+{##}
+{##}
+{#  {% else %}#}
+{#  {% bootstrap_field field placeholder="" %}#}
+{##}
+{#  {% endif %}#}
+
+{#</div>#}

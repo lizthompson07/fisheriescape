@@ -505,6 +505,8 @@ class TripRequest(models.Model):
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("justification for late submissions"))
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("what is the DFO funding source?"))
+    needs_gov_vehicle = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_("Use of a government vehicle required?"))
+
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes (optional)"))
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
 
