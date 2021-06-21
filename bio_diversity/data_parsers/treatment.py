@@ -16,12 +16,12 @@ class TreatmentParser(DataParser):
     trof_key = "Trough"
     quantity_ml_key = "Amount (ml)"
     quantity_gal_key = "Amount (Gal)"
-    quantity_kg_key = "Amount (Kg)"
+    quantity_kg_key = "Amount (kg)"
     duration_key = "Duration (hours)"
     duration_mins_key = "Duration (mins)"
     concentration_key = "Concentration"
     treatment_key = "Treatment Type"
-    water_level_key = "Pond Level During Treatment (Inches)"
+    water_level_key = "Water Level During Treatment (Inches)"
     team_key = "Initials"
 
     tank_data = None
@@ -105,13 +105,15 @@ class TreatmentParser(DataParser):
         self.row_entered += data_entered
         duration = row[self.duration_key]
 
-        if utils.nan_to_none(row[self.quantity_kg_key]):
+        amt = None
+        unit = None
+        if utils.key_value_in_row(row, self.quantity_kg_key):
             amt = row[self.quantity_kg_key]
             unit = self.kg_unit_id
-        elif utils.nan_to_none(row[self.quantity_ml_key]):
+        elif utils.key_value_in_row(row, self.quantity_ml_key):
             amt = row[self.quantity_ml_key]
             unit = self.ml_unit_id
-        else:
+        elif utils.key_value_in_row(row, self.quantity_gal_key):
             amt = utils.nan_to_none(row[self.quantity_gal_key])
             unit = self.gal_unit_id
 
@@ -147,15 +149,25 @@ class TreatmentParser(DataParser):
 
         contx, data_entered = utils.enter_trof_contx(str(row[self.trof_key]), cleaned_data, None, return_contx=True)
         self.row_entered += data_entered
-        val, unit_str = utils.val_unit_splitter(row[self.quantity_key])
+        amt = None
+        unit = None
+        if utils.key_value_in_row(row, self.quantity_kg_key):
+            amt = row[self.quantity_kg_key]
+            unit = self.kg_unit_id
+        elif utils.key_value_in_row(row, self.quantity_ml_key):
+            amt = row[self.quantity_ml_key]
+            unit = self.ml_unit_id
+        elif utils.key_value_in_row(row, self.quantity_gal_key):
+            amt = utils.nan_to_none(row[self.quantity_gal_key])
+            unit = self.gal_unit_id
         duration = row[self.duration_mins_key]
         row_concentration = utils.parse_concentration(row[self.concentration_key])
         envt = models.EnvTreatment(contx_id=contx,
                                    envtc_id=models.EnvTreatCode.objects.filter(
                                        name__icontains=row[self.treatment_key]).get(),
                                    lot_num=None,
-                                   amt=val,
-                                   unit_id=models.UnitCode.objects.filter(name__icontains=unit_str).get(),
+                                   amt=amt,
+                                   unit_id=unit,
                                    duration=duration,
                                    concentration=row_concentration.quantize(Decimal("0.000001")),
                                    created_by=cleaned_data["created_by"],

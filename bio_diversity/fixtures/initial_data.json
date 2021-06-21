@@ -1324,6 +1324,48 @@
     }
 },
 {
+    "model": "bio_diversity.envcode",
+    "pk": 6,
+    "fields": {
+        "name": "Water Source",
+        "nom": null,
+        "description_en": "",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-21",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "env_subj_flag": true
+    }
+},
+{
+    "model": "bio_diversity.envsubjcode",
+    "pk": 1,
+    "fields": {
+        "name": "River",
+        "nom": null,
+        "description_en": "Tank is being fed river water.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-21",
+        "envc_id": 6
+    }
+},
+{
+    "model": "bio_diversity.envsubjcode",
+    "pk": 2,
+    "fields": {
+        "name": "Well",
+        "nom": null,
+        "description_en": "Tank is being fed on well water.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-21",
+        "envc_id": 6
+    }
+},
+{
     "model": "bio_diversity.envtreatcode",
     "pk": 1,
     "fields": {
