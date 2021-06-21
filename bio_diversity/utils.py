@@ -804,7 +804,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=
                                   envc_id=envc_id,
                                   envsc_id=envsc_id,
                                   inst_id=inst_id,
-                                  env_val=str(env_value),
+                                  env_val=None,
                                   env_avg=avg,
                                   start_datetime=env_datetime,
                                   qual_id=qual_id,

@@ -508,8 +508,10 @@ class Drawer(BioCont):
 
 class EnvCode(BioLookup):
     # envc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Maximum Value"), db_column="MAX_VAL")
     unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"),
                                 db_column="UNIT_ID")
     env_subj_flag = models.BooleanField(verbose_name=_("Objective observation?"), db_column="ENV_SUBJ_FLAG")
@@ -551,12 +553,19 @@ class EnvCondition(BioTimeModel):
 
     def clean(self):
         super(EnvCondition, self).clean()
-        if self.env_val > self.envc_id.max_val or self.env_val < self.envc_id.min_val:
-            raise ValidationError({
-                "env_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
-                                                                                              self.envc_id.max_val,
-                                                                                              self.envc_id.min_val))
-            })
+        if self.is_numeric() and self.env_val is not None:
+            if float(self.env_val) > float(self.envc_id.max_val) or float(self.env_val) < float(self.envc_id.min_val):
+                raise ValidationError({
+                    "env_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
+                                                                                                  self.envc_id.max_val,
+                                                                                                  self.envc_id.min_val))
+                })
+
+    def is_numeric(self):
+        if self.envc_id.min_val is not None and self.envc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 def envcf_directory_path(instance, filename):

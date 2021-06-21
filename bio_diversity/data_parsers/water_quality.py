@@ -13,6 +13,7 @@ class WaterQualityParser(DataParser):
     dox_key = "DO%"
     ph_key = "pH"
     dn_key = "Dissolved Nitrogen %"
+    source_key = "Source"
 
     comment_key = "Comments"
     crew_key = "Initials"
@@ -24,12 +25,14 @@ class WaterQualityParser(DataParser):
     oxlvl_envc_id = None
     ph_envc_id = None
     disn_envc_id = None
+    ws_envc_id = None
 
     def data_preper(self):
         self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
         self.oxlvl_envc_id = models.EnvCode.objects.filter(name="Oxygen Level").get()
         self.ph_envc_id = models.EnvCode.objects.filter(name="pH").get()
         self.disn_envc_id = models.EnvCode.objects.filter(name="Dissolved Nitrogen").get()
+        self.ws_envc_id = models.EnvCode.objects.filter(name="Water Source").get()
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
@@ -41,16 +44,24 @@ class WaterQualityParser(DataParser):
         else:
             row_time = None
 
-        self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id, contx=contx,
-                                            env_start=row_time)
-        self.row_entered += utils.enter_env(row[self.dox_key], row_date, cleaned_data, self.oxlvl_envc_id, contx=contx,
-                                            env_start=row_time)
-        self.row_entered += utils.enter_env(row[self.ph_key], row_date, cleaned_data, self.ph_envc_id, contx=contx,
-                                            env_start=row_time)
-        self.row_entered += utils.enter_env(row[self.dn_key], row_date, cleaned_data, self.disn_envc_id,
-                                            contx=contx, env_start=row_time)
+        if utils.key_value_in_row(row, self.temp_key):
+            self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id,
+                                                contx=contx, env_start=row_time)
+        if utils.key_value_in_row(row, self.dox_key):
+            self.row_entered += utils.enter_env(row[self.dox_key], row_date, cleaned_data, self.oxlvl_envc_id,
+                                                contx=contx, env_start=row_time)
+        if utils.key_value_in_row(row, self.ph_key):
+            self.row_entered += utils.enter_env(row[self.ph_key], row_date, cleaned_data, self.ph_envc_id, contx=contx,
+                                                env_start=row_time)
+        if utils.key_value_in_row(row, self.dn_key):
+            self.row_entered += utils.enter_env(row[self.dn_key], row_date, cleaned_data, self.disn_envc_id,
+                                                contx=contx, env_start=row_time)
+        if utils.key_value_in_row(row, self.source_key):
+            source_envsc_id = models.EnvSubjCode.objects.filter(name__icontains=row[self.source_key]).get()
+            self.row_entered += utils.enter_env(row[self.source_key], row_date, cleaned_data, self.ws_envc_id,
+                                                envsc_id=source_envsc_id, contx=contx, env_start=row_time)
 
-        if utils.nan_to_none(row[self.crew_key]):
+        if utils.key_value_in_row(row, self.crew_key):
             perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
             for perc_id in perc_list:
                 team_id, team_entered = utils.add_team_member(perc_id, cleaned_data["evnt_id"], return_team=True)
