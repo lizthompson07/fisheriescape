@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 import pandas as pd
+from django.db.models.functions import Length
 
 from bio_diversity import models
 from bio_diversity import utils
@@ -13,7 +14,7 @@ class TaggingParser(DataParser):
     group_key = "Group"
     stok_key = "Stock"
     ufid_key = "Universal Fish ID"
-    pit_key = "PIT tag"
+    pit_key = "PIT Tag #"
     comment_key = "Comments"
     len_key = "Length (cm)"
     len_key_mm = "Length (mm)"
@@ -21,6 +22,7 @@ class TaggingParser(DataParser):
     weight_key_kg = "Weight (kg)"
     vial_key = "Vial"
     crew_key = "Tagger"
+    precocity_key = "Precocity (Y/N)"
 
     header = 0
     converters = {to_tank_key: str, from_tank_key: str, 'Year': str, 'Month': str, 'Day': str}
@@ -101,6 +103,9 @@ class TaggingParser(DataParser):
             out_tank = models.Tank.objects.filter(name=row[self.to_tank_key]).get()
             self.row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
                                                       indv_pk=indv.pk)
+            # if tagged fish goes back into same tank, still link fish to tank:
+            if in_tank == out_tank:
+                utils.enter_contx(in_tank, cleaned_data, True, indv_pk=indv.pk)
 
         anix_indv, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
@@ -119,6 +124,9 @@ class TaggingParser(DataParser):
                                                   self.weight_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.vial_key],
                                               self.vial_anidc_id.pk, None)
+        if utils.y_n_to_bool(row[self.precocity_key]):
+            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, None,
+                                                  self.ani_health_anidc_id.pk, "Precocity")
 
         if utils.nan_to_none(row[self.crew_key]):
             perc_list, inits_not_found = utils.team_list_splitter(row[self.crew_key])
@@ -157,7 +165,6 @@ class MactaquacTaggingParser(TaggingParser):
     group_key = "Collection"
     pit_key = "PIT"
     vial_key = "Vial Number"
-    precocity_key = "Precocity (Y/N)"
     crew_key = "Crew"
 
     header = 2
@@ -166,14 +173,14 @@ class MactaquacTaggingParser(TaggingParser):
     def row_parser(self, row):
         super().row_parser(row)
         row_datetime = utils.get_row_date(row)
-        if utils.y_n_to_bool(row[self.precocity_key]):
-            self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_datetime.date(), None,
-                                                  self.ani_health_anidc_id.pk, "Precocity")
 
 
 class ColdbrookTaggingParser(TaggingParser):
     box_key = "Box"
     location_key = "Location"
+    precocity_key = "pp"
+    indt_key = "Treatment"
+    indt_amt_key = "Amount"
 
     box_anidc_id = None
     boxl_anidc_id = None
@@ -191,3 +198,9 @@ class ColdbrookTaggingParser(TaggingParser):
                                               self.box_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(self.anix_indv.pk, self.cleaned_data, row_date, row[self.location_key],
                                               self.boxl_anidc_id.pk, None)
+
+        if utils.nan_to_none(row[self.indt_key]) and utils.nan_to_none(row[self.indt_amt_key]):
+            indvtc_id = models.IndTreatCode.objects.filter(name__icontains=row[self.indt_key]).get()
+            unit_id = models.UnitCode.objects.filter(name__icontains="gram").order_by(Length('name').asc()).first()
+            self.row_entered += utils.enter_indvt(self.anix_indv.pk, self.cleaned_data, row_datetime,
+                                                  row[self.indt_amt_key], indvtc_id.pk, unit_id=unit_id)

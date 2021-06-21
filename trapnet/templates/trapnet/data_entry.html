@@ -1,0 +1,401 @@
+{% extends 'trapnet/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load static %}
+
+{% block title_area %}{% endblock %}
+{% block crumbs %}
+
+{% endblock %}
+{% block subcontent %}
+  <style>
+  .v-select {
+      background-color: white;
+  }
+  .table-input{
+      width: 100%;
+      height: 25px;
+  }
+  </style>
+  {#  <div class="h3">  {% trans "Data Entry Mode for " %} {{ object }}  </div>#}
+
+  <div id="app" v-cloak>
+    <div class="mb-3">
+      <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        <div :class="{'sidebar':true, 'edit':!observation.id, 'mild-concern':observation.id}">
+          <div v-if="observation.id" class="card-header lead concern"> {% trans "Edit" %} </div>
+          <div v-else class="card-header lead good"> {% trans "New" %} </div>
+          <div class="card-body">
+            <div v-if="errorMsg" class="alert alert-danger mb-3" role="alert">
+              ${errorMsg}
+            </div>
+            <div v-if="successMsg" class="alert alert-success mb-3" role="alert">
+              ${successMsg}
+            </div>
+            <form @submit.prevent="updateObservation">
+              <table class="my-table table-small-12">
+                <tr>
+                  <td class="w-50">
+                    <label for="">${labels.species}</label>
+                  </td>
+                  <td>
+                    <v-select
+                      ref="start"
+                      v-model="observation.species"
+                      :options="speciesChoices"
+                      :reduce="choice => choice.value"
+                      label="text"
+                      class=""
+                      :clearable=false
+                      required
+                    ></v-select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.status}</label></td>
+                  <td>
+                    <select v-model="observation.status" class="table-input" required>
+                      <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.origin}</label></td>
+                  <td>
+                    <select v-model="observation.origin" class="table-input">
+                      <option v-for="c in originChoices" :value="c.value" :label="c.text"></option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.sex}</label></td>
+                  <td>
+                    <select v-model="observation.sex" class="table-input">
+                      <option v-for="c in sexChoices" :value="c.value" :label="c.text"></option>
+                    </select>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td><label for="">${labels.fork_length}</label></td>
+                  <td><input type="number" step="any" v-model="observation.fork_length" class="table-input"/></td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.total_length}</label></td>
+                  <td><input type="number" step="any" v-model="observation.total_length" class="table-input"/></td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.weight}</label></td>
+                  <td><input type="number" step="any" v-model="observation.weight" class="table-input"/></td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.tag_number}</label></td>
+                  <td><input type="text" v-model="observation.tag_number" class="table-input"/></td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.location_tagged}</label></td>
+                  <td><input type="text" v-model="observation.location_tagged" class="table-input"/></td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.date_tagged}</label></td>
+                  <td><input type="date" v-model="observation.date_tagged" class="table-input"/></td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.scale_id_number}</label></td>
+                  <td><input type="text" v-model="observation.scale_id_number" class="table-input"/></td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.tags_removed}</label></td>
+                  <td><input type="text" v-model="observation.tags_removed" class="table-input"/></td>
+                </tr>
+                <tr>
+                  <td><label for="">${labels.notes}</label></td>
+                  <td><input type="text" v-model="observation.notes" class="table-input"/></td>
+                </tr>
+
+              </table>
+
+              <div class="form-group mt-3">
+                <div class="float-right">
+                  <multiple-overlay v-if="!observation.id" :obs="observation" @submitted="addMultiple" ref="multiple"></multiple-overlay>
+                </div>
+                <button v-if="!observation.id" type="submit" class="btn btn-sm btn-success">{% trans "Add" %}</button>
+                <button v-else type="submit" class="btn btn-sm btn-warning">{% trans "Save" %}</button>
+                <button v-if="observation.id" type="button" class="btn btn-sm btn-secondary" @click="primeObservation">
+                  {% trans "Cancel" %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+
+        <div id="main">
+          {% include "shared_models/_generic_breadcrumbs.html" %}
+          <div class="">
+            <div class="card" style="">
+              <div class="card-header lead">{% trans "Observations" %}</div>
+              <div class="card-body">
+                <table class="table table-sm table-small-10">
+                  <thead>
+                  <tr>
+                    <th class="w50">#</th>
+                    <th class="w75">${labels.species}</th>
+                    <th class="w75">${labels.status}</th>
+                    <th class="w75">${labels.origin}</th>
+                    <th class="w75">${labels.sex}</th>
+                    <th class="w75">${labels.fork_length}</th>
+                    <th class="w75">${labels.total_length}</th>
+                    <th class="w75">${labels.weight}</th>
+                    <th class="w75">${labels.tag_number}</th>
+                    <th class="w75">${labels.location_tagged}</th>
+                    <th class="w75">${labels.date_tagged}</th>
+                    <th class="w75">${labels.scale_id_number}</th>
+                    <th class="w75">${labels.tags_removed}</th>
+                    <th class="w75">${labels.notes}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="o, index in observations" :key="o.id" :class="{'mild-concern':o.id===observation.id}">
+                    <td>${index+1}</td>
+                    <td @click="editObservation(o)">${o.species_display|nz}</td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.status_display|nz}</td>
+                    <td v-else>
+                      <select v-model="observation.status" class="table-input" required @keyup.enter="updateObservation">
+                        <option v-for="c in statusChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.origin_display|nz}</td>
+                    <td v-else>
+                      <select v-model="observation.origin" class="table-input" @keyup.enter="updateObservation">
+                        <option v-for="c in originChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.sex_display|nz}</td>
+                    <td v-else>
+                      <select v-model="observation.sex" class="table-input" @keyup.enter="updateObservation">
+                        <option v-for="c in sexChoices" :value="c.value" :label="c.text"></option>
+                      </select>
+                    </td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.fork_length|nz}</td>
+                    <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.fork_length" class="table-input"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.total_length|nz}</td>
+                    <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.total_length" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.weight|nz}</td>
+                    <td v-else><input type="number" step="any" @keyup.enter="updateObservation" v-model="observation.weight" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.tag_number|nz}</td>
+                    <td v-else><input type="text" v-model="observation.tag_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.location_tagged|nz}</td>
+                    <td v-else><input type="text" v-model="observation.location_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.date_tagged_display|nz}</td>
+                    <td v-else><input type="date" v-model="observation.date_tagged" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.scale_id_number|nz}</td>
+                    <td v-else><input type="text" v-model="observation.scale_id_number" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.tags_removed|nz}</td>
+                    <td v-else><input type="text" v-model="observation.tags_removed" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td v-if="observation.id !== o.id" @click="editObservation(o)">${o.notes|nz}</td>
+                    <td v-else><input type="text" v-model="observation.notes" @keyup.enter="updateObservation" class="table-input p-0"/></td>
+                    <td style="width: 100px;">
+                      <div v-if="observation.id !== o.id">
+                        <button class="btn btn-xs btn-warning" @click="editObservation(o)"><span class="mdi mdi-pencil"></span></button>
+                        <button class="btn btn-xs btn-success" @click="duplicateObservation(o)"><span class="mdi mdi-content-duplicate text-light"></span>
+                        </button>
+                        <button class="btn btn-xs btn-danger" @click="deleteObservation(o)"><span class="mdi mdi-close text-light"></span></button>
+                      </div>
+
+                      <div v-else>
+                        <button class="btn btn-xs btn-success" @click="updateObservation"><span class="mdi mdi-check text-light"></span></button>
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  {% include "trapnet/multiple-overlay.html" %}
+  <script type="application/javascript">
+  sampleId = {{ sample_id|safe }};
+  sweepId = {{ sweep_id|safe }};
+
+  function extractNumber(numberStr) {
+    result = ""
+    for (var i = 0; i < numberStr.length; i++) {
+      if (Number(numberStr[i]) || Number(numberStr[i]) === 0) {
+        result += numberStr[i]
+      }
+    }
+    return {number: Number(result), padding: result.length}
+  }
+
+  function extractPrefix(numberStr) {
+    result = ""
+    for (var i = 0; i < numberStr.length; i++) {
+      if (!Number(numberStr[i]) && Number(numberStr[i]) !== 0) {
+        result += numberStr[i]
+      }
+    }
+    return result
+  }
+
+
+  // register components
+  Vue.component('v-select', VueSelect.VueSelect);
+
+  // vuejs instance
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: {},
+      loading: false,
+      errorMsg: null,
+      succesMsg: null,
+      successMsg: null,
+      observations: [],
+      labels: {},
+      observation: {},
+      speciesChoices: [],
+      sexChoices: [],
+      originChoices: [],
+      statusChoices: [],
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/trapnet/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      primeObservation() {
+        this.observation = {
+          sample: sampleId,
+          sweep: sweepId,
+          origin: "2",
+        }
+        this.$nextTick(() => {
+          this.$refs.start.$refs.search.focus()
+        })
+      },
+      getObservations() {
+        this.loading = true;
+        let endpoint;
+        if (sampleId) endpoint = `/api/trapnet/observations/?sample=${sampleId}`;
+        if (sweepId) endpoint = `/api/trapnet/observations/?sweep=${sweepId}`;
+        apiService(endpoint).then(data => {
+          this.observations = data;
+          this.loading = false;
+          this.primeObservation();
+        });
+      },
+      editObservation(obs) {
+        const o = JSON.parse(JSON.stringify(obs));
+        o.date_tagged = o.date_tagged_display
+        this.observation = o;
+      },
+      duplicateObservation(obs) {
+        this.observation = JSON.parse(JSON.stringify(obs));
+        this.observation.id = null;
+        this.$refs.multiple.$refs.dup.click();
+      },
+      addMultiple(instructions) {
+        const templateObservation = JSON.parse(JSON.stringify(this.observation));
+        for (var i = 0; i < instructions.totalObservations; i++) {
+          this.observation = JSON.parse(JSON.stringify(templateObservation));
+          this.observation.date_tagged = this.observation.date_tagged_display
+          if (instructions.shouldIncrement && instructions.tagPrefix && instructions.startTagNumber) {
+            this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
+          }
+          this.updateObservation();
+        }
+
+      },
+      updateObservation() {
+        this.errorMsg = null;
+        this.successMsg = null;
+        let endpoint;
+        let method;
+        if (this.observation.id) {
+          endpoint = `/api/trapnet/observations/${this.observation.id}/`;
+          method = "PUT";
+        } else {
+          this.observation.sample = sampleId
+          endpoint = `/api/trapnet/observations/`;
+          method = "POST";
+        }
+        if (this.observation.date_tagged) this.observation.date_tagged += "T12:00:00";
+
+        apiService(endpoint, method, this.observation)
+            .then(response => {
+              if (!response.id) this.errorMsg = groomJSON(response);
+              else {
+                if (this.observation.id) {
+                  this.successMsg = "{% trans "Success! The observation was updated." %}"
+                } else {
+                  this.successMsg = "{% trans "Success! A new observation has been added." %}"
+                }
+                this.getObservations()
+              }
+            })
+      },
+
+      getObservationMetadata() {
+        let endpoint = `/api/trapnet/observations/?get_labels=true`;
+        apiService(endpoint).then(data => {
+          this.labels = data.labels;
+          this.speciesChoices = data.species_choices;
+          this.sexChoices = data.sex_choices;
+          this.statusChoices = data.status_choices;
+          this.originChoices = data.origin_choices;
+        });
+      },
+      deleteObservation(obs) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this observation?' %}")
+        if (userInput) {
+          let endpoint = `/api/trapnet/observations/${obs.id}/`;
+          apiService(endpoint, "DELETE").then(() => {
+            this.getObservations();
+          })
+        }
+      },
+    },
+    computed: {
+      canModify() {
+        return this.currentUser.can_modify && this.currentUser.can_modify.can_modify;
+      },
+    },
+    filters: {
+      floatformat: vueFiltersObject["floatformat"],
+      nz: vueFiltersObject["nz"],
+    },
+    created() {
+      this.getCurrentUser();
+      this.getObservations();
+      this.getObservationMetadata();
+    },
+  });
+
+
+  </script>
+
+
+{% endblock %}
+

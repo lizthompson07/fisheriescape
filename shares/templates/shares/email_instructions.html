@@ -1,53 +1,47 @@
-<em>
-    *** un message français suivra
-</em>
-<br><br>
 <p>
-    Hi {{ object.user.first_name }},
+  Hi {{ object.user.first_name }},
 </p>
 <p>
-    Your account on the NAS server has been created. Here are your login credentials:
+  Your account on the NAS server has been created. Here are your login credentials:
 </p>
 
 <table>
-    <tr>
-        <td><b>Username:</b></td>
-        <td>\{{ object.username }}</td>
-    </tr>
-    <tr>
-        <td><b>Random password:</b></td>
-        <td>{{ object.password }}</td>
-    </tr>
+  <tr>
+    <td><b>Username:</b></td>
+    <td>\{{ object.username }}</td>
+  </tr>
+  <tr>
+    <td><b>Random password:</b></td>
+    <td>{{ object.password }}</td>
+  </tr>
 </table>
+
 <p>
-    If you would like to change this password, unfortunately you will have to come by my office and we can change it directly on the server.
-    I have added you to the following share{{ object.shares.count|pluralize }}:
+  If you would like to change this password, unfortunately you will have to come by my office and we can change it directly on the server.
+  I have added you to the following share{{ object.shares.count|pluralize }}:
 </p>
+
 <ul>
-    {% for share in object.shares.all %}
-        <li>
-            {{ share.network_path }}
-        </li>
-    {% endfor %}
+  {% for share in object.shares.all %}
+    <li>
+      {{ share.network_path }}
+    </li>
+  {% endfor %}
 </ul>
 
-<p>{{ object.shares.count|pluralize:"This,These" }} folder{{ object.shares.count|pluralize }} can be mapped to your desktop just like any other folder. However when you enter in your credentials, <b>do not forget to
-    include the backslash </b> in front of your username. </p>
-<p>Let me know if you run into any issues!</p>
-<p>David</p>
+<p>{{ object.shares.count|pluralize:"This,These" }} folder{{ object.shares.count|pluralize }} can be mapped to your desktop just like any other folder.
+  However when you enter in your credentials, <b>do not forget to include the backslash </b> in front of your username. </p>
 
-<br><br>
-David Fishman<br><br>
-Data Manager, Science Branch, Gulf Region <br>
-Fisheries and Oceans Canada / Government of Canada <br>
-david.fishman@dfo-mpo.gc.ca / Tel: 506-851-6150 <br>
-<br>
-Gestionnaire de données, Direction des Sciences, Région du Golfe <br>
-Peches et Océans Canada, Gouvernement du Canada <br>
-david.fishman@dfo-mpo.gc.ca / Tél: 506-851-6150 <br>
+<p>
+  {{ request.user }}<br>
+  <a href="mailto:{{ request.user.email }}">{{ request.user.email }}</a>
+</p>
 
+<p>
+  PS. This is an automatically generated email :)
+</p>
 <style media="screen">
-    table, td {
-        border: solid 1px black;
-    }
+table, td {
+    border: solid 1px black;
+}
 </style>

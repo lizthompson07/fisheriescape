@@ -50,6 +50,11 @@ class SimpleLookupWithUUID(SimpleLookup):
 
     uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid.uuid4, verbose_name=_("unique identifier"))
 
+    def save(self, *args, **kwargs):
+        if not self.uuid:
+            self.uuid = uuid.uuid4()
+        super().save(*args, **kwargs)
+
 
 class Lookup(SimpleLookup):
     class Meta:
@@ -664,7 +669,7 @@ class Language(models.Model):
         ordering = [_('name'), ]
 
 
-class River(models.Model):
+class River(MetadataFields):
     name = models.CharField(max_length=255)
     fishing_area_code = models.CharField(max_length=255, blank=True, null=True)
     maritime_river_code = models.IntegerField(blank=True, null=True)

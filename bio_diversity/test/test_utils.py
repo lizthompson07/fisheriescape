@@ -68,19 +68,19 @@ class TestGrpMove(CommonTest):
     def test_fix_jumped_tanks(self):
         # simulate accidentally recording group in wrong tank and correcting:
         # ie A->B, C->D (fish is in both B and D) ->E should correct this
-        tank_a = BioFactoryFloor.TankFactory()
+        tank_a = BioFactoryFloor.TankFactory(name="A")
         tank_a.facic_id = self.evnt.facic_id
         tank_a.save()
-        tank_b = BioFactoryFloor.TankFactory()
+        tank_b = BioFactoryFloor.TankFactory(name="B")
         tank_b.facic_id = self.evnt.facic_id
         tank_b.save()
-        tank_c = BioFactoryFloor.TankFactory()
+        tank_c = BioFactoryFloor.TankFactory(name="C")
         tank_c.facic_id = self.evnt.facic_id
         tank_c.save()
-        tank_d = BioFactoryFloor.TankFactory()
+        tank_d = BioFactoryFloor.TankFactory(name="D")
         tank_d.facic_id = self.evnt.facic_id
         tank_d.save()
-        tank_e = BioFactoryFloor.TankFactory()
+        tank_e = BioFactoryFloor.TankFactory(name="E")
         tank_e.facic_id = self.evnt.facic_id
         tank_e.save()
         # need three dates to ensure unique moving events, to keep django test env happy

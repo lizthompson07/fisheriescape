@@ -1,0 +1,50 @@
+{% extends "shared_models/generic_filter.html" %}
+
+{% block jquery_import %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
+
+{% block bug_create %}
+  {% include "trapnet/base/_bug_url.html" %}
+{% endblock bug_create %}
+
+{% block title %}
+  {% include "trapnet/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock title %}
+
+{% block header %}
+  {{ block.super }}
+  {% include "trapnet/base/_style.html" %}
+{% endblock %}
+
+{% block body %}
+  {{ block.super }}
+{% endblock body %}
+
+{% block left_auth %}
+  {% include "trapnet/base/_nav_left_auth.html" %}
+{% endblock left_auth %}
+
+
+
+{% block body_js %}
+  {% if DEBUG %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  {% else %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  {% endif %}
+
+
+{% endblock %}
+
+{% block table_td %}
+  {% if "site_count" in field.name %}
+    {{ object.sites.count }}
+  {% elif "observations" in field.name %}
+    {{ object.observations.count }}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+
+{% endblock %}

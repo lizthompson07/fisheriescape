@@ -11,13 +11,14 @@ from django.utils.translation import gettext_lazy as _
 
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
-    ElectrofishingParser
+    ElectrofishingParser, SalmonLadderParser
+from bio_diversity.static.calculation_constants import sfa_nums
 
 from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
 from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
-from bio_diversity.data_parsers.picks import EDInitParser, EDPickParser
+from bio_diversity.data_parsers.picks import EDInitParser, EDPickParser, EDHUParser, EDShockingParser
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
 from bio_diversity.data_parsers.tagging import ColdbrookTaggingParser, MactaquacTaggingParser
 from bio_diversity.data_parsers.temperatures import TemperatureParser
@@ -288,6 +289,7 @@ class DataForm(CreatePrams):
     data_types = (None, '---------')
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
+    pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
@@ -300,8 +302,13 @@ class DataForm(CreatePrams):
     def clean(self):
         cleaned_data = super().clean()
 
+        if cleaned_data["data_type"] == '0':
+            if cleaned_data["trof_id"] is None:
+                self.add_error("trof_id", "Field Cannot Be Empty")
+
         if not self.is_valid():
             return cleaned_data
+
         log_data = ""
         success = False
         parser = None
@@ -312,6 +319,11 @@ class DataForm(CreatePrams):
                     parser = ColdbrookElectrofishingParser(cleaned_data)
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":
                     parser = MactaquacElectrofishingParser(cleaned_data)
+                log_data, success = parser.log_data, parser.success
+
+            # ----------------------------SALMON LADDERCOLLECTION-----------------------------------
+            elif cleaned_data["evntc_id"].__str__() in ["Salmon Ladder Collection"]:
+                parser = SalmonLadderParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # -------------------------------TAGGING----------------------------------------
@@ -361,26 +373,20 @@ class DataForm(CreatePrams):
                     parser = ColdbrookTreatmentParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
-            # ---------------------------TROUGH TEMPERATURE----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and\
-                    cleaned_data["data_type"] == "Temperature":
-                parser = TemperatureParser(cleaned_data)
-                log_data, success = parser.log_data, parser.success
-
-            # ---------------------------------PICKS----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Picks":
-                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+            # ---------------------------------EGG DEVELOPMENT------------------------------------
+            elif cleaned_data["evntc_id"].__str__() == "Egg Development":
+                if cleaned_data["data_type"] == "0":
+                    parser = TemperatureParser(cleaned_data)
+                elif cleaned_data["data_type"] == "1":
+                    if not cleaned_data["pickc_id"]:
+                        self.add_error('pickc_id', gettext("Must choose a picking code"))
                     parser = EDPickParser(cleaned_data)
-                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    parser = EDPickParser(cleaned_data)
-                log_data, success = parser.log_data, parser.success
-
-            # ---------------------------------ED INIT----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Egg Development" and cleaned_data["data_type"] == "Initial":
-                if cleaned_data["facic_id"].__str__() == "Mactaquac":
+                elif cleaned_data["data_type"] == "2":
                     parser = EDInitParser(cleaned_data)
-                elif cleaned_data["facic_id"].__str__() == "Coldbrook":
-                    parser = EDInitParser(cleaned_data)
+                elif cleaned_data["data_type"] == "3":
+                    parser = EDHUParser(cleaned_data)
+                elif cleaned_data["data_type"] == "4":
+                    parser = EDShockingParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # ------------------------------MEASURING----------------------------------------
@@ -520,6 +526,7 @@ class FeedHandlerForm(forms.Form):
     feedc_id = forms.ModelChoiceField(required=True, queryset=models.FeedCode.objects.all(), label=_("Feed Type"))
     feedm_id = forms.ModelChoiceField(required=True, queryset=models.FeedMethod.objects.all(), label=_("Feeding Method"))
     amt = forms.DecimalField(required=True, label=_("Feed Size"))
+    freq = forms.CharField(required=False, max_length=32, label=_("Feed Frequency"))
 
     facic_id = forms.ModelChoiceField(required=True, queryset=models.FacilityCode.objects.all())
     created_date = forms.DateField(required=True)
@@ -545,7 +552,7 @@ class FeedHandlerForm(forms.Form):
             cleaned_data["evnt_id"] = utils.create_feed_evnt(cleaned_data)
             contx_id, entered = utils.enter_contx(self.cont, cleaned_data, return_contx=True)
             feed_entered = utils.enter_feed(cleaned_data, contx_id, cleaned_data["feedc_id"], cleaned_data["feedm_id"],
-                                            cleaned_data["amt"])
+                                            cleaned_data["amt"], freq=cleaned_data["freq"])
             if not feed_entered:
                 raise ValidationError("Feeding instance not entered")
         return cleaned_data
@@ -823,6 +830,9 @@ class MapForm(forms.Form):
     rive_id = forms.ModelChoiceField(queryset=models.RiverCode.objects.all(), required=False, label=_("River Code"))
     subr_id = forms.ModelChoiceField(queryset=models.SubRiverCode.objects.all(), required=False, label=_("Sub River Code"))
     trib_id = forms.ModelChoiceField(queryset=models.Tributary.objects.all(), required=False, label=_("Tributary"))
+    sfa_choices = [(item, item) for item in sfa_nums]
+    sfa_choices.insert(0, (None, "---"))
+    sfa = forms.ChoiceField(choices=sfa_choices, required=False)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1020,6 +1030,7 @@ class ReportForm(forms.Form):
         (None, "------"),
         (1, "Facility Tanks Report (xlsx)"),
         (2, "River Code Report Report (xlsx)"),
+        (3, "Details Report (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     facic_id = forms.ModelChoiceField(required=False,
@@ -1028,6 +1039,9 @@ class ReportForm(forms.Form):
     stok_id = forms.ModelChoiceField(required=False,
                                      queryset=models.StockCode.objects.all(),
                                      label=_("Stock Code"))
+    adsc_id = forms.ModelChoiceField(required=False,
+                                     queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),
+                                     label=_("Search Detail"))
     on_date = forms.DateField(required=False, label=_("Report Date"))
 
     def __init__(self, *args, **kwargs):

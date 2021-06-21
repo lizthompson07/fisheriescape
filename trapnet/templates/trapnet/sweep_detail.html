@@ -1,0 +1,88 @@
+{% extends "trapnet/base.html" %}
+{% load static %}
+{% load verbose_names %}
+{% load  i18n %}
+{% block header %}
+  {{ block.super }}
+  <style>
+  /* Set the size of the div element that contains the map */
+  #map {
+      height: 500px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
+{% endblock %}
+
+{% block subcontent %}
+
+  <div class="mb-3">
+    <a class="btn btn-warning" href="{% url 'trapnet:sweep_edit' object.id %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'trapnet:sweep_delete' object.id %}">Delete</a>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col-7">
+      <div class="card">
+        <div class="card-header lead">
+          {% trans "Sweep Detail" %}
+        </div>
+        <div class="card-body">
+          <table class="table table-sm table-bordered">
+            {% for field in field_list %}
+              {% if field == "site" %}
+                <tr>
+                  <th class="w-35">{% get_verbose_label object "site" %}</th>
+                  <td><a href="{% url 'trapnet:site_detail' object.site.id %}">{{ object.site }}</a></td>
+                </tr>
+              {% else %}
+                {% verbose_td_display object field display_time=True %}
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mb-5">
+      <div class="card">
+        <div class="card-header lead">
+          <div class="float-right">
+            <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sweep_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
+          </div>
+          {% trans "Observations" %}
+        </div>
+        <div class="card-body">
+          {% if not object.observations.exists %}
+            <em>{% trans "There are no observations associated with this sweep." %}</em>
+          {% else %}
+            <table class="table table-sm table-hover table-small-10 sortable">
+              <thead>
+              <tr>
+                {% for field in obs_field_list %}
+                  <th>
+                    {% get_verbose_label object.observations.first field %}
+                  </th>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for obs in object.observations.all %}
+                <tr href="{% url 'trapnet:obs_detail' obs.id %}">
+                  {% for field in obs_field_list %}
+                    <td>
+                      {% get_field_value obs field %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+
+        </div>
+      </div>
+
+  </div>
+{% endblock %}
+

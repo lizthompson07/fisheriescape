@@ -571,14 +571,15 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
 
             # add the chair
             chair_roles = models.InviteeRole.objects.filter(category=1)
+            chair = form.cleaned_data.get("chair")
             if chair_roles.exists():
-                chair = form.cleaned_data.get("chair")
-                invitee = models.Invitee.objects.get_or_create(
-                    meeting=meeting,
-                    person_id=chair,
-                    region=obj.lead_region,
-                )[0]
-                invitee.roles.add(chair_roles.first())
+                if chair:
+                    invitee = models.Invitee.objects.get_or_create(
+                        meeting=meeting,
+                        person_id=chair,
+                        region=obj.lead_region,
+                    )[0]
+                    invitee.roles.add(chair_roles.first())
             else:
                 messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'chair' role in the system."))
         return super().form_valid(form)

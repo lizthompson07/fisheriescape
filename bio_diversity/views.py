@@ -273,21 +273,26 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             init['facic_id'] = evnt.facic_id
             self.get_form_class().base_fields["data_csv"].required = True
             self.get_form_class().base_fields["trof_id"].required = False
+            self.get_form_class().base_fields["pickc_id"].required = False
 
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
 
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
                     attrs={"class": "chosen-select-contains"})
+                self.get_form_class().base_fields["trof_id"].queryset = models.Trough.objects.filter(facic_id=evnt.facic_id).order_by("name")
+                self.get_form_class().base_fields["pickc_id"].widget = forms.SelectMultiple(
+                    attrs={"class": "chosen-select-contains"})
                 self.get_form_class().base_fields["data_type"].required = True
-                data_types = ((None, "---------"), ('Temperature', 'Temperature'), ('Picks', 'Picks'),
-                              ('Initial', 'Initial'))
+                data_types = ((-1, "---------"), (0, 'Temperature'), (1, 'Picks'),
+                              (2, 'Initial'), (3, 'Heath Unit Transfer'), (4, 'Shocking'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
-                                     "Bypass Collection", "Smolt Wheel Collection"]:
+                                     "Bypass Collection", "Smolt Wheel Collection", "Salmon Ladder Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
@@ -852,7 +857,7 @@ class AnidcDetails(mixins.AnidcMixin, CommonDetails):
 
 
 class AnixDetails(mixins.AnixMixin, CommonDetails):
-    fields = ["evnt_id", "loc_id", "indvt_id", "indv_id", "pair_id", "grp_id", "created_by",
+    fields = ["evnt_id", "loc_id", "indv_id", "pair_id", "grp_id", "created_by",
               "created_date", ]
 
 
@@ -915,7 +920,7 @@ class CupdDetails(mixins.CupdMixin, CommonDetails):
               "created_by", "created_date", ]
 
 
-class DrawDetails(mixins.DrawMixin, CommonDetails):
+class DrawDetails(mixins.DrawMixin, CommonContDetails):
     fields = ["heat_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
@@ -1138,7 +1143,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         context["table_list"].extend(["evnt", "indv", "cnt", "grpd", "samp", "loc", "pair", "team", "cont"])
         anix_set = self.object.animal_details.filter(evnt_id__isnull=False, contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, indv_id__isnull=True, pair_id__isnull=True)\
+                                                     indv_id__isnull=True, pair_id__isnull=True)\
             .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
 
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
@@ -1152,7 +1157,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         grp_set = models.GroupDet.objects.filter(anix_id__grp_id=self.object).distinct().select_related('anidc_id',
                                                                                                         "adsc_id")
-        grpd_field_list = ["anidc_id", "adsc_id", "det_val", "grpd_valid", "detail_date"]
+        grpd_field_list = ["anidc_id", "adsc_id", "evnt|Event", "det_val", "grpd_valid", "detail_date"]
         obj_mixin = mixins.GrpdMixin
         context["context_dict"]["grpd"] = {"div_title": "{} ".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1172,8 +1177,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         cnt_set = models.Count.objects.filter(Q(contx_id__animal_details__grp_id=self.object) |
                                               Q(loc_id__animal_details__grp_id=self.object))\
-            .distinct().select_related("cntc_id", "loc_id__relc_id")
-        cnt_field_list = ["cntc_id", "loc_id.relc_id", "cnt", "est", "date"]
+            .distinct().select_related("cntc_id", "loc_id__relc_id", *utils.contx_conts)
+        cnt_field_list = ["cntc_id", "loc_id.relc_id", "contx_id.container.name|Container", "cnt", "est", "date"]
         obj_mixin = mixins.CntMixin
         context["context_dict"]["cnt"] = {"div_title": "Counts",
                                           "sub_model_key": obj_mixin.key,
@@ -1210,7 +1215,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, pair_id__isnull=True)
+                                                          pair_id__isnull=True)
 
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
@@ -1221,9 +1226,9 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         ]
 
         anix_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                     indvt_id__isnull=True, pair_id__isnull=False).select_related('pair_id')
+                                                     pair_id__isnull=False).select_related('pair_id')
         pair_list = [anix.pair_id for anix in anix_set]
-        pair_field_list = ["start_date", "indv_id", "prio_id"]
+        pair_field_list = ["start_date", "indv_id", "cross", "prio_id"]
         obj_mixin = mixins.PairMixin
         context["context_dict"]["pair"] = {"div_title": "{}s".format(obj_mixin.title),
                                            "sub_model_key": obj_mixin.key,
@@ -1304,10 +1309,10 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         # use this to pass fields/sample object to template
         context = super().get_context_data(**kwargs)
         context["title"] = "Individual: {}".format(self.object.__str__())
-        context["table_list"].extend(["evnt", "indvd", "pair", "team", "loc", "cont", "sire"])
+        context["table_list"].extend(["evnt", "indvd", "indvt", "pair", "team", "loc", "cont", "sire"])
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, pair_id__isnull=True)\
+                                                          pair_id__isnull=True)\
             .select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id', 'evnt_id__prog_id', 'evnt_id__perc_id')
         evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
         evnt_field_list = ["evntc_id", "facic_id", "prog_id", "start_datetime"]
@@ -1318,13 +1323,22 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
                                            "field_list": evnt_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
-        indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=self.object).distinct().select_related("anidc_id", "adsc_id", )
-        indvd_field_list = ["anidc_id", "adsc_id", "det_val", "indvd_valid", "detail_date"]
+        indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=self.object).distinct().select_related("anidc_id", "adsc_id", "anix_id__evnt_id", "anix_id__evnt_id__evntc_id",)
+        indvd_field_list = ["anidc_id", "adsc_id", "evnt|Event", "det_val", "indvd_valid", "detail_date"]
         obj_mixin = mixins.IndvdMixin
         context["context_dict"]["indvd"] = {"div_title": "{} ".format(obj_mixin.title),
                                             "sub_model_key": obj_mixin.key,
                                             "objects_list": indvd_set,
                                             "field_list": indvd_field_list,
+                                            "single_object": obj_mixin.model.objects.first()}
+
+        indvt_set = models.IndTreatment.objects.filter(anix_id__indv_id=self.object).distinct().select_related("indvtc_id", "unit_id")
+        indvt_field_list = ["indvtc_id", "dose", "unit_id", "detail_date"]
+        obj_mixin = mixins.IndvtMixin
+        context["context_dict"]["indvt"] = {"div_title": "{} ".format(obj_mixin.title),
+                                            "sub_model_key": obj_mixin.key,
+                                            "objects_list": indvt_set,
+                                            "field_list": indvt_field_list,
                                             "single_object": obj_mixin.model.objects.first()}
 
         anix_set = self.object.animal_details.filter(loc_id__isnull=False).select_related("loc_id", "loc_id__locc_id",
@@ -1380,7 +1394,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context["heritage_field_list"] = ["Degrees Removed", "Group", "Date Removed"]
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          indvt_id__isnull=True, pair_id__isnull=True)\
+                                                          pair_id__isnull=True)\
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
@@ -3122,6 +3136,9 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}&on_date={form.cleaned_data['on_date']}")
             else:
                 return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}")
+        elif report == 3:
+            adsc_pk = int(form.cleaned_data["adsc_id"].pk)
+            return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("bio_diversity:reports"))
@@ -3160,6 +3177,22 @@ def stock_code_report(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dmapps stock codes report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
 
+            return response
+    raise Http404
+
+
+@login_required()
+def detail_report(request):
+    adsc_pk = request.GET.get("adsc_pk")
+    adsc_id = models.AniDetSubjCode.objects.filter(pk=adsc_pk).get()
+    file_url = None
+    if adsc_id:
+        file_url = reports.generate_detail_report(adsc_id)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps details report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404
 
@@ -3317,6 +3350,24 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             site_qs = site_qs.filter(rive_id__name=self.kwargs.get("rive_id"))
 
         context["sites"] = site_qs
+        sfa_poly = None
+        if self.kwargs.get("sfa"):
+            sfa_poly = utils.load_sfas()[int(self.kwargs.get("sfa"))]
+            new_loc_list = []
+            new_line_loc_list = []
+            new_site_list = []
+            for loc in location_qs:
+                if sfa_poly.contains(loc.point) or sfa_poly.contains(loc.end_point):
+                    if loc.end_point:
+                        new_line_loc_list.append(loc)
+                    else:
+                        new_loc_list.append(loc)
+            for site in site_qs:
+                if sfa_poly.intersects(site.bbox):
+                    new_site_list.append(site)
+            context["locations"] = new_loc_list
+            context["line_locations"] = new_line_loc_list
+            context["sites"] = new_site_list
 
         # start by determining which locations do not have spatial data
         non_spatial_location_list = []
@@ -3349,12 +3400,8 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             captured_site_list = []
             for loc in location_qs:
                 if loc not in non_spatial_location_list:
-                    captured = False
                     # check to see if the bbox overlaps with any record points
                     if bbox.contains(loc.point) or bbox.contains(loc.end_point):
-                        captured = True
-                    # if checked through all records and nothing found, add to non-spatial list
-                    if captured:
                         captured_locations_list.append(loc)
             for site in site_qs:
                 # check to see if the bbox overlaps with any record points
@@ -3363,6 +3410,22 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         else:
             captured_locations_list = []
             captured_site_list = []
+
+        if self.kwargs.get("sfa"):
+            new_loc_list = []
+            new_line_loc_list = []
+            new_site_list = []
+            for loc in captured_locations_list:
+                if sfa_poly.contains(loc.point) or sfa_poly.contains(loc.end_point):
+                    if loc.end_point:
+                        new_line_loc_list.append(loc)
+                    else:
+                        new_loc_list.append(loc)
+            for site in captured_site_list:
+                if sfa_poly.intersects(site.bbox):
+                    new_site_list.append(site)
+            captured_locations_list = new_loc_list
+            captured_site_list = new_site_list
 
         report_file_url = reports.generate_sites_report(captured_site_list, captured_locations_list, start_date, end_date)
 
@@ -3385,6 +3448,7 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             "south": self.kwargs.get("s"),
             "east": self.kwargs.get("e"),
             "west": self.kwargs.get("w"),
+            "sfa": self.kwargs.get("sfa"),
             "start_date": start_date,
             "end_date": end_date,
         }
@@ -3395,9 +3459,13 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             "s": form.cleaned_data.get("south"),
             "e": form.cleaned_data.get("east"),
             "w": form.cleaned_data.get("west"),
-            "start": form.cleaned_data.get("start_date"),
-            "end": form.cleaned_data.get("end_date"),
+            "start": form.cleaned_data.get("start_date").strftime("%Y-%m-%d"),
+            "end": form.cleaned_data.get("end_date").strftime("%Y-%m-%d"),
+
         }
         if form.cleaned_data.get("rive_id"):
             kwarg_dict["rive_id"] = form.cleaned_data.get("rive_id").name
+        if form.cleaned_data.get("sfa"):
+            kwarg_dict["sfa"] = form.cleaned_data.get("sfa")
         return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs=kwarg_dict))
+

@@ -1757,7 +1757,7 @@ class TestReportViews(CommonTest):
         for i in range(1, 19):
             FactoryFloor.SampleFactory()
         self.test_urls = [
-            reverse_lazy('grais:spp_sample_xlsx', args=[listrify([self.species.id])]),
+            reverse_lazy('grais:spp_sample_xlsx', args=[listrify([self.species.id]), "None"]),
             reverse_lazy('grais:biofouling_pa_xlsx') + "?year=2019",
             reverse_lazy('grais:biofouling_pa_xlsx') + "?year=None",
             reverse_lazy('grais:od1_report'),

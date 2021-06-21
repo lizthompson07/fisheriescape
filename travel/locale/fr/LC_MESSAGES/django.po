@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-25 16:06-0300\n"
+"POT-Creation-Date: 2021-06-17 13:15-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1433,39 +1433,45 @@ msgstr "Dates de voyage :"
 msgid "Departure Location:"
 msgstr "Lieu de départ :"
 
-#: .\travel\templates\travel\common\_traveller_detail.html:37
+#: .\travel\templates\travel\common\_traveller_detail.html:33
+#, fuzzy
+#| msgid "Departure Location:"
+msgid "missing departure location!"
+msgstr "Lieu de départ :"
+
+#: .\travel\templates\travel\common\_traveller_detail.html:39
 msgid "missing role!"
 msgstr "rôle manquant!"
 
-#: .\travel\templates\travel\common\_traveller_detail.html:40
+#: .\travel\templates\travel\common\_traveller_detail.html:42
 msgid "Part of Learning Plan:"
 msgstr "Fait partie du plan d'apprentissage :"
 
-#: .\travel\templates\travel\common\_traveller_detail.html:44
+#: .\travel\templates\travel\common\_traveller_detail.html:46
 msgid "Non-DFO Funding:"
 msgstr "Financement non-MPO :"
 
-#: .\travel\templates\travel\common\_traveller_detail.html:48
+#: .\travel\templates\travel\common\_traveller_detail.html:50
 #, fuzzy
 #| msgid "Notes"
 msgid "Notes:"
 msgstr "Notes"
 
-#: .\travel\templates\travel\common\_traveller_detail.html:55
+#: .\travel\templates\travel\common\_traveller_detail.html:57
 msgid "Travel History (ADM approved only):"
 msgstr "Historique des voyages (uniquement approuvé par le SMA) :"
 
-#: .\travel\templates\travel\common\_traveller_detail.html:58
+#: .\travel\templates\travel\common\_traveller_detail.html:60
 #: .\travel\templates\travel\common\_trip_detail.html:130
 msgid "open in new window"
 msgstr "ouvrir dans une nouvelle fenêtre"
 
-#: .\travel\templates\travel\common\_traveller_detail.html:63
+#: .\travel\templates\travel\common\_traveller_detail.html:65
 msgid "This traveller has no ADM approved requests on file."
 msgstr ""
 "Ce voyageur n'a pas de demandes approuvées par le SMA dans son dossier."
 
-#: .\travel\templates\travel\common\_traveller_detail.html:72
+#: .\travel\templates\travel\common\_traveller_detail.html:74
 msgid "Cost Breakdown:"
 msgstr "Répartition des coûts :"
 
@@ -1652,8 +1658,8 @@ msgstr "Voyageurs actifs uniquement"
 #: .\travel\templates\travel\common\_trip_detail.html:142
 msgid "Travellers on 'Draft' or 'Cancelled' trips will not be shown below."
 msgstr ""
-"Les voyageurs en voyage \"provisoire\" ou \"annulé\" ne seront pas indiqués "
-"ci-dessous."
+"Les voyageurs en voyage «provisoire» ou «annulé» ne seront pas indiqués ci-"
+"dessous."
 
 #: .\travel\templates\travel\common\_trip_script.html:6
 msgid ""

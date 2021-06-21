@@ -10,6 +10,7 @@
 .blue {
     color: blue;
 }
+
 .btn-admin {
     background-color: #5b80b2;
     color: white;
@@ -95,6 +96,11 @@
     color: white;
 }
 
+.pending-expenditure-initiation {
+    background-color: #125c0d;
+    color: white;
+}
+
 .pending-recommendation {
     background-color: #cc4aec;
     color: white;
@@ -177,10 +183,10 @@ table, td {
     font-size: small;
 }
 
-.btn-success{
+.btn-success {
     background-color: darkgreen;
 }
 
-.btn-primary{
+.btn-primary {
     background-color: darkblue;
 }
