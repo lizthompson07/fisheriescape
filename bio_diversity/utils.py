@@ -429,8 +429,9 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
     origin_conts = []
     movement_date = naive_to_aware(movement_date)
     new_cleaned_data = cleaned_data.copy()
-    if origin == destination:
-        row_entered = False
+    if (origin == destination or not nan_to_none(destination)) and nan_to_none(origin):
+        # if both origin and destination are the same, or just if origin is entered, only enter contx.
+        row_entered = enter_contx(origin, cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
         return row_entered
     if "evnt_id" in cleaned_data.keys():
         if cleaned_data["evnt_id"]:

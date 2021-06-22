@@ -93,7 +93,7 @@ class GenericIndvParser(DataParser):
                 self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None,
                                                       self.ani_health_anidc_id.pk, "Tissue Sample")
 
-        if utils.nan_to_none(row[self.start_tank_key]) and utils.nan_to_none(row[self.end_tank_key]):
+        if utils.nan_to_none(row[self.start_tank_key]) or utils.nan_to_none(row[self.end_tank_key]):
             in_tank = models.Tank.objects.filter(name=row[self.start_tank_key]).get()
             out_tank = models.Tank.objects.filter(name=row[self.end_tank_key]).get()
             self.row_entered += utils.create_movement_evnt(in_tank, out_tank, self.cleaned_data, row_datetime,

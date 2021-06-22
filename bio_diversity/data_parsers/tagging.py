@@ -98,7 +98,7 @@ class TaggingParser(DataParser):
         except (ValidationError, IntegrityError):
             indv = models.Individual.objects.filter(pit_tag=indv.pit_tag).get()
 
-        if utils.nan_to_none(row[self.from_tank_key]) and utils.nan_to_none(row[self.to_tank_key]):
+        if utils.nan_to_none(row[self.from_tank_key]) or utils.nan_to_none(row[self.to_tank_key]):
             in_tank = models.Tank.objects.filter(name=row[self.from_tank_key]).get()
             out_tank = models.Tank.objects.filter(name=row[self.to_tank_key]).get()
             self.row_entered += utils.create_movement_evnt(in_tank, out_tank, cleaned_data, row_datetime,
