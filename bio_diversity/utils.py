@@ -1063,7 +1063,7 @@ def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
         sampd = models.SampleDet(samp_id_id=samp_pk,
                                  anidc_id_id=anidc_pk,
                                  adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
-                                 det_val=det_value,
+                                 det_val=None,
                                  detail_date=det_date,
                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
                                  comments=comments,
@@ -1412,13 +1412,6 @@ def nan_to_none(test_item):
 
     return test_item
 
-
-def key_value_in_row(row, key):
-    if key in row.keys():
-        if nan_to_none(row[key]):
-            return True
-    else:
-        return False
 
 def y_n_to_bool(test_item):
     if type(test_item) == float:

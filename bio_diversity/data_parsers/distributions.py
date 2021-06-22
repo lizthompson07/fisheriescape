@@ -114,24 +114,24 @@ class DistributionParser(DataParser):
 
         self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
 
-        if utils.key_value_in_row(row, self.crew_key):
+        if utils.nan_to_none(row.get(self.crew_key)):
             self.team_parser(row[self.crew_key], row, loc_id=loc)
-        if utils.key_value_in_row(row, self.driver_key):
+        if utils.nan_to_none(row.get(self.driver_key)):
             self.team_parser(row[self.driver_key], row, loc_id=loc, role_id=self.driver_role_id)
 
-        if utils.key_value_in_row(row, self.temp_key):
+        if utils.nan_to_none(row.get(self.temp_key)):
             self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id,
                                                 loc_id=loc)
-        if utils.key_value_in_row(row, self.truck_key):
+        if utils.nan_to_none(row.get(self.truck_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.truck_key],
                                                  self.truck_locdc_id.pk, None)
-        if utils.key_value_in_row(row, self.relm_key):
+        if utils.nan_to_none(row.get(self.relm_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.relm_key],
                                                  self.relm_locdc_id.pk, row[self.relm_key])
-        if utils.key_value_in_row(row, self.acclimation_key):
+        if utils.nan_to_none(row.get(self.acclimation_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
                                                  self.acclimation_locdc_id.pk, None)
-        if utils.key_value_in_row(row, self.lifestage_key):
+        if utils.nan_to_none(row.get(self.lifestage_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.lifestage_key],
                                                  self.lifestage_locdc_id.pk, row[self.lifestage_key])
 
@@ -139,15 +139,15 @@ class DistributionParser(DataParser):
                                            cnt_code="Fish Distributed")
         self.row_entered += cnt_entered
 
-        if utils.key_value_in_row(row, self.len_key):
+        if utils.nan_to_none(row.get(self.len_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.len_key], self.len_anidc_id.name)
-        if utils.key_value_in_row(row, self.len_key_mm):
+        if utils.nan_to_none(row.get(self.len_key_mm)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, 0.1 * row[self.len_key_mm],
                                                     self.len_anidc_id.name)
-        if utils.key_value_in_row(row, self.weight_key_kg):
+        if utils.nan_to_none(row.get(self.weight_key_kg)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, 1000 * row[self.weight_key_kg],
                                                     self.weight_anidc_id.name)
-        if utils.key_value_in_row(row, self.weight_key):
+        if utils.nan_to_none(row.get(self.weight_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.weight_key], self.weight_anidc_id.name)
 
 
@@ -262,50 +262,50 @@ class DistributionIndvParser(DataParser):
         anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_id.pk, loc_pk=loc.pk)
         self.row_entered += anix_entered
 
-        if utils.key_value_in_row(row, self.crew_key):
+        if utils.nan_to_none(row.get(self.crew_key)):
             self.team_parser(row[self.crew_key], row, loc_id=loc)
-        if utils.key_value_in_row(row, self.driver_key):
+        if utils.nan_to_none(row.get(self.driver_key)):
             self.team_parser(row[self.driver_key], row, loc_id=loc, role_id=self.driver_role_id)
 
-        if utils.key_value_in_row(row, self.temp_key):
+        if utils.nan_to_none(row.get(self.temp_key)):
             self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id,
                                                 loc_id=loc)
-        if utils.key_value_in_row(row, self.truck_key):
+        if utils.nan_to_none(row.get(self.truck_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.truck_key],
                                                  self.truck_locdc_id.pk, None)
-        if utils.key_value_in_row(row, self.relm_key):
+        if utils.nan_to_none(row.get(self.relm_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.relm_key],
                                                  self.relm_locdc_id.pk, row[self.relm_key])
-        if utils.key_value_in_row(row, self.acclimation_key):
+        if utils.nan_to_none(row.get(self.acclimation_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
                                                  self.acclimation_locdc_id.pk, None)
 
-        if utils.key_value_in_row(row, self.lifestage_key):
+        if utils.nan_to_none(row.get(self.lifestage_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.lifestage_key],
                                                  self.lifestage_locdc_id.pk, row[self.lifestage_key])
-        if utils.key_value_in_row(row, self.len_key):
+        if utils.nan_to_none(row.get(self.len_key)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.len_key], self.len_anidc_id)
-        if utils.key_value_in_row(row, self.len_key_mm):
+        if utils.nan_to_none(row.get(self.len_key_mm)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, 0.1 * row[self.len_key_mm],
                                                   self.len_anidc_id)
 
-        if utils.key_value_in_row(row, self.weight_key):
+        if utils.nan_to_none(row.get(self.weight_key)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.weight_key],
                                                   self.weight_anidc_id)
-        if utils.key_value_in_row(row, self.weight_key_kg):
+        if utils.nan_to_none(row.get(self.weight_key_kg)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, 1000 * row[self.weight_key_kg],
                                                   self.weight_anidc_id)
-        if utils.key_value_in_row(row, self.vial_key):
+        if utils.nan_to_none(row.get(self.vial_key)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.vial_key],
                                                   self.vial_anidc_id)
-        if utils.key_value_in_row(row, self.sex_key):
+        if utils.nan_to_none(row.get(self.sex_key)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, self.sex_dict[row[self.sex_key]],
                                                   self.sex_anidc_id)
-        if utils.key_value_in_row(row, self.tissue_key):
+        if utils.nan_to_none(row.get(self.tissue_key)):
             if utils.y_n_to_bool(row[self.tissue_key]):
                 self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Tissue Sample")
 
-        if utils.key_value_in_row(row, self.comment_key):
+        if utils.nan_to_none(row.get(self.comment_key)):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix, row_date)
             self.row_entered += data_entered
             if not comments_parsed:

@@ -59,13 +59,13 @@ class EDInitParser(DataParser):
         contx, contx_entered = utils.enter_contx(tray_id, cleaned_data, True, grp_pk=grp_id.pk, return_contx=True)
         self.row_entered += contx_entered
 
-        if utils.key_value_in_row(row, self.fecu_key):
+        if utils.nan_to_none(row.get(self.fecu_key)):
             cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.fecu_key], contx_pk=contx.pk, cnt_code="Photo Count")
             self.row_entered += cnt_entered
 
         self.team_parser(row[self.crew_key], row)
 
-        if utils.key_value_in_row(row, self.comment_key):
+        if utils.nan_to_none(row.get(self.comment_key)):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix_id, row_date)
             self.row_entered += data_entered
             if not comments_parsed:

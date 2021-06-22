@@ -288,6 +288,22 @@
     }
 },
 {
+    "model": "bio_diversity.animaldetcode",
+    "pk": 21,
+    "fields": {
+        "name": "UFID",
+        "nom": null,
+        "description_en": "Unique Fish ID, used to identify samples taken from groups of untagged fish.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-15",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": false
+    }
+},
+{
     "model": "bio_diversity.anidetsubjcode",
     "pk": 2,
     "fields": {

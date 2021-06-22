@@ -107,13 +107,13 @@ class TreatmentParser(DataParser):
 
         amt = None
         unit = None
-        if utils.key_value_in_row(row, self.quantity_kg_key):
+        if utils.nan_to_none(row.get(self.quantity_kg_key)):
             amt = row[self.quantity_kg_key]
             unit = self.kg_unit_id
-        elif utils.key_value_in_row(row, self.quantity_ml_key):
+        elif utils.nan_to_none(row.get(self.quantity_ml_key)):
             amt = row[self.quantity_ml_key]
             unit = self.ml_unit_id
-        elif utils.key_value_in_row(row, self.quantity_gal_key):
+        elif utils.nan_to_none(row.get(self.quantity_gal_key)):
             amt = utils.nan_to_none(row[self.quantity_gal_key])
             unit = self.gal_unit_id
 
@@ -151,13 +151,13 @@ class TreatmentParser(DataParser):
         self.row_entered += data_entered
         amt = None
         unit = None
-        if utils.key_value_in_row(row, self.quantity_kg_key):
+        if utils.nan_to_none(row.get(self.quantity_kg_key)):
             amt = row[self.quantity_kg_key]
             unit = self.kg_unit_id
-        elif utils.key_value_in_row(row, self.quantity_ml_key):
+        elif utils.nan_to_none(row.get(self.quantity_ml_key)):
             amt = row[self.quantity_ml_key]
             unit = self.ml_unit_id
-        elif utils.key_value_in_row(row, self.quantity_gal_key):
+        elif utils.nan_to_none(row.get(self.quantity_gal_key)):
             amt = utils.nan_to_none(row[self.quantity_gal_key])
             unit = self.gal_unit_id
         duration = row[self.duration_mins_key]

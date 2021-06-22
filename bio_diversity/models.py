@@ -956,8 +956,10 @@ class Group(BioModel):
         depth = 1
         while True:
             for grpd in grpd_qs:
-                parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
-                new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
+                # recursion catch
+                if grpd.frm_grp_id.pk != self.pk:
+                    parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
+                    new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
             if new_grpd_qs:
                 grpd_qs = new_grpd_qs
                 depth += 1
