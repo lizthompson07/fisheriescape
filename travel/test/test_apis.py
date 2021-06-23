@@ -741,7 +741,7 @@ class TestReviewerAPIViewSet(CommonTest):
         reviewer.status = closed_status
         reviewer.save()
         owner = reviewer.request.created_by
-        users = [owner, self.admin_user, self.adm_admin_user]
+        users = [ self.admin_user, self.adm_admin_user] # DFJ: there used to be owner in here but I am removing.
         for u in users:
             self.get_and_login_user(user=u)
             response = self.client.delete(self.test_detail_url)

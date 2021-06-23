@@ -718,7 +718,7 @@ class TestTransectUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.TransectFactory()
         self.test_url = reverse_lazy('scuba:transect_edit', args=[self.instance.pk, ])
-        self.expected_template = 'scuba/form.html'
+        self.expected_template = 'scuba/transect_form.html'
         self.user = self.get_and_login_user(in_group="scuba_admin")
 
     @tag("Transect", "transect_edit", "view")
