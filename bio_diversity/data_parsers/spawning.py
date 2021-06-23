@@ -161,7 +161,7 @@ class SpawningParser(DataParser):
 
             grp = models.Group(spec_id=indv_female.spec_id,
                                stok_id=indv_female.stok_id,
-                               coll_id=models.Collection.objects.filter(name="F1").get(),
+                               coll_id=models.Collection.objects.filter(name="Egg (F1)").get(),
                                grp_year=row_date.year,
                                grp_valid=False,
                                created_by=cleaned_data["created_by"],

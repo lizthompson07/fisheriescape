@@ -42,6 +42,12 @@ class ElectrofishingParser(DataParser):
     locc_id = None
     river_dict = {}
 
+    def __init__(self, *args, **kwargs):
+        super(ElectrofishingParser, self).__init__(*args, **kwargs)
+        self.mandatory_keys.extend([self.rive_key, self.group_key, self.coll_key, self.tank_key, self.crew_key,
+                                    self.fish_caught_key, self.fish_obs_key])
+
+
     def data_preper(self):
         cleaned_data = self.cleaned_data
         self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
@@ -140,8 +146,8 @@ class ElectrofishingParser(DataParser):
             if len(relc_qs) == 1:
                 relc_id = relc_qs.get()
 
-        start_lat = utils.round_no_nan(row[self.lat_key], 5)
-        start_lon = utils.round_no_nan(row[self.lon_key], 5)
+        start_lat = utils.round_no_nan(row.get(self.lat_key), 5)
+        start_lon = utils.round_no_nan(row.get(self.lon_key), 5)
         if not relc_id and not (start_lat and start_lon):
             raise Exception("Site code not found and lat-long not given for site on row")
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -150,10 +156,10 @@ class ElectrofishingParser(DataParser):
                               relc_id=relc_id,
                               loc_lat=start_lat,
                               loc_lon=start_lon,
-                              end_lat=utils.round_no_nan(row[self.end_lat], 5),
-                              end_lon=utils.round_no_nan(row[self.end_lon], 5),
+                              end_lat=utils.round_no_nan(row.get(self.end_lat), 5),
+                              end_lon=utils.round_no_nan(row.get(self.end_lon), 5),
                               loc_date=row_datetime,
-                              comments=utils.nan_to_none(row[self.comment_key]),
+                              comments=utils.nan_to_none(row.get(self.comment_key)),
                               created_by=cleaned_data["created_by"],
                               created_date=cleaned_data["created_date"],
                               )
@@ -254,7 +260,12 @@ class SalmonLadderParser(DataParser):
     loc_caught_dict = {}
 
     loc = None
-
+    
+    def __init__(self, *args, **kwargs):
+        self.mandatory_keys.extend([self.site_key, self.wr_key, self.pit_key, self.tank_key, self.crew_key,
+                                    self.coll_key])
+        super(SalmonLadderParser, self).__init__(*args, **kwargs)
+        
     def data_preper(self):
         cleaned_data = self.cleaned_data
         self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
@@ -292,7 +303,7 @@ class SalmonLadderParser(DataParser):
                                         indv_year=year,
                                         pit_tag=row[self.pit_key],
                                         indv_valid=True,
-                                        comments=utils.nan_to_none(row[self.comment_key]),
+                                        comments=utils.nan_to_none(row.get(self.comment_key)),
                                         created_by=cleaned_data["created_by"],
                                         created_date=cleaned_data["created_date"],
                                         )

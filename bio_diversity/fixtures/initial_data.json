@@ -694,7 +694,7 @@
     "model": "bio_diversity.collection",
     "pk": 23,
     "fields": {
-        "name": "F1",
+        "name": "Egg (F1)",
         "nom": null,
         "description_en": "Hatched at a facility",
         "description_fr": "",

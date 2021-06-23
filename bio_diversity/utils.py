@@ -42,6 +42,7 @@ class DataParser:
     month_key = "Month"
     day_key = "Day"
 
+    mandatory_keys = [year_key, month_key, day_key]
     header = 1
     converters = {year_key: str, month_key: str, day_key: str}
     sheet_name = 0
@@ -67,6 +68,12 @@ class DataParser:
         except Exception as err:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
             self.success = False
+
+        for key in self.mandatory_keys:
+            if key not in list(self.data):
+                self.log_data += "Column with header \"{}\" not found in worksheet \n".format(key)
+                self.success = False
+
         if self.data is None:
             self.log_data += "\n No data in file.  Possible reasons include: incorrect sheet name or incorrect number" \
                              " of lines above the header row, which should be {}.".format(self.header)
@@ -1461,9 +1468,6 @@ def round_no_nan(data, precision):
 
 def common_err_parser(err):
     err_msg = err.__str__()
-    if type(err) == KeyError:
-        err_msg = "Column with header \"{}\" not found in worksheet".format(err)
-
     if issubclass(type(err), ObjectDoesNotExist):
         err_msg = "Could not find a {} object from worksheet in database.".format(err.__str__().split(" ")[0])
 
