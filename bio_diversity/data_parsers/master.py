@@ -42,7 +42,7 @@ class MasterIndvParser(DataParser):
         indv = models.Individual(grp_id_id=None,
                                  spec_id=self.salmon_id,
                                  stok_id=models.StockCode.objects.filter(name=row[self.stok_key]).get(),
-                                 coll_id=models.Collection.objects.filter(name__icontains=coll).get(),
+                                 coll_id=utils.coll_getter(coll),
                                  indv_year=year,
                                  pit_tag=row[self.pit_key],
                                  ufid=ufid,
@@ -117,7 +117,7 @@ class MasterGrpParser(DataParser):
         else:
             grp_id = models.Group(spec_id=self.salmon_id,
                                   stok_id=models.StockCode.objects.filter(name=row[self.stok_key]).get(),
-                                  coll_id=models.Collection.objects.filter(name__icontains=coll).get(),
+                                  coll_id=utils.coll_getter(coll),
                                   grp_year=year,
                                   grp_valid=True,
                                   comments=comments,

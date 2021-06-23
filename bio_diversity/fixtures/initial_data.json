@@ -706,9 +706,9 @@
     "model": "bio_diversity.collection",
     "pk": 24,
     "fields": {
-        "name": "Long Unique Name",
+        "name": "Wild Pre Smolt (WPS)",
         "nom": null,
-        "description_en": "",
+        "description_en": "Pre Smolt fish from the tobique river",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-06-01"

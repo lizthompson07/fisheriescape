@@ -71,7 +71,7 @@ class TaggingParser(DataParser):
             raise Exception("Parent group not found in database.  No group with tag {}-{}-{} presnt in tank"
                             " {}.".format(self.data[self.stok_key], year, coll, self.data[self.from_tank_key][0]))
         self.stok_id = models.StockCode.objects.filter(name=self.data[self.stok_key][0]).get()
-        self.coll_id = models.Collection.objects.filter(name__icontains=coll).get()
+        self.coll_id = utils.coll_getter(coll)
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data

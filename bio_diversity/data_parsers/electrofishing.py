@@ -70,7 +70,7 @@ class ElectrofishingParser(DataParser):
 
         for index, row in river_group_data.iterrows():
             stok_id = models.StockCode.objects.filter(name__icontains=row[self.rive_key]).get()
-            coll_id = models.Collection.objects.filter(name__icontains=row[self.coll_key]).get()
+            coll_id = utils.coll_getter(row[self.coll_key])
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
                                                               grp_id__stok_id=stok_id,
                                                               grp_id__coll_id=coll_id,
@@ -284,9 +284,8 @@ class SalmonLadderParser(DataParser):
         indv_id = models.Individual.objects.filter(pit_tag=row[self.pit_key]).first()
         if not indv_id:
             year, coll = utils.year_coll_splitter(row[self.coll_key])
-            coll_id = models.Collection.objects.filter(name__icontains=coll).get()
+            coll_id = utils.coll_getter(row[self.coll_key])
             stok_id = models.StockCode.objects.filter(name__iexact=relc_id.rive_id.name).get()
-
             indv_id = models.Individual(spec_id=self.salmon_id,
                                         stok_id=stok_id,
                                         coll_id=coll_id,

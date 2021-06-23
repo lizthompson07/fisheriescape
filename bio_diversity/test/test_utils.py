@@ -176,3 +176,25 @@ class TestGrpCnt(CommonTest):
         utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
         utils.enter_cnt(new_cleaned_data, cnt_final_val, end_contx.pk, cnt_code="Egg Count")
         self.assertEqual(self.grp.count_fish_in_group(), cnt_final_val)
+
+
+
+@tag("Utils")
+class TestCollGetter(CommonTest):
+    fixtures = ["initial_data.json"]
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+
+    def test_ints_found(self):
+        coll_id = utils.coll_getter("FP")
+        self.assertIsNotNone(coll_id)
+
+    def test_name_found(self):
+        coll_id = utils.coll_getter("Fall Parr")
+        self.assertIsNotNone(coll_id)
+
+    def test_WP_found(self):
+        # WP is redundent case, appears in both Wild Parr and wild pre smolt
+        coll_id = utils.coll_getter("WP")
+        self.assertEqual(coll_id.name, "Wild Parr (WP)", coll_id.name)

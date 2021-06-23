@@ -196,6 +196,15 @@ def val_unit_splitter(full_str):
     return val, unit_str.strip()
 
 
+def coll_getter(coll_str):
+    coll_str = str(coll_str)
+    test_inits = "(" + coll_str.strip() + ")"
+    coll_id = models.Collection.objects.filter(name__icontains=test_inits).first()
+    if not coll_id:
+        coll_id = models.Collection.objects.filter(name__icontains=coll_str).get()
+    return coll_id
+
+
 def daily_dev(degree_day):
     dev = 100 / math.exp(DEVELOPMENT_ALPHA * math.exp(DEVELOPMENT_BETA * degree_day))
     return dev
