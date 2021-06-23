@@ -34,6 +34,10 @@ class GenericIndvParser(DataParser):
     envelope_anidc_id = None
     ani_health_anidc_id = None
 
+    def load_data(self):
+        self.mandatory_keys.extend([self.pit_key])
+        super(GenericIndvParser, self).load_data()
+
     def data_preper(self):
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
         self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
@@ -143,6 +147,10 @@ class GenericGrpParser(DataParser):
     envelope_anidc_id = None
     ani_health_anidc_id = None
     anidc_ufid_id = None
+
+    def load_data(self):
+        self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.group_key, self.samp_key])
+        super(GenericGrpParser, self).load_data()
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -259,7 +267,7 @@ class GenericGrpParser(DataParser):
 
             if utils.nan_to_none(row.get(self.vial_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vial_key],
-                                                  self.vial_anidc_id.pk)
+                                                      self.vial_anidc_id.pk)
             if utils.nan_to_none(row.get(self.precocity_key)):
                 if utils.y_n_to_bool(row[self.precocity_key]):
                     self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, "Precocity",

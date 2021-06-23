@@ -38,6 +38,10 @@ class TreatmentParser(DataParser):
     tank_data_dict = {}
     eggroom_data_dict = {}
 
+    def load_data(self):
+        self.mandatory_keys.extend([self.tank_key, self.treatment_key])
+        super(TreatmentParser, self).load_data()
+
     def data_reader(self):
         self.tank_data = read_excel(self.cleaned_data["data_csv"], header=self.header, engine='openpyxl',
                                     converters=self.converters, sheet_name=self.tank_sheet_name)

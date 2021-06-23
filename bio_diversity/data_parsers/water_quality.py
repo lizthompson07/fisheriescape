@@ -27,6 +27,10 @@ class WaterQualityParser(DataParser):
     disn_envc_id = None
     ws_envc_id = None
 
+    def load_data(self):
+        self.mandatory_keys.extend([self.tank_key, self.crew_key])
+        super(WaterQualityParser, self).load_data()
+
     def data_preper(self):
         self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
         self.oxlvl_envc_id = models.EnvCode.objects.filter(name="Oxygen Level").get()

@@ -42,7 +42,7 @@ class DataParser:
     month_key = "Month"
     day_key = "Day"
 
-    mandatory_keys = [year_key, month_key, day_key]
+    mandatory_keys = []
     header = 1
     converters = {year_key: str, month_key: str, day_key: str}
     sheet_name = 0
@@ -52,6 +52,7 @@ class DataParser:
      for each specific parser."""
     def __init__(self, cleaned_data, autorun=True):
         self.cleaned_data = cleaned_data
+        self.mandatory_keys = [self.year_key, self.month_key, self.day_key]
         if autorun:
             self.load_data()
             self.prep_data()

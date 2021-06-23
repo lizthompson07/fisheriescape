@@ -48,6 +48,10 @@ class DistributionParser(DataParser):
     converters = {tank_key: str, trof_key: str, 'Year': str, 'Month': str, 'Day': str}
     sheet_name = "Groups"
 
+    def load_data(self):
+        self.mandatory_keys.extend([self.stok_key, self.year_coll_key, self.prog_key, self.num_key])
+        super(DistributionParser, self).load_data()
+
     def data_preper(self):
         self.temp_envc_id = models.EnvCode.objects.filter(name="Temperature").get()
         self.truck_locdc_id = models.LocationDetCode.objects.filter(name="Truck").get()

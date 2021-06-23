@@ -28,6 +28,10 @@ class EDInitParser(DataParser):
     sheet_name = "Init"
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
 
+    def load_data(self):
+        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.tray_key, self.cross_key, self.crew_key])
+        super(EDInitParser, self).load_data()
+
     def data_preper(self):
         cleaned_data = self.cleaned_data
 
@@ -86,6 +90,10 @@ class EDPickParser(DataParser):
     header = 2
     sheet_name = "Picking"
     converters = {trof_key: str, tray_key: str, cross_key: str, 'Year': str, 'Month': str, 'Day': str}
+
+    def load_data(self):
+        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.crew_key, self.cross_key, self.tray_key])
+        super(EDPickParser, self).load_data()
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -189,6 +197,11 @@ class EDHUParser(DataParser):
     header = 2
     sheet_name = "Transfer"
     converters = {trof_key: str, cross_key: str, tray_key: str, cont_key: str, 'Year': str, 'Month': str, 'Day': str}
+
+    def load_data(self):
+        self.mandatory_keys.extend([self.stock_key, self.trof_key, self.crew_key, self.cross_key, self.tray_key,
+                                    self.prog_key, self.cnt_key, self.cont_key])
+        super(EDHUParser, self).load_data()
 
     def data_preper(self):
         cleaned_data = self.cleaned_data

@@ -42,10 +42,11 @@ class ElectrofishingParser(DataParser):
     locc_id = None
     river_dict = {}
 
-    def __init__(self, *args, **kwargs):
-        super(ElectrofishingParser, self).__init__(*args, **kwargs)
+    def load_data(self):
         self.mandatory_keys.extend([self.rive_key, self.group_key, self.coll_key, self.tank_key, self.crew_key,
                                     self.fish_caught_key, self.fish_obs_key])
+        super(ElectrofishingParser, self).load_data()
+
 
 
     def data_preper(self):
@@ -261,10 +262,10 @@ class SalmonLadderParser(DataParser):
 
     loc = None
     
-    def __init__(self, *args, **kwargs):
+    def load_data(self):
         self.mandatory_keys.extend([self.site_key, self.wr_key, self.pit_key, self.tank_key, self.crew_key,
                                     self.coll_key])
-        super(SalmonLadderParser, self).__init__(*args, **kwargs)
+        super(SalmonLadderParser, self).load_data()
         
     def data_preper(self):
         cleaned_data = self.cleaned_data

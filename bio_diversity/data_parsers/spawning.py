@@ -47,6 +47,11 @@ class SpawningParser(DataParser):
 
     sex_dict = calculation_constants.sex_dict
 
+    def load_data(self):
+        self.mandatory_keys.extend([self.pit_key_f, self.pit_key_m, self.prio_key_f, self.prio_key_m, self.cross_key,
+                                    self.prio_key_pair, self.choice_key, self.egg_est_key])
+        super(SpawningParser, self).load_data()
+
     def data_preper(self):
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
         self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
