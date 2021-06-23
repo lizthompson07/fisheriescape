@@ -199,9 +199,20 @@ def val_unit_splitter(full_str):
 def coll_getter(coll_str):
     coll_str = str(coll_str)
     test_inits = "(" + coll_str.strip() + ")"
-    coll_id = models.Collection.objects.filter(name__icontains=test_inits).first()
-    if not coll_id:
-        coll_id = models.Collection.objects.filter(name__icontains=coll_str).get()
+    coll_qs = models.Collection.objects.filter(name__icontains=test_inits)
+    coll_id = None
+    if len(coll_qs) == 1:
+        coll_id = coll_qs.get()
+    elif len(coll_qs) > 1:
+        err_str = ", ".join([coll.name for coll in coll_qs])
+        raise Exception("Multiple collections matched to input collection({}): {}".format(coll_str, err_str))
+    else:
+        coll_qs = models.Collection.objects.filter(name__icontains=coll_str)
+        if len(coll_qs) == 1:
+            coll_id = coll_qs.get()
+        elif len(coll_qs) > 1:
+            err_str = ", ".join([coll.name for coll in coll_qs])
+            raise Exception("Multiple collections matched to input collection given({}): {}".format(coll_str, err_str))
     return coll_id
 
 
