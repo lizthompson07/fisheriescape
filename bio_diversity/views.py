@@ -1093,6 +1093,11 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         if evnt_code == "Electrofishing" or evnt_code == "Bypass Collection" or evnt_code == "Smolt Wheel Collection":
             context["coll_btn"] = True
 
+        if evnt_code == "Spawning":
+            context["calculated_properties"] = self.object.fecu_dict()
+
+
+
         context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf",
                                       "prot"])
 

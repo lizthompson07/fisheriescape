@@ -692,6 +692,21 @@ class Event(BioTimeModel):
         ]
         ordering = ['-start_datetime']
 
+    def fecu_dict(self):
+        fecu_dict = {}
+        stok_coll_set = Individual.objects.filter(animal_details__evnt_id=self).values("stok_id", "coll_id",
+                                                                                       "stok_id__name",
+                                                                                       "coll_id__name").distinct()
+        for stok_coll in stok_coll_set:
+            key = "Alpha, Beta for {}-{}".format(stok_coll["stok_id__name"], stok_coll["coll_id__name"])
+            fecu_id = Fecundity.objects.filter(stok_id_id=stok_coll["stok_id"], coll_id_id=stok_coll["coll_id"]).first()
+            value = ""
+            if fecu_id:
+                value = "{}, {}".format(fecu_id.alpha, fecu_id.beta)
+            fecu_dict[key] = value
+
+        return fecu_dict
+
 
 @receiver(post_save, sender=Event)
 def my_handler(sender, instance, **kwargs):
