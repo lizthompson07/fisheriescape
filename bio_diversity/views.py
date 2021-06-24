@@ -3143,7 +3143,12 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}")
         elif report == 3:
             adsc_pk = int(form.cleaned_data["adsc_id"].pk)
-            return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}")
+            if form.cleaned_data["stok_id"]:
+                stok_pk = int(form.cleaned_data["stok_id"].pk)
+                return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}" + f"&stok_pk={stok_pk}")
+            else:
+                return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}")
+
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("bio_diversity:reports"))
@@ -3190,9 +3195,13 @@ def stock_code_report(request):
 def detail_report(request):
     adsc_pk = request.GET.get("adsc_pk")
     adsc_id = models.AniDetSubjCode.objects.filter(pk=adsc_pk).get()
+    stok_pk = request.GET.get("stok_pk")
+    stok_id = None
+    if stok_pk:
+        stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
     file_url = None
     if adsc_id:
-        file_url = reports.generate_detail_report(adsc_id)
+        file_url = reports.generate_detail_report(adsc_id, stok_id=stok_id)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
