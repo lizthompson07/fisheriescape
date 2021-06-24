@@ -296,7 +296,7 @@ class SalmonLadderParser(DataParser):
         indv_id = models.Individual.objects.filter(pit_tag=row[self.pit_key]).first()
         if not indv_id:
             year, coll = utils.year_coll_splitter(row[self.coll_key])
-            coll_id = utils.coll_getter(row[self.coll_key])
+            coll_id = utils.coll_getter(coll)
             stok_id = models.StockCode.objects.filter(name__iexact=relc_id.rive_id.name).get()
             indv_id = models.Individual(spec_id=self.salmon_id,
                                         stok_id=stok_id,

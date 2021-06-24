@@ -221,6 +221,9 @@ def coll_getter(coll_str):
         elif len(coll_qs) > 1:
             err_str = ", ".join([coll.name for coll in coll_qs])
             raise Exception("Multiple collections matched to input collection given({}): {}".format(coll_str, err_str))
+        else:
+            raise Exception("No collection in database matching: {}".format(coll_str))
+
     return coll_id
 
 
