@@ -73,6 +73,9 @@ class SpawningParser(DataParser):
                                                                                      row[self.pit_key_m])
             return self.log_data, False
 
+        if not utils.nan_to_none(row[self.choice_key]):
+            raise Exception("Choice column cannot be empty. Set Fecundity column to zero to indicate Duds.")
+
         row_date = utils.get_row_date(row)
         anix_female, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_female.pk)
         self.row_entered += anix_entered
@@ -132,7 +135,7 @@ class SpawningParser(DataParser):
         sire = models.Sire(prio_id=models.PriorityCode.objects.filter(name__iexact=prio_dict[row[self.prio_key_m]]).get(),
                            pair_id=pair,
                            indv_id=indv_male,
-                           choice=row[self.choice_key],
+                           choice=[self.choice_key],
                            comments=utils.nan_to_none(row[self.comment_key_m]),
                            created_by=cleaned_data["created_by"],
                            created_date=cleaned_data["created_date"],
