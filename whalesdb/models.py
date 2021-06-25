@@ -331,6 +331,21 @@ class SteStationEvent(models.Model):
     def __str__(self):
         return f"{self.dep} : {self.set_type.tname} - {self.ste_date}"
 
+
+@receiver(models.signals.post_save, sender=SteStationEvent)
+def auto_deploy_eqp_on_save(sender, instance, **kwargs):
+    eqp_list = [eqp.eqp for eqp in instance.dep.attachments.all()]
+
+    # It may never be an issue, but I think if an old deployment gets a station deployment event
+    # this may mark a piece of equipment as deployed even though it's been recovered and attached to
+    # some other deployment. I'm not going to worry about this now, but likely there should be a
+    # check to see if the equipment doesn't have some more recent attachment before marking it
+    # as deployed.
+    for eqp in eqp_list:
+        eqp.eqp_deployed = (instance.set_type.pk == 1)
+        eqp.save()
+
+
 class StnStation(models.Model):
     stn_name = models.CharField(max_length=100, verbose_name=_("Name"))
     stn_code = models.CharField(max_length=6, verbose_name=_("Code"))
