@@ -151,7 +151,7 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     return target_url
 
 
-def generate_detail_report(adsc_id):
+def generate_detail_report(adsc_id, stok_id=None):
     # report is given an animal detail subjective code (skinny/precocious) and returns
     # all fish with that detail
     # group and that detail count
@@ -164,7 +164,10 @@ def generate_detail_report(adsc_id):
 
     template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
                                       "detail_report_template.xlsx")
-    indvd_set = models.IndividualDet.objects.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False).\
+    indvd_set = models.IndividualDet.objects.all()
+    if stok_id:
+        indvd_set = indvd_set.filter(anix_id__indv_id__stok_id=stok_id)
+    indvd_set = indvd_set.filter(adsc_id=adsc_id, anix_id__indv_id__isnull=False).\
         select_related("anix_id__indv_id", "anix_id__indv_id__stok_id", "anix_id__indv_id__coll_id",)
     indv_list = list(dict.fromkeys([indvd.anix_id.indv_id for indvd in indvd_set]))
     sampd_set = models.SampleDet.objects.filter(adsc_id=adsc_id, samp_id__anix_id__grp_id__isnull=False).\

@@ -10,7 +10,8 @@ sex_dict = {"M": "Male",
 
 # Pairing priority options
 prio_dict = {"H": "High",
-             "M": "Normal",
-             "P": "Low"}
+             "M": "Medium",
+             "L": "Low",
+             "P": "Pairwise"}
 
 sfa_nums = [15, 16, 17, 18, 19, 20, 21, 22, 23]
