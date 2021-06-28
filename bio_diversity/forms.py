@@ -1022,15 +1022,14 @@ class RelcForm(CreatePrams):
 
 
 class ReportForm(forms.Form):
-    class Meta:
-        model = models.ReleaseSiteCode
-        exclude = []
 
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Facility Tanks Report (xlsx)"),
         (2, "River Code Report Report (xlsx)"),
         (3, "Details Report (xlsx)"),
+        (4, "Individual Report (xlsx)"),
+        (5, "Group Report (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     facic_id = forms.ModelChoiceField(required=False,
@@ -1042,6 +1041,12 @@ class ReportForm(forms.Form):
     adsc_id = forms.ModelChoiceField(required=False,
                                      queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),
                                      label=_("Search Detail"))
+    indv_id = forms.ModelChoiceField(required=False,
+                                     queryset=models.Individual.objects.filter(pit_tag__isnull=False).select_related("stok_id", "coll_id"),
+                                     label=_("Individual"))
+    grp_id = forms.ModelChoiceField(required=False,
+                                    queryset=models.Group.objects.all().select_related("stok_id", "coll_id"),
+                                    label=_("Group"))
     on_date = forms.DateField(required=False, label=_("Report Date"))
 
     def __init__(self, *args, **kwargs):

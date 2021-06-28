@@ -1255,7 +1255,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
-        context["calculated_properties"]["Current Tank"] = self.object.current_cont()
+        context["calculated_properties"]["Current Tank"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()
         return context
@@ -3129,6 +3129,10 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
 
         return context
 
+    def get_initial(self):
+        self.get_form_class().base_fields["indv_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["grp_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
 
@@ -3148,6 +3152,12 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}" + f"&stok_pk={stok_pk}")
             else:
                 return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}")
+        elif report == 4:
+            indv_pk = int(form.cleaned_data["indv_id"].pk)
+            return HttpResponseRedirect(reverse("bio_diversity:individual_report_file") + f"?indv_pk={indv_pk}")
+        elif report == 5:
+            grp_pk = int(form.cleaned_data["grp_id"].pk)
+            return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -3236,7 +3246,7 @@ def site_report_file(request):
 
 
 @login_required()
-def indvidual_report_file(request):
+def individual_report_file(request):
     indv_pk = request.GET.get("indv_pk")
     indv_id = models.Individual.objects.filter(pk=indv_pk).get()
     if indv_id:
@@ -3245,6 +3255,20 @@ def indvidual_report_file(request):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
                 response['Content-Disposition'] = f'inline; filename="individual_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+                return response
+    raise Http404
+
+
+@login_required()
+def grp_report_file(request):
+    grp_pk = request.GET.get("grp_pk")
+    grp_id = models.Group.objects.filter(pk=grp_pk).get()
+    if grp_id:
+        file_url = reports.generate_grp_report(grp_id)
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="group_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
                 return response
     raise Http404
 
