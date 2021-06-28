@@ -251,6 +251,11 @@ class BioCont(BioLookup):
             cont_feed = []
         return cont_feed
 
+    def cont_treatments(self, start_date=datetime.now().replace(tzinfo=pytz.UTC), end_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        filter_arg = "contx_id__{}_id".format(self.key)
+        envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
+        return envt_qs
+
 
 class AnimalDetCode(BioLookup):
     # anidc tag
@@ -630,7 +635,7 @@ class EnvTreatCode(BioLookup):
     manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"), db_column="MANUFACTURER")
 
 
-class EnvTreatment(BioModel):
+class EnvTreatment(BioTimeModel):
     # envt tag
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, related_name="env_treatment",
                                  verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
@@ -651,7 +656,7 @@ class EnvTreatment(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'envtc_id'], name='Environment_Treatment_Uniqueness')
+            models.UniqueConstraint(fields=['contx_id', 'envtc_id', 'start_datetime'], name='Environment_Treatment_Uniqueness')
         ]
 
     @property

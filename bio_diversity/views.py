@@ -797,7 +797,7 @@ class CommonContDetails(CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
 
         envt_set = models.EnvTreatment.objects.filter(**{arg_name: cont_pk}).select_related("envtc_id", "unit_id")
-        envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str|Concentration", "duration", ]
+        envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str|Concentration", "start_datetime", "duration", ]
         obj_mixin = mixins.EnvtMixin
         context["context_dict"]["envt"] = {"div_title": "Container Treatments",
                                            "sub_model_key": obj_mixin.key,
@@ -1227,6 +1227,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["cont_evnt_field_list"] = [
             "Event",
             "Date",
+            "Direction",
             "Container",
         ]
 

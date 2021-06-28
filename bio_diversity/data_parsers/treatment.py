@@ -129,6 +129,7 @@ class TreatmentParser(DataParser):
                                    amt=amt,
                                    unit_id=unit,
                                    duration=60 * duration,
+                                   start_datetime=row_datetime,
                                    concentration=row_concentration.quantize(Decimal("0.000001")),
                                    created_by=cleaned_data["created_by"],
                                    created_date=cleaned_data["created_date"],

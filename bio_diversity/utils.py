@@ -270,7 +270,7 @@ def get_cont_evnt(contx_tuple):
     output_list = [contx.evnt_id.evntc_id.__str__(), contx.evnt_id.start_date, in_out_dict[contx_tuple[1]]]
     for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
         if cont:
-            output_list.append("{}".format(cont.__str__()))
+            output_list.append(cont)
             break
     return output_list
 
@@ -394,10 +394,14 @@ def get_relc_from_point(shapely_geom):
     return None
 
 
-def get_row_date(row):
+def get_row_date(row, get_time=False):
     try:
-        row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
-                                         "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+        if get_time:
+            row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"] + "-" + row["Time"],
+                                             "%Y-%b-%d-%H:%M").replace(tzinfo=pytz.UTC)
+        else:
+            row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
+                                            "%Y-%b-%d").replace(tzinfo=pytz.UTC)
     except Exception as err:
         raise Exception("\nFailed to parse date from row, make sure column headers are : \"Year\", \"Month\", \"Day\" "
                         "and the format used is: 1999-Jan-1 \n \n {}".format(err))

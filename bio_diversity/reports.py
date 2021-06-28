@@ -52,6 +52,40 @@ class ExcelReport:
         self.wb.save(self.target_file_path)
 
 
+class ContReport(ExcelReport):
+
+    def cont_treat_writer(self, ws, cont_evnt_list, row_count, treat_row_count):
+        treat_list = []
+        cont = None
+        start_date = None
+        for cont_evnt in cont_evnt_list:
+            # cont_evnt = [evntc, date, direction, container]
+            ws['A' + str(row_count)].value = cont_evnt[1]
+            ws['B' + str(row_count)].value = cont_evnt[0]
+            ws['C' + str(row_count)].value = cont_evnt[3].name
+            ws['D' + str(row_count)].value = cont_evnt[2]
+            row_count += 1
+            if cont_evnt[2] == "Destination":
+                start_date = cont_evnt[1]
+                cont = cont_evnt[3]
+            if cont_evnt[2] == "Origin":
+                end_date = cont_evnt[1]
+                treat_list.extend(cont_evnt[3].cont_treatments(start_date, end_date))
+                start_date = None
+        if start_date:
+            end_date = utils.naive_to_aware(datetime.now())
+            treat_list.extend(cont.cont_treatments(start_date, end_date))
+
+        for treat in treat_list:
+            ws['G' + str(treat_row_count)].value = treat.envtc_id.name
+            ws['H' + str(treat_row_count)].value = treat.startdate
+            ws['I' + str(treat_row_count)].value = treat.duration
+            ws['J' + str(treat_row_count)].value = treat.concentration
+            ws['K' + str(treat_row_count)].value = "{} {}".format(treat.amt, treat.unit_id.name)
+            treat_row_count += 1
+        return row_count, treat_row_count
+
+
 def generate_facility_tank_report(facic_id):
     report = ExcelReport()
     report.load_wb("facility_tank_template.xlsx")
@@ -374,7 +408,7 @@ def generate_individual_report(indv_id):
     for cont_evnt in cont_evnt_list:
         ws_cont['A' + str(row_count)].value = cont_evnt[1]
         ws_cont['B' + str(row_count)].value = cont_evnt[0]
-        ws_cont['C' + str(row_count)].value = cont_evnt[3]
+        ws_cont['C' + str(row_count)].value = cont_evnt[3].name
         ws_cont['D' + str(row_count)].value = cont_evnt[2]
         row_count += 1
 
@@ -392,7 +426,7 @@ def generate_individual_report(indv_id):
         for cont_evnt in cont_evnt_list:
             ws_cont['A' + str(row_count)].value = cont_evnt[1]
             ws_cont['B' + str(row_count)].value = cont_evnt[0]
-            ws_cont['C' + str(row_count)].value = cont_evnt[3]
+            ws_cont['C' + str(row_count)].value = cont_evnt[3].name
             ws_cont['D' + str(row_count)].value = cont_evnt[2]
             row_count += 1
 
@@ -428,7 +462,7 @@ def generate_individual_report(indv_id):
 
 def generate_grp_report(grp_id):
 
-    report = ExcelReport()
+    report = ContReport()
     report.load_wb("group_report_template.xlsx")
 
     ws_evnt = report.get_sheet('Event History')
@@ -493,12 +527,7 @@ def generate_grp_report(grp_id):
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
     cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
     row_count = 5
-    for cont_evnt in cont_evnt_list:
-        ws_cont['A' + str(row_count)].value = cont_evnt[1]
-        ws_cont['B' + str(row_count)].value = cont_evnt[0]
-        ws_cont['C' + str(row_count)].value = cont_evnt[3]
-        ws_cont['D' + str(row_count)].value = cont_evnt[2]
-        row_count += 1
+    row_count, treat_row_count = report.cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -511,12 +540,7 @@ def generate_grp_report(grp_id):
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
-        for cont_evnt in cont_evnt_list:
-            ws_cont['A' + str(row_count)].value = cont_evnt[1]
-            ws_cont['B' + str(row_count)].value = cont_evnt[0]
-            ws_cont['C' + str(row_count)].value = cont_evnt[3]
-            ws_cont['D' + str(row_count)].value = cont_evnt[2]
-            row_count += 1
+        report.cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)
 
     report.save_wb()
 
