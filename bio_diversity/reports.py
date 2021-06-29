@@ -309,10 +309,13 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
     # locations with no sites
     no_sites_list = [location for location in locations_list if not location.relc_id]
     locations_list = [location for location in locations_list if location.relc_id]
+    no_locs_list = []
     for site in sites_list:
         site_name = site.name
         rive_name = site.rive_id.name
         site_locations = [location for location in locations_list if location.relc_id.pk == site.pk]
+        if not site_locations:
+            no_locs_list.append(site)
 
         for site_location in site_locations:
             row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
@@ -323,6 +326,12 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
         else:
             rive_name = None
         row_count = write_location_to_sheet(ws, location, row_count, rive_name, None)
+
+    for site in no_locs_list:
+        ws['A' + str(row_count)].value = site.rive_id.name
+        ws['B' + str(row_count)].value = site.name
+        ws['D' + str(row_count)].value = "No Events at location"
+        row_count += 1
 
     report.save_wb()
 
