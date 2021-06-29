@@ -53,14 +53,10 @@ class DepFactory(factory.django.DjangoModelFactory):
 class EcaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EcaCalibrationEvent
-        exclude = ("emm",)
-
-    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
-                             eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
 
     eca_date = factory.LazyAttribute(lambda o: faker.date())
     eca_attachment = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
-    eca_hydrophone = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory", emm=emm)
+    eca_hydrophone = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
 
     @staticmethod
     def get_valid_data():
@@ -85,7 +81,11 @@ class EccFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-        eca = EcaFactory()
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        emm = EmmFactory(eqt=eqt)
+        eca_hydrophone = EqpFactory(emm=emm)
+
+        eca = EcaFactory(eca_hydrophone=eca_hydrophone)
 
         valid_data = {
             'eca': eca.pk,
@@ -281,13 +281,9 @@ class EqrFactory(factory.django.DjangoModelFactory):
 class EtrFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EtrTechnicalRepairEvent
-        exclude = ('emm',)
-
-    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
-                             eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
 
     eqp = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
-    hyd = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory", emm=emm)
+    hyd = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EqpFactory")
 
     @staticmethod
     def get_valid_data():
@@ -338,13 +334,15 @@ class PrjFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttribute(lambda o: faker.name())
     description_en = factory.LazyAttribute(lambda o: faker.text())
     prj_url = factory.LazyAttribute(lambda o: faker.url())
+    lead = factory.LazyAttribute(lambda o: faker.name())
 
     @staticmethod
     def get_valid_data():
         valid_data = {
             "name": faker.name(),
             "description_en": faker.text(),
-            "prj_url": faker.url()
+            "prj_url": faker.url(),
+            "lead": faker.name()
         }
 
         return valid_data
