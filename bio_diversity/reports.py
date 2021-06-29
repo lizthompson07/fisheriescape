@@ -185,6 +185,61 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     return report.target_url
 
 
+def generate_morts_report(facic_id=None, stok_id=None, year=None, coll=None):
+    # report is given some filter criteria, returns all dead fish details.
+    report = ExcelReport()
+    report.load_wb("stock_code_report_template.xlsx")
+
+    indv_qs = models.Individual.objects.all()
+    if stok_id:
+        indv_qs = indv_qs.filter(stok_id=stok_id)
+
+    grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
+
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws_indv = report.copy_template("Individuals")
+    ws_grp = report.copy_template("Groups")
+
+    ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
+    ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in indv_qs:
+        ws_indv['A' + str(row_count)].value = item.pit_tag
+        ws_indv['B' + str(row_count)].value = item.indv_year
+        ws_indv['C' + str(row_count)].value = item.coll_id.name
+        ws_indv['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
+
+        item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
+                                                         adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
+        indvd_str = ""
+        for indvd in item_indvd:
+            indvd_str += "{}, ".format(indvd.adsc_id.name)
+        ws_indv['E' + str(row_count)].value = indvd_str
+
+        item_sexd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Gender",
+                                                         anix_id__indv_id=item).select_related("adsc_id").first()
+        if item_sexd:
+            ws_indv['F' + str(row_count)].value = str(item_sexd.det_val)
+        ws_indv['G' + str(row_count)].value = str(item.indv_valid)
+
+        row_count += 1
+
+    row_count = 3
+    for item in grp_qs:
+        ws_grp['B' + str(row_count)].value = item.grp_year
+        ws_grp['C' + str(row_count)].value = item.coll_id.name
+        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
+        ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
+
+        row_count += 1
+
+    report.save_wb()
+
+    return report.target_url
+
+
 def generate_detail_report(adsc_id, stok_id=None):
     # report is given an animal detail subjective code (skinny/precocious) and returns
     # all fish with that detail
@@ -379,7 +434,7 @@ def generate_individual_report(indv_id):
         ws_evnt['A' + str(row_count)].value = evnt.start_date
         ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
         ws_evnt['C' + str(row_count)].value = ""
-        ws_evnt['D' + str(row_count)].value = indv_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+        ws_evnt['D' + str(row_count)].value = indv_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
         row_count += 1
 
     for grp_tuple in prnt_grp_set:
@@ -433,7 +488,7 @@ def generate_individual_report(indv_id):
         ws_dets['B' + str(row_count)].value = indvd.anidc_id.name
         ws_dets['C' + str(row_count)].value = adsc_name
         ws_dets['D' + str(row_count)].value = indvd.det_val
-        ws_dets['E' + str(row_count)].value = indv_id.current_cont(indvd.detail_date)[0].name
+        ws_dets['E' + str(row_count)].value = indv_id.current_cont(indvd.detail_date, get_string=True)
         row_count += 1
 
     indvt_set = models.IndTreatment.objects.filter(anix_id__indv_id=indv_id).distinct().select_related("indvtc_id",
@@ -518,7 +573,7 @@ def generate_grp_report(grp_id):
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
     cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
     row_count = 5
-    row_count, treat_row_count = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
+    row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -531,7 +586,7 @@ def generate_grp_report(grp_id):
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
-        cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)
+        treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
 
     report.save_wb()
 
