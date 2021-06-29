@@ -113,7 +113,7 @@ class GenericIndvParser(DataParser):
         for adsc_id in self.cleaned_data["adsc_id"]:
             if utils.y_n_to_bool(row.get(adsc_id.name)):
                 self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, adsc_id.name,
-                                                      self.ani_health_anidc_id.pk, adsc_str=adsc_id.name)
+                                                      adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
 
 
 class GenericGrpParser(DataParser):
@@ -298,7 +298,7 @@ class GenericGrpParser(DataParser):
             for adsc_id in cleaned_data["adsc_id"]:
                 if utils.y_n_to_bool(row.get(adsc_id.name)):
                     self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, adsc_id.name,
-                                                          self.ani_health_anidc_id.pk, adsc_str=adsc_id.name)
+                                                          adsc_id.anidc_id.pk, adsc_str=adsc_id.name)
 
         else:
             self.success = False

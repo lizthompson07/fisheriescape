@@ -239,6 +239,7 @@ class SalmonLadderParser(DataParser):
     scale_key = "Scale Sample"
     vial_key = "Vial"
     mort_key = "Mort"
+    aquaculture_key = "Aquaculture Site"
     comment_key = "Comments"
     crew_key = "Crew"
 
@@ -251,6 +252,7 @@ class SalmonLadderParser(DataParser):
     vial_anidc_id = None
     envelope_anidc_id = None
     ani_health_anidc_id = None
+    aquac_anidc_id = None
     locc_id = None
     salmon_id = None
     wr_adsc_id = None
@@ -276,6 +278,7 @@ class SalmonLadderParser(DataParser):
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
         self.envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
         self.wr_adsc_id = models.AniDetSubjCode.objects.filter(name="Wild Return").get()
+        self.aquac_anidc_id = models.AnimalDetCode.objects.filter(name="Aquaculture Site").get()
         self.locc_id = models.LocCode.objects.filter(name="Salmon Ladder Site").get()
         self.salmon_id = models.SpeciesCode.objects.filter(name="Salmon").get()
 
@@ -371,6 +374,10 @@ class SalmonLadderParser(DataParser):
             if utils.y_n_to_bool(row[self.wr_key]):
                 self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
                                                       self.ani_health_anidc_id.pk, adsc_str=self.wr_adsc_id.name)
+
+        if utils.nan_to_none(row.get(self.aquaculture_key)):
+            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,
+                                                  self.aquac_anidc_id.pk, adsc_str=row.get(self.aquaculture_key))
 
         if utils.nan_to_none(row[self.tank_key]):
             self.row_entered += utils.enter_contx(self.tank_dict[row[self.tank_key]], cleaned_data, True, indv_id.pk)

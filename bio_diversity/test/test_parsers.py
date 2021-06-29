@@ -47,6 +47,7 @@ class TestMactaquacParsers(CommonTest):
             "facic_id": mactaquac_facic,
             "evnt_id": self.electrofishing_evnt,
             "evntc_id": self.electrofishing_evntc,
+            "adsc_id": [],
             "data_csv": self.electrofishing_test_data,
             "created_by": self.electrofishing_evnt.created_by,
             "created_date": self.electrofishing_evnt.created_date,

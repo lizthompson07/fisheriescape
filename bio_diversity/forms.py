@@ -290,8 +290,8 @@ class DataForm(CreatePrams):
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
     pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
-    adsc_id = forms.ModelMultipleChoiceField(queryset=models.AniDetSubjCode.objects.
-                                             filter(anidc_id__name="Animal Health"), label="Additional Detail Columns")
+    adsc_id = forms.ModelMultipleChoiceField(queryset=models.AniDetSubjCode.objects.all(),
+                                             label="Additional Detail Columns")
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request

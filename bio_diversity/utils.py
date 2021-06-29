@@ -193,8 +193,13 @@ def team_list_splitter(team_str, valid_only=True):
 
 
 def year_coll_splitter(full_str):
-    coll = full_str.lstrip(' 0123456789')
-    year = int(full_str[:len(full_str) - len(coll)])
+    try:
+        coll = full_str.lstrip(' 0123456789')
+        year = int(full_str[:len(full_str) - len(coll)])
+    except ValueError:
+        raise Exception("Collection column must be formated: YYYY AAA, where AAA is the river code.  Collction entered:"
+                        " {}".format(full_str))
+
     return year, coll.strip()
 
 
