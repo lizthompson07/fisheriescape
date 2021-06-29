@@ -5,6 +5,8 @@ from whalesdb.test.common_views import CommonDetailsTest
 from whalesdb.test import WhalesdbFactoryFloor as Factory
 from shared_models.test import SharedModelsFactoryFloor as SharedFactory
 
+from whalesdb import models
+
 
 @tag('cru', 'detail')
 class TestCruDetails(CommonDetailsTest, TestCase):
@@ -88,8 +90,11 @@ class TestEcaDetails(CommonDetailsTest, TestCase):
 
     def setUp(self):
         super().setUp()
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        emm = Factory.EmmFactory(eqt=eqt)
+        eca_hydrophone = Factory.EqpFactory(emm=emm)
 
-        self.eca = Factory.EcaFactory()
+        self.eca = Factory.EcaFactory(eca_hydrophone=eca_hydrophone)
 
         self.test_url = reverse_lazy('whalesdb:details_eca', args=(self.eca.pk,))
         self.test_expected_template = 'whalesdb/details_eca.html'
@@ -152,7 +157,11 @@ class TestEtrDetails(CommonDetailsTest, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.etr = Factory.EtrFactory()
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        emm = Factory.EmmFactory(eqt=eqt)
+        eca_hydrophone = Factory.EqpFactory(emm=emm)
+
+        self.etr = Factory.EtrFactory(hyd=eca_hydrophone)
 
         self.test_url = reverse_lazy('whalesdb:details_etr', args=(self.etr.pk,))
         self.test_expected_template = 'whalesdb/whales_details.html'
