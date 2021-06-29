@@ -230,11 +230,14 @@ class AdultCollectionParser(DataParser):
     site_key = "Site"
     wr_key = "Wild Return"
     pit_key = "PIT Tag"
+    new_pit_key = "Newly Applied"
     grp_key = "Group"
     coll_key = "Collection"
     tank_key = "End Tank"
     len_key = "Length (cm)"
     len_key_mm = "Length (mm)"
+    weight_key = "Weight (g)"
+    weight_key_kg = "Weight (kg)"
     sex_key = "Sex"
     scale_key = "Scale Sample"
     vial_key = "Vial"
@@ -249,6 +252,7 @@ class AdultCollectionParser(DataParser):
     prog_grp_anidc_id = None
     sex_anidc_id = None
     len_anidc_id = None
+    weight_anidc_id = None
     vial_anidc_id = None
     envelope_anidc_id = None
     ani_health_anidc_id = None
@@ -273,6 +277,7 @@ class AdultCollectionParser(DataParser):
         self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
         self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
+        self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
         self.vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
         self.envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
@@ -350,6 +355,18 @@ class AdultCollectionParser(DataParser):
         if utils.nan_to_none(row.get(self.len_key)):
             self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, row[self.len_key],
                                                   self.len_anidc_id.pk, None)
+
+        if utils.nan_to_none(row.get(self.len_key_mm)):
+            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, 0.1 * row[self.len_key_mm],
+                                                  self.len_anidc_id.pk, None)
+
+        if utils.nan_to_none(row.get(self.weight_key_kg)):
+            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime, 1000 * row[self.weight_key_kg],
+                                                  self.weight_anidc_id.pk, None)
+
+        if utils.nan_to_none(row.get(self.weight_key)):
+            self.row_entered += utils.enter_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime, row[self.weight_key],
+                                                  self.weight_anidc_id.pk, None)
 
         if utils.nan_to_none(row.get(self.sex_key)):
             self.row_entered += utils.enter_indvd(anix_loc_indv.pk, self.cleaned_data, row_datetime,

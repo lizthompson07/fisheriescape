@@ -176,7 +176,7 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
         ws_grp['B' + str(row_count)].value = item.grp_year
         ws_grp['C' + str(row_count)].value = item.coll_id.name
         ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
-        ws_grp['E' + str(row_count)].value = item.count_fish_in_group(at_date)
+        ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
 
         row_count += 1
 
