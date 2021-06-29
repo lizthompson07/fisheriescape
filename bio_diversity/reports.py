@@ -52,38 +52,30 @@ class ExcelReport:
         self.wb.save(self.target_file_path)
 
 
-class ContReport(ExcelReport):
+def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=utils.naive_to_aware(datetime.now())):
+    treat_list = []
+    for cont_evnt in cont_evnt_list:
+        # cont_evnt = [evntc, date, direction, container]
+        ws['A' + str(row_count)].value = cont_evnt[1]
+        ws['B' + str(row_count)].value = cont_evnt[0]
+        ws['C' + str(row_count)].value = cont_evnt[3].name
+        ws['D' + str(row_count)].value = cont_evnt[2]
+        row_count += 1
+        if cont_evnt[2] == "Destination":
+            start_date = cont_evnt[1]
+            treat_list.extend(cont_evnt[3].cont_treatments(start_date, end_date))
+        if cont_evnt[2] == "Origin":
+            end_date = cont_evnt[1]
 
-    def cont_treat_writer(self, ws, cont_evnt_list, row_count, treat_row_count):
-        treat_list = []
-        cont = None
-        start_date = None
-        for cont_evnt in cont_evnt_list:
-            # cont_evnt = [evntc, date, direction, container]
-            ws['A' + str(row_count)].value = cont_evnt[1]
-            ws['B' + str(row_count)].value = cont_evnt[0]
-            ws['C' + str(row_count)].value = cont_evnt[3].name
-            ws['D' + str(row_count)].value = cont_evnt[2]
-            row_count += 1
-            if cont_evnt[2] == "Destination":
-                start_date = cont_evnt[1]
-                cont = cont_evnt[3]
-            if cont_evnt[2] == "Origin":
-                end_date = cont_evnt[1]
-                treat_list.extend(cont_evnt[3].cont_treatments(start_date, end_date))
-                start_date = None
-        if start_date:
-            end_date = utils.naive_to_aware(datetime.now())
-            treat_list.extend(cont.cont_treatments(start_date, end_date))
-
-        for treat in treat_list:
-            ws['G' + str(treat_row_count)].value = treat.envtc_id.name
-            ws['H' + str(treat_row_count)].value = treat.startdate
-            ws['I' + str(treat_row_count)].value = treat.duration
-            ws['J' + str(treat_row_count)].value = treat.concentration
-            ws['K' + str(treat_row_count)].value = "{} {}".format(treat.amt, treat.unit_id.name)
-            treat_row_count += 1
-        return row_count, treat_row_count
+    for treat in treat_list:
+        ws['G' + str(treat_row_count)].value = treat.envtc_id.name
+        ws['H' + str(treat_row_count)].value = treat.start_date
+        ws['I' + str(treat_row_count)].value = treat.cont.__str__()
+        ws['J' + str(treat_row_count)].value = treat.concentration_str
+        ws['K' + str(treat_row_count)].value = "{} {}".format(treat.amt, treat.unit_id.name)
+        ws['L' + str(treat_row_count)].value = treat.duration
+        treat_row_count += 1
+    return row_count, treat_row_count, end_date
 
 
 def generate_facility_tank_report(facic_id):
@@ -398,19 +390,14 @@ def generate_individual_report(indv_id):
             ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
             row_count += 1
 
-    #-----------------Container Sheet------------------------
+    # -----------------Container Sheet------------------------
     anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
         .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
         .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
     cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
     row_count = 5
-    for cont_evnt in cont_evnt_list:
-        ws_cont['A' + str(row_count)].value = cont_evnt[1]
-        ws_cont['B' + str(row_count)].value = cont_evnt[0]
-        ws_cont['C' + str(row_count)].value = cont_evnt[3].name
-        ws_cont['D' + str(row_count)].value = cont_evnt[2]
-        row_count += 1
+    row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -420,17 +407,12 @@ def generate_individual_report(indv_id):
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date)\
             .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
-            .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
+            .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
-        for cont_evnt in cont_evnt_list:
-            ws_cont['A' + str(row_count)].value = cont_evnt[1]
-            ws_cont['B' + str(row_count)].value = cont_evnt[0]
-            ws_cont['C' + str(row_count)].value = cont_evnt[3].name
-            ws_cont['D' + str(row_count)].value = cont_evnt[2]
-            row_count += 1
+        treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
 
-    #-----------------Details Sheet------------------------
+    # -----------------Details Sheet------------------------
     indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct().\
         order_by("anidc_id__name", "adsc_id", "-detail_date").select_related("anidc_id", "adsc_id", )
     row_count = 5
@@ -520,7 +502,7 @@ def generate_grp_report(grp_id):
             ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
             row_count += 1
 
-    #-----------------Container Sheet------------------------
+    # -----------------Container Sheet------------------------
     anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
         .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
         .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')

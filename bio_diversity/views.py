@@ -311,7 +311,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             context["title"] = "Add {} data".format(evnt_code)
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                             "master entry", "egg development"]:
+                             "master entry", "egg development", "salmon ladder collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)

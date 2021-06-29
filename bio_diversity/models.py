@@ -660,6 +660,12 @@ class EnvTreatment(BioTimeModel):
         ]
 
     @property
+    def cont(self):
+        for cont_id in [self.contx_id.cup_id, self.contx_id.draw_id, self.contx_id.tray_id, self.contx_id.tank_id, self.contx_id.trof_id, self.contx_id.heat_id]:
+            if cont_id:
+                return cont_id
+
+    @property
     def concentration_str(self):
         if self.concentration:
             return "1:{}  |  {:.3}%".format(int(decimal.Decimal(1.0)/self.concentration), decimal.Decimal(100) * self.concentration)
