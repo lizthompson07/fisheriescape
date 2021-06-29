@@ -294,7 +294,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
-                                     "Bypass Collection", "Smolt Wheel Collection", "Salmon Ladder Collection"]:
+                                     "Bypass Collection", "Smolt Wheel Collection", "Adult Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
@@ -315,7 +315,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             context["title"] = "Add {} data".format(evnt_code)
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                             "master entry", "egg development", "salmon ladder collection"]:
+                             "master entry", "egg development", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)

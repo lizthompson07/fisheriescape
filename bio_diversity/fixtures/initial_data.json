@@ -304,22 +304,6 @@
     }
 },
 {
-    "model": "bio_diversity.animaldetcode",
-    "pk": 22,
-    "fields": {
-        "name": "Aquaculture Site",
-        "nom": null,
-        "description_en": "Used to record details on fish that were at some point part of an aquaculture facility.",
-        "description_fr": "",
-        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-06-29",
-        "min_val": null,
-        "max_val": null,
-        "unit_id": null,
-        "ani_subj_flag": false
-    }
-},
-{
     "model": "bio_diversity.anidetsubjcode",
     "pk": 2,
     "fields": {
@@ -664,6 +648,19 @@
         "name": "Wild Return",
         "nom": null,
         "description_en": "Describes a fish encountered at some point after being released back into the wild.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 7
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 29,
+    "fields": {
+        "name": "Aquaculture",
+        "nom": null,
+        "description_en": "Describes a fish originating from an aquaculture facility.",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-06-16",
@@ -1659,7 +1656,7 @@
     "model": "bio_diversity.eventcode",
     "pk": 19,
     "fields": {
-        "name": "Salmon Ladder Collection",
+        "name": "Adult Collection",
         "nom": null,
         "description_en": "",
         "description_fr": "",
@@ -2127,7 +2124,7 @@
     "model": "bio_diversity.loccode",
     "pk": 10,
     "fields": {
-        "name": "Salmon Ladder Site",
+        "name": "Adult Collection Site",
         "nom": null,
         "description_en": "",
         "description_fr": "",

@@ -1040,7 +1040,8 @@ def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=Non
 
 def enter_mortality(indv, cleaned_data, mort_date):
     data_entered = False
-    mortality_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Mortality").get(),
+    mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
+    mortality_evnt = models.Event(evntc_id=mort_evntc,
                                   facic_id=cleaned_data["evnt_id"].facic_id,
                                   prog_id=cleaned_data["evnt_id"].prog_id,
                                   perc_id=cleaned_data["evnt_id"].perc_id,
@@ -1064,8 +1065,12 @@ def enter_mortality(indv, cleaned_data, mort_date):
     new_cleaned_data["evnt_id"] = mortality_evnt
     anix, anix_entered = enter_anix(new_cleaned_data, indv_pk=indv.pk)
     data_entered += anix_entered
+    for cont in indv.current_cont(at_date=mort_date):
+        data_entered += enter_contx(cont, new_cleaned_data, False, indv.pk)
+
     indv.indv_valid = False
     indv.save()
+
     return mortality_evnt, anix, data_entered
 
 

@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
-    ElectrofishingParser, SalmonLadderParser
+    ElectrofishingParser, AdultCollectionParser
 from bio_diversity.static.calculation_constants import sfa_nums
 
 from bio_diversity import models
@@ -323,9 +323,9 @@ class DataForm(CreatePrams):
                     parser = MactaquacElectrofishingParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
-            # ----------------------------SALMON LADDERCOLLECTION-----------------------------------
-            elif cleaned_data["evntc_id"].__str__() in ["Salmon Ladder Collection"]:
-                parser = SalmonLadderParser(cleaned_data)
+            # ----------------------------Adult COLLECTION-----------------------------------
+            elif cleaned_data["evntc_id"].__str__() in ["Adult Collection"]:
+                parser = AdultCollectionParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # -------------------------------TAGGING----------------------------------------
