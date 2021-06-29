@@ -110,6 +110,11 @@ class GenericIndvParser(DataParser):
                 self.log_data += "Unparsed comment on row with pit tag {}:\n {} \n\n".format(row[self.pit_key],
                                                                                              row[self.comment_key])
 
+        for adsc_id in self.cleaned_data["adsc_id"]:
+            if utils.y_n_to_bool(row.get(adsc_id.name)):
+                self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, adsc_id.name,
+                                                      self.ani_health_anidc_id.pk, adsc_str=adsc_id.name)
+
 
 class GenericGrpParser(DataParser):
     sex_dict = calculation_constants.sex_dict
@@ -289,6 +294,11 @@ class GenericGrpParser(DataParser):
                 self.row_entered += data_entered
                 if not comments_parsed:
                     self.log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row[self.comment_key])
+
+            for adsc_id in cleaned_data["adsc_id"]:
+                if utils.y_n_to_bool(row.get(adsc_id.name)):
+                    self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, adsc_id.name,
+                                                          self.ani_health_anidc_id.pk, adsc_str=adsc_id.name)
 
         else:
             self.success = False

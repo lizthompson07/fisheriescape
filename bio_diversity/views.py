@@ -274,11 +274,13 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             self.get_form_class().base_fields["data_csv"].required = True
             self.get_form_class().base_fields["trof_id"].required = False
             self.get_form_class().base_fields["pickc_id"].required = False
+            self.get_form_class().base_fields["adsc_id"].required = False
 
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
 
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
@@ -300,6 +302,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
+                self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
+                    attrs={"class": "chosen-select-contains"})
         return init
 
     def get_context_data(self, **kwargs):

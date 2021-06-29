@@ -453,7 +453,7 @@ def generate_individual_report(indv_id):
 
 def generate_grp_report(grp_id):
 
-    report = ContReport()
+    report = ExcelReport()
     report.load_wb("group_report_template.xlsx")
 
     ws_evnt = report.get_sheet('Event History')
@@ -518,7 +518,7 @@ def generate_grp_report(grp_id):
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
     cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
     row_count = 5
-    row_count, treat_row_count = report.cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
+    row_count, treat_row_count = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -531,7 +531,7 @@ def generate_grp_report(grp_id):
             .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
-        report.cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)
+        cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)
 
     report.save_wb()
 
