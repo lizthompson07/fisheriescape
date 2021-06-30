@@ -127,7 +127,6 @@ class TestColdbrookParsers(CommonTest):
         self.assertTrue(parser.success, parser.log_data)
 
 
-
 @tag("Master", 'Parser')
 class TestMasterParser(CommonTest):
     fixtures = ["initial_data.json"]

@@ -42,6 +42,7 @@ class DataParser:
     month_key = "Month"
     day_key = "Day"
 
+    mandatory_keys = []
     header = 1
     converters = {year_key: str, month_key: str, day_key: str}
     sheet_name = 0
@@ -51,6 +52,7 @@ class DataParser:
      for each specific parser."""
     def __init__(self, cleaned_data, autorun=True):
         self.cleaned_data = cleaned_data
+        self.mandatory_keys = [self.year_key, self.month_key, self.day_key]
         if autorun:
             self.load_data()
             self.prep_data()
@@ -67,6 +69,12 @@ class DataParser:
         except Exception as err:
             self.log_data += "\n File format not valid: {}".format(err.__str__())
             self.success = False
+
+        for key in self.mandatory_keys:
+            if key not in list(self.data):
+                self.log_data += "Column with header \"{}\" not found in worksheet \n".format(key)
+                self.success = False
+
         if self.data is None:
             self.log_data += "\n No data in file.  Possible reasons include: incorrect sheet name or incorrect number" \
                              " of lines above the header row, which should be {}.".format(self.header)
@@ -194,6 +202,29 @@ def val_unit_splitter(full_str):
     unit_str = full_str.lstrip(' 0123456789.')
     val = float(full_str[:len(full_str) - len(unit_str)])
     return val, unit_str.strip()
+
+
+def coll_getter(coll_str):
+    coll_str = str(coll_str)
+    test_inits = "(" + coll_str.strip() + ")"
+    coll_qs = models.Collection.objects.filter(name__icontains=test_inits)
+    coll_id = None
+    if len(coll_qs) == 1:
+        coll_id = coll_qs.get()
+    elif len(coll_qs) > 1:
+        err_str = ", ".join([coll.name for coll in coll_qs])
+        raise Exception("Multiple collections matched to input collection({}): {}".format(coll_str, err_str))
+    else:
+        coll_qs = models.Collection.objects.filter(name__icontains=coll_str)
+        if len(coll_qs) == 1:
+            coll_id = coll_qs.get()
+        elif len(coll_qs) > 1:
+            err_str = ", ".join([coll.name for coll in coll_qs])
+            raise Exception("Multiple collections matched to input collection given({}): {}".format(coll_str, err_str))
+        else:
+            raise Exception("No collection in database matching: {}".format(coll_str))
+
+    return coll_id
 
 
 def daily_dev(degree_day):
@@ -429,8 +460,9 @@ def create_movement_evnt(origin, destination, cleaned_data, movement_date, indv_
     origin_conts = []
     movement_date = naive_to_aware(movement_date)
     new_cleaned_data = cleaned_data.copy()
-    if origin == destination:
-        row_entered = False
+    if (origin == destination or not nan_to_none(destination)) and nan_to_none(origin):
+        # if both origin and destination are the same, or just if origin is entered, only enter contx.
+        row_entered = enter_contx(origin, cleaned_data, indv_pk=indv_pk, grp_pk=grp_pk)
         return row_entered
     if "evnt_id" in cleaned_data.keys():
         if cleaned_data["evnt_id"]:
@@ -804,7 +836,7 @@ def enter_env(env_value, env_date, cleaned_data, envc_id, envsc_id=None, loc_id=
                                   envc_id=envc_id,
                                   envsc_id=envsc_id,
                                   inst_id=inst_id,
-                                  env_val=str(env_value),
+                                  env_val=None,
                                   env_avg=avg,
                                   start_datetime=env_datetime,
                                   qual_id=qual_id,
@@ -1063,7 +1095,7 @@ def enter_sampd(samp_pk, cleaned_data, det_date, det_value, anidc_pk, anidc_str=
         sampd = models.SampleDet(samp_id_id=samp_pk,
                                  anidc_id_id=anidc_pk,
                                  adsc_id=models.AniDetSubjCode.objects.filter(name=adsc_str).get(),
-                                 det_val=det_value,
+                                 det_val=None,
                                  detail_date=det_date,
                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
                                  comments=comments,
@@ -1440,9 +1472,6 @@ def round_no_nan(data, precision):
 
 def common_err_parser(err):
     err_msg = err.__str__()
-    if type(err) == KeyError:
-        err_msg = "Column with header \"{}\" not found in worksheet".format(err)
-
     if issubclass(type(err), ObjectDoesNotExist):
         err_msg = "Could not find a {} object from worksheet in database.".format(err.__str__().split(" ")[0])
 
