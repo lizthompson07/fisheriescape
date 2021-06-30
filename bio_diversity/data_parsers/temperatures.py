@@ -14,6 +14,10 @@ class TemperatureParser(DataParser):
     date_key = "Date(yyyy-mm-dd)"
     time_key = "Time(hh:mm:ss)"
 
+    def load_data(self):
+        self.mandatory_keys =[]
+        super(TemperatureParser, self).load_data()
+
     def data_reader(self):
         self.data = pd.read_csv(self.cleaned_data["data_csv"], encoding='ISO-8859-1', header=7)
         # to keep parent parser classes happy:

@@ -34,6 +34,10 @@ class GenericIndvParser(DataParser):
     envelope_anidc_id = None
     ani_health_anidc_id = None
 
+    def load_data(self):
+        self.mandatory_keys.extend([self.pit_key])
+        super(GenericIndvParser, self).load_data()
+
     def data_preper(self):
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
         self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
@@ -58,43 +62,48 @@ class GenericIndvParser(DataParser):
         anix, anix_entered = utils.enter_anix(self.cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
 
-        if utils.nan_to_none(row[self.sex_key]):
+        if utils.nan_to_none(row.get(self.sex_key)):
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date,
                                                   self.sex_dict[row[self.sex_key].upper()],
                                                   self.sex_anidc_id.pk, None, None)
-        if self.len_key_mm in row.keys():
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key_mm] / 10.0,
+        if utils.nan_to_none(row.get(self.len_key_mm)):
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, 0.1 * row[self.len_key_mm],
                                                   self.len_anidc_id.pk, None)
-        if self.len_key in row.keys():
+        if utils.nan_to_none(row.get(self.len_key)):
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key],
                                                   self.len_anidc_id.pk, None)
-        if self.weight_key_kg in row.keys():
+        if utils.nan_to_none(row.get(self.weight_key_kg)):
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, 1000 * row[self.weight_key_kg],
                                                   self.weight_anidc_id.pk, None)
-        if self.weight_key in row.keys():
+        if utils.nan_to_none(row.get(self.weight_key)):
             self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.weight_key],
                                                   self.weight_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.vial_key],
-                                              self.vial_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.envelope_key],
-                                              self.envelope_anidc_id.pk, None)
-        if utils.y_n_to_bool(row[self.precocity_key]):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None, self.ani_health_anidc_id.pk,
-                                                  "Precocity")
-        if utils.y_n_to_bool(row[self.mort_key]):
-            mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_date)
-            self.row_entered += mort_entered
-        if utils.y_n_to_bool(row[self.tissue_key]):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None, self.ani_health_anidc_id.pk,
-                                                  "Tissue Sample")
+        if utils.nan_to_none(row.get(self.vial_key)):
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.vial_key],
+                                                  self.vial_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.envelope_key)):
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.envelope_key],
+                                                  self.envelope_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.precocity_key)):
+            if utils.y_n_to_bool(row[self.precocity_key]):
+                self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None,
+                                                      self.ani_health_anidc_id.pk, "Precocity")
+        if utils.nan_to_none(row.get(self.mort_key)):
+            if utils.y_n_to_bool(row[self.mort_key]):
+                mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_date)
+                self.row_entered += mort_entered
+        if utils.nan_to_none(row.get(self.tissue_key)):
+            if utils.y_n_to_bool(row[self.tissue_key]):
+                self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None,
+                                                      self.ani_health_anidc_id.pk, "Tissue Sample")
 
-        if utils.nan_to_none(row[self.start_tank_key]) and utils.nan_to_none(row[self.end_tank_key]):
+        if utils.nan_to_none(row[self.start_tank_key]) or utils.nan_to_none(row[self.end_tank_key]):
             in_tank = models.Tank.objects.filter(name=row[self.start_tank_key]).get()
             out_tank = models.Tank.objects.filter(name=row[self.end_tank_key]).get()
             self.row_entered += utils.create_movement_evnt(in_tank, out_tank, self.cleaned_data, row_datetime,
                                                            indv_pk=indv.pk)
 
-        if utils.nan_to_none(row[self.comment_key]):
+        if utils.nan_to_none(row.get(self.comment_key)):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix, row_date)
             self.row_entered += data_entered
             if not comments_parsed:
@@ -117,6 +126,7 @@ class GenericGrpParser(DataParser):
     envelope_key = "Scale Envelope"
     precocity_key = "Precocity (Y/N)"
     tissue_key = "Tissue Sample (Y/N)"
+    ufid_key = "UFID"
     start_tank_key = "Origin Pond"
     end_tank_key = "Destination Pond"
     comment_key = "Comments"
@@ -125,6 +135,7 @@ class GenericGrpParser(DataParser):
     sheet_name = "Group"
     start_grp_dict = {}
     end_grp_dict = {}
+    converters = {ufid_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     sampc_id = None
     prnt_grp_anidc_id = None
@@ -135,6 +146,11 @@ class GenericGrpParser(DataParser):
     vial_anidc_id = None
     envelope_anidc_id = None
     ani_health_anidc_id = None
+    anidc_ufid_id = None
+
+    def load_data(self):
+        self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.group_key, self.samp_key])
+        super(GenericGrpParser, self).load_data()
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -147,6 +163,7 @@ class GenericGrpParser(DataParser):
         self.vial_anidc_id = models.AnimalDetCode.objects.filter(name="Vial").get()
         self.envelope_anidc_id = models.AnimalDetCode.objects.filter(name="Scale Envelope").get()
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
+        self.anidc_ufid_id = models.AnimalDetCode.objects.filter(name="UFID").get()
 
         # set date
         self.data["datetime"] = self.data.apply(lambda row: utils.get_row_date(row), axis=1)
@@ -203,16 +220,18 @@ class GenericGrpParser(DataParser):
                 end_grp_id.save()
                 self.end_grp_dict[row["end_grp_key"]] = end_grp_id
 
-            grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk, return_anix=True)
-            utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, self.prnt_grp_anidc_id.pk,
-                             frm_grp_id=start_grp_id)
-            if utils.nan_to_none(row[self.group_key]):
-                utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, self.prog_grp_anidc_id.pk,
-                                 row[self.group_key])
-            end_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
-                                                   row["datetime"],
-                                                   grp_pk=end_grp_id.pk, return_end_contx=True)
-            self.row_entered += utils.enter_cnt(cleaned_data, row[0], end_contx.pk)[1]
+            if end_grp_id.pk != start_grp_id.pk:
+                grp_anix = utils.enter_anix(cleaned_data, grp_pk=end_grp_id.pk, return_anix=True)
+                utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, self.prnt_grp_anidc_id.pk,
+                                 frm_grp_id=start_grp_id)
+                if utils.nan_to_none(row[self.group_key]):
+                    utils.enter_grpd(grp_anix.pk, cleaned_data, row["datetime"], None, self.prog_grp_anidc_id.pk,
+                                     row[self.group_key])
+                end_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
+                                                       row["datetime"],
+                                                       grp_pk=end_grp_id.pk, return_end_contx=True)
+                if end_contx:
+                    self.row_entered += utils.enter_cnt(cleaned_data, row[0], end_contx.pk)[1]
         self.data_dict = self.data.to_dict("records")
 
     def row_parser(self, row):
@@ -230,32 +249,39 @@ class GenericGrpParser(DataParser):
         self.row_entered += data_entered
 
         if row_samp:
-            if utils.nan_to_none(row[self.sex_key]):
+            if utils.nan_to_none(row.get(self.sex_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date,
                                                       self.sex_dict[row[self.sex_key]], self.sex_anidc_id.pk)
-            if self.len_key in row.keys():
+            if utils.nan_to_none(row.get(self.len_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.len_key],
                                                       self.len_anidc_id.pk, )
-            if self.len_key_mm in row.keys():
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.len_key_mm] / 10.0,
+            if utils.nan_to_none(row.get(self.len_key_mm)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, 0.1 * row[self.len_key_mm],
                                                       self.len_anidc_id.pk, )
-            if self.weight_key in row.keys():
+            if utils.nan_to_none(row.get(self.weight_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.weight_key],
                                                       self.weight_anidc_id.pk, )
-            if self.weight_key_kg in row.keys():
+            if utils.nan_to_none(row.get(self.weight_key_kg)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date,
                                                       1000 * row[self.weight_key_kg], self.weight_anidc_id.pk, )
-            self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vial_key],
-                                                  self.vial_anidc_id.pk)
-            if utils.y_n_to_bool(row[self.precocity_key]):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, None,
-                                                      self.ani_health_anidc_id.pk, adsc_str="Precocity")
-            if utils.y_n_to_bool(row[self.tissue_key]):
-                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, None,
-                                                      self.ani_health_anidc_id.pk, adsc_str="Tissue Sample")
 
-            self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.envelope_key],
-                                                  self.envelope_anidc_id.pk)
+            if utils.nan_to_none(row.get(self.vial_key)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vial_key],
+                                                      self.vial_anidc_id.pk)
+            if utils.nan_to_none(row.get(self.precocity_key)):
+                if utils.y_n_to_bool(row[self.precocity_key]):
+                    self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, "Precocity",
+                                                          self.ani_health_anidc_id.pk, adsc_str="Precocity")
+            if utils.nan_to_none(row.get(self.tissue_key)):
+                if utils.y_n_to_bool(row[self.tissue_key]):
+                    self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, "Tissue Sample",
+                                                          self.ani_health_anidc_id.pk, adsc_str="Tissue Sample")
+            if utils.nan_to_none(row.get(self.ufid_key)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.ufid_key],
+                                                      self.anidc_ufid_id.pk)
+            if utils.nan_to_none(row.get(self.envelope_key)):
+                self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.envelope_key],
+                                                      self.envelope_anidc_id.pk)
 
             if utils.nan_to_none(row[self.comment_key]):
                 comments_parsed, data_entered = utils.samp_comment_parser(row[self.comment_key], cleaned_data,

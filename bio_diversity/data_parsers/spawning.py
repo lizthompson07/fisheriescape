@@ -24,9 +24,13 @@ class SpawningParser(DataParser):
     comment_key_m = "Comments, M"
     comment_key_pair = "Comments"
     len_key_f = "Ln (cm), F"
+    len_key_f_mm = "Ln (mm), F"
     weight_key_f = "Wt (g), F"
+    weight_key_f_kg = "Wt (kg), F"
     len_key_m = "Ln (cm), M"
+    len_key_m_mm = "Ln (mm), M"
     weight_key_m = "Wt (g), M"
+    weight_key_m_kg = "Wt (kg), M"
     choice_key = "Choice"
     egg_est_key = "Exp. #"
 
@@ -43,6 +47,10 @@ class SpawningParser(DataParser):
 
     sex_dict = calculation_constants.sex_dict
 
+    def load_data(self):
+        self.mandatory_keys.extend([self.pit_key_f, self.pit_key_m, self.prio_key_f, self.prio_key_m, self.cross_key,
+                                    self.prio_key_pair, self.choice_key, self.egg_est_key])
+        super(SpawningParser, self).load_data()
 
     def data_preper(self):
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
@@ -65,6 +73,9 @@ class SpawningParser(DataParser):
                                                                                      row[self.pit_key_m])
             return self.log_data, False
 
+        if not utils.nan_to_none(row[self.choice_key]):
+            raise Exception("Choice column cannot be empty. Set Fecundity column to zero to indicate Duds.")
+
         row_date = utils.get_row_date(row)
         anix_female, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv_female.pk)
         self.row_entered += anix_entered
@@ -73,15 +84,31 @@ class SpawningParser(DataParser):
 
         self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, self.sex_dict["F"], self.sex_anidc_id.pk,
                                               None)
-        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.len_key_f],
-                                              self.len_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 * row[self.weight_key_f],
-                                              self.weight_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.len_key_f)):
+            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.len_key_f],
+                                                  self.len_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.len_key_f_mm)):
+            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 0.1 * row[self.len_key_f_mm],
+                                                  self.len_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.weight_key_f_kg)):
+            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, 1000 *
+                                                  row[self.weight_key_f_kg], self.weight_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.weight_key_f)):
+            self.row_entered += utils.enter_indvd(anix_female.pk, cleaned_data, row_date, row[self.weight_key_f],
+                                                  self.weight_anidc_id.pk, None)
         self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, self.sex_dict["M"], self.sex_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.len_key_m],
-                                              self.len_anidc_id.pk, None)
-        self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 * row[self.weight_key_m],
-                                              self.weight_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.len_key_m)):
+            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.len_key_m],
+                                                  self.len_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.len_key_m_mm)):
+            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 0.1 * row[self.len_key_m_mm],
+                                                  self.len_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.weight_key_m_kg)):
+            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, 1000 *
+                                                  row[self.weight_key_m_kg], self.weight_anidc_id.pk, None)
+        if utils.nan_to_none(row.get(self.weight_key_m)):
+            self.row_entered += utils.enter_indvd(anix_male.pk, cleaned_data, row_date, row[self.weight_key_m],
+                                                  self.weight_anidc_id.pk, None)
 
         # pair
 
@@ -108,7 +135,7 @@ class SpawningParser(DataParser):
         sire = models.Sire(prio_id=models.PriorityCode.objects.filter(name__iexact=prio_dict[row[self.prio_key_m]]).get(),
                            pair_id=pair,
                            indv_id=indv_male,
-                           choice=row[self.choice_key],
+                           choice=[self.choice_key],
                            comments=utils.nan_to_none(row[self.comment_key_m]),
                            created_by=cleaned_data["created_by"],
                            created_date=cleaned_data["created_date"],
@@ -142,7 +169,7 @@ class SpawningParser(DataParser):
 
             grp = models.Group(spec_id=indv_female.spec_id,
                                stok_id=indv_female.stok_id,
-                               coll_id=models.Collection.objects.filter(name="F1").get(),
+                               coll_id=models.Collection.objects.filter(name="Egg (F1)").get(),
                                grp_year=row_date.year,
                                grp_valid=False,
                                created_by=cleaned_data["created_by"],

@@ -508,8 +508,10 @@ class Drawer(BioCont):
 
 class EnvCode(BioLookup):
     # envc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Maximum Value"), db_column="MAX_VAL")
     unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"),
                                 db_column="UNIT_ID")
     env_subj_flag = models.BooleanField(verbose_name=_("Objective observation?"), db_column="ENV_SUBJ_FLAG")
@@ -551,12 +553,19 @@ class EnvCondition(BioTimeModel):
 
     def clean(self):
         super(EnvCondition, self).clean()
-        if self.env_val > self.envc_id.max_val or self.env_val < self.envc_id.min_val:
-            raise ValidationError({
-                "env_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
-                                                                                              self.envc_id.max_val,
-                                                                                              self.envc_id.min_val))
-            })
+        if self.is_numeric() and self.env_val is not None:
+            if float(self.env_val) > float(self.envc_id.max_val) or float(self.env_val) < float(self.envc_id.min_val):
+                raise ValidationError({
+                    "env_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
+                                                                                                  self.envc_id.max_val,
+                                                                                                  self.envc_id.min_val))
+                })
+
+    def is_numeric(self):
+        if self.envc_id.min_val is not None and self.envc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 def envcf_directory_path(instance, filename):
@@ -682,6 +691,21 @@ class Event(BioTimeModel):
                                     name='Event_Uniqueness')
         ]
         ordering = ['-start_datetime']
+
+    def fecu_dict(self):
+        fecu_dict = {}
+        stok_coll_set = Individual.objects.filter(animal_details__evnt_id=self).values("stok_id", "coll_id",
+                                                                                       "stok_id__name",
+                                                                                       "coll_id__name").distinct()
+        for stok_coll in stok_coll_set:
+            key = "Alpha, Beta for {}-{}".format(stok_coll["stok_id__name"], stok_coll["coll_id__name"])
+            fecu_id = Fecundity.objects.filter(stok_id_id=stok_coll["stok_id"], coll_id_id=stok_coll["coll_id"]).first()
+            value = ""
+            if fecu_id:
+                value = "{}, {}".format(fecu_id.alpha, fecu_id.beta)
+            fecu_dict[key] = value
+
+        return fecu_dict
 
 
 @receiver(post_save, sender=Event)
@@ -947,8 +971,10 @@ class Group(BioModel):
         depth = 1
         while True:
             for grpd in grpd_qs:
-                parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
-                new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
+                # recursion catch
+                if grpd.frm_grp_id.pk != self.pk:
+                    parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
+                    new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
             if new_grpd_qs:
                 grpd_qs = new_grpd_qs
                 depth += 1
