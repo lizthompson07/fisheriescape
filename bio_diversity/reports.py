@@ -147,27 +147,31 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     ws_grp = report.copy_template("Groups")
 
     ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
+    ws_indv["I2"].style = 'Normal'
+    ws_indv["I2"].value = ''
     ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
+    ws_grp["A2"].style = 'Normal'
+    ws_grp["A2"].value = ''
     # start writing data at row 3 in the sheet
     row_count = 3
     for item in indv_qs:
         ws_indv['A' + str(row_count)].value = item.pit_tag
         ws_indv['B' + str(row_count)].value = item.indv_year
         ws_indv['C' + str(row_count)].value = item.coll_id.name
-        ws_indv['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
+        ws_indv['D' + str(row_count)].value = item.prog_group(get_string=True)
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
 
         item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
                                                          adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
         indvd_str = ""
         for indvd in item_indvd:
             indvd_str += "{}, ".format(indvd.adsc_id.name)
-        ws_indv['E' + str(row_count)].value = indvd_str
+        ws_indv['F' + str(row_count)].value = indvd_str
 
-        item_sexd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Gender",
-                                                         anix_id__indv_id=item).select_related("adsc_id").first()
+        item_sexd = item.individual_detail("Gender")
         if item_sexd:
-            ws_indv['F' + str(row_count)].value = str(item_sexd.det_val)
-        ws_indv['G' + str(row_count)].value = str(item.indv_valid)
+            ws_indv['G' + str(row_count)].value = str(item_sexd)
+        ws_indv['H' + str(row_count)].value = str(item.indv_valid)
 
         row_count += 1
 
@@ -175,7 +179,8 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     for item in grp_qs:
         ws_grp['B' + str(row_count)].value = item.grp_year
         ws_grp['C' + str(row_count)].value = item.coll_id.name
-        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
+        ws_grp['D' + str(row_count)].value = item.prog_group(get_string=True)
+        ws_grp['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
         ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
 
         row_count += 1
@@ -218,10 +223,9 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll=None):
             indvd_str += "{}, ".format(indvd.adsc_id.name)
         ws_indv['E' + str(row_count)].value = indvd_str
 
-        item_sexd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Gender",
-                                                         anix_id__indv_id=item).select_related("adsc_id").first()
+        item_sexd = item.individual_detail("Gender")
         if item_sexd:
-            ws_indv['F' + str(row_count)].value = str(item_sexd.det_val)
+            ws_indv['F' + str(row_count)].value = str(item_sexd)
         ws_indv['G' + str(row_count)].value = str(item.indv_valid)
 
         row_count += 1
