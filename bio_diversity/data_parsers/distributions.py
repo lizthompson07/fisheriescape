@@ -38,7 +38,7 @@ class DistributionParser(DataParser):
     truck_locdc_id = None
     relm_locdc_id = None
     acclimation_locdc_id = None
-    lifestage_locdc_id = None
+    lifestage_anidc_id = None
     locc_id = None
     len_anidc_id = None
     weight_anidc_id = None
@@ -57,7 +57,7 @@ class DistributionParser(DataParser):
         self.truck_locdc_id = models.LocationDetCode.objects.filter(name="Truck").get()
         self.relm_locdc_id = models.LocationDetCode.objects.filter(name="Release Method").get()
         self.acclimation_locdc_id = models.LocationDetCode.objects.filter(name="Acclimation Time").get()
-        self.lifestage_locdc_id = models.LocationDetCode.objects.filter(name="Lifestage").get()
+        self.lifestage_anidc_id = models.AnimalDetCode.objects.filter(name="Lifestage").get()
         self.locc_id = models.LocCode.objects.filter(name__icontains="Distribution site").get()
         self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
         self.weight_anidc_id = models.AnimalDetCode.objects.filter(name="Weight").get()
@@ -135,10 +135,6 @@ class DistributionParser(DataParser):
         if utils.nan_to_none(row.get(self.acclimation_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
                                                  self.acclimation_locdc_id.pk, None)
-        if utils.nan_to_none(row.get(self.lifestage_key)):
-            self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.lifestage_key],
-                                                 self.lifestage_locdc_id.pk, row[self.lifestage_key])
-
         cnt, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.num_key], loc_pk=loc.pk,
                                            cnt_code="Fish Distributed")
         self.row_entered += cnt_entered
@@ -153,6 +149,10 @@ class DistributionParser(DataParser):
                                                     self.weight_anidc_id.name)
         if utils.nan_to_none(row.get(self.weight_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.weight_key], self.weight_anidc_id.name)
+
+        if utils.nan_to_none(row.get(self.lifestage_key)):
+            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
+                                                    self.lifestage_anidc_id.pk, row[self.lifestage_key])
 
 
 class DistributionIndvParser(DataParser):

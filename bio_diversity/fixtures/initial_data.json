@@ -304,6 +304,22 @@
     }
 },
 {
+    "model": "bio_diversity.animaldetcode",
+    "pk": 22,
+    "fields": {
+        "name": "Lifestage",
+        "nom": null,
+        "description_en": "Recorder lifestage of a fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-07-5",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": false
+    }
+},
+{
     "model": "bio_diversity.anidetsubjcode",
     "pk": 2,
     "fields": {
@@ -665,6 +681,58 @@
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-06-16",
         "anidc_id": 7
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 30,
+    "fields": {
+        "name": "Adult",
+        "nom": null,
+        "description_en": "Adult Fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 22
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 31,
+    "fields": {
+        "name": "Fry",
+        "nom": null,
+        "description_en": "Fry Fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 22
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 32,
+    "fields": {
+        "name": "Parr",
+        "nom": null,
+        "description_en": "Parr Fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 22
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 33,
+    "fields": {
+        "name": "Smolt",
+        "nom": null,
+        "description_en": "Smolt Fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 22
     }
 },
 {
@@ -2177,22 +2245,6 @@
         "min_val": "0.00000",
         "max_val": "10000.00000",
         "unit_id": 15,
-        "loc_subj_flag": false
-    }
-},
-{
-    "model": "bio_diversity.locationdetcode",
-    "pk": 4,
-    "fields": {
-        "name": "Lifestage",
-        "nom": null,
-        "description_en": "Lifestage of fish present at a location.",
-        "description_fr": "",
-        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-05-18",
-        "min_val": null,
-        "max_val": null,
-        "unit_id": null,
         "loc_subj_flag": false
     }
 },
