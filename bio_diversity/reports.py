@@ -349,7 +349,7 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
 
 def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
     if not start_date:
-        start_date = datetime.min.replace(tzinfo=pytz.UTC)
+        start_date = "Not Picked"
     if not end_date:
         end_date = datetime.now().replace(tzinfo=pytz.UTC)
 
@@ -358,14 +358,17 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
 
        # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
-    ws = report.copy_template("Sites")
+    ws = report.get_sheet("Sites")
+    ws_indv = report.get_sheet("Individuals")
 
     # put in start and end dates
     ws['B1'].value = start_date
     ws['B2'].value = end_date
-    # start writing data at row 3 in the sheet
+    ws_indv['B1'].value = start_date
+    ws_indv['B2'].value = end_date
+    # start writing data at row 4 in the sheet
     row_count = 4
-    # locations with no sites
+    # split off locations with no sites
     no_sites_list = [location for location in locations_list if not location.relc_id]
     locations_list = [location for location in locations_list if location.relc_id]
     no_locs_list = []
@@ -392,6 +395,24 @@ def generate_sites_report(sites_list, locations_list, start_date=None, end_date=
         ws['D' + str(row_count)].value = "No Events at location"
         row_count += 1
 
+    anix_indv_set = models.AniDetailXref.objects.filter(loc_id__in=locations_list, indv_id__isnull=False)\
+        .select_related("indv_id", "indv_id__coll_id", "indv_id__stok_id", "loc_id", "loc_id__locc_id", "loc_id__relc_id")
+    indv_list = [(anix.indv_id, anix.loc_id) for anix in anix_indv_set]
+    row_count = 4
+    for indv, loc in indv_list:
+        ws_indv['A' + str(row_count)].value = indv.pit_tag
+        ws_indv['B' + str(row_count)].value = indv.stok_id.name
+        ws_indv['C' + str(row_count)].value = indv.indv_year
+        ws_indv['D' + str(row_count)].value = indv.coll_id.name
+        ws_indv['E' + str(row_count)].value = indv.individual_detail(anidc_name="Lifestage", before_date=loc.loc_date)
+        ws_indv['F' + str(row_count)].value = loc.relc_id.name
+        ws_indv['G' + str(row_count)].value = loc.loc_date
+        ws_indv['H' + str(row_count)].value = loc.locc_id.name
+        ws_indv['I' + str(row_count)].value = indv.prog_group(get_string=True)
+        ws_indv['J' + str(row_count)].value = indv.individual_detail(anidc_name="Gender", before_date=loc.loc_date)
+        ws_indv['K' + str(row_count)].value = indv.individual_detail(anidc_name="Length", before_date=loc.loc_date)
+        ws_indv['L' + str(row_count)].value = indv.individual_detail(anidc_name="Weight", before_date=loc.loc_date)
+        row_count += 1
     report.save_wb()
 
     return report.target_url

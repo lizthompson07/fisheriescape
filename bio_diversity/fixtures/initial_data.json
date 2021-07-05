@@ -796,6 +796,18 @@
     }
 },
 {
+    "model": "bio_diversity.collection",
+    "pk": 25,
+    "fields": {
+        "name": "Unknown Collection",
+        "nom": null,
+        "description_en": "Fish with unknown collection code",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-01"
+    }
+},
+{
     "model": "bio_diversity.commentkeywords",
     "pk": 1,
     "fields": {

@@ -1209,7 +1209,7 @@ class Individual(BioModel):
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"), db_column="STOCK_ID")
     indv_year = models.IntegerField(verbose_name=_("Collection year"), default=2000, db_column="YEAR",
                                     validators=[MinValueValidator(2000), MaxValueValidator(2100)])
-    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True, db_column="COLLECTION_ID",
+    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, default=25, db_column="COLLECTION_ID",
                                 verbose_name=_("Collection"))
     # ufid = unique FISH id
     ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("ABL Fish UFID"),
@@ -1276,15 +1276,17 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_detail(self, anidc_name="Length"):
-        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").first()
+    def individual_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                    detail_date__lte=before_date).order_by("-detail_date").first()
         if latest_indvd:
             return latest_indvd.det_val
         else:
             return None
 
-    def individual_subj_detail(self, anidc_name="Animal Health"):
-        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").select_related("adsc_id").first()
+    def individual_subj_detail(self, anidc_name="Animal Health", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                    detail_date__lte=before_date).order_by("-detail_date").select_related("adsc_id").first()
         if latest_indvd:
             return latest_indvd.adsc_id.name
         else:
