@@ -832,9 +832,9 @@ class MapForm(forms.Form):
     rive_id = forms.ModelChoiceField(queryset=models.RiverCode.objects.all(), required=False, label=_("River Code"))
     subr_id = forms.ModelChoiceField(queryset=models.SubRiverCode.objects.all(), required=False, label=_("Sub River Code"))
     trib_id = forms.ModelChoiceField(queryset=models.Tributary.objects.all(), required=False, label=_("Tributary"))
-    sfa_choices = [(item, item) for item in sfa_nums]
+    sfa_choices = [(str(item), str(item)) for item in sfa_nums]
     sfa_choices.insert(0, (None, "---"))
-    sfa = forms.ChoiceField(choices=sfa_choices, required=False)
+    sfa = forms.MultipleChoiceField(choices=sfa_choices, required=False)
 
     def clean(self):
         cleaned_data = super().clean()
