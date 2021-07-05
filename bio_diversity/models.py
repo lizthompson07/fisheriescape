@@ -891,6 +891,8 @@ class Group(BioModel):
 
     def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
         current_cont_list = []
+        if not self.grp_valid:
+            return current_cont_list
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
@@ -1249,6 +1251,8 @@ class Individual(BioModel):
 
     def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
         current_cont_list = []
+        if not self.indv_valid:
+            return current_cont_list
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)

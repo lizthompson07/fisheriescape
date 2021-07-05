@@ -185,7 +185,7 @@ class DistributionIndvParser(DataParser):
     truck_locdc_id = None
     relm_locdc_id = None
     acclimation_locdc_id = None
-    lifestage_locdc_id = None
+    lifestage_anidc_id = None
     locc_id = None
     sex_anidc_id = None
     len_anidc_id = None
@@ -205,7 +205,7 @@ class DistributionIndvParser(DataParser):
         self.truck_locdc_id = models.LocationDetCode.objects.filter(name="Truck").get()
         self.relm_locdc_id = models.LocationDetCode.objects.filter(name="Release Method").get()
         self.acclimation_locdc_id = models.LocationDetCode.objects.filter(name="Acclimation Time").get()
-        self.lifestage_locdc_id = models.LocationDetCode.objects.filter(name="Lifestage").get()
+        self.lifestage_anidc_id = models.AnimalDetCode.objects.filter(name="Lifestage").get()
         self.locc_id = models.LocCode.objects.filter(name__icontains="Distribution site").get()
         self.sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
         self.len_anidc_id = models.AnimalDetCode.objects.filter(name="Length").get()
@@ -224,14 +224,13 @@ class DistributionIndvParser(DataParser):
             if "," in str(row[self.tank_key]):
                 tank_list = str(row[self.tank_key]).split(",")
                 # TODO
-
             cont_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
         elif utils.nan_to_none(row[self.trof_key]):
             if "," in row[self.trof_key]:
                 trof_list = row[self.trof_key].split(",")
                 # TODO
-
             cont_id = models.Trough.objects.filter(name__iexact=row[self.trof_key], facic_id__name=cleaned_data["facic_id"]).get()
+
         indv_id = models.Individual.objects.filter(pit_tag__iexact=row[self.pit_key]).get()
         self.row_entered += utils.enter_anix(cleaned_data, indv_pk=indv_id.pk, return_sucess=True)
         self.row_entered += utils.enter_contx(cont_id, cleaned_data)
@@ -285,29 +284,31 @@ class DistributionIndvParser(DataParser):
                                                  self.acclimation_locdc_id.pk, None)
 
         if utils.nan_to_none(row.get(self.lifestage_key)):
-            self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.lifestage_key],
-                                                 self.lifestage_locdc_id.pk, row[self.lifestage_key])
+            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.lifestage_key], self.lifestage_anidc_id.pk,
+                                                  adsc_str=row[self.lifestage_key])
+
         if utils.nan_to_none(row.get(self.len_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.len_key], self.len_anidc_id)
+            self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.len_key], self.len_anidc_id.pk)
+
         if utils.nan_to_none(row.get(self.len_key_mm)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, 0.1 * row[self.len_key_mm],
-                                                  self.len_anidc_id)
+                                                  self.len_anidc_id.pk)
 
         if utils.nan_to_none(row.get(self.weight_key)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.weight_key],
-                                                  self.weight_anidc_id)
+                                                  self.weight_anidc_id.pk)
         if utils.nan_to_none(row.get(self.weight_key_kg)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, 1000 * row[self.weight_key_kg],
-                                                  self.weight_anidc_id)
+                                                  self.weight_anidc_id.pk)
         if utils.nan_to_none(row.get(self.vial_key)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, row[self.vial_key],
-                                                  self.vial_anidc_id)
+                                                  self.vial_anidc_id.pk)
         if utils.nan_to_none(row.get(self.sex_key)):
             self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, self.sex_dict[row[self.sex_key]],
-                                                  self.sex_anidc_id)
+                                                  self.sex_anidc_id.pk)
         if utils.nan_to_none(row.get(self.tissue_key)):
             if utils.y_n_to_bool(row[self.tissue_key]):
-                self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, None, "Tissue Sample")
+                self.row_entered += utils.enter_indvd(anix.pk, cleaned_data, row_date, None, None, anidc_str="Tissue Sample")
 
         if utils.nan_to_none(row.get(self.comment_key)):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix, row_date)
