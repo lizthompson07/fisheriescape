@@ -45,9 +45,8 @@ class ElectrofishingParser(DataParser):
     def load_data(self):
         self.mandatory_keys.extend([self.rive_key, self.group_key, self.coll_key, self.tank_key, self.crew_key,
                                     self.fish_caught_key, self.fish_obs_key])
+        self.mandatory_filled_keys.extend([self.rive_key, self.coll_key, self.tank_key, self.crew_key])
         super(ElectrofishingParser, self).load_data()
-
-
 
     def data_preper(self):
         cleaned_data = self.cleaned_data
@@ -270,6 +269,8 @@ class AdultCollectionParser(DataParser):
     def load_data(self):
         self.mandatory_keys.extend([self.site_key, self.wr_key, self.pit_key, self.tank_key, self.crew_key,
                                     self.coll_key])
+        self.mandatory_filled_keys.extend([self.site_key, self.wr_key, self.pit_key, self.tank_key, self.crew_key,
+                                    self.coll_key])
         super(AdultCollectionParser, self).load_data()
         
     def data_preper(self):
@@ -298,7 +299,6 @@ class AdultCollectionParser(DataParser):
         cleaned_data = self.cleaned_data
         row_datetime = utils.get_row_date(row)
         relc_id = self.site_dict[row[self.site_key]]
-
         indv_id = models.Individual.objects.filter(pit_tag=row[self.pit_key]).first()
         if not indv_id:
             year, coll = utils.year_coll_splitter(row[self.coll_key])

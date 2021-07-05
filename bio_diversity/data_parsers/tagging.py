@@ -43,6 +43,7 @@ class TaggingParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.to_tank_key, self.from_tank_key, self.group_key, self.pit_key, self.stok_key,])
+        self.mandatory_filled_keys.extend([self.to_tank_key, self.from_tank_key, self.pit_key, self.stok_key,])
         super(TaggingParser, self).load_data()
 
     def data_preper(self):

@@ -43,6 +43,8 @@ class DataParser:
     day_key = "Day"
 
     mandatory_keys = []
+    mandatory_filled_keys = []
+
     header = 1
     converters = {year_key: str, month_key: str, day_key: str}
     sheet_name = 0
@@ -53,6 +55,7 @@ class DataParser:
     def __init__(self, cleaned_data, autorun=True):
         self.cleaned_data = cleaned_data
         self.mandatory_keys = [self.year_key, self.month_key, self.day_key]
+        self.mandatory_filled_keys = [self.year_key, self.month_key, self.day_key]
         if autorun:
             self.load_data()
             self.prep_data()
@@ -72,8 +75,16 @@ class DataParser:
 
         for key in self.mandatory_keys:
             if key not in list(self.data):
+                # Make sure mandatory key columns exist
                 self.log_data += "Column with header \"{}\" not found in worksheet \n".format(key)
                 self.success = False
+        if self.success:
+            for key in self.mandatory_filled_keys:
+                # make sure mandatory columns are filled
+                key_nan_cnt = self.data[key].astype(str).str.fullmatch('nan|none', case=False, na=True).any()
+                if key_nan_cnt:
+                    self.log_data += "Mandatory column with header \"{}\" has missing values. \n".format(key)
+                    self.success = False
 
         if self.data is None:
             self.log_data += "\n No data in file.  Possible reasons include: incorrect sheet name or incorrect number" \
