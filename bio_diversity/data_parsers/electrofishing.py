@@ -365,7 +365,7 @@ class AdultCollectionParser(DataParser):
         if indv_id:
             anix_loc_indv, anix_entered = utils.enter_anix(cleaned_data, loc_pk=loc.pk, indv_pk=indv_id.pk)
             self.row_entered += anix_entered
-        else:
+        elif utils.nan_to_none(row.get(self.samp_key)):
             samp, samp_entered = utils.enter_samp(cleaned_data, row[self.samp_key], self.salmon_id.pk, self.sampc_id.pk,
                                                   loc_pk=loc.pk, comments=utils.nan_to_none(row.get(self.comment_key)))
             self.row_entered += samp_entered
@@ -375,6 +375,8 @@ class AdultCollectionParser(DataParser):
                 self.row_entered += data_entered
                 if not comments_parsed:
                     self.log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row[self.comment_key])
+        else:
+            raise Exception("Fish must either be assigned a sample number or a pit tag.")
 
         if not indv_id:
             return

@@ -23,7 +23,7 @@ class GenericIndvParser(DataParser):
     end_tank_key = "Destination Pond"
     comment_key = "Comments"
 
-    converters = {pit_key: str, "Year": str, "Month": str, "Day": str}
+    converters = {start_tank_key: str, end_tank_key: str, pit_key:str, "Year": str, "Month": str, "Day": str}
     header = 2
     sheet_name = "Individual"
 
@@ -140,7 +140,7 @@ class GenericGrpParser(DataParser):
     sheet_name = "Group"
     start_grp_dict = {}
     end_grp_dict = {}
-    converters = {ufid_key: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {start_tank_key: str, end_tank_key: str, ufid_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     sampc_id = None
     prnt_grp_anidc_id = None

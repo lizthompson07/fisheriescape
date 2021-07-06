@@ -32,7 +32,7 @@ class TreatmentParser(DataParser):
     gal_unit_id = None
 
     header = 2
-    converters = {'Year': str, 'Month': str, 'Day': str}
+    converters = {tank_key: str, trof_key: str, 'Year': str, 'Month': str, 'Day': str}
     tank_sheet_name = "Ponds"
     eggroom_sheet_name = "Eggrooms"
     tank_data_dict = {}
