@@ -254,6 +254,7 @@ class AdultCollectionParser(DataParser):
     scale_key = "Scale Sample"
     vial_key = "Vial"
     mort_key = "Mort"
+    samp_key = "Sample #"
     aquaculture_key = "Aquaculture"
     comment_key = "Comments"
     crew_key = "Crew"
@@ -271,6 +272,7 @@ class AdultCollectionParser(DataParser):
     locc_id = None
     salmon_id = None
     wr_adsc_id = None
+    sampc_id = None
 
     site_dict = {}
     tank_dict = {}
@@ -282,8 +284,7 @@ class AdultCollectionParser(DataParser):
     def load_data(self):
         self.mandatory_keys.extend([self.site_key, self.wr_key, self.pit_key, self.tank_key, self.crew_key,
                                     self.coll_key])
-        self.mandatory_filled_keys.extend([self.site_key, self.wr_key, self.pit_key, self.tank_key, self.crew_key,
-                                    self.coll_key])
+        self.mandatory_filled_keys.extend([self.site_key, self.coll_key])
         super(AdultCollectionParser, self).load_data()
         
     def data_preper(self):
@@ -298,6 +299,7 @@ class AdultCollectionParser(DataParser):
         self.wr_adsc_id = models.AniDetSubjCode.objects.filter(name="Wild Return").get()
         self.locc_id = models.LocCode.objects.filter(name="Adult Collection Site").get()
         self.salmon_id = models.SpeciesCode.objects.filter(name="Salmon").get()
+        self.sampc_id = models.SampleCode.objects.filter(name="Individual Sample").get()
 
         for site_name in self.data[self.site_key].unique():
             if utils.nan_to_none(site_name):
@@ -312,30 +314,32 @@ class AdultCollectionParser(DataParser):
         cleaned_data = self.cleaned_data
         row_datetime = utils.get_row_date(row)
         relc_id = self.site_dict[row[self.site_key]]
-        indv_id = models.Individual.objects.filter(pit_tag=row[self.pit_key]).first()
-        if not indv_id:
-            year, coll = utils.year_coll_splitter(row[self.coll_key])
-            coll_id = utils.coll_getter(coll)
-            stok_id = models.StockCode.objects.filter(name__iexact=relc_id.rive_id.name).get()
-            indv_id = models.Individual(spec_id=self.salmon_id,
-                                        stok_id=stok_id,
-                                        coll_id=coll_id,
-                                        indv_year=year,
-                                        pit_tag=row[self.pit_key],
-                                        indv_valid=True,
-                                        comments=utils.nan_to_none(row.get(self.comment_key)),
-                                        created_by=cleaned_data["created_by"],
-                                        created_date=cleaned_data["created_date"],
-                                        )
-            try:
-                indv_id.clean()
-                indv_id.save()
-                self.row_entered = True
-            except (ValidationError, IntegrityError):
-                indv_id = models.Individual.objects.filter(pit_tag=indv_id.pit_tag).get()
-        indv_anix, data_entered = utils.enter_anix(cleaned_data, indv_pk=indv_id.pk)
-        self.row_entered += data_entered
-        # add program group to individual if needed:
+        indv_id = None
+        if utils.nan_to_none(row[self.pit_key]):
+            indv_id = models.Individual.objects.filter(pit_tag=row[self.pit_key]).first()
+            if not indv_id:
+                year, coll = utils.year_coll_splitter(row[self.coll_key])
+                coll_id = utils.coll_getter(coll)
+                stok_id = models.StockCode.objects.filter(name__iexact=relc_id.rive_id.name).get()
+                indv_id = models.Individual(spec_id=self.salmon_id,
+                                            stok_id=stok_id,
+                                            coll_id=coll_id,
+                                            indv_year=year,
+                                            pit_tag=row[self.pit_key],
+                                            indv_valid=True,
+                                            comments=utils.nan_to_none(row.get(self.comment_key)),
+                                            created_by=cleaned_data["created_by"],
+                                            created_date=cleaned_data["created_date"],
+                                            )
+                try:
+                    indv_id.clean()
+                    indv_id.save()
+                    self.row_entered = True
+                except (ValidationError, IntegrityError):
+                    indv_id = models.Individual.objects.filter(pit_tag=indv_id.pit_tag).get()
+            indv_anix, data_entered = utils.enter_anix(cleaned_data, indv_pk=indv_id.pk)
+            self.row_entered += data_entered
+            # add program group to individual if needed:
 
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                               locc_id=self.locc_id,
@@ -356,10 +360,24 @@ class AdultCollectionParser(DataParser):
                                                  relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
         self.loc = loc
-        anix_loc_indv, anix_entered = utils.enter_anix(cleaned_data, loc_pk=loc.pk, indv_pk=indv_id.pk)
-        self.row_entered += anix_entered
-
         self.team_parser(row[self.crew_key], row, loc_id=loc)
+
+        if indv_id:
+            anix_loc_indv, anix_entered = utils.enter_anix(cleaned_data, loc_pk=loc.pk, indv_pk=indv_id.pk)
+            self.row_entered += anix_entered
+        else:
+            samp, samp_entered = utils.enter_samp(cleaned_data, row[self.samp_key], self.salmon_id.pk, self.sampc_id.pk,
+                                                  loc_pk=loc.pk, comments=utils.nan_to_none(row.get(self.comment_key)))
+            self.row_entered += samp_entered
+            if utils.nan_to_none(row[self.comment_key]):
+                comments_parsed, data_entered = utils.samp_comment_parser(row[self.comment_key], cleaned_data,
+                                                                          samp.pk, row_datetime)
+                self.row_entered += data_entered
+                if not comments_parsed:
+                    self.log_data += "Unparsed comment on row {}:\n {} \n\n".format(row, row[self.comment_key])
+
+        if not indv_id:
+            return
 
         if utils.nan_to_none(row.get(self.grp_key)):
             self.row_entered += utils.enter_indvd(anix_loc_indv.pk, cleaned_data, row_datetime, None,

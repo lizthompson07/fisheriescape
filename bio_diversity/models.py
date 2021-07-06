@@ -1770,7 +1770,7 @@ class RoleCode(BioLookup):
 class Sample(BioModel):
     # samp tag
     loc_id = models.ForeignKey('Location', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Location"),
-                               db_column="LOCATION_ID")
+                               db_column="LOCATION_ID", related_name="samples")
     anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Animal Detail X Ref"),
                                 db_column="ANI_DET_X_REF_ID")
     samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")

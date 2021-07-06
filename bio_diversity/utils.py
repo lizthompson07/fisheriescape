@@ -1094,13 +1094,14 @@ def enter_mortality(indv, cleaned_data, mort_date):
     return mortality_evnt, anix, data_entered
 
 
-def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=None):
+def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=None, comments=None):
     samp_entered = False
     samp = models.Sample(anix_id_id=anix_pk,
                          loc_id_id=loc_pk,
                          spec_id_id=spec_pk,
                          samp_num=samp_num,
                          sampc_id_id=sampc_pk,
+                         comments = comments,
                          created_by=cleaned_data["created_by"],
                          created_date=cleaned_data["created_date"],
                          )
