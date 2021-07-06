@@ -24,7 +24,7 @@ class ElectrofishingParser(DataParser):
     settings_key = "Settings"
     fishing_time_key = "fishing seconds"
     voltage_key = "Voltage"
-    group_key = "Group"
+    prio_key = "Group"
     coll_key = "Collection"
     tank_key = "End Tank"
 
@@ -43,9 +43,9 @@ class ElectrofishingParser(DataParser):
     river_dict = {}
 
     def load_data(self):
-        self.mandatory_keys.extend([self.rive_key, self.group_key, self.coll_key, self.tank_key, self.crew_key,
+        self.mandatory_keys.extend([self.rive_key, self.prio_key, self.coll_key, self.tank_key, self.crew_key,
                                     self.fish_caught_key, self.fish_obs_key])
-        self.mandatory_filled_keys.extend([self.rive_key, self.coll_key, self.tank_key, self.crew_key])
+        self.mandatory_filled_keys.extend([self.rive_key, self.coll_key])
         super(ElectrofishingParser, self).load_data()
 
     def data_preper(self):
@@ -68,13 +68,18 @@ class ElectrofishingParser(DataParser):
 
         # assign groups to columns, add generic group data:
         self.data["grp_id"] = None
-        river_group_data = self.data.groupby([self.rive_key, self.group_key, self.coll_key, self.tank_key],
+        river_group_data = self.data.groupby([self.rive_key, self.prio_key, self.coll_key, self.tank_key],
                                              dropna=False).size().reset_index()
 
         if not river_group_data[self.tank_key].is_unique:
             raise Exception("Too many different groups going into same tank. Create multiple events if needed")
 
         for index, row in river_group_data.iterrows():
+            if utils.nan_to_none(row[self.tank_key]):
+                # if fish are only observed, don't make a group
+                data_rows = (self.data[self.tank_key].isnull())
+                self.data.loc[data_rows, "grp_id"] = None
+                break
             stok_id = models.StockCode.objects.filter(name__icontains=row[self.rive_key]).get()
             coll_id = utils.coll_getter(row[self.coll_key])
             anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id=cleaned_data["evnt_id"],
@@ -89,11 +94,11 @@ class ElectrofishingParser(DataParser):
             grp = None
             for anix in anix_grp_qs:
                 anix_prog_grp_names = [adsc.name for adsc in anix.grp_id.prog_group()]
-                if utils.nan_to_none(row[self.group_key]) and row[self.group_key] in anix_prog_grp_names:
+                if utils.nan_to_none(row[self.prio_key]) and row[self.prio_key] in anix_prog_grp_names:
                     grp_found = True
                     grp = anix.grp_id
                     break
-                elif not utils.nan_to_none(row[self.group_key]) and not anix_prog_grp_names:
+                elif not utils.nan_to_none(row[self.prio_key]) and not anix_prog_grp_names:
                     grp_found = True
                     grp = anix.grp_id
                     break
@@ -114,33 +119,39 @@ class ElectrofishingParser(DataParser):
                                                       grp_year=grp.grp_year, coll_id=grp.coll_id).get()
 
                 anix_grp = utils.enter_anix(cleaned_data, grp_pk=grp.pk, return_anix=True)
-                if utils.nan_to_none(row.get(self.group_key)):
+                if utils.nan_to_none(row.get(self.prio_key)):
                     utils.enter_grpd(anix_grp.pk, cleaned_data, cleaned_data["evnt_id"].start_date, None,
-                                     None, anidc_str="Program Group", adsc_str=row[self.group_key])
+                                     None, anidc_str="Program Group", adsc_str=row[self.prio_key])
 
-            if utils.nan_to_none(row.get(self.group_key)):
+            # create index column matching all rows in data to this group-tank-prio combination
+            if utils.nan_to_none(row.get(self.prio_key)):
                 data_rows = (self.data[self.rive_key] == row[self.rive_key]) & \
-                            (self.data[self.group_key] == row[self.group_key]) & \
+                            (self.data[self.prio_key] == row[self.prio_key]) & \
                             (self.data[self.tank_key] == row[self.tank_key]) & \
                             (self.data[self.coll_key] == row[self.coll_key])
             else:
                 data_rows = (self.data[self.rive_key] == row[self.rive_key]) & \
                     (self.data[self.coll_key] == row[self.coll_key]) & \
                     (self.data[self.tank_key] == row[self.tank_key]) & \
-                    (self.data[self.group_key].isnull())
+                    (self.data[self.prio_key].isnull())
 
             # grp found, assign to all rows:
             self.data.loc[data_rows, "grp_id"] = grp
             contx, data_entered = utils.enter_tank_contx(row[self.tank_key], cleaned_data, True, None, grp.pk,
                                                          return_contx=True)
 
-            self.data_dict = self.data.to_dict("records")
+        self.data_dict = self.data.to_dict("records")
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
         row_datetime = utils.get_row_date(row)
         relc_id = None
         rive_id = self.river_dict[row[self.rive_key]]
+
+        if not utils.nan_to_none(row.get(self.tank_key)) and utils.nan_to_none(row.get(self.fish_caught_key)):
+            # make sure if fish are caught they are assigned a tank:
+            raise Exception("All Caught fish must be assigned a tank")
+
         if utils.nan_to_none(row.get(self.site_key)):
             relc_qs = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key])
             if len(relc_qs) == 1:
@@ -174,9 +185,10 @@ class ElectrofishingParser(DataParser):
                                                  relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
         self.loc = loc
-        self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=row["grp_id"].pk, return_sucess=True)
+        if row["grp_id"]:
+            self.row_entered += utils.enter_anix(cleaned_data, loc_pk=loc.pk, grp_pk=row["grp_id"].pk, return_sucess=True)
         if self.loc.loc_lon and self.loc.loc_lat and not self.loc.relc_id:
-            self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n\n{}".format(self.loc.loc_lat, self.loc.loc_lon, row)
+            self.log_data += "\nNo site found in db for Lat-Long ({}, {}) given on row: \n{}\n\n".format(self.loc.loc_lat, self.loc.loc_lon, row)
 
         self.team_parser(row[self.crew_key], row, loc_id=loc)
 

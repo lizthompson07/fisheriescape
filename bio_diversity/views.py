@@ -3080,7 +3080,10 @@ class AddCollFishFormView(mixins.AddCollFishMixin, BioCommonFormView):
         init["coll_date"] = date.today
         if self.kwargs.get("evnt"):
             init["evnt_id"] = models.Event.objects.filter(pk=self.kwargs.get("evnt")).get()
-
+        self.get_form_class().base_fields["site_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["end_tank"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
         return init
 
 
