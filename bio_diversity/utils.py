@@ -231,14 +231,22 @@ def coll_getter(coll_str):
         err_str = ", ".join([coll.name for coll in coll_qs])
         raise Exception("Multiple collections matched to input collection({}): {}".format(coll_str, err_str))
     else:
-        coll_qs = models.Collection.objects.filter(name__icontains=coll_str)
+        coll_qs = models.Collection.objects.filter(name__istartswith=coll_str)
         if len(coll_qs) == 1:
             coll_id = coll_qs.get()
         elif len(coll_qs) > 1:
             err_str = ", ".join([coll.name for coll in coll_qs])
             raise Exception("Multiple collections matched to input collection given({}): {}".format(coll_str, err_str))
         else:
-            raise Exception("No collection in database matching: {}".format(coll_str))
+            coll_qs = models.Collection.objects.filter(name__istartswith=coll_str)
+            if len(coll_qs) == 1:
+                coll_id = coll_qs.get()
+            elif len(coll_qs) > 1:
+                err_str = ", ".join([coll.name for coll in coll_qs])
+                raise Exception(
+                    "Multiple collections matched to input collection given({}): {}".format(coll_str, err_str))
+            else:
+                raise Exception("No collection in database matching: {}".format(coll_str))
 
     return coll_id
 
@@ -377,8 +385,9 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
                     and grp.grp_year == grp_year]
 
     else:
+        coll_id = coll_getter(coll_str)
         grp_qs = models.Group.objects.filter(stok_id__name=stock_str,
-                                             coll_id__name__icontains=coll_str,
+                                             coll_id=coll_id,
                                              grp_year=grp_year)
 
         grp_list = [grp for grp in grp_qs]

@@ -119,6 +119,7 @@ class TestColdbrookParsers(CommonTest):
         # success = False as well as log data of the error
         parser = ColdbrookElectrofishingParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
+        self.assertEqual(parser.rows_entered, 3)
 
         # Tagging parser
         self.cleaned_data["evnt_id"] = self.tagging_evnt

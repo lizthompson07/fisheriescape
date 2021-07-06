@@ -59,8 +59,9 @@ class TaggingParser(DataParser):
         self.ani_health_anidc_id = models.AnimalDetCode.objects.filter(name="Animal Health").get()
 
         year, coll = utils.year_coll_splitter(self.data[self.group_key][0])
+        coll_id = utils.coll_getter(coll)
         grp_qs = models.Group.objects.filter(stok_id__name=self.data_dict[0][self.stok_key],
-                                             coll_id__name__icontains=coll,
+                                             coll_id=coll_id,
                                              grp_year=year)
         if len(grp_qs) == 1:
             self.grp_id = grp_qs.get().pk
@@ -73,8 +74,8 @@ class TaggingParser(DataParser):
         if self.grp_id:
             utils.enter_anix(self.cleaned_data, grp_pk=self.grp_id, return_sucess=False)
         else:
-            raise Exception("Parent group not found in database.  No group with tag {}-{}-{} presnt in tank"
-                            " {}.".format(self.data[self.stok_key], year, coll, self.data[self.from_tank_key][0]))
+            raise Exception("Parent group not found in database.  No group with tag {}-{}-{} present in tank"
+                            " {}.".format(self.data[self.stok_key][0], year, coll, self.data[self.from_tank_key][0]))
         self.stok_id = models.StockCode.objects.filter(name=self.data[self.stok_key][0]).get()
         self.coll_id = utils.coll_getter(coll)
 

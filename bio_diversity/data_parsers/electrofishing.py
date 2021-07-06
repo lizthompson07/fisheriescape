@@ -29,6 +29,7 @@ class ElectrofishingParser(DataParser):
     tank_key = "End Tank"
 
     header = 2
+    converters = {tank_key: str, 'Year': str, 'Month': str, 'Day': str}
     start_grp_dict = {}
     end_grp_dict = {}
 
@@ -75,7 +76,7 @@ class ElectrofishingParser(DataParser):
             raise Exception("Too many different groups going into same tank. Create multiple events if needed")
 
         for index, row in river_group_data.iterrows():
-            if utils.nan_to_none(row[self.tank_key]):
+            if not utils.nan_to_none(row[self.tank_key]):
                 # if fish are only observed, don't make a group
                 data_rows = (self.data[self.tank_key].isnull())
                 self.data.loc[data_rows, "grp_id"] = None
