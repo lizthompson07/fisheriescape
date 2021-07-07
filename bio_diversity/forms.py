@@ -336,15 +336,6 @@ class DataForm(CreatePrams):
                     parser = MactaquacTaggingParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
-            # -----------------------------MATURITY SORTING----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting":
-                if cleaned_data["data_type"].__str__() == "Individual":
-                    parser = GenericIndvParser(cleaned_data)
-                elif cleaned_data["data_type"].__str__() == "Group":
-                    parser = GenericGrpParser(cleaned_data)
-                log_data = parser.log_data
-                success = parser.success
-
             # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
                 parser = WaterQualityParser(cleaned_data)
@@ -392,7 +383,7 @@ class DataForm(CreatePrams):
                 log_data, success = parser.log_data, parser.success
 
             # ------------------------------MEASURING----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Measuring":
+            elif cleaned_data["evntc_id"].__str__() in ["Measuring", "Mortality", "Scanning", "Movement", "Maturity Sorting" ]:
                 if cleaned_data["data_type"].__str__() == "Individual":
                     parser = GenericIndvParser(cleaned_data)
                 elif cleaned_data["data_type"].__str__() == "Group":
@@ -413,7 +404,7 @@ class DataForm(CreatePrams):
                 log_data = parser.log_data
                 success = parser.success
 
-        except Exception as err:
+        except ValueError as err:
             log_data += "Error parsing data: \n"
             log_data += "\n Error: {}".format(err)
 

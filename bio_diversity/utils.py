@@ -100,7 +100,7 @@ class DataParser:
         if self.success:
             try:
                 self.data_preper()
-            except Exception as err:
+            except ValueError as err:
                 err_msg = common_err_parser(err)
                 self.log_data += "\n Error preparing data: {}".format(err_msg)
                 self.success = False
@@ -238,7 +238,7 @@ def coll_getter(coll_str):
             err_str = ", ".join([coll.name for coll in coll_qs])
             raise Exception("Multiple collections matched to input collection given({}): {}".format(coll_str, err_str))
         else:
-            coll_qs = models.Collection.objects.filter(name__istartswith=coll_str)
+            coll_qs = models.Collection.objects.filter(name__icontains=coll_str)
             if len(coll_qs) == 1:
                 coll_id = coll_qs.get()
             elif len(coll_qs) > 1:
@@ -379,13 +379,14 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
     if nan_to_none(prog_str):
         prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
 
-    if cont:
+    coll_id = coll_getter(coll_str)
+
+    if nan_to_none(cont):
         indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
-        grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str and coll_str in grp.coll_id.name
+        grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str and coll_id == grp.coll_id
                     and grp.grp_year == grp_year]
 
     else:
-        coll_id = coll_getter(coll_str)
         grp_qs = models.Group.objects.filter(stok_id__name=stock_str,
                                              coll_id=coll_id,
                                              grp_year=grp_year)
@@ -402,7 +403,7 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
     if len(final_grp_list) == 0 and fail_on_not_found:
         if cont:
             raise Exception("\nGroup {}-{}-{} in container {} and program group {} not uniquely found in"
-                            " db\n".format(stock_str, grp_year, coll_str, cont.name, prog_str))
+                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, cont.fish_in_cont()[1]))
         else:
             raise Exception("\nGroup {}-{}-{} with program group {} not uniquely found in"
                             " db\n".format(stock_str, grp_year, coll_str, prog_str))
@@ -1474,9 +1475,9 @@ def nan_to_none(test_item):
     if type(test_item) == float:
         if math.isnan(test_item):
             return None
-    elif test_item == "nan":
-        return None
-
+    elif type(test_item) == str:
+        if test_item == "nan":
+            return None
     return test_item
 
 
