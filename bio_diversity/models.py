@@ -655,9 +655,7 @@ class EnvTreatment(BioTimeModel):
         return "{}-{}".format(self.contx_id.__str__(), self.envtc_id.__str__())
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'envtc_id', 'start_datetime'], name='Environment_Treatment_Uniqueness')
-        ]
+        unique_together = (('contx_id', 'envtc_id'),)
 
     @property
     def cont(self):
