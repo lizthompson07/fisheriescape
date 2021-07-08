@@ -32,7 +32,7 @@ class TreatmentParser(DataParser):
     gal_unit_id = None
 
     header = 2
-    converters = {'Year': str, 'Month': str, 'Day': str}
+    converters = {tank_key: str, trof_key: str, 'Year': str, 'Month': str, 'Day': str}
     tank_sheet_name = "Ponds"
     eggroom_sheet_name = "Eggrooms"
     tank_data_dict = {}
@@ -129,6 +129,7 @@ class TreatmentParser(DataParser):
                                    amt=amt,
                                    unit_id=unit,
                                    duration=60 * duration,
+                                   start_datetime=row_datetime,
                                    concentration=row_concentration.quantize(Decimal("0.000001")),
                                    created_by=cleaned_data["created_by"],
                                    created_date=cleaned_data["created_date"],

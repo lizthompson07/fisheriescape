@@ -47,6 +47,7 @@ class TestMactaquacParsers(CommonTest):
             "facic_id": mactaquac_facic,
             "evnt_id": self.electrofishing_evnt,
             "evntc_id": self.electrofishing_evntc,
+            "adsc_id": [],
             "data_csv": self.electrofishing_test_data,
             "created_by": self.electrofishing_evnt.created_by,
             "created_date": self.electrofishing_evnt.created_date,
@@ -118,6 +119,7 @@ class TestColdbrookParsers(CommonTest):
         # success = False as well as log data of the error
         parser = ColdbrookElectrofishingParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
+        self.assertEqual(parser.rows_entered, 3)
 
         # Tagging parser
         self.cleaned_data["evnt_id"] = self.tagging_evnt

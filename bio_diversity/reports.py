@@ -15,15 +15,72 @@ from bio_diversity import models, utils
 from dm_apps import settings
 
 
-def generate_facility_tank_report(facic_id):
+class ExcelReport:
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
     target_file = "temp_export.xlsx"
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    template_file_path = None
+    wb = None
 
-    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
-                                      "facility_tank_template.xlsx")
+    template_dir = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates")
+
+    def load_wb(self, template_name):
+        self.template_file_path = os.path.join(self.template_dir, template_name)
+        self.wb = load_workbook(filename=self.template_file_path)
+
+    def get_sheet(self, sheet_name):
+        ws = None
+        try:
+            ws = self.wb[sheet_name]
+        except KeyError:
+            print(sheet_name, "is not a valid name of a worksheet")
+        return ws
+
+    def copy_template(self, sheet_name, template_name="template"):
+        ws = self.wb[template_name]
+        ws.title = sheet_name
+        self.wb.copy_worksheet(ws).title = str(template_name)
+        try:
+            ws = self.wb[sheet_name]
+        except KeyError:
+            print(sheet_name, "is not a valid name of a worksheet")
+        return ws
+
+    def save_wb(self):
+        self.wb.save(self.target_file_path)
+
+
+def cont_treat_writer(ws, cont_evnt_list, row_count, treat_row_count, end_date=utils.naive_to_aware(datetime.now())):
+    treat_list = []
+    for cont_evnt in cont_evnt_list:
+        # cont_evnt = [evntc, date, direction, container]
+        ws['A' + str(row_count)].value = cont_evnt[1]
+        ws['B' + str(row_count)].value = cont_evnt[0]
+        ws['C' + str(row_count)].value = cont_evnt[3].name
+        ws['D' + str(row_count)].value = cont_evnt[2]
+        row_count += 1
+        if cont_evnt[2] == "Destination":
+            start_date = cont_evnt[1]
+            treat_list.extend(cont_evnt[3].cont_treatments(start_date, end_date))
+        if cont_evnt[2] == "Origin":
+            end_date = cont_evnt[1]
+
+    for treat in treat_list:
+        ws['G' + str(treat_row_count)].value = treat.envtc_id.name
+        ws['H' + str(treat_row_count)].value = treat.start_date
+        ws['I' + str(treat_row_count)].value = treat.cont.__str__()
+        ws['J' + str(treat_row_count)].value = treat.concentration_str
+        ws['K' + str(treat_row_count)].value = "{} {}".format(treat.amt, treat.unit_id.name)
+        ws['L' + str(treat_row_count)].value = treat.duration
+        treat_row_count += 1
+    return row_count, treat_row_count, end_date
+
+
+def generate_facility_tank_report(facic_id):
+    report = ExcelReport()
+    report.load_wb("facility_tank_template.xlsx")
 
     facic = models.FacilityCode.objects.filter(pk=facic_id).get()
 
@@ -35,19 +92,11 @@ def generate_facility_tank_report(facic_id):
 
     qs_list = [("Tank", tank_qs), ("Trough", tray_qs), ("Drawer", draw_qs), ("Cup", cup_qs)]
 
-    wb = load_workbook(filename=template_file_path)
-
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
 
     for sheet_name, qs in qs_list:
-        ws = wb['template']
-        ws.title = sheet_name
-        wb.copy_worksheet(ws).title = str("template")
-        try:
-            ws = wb[sheet_name]
-        except KeyError:
-            print(sheet_name, "is not a valid name of a worksheet")
+        ws = report.copy_template(sheet_name)
 
         # start writing data at row 3 in the sheet
         row_count = 3
@@ -79,38 +128,83 @@ def generate_facility_tank_report(facic_id):
 
             row_count += 1
 
-    wb.save(target_file_path)
+    report.save_wb()
 
-    return target_url
+    return report.target_url
 
 
 def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
     # report is given a stock code and returns location of all associated fish
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_export.xlsx"
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    report = ExcelReport()
+    report.load_wb("stock_code_report_template.xlsx")
 
-    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
-                                      "stock_code_report_template.xlsx")
     indv_qs = models.Individual.objects.filter(stok_id=stok_id).select_related("stok_id", "coll_id")
     grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
 
-    wb = load_workbook(filename=template_file_path)
+    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
+    ws_indv = report.copy_template("Individuals")
+    ws_grp = report.copy_template("Groups")
+
+    ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
+    ws_indv["I2"].style = 'Normal'
+    ws_indv["I2"].value = ''
+    ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
+    ws_grp["A2"].style = 'Normal'
+    ws_grp["A2"].value = ''
+    # start writing data at row 3 in the sheet
+    row_count = 3
+    for item in indv_qs:
+        ws_indv['A' + str(row_count)].value = item.pit_tag
+        ws_indv['B' + str(row_count)].value = item.indv_year
+        ws_indv['C' + str(row_count)].value = item.coll_id.name
+        ws_indv['D' + str(row_count)].value = item.prog_group(get_string=True)
+        ws_indv['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
+
+        item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
+                                                         adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
+        indvd_str = ""
+        for indvd in item_indvd:
+            indvd_str += "{}, ".format(indvd.adsc_id.name)
+        ws_indv['F' + str(row_count)].value = indvd_str
+
+        item_sexd = item.individual_detail("Gender")
+        if item_sexd:
+            ws_indv['G' + str(row_count)].value = str(item_sexd)
+        ws_indv['H' + str(row_count)].value = str(item.indv_valid)
+
+        row_count += 1
+
+    row_count = 3
+    for item in grp_qs:
+        ws_grp['B' + str(row_count)].value = item.grp_year
+        ws_grp['C' + str(row_count)].value = item.coll_id.name
+        ws_grp['D' + str(row_count)].value = item.prog_group(get_string=True)
+        ws_grp['E' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
+        ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
+
+        row_count += 1
+
+    report.save_wb()
+
+    return report.target_url
+
+
+def generate_morts_report(facic_id=None, stok_id=None, year=None, coll=None):
+    # report is given some filter criteria, returns all dead fish details.
+    report = ExcelReport()
+    report.load_wb("stock_code_report_template.xlsx")
+
+    indv_qs = models.Individual.objects.all()
+    if stok_id:
+        indv_qs = indv_qs.filter(stok_id=stok_id)
+
+    grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
-    ws_indv = wb['template']
-    ws_indv.title = "Individuals"
-    wb.copy_worksheet(ws_indv).title = str("template")
-    ws_grp = wb['template']
-    ws_grp.title = "Groups"
-    wb.copy_worksheet(ws_grp).title = str("template")
-    try:
-        ws = wb["Individuals"]
-    except KeyError:
-        print("Individuals is not a valid name of a worksheet")
+    ws_indv = report.copy_template("Individuals")
+    ws_grp = report.copy_template("Groups")
 
     ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
     ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
@@ -129,10 +223,9 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
             indvd_str += "{}, ".format(indvd.adsc_id.name)
         ws_indv['E' + str(row_count)].value = indvd_str
 
-        item_sexd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Gender",
-                                                         anix_id__indv_id=item).select_related("adsc_id").first()
+        item_sexd = item.individual_detail("Gender")
         if item_sexd:
-            ws_indv['F' + str(row_count)].value = str(item_sexd.det_val)
+            ws_indv['F' + str(row_count)].value = str(item_sexd)
         ws_indv['G' + str(row_count)].value = str(item.indv_valid)
 
         row_count += 1
@@ -142,13 +235,13 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
         ws_grp['B' + str(row_count)].value = item.grp_year
         ws_grp['C' + str(row_count)].value = item.coll_id.name
         ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
-        ws_grp['E' + str(row_count)].value = item.count_fish_in_group(at_date)
+        ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
 
         row_count += 1
 
-    wb.save(target_file_path)
+    report.save_wb()
 
-    return target_url
+    return report.target_url
 
 
 def generate_detail_report(adsc_id, stok_id=None):
@@ -156,14 +249,10 @@ def generate_detail_report(adsc_id, stok_id=None):
     # all fish with that detail
     # group and that detail count
     # container breakdown of the detail
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_export.xlsx"
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
 
-    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
-                                      "detail_report_template.xlsx")
+    report = ExcelReport()
+    report.load_wb("detail_report_template.xlsx")
+
     indvd_set = models.IndividualDet.objects.all()
     if stok_id:
         indvd_set = indvd_set.filter(anix_id__indv_id__stok_id=stok_id)
@@ -174,12 +263,11 @@ def generate_detail_report(adsc_id, stok_id=None):
         select_related("samp_id__anix_id__grp_id", "samp_id__anix_id__grp_id__stok_id", "samp_id__anix_id__grp_id__coll_id",)
     grp_list = list(dict.fromkeys([sampd.samp_id.anix_id.grp_id for sampd in sampd_set]))
 
-    wb = load_workbook(filename=template_file_path)
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
-    ws_indv = wb['Individuals']
-    ws_grp = wb['Groups']
+    ws_indv = report.get_sheet('Individuals')
+    ws_grp = report.get_sheet('Groups')
 
     ws_indv['A1'].value = "Detail: {}".format(adsc_id.name)
     # start writing data at row 3 in the sheet
@@ -220,9 +308,8 @@ def generate_detail_report(adsc_id, stok_id=None):
         ws_grp['J' + str(row_count)].value = sampd_qs.last().samp_id.anix_id.evnt_id.__str__()
         row_count += 1
 
-    wb.save(target_file_path)
-
-    return target_url
+    report.save_wb()
+    return report.target_url
 
 
 def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
@@ -262,75 +349,84 @@ def write_location_to_sheet(ws, site_location, row_count, rive_name, site_name):
 
 def generate_sites_report(sites_list, locations_list, start_date=None, end_date=None):
     if not start_date:
-        start_date = datetime.min.replace(tzinfo=pytz.UTC)
+        start_date = "Not Picked"
     if not end_date:
         end_date = datetime.now().replace(tzinfo=pytz.UTC)
 
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_export.xlsx"
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    report = ExcelReport()
+    report.load_wb("site_report_template.xlsx")
 
-    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
-                                      "site_report_template.xlsx")
-
-    wb = load_workbook(filename=template_file_path)
-
-    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+       # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
-    ws_indv = wb['template']
-    ws_indv.title = "Sites"
-    wb.copy_worksheet(ws_indv).title = str("template")
-    try:
-        ws = wb["Sites"]
-    except KeyError:
-        print("Individuals is not a valid name of a worksheet")
+    ws = report.get_sheet("Sites")
+    ws_indv = report.get_sheet("Individuals")
 
     # put in start and end dates
+    ws['B1'].value = start_date
+    ws['B2'].value = end_date
     ws_indv['B1'].value = start_date
     ws_indv['B2'].value = end_date
-    # start writing data at row 3 in the sheet
+    # start writing data at row 4 in the sheet
     row_count = 4
-    # locations with no sites
+    # split off locations with no sites
     no_sites_list = [location for location in locations_list if not location.relc_id]
     locations_list = [location for location in locations_list if location.relc_id]
+    no_locs_list = []
     for site in sites_list:
         site_name = site.name
         rive_name = site.rive_id.name
         site_locations = [location for location in locations_list if location.relc_id.pk == site.pk]
+        if not site_locations:
+            no_locs_list.append(site)
 
         for site_location in site_locations:
-            row_count = write_location_to_sheet(ws_indv, site_location, row_count, rive_name, site_name)
+            row_count = write_location_to_sheet(ws, site_location, row_count, rive_name, site_name)
 
     for location in no_sites_list:
         if location.rive_id:
             rive_name = location.rive_id.name
         else:
             rive_name = None
-        row_count = write_location_to_sheet(ws_indv, location, row_count, rive_name, None)
+        row_count = write_location_to_sheet(ws, location, row_count, rive_name, None)
 
-    wb.save(target_file_path)
+    for site in no_locs_list:
+        ws['A' + str(row_count)].value = site.rive_id.name
+        ws['B' + str(row_count)].value = site.name
+        ws['D' + str(row_count)].value = "No Events at location"
+        row_count += 1
 
-    return target_url
+    anix_indv_set = models.AniDetailXref.objects.filter(loc_id__in=locations_list, indv_id__isnull=False)\
+        .select_related("indv_id", "indv_id__coll_id", "indv_id__stok_id", "loc_id", "loc_id__locc_id", "loc_id__relc_id")
+    indv_list = [(anix.indv_id, anix.loc_id) for anix in anix_indv_set]
+    row_count = 4
+    for indv, loc in indv_list:
+        ws_indv['A' + str(row_count)].value = indv.pit_tag
+        ws_indv['B' + str(row_count)].value = indv.stok_id.name
+        ws_indv['C' + str(row_count)].value = indv.indv_year
+        ws_indv['D' + str(row_count)].value = indv.coll_id.name
+        ws_indv['E' + str(row_count)].value = indv.individual_detail(anidc_name="Lifestage", before_date=loc.loc_date)
+        ws_indv['F' + str(row_count)].value = loc.relc_id.name
+        ws_indv['G' + str(row_count)].value = loc.loc_date
+        ws_indv['H' + str(row_count)].value = loc.locc_id.name
+        ws_indv['I' + str(row_count)].value = indv.prog_group(get_string=True)
+        ws_indv['J' + str(row_count)].value = indv.individual_detail(anidc_name="Gender", before_date=loc.loc_date)
+        ws_indv['K' + str(row_count)].value = indv.individual_detail(anidc_name="Length", before_date=loc.loc_date)
+        ws_indv['L' + str(row_count)].value = indv.individual_detail(anidc_name="Weight", before_date=loc.loc_date)
+        row_count += 1
+    report.save_wb()
+
+    return report.target_url
 
 
 def generate_individual_report(indv_id):
 
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
-    target_file = "temp_export.xlsx"
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    report = ExcelReport()
+    report.load_wb("individual_report_template.xlsx")
 
-    template_file_path = os.path.join(settings.BASE_DIR, 'bio_diversity', 'static', "report_templates",
-                                      "individual_report_template.xlsx")
-
-    wb = load_workbook(filename=template_file_path)
-    ws_evnt = wb['Event History']
-    ws_hist = wb['Heritage']
-    ws_cont = wb['Containers']
-    ws_dets = wb['Details']
+    ws_evnt = report.get_sheet('Event History')
+    ws_hist = report.get_sheet('Heritage')
+    ws_cont = report.get_sheet('Containers')
+    ws_dets = report.get_sheet('Details')
 
     # -----------------Heritage Sheet---------------
     prnt_grp_set = indv_id.get_parent_history()
@@ -363,7 +459,7 @@ def generate_individual_report(indv_id):
         ws_evnt['A' + str(row_count)].value = evnt.start_date
         ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
         ws_evnt['C' + str(row_count)].value = ""
-        ws_evnt['D' + str(row_count)].value = indv_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+        ws_evnt['D' + str(row_count)].value = indv_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
         row_count += 1
 
     for grp_tuple in prnt_grp_set:
@@ -383,19 +479,14 @@ def generate_individual_report(indv_id):
             ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
             row_count += 1
 
-    #-----------------Container Sheet------------------------
+    # -----------------Container Sheet------------------------
     anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
         .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
         .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
     contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
     cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
     row_count = 5
-    for cont_evnt in cont_evnt_list:
-        ws_cont['A' + str(row_count)].value = cont_evnt[1]
-        ws_cont['B' + str(row_count)].value = cont_evnt[0]
-        ws_cont['C' + str(row_count)].value = cont_evnt[3]
-        ws_cont['D' + str(row_count)].value = cont_evnt[2]
-        row_count += 1
+    row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
@@ -405,17 +496,12 @@ def generate_individual_report(indv_id):
                                                      pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
                                                      evnt_id__start_datetime__gte=start_date)\
             .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
-            .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
+            .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
-        for cont_evnt in cont_evnt_list:
-            ws_cont['A' + str(row_count)].value = cont_evnt[1]
-            ws_cont['B' + str(row_count)].value = cont_evnt[0]
-            ws_cont['C' + str(row_count)].value = cont_evnt[3]
-            ws_cont['D' + str(row_count)].value = cont_evnt[2]
-            row_count += 1
+        treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
 
-    #-----------------Details Sheet------------------------
+    # -----------------Details Sheet------------------------
     indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct().\
         order_by("anidc_id__name", "adsc_id", "-detail_date").select_related("anidc_id", "adsc_id", )
     row_count = 5
@@ -427,7 +513,7 @@ def generate_individual_report(indv_id):
         ws_dets['B' + str(row_count)].value = indvd.anidc_id.name
         ws_dets['C' + str(row_count)].value = adsc_name
         ws_dets['D' + str(row_count)].value = indvd.det_val
-        ws_dets['E' + str(row_count)].value = indv_id.current_cont(indvd.detail_date)[0].name
+        ws_dets['E' + str(row_count)].value = indv_id.current_cont(indvd.detail_date, get_string=True)
         row_count += 1
 
     indvt_set = models.IndTreatment.objects.filter(anix_id__indv_id=indv_id).distinct().select_related("indvtc_id",
@@ -440,9 +526,96 @@ def generate_individual_report(indv_id):
         ws_dets['K' + str(row_count)].value = indvt.unit_id.name
         row_count += 1
 
-    wb.save(target_file_path)
+    report.save_wb()
 
-    return target_url
+    return report.target_url
+
+
+def generate_grp_report(grp_id):
+
+    report = ExcelReport()
+    report.load_wb("group_report_template.xlsx")
+
+    ws_evnt = report.get_sheet('Event History')
+    ws_hist = report.get_sheet('Heritage')
+    ws_cont = report.get_sheet('Containers')
+
+    # -----------------Heritage Sheet---------------
+    prnt_grp_set = grp_id.get_parent_history()
+    row_count = 5
+    true_false_dict = {True: "Yes", False: "No"}
+    for grp_tuple in prnt_grp_set:
+        grp_id = grp_tuple[1]
+        conts = ', '.join([cont.__str__() for cont in grp_id.current_cont()])
+        ws_hist['A' + str(row_count)].value = grp_tuple[2]
+        ws_hist['B' + str(row_count)].value = grp_tuple[0]
+        ws_hist['C' + str(row_count)].value = grp_id.__str__()
+        ws_hist['D' + str(row_count)].value = true_false_dict[grp_id.grp_valid]
+        ws_hist['E' + str(row_count)].value = conts
+        row_count += 1
+
+    # -----------Events Sheet------------------
+    # put in start and end dates
+    ws_evnt['B2'].value = datetime.today().date()
+    ws_evnt['B3'].value = grp_id.animal_details.first().evnt_id.facic_id.name
+    ws_evnt['E2'].value = grp_id.__str__()
+    ws_evnt['E3'].value = grp_id.prog_group(get_string=True)
+
+    anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True, pair_id__isnull=True) \
+        .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
+                                                             'evnt_id__prog_id', 'evnt_id__perc_id')
+    evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
+
+    row_count = 6
+    for evnt in evnt_list:
+        ws_evnt['A' + str(row_count)].value = evnt.start_date
+        ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
+        ws_evnt['C' + str(row_count)].value = ""
+        ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date), get_string=True)
+        row_count += 1
+
+    for grp_tuple in prnt_grp_set:
+        grp_id = grp_tuple[1]
+        start_date = utils.naive_to_aware(grp_id.start_date())
+        end_date = utils.naive_to_aware(grp_tuple[2])
+        anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                     evnt_id__start_datetime__gte=start_date)\
+            .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
+                                                                 'evnt_id__prog_id', 'evnt_id__perc_id')
+        evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
+        for evnt in evnt_list:
+            ws_evnt['A' + str(row_count)].value = evnt.start_date
+            ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
+            ws_evnt['C' + str(row_count)].value = grp_id.__str__()
+            ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+            row_count += 1
+
+    # -----------------Container Sheet------------------------
+    anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
+        .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
+        .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
+    contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+    cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+    row_count = 5
+    row_count, treat_row_count, treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, row_count)
+
+    for grp_tuple in prnt_grp_set:
+        grp_id = grp_tuple[1]
+        start_date = utils.naive_to_aware(grp_id.start_date())
+        end_date = utils.naive_to_aware(grp_tuple[2])
+        anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                     evnt_id__start_datetime__gte=start_date)\
+            .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
+            .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
+        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+        cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+        treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
+
+    report.save_wb()
+
+    return report.target_url
 
 
 def generate_growth_chart(plot_fish):

@@ -97,6 +97,7 @@ class MasterGrpParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.tank_key, self.group_key, self.stok_key, self.year_coll_key, self.cnt_key])
+        self.mandatory_filled_keys.extend([self.tank_key, self.stok_key, self.year_coll_key, self.cnt_key])
         super(MasterGrpParser, self).load_data()
 
     def data_preper(self):
