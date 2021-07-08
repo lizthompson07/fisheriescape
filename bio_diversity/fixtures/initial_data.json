@@ -304,6 +304,22 @@
     }
 },
 {
+    "model": "bio_diversity.animaldetcode",
+    "pk": 22,
+    "fields": {
+        "name": "Lifestage",
+        "nom": null,
+        "description_en": "Recorder lifestage of a fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-07-5",
+        "min_val": null,
+        "max_val": null,
+        "unit_id": null,
+        "ani_subj_flag": false
+    }
+},
+{
     "model": "bio_diversity.anidetsubjcode",
     "pk": 2,
     "fields": {
@@ -655,6 +671,71 @@
     }
 },
 {
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 29,
+    "fields": {
+        "name": "Aquaculture",
+        "nom": null,
+        "description_en": "Describes a fish originating from an aquaculture facility.",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 7
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 30,
+    "fields": {
+        "name": "Adult",
+        "nom": null,
+        "description_en": "Adult Fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 22
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 31,
+    "fields": {
+        "name": "Fry",
+        "nom": null,
+        "description_en": "Fry Fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 22
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 32,
+    "fields": {
+        "name": "Parr",
+        "nom": null,
+        "description_en": "Parr Fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 22
+    }
+},
+{
+    "model": "bio_diversity.anidetsubjcode",
+    "pk": 33,
+    "fields": {
+        "name": "Smolt",
+        "nom": null,
+        "description_en": "Smolt Fish",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-16",
+        "anidc_id": 22
+    }
+},
+{
     "model": "bio_diversity.collection",
     "pk": 20,
     "fields": {
@@ -709,6 +790,18 @@
         "name": "Wild Pre Smolt (WPS)",
         "nom": null,
         "description_en": "Pre Smolt fish from the tobique river",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-06-01"
+    }
+},
+{
+    "model": "bio_diversity.collection",
+    "pk": 25,
+    "fields": {
+        "name": "Unknown Collection",
+        "nom": null,
+        "description_en": "Fish with unknown collection code",
         "description_fr": "",
         "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
         "created_date": "2021-06-01"
@@ -1643,7 +1736,7 @@
     "model": "bio_diversity.eventcode",
     "pk": 19,
     "fields": {
-        "name": "Salmon Ladder Collection",
+        "name": "Adult Collection",
         "nom": null,
         "description_en": "",
         "description_fr": "",
@@ -2111,7 +2204,7 @@
     "model": "bio_diversity.loccode",
     "pk": 10,
     "fields": {
-        "name": "Salmon Ladder Site",
+        "name": "Adult Collection Site",
         "nom": null,
         "description_en": "",
         "description_fr": "",
@@ -2164,22 +2257,6 @@
         "min_val": "0.00000",
         "max_val": "10000.00000",
         "unit_id": 15,
-        "loc_subj_flag": false
-    }
-},
-{
-    "model": "bio_diversity.locationdetcode",
-    "pk": 4,
-    "fields": {
-        "name": "Lifestage",
-        "nom": null,
-        "description_en": "Lifestage of fish present at a location.",
-        "description_fr": "",
-        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
-        "created_date": "2021-05-18",
-        "min_val": null,
-        "max_val": null,
-        "unit_id": null,
         "loc_subj_flag": false
     }
 },

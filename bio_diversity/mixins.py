@@ -544,7 +544,7 @@ class SampMixin:
     key = 'samp'
     model = models.Sample
     form_class = forms.SampForm
-    title = _("Sample ")
+    title = _("Sample")
     admin_only = False
 
 

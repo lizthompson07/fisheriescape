@@ -43,6 +43,8 @@ class DataParser:
     day_key = "Day"
 
     mandatory_keys = []
+    mandatory_filled_keys = []
+
     header = 1
     converters = {year_key: str, month_key: str, day_key: str}
     sheet_name = 0
@@ -53,6 +55,7 @@ class DataParser:
     def __init__(self, cleaned_data, autorun=True):
         self.cleaned_data = cleaned_data
         self.mandatory_keys = [self.year_key, self.month_key, self.day_key]
+        self.mandatory_filled_keys = [self.year_key, self.month_key, self.day_key]
         if autorun:
             self.load_data()
             self.prep_data()
@@ -72,8 +75,16 @@ class DataParser:
 
         for key in self.mandatory_keys:
             if key not in list(self.data):
+                # Make sure mandatory key columns exist
                 self.log_data += "Column with header \"{}\" not found in worksheet \n".format(key)
                 self.success = False
+        if self.success:
+            for key in self.mandatory_filled_keys:
+                # make sure mandatory columns are filled
+                key_nan_cnt = self.data[key].astype(str).str.fullmatch('nan|none', case=False, na=True).any()
+                if key_nan_cnt:
+                    self.log_data += "Mandatory column with header \"{}\" has missing values. \n".format(key)
+                    self.success = False
 
         if self.data is None:
             self.log_data += "\n No data in file.  Possible reasons include: incorrect sheet name or incorrect number" \
@@ -193,8 +204,13 @@ def team_list_splitter(team_str, valid_only=True):
 
 
 def year_coll_splitter(full_str):
-    coll = full_str.lstrip(' 0123456789')
-    year = int(full_str[:len(full_str) - len(coll)])
+    try:
+        coll = full_str.lstrip(' 0123456789')
+        year = int(full_str[:len(full_str) - len(coll)])
+    except ValueError:
+        raise Exception("Collection column must be formated: YYYY AAA, where AAA is the river code.  Collction entered:"
+                        " {}".format(full_str))
+
     return year, coll.strip()
 
 
@@ -215,14 +231,22 @@ def coll_getter(coll_str):
         err_str = ", ".join([coll.name for coll in coll_qs])
         raise Exception("Multiple collections matched to input collection({}): {}".format(coll_str, err_str))
     else:
-        coll_qs = models.Collection.objects.filter(name__icontains=coll_str)
+        coll_qs = models.Collection.objects.filter(name__istartswith=coll_str)
         if len(coll_qs) == 1:
             coll_id = coll_qs.get()
         elif len(coll_qs) > 1:
             err_str = ", ".join([coll.name for coll in coll_qs])
             raise Exception("Multiple collections matched to input collection given({}): {}".format(coll_str, err_str))
         else:
-            raise Exception("No collection in database matching: {}".format(coll_str))
+            coll_qs = models.Collection.objects.filter(name__icontains=coll_str)
+            if len(coll_qs) == 1:
+                coll_id = coll_qs.get()
+            elif len(coll_qs) > 1:
+                err_str = ", ".join([coll.name for coll in coll_qs])
+                raise Exception(
+                    "Multiple collections matched to input collection given({}): {}".format(coll_str, err_str))
+            else:
+                raise Exception("No collection in database matching: {}".format(coll_str))
 
     return coll_id
 
@@ -270,7 +294,7 @@ def get_cont_evnt(contx_tuple):
     output_list = [contx.evnt_id.evntc_id.__str__(), contx.evnt_id.start_date, in_out_dict[contx_tuple[1]]]
     for cont in [contx.tank_id, contx.cup_id, contx.tray_id, contx.trof_id, contx.draw_id, contx.heat_id]:
         if cont:
-            output_list.append("{}".format(cont.__str__()))
+            output_list.append(cont)
             break
     return output_list
 
@@ -355,14 +379,16 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
     if nan_to_none(prog_str):
         prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
 
-    if cont:
+    coll_id = coll_getter(coll_str)
+
+    if nan_to_none(cont):
         indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
-        grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str and coll_str in grp.coll_id.name
+        grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str and coll_id == grp.coll_id
                     and grp.grp_year == grp_year]
 
     else:
         grp_qs = models.Group.objects.filter(stok_id__name=stock_str,
-                                             coll_id__name__icontains=coll_str,
+                                             coll_id=coll_id,
                                              grp_year=grp_year)
 
         grp_list = [grp for grp in grp_qs]
@@ -377,7 +403,7 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
     if len(final_grp_list) == 0 and fail_on_not_found:
         if cont:
             raise Exception("\nGroup {}-{}-{} in container {} and program group {} not uniquely found in"
-                            " db\n".format(stock_str, grp_year, coll_str, cont.name, prog_str))
+                            " db\n Groups in container are: {}".format(stock_str, grp_year, coll_str, cont.name, prog_str, cont.fish_in_cont()[1]))
         else:
             raise Exception("\nGroup {}-{}-{} with program group {} not uniquely found in"
                             " db\n".format(stock_str, grp_year, coll_str, prog_str))
@@ -394,10 +420,14 @@ def get_relc_from_point(shapely_geom):
     return None
 
 
-def get_row_date(row):
+def get_row_date(row, get_time=False):
     try:
-        row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
-                                         "%Y-%b-%d").replace(tzinfo=pytz.UTC)
+        if get_time:
+            row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"] + "-" + row["Time"],
+                                             "%Y-%b-%d-%H:%M").replace(tzinfo=pytz.UTC)
+        else:
+            row_datetime = datetime.strptime(row["Year"] + "-" + row["Month"] + "-" + row["Day"],
+                                            "%Y-%b-%d").replace(tzinfo=pytz.UTC)
     except Exception as err:
         raise Exception("\nFailed to parse date from row, make sure column headers are : \"Year\", \"Month\", \"Day\" "
                         "and the format used is: 1999-Jan-1 \n \n {}".format(err))
@@ -1031,7 +1061,8 @@ def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=Non
 
 def enter_mortality(indv, cleaned_data, mort_date):
     data_entered = False
-    mortality_evnt = models.Event(evntc_id=models.EventCode.objects.filter(name="Mortality").get(),
+    mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
+    mortality_evnt = models.Event(evntc_id=mort_evntc,
                                   facic_id=cleaned_data["evnt_id"].facic_id,
                                   prog_id=cleaned_data["evnt_id"].prog_id,
                                   perc_id=cleaned_data["evnt_id"].perc_id,
@@ -1055,18 +1086,23 @@ def enter_mortality(indv, cleaned_data, mort_date):
     new_cleaned_data["evnt_id"] = mortality_evnt
     anix, anix_entered = enter_anix(new_cleaned_data, indv_pk=indv.pk)
     data_entered += anix_entered
+    for cont in indv.current_cont(at_date=mort_date):
+        data_entered += enter_contx(cont, new_cleaned_data, False, indv.pk)
+
     indv.indv_valid = False
     indv.save()
+
     return mortality_evnt, anix, data_entered
 
 
-def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=None):
+def enter_samp(cleaned_data, samp_num, spec_pk, sampc_pk, anix_pk=None, loc_pk=None, comments=None):
     samp_entered = False
     samp = models.Sample(anix_id_id=anix_pk,
                          loc_id_id=loc_pk,
                          spec_id_id=spec_pk,
                          samp_num=samp_num,
                          sampc_id_id=sampc_pk,
+                         comments = comments,
                          created_by=cleaned_data["created_by"],
                          created_date=cleaned_data["created_date"],
                          )
@@ -1439,9 +1475,9 @@ def nan_to_none(test_item):
     if type(test_item) == float:
         if math.isnan(test_item):
             return None
-    elif test_item == "nan":
-        return None
-
+    elif type(test_item) == str:
+        if test_item == "nan":
+            return None
     return test_item
 
 

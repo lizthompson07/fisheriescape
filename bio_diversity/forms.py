@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from bio_diversity.data_parsers.distributions import DistributionIndvParser, DistributionParser
 from bio_diversity.data_parsers.electrofishing import ColdbrookElectrofishingParser, MactaquacElectrofishingParser, \
-    ElectrofishingParser, SalmonLadderParser
+    ElectrofishingParser, AdultCollectionParser
 from bio_diversity.static.calculation_constants import sfa_nums
 
 from bio_diversity import models
@@ -290,6 +290,8 @@ class DataForm(CreatePrams):
     data_type = forms.ChoiceField(choices=data_types, label=_("Type of data entry"))
     trof_id = forms.ModelChoiceField(queryset=models.Trough.objects.all(), label="Trough")
     pickc_id = forms.ModelMultipleChoiceField(queryset=models.CountCode.objects.all(), label="Pick Type")
+    adsc_id = forms.ModelMultipleChoiceField(queryset=models.AniDetSubjCode.objects.all(),
+                                             label="Additional Detail Columns")
 
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
@@ -321,9 +323,9 @@ class DataForm(CreatePrams):
                     parser = MactaquacElectrofishingParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
-            # ----------------------------SALMON LADDERCOLLECTION-----------------------------------
-            elif cleaned_data["evntc_id"].__str__() in ["Salmon Ladder Collection"]:
-                parser = SalmonLadderParser(cleaned_data)
+            # ----------------------------Adult COLLECTION-----------------------------------
+            elif cleaned_data["evntc_id"].__str__() in ["Adult Collection"]:
+                parser = AdultCollectionParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 
             # -------------------------------TAGGING----------------------------------------
@@ -333,15 +335,6 @@ class DataForm(CreatePrams):
                 elif cleaned_data["facic_id"].__str__() == "Mactaquac":
                     parser = MactaquacTaggingParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
-
-            # -----------------------------MATURITY SORTING----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Maturity Sorting":
-                if cleaned_data["data_type"].__str__() == "Individual":
-                    parser = GenericIndvParser(cleaned_data)
-                elif cleaned_data["data_type"].__str__() == "Group":
-                    parser = GenericGrpParser(cleaned_data)
-                log_data = parser.log_data
-                success = parser.success
 
             # ---------------------------WATER QUALITY----------------------------------------
             elif cleaned_data["evntc_id"].__str__() == "Water Quality Record":
@@ -390,7 +383,7 @@ class DataForm(CreatePrams):
                 log_data, success = parser.log_data, parser.success
 
             # ------------------------------MEASURING----------------------------------------
-            elif cleaned_data["evntc_id"].__str__() == "Measuring":
+            elif cleaned_data["evntc_id"].__str__() in ["Measuring", "Mortality", "Scanning", "Movement", "Maturity Sorting" ]:
                 if cleaned_data["data_type"].__str__() == "Individual":
                     parser = GenericIndvParser(cleaned_data)
                 elif cleaned_data["data_type"].__str__() == "Group":
@@ -830,9 +823,9 @@ class MapForm(forms.Form):
     rive_id = forms.ModelChoiceField(queryset=models.RiverCode.objects.all(), required=False, label=_("River Code"))
     subr_id = forms.ModelChoiceField(queryset=models.SubRiverCode.objects.all(), required=False, label=_("Sub River Code"))
     trib_id = forms.ModelChoiceField(queryset=models.Tributary.objects.all(), required=False, label=_("Tributary"))
-    sfa_choices = [(item, item) for item in sfa_nums]
+    sfa_choices = [(str(item), str(item)) for item in sfa_nums]
     sfa_choices.insert(0, (None, "---"))
-    sfa = forms.ChoiceField(choices=sfa_choices, required=False)
+    sfa = forms.MultipleChoiceField(choices=sfa_choices, required=False)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1022,15 +1015,14 @@ class RelcForm(CreatePrams):
 
 
 class ReportForm(forms.Form):
-    class Meta:
-        model = models.ReleaseSiteCode
-        exclude = []
 
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Facility Tanks Report (xlsx)"),
         (2, "River Code Report Report (xlsx)"),
         (3, "Details Report (xlsx)"),
+        (4, "Individual Report (xlsx)"),
+        (5, "Group Report (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     facic_id = forms.ModelChoiceField(required=False,
@@ -1042,6 +1034,12 @@ class ReportForm(forms.Form):
     adsc_id = forms.ModelChoiceField(required=False,
                                      queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),
                                      label=_("Search Detail"))
+    indv_id = forms.ModelChoiceField(required=False,
+                                     queryset=models.Individual.objects.filter(pit_tag__isnull=False).select_related("stok_id", "coll_id"),
+                                     label=_("Individual"))
+    grp_id = forms.ModelChoiceField(required=False,
+                                    queryset=models.Group.objects.all().select_related("stok_id", "coll_id"),
+                                    label=_("Group"))
     on_date = forms.DateField(required=False, label=_("Report Date"))
 
     def __init__(self, *args, **kwargs):
