@@ -68,6 +68,28 @@ var map = L.map('map3', {
     layers: [streets, pointObject] //this says what to have on by default
 });
 
+
+// Get the fishing grid geojson information direct from geojson file - method 1
+
+// $.getJSON($('link[rel="polygons"]').attr("href"), function(data) {
+//     var fishingGrid = L.geoJson(data, {
+//         onEachFeature: function (feature, layer) {
+//             layer.bindPopup(feature.properties.GridName);
+//         }
+//     });
+//
+//     fishingGrid.addTo(map);
+// });
+
+// Get the fishing grid geojson information direct from geojson file using AJAX plugin - method 2
+
+function popUp(feature, layer) {
+    layer.bindPopup(feature.properties.GridName);
+  }
+
+var fishingGrid = new L.GeoJSON.AJAX($('link[rel="polygons"]').attr("href"), {onEachFeature:popUp});
+
+
 // Create basemaps variable and add basemaps desired to it as options
 
 var baseMaps = {
@@ -79,7 +101,7 @@ var overlayMaps = {
     "incident": pointObject,
     "all incidents": allPointObject,
     "resights": resightObject,
-
+    "fishing grids": fishingGrid,
 };
 
 // Create the control layer box and add baseMaps and overlayMaps to it
