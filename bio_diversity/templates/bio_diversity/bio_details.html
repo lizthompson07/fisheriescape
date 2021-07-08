@@ -40,7 +40,9 @@
                     </div>
                     <div class="col-sm">
                     {% for key, value in calculated_properties.items %}
-                        <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                        {% if value %}
+                            <div class="container"><span class="font-weight-bold">{{key}} : </span><span>{{value}}</span></div>
+                        {% endif %}
                     {% endfor %}
                     </div>
                 </div>

@@ -251,6 +251,11 @@ class BioCont(BioLookup):
             cont_feed = []
         return cont_feed
 
+    def cont_treatments(self, start_date=datetime.now().replace(tzinfo=pytz.UTC), end_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        filter_arg = "contx_id__{}_id".format(self.key)
+        envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
+        return envt_qs
+
 
 class AnimalDetCode(BioLookup):
     # anidc tag
@@ -630,7 +635,7 @@ class EnvTreatCode(BioLookup):
     manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"), db_column="MANUFACTURER")
 
 
-class EnvTreatment(BioModel):
+class EnvTreatment(BioTimeModel):
     # envt tag
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, related_name="env_treatment",
                                  verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
@@ -650,9 +655,14 @@ class EnvTreatment(BioModel):
         return "{}-{}".format(self.contx_id.__str__(), self.envtc_id.__str__())
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'envtc_id'], name='Environment_Treatment_Uniqueness')
-        ]
+        unique_together = (('contx_id', 'envtc_id', 'start_datetime'),)
+
+    @property
+    def cont(self):
+        for cont_id in [self.contx_id.cup_id, self.contx_id.draw_id, self.contx_id.tray_id, self.contx_id.tank_id, self.contx_id.trof_id, self.contx_id.heat_id]:
+            if cont_id:
+                return cont_id
+        return None
 
     @property
     def concentration_str(self):
@@ -878,11 +888,18 @@ class Group(BioModel):
     def current_trof(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         return self.current_cont_by_key('trof', at_date)
 
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
         current_cont_list = []
+        if not self.grp_valid:
+            return current_cont_list
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
+        if get_string:
+            cont_str = ""
+            for cont in current_cont_list:
+                cont_str += "{}, ".format(cont.name)
+            return cont_str
         return current_cont_list
 
     def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
@@ -1191,7 +1208,7 @@ class Individual(BioModel):
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"), db_column="STOCK_ID")
     indv_year = models.IntegerField(verbose_name=_("Collection year"), default=2000, db_column="YEAR",
                                     validators=[MinValueValidator(2000), MaxValueValidator(2100)])
-    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True, db_column="COLLECTION_ID",
+    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, default=25, db_column="COLLECTION_ID",
                                 verbose_name=_("Collection"))
     # ufid = unique FISH id
     ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("ABL Fish UFID"),
@@ -1231,11 +1248,18 @@ class Individual(BioModel):
                 cont_list.append(cont)
         return cont_list
 
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
         current_cont_list = []
+        if not self.indv_valid:
+            return current_cont_list
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
+        if get_string:
+            cont_str = ""
+            for cont in current_cont_list:
+                cont_str += "{} ".format(cont.name)
+            return cont_str
         return current_cont_list
 
     def get_parent_history(self):
@@ -1251,15 +1275,17 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_detail(self, anidc_name="Length"):
-        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").first()
+    def individual_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                    detail_date__lte=before_date).order_by("-detail_date").first()
         if latest_indvd:
             return latest_indvd.det_val
         else:
             return None
 
-    def individual_subj_detail(self, anidc_name="Animal Health"):
-        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").select_related("adsc_id").first()
+    def individual_subj_detail(self, anidc_name="Animal Health", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                    detail_date__lte=before_date).order_by("-detail_date").select_related("adsc_id").first()
         if latest_indvd:
             return latest_indvd.adsc_id.name
         else:
@@ -1743,7 +1769,7 @@ class RoleCode(BioLookup):
 class Sample(BioModel):
     # samp tag
     loc_id = models.ForeignKey('Location', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Location"),
-                               db_column="LOCATION_ID")
+                               db_column="LOCATION_ID", related_name="samples")
     anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Animal Detail X Ref"),
                                 db_column="ANI_DET_X_REF_ID")
     samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")
