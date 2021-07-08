@@ -299,10 +299,6 @@ urlpatterns = [
     
     path('map/', views.LocMapTemplateView.as_view(), name="loc_map"),
     path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/', views.LocMapTemplateView.as_view(), name="loc_map"),
-    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/start/<str:start>/end/<str:end>/', views.LocMapTemplateView.as_view(), name="loc_map"),
-    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/start/<str:start>/end/<str:end>/sfa/<str:sfa>/', views.LocMapTemplateView.as_view(), name="loc_map"),
-    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/start/<str:start>/end/<str:end>/riv/<str:rive_id>/', views.LocMapTemplateView.as_view(), name="loc_map"),
-    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/start/<str:start>/end/<str:end>/riv/<str:rive_id>/sfa/<str:sfa>/', views.LocMapTemplateView.as_view(), name="loc_map"),
 
     path('create/mort/<str:iorg>/<int:pk>/', views.MortFormView.as_view(), name="create_mort"),
     path('create/mort/<str:iorg>/<int:pk>/<str:pop>/', views.MortFormView.as_view(), name="create_mort"),
@@ -385,7 +381,8 @@ urlpatterns = [
     path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
     path('reports/detail_report/', views.detail_report, name="detail_report"),
     path('reports/site_report_file/', views.site_report_file, name="site_report_file"),
-    path('reports/individual_report_file/', views.indvidual_report_file, name="individual_report_file"),
+    path('reports/individual_report_file/', views.individual_report_file, name="individual_report_file"),
+    path('reports/grp_report_file/', views.grp_report_file, name="grp_report_file"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),

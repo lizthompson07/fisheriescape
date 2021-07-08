@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
 import os
 
+import shapely.ops
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -274,11 +275,13 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             self.get_form_class().base_fields["data_csv"].required = True
             self.get_form_class().base_fields["trof_id"].required = False
             self.get_form_class().base_fields["pickc_id"].required = False
+            self.get_form_class().base_fields["adsc_id"].required = False
 
             self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
             self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
 
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
@@ -292,7 +295,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
             elif evntc.__str__() in ["PIT Tagging", "Spawning", "Treatment", "Water Quality Record", "Electrofishing",
-                                     "Bypass Collection", "Smolt Wheel Collection", "Salmon Ladder Collection"]:
+                                     "Bypass Collection", "Smolt Wheel Collection", "Adult Collection"]:
                 self.get_form_class().base_fields["data_type"].required = False
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
@@ -300,6 +303,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
+                self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
+                    attrs={"class": "chosen-select-contains"})
         return init
 
     def get_context_data(self, **kwargs):
@@ -311,7 +316,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             context["title"] = "Add {} data".format(evnt_code)
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                             "master entry", "egg development"]:
+                             "master entry", "egg development", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
@@ -797,7 +802,7 @@ class CommonContDetails(CommonDetails):
                                           "single_object": obj_mixin.model.objects.first()}
 
         envt_set = models.EnvTreatment.objects.filter(**{arg_name: cont_pk}).select_related("envtc_id", "unit_id")
-        envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str", "duration", ]
+        envt_field_list = ["envtc_id", "amt", "unit_id", "concentration_str|Concentration", "start_datetime", "duration", ]
         obj_mixin = mixins.EnvtMixin
         context["context_dict"]["envt"] = {"div_title": "Container Treatments",
                                            "sub_model_key": obj_mixin.key,
@@ -1227,6 +1232,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context["cont_evnt_field_list"] = [
             "Event",
             "Date",
+            "Direction",
             "Container",
         ]
 
@@ -1255,9 +1261,12 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
-        context["calculated_properties"]["Current Tank"] = self.object.current_cont()
+        context["calculated_properties"]["Current Tank"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()
+
+        context["report_url"] = reverse("bio_diversity:grp_report_file") + f"?grp_pk={self.object.pk}"
+
         return context
 
 
@@ -1413,7 +1422,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         indv_weight = self.object.individual_detail("Weight")
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
-        context["calculated_properties"]["Current Tank"] = self.object.current_cont()
+        context["calculated_properties"]["Current Tank"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Length (cm)"] = indv_len
         context["calculated_properties"]["Weight (g)"] = indv_weight
         context["calculated_properties"]["Condition Factor"] = utils.round_no_nan(utils.condition_factor
@@ -1481,7 +1490,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"].extend(["env", "team", "locd", "grp", "indv", "cnt"])
+        context["table_list"].extend(["env", "team", "locd","samp", "grp", "indv", "cnt"])
 
         env_set = self.object.env_condition.all()
         env_field_list = ["envc_id", "env_val", "start_datetime|Date", ]
@@ -1499,6 +1508,14 @@ class LocDetails(mixins.LocMixin, CommonDetails):
                                           "sub_model_key": obj_mixin.key,
                                           "objects_list": cnt_set,
                                           "field_list": cnt_field_list,
+                                          "single_object": obj_mixin.model.objects.first()}
+        samp_set = self.object.samples.all().select_related("sampc_id")
+        samp_field_list = ["samp_num", "sampc_id", "comments"]
+        obj_mixin = mixins.SampMixin
+        context["context_dict"]["cnt"] = {"div_title": "{}s".format(obj_mixin.title),
+                                          "sub_model_key": obj_mixin.key,
+                                          "objects_list": samp_set,
+                                          "field_list": samp_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
         anix_set = self.object.animal_details.filter(grp_id__isnull=False).select_related("grp_id", "grp_id__stok_id",
@@ -3071,7 +3088,10 @@ class AddCollFishFormView(mixins.AddCollFishMixin, BioCommonFormView):
         init["coll_date"] = date.today
         if self.kwargs.get("evnt"):
             init["evnt_id"] = models.Event.objects.filter(pk=self.kwargs.get("evnt")).get()
-
+        self.get_form_class().base_fields["site_id"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["end_tank"].widget = forms.Select(
+            attrs={"class": "chosen-select-contains"})
         return init
 
 
@@ -3129,6 +3149,10 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
 
         return context
 
+    def get_initial(self):
+        self.get_form_class().base_fields["indv_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["grp_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
 
@@ -3148,6 +3172,12 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}" + f"&stok_pk={stok_pk}")
             else:
                 return HttpResponseRedirect(reverse("bio_diversity:detail_report") + f"?adsc_pk={adsc_pk}")
+        elif report == 4:
+            indv_pk = int(form.cleaned_data["indv_id"].pk)
+            return HttpResponseRedirect(reverse("bio_diversity:individual_report_file") + f"?indv_pk={indv_pk}")
+        elif report == 5:
+            grp_pk = int(form.cleaned_data["grp_id"].pk)
+            return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -3236,7 +3266,7 @@ def site_report_file(request):
 
 
 @login_required()
-def indvidual_report_file(request):
+def individual_report_file(request):
     indv_pk = request.GET.get("indv_pk")
     indv_id = models.Individual.objects.filter(pk=indv_pk).get()
     if indv_id:
@@ -3245,6 +3275,20 @@ def indvidual_report_file(request):
             with open(file_url, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
                 response['Content-Disposition'] = f'inline; filename="individual_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+                return response
+    raise Http404
+
+
+@login_required()
+def grp_report_file(request):
+    grp_pk = request.GET.get("grp_pk")
+    grp_id = models.Group.objects.filter(pk=grp_pk).get()
+    if grp_id:
+        file_url = reports.generate_grp_report(grp_id)
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="group_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
                 return response
     raise Http404
 
@@ -3347,26 +3391,31 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         location_qs = models.Location.objects.filter(loc_lat__isnull=False, loc_lon__isnull=False).select_related("evnt_id__evntc_id", "rive_id", "relc_id__rive_id")
         start_date = None
         end_date = None
-        if self.kwargs.get("start"):
-            start_date = utils.naive_to_aware(datetime.strptime(self.kwargs.get("start"), '%Y-%m-%d'))
-            end_date = utils.naive_to_aware(datetime.strptime(self.kwargs.get("end"), '%Y-%m-%d'))
+        if self.request.GET.get("start"):
+            start_date = utils.naive_to_aware(datetime.strptime(self.request.GET.get("start"), '%Y-%m-%d'))
+            end_date = utils.naive_to_aware(datetime.strptime(self.request.GET.get("end"), '%Y-%m-%d'))
             location_qs = location_qs.filter(loc_date__lte=end_date, loc_date__gte=start_date)
 
-        if self.kwargs.get("rive_id"):
-            location_qs = location_qs.filter(rive_id__name=self.kwargs.get("rive_id")) | location_qs.filter(relc_id__rive_id__name=self.kwargs.get("rive_id"))
+        if self.request.GET.get("rive_id"):
+            location_qs = location_qs.filter(rive_id__name=self.request.GET.get("rive_id")) | location_qs.filter(relc_id__rive_id__name=self.request.GET.get("rive_id"))
 
         context["locations"] = location_qs.filter(end_lat__isnull=True, end_lon__isnull=True)
         context["line_locations"] = location_qs.filter(end_lat__isnull=False, end_lon__isnull=False)
 
         # filter sites:
         site_qs = models.ReleaseSiteCode.objects.filter(min_lat__isnull=False, max_lat__isnull=False, min_lon__isnull=False, max_lon__isnull=False).select_related("rive_id")
-        if self.kwargs.get("rive_id"):
-            site_qs = site_qs.filter(rive_id__name=self.kwargs.get("rive_id"))
+        if self.request.GET.get("rive_id"):
+            site_qs = site_qs.filter(rive_id__name=self.request.GET.get("rive_id"))
 
         context["sites"] = site_qs
         sfa_poly = None
-        if self.kwargs.get("sfa"):
-            sfa_poly = utils.load_sfas()[int(self.kwargs.get("sfa"))]
+        if self.request.GET.get("sfa"):
+            # combine all selected sfas into single shapely object:
+            sfa_dict = utils.load_sfas()
+            poly_list = []
+            for sfa_key in self.request.GET.get("sfa").split(", "):
+                poly_list.append(sfa_dict[int(sfa_key)])
+            sfa_poly = shapely.ops.unary_union(poly_list)
             new_loc_list = []
             new_line_loc_list = []
             new_site_list = []
@@ -3425,7 +3474,7 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             captured_locations_list = []
             captured_site_list = []
 
-        if self.kwargs.get("sfa"):
+        if self.request.GET.get("sfa"):
             new_loc_list = []
             new_line_loc_list = []
             new_site_list = []
@@ -3450,9 +3499,9 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         return context
 
     def get_initial(self, *args, **kwargs):
-        if self.kwargs.get("start"):
-            start_date = self.kwargs.get("start")
-            end_date = self.kwargs.get("end")
+        if self.request.GET.get("start"):
+            start_date = self.request.GET.get("start")
+            end_date = self.request.GET.get("end")
         else:
             start_date = (datetime.now() - timedelta(days=5 * 365)).date()
             end_date = datetime.today()
@@ -3462,7 +3511,7 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             "south": self.kwargs.get("s"),
             "east": self.kwargs.get("e"),
             "west": self.kwargs.get("w"),
-            "sfa": self.kwargs.get("sfa"),
+            "sfa": self.request.GET.get("sfa"),
             "start_date": start_date,
             "end_date": end_date,
         }
@@ -3472,14 +3521,19 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
             "n": form.cleaned_data.get("north"),
             "s": form.cleaned_data.get("south"),
             "e": form.cleaned_data.get("east"),
-            "w": form.cleaned_data.get("west"),
-            "start": form.cleaned_data.get("start_date").strftime("%Y-%m-%d"),
-            "end": form.cleaned_data.get("end_date").strftime("%Y-%m-%d"),
-
+            "w": form.cleaned_data.get("west")
         }
+        args_str = "?"
+        start_date = form.cleaned_data.get("start_date").strftime("%Y-%m-%d")
+        if start_date:
+            args_str += f"start={start_date}&"
+        end_date = form.cleaned_data.get("end_date").strftime("%Y-%m-%d")
+        if end_date:
+            args_str += f"end={end_date}&"
+
         if form.cleaned_data.get("rive_id"):
-            kwarg_dict["rive_id"] = form.cleaned_data.get("rive_id").name
+            args_str += f"rive_id={form.cleaned_data.get('rive_id').name}&"
         if form.cleaned_data.get("sfa"):
-            kwarg_dict["sfa"] = form.cleaned_data.get("sfa")
-        return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs=kwarg_dict))
+            args_str += f"sfa={', '.join(form.cleaned_data.get('sfa'))}&"
+        return HttpResponseRedirect(reverse("bio_diversity:loc_map", kwargs=kwarg_dict)+ args_str)
 

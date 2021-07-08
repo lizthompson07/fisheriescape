@@ -660,6 +660,10 @@ class EnvtFactory(factory.django.DjangoModelFactory):
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     duration = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     comments = factory.lazy_attribute(lambda o: faker.text())
+    start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
+                                                                              tzinfo=pytz.UTC))
+    end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
+                                                                            tzinfo=pytz.UTC))
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
@@ -673,7 +677,6 @@ class EnvtFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-
             'contx_id': contx.pk,
             'envtc_id': envtc.pk,
             'lot_num': obj.lot_num,
@@ -681,6 +684,8 @@ class EnvtFactory(factory.django.DjangoModelFactory):
             'unit_id': unit.pk,
             'duration': obj.duration,
             'comments': obj.comments,
+            'start_datetime': obj.start_datetime,
+            'end_datetime': obj.end_datetime,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
