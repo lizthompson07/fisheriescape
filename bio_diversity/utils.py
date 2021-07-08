@@ -100,7 +100,7 @@ class DataParser:
         if self.success:
             try:
                 self.data_preper()
-            except ValueError as err:
+            except Exception as err:
                 err_msg = common_err_parser(err)
                 self.log_data += "\n Error preparing data: {}".format(err_msg)
                 self.success = False

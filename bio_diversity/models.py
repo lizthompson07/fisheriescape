@@ -664,6 +664,7 @@ class EnvTreatment(BioTimeModel):
         for cont_id in [self.contx_id.cup_id, self.contx_id.draw_id, self.contx_id.tray_id, self.contx_id.tank_id, self.contx_id.trof_id, self.contx_id.heat_id]:
             if cont_id:
                 return cont_id
+        return None
 
     @property
     def concentration_str(self):
