@@ -655,7 +655,7 @@ class EnvTreatment(BioTimeModel):
         return "{}-{}".format(self.contx_id.__str__(), self.envtc_id.__str__())
 
     class Meta:
-        unique_together = (('contx_id', 'envtc_id'),)
+        unique_together = (('contx_id', 'envtc_id', 'start_datetime'),)
 
     @property
     def cont(self):
