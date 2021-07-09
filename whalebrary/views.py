@@ -1392,7 +1392,8 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         'necropsy',
         'results',
         'photos',
-        'data_folder',
+        # 'data_folder',
+        'data_folder_path|{}'.format(gettext_lazy(r"Data folder (Y:\path\folder)")),
         'comments',
         'date_email_sent',
 
