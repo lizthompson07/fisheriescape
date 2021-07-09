@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from django.contrib.auth.models import User
 from django.contrib.auth.models import User as AuthUser
@@ -421,6 +422,25 @@ class Incident(LatLongFields):
         if self.id:
             my_str += f' (inc.ID #{self.id})'
         return my_str
+
+    @property
+    def data_folder_path(self):
+        my_path = ""
+
+        if self.data_folder:
+            try:
+                my_path += fr'{self.data_folder}'
+                new_path = my_path.split(':\\')[1]
+                drive_path = r'\\glfscidm002\cetacean'
+                final_path = drive_path + '\\' + new_path
+                return final_path
+            except IndexError:
+                my_path = "Re-enter drive path"
+
+            # \\glfscidm002\cetacean\MM_DATA_COLLECTION\2021\plane\DFO_SASAIR_CGZWF_ScienceCessna\sGSL_BroadscaleMMSurvey_20210705_ZWF20210705
+        else:
+            my_path += "N/A"
+        return my_path
 
     def __str__(self):
         if self.incident_id:

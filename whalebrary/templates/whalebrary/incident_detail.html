@@ -39,7 +39,7 @@
                      {{ object.response_date }}
                   </td>
                 </tr>
-            {% elif field == "data_folder" %}
+            {% elif "path" in field %}
                 <tr>
                   <th>
                     {% get_verbose_label instance=object field_name=field %}
@@ -51,7 +51,7 @@
 {#                       <a href="{{ object.data_folder}}" >#}
 {#                            Open Location#}
 {#                       </a>#}
-                          <input type="text" READONLY id="select-this" value="{{ object.data_folder}}")>
+                          <input type="text" READONLY id="select-this" value="{{ object.data_folder_path }}")>
                         <input type=button id="clickMe" value="Click to Copy">
                   </td>
                 </tr>
