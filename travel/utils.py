@@ -807,7 +807,7 @@ def get_all_admins(region, branch_only=False):
 
     # just adding amelie to all emails for now.
     try:
-        to_list.append(User.objects.get(email__iexact="amelie.robichaud@dfo-mpo.gc.ca").email)
+        to_list.append(User.objects.filter(groups__name="travel_adm_admin").email)
     except:
         pass
     return list(set(to_list))
