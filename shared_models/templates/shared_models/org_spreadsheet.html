@@ -562,6 +562,10 @@
         let endpoint = `/api/shared/users/?page_size=50000`;
         apiService(endpoint).then(data => {
           this.dmAppsUsers = data.results;
+          this.dmAppsUsers.unshift({
+            full_name: "-----",
+            id: null,
+          })
           this.loadingDMAppsUsers = false;
         });
       },
