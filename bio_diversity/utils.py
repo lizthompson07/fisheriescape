@@ -4,6 +4,7 @@ from datetime import datetime
 import decimal
 import math
 
+import numpy as np
 from pandas import read_excel
 import pytz
 from django.core.exceptions import ValidationError, MultipleObjectsReturned, ObjectDoesNotExist
@@ -207,8 +208,8 @@ def year_coll_splitter(full_str):
     try:
         coll = full_str.lstrip(' 0123456789')
         year = int(full_str[:len(full_str) - len(coll)])
-    except ValueError:
-        raise Exception("Collection column must be formated: YYYY AAA, where AAA is the river code.  Collction entered:"
+    except Exception:
+        raise Exception("Collection column must be formated: YYYY AA, where AA is the collection name/acronym.  Collction entered:"
                         " {}".format(full_str))
 
     return year, coll.strip()
@@ -408,6 +409,55 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
             raise Exception("\nGroup {}-{}-{} with program group {} not uniquely found in"
                             " db\n".format(stock_str, grp_year, coll_str, prog_str))
     return final_grp_list
+
+
+def set_row_tank(df, cleaned_data, tank_key, col_name="tank_id"):
+    tank_qs = models.Tank.objects.filter(facic_id=cleaned_data["facic_id"])
+    tank_dict = {tank.name: tank for tank in tank_qs}
+    # Set the value of no tank to string of "nan", which can be used as a key to find a group, but fails nan_to_none
+    tank_dict[None] = "nan"
+    df[col_name] = df.apply(lambda row: tank_dict[nan_to_none(row[tank_key])], axis=1)
+    return df
+
+
+def set_row_datetime(df, datetime_key="datetime"):
+    df[datetime_key] = df.apply(lambda row: get_row_date(row), axis=1)
+    return df
+
+
+def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp_col_name="grp_id", return_dict=False):
+    # function will return a df with a "grp_id" column containing the group associated with the values
+    # datetime key must be a datetime object, cont_key must be a cont object
+    grp_key = "grp_key"
+    grp_year = "grp_year"
+    grp_coll = "grp_coll"
+
+    # split year-coll
+    df[grp_year] = df.apply(lambda row: year_coll_splitter(row[yr_coll_key])[0], axis=1)
+    df[grp_coll] = df.apply(lambda row: year_coll_splitter(row[yr_coll_key])[1], axis=1)
+
+    # set a string on each row to search a dictionary of all groups in df:
+    df[grp_key] = df[stok_key].astype(str) + df[yr_coll_key].astype(str) + df[cont_key].astype(str)\
+                  + df[prio_key].astype(str) + df[datetime_key].astype(str)
+
+    # identify all unique groups in the table, grp_data is also a df:
+    grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, grp_key],
+                                dropna=False, sort=False).size().reset_index()
+
+    # for each row in this smaller df, find the grp_id, and then make a dictionary out of these
+    grp_data["grp_id"] = grp_data.apply(lambda row: get_grp(row[stok_key], row[grp_year], row[grp_coll], row[cont_key],
+                                                            at_date=row[datetime_key], prog_str=row[prio_key],
+                                                            fail_on_not_found=True)[0], axis=1)
+
+    grp_dict = dict(zip(grp_data[grp_key], grp_data["grp_id"]))
+
+    df[grp_col_name] = df.apply(lambda row: grp_dict[nan_to_none(row[grp_key])], axis=1)
+
+    if return_dict:
+        return df, grp_dict
+    else:
+        return df
+
 
 
 def get_relc_from_point(shapely_geom):
@@ -1472,7 +1522,7 @@ def naive_to_aware(naive_date, naive_time=datetime.min.time()):
 
 
 def nan_to_none(test_item):
-    if type(test_item) == float:
+    if type(test_item) == float or type(test_item) == np.float64:
         if math.isnan(test_item):
             return None
     elif type(test_item) == str:

@@ -174,43 +174,30 @@ class GenericGrpParser(DataParser):
         self.anidc_ufid_id = models.AnimalDetCode.objects.filter(name="UFID").get()
 
         # The following steps are to set additional columns on each row to facilitate parsing.
-        # In particular,  column set will be: "datetime", "grp_year", "grp_coll", "start_tank_id",
+        # In particular,  columns set will be: "datetime", "grp_year", "grp_coll", "start_tank_id",
         # "end_tank_id", "grp_key", "end_grp_key".
         # The two grp_keys will link to dictionaries of the groups, which are also set below
 
         # set date
-        self.data["datetime"] = self.data.apply(lambda row: utils.get_row_date(row), axis=1)
+        self.data = utils.set_row_datetime(self.data)
         # split year-coll
         self.data["grp_year"] = self.data.apply(lambda row: utils.year_coll_splitter(row[self.yr_coll_key])[0], axis=1)
         self.data["grp_coll"] = self.data.apply(lambda row: utils.year_coll_splitter(row[self.yr_coll_key])[1], axis=1)
 
-        # set start and end tanks:
-        tank_qs = models.Tank.objects.filter(facic_id=cleaned_data["facic_id"])
-        tank_dict = {tank.name: tank for tank in tank_qs}
-        # Set the value of no tank to string of "nan", which can be used as a key to find a group, but fails nan_to_none
-        tank_dict[None] = "nan"
-        self.data["start_tank_id"] = self.data.apply(lambda row: tank_dict[utils.nan_to_none(row[self.start_tank_key])], axis=1)
-        self.data["end_tank_id"] = self.data.apply(lambda row: tank_dict[utils.nan_to_none(row[self.end_tank_key])], axis=1)
+        # set start and end tank columns:
+        self.data = utils.set_row_tank(self.data, cleaned_data, self.start_tank_key, col_name="start_tank_id")
+        self.data = utils.set_row_tank(self.data, cleaned_data, self.end_tank_key, col_name="end_tank_id")
 
         # set the dict keys for groups, use astype(str) to handle anything that might be a nan.
-        self.data["grp_key"] = self.data[self.rive_key] + self.data[self.yr_coll_key] + self.data[self.start_tank_key].astype(str) \
-                               + self.data[self.prio_key].astype(str) + self.data["datetime"].astype(str)
+        self.data, self.start_grp_dict = utils.set_row_grp(self.data, self.rive_key, self.yr_coll_key, self.prio_key,
+                                                           "start_tank_id", "datetime", grp_col_name="start_grp_id",
+                                                           return_dict=True)
+        for item, grp in self.start_grp_dict.items():
+            utils.enter_anix(cleaned_data, grp_pk=grp.pk)
 
         self.data["end_grp_key"] = self.data[self.rive_key] + self.data[self.yr_coll_key] + \
                                    self.data[self.end_tank_key].astype(str) + self.data[self.prio_key].astype(str) + \
                                    self.data["datetime"].astype(str)
-
-        # create the start_grp dict and enter anixs:
-        start_grp_data = self.data.groupby(
-            [self.rive_key, "grp_year", "grp_coll", "start_tank_id", self.prio_key, "datetime", "grp_key"],
-            dropna=False, sort=False).size().reset_index()
-        start_grp_data["start_grp_id"] = start_grp_data.apply(
-            lambda row: utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"],
-                                      row["start_tank_id"], at_date=row["datetime"],
-                                      prog_str=row[self.prio_key], fail_on_not_found=True)[0], axis=1)
-        self.start_grp_dict = dict(zip(start_grp_data['grp_key'], start_grp_data['start_grp_id']))
-        for item, grp in self.start_grp_dict.items():
-            utils.enter_anix(cleaned_data, grp_pk=grp.pk)
 
         # create the end group dict and create, movement event, groups, counts, contxs, etc. necesarry
         end_grp_data = self.data.groupby(
@@ -256,7 +243,7 @@ class GenericGrpParser(DataParser):
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
         row_date = row["datetime"].date()
-        row_grp = self.start_grp_dict[row["grp_key"]]
+        row_grp = row["start_grp_id"]
         row_end_grp = self.end_grp_dict[row["end_grp_key"]]
         if row_end_grp:
             row_grp = row_end_grp
