@@ -1023,6 +1023,7 @@ class ReportForm(forms.Form):
         (3, "Details Report (xlsx)"),
         (4, "Individual Report (xlsx)"),
         (5, "Group Report (xlsx)"),
+        (6, "Mortality Report (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     facic_id = forms.ModelChoiceField(required=False,
@@ -1031,6 +1032,10 @@ class ReportForm(forms.Form):
     stok_id = forms.ModelChoiceField(required=False,
                                      queryset=models.StockCode.objects.all(),
                                      label=_("Stock Code"))
+    coll_id = forms.ModelChoiceField(required=False,
+                                     queryset=models.Collection.objects.all(),
+                                     label=_("Stock Code"))
+    year = forms.IntegerField(required=False, max_value=2100, min_value=1900)
     adsc_id = forms.ModelChoiceField(required=False,
                                      queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),
                                      label=_("Search Detail"))

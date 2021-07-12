@@ -3157,6 +3157,8 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
     def get_initial(self):
         self.get_form_class().base_fields["indv_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
         self.get_form_class().base_fields["grp_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["stok_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["coll_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
@@ -3183,6 +3185,22 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
         elif report == 5:
             grp_pk = int(form.cleaned_data["grp_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
+        elif report == 6:
+            arg_str = "?facic_pk="
+            if form.cleaned_data["facic_id"]:
+                facic_pk = int(form.cleaned_data["facic_id"].pk)
+                arg_str += f"{facic_pk}"
+            if form.cleaned_data["stok_id"]:
+                stok_pk = int(form.cleaned_data["stok_id"].pk)
+                arg_str += f"&stok_pk={stok_pk}"
+            if form.cleaned_data["coll_id"]:
+                coll_pk = int(form.cleaned_data["coll_id"].pk)
+                arg_str += f"&coll_pk={coll_pk}"
+            if form.cleaned_data["year"]:
+                year = int(form.cleaned_data["year"].pk)
+                arg_str += f"&year={year}"
+
+            return HttpResponseRedirect(reverse("bio_diversity:mort_report_file") + arg_str)
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -3242,6 +3260,29 @@ def detail_report(request):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dmapps details report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+            return response
+    raise Http404
+
+
+@login_required()
+def mort_report_file(request):
+    facic_pk = request.GET.get("facic_pk")
+    facic_id = models.FacilityCode.objects.filter(pk=facic_pk).get()
+    stok_pk = request.GET.get("stok_pk")
+    stok_id = None
+    if stok_pk:
+        stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
+    coll_pk = request.GET.get("coll_pk")
+    coll_id = None
+    if coll_pk:
+        coll_id = models.Collection.objects.filter(pk=coll_pk).get()
+    year = request.GET.get("year")
+    file_url = reports.generate_morts_report(facic_id, stok_id, year, coll_id)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps mortality report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404
 
