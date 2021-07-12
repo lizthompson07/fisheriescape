@@ -314,16 +314,21 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
+            allow_entry = True
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
                              "master entry", "egg development", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
+            elif evnt_code in ["mortality", "movement"]:
+                template_url = None
+                allow_entry = False
             else:
                 template_url = 'data_templates/measuring.xlsx'
 
             context["template_url"] = template_url
+            context["allow_entry"] = allow_entry
 
             context["template_name"] = "{}-{}".format(facility_code, evnt_code)
         return context
