@@ -84,7 +84,7 @@ var map = L.map('map3', {
 // Get the fishing grid geojson information direct from geojson file using AJAX plugin - method 2
 
 function popUp(feature, layer) {
-    layer.bindPopup(feature.properties.GridName);
+    layer.bindPopup(feature.properties.Grid_Index);
   }
 
 var fishingGrid = new L.GeoJSON.AJAX($('link[rel="polygons"]').attr("href"), {onEachFeature:popUp});
