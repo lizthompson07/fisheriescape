@@ -93,7 +93,7 @@ class TaggingParser(DataParser):
                                  pit_tag=row[self.pit_key],
                                  ufid=indv_ufid,
                                  indv_valid=True,
-                                 comments=utils.nan_to_none(row[self.comment_key]),
+                                 comments=utils.nan_to_none(row.get(self.comment_key)),
                                  created_by=cleaned_data["created_by"],
                                  created_date=cleaned_data["created_date"],
                                  )

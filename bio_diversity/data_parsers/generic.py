@@ -23,7 +23,7 @@ class GenericIndvParser(DataParser):
     end_tank_key = "Destination Pond"
     comment_key = "Comments"
 
-    converters = {start_tank_key: str, end_tank_key: str, pit_key:str, "Year": str, "Month": str, "Day": str}
+    converters = {start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
     header = 2
     sheet_name = "Individual"
 

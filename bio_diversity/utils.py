@@ -416,7 +416,10 @@ def set_row_tank(df, cleaned_data, tank_key, col_name="tank_id"):
     tank_dict = {tank.name: tank for tank in tank_qs}
     # Set the value of no tank to string of "nan", which can be used as a key to find a group, but fails nan_to_none
     tank_dict[None] = "nan"
-    df[col_name] = df.apply(lambda row: tank_dict[nan_to_none(row[tank_key])], axis=1)
+    try:
+        df[col_name] = df.apply(lambda row: tank_dict[nan_to_none(row[tank_key])], axis=1)
+    except KeyError as err:
+        raise Exception("Tank {} not found in database".format(err.__str__()))
     return df
 
 
@@ -457,7 +460,6 @@ def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp
         return df, grp_dict
     else:
         return df
-
 
 
 def get_relc_from_point(shapely_geom):
