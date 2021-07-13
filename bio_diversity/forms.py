@@ -1004,7 +1004,7 @@ class ReportForm(forms.Form):
                                      label=_("Stock Code"))
     coll_id = forms.ModelChoiceField(required=False,
                                      queryset=models.Collection.objects.all(),
-                                     label=_("Stock Code"))
+                                     label=_("Collection Code"))
     year = forms.IntegerField(required=False, max_value=2100, min_value=1900)
     adsc_id = forms.ModelChoiceField(required=False,
                                      queryset=models.AniDetSubjCode.objects.filter(anidc_id__name="Animal Health"),

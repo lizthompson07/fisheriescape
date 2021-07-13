@@ -3206,7 +3206,7 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
                 coll_pk = int(form.cleaned_data["coll_id"].pk)
                 arg_str += f"&coll_pk={coll_pk}"
             if form.cleaned_data["year"]:
-                year = int(form.cleaned_data["year"].pk)
+                year = int(form.cleaned_data["year"])
                 arg_str += f"&year={year}"
 
             return HttpResponseRedirect(reverse("bio_diversity:mort_report_file") + arg_str)

@@ -194,13 +194,15 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
     report.load_wb("mortality_report_template.xlsx")
+    start_date = utils.naive_to_aware(start_date)
+    end_date = utils.naive_to_aware(end_date)
 
     # select all individuals
     mort_evnts = models.Event.objects.filter(start_datetime__gte=start_date, end_datetime__lte=end_date, evntc_id__name="Mortality")
     if facic_id:
         mort_evnts = mort_evnts.filter(facic_id=facic_id)
 
-    anix_indv_qs = models.AniDetailXref.objects.filter(evnt_id__in=mort_evnts, indv_id__isnull=False).distinct("indv_id")
+    anix_indv_qs = models.AniDetailXref.objects.filter(evnt_id__in=mort_evnts, indv_id__isnull=False, contx_id__isnull=True, grp_id__isnull=True)
     anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id__in=mort_evnts, grp_id__isnull=False)
     if stok_id:
         anix_indv_qs = anix_indv_qs.filter(indv_id__stok_id=stok_id)
@@ -223,7 +225,7 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     row_count = 3
     for item in anix_indv_qs:
         indv_id = item.indv_id
-        mort_date = item.evnt_id.start_date
+        mort_date = utils.naive_to_aware(item.evnt_id.start_date)
         ws_indv['A' + str(row_count)].value = indv_id.pit_tag
         ws_indv['B' + str(row_count)].value = indv_id.stok_id.name
         ws_indv['C' + str(row_count)].value = indv_id.indv_year
@@ -242,16 +244,16 @@ def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, 
     row_count = 3
     for item in anix_grp_qs:
         grp_id = item.grp_id
-        mort_date = item.evnt_id.start_date
-        ws_indv['A' + str(row_count)].value = grp_id.stok_id.name
-        ws_indv['B' + str(row_count)].value = grp_id.grp_year
-        ws_indv['C' + str(row_count)].value = grp_id.coll_id.name
-        ws_indv['D' + str(row_count)].value = grp_id.prog_group(get_string=True)
-        ws_indv['E' + str(row_count)].value = grp_id.current_cont(at_date=mort_date, valid_only=False, get_string=True)
-        ws_indv['F' + str(row_count)].value = grp_id.individual_subj_detail("Gender", before_date=mort_date)
-        ws_indv['G' + str(row_count)].value = mort_date
-        ws_indv['H' + str(row_count)].value = grp_id.individual_detail("Length", before_date=mort_date)
-        ws_indv['I' + str(row_count)].value = grp_id.individual_detail("Weight", before_date=mort_date)
+        mort_date = utils.naive_to_aware(item.evnt_id.start_date)
+        ws_grp['A' + str(row_count)].value = grp_id.stok_id.name
+        ws_grp['B' + str(row_count)].value = grp_id.grp_year
+        ws_grp['C' + str(row_count)].value = grp_id.coll_id.name
+        ws_grp['D' + str(row_count)].value = grp_id.prog_group(get_string=True)
+        ws_grp['E' + str(row_count)].value = grp_id.current_cont(at_date=mort_date, valid_only=False, get_string=True)
+        # ws_grp['F' + str(row_count)].value = grp_id.individual_subj_detail("Gender", before_date=mort_date)
+        ws_grp['G' + str(row_count)].value = mort_date
+        # ws_grp['H' + str(row_count)].value = grp_id.individual_detail("Length", before_date=mort_date)
+        # ws_grp['I' + str(row_count)].value = grp_id.individual_detail("Weight", before_date=mort_date)
 
         row_count += 1
 
