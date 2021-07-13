@@ -1187,6 +1187,7 @@ def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
     # -create mortality samp
     # -record counts
     data_entered = False
+    mort_date = naive_to_aware(mort_date)
     salmon_pk = models.SpeciesCode.objects.filter(name__icontains="Salmon").get().pk
     mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
     mort_sampc = models.SampleCode.objects.filter(name="Mortality Sample").get().pk
@@ -1216,7 +1217,7 @@ def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
     anix, anix_entered = enter_anix(new_cleaned_data, grp_pk=grp.pk)
     data_entered += anix_entered
 
-    if not cont:
+    if not nan_to_none(cont):
         cont = grp.current_cont(at_date=mort_date)[0]
 
     # create contx, link to grp and samp:

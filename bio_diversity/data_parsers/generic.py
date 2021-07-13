@@ -237,10 +237,18 @@ class GenericGrpParser(DataParser):
             row_grp = row_end_grp
         row_anix, data_entered = utils.enter_anix(cleaned_data, grp_pk=row_grp.pk)
         self.row_entered += data_entered
-        row_samp, data_entered = utils.enter_samp(cleaned_data, row[self.samp_key], row_grp.spec_id.pk,
-                                                  self.sampc_id.pk,
-                                                  anix_pk=row_anix.pk)
-        self.row_entered += data_entered
+        row_samp = None
+        if utils.nan_to_none(row.get(self.mort_key)):
+            if utils.y_n_to_bool(row[self.mort_key]):
+                mort_out = utils.enter_grp_mortality(row_grp, row[self.samp_key], cleaned_data, row_date, cont=row.get("start_tank_id"))
+                row_samp = mort_out[0]
+                self.row_entered += mort_out[3]
+
+        if not row_samp:
+            row_samp, data_entered = utils.enter_samp(cleaned_data, row[self.samp_key], row_grp.spec_id.pk,
+                                                      self.sampc_id.pk,
+                                                      anix_pk=row_anix.pk)
+            self.row_entered += data_entered
 
         if row_samp:
             if utils.nan_to_none(row.get(self.sex_key)):
@@ -262,9 +270,6 @@ class GenericGrpParser(DataParser):
             if utils.nan_to_none(row.get(self.vial_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vial_key],
                                                       self.vial_anidc_id.pk)
-            if utils.nan_to_none(row.get(self.mort_key)):
-                if utils.y_n_to_bool(row[self.mort_key]):
-                    self.row_entered += utils.enter_grp_mort(row_samp.pk, cleaned_data, row_date)
 
             if utils.nan_to_none(row.get(self.precocity_key)):
                 if utils.y_n_to_bool(row[self.precocity_key]):
