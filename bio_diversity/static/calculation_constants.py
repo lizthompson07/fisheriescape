@@ -4,6 +4,9 @@ DEVELOPMENT_ALPHA = 6.002994
 DEVELOPMENT_BETA = -0.03070758
 
 sex_dict = {"M": "Male",
+            "Male": "Male",
+            "Female": "Female",
+            "Immature": "Immature",
             "F": "Female",
             "IT": "Immature",
             "I": "Immature"}

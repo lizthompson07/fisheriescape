@@ -190,52 +190,70 @@ def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=py
     return report.target_url
 
 
-def generate_morts_report(facic_id=None, stok_id=None, year=None, coll=None):
+def generate_morts_report(facic_id=None, stok_id=None, year=None, coll_id=None, start_date=utils.naive_to_aware(datetime.min), end_date=utils.naive_to_aware(datetime.now())):
     # report is given some filter criteria, returns all dead fish details.
     report = ExcelReport()
-    report.load_wb("stock_code_report_template.xlsx")
+    report.load_wb("mortality_report_template.xlsx")
+    start_date = utils.naive_to_aware(start_date)
+    end_date = utils.naive_to_aware(end_date)
 
-    indv_qs = models.Individual.objects.all()
+    # select all individuals
+    mort_evnts = models.Event.objects.filter(start_datetime__gte=start_date, end_datetime__lte=end_date, evntc_id__name="Mortality")
+    if facic_id:
+        mort_evnts = mort_evnts.filter(facic_id=facic_id)
+
+    anix_indv_qs = models.AniDetailXref.objects.filter(evnt_id__in=mort_evnts, indv_id__isnull=False, contx_id__isnull=True, grp_id__isnull=True)
+    anix_grp_qs = models.AniDetailXref.objects.filter(evnt_id__in=mort_evnts, grp_id__isnull=False)
     if stok_id:
-        indv_qs = indv_qs.filter(stok_id=stok_id)
+        anix_indv_qs = anix_indv_qs.filter(indv_id__stok_id=stok_id)
+        anix_grp_qs = anix_grp_qs.filter(grp_id__stok_id=stok_id)
+    if year:
+        anix_indv_qs = anix_indv_qs.filter(indv_id__indv_year=year)
+        anix_grp_qs = anix_grp_qs.filter(grp_id__grp_year=year)
+    if coll_id:
+        anix_indv_qs = anix_indv_qs.filter(grp_id__coll_id=coll_id)
+        anix_grp_qs = anix_grp_qs.filter(grp_id__coll_id=coll_id)
+    anix_indv_qs.select_related("indv_id", "indv_id__coll_id", "indv_id__stok_id", "evnt_id")
+    anix_grp_qs.select_related("grp_id", "grp_id__coll_id", "grp_id__stok_id", "evnt_id")
 
-    grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
-
-    # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
+    # to order worksheets so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
-    ws_indv = report.copy_template("Individuals")
-    ws_grp = report.copy_template("Groups")
+    ws_indv = report.get_sheet("Individuals")
+    ws_grp = report.get_sheet("Groups")
 
-    ws_indv['A1'].value = "Stock: {}".format(stok_id.name)
-    ws_grp['A1'].value = "Stock: {}".format(stok_id.name)
     # start writing data at row 3 in the sheet
     row_count = 3
-    for item in indv_qs:
-        ws_indv['A' + str(row_count)].value = item.pit_tag
-        ws_indv['B' + str(row_count)].value = item.indv_year
-        ws_indv['C' + str(row_count)].value = item.coll_id.name
-        ws_indv['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_tank(at_date)])
+    for item in anix_indv_qs:
+        indv_id = item.indv_id
+        mort_date = utils.naive_to_aware(item.evnt_id.start_date)
+        ws_indv['A' + str(row_count)].value = indv_id.pit_tag
+        ws_indv['B' + str(row_count)].value = indv_id.stok_id.name
+        ws_indv['C' + str(row_count)].value = indv_id.indv_year
+        ws_indv['D' + str(row_count)].value = indv_id.coll_id.name
+        ws_indv['E' + str(row_count)].value = indv_id.prog_group(get_string=True)
+        ws_indv['F' + str(row_count)].value = indv_id.current_cont(at_date=mort_date, valid_only=False, get_string=True)
+        ws_indv['G' + str(row_count)].value = indv_id.individual_subj_detail("Gender", before_date=mort_date)
+        ws_indv['H' + str(row_count)].value = mort_date
+        ws_indv['I' + str(row_count)].value = indv_id.individual_detail("Length", before_date=mort_date)
+        ws_indv['J' + str(row_count)].value = indv_id.individual_detail("Weight", before_date=mort_date)
 
-        item_indvd = models.IndividualDet.objects.filter(indvd_valid=True, anidc_id__name="Animal Health",
-                                                         adsc_id__isnull=False, anix_id__indv_id=item).select_related("adsc_id")
-        indvd_str = ""
-        for indvd in item_indvd:
-            indvd_str += "{}, ".format(indvd.adsc_id.name)
-        ws_indv['E' + str(row_count)].value = indvd_str
-
-        item_sexd = item.individual_detail("Gender")
-        if item_sexd:
-            ws_indv['F' + str(row_count)].value = str(item_sexd)
-        ws_indv['G' + str(row_count)].value = str(item.indv_valid)
+        ws_indv['K' + str(row_count)].value = indv_id.individual_evnt_details(item.evnt_id)
 
         row_count += 1
 
     row_count = 3
-    for item in grp_qs:
-        ws_grp['B' + str(row_count)].value = item.grp_year
-        ws_grp['C' + str(row_count)].value = item.coll_id.name
-        ws_grp['D' + str(row_count)].value = ', '.join([cont.__str__() for cont in item.current_cont(at_date)])
-        ws_grp['H' + str(row_count)].value = item.count_fish_in_group(at_date)
+    for item in anix_grp_qs:
+        grp_id = item.grp_id
+        mort_date = utils.naive_to_aware(item.evnt_id.start_date)
+        ws_grp['A' + str(row_count)].value = grp_id.stok_id.name
+        ws_grp['B' + str(row_count)].value = grp_id.grp_year
+        ws_grp['C' + str(row_count)].value = grp_id.coll_id.name
+        ws_grp['D' + str(row_count)].value = grp_id.prog_group(get_string=True)
+        ws_grp['E' + str(row_count)].value = grp_id.current_cont(at_date=mort_date, valid_only=False, get_string=True)
+        # ws_grp['F' + str(row_count)].value = grp_id.individual_subj_detail("Gender", before_date=mort_date)
+        ws_grp['G' + str(row_count)].value = mort_date
+        # ws_grp['H' + str(row_count)].value = grp_id.individual_detail("Length", before_date=mort_date)
+        # ws_grp['I' + str(row_count)].value = grp_id.individual_detail("Weight", before_date=mort_date)
 
         row_count += 1
 
