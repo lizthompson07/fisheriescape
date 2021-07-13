@@ -888,9 +888,11 @@ class Group(BioModel):
     def current_trof(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         return self.current_cont_by_key('trof', at_date)
 
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
+    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), valid_only=True, get_string=False):
         current_cont_list = []
-        if not self.grp_valid:
+        if not self.grp_valid and valid_only:
+            if get_string:
+                return ""
             return current_cont_list
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
@@ -1248,9 +1250,11 @@ class Individual(BioModel):
                 cont_list.append(cont)
         return cont_list
 
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), get_string=False):
+    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), valid_only=False, get_string=False):
         current_cont_list = []
-        if not self.indv_valid:
+        if not self.indv_valid and valid_only:
+            if get_string:
+                return ""
             return current_cont_list
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
@@ -1285,11 +1289,19 @@ class Individual(BioModel):
 
     def individual_subj_detail(self, anidc_name="Animal Health", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
         latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
-                                                    detail_date__lte=before_date).order_by("-detail_date").select_related("adsc_id").first()
+                                                    detail_date__lte=before_date, adsc_id__isnull=False).order_by("-detail_date").select_related("adsc_id").first()
         if latest_indvd:
             return latest_indvd.adsc_id.name
         else:
             return None
+
+    def individual_evnt_details(self, evnt_id):
+        indvd_qs = IndividualDet.objects.filter(anix_id__indv_id=self, adsc_id__isnull=False,
+                                                anix_id__evnt_id=evnt_id).order_by("-detail_date").select_related("adsc_id")
+        out_str = ""
+        for indvd in indvd_qs:
+            out_str += indvd.adsc_id__name + ", "
+        return out_str
 
     def prog_group(self, get_string=False):
         # gets program groups this group may be a part of.

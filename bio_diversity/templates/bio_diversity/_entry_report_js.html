@@ -15,6 +15,8 @@
         $("#id_stok_id").parent().hide();
         $("#id_on_date").parent().hide();
         $("#id_facic_id").parent().hide();
+        $("#id_coll_id").parent().hide();
+        $("#id_year").parent().hide();
         $("#id_adsc_id").parent().hide();
         $("#id_indv_id").parent().hide();
         $("#id_grp_id").parent().hide();
@@ -34,6 +36,12 @@
         }
         else if (reportType==5) {
             $("#id_grp_id").parent().show();
+        }
+        else if (reportType==6) {
+            $("#id_facic_id").parent().show();
+            $("#id_coll_id").parent().show();
+            $("#id_stok_id").parent().show();
+            $("#id_year").parent().show();
         }
     }
 </script>

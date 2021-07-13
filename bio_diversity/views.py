@@ -314,16 +314,21 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
+            allow_entry = True
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
                              "master entry", "egg development", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
             elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
+            elif evnt_code in ["mortality", "movement"]:
+                template_url = None
+                allow_entry = False
             else:
                 template_url = 'data_templates/measuring.xlsx'
 
             context["template_url"] = template_url
+            context["allow_entry"] = allow_entry
 
             context["template_name"] = "{}-{}".format(facility_code, evnt_code)
         return context
@@ -1045,6 +1050,15 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
                                            "field_list": trof_field_list,
                                            "single_object": obj_mixin.model.objects.first()}
 
+        samp_set = models.Sample.objects.filter(anix_id__evnt_id=self.object).distinct()
+        samp_field_list = ["samp_num", "sampc_id", "samp_date|Sample Date"]
+        obj_mixin = mixins.SampMixin
+        context["context_dict"]["samp"] = {"div_title": "{}s".format(obj_mixin.title),
+                                           "sub_model_key": obj_mixin.key,
+                                           "objects_list": samp_set,
+                                           "field_list": samp_field_list,
+                                           "single_object": obj_mixin.model.objects.first()}
+
         heat_set = models.HeathUnit.objects.filter(contxs__evnt_id=self.object).distinct()
         heat_field_list = ["name"]
         obj_mixin = mixins.HeatMixin
@@ -1103,7 +1117,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
 
 
 
-        context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "pair", "evntf",
+        context["table_list"].extend(["data", "team", "loc", "indv", "grp", "tank", "trof", "heat", "samp", "pair", "evntf",
                                       "prot"])
 
         return context
@@ -3152,6 +3166,8 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
     def get_initial(self):
         self.get_form_class().base_fields["indv_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
         self.get_form_class().base_fields["grp_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["stok_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+        self.get_form_class().base_fields["coll_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
@@ -3178,6 +3194,22 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
         elif report == 5:
             grp_pk = int(form.cleaned_data["grp_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
+        elif report == 6:
+            arg_str = "?facic_pk="
+            if form.cleaned_data["facic_id"]:
+                facic_pk = int(form.cleaned_data["facic_id"].pk)
+                arg_str += f"{facic_pk}"
+            if form.cleaned_data["stok_id"]:
+                stok_pk = int(form.cleaned_data["stok_id"].pk)
+                arg_str += f"&stok_pk={stok_pk}"
+            if form.cleaned_data["coll_id"]:
+                coll_pk = int(form.cleaned_data["coll_id"].pk)
+                arg_str += f"&coll_pk={coll_pk}"
+            if form.cleaned_data["year"]:
+                year = int(form.cleaned_data["year"])
+                arg_str += f"&year={year}"
+
+            return HttpResponseRedirect(reverse("bio_diversity:mort_report_file") + arg_str)
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -3237,6 +3269,29 @@ def detail_report(request):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="dmapps details report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+            return response
+    raise Http404
+
+
+@login_required()
+def mort_report_file(request):
+    facic_pk = request.GET.get("facic_pk")
+    facic_id = models.FacilityCode.objects.filter(pk=facic_pk).get()
+    stok_pk = request.GET.get("stok_pk")
+    stok_id = None
+    if stok_pk:
+        stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
+    coll_pk = request.GET.get("coll_pk")
+    coll_id = None
+    if coll_pk:
+        coll_id = models.Collection.objects.filter(pk=coll_pk).get()
+    year = request.GET.get("year")
+    file_url = reports.generate_morts_report(facic_id, stok_id, year, coll_id)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps mortality report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
             return response
     raise Http404
 
