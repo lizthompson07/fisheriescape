@@ -23,7 +23,7 @@ class GenericIndvParser(DataParser):
     end_tank_key = "Destination Pond"
     comment_key = "Comments"
 
-    converters = {start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
+    converters = {vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, pit_key: str, "Year": str, "Month": str, "Day": str}
     header = 2
     sheet_name = "Individual"
 
@@ -36,6 +36,7 @@ class GenericIndvParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.pit_key])
+        self.mandatory_filled_keys.extend([self.pit_key])
         super(GenericIndvParser, self).load_data()
 
     def data_preper(self):
@@ -62,28 +63,17 @@ class GenericIndvParser(DataParser):
         anix, anix_entered = utils.enter_anix(self.cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
 
-        if utils.nan_to_none(row.get(self.sex_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date,
-                                                  self.sex_dict[row[self.sex_key].upper()],
-                                                  self.sex_anidc_id.pk, None, None)
-        if utils.nan_to_none(row.get(self.len_key_mm)):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, 0.1 * row[self.len_key_mm],
-                                                  self.len_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.len_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.len_key],
-                                                  self.len_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.weight_key_kg)):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, 1000 * row[self.weight_key_kg],
-                                                  self.weight_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.weight_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.weight_key],
-                                                  self.weight_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.vial_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.vial_key],
-                                                  self.vial_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.envelope_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, row[self.envelope_key],
-                                                  self.envelope_anidc_id.pk, None)
+        utils.enter_bulk_indvd(anix, self.cleaned_data, row_date,
+                               gender=row.get(self.sex_key),
+                               len_mm=row.get(self.len_key_mm),
+                               len=row.get(self.len_key),
+                               weight=row.get(self.weight_key),
+                               weight_kg=row.get(self.weight_key_kg),
+                               vial=row.get(self.vial_key),
+                               scale_envelope=row.get(self.envelope_key),
+                               tissue_yn=row.get(self.tissue_key),
+                               )
+
         if utils.nan_to_none(row.get(self.precocity_key)):
             if utils.y_n_to_bool(row[self.precocity_key]):
                 self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None,
@@ -92,10 +82,7 @@ class GenericIndvParser(DataParser):
             if utils.y_n_to_bool(row[self.mort_key]):
                 mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_date)
                 self.row_entered += mort_entered
-        if utils.nan_to_none(row.get(self.tissue_key)):
-            if utils.y_n_to_bool(row[self.tissue_key]):
-                self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, None,
-                                                      self.ani_health_anidc_id.pk, "Tissue Sample")
+
         in_tank = None
         out_tank = None
         if utils.nan_to_none(row[self.start_tank_key]):
@@ -132,6 +119,7 @@ class GenericGrpParser(DataParser):
     weight_key_kg = "Weight (kg)"
     vial_key = "Vial"
     envelope_key = "Scale Envelope"
+    mort_key = "Mortality (Y/N)"
     precocity_key = "Precocity (Y/N)"
     tissue_key = "Tissue Sample (Y/N)"
     ufid_key = "UFID"
@@ -143,7 +131,7 @@ class GenericGrpParser(DataParser):
     sheet_name = "Group"
     start_grp_dict = {}
     end_grp_dict = {}
-    converters = {start_tank_key: str, end_tank_key: str, ufid_key: str, 'Year': str, 'Month': str, 'Day': str}
+    converters = {samp_key: str, vial_key: str, envelope_key: str, start_tank_key: str, end_tank_key: str, ufid_key: str, 'Year': str, 'Month': str, 'Day': str}
 
     sampc_id = None
     prnt_grp_anidc_id = None
@@ -274,6 +262,10 @@ class GenericGrpParser(DataParser):
             if utils.nan_to_none(row.get(self.vial_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.vial_key],
                                                       self.vial_anidc_id.pk)
+            if utils.nan_to_none(row.get(self.mort_key)):
+                if utils.y_n_to_bool(row[self.mort_key]):
+                    self.row_entered += utils.enter_grp_mort(row_samp.pk, cleaned_data, row_date)
+
             if utils.nan_to_none(row.get(self.precocity_key)):
                 if utils.y_n_to_bool(row[self.precocity_key]):
                     self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, "Precocity",
