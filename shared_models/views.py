@@ -998,11 +998,15 @@ class UserCreateView(AdminRequiredMixin, CommonPopoutFormView):
     )
     height = 850
 
+    def get_initial(self):
+        return dict(send_email=True)
+
     def form_valid(self, form):
         # retrieve data from form
         first_name = form.cleaned_data['first_name']
         last_name = form.cleaned_data['last_name']
         email = form.cleaned_data['email1']
+        send_email = form.cleaned_data['send_email']
 
         # create a new user
         my_user = User.objects.create(
@@ -1014,8 +1018,8 @@ class UserCreateView(AdminRequiredMixin, CommonPopoutFormView):
             email=email,
         )
 
-        # only send an email if AAD is not on
-        if not settings.AZURE_AD:
+        # only send an email if AAD is not on and if the administrator has selected to send an email.
+        if not settings.AZURE_AD and send_email:
             email = emails.UserCreationEmail(my_user, self.request)
 
             # send the email object
