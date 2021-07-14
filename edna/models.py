@@ -25,6 +25,10 @@ class Tag(SimpleLookup):
     pass
 
 
+class SampleType(SimpleLookup):
+    pass
+
+
 class Species(models.Model):
     common_name_en = models.CharField(max_length=255, verbose_name=_("common name (EN)"))
     common_name_fr = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("common name (FR)"))
@@ -156,13 +160,17 @@ class Sample(models.Model):
     comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
 
     class Meta:
-        ordering = ["collection", "unique_sample_identifier"]
+        ordering = ["id"]
 
     def get_absolute_url(self):
         return reverse("edna:sample_detail", args=[self.pk])
 
     def __str__(self):
-        return self.unique_sample_identifier
+        return f"s{self.id}"
+
+    @property
+    def display(self):
+        return str(self)
 
     def get_point(self):
         if self.latitude and self.longitude:
@@ -175,6 +183,18 @@ class Sample(models.Model):
         if point:
             my_str = format_coordinates(point.x, point.y, output_format="dd", sep="|")
         return mark_safe(my_str)
+
+    @property
+    def extracts(self):
+        return DNAExtract.objects.filter(filter__sample=self)
+
+    @property
+    def pcrs(self):
+        return PCR.objects.filter(extract__filter__sample=self)
+
+    @property
+    def species(self):
+        return SpeciesObservation.objects.filter(pcr__extract__filter__sample=self)
 
 
 class Batch(models.Model):
@@ -210,8 +230,10 @@ class Filter(MetadataFields):
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ["filtration_batch", "sample"]
+        ordering = ["id"]
 
+    def __str__(self):
+        return f"f{self.id}"
 
 class ExtractionBatch(Batch):
     class Meta:
@@ -234,8 +256,10 @@ class DNAExtract(MetadataFields):
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ["extraction_batch", "filter_id"]
+        ordering = ["id"]
 
+    def __str__(self):
+        return f"x{self.id}"
 
 class PCRBatch(Batch):
     class Meta:
@@ -268,6 +292,9 @@ class PCR(MetadataFields):
         # get the last PCR number suffix in the system
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"q{self.id}"
+
     @property
     def pcr_number(self):
         return f'{nz(self.pcr_number_prefix, "")}:{nz(self.pcr_number_suffix, "")}'
@@ -284,3 +311,6 @@ class SpeciesObservation(MetadataFields):
     class Meta:
         ordering = ["pcr", "species"]
         unique_together = (("pcr", "species"),)
+
+    def __str__(self):
+        return str(self.species)

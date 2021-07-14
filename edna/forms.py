@@ -24,6 +24,18 @@ TagFormset = modelformset_factory(
     extra=1,
 )
 
+class SampleTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.SampleType
+        fields = "__all__"
+
+
+SampleTypeFormset = modelformset_factory(
+    model=models.SampleType,
+    form=SampleTypeForm,
+    extra=1,
+)
+
 
 class FiltrationTypeForm(forms.ModelForm):
     class Meta:

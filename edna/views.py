@@ -1,6 +1,7 @@
 import csv
-from io import StringIO
 import datetime as dt
+from io import StringIO
+
 import requests
 from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site
@@ -78,6 +79,21 @@ class TagFormsetView(eDNAAdminRequiredMixin, CommonFormsetView):
 class TagHardDeleteView(eDNAAdminRequiredMixin, CommonHardDeleteView):
     model = models.Tag
     success_url = reverse_lazy("edna:manage_tags")
+
+
+class SampleTypeFormsetView(eDNAAdminRequiredMixin, CommonFormsetView):
+    template_name = 'edna/formset.html'
+    h1 = "Manage Sample Types"
+    queryset = models.SampleType.objects.all()
+    formset_class = forms.SampleTypeFormset
+    success_url_name = "edna:manage_sample_types"
+    home_url_name = "edna:index"
+    delete_url_name = "edna:delete_sample_type"
+
+
+class SampleTypeHardDeleteView(eDNAAdminRequiredMixin, CommonHardDeleteView):
+    model = models.SampleType
+    success_url = reverse_lazy("edna:manage_sample_types")
 
 
 # SPECIES #
@@ -202,6 +218,7 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sample_field_list = [
+            'display|sample ID',
             'unique_sample_identifier',
             'datetime',
             'site_identifier',
@@ -225,8 +242,6 @@ class CollectionDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
         return {"title": self.get_object(), "url": reverse("edna:collection_detail", args=[self.get_object().id])}
 
 
-
-
 class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
     form_class = forms.FileImportForm
     template_name = 'edna/sample_import_form.html'
@@ -239,7 +254,6 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
 
     def get_collection(self):
         return get_object_or_404(models.Collection, pk=self.kwargs.get("pk"))
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -279,6 +293,55 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
 
+class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonFormView):
+    form_class = forms.FileImportForm
+    template_name = 'edna/sample_import_form.html'
+    home_url_name = "index"
+    grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
+    h1 = ' '
+
+    def get_parent_crumb(self):
+        return {"title": self.get_collection(), "url": reverse("edna:collection_detail", args=[self.get_collection().id])}
+
+    def get_collection(self):
+        return get_object_or_404(models.Collection, pk=self.kwargs.get("pk"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        example_obj = list()
+        url = "http://" + get_current_site(self.request).domain + static("edna/sample_import_template.csv")
+        r = requests.get(url)
+        csv_reader = csv.DictReader(r.text.splitlines())
+        for row in csv_reader:
+            example_obj.append(row)
+        context["example_obj"] = example_obj
+        return context
+
+    def form_valid(self, form):
+        my_object = self.get_collection()
+        temp_file = form.files['temp_file']
+        temp_file.seek(0)
+        csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
+        for row in csv_reader:
+            unique_sample_identifier = row["unique_sample_identifier"]
+            site_identifier = row["site_identifier"]
+            site_description = row["site_description"]
+            samplers = row["samplers"]
+            datetime = dt.datetime.strptime(row["datetime"], "%Y-%m-%d %H:%S")
+            latitude = row["latitude"]
+            longitude = row["longitude"]
+            comments = row["comments"]
+
+            sample, create = models.Sample.objects.get_or_create(unique_sample_identifier=unique_sample_identifier, collection=my_object)
+            sample.site_identifier = site_identifier
+            sample.site_description = site_description
+            sample.samplers = samplers
+            sample.datetime = datetime
+            sample.latitude = latitude
+            sample.longitude = longitude
+            sample.comments = comments
+            sample.save()
+        return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
 
 # FILES #
@@ -383,12 +446,17 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     container_class = "container bg-light curvy"
     field_list = [
+        'display|sample Id',
         'unique_sample_identifier',
         'site_identifier',
         'site_description',
         'samplers',
         'datetime',
         'coordinates',
+        # 'filters|filter IDs',
+        'extracts|extract IDs',
+        'pcrs|PCR IDs',
+        'species|Species observed',
         'comments',
     ]
 

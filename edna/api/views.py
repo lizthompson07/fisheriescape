@@ -54,7 +54,7 @@ class FilterModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['filtration_type_choices'] = [dict(text=item.name, value=item.id) for item in models.FiltrationType.objects.all()]
-        data['sample_choices'] = [dict(text=item.unique_sample_identifier, value=item.id, has_filter=item.filters.exists()) for item in
+        data['sample_choices'] = [dict(text=str(item), value=item.id, has_filter=item.filters.exists()) for item in
                                   models.Sample.objects.all()]
         return Response(data)
 

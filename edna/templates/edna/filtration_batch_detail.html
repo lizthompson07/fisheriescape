@@ -52,8 +52,8 @@
         <thead>
         <tr>
           <th class="px-1 py-1">#</th>
-          <th class="px-1 py-1">Id</th>
-          <th class="px-1 py-1" style="width: 120px">{% trans "Unique sample ID" %}</th>
+          <th class="px-1 py-1">Filter Id</th>
+          <th class="px-1 py-1" style="width: 120px">{% trans "Sample ID" %}</th>
           <th class="px-1 py-1" style="width: 220px">${labels.start_datetime} (yyyy-mm-dd HH:MM:SS)</th>
           <th class="px-1 py-1" style="width: 210px">${labels.filtration_type}</th>
           <th class="px-1 py-1" style="width: 110px">${labels.filtration_volume_ml}</th>
@@ -64,8 +64,8 @@
         </thead>
         <tbody>
         <tr v-for="(f, index) in filters" :key="f.id">
-          <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
-          <td class="px-0  py-0 text-muted" tabindex="-1">${f.id}</td>
+          <td class="px-1 py-0 text-muted" tabindex="-1">${index+1}</td>
+          <td class="px-1  py-0 text-muted" tabindex="-1">${f.display}</td>
           <td class="px-0 py-0">
             <select v-model="f.sample" class="no-borders" @change="updateFilter(f)">
               <option value="">{% trans "Blank" %}</option>

@@ -11,6 +11,11 @@ class UserDisplaySerializer(serializers.ModelSerializer):
 
 
 class FilterSerializer(serializers.ModelSerializer):
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return str(instance)
+
     class Meta:
         model = models.Filter
         fields = "__all__"

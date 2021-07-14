@@ -28,7 +28,36 @@
     <div class="col">
       <table class="table table-sm">
         {% for field in field_list %}
-          {% verbose_td_display object field th_width="200px" display_time=True %}
+          {% if "extracts" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% for e in object.extracts.all %}
+                  <a href="#">{{ e }}</a><br>
+                {% endfor %}
+              </td>
+            </tr>
+          {% elif "pcrs" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% for e in object.pcrs.all %}
+                  <a href="#">{{ e }}</a><br>
+                {% endfor %}
+              </td>
+            </tr>
+          {% elif "species" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% for e in object.species.all %}
+                  {{ e }}<br>
+                {% endfor %}
+              </td>
+            </tr>
+          {% else %}
+            {% verbose_td_display object field th_width="200px" display_time=True %}
+          {% endif %}
         {% endfor %}
       </table>
     </div>
@@ -37,6 +66,8 @@
       </div>
     </div>
   </div>
+
+
 
 
   <script type="application/javascript">

@@ -13,6 +13,11 @@ urlpatterns = [
     # tested
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),  # tested
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),  # tested
+    
+    path('settings/sample-types/', views.SampleTypeFormsetView.as_view(), name="manage_sample_types"), # TODO: test
+    path('settings/sample-type/<int:pk>/delete/', views.SampleTypeHardDeleteView.as_view(), name="delete_sample_type"), # TODO: test
+
+
 
     # species
     path('species/', views.SpeciesListView.as_view(), name="species_list"),  # tested
@@ -28,6 +33,7 @@ urlpatterns = [
     path('collections/<int:pk>/delete/', views.CollectionDeleteView.as_view(), name="collection_delete"),  # tested
     path('collections/<int:pk>/view/', views.CollectionDetailView.as_view(), name="collection_detail"),  # tested
     path('collections/<int:pk>/import-samples/', views.ImportSamplesView.as_view(), name="import_samples"),
+    path('collections/<int:pk>/data-entry/', views.SampleDataEntryTemplateView.as_view(), name="sample_data_entry"),
 
     # files
     path('collections/<int:collection>/new-file/', views.FileCreateView.as_view(), name='file_new'),  # tested
