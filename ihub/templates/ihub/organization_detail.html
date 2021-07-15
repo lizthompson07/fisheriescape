@@ -3,6 +3,7 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load i18n %}
+
 {% block subcontent %}
 
   <div class="row mb-5">
@@ -74,7 +75,11 @@
       <h5 class="card-title"> {% trans "Notes" %}</h5>
     </div>
     <div class="card-body">
-      {{ object.notes_html }}
+      {% if object.notes %}
+        {{ object.notes_html }}
+      {% else %}
+        <em> {% trans "There are no notes on file." %} </em>
+      {% endif %}
     </div>
   </div>
 
