@@ -10,6 +10,24 @@ class UserDisplaySerializer(serializers.ModelSerializer):
         fields = ["id", "first_name", "last_name", "username", ]
 
 
+class SampleSerializer(serializers.ModelSerializer):
+    display = serializers.SerializerMethodField()
+
+    datetime_display = serializers.SerializerMethodField()
+
+    def get_datetime_display(self, instance):
+        if instance.datetime:
+            return instance.datetime.strftime("%Y-%m-%dT%H:%M")
+
+    def get_display(self, instance):
+        return str(instance)
+
+    class Meta:
+        model = models.Sample
+        fields = "__all__"
+
+
+
 class FilterSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
 

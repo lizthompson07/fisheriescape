@@ -73,6 +73,7 @@ class Collection(UnilingualSimpleLookup, MetadataFields):
     contact_users = models.ManyToManyField(User, blank=True, verbose_name=_("contact DMApps user(s)"))
     contact_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("contact name"))
     contact_email = models.EmailField(max_length=255, blank=True, null=True, verbose_name=_("contact email"))
+
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("tags"))
 
     # calculated
@@ -148,16 +149,26 @@ class File(models.Model):
         return self.caption
 
 
-class Sample(models.Model):
-    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"), editable=False)
-    unique_sample_identifier = models.CharField(max_length=255, unique=True, verbose_name=_("bottle unique identifier"))
-    site_identifier = models.CharField(max_length=255, verbose_name=_("site identifier"), blank=True, null=True)
-    site_description = models.TextField(verbose_name=_("site description"), blank=True, null=True)
-    samplers = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("sampler(s)"))
-    datetime = models.DateTimeField(verbose_name=_("collection date"), blank=False, null=True)
+class Sample(MetadataFields):
+    collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
+    sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"), blank=True, null=True)
+    bottle_id = models.IntegerField(max_length=255, unique=True, verbose_name=_("bottle ID"), blank=True, null=True)
+    location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)
+    site = models.CharField(max_length=255, verbose_name=_("site"), blank=True, null=True)
+    station = models.TextField(verbose_name=_("station"), blank=True, null=True)
+    datetime = models.DateTimeField(verbose_name=_("collection date/time"), blank=False, null=True)
+    samplers = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("collector name"))
     latitude = models.FloatField(blank=False, null=True, verbose_name=_("latitude"))
     longitude = models.FloatField(blank=False, null=True, verbose_name=_("longitude"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
+    # calc
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_created_by')
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_updated_by')
+
+    def save(self, *args, **kwargs):
+        if not self.bottle_id:
+
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ["id"]

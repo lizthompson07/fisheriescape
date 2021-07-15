@@ -23,6 +23,42 @@ class CurrentUserAPIView(APIView):
         return Response(data)
 
 
+class SampleViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.SampleSerializer
+    permission_classes = [eDNACRUDOrReadOnly]
+    queryset = models.Sample.objects.all()
+
+    # pagination_class = StandardResultsSetPagination
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("collection"):
+            collection = get_object_or_404(models.Collection, pk=qp.get("collection"))
+            qs = collection.samples.all()
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a collection"))
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class SampleModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.Sample
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        data['sample_type_choices'] = [dict(text=item.name, value=item.id) for item in models.SampleType.objects.all()]
+        # data['sample_choices'] = [dict(text=str(item), value=item.id, has_filter=item.filters.exists()) for item in
+        #                           models.Sample.objects.all()]
+        return Response(data)
+
+
 class FilterViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FilterSerializer
     permission_classes = [eDNACRUDOrReadOnly]

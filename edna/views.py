@@ -219,7 +219,7 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         sample_field_list = [
             'display|sample ID',
-            'unique_sample_identifier',
+            'bottle_id',
             'datetime',
             'site_identifier',
             'coordinates',
@@ -272,7 +272,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         temp_file.seek(0)
         csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
         for row in csv_reader:
-            unique_sample_identifier = row["unique_sample_identifier"]
+            bottle_id = row["bottle_id"]
             site_identifier = row["site_identifier"]
             site_description = row["site_description"]
             samplers = row["samplers"]
@@ -281,7 +281,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
             longitude = row["longitude"]
             comments = row["comments"]
 
-            sample, create = models.Sample.objects.get_or_create(unique_sample_identifier=unique_sample_identifier, collection=my_object)
+            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object)
             sample.site_identifier = site_identifier
             sample.site_description = site_description
             sample.samplers = samplers
@@ -293,12 +293,13 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
 
-class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonFormView):
-    form_class = forms.FileImportForm
-    template_name = 'edna/sample_import_form.html'
+class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonDetailView):
+    model = models.Collection
+    template_name = 'edna/sample_data_entry.html'
     home_url_name = "index"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
+    container_class = "container-fluid"
 
     def get_parent_crumb(self):
         return {"title": self.get_collection(), "url": reverse("edna:collection_detail", args=[self.get_collection().id])}
@@ -323,7 +324,7 @@ class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonFormView):
         temp_file.seek(0)
         csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
         for row in csv_reader:
-            unique_sample_identifier = row["unique_sample_identifier"]
+            bottle_id = row["bottle_id"]
             site_identifier = row["site_identifier"]
             site_description = row["site_description"]
             samplers = row["samplers"]
@@ -332,7 +333,7 @@ class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonFormView):
             longitude = row["longitude"]
             comments = row["comments"]
 
-            sample, create = models.Sample.objects.get_or_create(unique_sample_identifier=unique_sample_identifier, collection=my_object)
+            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object)
             sample.site_identifier = site_identifier
             sample.site_description = site_description
             sample.samplers = samplers
@@ -447,7 +448,7 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     container_class = "container bg-light curvy"
     field_list = [
         'display|sample Id',
-        'unique_sample_identifier',
+        'bottle_id',
         'site_identifier',
         'site_description',
         'samplers',
@@ -537,7 +538,7 @@ class FiltrationBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sample_field_list = [
-            'unique_sample_identifier',
+            'bottle_id',
             'datetime',
             'site_identifier',
             'coordinates',
@@ -613,7 +614,7 @@ class ExtractionBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sample_field_list = [
-            'unique_sample_identifier',
+            'bottle_id',
             'datetime',
             'site_identifier',
             'coordinates',
@@ -689,7 +690,7 @@ class PCRBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sample_field_list = [
-            'unique_sample_identifier',
+            'bottle_id',
             'datetime',
             'site_identifier',
             'coordinates',

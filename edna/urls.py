@@ -47,25 +47,25 @@ urlpatterns = [
     path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),  # tested
 
     # filtration batches
-    path('filtrations/', views.FiltrationBatchListView.as_view(), name="filtration_batch_list"),  # tested
-    path('filtrations/new/', views.FiltrationBatchCreateView.as_view(), name="filtration_batch_new"),  # tested
-    path('filtrations/<int:pk>/edit/', views.FiltrationBatchUpdateView.as_view(), name="filtration_batch_edit"),  # tested
-    path('filtrations/<int:pk>/delete/', views.FiltrationBatchDeleteView.as_view(), name="filtration_batch_delete"),  # tested
-    path('filtrations/<int:pk>/view/', views.FiltrationBatchDetailView.as_view(), name="filtration_batch_detail"),  # tested
+    path('filtration-batches/', views.FiltrationBatchListView.as_view(), name="filtration_batch_list"),  # tested
+    path('filtration-batches/new/', views.FiltrationBatchCreateView.as_view(), name="filtration_batch_new"),  # tested
+    path('filtration-batches/<int:pk>/edit/', views.FiltrationBatchUpdateView.as_view(), name="filtration_batch_edit"),  # tested
+    path('filtration-batches/<int:pk>/delete/', views.FiltrationBatchDeleteView.as_view(), name="filtration_batch_delete"),  # tested
+    path('filtration-batches/<int:pk>/view/', views.FiltrationBatchDetailView.as_view(), name="filtration_batch_detail"),  # tested
 
     # extraction batches
-    path('extractions/', views.ExtractionBatchListView.as_view(), name="extraction_batch_list"),  # tested
-    path('extractions/new/', views.ExtractionBatchCreateView.as_view(), name="extraction_batch_new"),  # tested
-    path('extractions/<int:pk>/edit/', views.ExtractionBatchUpdateView.as_view(), name="extraction_batch_edit"),  # tested
-    path('extractions/<int:pk>/delete/', views.ExtractionBatchDeleteView.as_view(), name="extraction_batch_delete"),  # tested
-    path('extractions/<int:pk>/view/', views.ExtractionBatchDetailView.as_view(), name="extraction_batch_detail"),  # tested
+    path('extraction-batches/', views.ExtractionBatchListView.as_view(), name="extraction_batch_list"),  # tested
+    path('extraction-batches/new/', views.ExtractionBatchCreateView.as_view(), name="extraction_batch_new"),  # tested
+    path('extraction-batches/<int:pk>/edit/', views.ExtractionBatchUpdateView.as_view(), name="extraction_batch_edit"),  # tested
+    path('extraction-batches/<int:pk>/delete/', views.ExtractionBatchDeleteView.as_view(), name="extraction_batch_delete"),  # tested
+    path('extraction-batches/<int:pk>/view/', views.ExtractionBatchDetailView.as_view(), name="extraction_batch_detail"),  # tested
 
     # pcr batches
-    path('pcrs/', views.PCRBatchListView.as_view(), name="pcr_batch_list"),  # tested
-    path('pcrs/new/', views.PCRBatchCreateView.as_view(), name="pcr_batch_new"),  # tested
-    path('pcrs/<int:pk>/edit/', views.PCRBatchUpdateView.as_view(), name="pcr_batch_edit"),  # tested
-    path('pcrs/<int:pk>/delete/', views.PCRBatchDeleteView.as_view(), name="pcr_batch_delete"),  # tested
-    path('pcrs/<int:pk>/view/', views.PCRBatchDetailView.as_view(), name="pcr_batch_detail"),  # tested
+    path('pcr-batches/', views.PCRBatchListView.as_view(), name="pcr_batch_list"),  # tested
+    path('pcr-batches/new/', views.PCRBatchCreateView.as_view(), name="pcr_batch_new"),  # tested
+    path('pcr-batches/<int:pk>/edit/', views.PCRBatchUpdateView.as_view(), name="pcr_batch_edit"),  # tested
+    path('pcr-batches/<int:pk>/delete/', views.PCRBatchDeleteView.as_view(), name="pcr_batch_delete"),  # tested
+    path('pcr-batches/<int:pk>/view/', views.PCRBatchDetailView.as_view(), name="pcr_batch_detail"),  # tested
 
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
