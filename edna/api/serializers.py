@@ -17,7 +17,7 @@ class SampleSerializer(serializers.ModelSerializer):
 
     def get_datetime_display(self, instance):
         if instance.datetime:
-            return instance.datetime.strftime("%Y-%m-%dT%H:%M")
+            return instance.datetime.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)

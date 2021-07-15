@@ -1,0 +1,65 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="select-input-cell-template">
+
+<div>
+  <select v-model="input" class="no-borders" @change="update" @keypress="$emit('keypress')" @focus="$emit('setposition', row, col)" ref="input">
+    <option value="">{% trans "-----" %}</option>
+    <option v-for="(option, index) in options" :value="option.value">${option.text}</option>
+  </select>
+  <span class="mdi mdi-chevron-down"></span><span class="mdi mdi-chevron-double-down"></span>
+</div>
+
+
+</script>
+<script type="application/javascript">
+
+Vue.component("select-input-cell", {
+  template: "#select-input-cell-template",
+  delimiters: ["${", "}"],
+  name: "select-input-cell",
+  props: {
+    sample: {
+      type: Object,
+      required: true
+    },
+    field: {
+      type: String,
+      required: true
+    },
+    options: {
+      type: Array,
+      required: true
+    },
+    row: {
+      type: Number,
+      required: true
+    },
+    col: {
+      type: Number,
+      required: true
+    },
+  },
+  data() {
+    return {
+      input: this.sample[this.field],
+    };
+  },
+  computed: {},
+  methods: {
+    update() {
+      this.sample[this.field] = this.input
+      this.$emit("change", this.sample)
+    }
+  },
+  watch: {
+    // whenever question changes, this function will run
+    sample: function () {
+      this.input = this.sample[this.field]
+    }
+  },
+  created() {
+  }
+});
+</script>

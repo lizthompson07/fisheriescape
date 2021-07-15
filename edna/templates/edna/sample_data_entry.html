@@ -15,7 +15,15 @@
     {% endfor %}
   </table>
 
-  <div id="app" class="mt-5">
+  <div v-cloak
+       id="app"
+       class="mt-5"
+       @keydown.tab.prevent=""
+       @keydown.right.prevent="goRight"
+       @keydown.left.prevent="goLeft"
+       @keydown.up.prevent="goUp"
+       @keydown.down.prevent="goDown"
+  >
     <div class="mb-3">
       <p class="h3">{% trans "Samples" %}</p>
       <button @click="addSample(null)" class="btn btn-sm btn-primary">{% trans "Add a Sample" %}</button>
@@ -56,7 +64,7 @@
           <th class="px-1 py-1" style="width: 150px">${labels.location}</th>
           <th class="px-1 py-1" style="width: 100px">${labels.site}</th>
           <th class="px-1 py-1" style="width: 100px">${labels.station}</th>
-          <th class="px-1 py-1" style="width: 220px">${labels.datetime} <br>(yyyy-mm-dd HH:MM:SS)</th>
+          <th class="px-1 py-1" style="width: 220px">${labels.datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
           <th class="px-1 py-1" style="width: 200px">${labels.samplers}</th>
           <th class="px-1 py-1" style="width: 100px">${labels.latitude}</th>
           <th class="px-1 py-1" style="width: 100px">${labels.longitude}</th>
@@ -64,44 +72,114 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(f, index) in samples" :key="f.id">
-          <td class="px-1  py-0 text-muted" tabindex="-1">${f.display}</td>
+        <tr v-for="(obj, index) in samples" :key="obj.id">
+          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.display}</td>
+
           <td class="px-0 py-0">
-            <select v-model="f.sample_type" class="no-borders" @change="updateSample(f)">
-              <option value="">{% trans "-----" %}</option>
-              <option v-for="(obj, index) in sampleTypeChoices" :value="obj.value">${obj.text}</option>
-            </select>
+            <select-input-cell
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="sample_type"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+              :options="sampleTypeChoices"
+            ></select-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="bottle_id"
+              :col="1"
+              :ref="`row_${index}_col_1`"
+              :key="`row_${index}_col_1`"
+            ></text-input-cell>
           </td>
 
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.bottle_id" @change="updateSample(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="location"
+              :col="2"
+              :ref="`row_${index}_col_2`"
+              :key="`row_${index}_col_2`"
+            ></text-input-cell>
+          </td>
+
+          <td class="px-0 py-0">
+            <text-input-cell
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="site"
+              :col="3"
+              :ref="`row_${index}_col_3`"
+              :key="`row_${index}_col_3`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.location" @change="updateSample(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="station"
+              :col="4"
+              :ref="`row_${index}_col_4`"
+              :key="`row_${index}_col_4`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.site" @change="updateSample(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="datetime_display"
+              :col="5"
+              :ref="`row_${index}_col_5`"
+              :key="`row_${index}_col_5`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.station" @change="updateSample(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="samplers"
+              :col="6"
+              :ref="`row_${index}_col_6`"
+              :key="`row_${index}_col_6`"
+
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="datetime-local" class="no-borders" v-model="f.datetime_display" @change="updateSample(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="latitude"
+              :col="7"
+              :ref="`row_${index}_col_7`"
+              :key="`row_${index}_col_7`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.samplers" @change="updateSample(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="longitude"
+              :col="8"
+              :ref="`row_${index}_col_8`"
+              :key="`row_${index}_col_8`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="number" step="any" class="no-borders" v-model="f.latitude" @change="updateSample(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="comments"
+              :col="9"
+              :ref="`row_${index}_col_9`"
+              :key="`row_${index}_col_9`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="number" step="any" class="no-borders" v-model="f.longitude" @change="updateSample(f)" @keypress="unsavedChanges=true">
-          </td>
-          <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.comments" @change="updateSample(f)" @keypress="unsavedChanges=true">
-          </td>
-          <td class="px-0 py-0">
-            <button class="btn py-0" @click="deleteSample(f)"><span class="h5 mdi mdi-delete"></span></button>
+            <button class="btn py-0" @click="deleteSample(f)" tabindex="-1"><span class="h5 mdi mdi-delete"></span></button>
           </td>
         </tr>
         </tbody>
@@ -115,8 +193,11 @@
 
 {% block body_js %}
 
-</script>
+  </script>
   {{ block.super }}
+  {% include "edna/components/text-input-cell.html" %}
+  {% include "edna/components/select-input-cell.html" %}
+
   <script type="application/javascript">
   let collectionId = {{ object.id }};
   var app = new Vue({
@@ -131,10 +212,76 @@
       labels: [],
       loading: false,
       sampleChoices: [],
-      unsavedChanges: false
-
+      unsavedChanges: false,
+      row: 0,
+      col: 0,
     },
     methods: {
+      copyDown(sample, field, input) {
+        this.unsavedChanges = true;
+        // copy the value for the field into the next row
+        let index = this.samples.indexOf(sample) + 1;
+        if (this.samples[index]) this.samples[index][field] = input;
+        //console.log(sample, field, input, index, this.samples[index], this.samples[index][field])
+        this.updateSample(this.samples[index])
+      },
+      copyDoubleDown(sample, field, input) {
+        this.unsavedChanges = true;
+        console.log(sample, field, input, 1231231234)
+      },
+      setPosition(i, j) {
+        console.log(i, j)
+        this.row = i;
+        this.col = j;
+      },
+      goRight() {
+        this.col += 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.col -= 1
+      },
+      goLeft() {
+        this.col -= 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.col += 1
+      },
+      goDown() {
+        this.row += 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.row -= 1
+      },
+      goUp() {
+        this.row -= 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.row += 1
+      },
       addSample(howMany) {
         if (!howMany) howMany = Number(prompt("{% trans 'How many samples do you want to add?' %}"));
         if (howMany) {
@@ -188,12 +335,15 @@
 
                 }
                 this.samples = response;
+                this.$nextTick(() => {
+                  this.$refs.row_0_col_0[0].$refs.input.focus();
+                })
               }
             })
       },
-      newSample(sample) {
+      newSample() {
         endpoint = `/api/edna/samples/`;
-        data = this.getBlankSample(sample)
+        data = this.getBlankSample()
         apiService(endpoint, "POST", data)
             .then(response => {
               if (response.id) {
@@ -201,6 +351,14 @@
               } else {
                 console.log(response)
               }
+            })
+      },
+      getSample(sample) {
+        endpoint = `/api/edna/samples/${sample.id}/`;
+        apiService(endpoint, "GET")
+            .then(response => {
+              this.$set(this.samples, this.samples.indexOf(sample), response);
+              this.unsavedChanges = false;
             })
       },
       updateSample(sample) {
@@ -211,16 +369,38 @@
         sample.datetime = sample.datetime_display
         apiService(endpoint, "PUT", sample)
             .then(response => {
-              if (!response.id) this.sampleErrorMsg = groomJSON(response);
-              else this.unsavedChanges = false;
+              if (!response.id) {
+                this.sampleErrorMsg = groomJSON(response);
+                this.getSample(sample)
+              } else {
+                this.unsavedChanges = false;
+                this.$set(this.samples, this.samples.indexOf(sample), response)
+              }
             })
       },
+    },
+    computed: {
+      bottleIds() {
+        let payload = [];
+        let sample;
+        for (var i = 0; i < this.samples.length; i++) {
+          sample = this.samples[i];
+          if (sample.bottle_id) payload.push(sample.bottle_id)
+        }
+        return payload.sort();
+      },
+      nextBottleId() {
+        if (!this.bottleIds.length) return 1;
+        else return this.bottleIds[this.bottleIds.length - 1] + 1;
+      }
     },
     created() {
       this.getCurrentUser();
       this.getSampleMetadata();
       this.getSamples();
+
     },
+
   });
   </script>
 

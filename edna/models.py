@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from shapely.geometry import Polygon, Point
 
+from edna.utils import get_next_bottle_id
 from lib.functions.custom_functions import listrify, nz, fiscal_year
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
@@ -152,7 +153,7 @@ class File(models.Model):
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"), blank=True, null=True)
-    bottle_id = models.IntegerField(max_length=255, unique=True, verbose_name=_("bottle ID"), blank=True, null=True)
+    bottle_id = models.IntegerField( unique=True, verbose_name=_("bottle ID"), blank=True, null=True)
     location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)
     site = models.CharField(max_length=255, verbose_name=_("site"), blank=True, null=True)
     station = models.TextField(verbose_name=_("station"), blank=True, null=True)
@@ -166,8 +167,8 @@ class Sample(MetadataFields):
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_updated_by')
 
     def save(self, *args, **kwargs):
-        if not self.bottle_id:
-
+        # if not self.bottle_id:
+        #     self.bottle_id = get_next_bottle_id()
         super().save(*args, **kwargs)
 
     class Meta:

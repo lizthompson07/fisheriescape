@@ -205,6 +205,11 @@ label.filter {
     width: 100%;
 }
 
+
+
+.pointy {
+    cursor: pointer;
+}
 /*.no-borders:focus {*/
 /*    outline: none;*/
 /*}*/

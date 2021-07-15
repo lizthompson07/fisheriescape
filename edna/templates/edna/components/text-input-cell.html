@@ -1,0 +1,76 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="text-input-cell-template">
+
+<div @mouseover="mouseover" @mouseleave="mouseleave">
+  <input type="text" class="no-borders" v-model="input" @change="update" @keypress="$emit('keypress')" @focus="focus" @blur="unfocus"
+         ref="input">
+  <div class="float-right" v-if="isFocused || hover">
+    <span class="mdi mdi-chevron-down pointy" @click="$emit('copy-down',sample, field, input)"></span>
+    <span class="mdi mdi-chevron-double-down pointy" @click="$emit('copy-double-down',sample, field, input)"></span>
+  </div>
+</div>
+
+
+</script>
+<script type=" application/javascript">
+
+Vue.component("text-input-cell", {
+  template: "#text-input-cell-template",
+  delimiters: ["${", "}"],
+  name: "text-input-cell",
+  props: {
+    sample: {
+      type: Object,
+      required: true
+    },
+    field: {
+      type: String,
+      required: true
+    },
+    row: {
+      type: Number,
+      required: true
+    },
+    col: {
+      type: Number,
+      required: true
+    },
+  },
+  data() {
+    return {
+      input: this.sample[this.field],
+      isFocused: false,
+      hover: false,
+    };
+  },
+  computed: {},
+  methods: {
+    focus() {
+      this.$emit('setposition', this.row, this.col);
+      this.isFocused = true;
+    },
+    unfocus() {
+      this.isFocused = false;
+    },
+    mouseover() {
+      this.hover = true;
+    },
+    mouseleave() {
+      this.hover = false;
+    },
+    update() {
+      this.sample[this.field] = this.input
+      this.$emit("change", this.sample)
+    }
+  },
+  watch: {
+    sample() {
+      this.input = this.sample[this.field];
+    }
+  },
+  created() {
+  }
+});
+</script>
