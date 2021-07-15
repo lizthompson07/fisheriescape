@@ -288,7 +288,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
             entries = org.entries.all()
             statuses = models.Status.objects.filter(entries__in=entries).distinct()
             for status in statuses:
-                entries_dict[status] = entries.filter(status=status)
+                entries_dict[status] = entries.filter(status=status).order_by("initial_date", "title")
         context["entries"] = entries_dict
         return context
 
