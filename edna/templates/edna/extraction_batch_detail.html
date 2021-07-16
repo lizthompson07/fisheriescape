@@ -56,7 +56,8 @@
         <thead>
         <tr>
           <th class="px-1 py-1" style="width: 100px">{% trans "Extraction ID" %}</th>
-          <th class="px-1 py-1" style="width: 75px">{% trans "Fitler ID" %}</th>
+          <th class="px-1 py-1" style="width: 125px">${labels.filter}</th>
+          <th class="px-1 py-1" style="width: 125px">${labels.extraction_number}</th>
           <th class="px-1 py-1" style="width: 200px">${labels.start_datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
           <th class="px-1 py-1" style="width: 175px">${labels.dna_extraction_protocol}</th>
           <th class="px-1 py-1" style="width: 175px">${labels.storage_location}</th>
@@ -77,6 +78,17 @@
               :col="0"
               :ref="`row_${index}_col_0`"
               :options="filterChoices"
+              blank_option="{% trans "Extraction blank" %}"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="extraction_number"
+              :col="1"
+              :ref="`row_${index}_col_1`"
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
@@ -85,8 +97,8 @@
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="datetime_display"
-              :col="1"
-              :ref="`row_${index}_col_1`"
+              :col="2"
+              :ref="`row_${index}_col_2`"
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
@@ -94,9 +106,9 @@
               type="select"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="filter"
-              :col="2"
-              :ref="`row_${index}_col_2`"
+              field="dna_extraction_protocol"
+              :col="3"
+              :ref="`row_${index}_col_3`"
               :options="dnaExtractionProtocolChoices"
             ></text-input-cell>
           </td>
@@ -106,16 +118,6 @@
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="storage_location"
-              :col="3"
-              :ref="`row_${index}_col_3`"
-            ></text-input-cell>
-          </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="text"
-              :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="extraction_plate_id"
               :col="4"
               :ref="`row_${index}_col_4`"
             ></text-input-cell>
@@ -125,7 +127,7 @@
               type="text"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="extraction_plate_well"
+              field="extraction_plate_id"
               :col="5"
               :ref="`row_${index}_col_5`"
             ></text-input-cell>
@@ -135,9 +137,19 @@
               type="text"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="comments"
+              field="extraction_plate_well"
               :col="6"
               :ref="`row_${index}_col_6`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="comments"
+              :col="7"
+              :ref="`row_${index}_col_7`"
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
@@ -232,7 +244,7 @@
         // copy the value for the field into the next row
         let index = this.extracts.indexOf(extract) + 1;
         if (this.extracts[index]) this.extracts[index][field] = input;
-        this.updateFilter(this.extracts[index])
+        this.updateExtract(this.extracts[index])
       },
       copyDoubleDown(extract, field, input) {
         this.unsavedChanges = true;
@@ -241,11 +253,9 @@
         let endingIndex = this.extracts.length - 1;
         for (var i = startingIndex; i <= endingIndex; i++) {
           if (this.extracts[i]) this.extracts[i][field] = input;
-          this.updateFilter(this.extracts[i])
+          this.updateExtract(this.extracts[i])
         }
       },
-
-
       addExtract(howMany) {
         if (!howMany) howMany = Number(prompt("{% trans 'How many tubes do you want to add?' %}"));
         if (howMany) {
@@ -346,11 +356,12 @@
         apiService(endpoint, "POST", data)
             .then(response => {
               if (response.id) {
-                response.start_datetime = response.start_datetime.replace("T", " ").replace("Z", "")
                 if (!response.filter) response.filter = "";
                 this.extracts.push(response)
                 // refresh the filter choices
                 this.getExtractMetadata();
+              } else {
+                console.log(response)
               }
             })
       },
@@ -365,11 +376,12 @@
       updateExtract(extract) {
         this.extractErrorMsg = null;
         endpoint = `/api/edna/extracts/${extract.id}/`;
+        extract.start_datetime = extract.datetime_display
         apiService(endpoint, "PUT", extract)
             .then(response => {
               if (!response.id) {
                 this.extractErrorMsg = groomJSON(response);
-                this.getFilter(extract)
+                this.getExtract(extract)
               } else {
                 this.unsavedChanges = false;
                 this.$set(this.extracts, this.extracts.indexOf(extract), response);
