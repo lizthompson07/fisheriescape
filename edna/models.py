@@ -223,6 +223,13 @@ class Sample(MetadataFields):
     def species_count(self):
         return self.species.count()
 
+    @property
+    def full_display(self):
+        mystr = str(self)
+        if self.bottle_id:
+            mystr += f" | b{self.bottle_id}"
+        return mystr
+
 
 class Batch(models.Model):
     datetime = models.DateTimeField(default=timezone.now, verbose_name=_("start date/time"))
@@ -292,6 +299,12 @@ class Filter(MetadataFields):
     def species_count(self):
         return self.species.count()
 
+    @property
+    def full_display(self):
+        mystr = str(self)
+        if self.tube_id:
+            mystr += f" ({self.tube_id})"
+        return mystr
 
 class ExtractionBatch(Batch):
     class Meta:

@@ -92,7 +92,7 @@ class FilterModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['filtration_type_choices'] = [dict(text=item.name, value=item.id) for item in models.FiltrationType.objects.all()]
-        data['sample_choices'] = [dict(text=str(item), value=item.id, has_filter=item.filters.exists()) for item in
+        data['sample_choices'] = [dict(text=item.full_display, value=item.id, has_filter=item.filters.exists()) for item in
                                   models.Sample.objects.all()]
         return Response(data)
 
@@ -130,7 +130,7 @@ class DNAExtractModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['filter_choices'] = [dict(text=str(item), value=item.id, has_extract=hasattr(item, 'extract')) for item in models.Filter.objects.all()]
+        data['filter_choices'] = [dict(text=item.full_display, value=item.id, has_extract=hasattr(item, 'extract')) for item in models.Filter.objects.all()]
         data['dna_extraction_protocol_choices'] = [dict(text=item.name, value=item.id) for item in models.DNAExtractionProtocol.objects.all()]
 
         return Response(data)
