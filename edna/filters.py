@@ -58,7 +58,8 @@ class DNAExtractFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filters["id"].label = _("extract ID")
+        self.filters["id"].label = _("Extract ID")
+        self.filters["filter__sample"].label = _("Sample ID")
 
 
 class PCRFilter(django_filters.FilterSet):
