@@ -43,6 +43,7 @@ class FilterFilter(django_filters.FilterSet):
         self.filters["id"].label = _("Filter ID")
         self.filters["sample"].field.widget = forms.NumberInput()
         self.filters["sample"].label = _("Sample ID")
+        self.filters["tube_id__icontains"].label = _("Tube ID (any part)")
 
 
 class DNAExtractFilter(django_filters.FilterSet):

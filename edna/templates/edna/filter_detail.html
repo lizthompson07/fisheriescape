@@ -9,32 +9,41 @@
       <table class="table table-sm">
         {% for field in field_list %}
           {% if "extracts" in field %}
-          <tr>
-            <th>{% get_verbose_label object field %}</th>
-            <td>
-              {% for e in object.extracts.all %}
-                <a href="#">{{ e }}</a><br>
-              {% endfor %}
-            </td>
-          </tr>
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% for e in object.extracts.all %}
+                  <a href="#">{{ e }}</a><br>
+                {% endfor %}
+              </td>
+            </tr>
           {% elif "pcrs" in field %}
-          <tr>
-            <th>{% get_verbose_label object field %}</th>
-            <td>
-              {% for e in object.pcrs.all %}
-                <a href="#">{{ e }}</a><br>
-              {% endfor %}
-            </td>
-          </tr>
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% for e in object.pcrs.all %}
+                  <a href="#">{{ e }}</a><br>
+                {% endfor %}
+              </td>
+            </tr>
           {% elif "species" in field %}
-          <tr>
-            <th>{% get_verbose_label object field %}</th>
-            <td>
-              {% for e in object.species.all %}
-                {{ e }}<br>
-              {% endfor %}
-            </td>
-          </tr>
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% for e in object.species.all %}
+                  {{ e }}<br>
+                {% endfor %}
+              </td>
+            </tr>
+          {% elif "observations" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% for e in object.observations.all %}
+                  {{ e }}<br>
+                {% endfor %}
+              </td>
+            </tr>
           {% elif field == "sample" %}
             <tr>
               <th>{% get_verbose_label object field %}</th>
@@ -46,12 +55,23 @@
                 {% endif %}
               </td>
             </tr>
-            {% elif field == "filter" %}
+          {% elif field == "filter" %}
             <tr>
               <th>{% get_verbose_label object field %}</th>
               <td>
                 {% if object.filter %}
                   <a href="{% url 'edna:filter_detail' object.filter.id %}">{{ object.filter }}</a><br>
+                {% else %}
+                  ---
+                {% endif %}
+              </td>
+            </tr>
+          {% elif field == "extract" %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% if object.extract %}
+                  <a href="{% url 'edna:extract_detail' object.extract.id %}">{{ object.extract }}</a><br>
                 {% else %}
                   ---
                 {% endif %}
