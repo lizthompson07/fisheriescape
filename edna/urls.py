@@ -13,11 +13,9 @@ urlpatterns = [
     # tested
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),  # tested
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),  # tested
-    
-    path('settings/sample-types/', views.SampleTypeFormsetView.as_view(), name="manage_sample_types"), # TODO: test
-    path('settings/sample-type/<int:pk>/delete/', views.SampleTypeHardDeleteView.as_view(), name="delete_sample_type"), # TODO: test
 
-
+    path('settings/sample-types/', views.SampleTypeFormsetView.as_view(), name="manage_sample_types"),  # TODO: test
+    path('settings/sample-type/<int:pk>/delete/', views.SampleTypeHardDeleteView.as_view(), name="delete_sample_type"),  # TODO: test
 
     # species
     path('species/', views.SpeciesListView.as_view(), name="species_list"),  # tested
@@ -45,6 +43,7 @@ urlpatterns = [
     path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),  # tested
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),  # tested
     path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),  # tested
+    path('samples/', views.SampleListView.as_view(), name="sample_list"),
 
     # filtration batches
     path('filtration-batches/', views.FiltrationBatchListView.as_view(), name="filtration_batch_list"),  # tested
@@ -66,6 +65,18 @@ urlpatterns = [
     path('pcr-batches/<int:pk>/edit/', views.PCRBatchUpdateView.as_view(), name="pcr_batch_edit"),  # tested
     path('pcr-batches/<int:pk>/delete/', views.PCRBatchDeleteView.as_view(), name="pcr_batch_delete"),  # tested
     path('pcr-batches/<int:pk>/view/', views.PCRBatchDetailView.as_view(), name="pcr_batch_detail"),  # tested
+
+    # filters
+    path('filters/', views.FilterListView.as_view(), name="filter_list"),
+    path('filters/<int:pk>/view/', views.FilterDetailView.as_view(), name="filter_detail"),
+
+    # extracts
+    path('extracts/', views.DNAExtractListView.as_view(), name="extract_list"),
+    path('extracts/<int:pk>/view/', views.DNAExtractDetailView.as_view(), name="extract_detail"),
+
+    # pcrs
+    path('pcrs/', views.PCRListView.as_view(), name="pcr_list"),
+    path('pcrs/<int:pk>/view/', views.PCRDetailView.as_view(), name="pcr_detail"),
 
     # reports
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested

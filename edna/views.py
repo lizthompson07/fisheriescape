@@ -379,6 +379,32 @@ class FileDeleteView(eDNAAdminRequiredMixin, CommonPopoutDeleteView):
 # SAMPLES #
 ###########
 
+##########
+
+class SampleListView(eDNAAdminRequiredMixin, CommonFilterView):
+    model = models.Sample
+    template_name = 'edna/list.html'
+    filterset_class = filters.SampleFilter
+    paginate_by = 50
+    home_url_name = "edna:index"
+    row_object_url_name = "edna:sample_detail"
+    container_class = "container-fluid curvy"
+    field_list = [
+        {"name": 'display|sample ID', "class": "", "width": ""},
+        {"name": 'sample_type', "class": "", "width": ""},
+        {"name": 'bottle_id', "class": "", "width": ""},
+        {"name": 'datetime', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'station', "class": "", "width": ""},
+        {"name": 'site', "class": "", "width": ""},
+        {"name": 'coordinates', "class": "", "width": ""},
+        {"name": 'filter_count|{}'.format(gettext_lazy("filters")), "class": "", "width": ""},
+        {"name": 'extract_count|{}'.format(gettext_lazy("extractions")), "class": "", "width": ""},
+        {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
+        {"name": 'species_count|{}'.format(gettext_lazy("species")), "class": "", "width": ""},
+    ]
+
+
 class SampleCreateView(eDNAAdminRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
@@ -460,8 +486,8 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         'samplers',
         'datetime',
         'coordinates',
-        # 'filters|filter IDs',
-        'extracts|extract IDs',
+        'filters|filter IDs',
+        'extracts|extraction IDs',
         'pcrs|PCR IDs',
         'species|Species observed',
         'comments',
@@ -721,6 +747,137 @@ class PCRBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("edna:pcr_batch_detail", args=[self.get_object().id])}
+
+
+# Filters #
+###########
+
+class FilterListView(eDNAAdminRequiredMixin, CommonFilterView):
+    model = models.Filter
+    template_name = 'edna/list.html'
+    filterset_class = filters.FilterFilter
+    paginate_by = 50
+    home_url_name = "edna:index"
+    row_object_url_name = "edna:filter_detail"
+    container_class = "container-fluid curvy"
+    field_list = [
+        {"name": 'display|filter ID', "class": "", "width": ""},
+        {"name": 'filtration_batch', "class": "", "width": ""},
+        {"name": 'sample', "class": "", "width": ""},
+        {"name": 'tube_id', "class": "", "width": ""},
+        {"name": 'start_datetime', "class": "", "width": ""},
+        {"name": 'storage_location', "class": "", "width": ""},
+        {"name": 'extract_count|{}'.format(gettext_lazy("extractions")), "class": "", "width": ""},
+        {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
+        {"name": 'species_count|{}'.format(gettext_lazy("species")), "class": "", "width": ""},
+    ]
+
+
+class FilterDetailView(eDNAAdminRequiredMixin, CommonDetailView):
+    model = models.Filter
+    template_name = 'edna/filter_detail.html'
+    home_url_name = "edna:index"
+    container_class = "container bg-light curvy"
+    field_list = [
+        'display|filter Id',
+        "filtration_batch",
+        "sample",
+        "tube_id",
+        "filtration_type",
+        "start_datetime",
+        "duration_min",
+        "filtration_volume_ml",
+        "storage_location",
+        "filtration_ipc",
+        'extracts|extraction IDs',
+        'pcrs|PCR IDs',
+        'species|Species observed',
+        "comments",
+    ]
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().filtration_batch, "url": reverse("edna:filter_list")}
+
+
+# DNAExtracts #
+###########
+
+class DNAExtractListView(eDNAAdminRequiredMixin, CommonFilterView):
+    model = models.DNAExtract
+    template_name = 'edna/list.html'
+    filterset_class = filters.DNAExtractFilter
+    paginate_by = 50
+    home_url_name = "edna:index"
+    row_object_url_name = "edna:extract_detail"
+    container_class = "container-fluid curvy"
+    field_list = [
+        {"name": 'display|extract ID', "class": "", "width": ""},
+        {"name": 'extraction_batch', "class": "", "width": ""},
+        {"name": 'filter', "class": "", "width": ""},
+        {"name": 'extraction_number', "class": "", "width": ""},
+        {"name": 'start_datetime', "class": "", "width": ""},
+        {"name": 'storage_location', "class": "", "width": ""},
+        {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
+        {"name": 'species_count|{}'.format(gettext_lazy("species")), "class": "", "width": ""},
+    ]
+
+
+class DNAExtractDetailView(eDNAAdminRequiredMixin, CommonDetailView):
+    model = models.DNAExtract
+    template_name = 'edna/filter_detail.html'
+    home_url_name = "edna:index"
+    container_class = "container bg-light curvy"
+    field_list = [
+        'display|extract Id',
+        "extraction_batch",
+        "filter",
+        "sample",
+        "extraction_number",
+        "start_datetime",
+        "dna_extraction_protocol",
+        "storage_location",
+        "extraction_plate_id",
+        "extraction_plate_well",
+        'pcrs|PCR IDs',
+        'species|Species observed',
+        "comments",
+    ]
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().extraction_batch, "url": reverse("edna:extract_list")}
+
+
+# PCRs #
+###########
+
+class PCRListView(eDNAAdminRequiredMixin, CommonFilterView):
+    model = models.PCR
+    template_name = 'edna/list.html'
+    filterset_class = filters.PCRFilter
+    paginate_by = 50
+    home_url_name = "edna:index"
+    row_object_url_name = "edna:pcr_detail"
+    container_class = "container-fluid curvy"
+    field_list = [
+        {"name": 'display|qPCR ID', "class": "", "width": ""},
+        {"name": 'pcr_batch', "class": "", "width": ""},
+        {"name": 'species_count|{}'.format(gettext_lazy("species")), "class": "", "width": ""},
+    ]
+
+
+class PCRDetailView(eDNAAdminRequiredMixin, CommonDetailView):
+    model = models.PCR
+    template_name = 'edna/filter_detail.html'
+    home_url_name = "edna:index"
+    container_class = "container bg-light curvy"
+    field_list = [
+        'display|pcr Id',
+        'filtration_batch',
+        'comments',
+    ]
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().pcr_batch, "url": reverse("edna:pcr_list")}
 
 
 # REPORTS #

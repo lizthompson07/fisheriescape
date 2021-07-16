@@ -33,7 +33,7 @@
               <th>{% get_verbose_label object field %}</th>
               <td>
                 {% for e in object.extracts.all %}
-                  <a href="#">{{ e }}</a><br>
+                  <a href="{% url 'edna:extract_detail' e.id %}">{{ e }}</a><br>
                 {% endfor %}
               </td>
             </tr>
@@ -42,7 +42,16 @@
               <th>{% get_verbose_label object field %}</th>
               <td>
                 {% for e in object.pcrs.all %}
-                  <a href="#">{{ e }}</a><br>
+                  <a href="{% url 'edna:pcr_detail' e.id %}">{{ e }}</a><br>
+                {% endfor %}
+              </td>
+            </tr>
+          {% elif "filters" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                {% for e in object.filters.all %}
+                  <a href="{% url 'edna:filter_detail' e.id %}">{{ e }}</a><br>
                 {% endfor %}
               </td>
             </tr>

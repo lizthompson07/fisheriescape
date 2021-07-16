@@ -13,6 +13,66 @@ class SpeciesFilter(django_filters.FilterSet):
                                             widget=forms.TextInput())
 
 
+class SampleFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Sample
+        fields = {
+            'id': ['exact'],
+            'sample_type': ['exact'],
+            'bottle_id': ['exact'],
+            'collection': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["id"].label = _("Sample ID")
+
+
+class FilterFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Filter
+        fields = {
+            'id': ['exact'],
+            'sample': ['exact'],
+            'tube_id': ['icontains'],
+            'filtration_batch': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["id"].label = _("Filter ID")
+        self.filters["sample"].field.widget = forms.NumberInput()
+        self.filters["sample"].label = _("Sample ID")
+
+
+class DNAExtractFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.DNAExtract
+        fields = {
+            'id': ['exact'],
+            'filter': ['exact'],
+            'filter__sample': ['exact'],
+            'extraction_number': ['exact'],
+            'extraction_batch': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["id"].label = _("extract ID")
+
+
+class PCRFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.PCR
+        fields = {
+            'id': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["id"].label = _("qPCR ID")
+
+
 class CollectionFilter(django_filters.FilterSet):
     class Meta:
         model = models.Collection

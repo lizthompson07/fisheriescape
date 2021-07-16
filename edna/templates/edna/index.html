@@ -46,10 +46,10 @@
           {% trans "Find a Sample" %}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">{% trans "Field" %}</a>
-          <a class="dropdown-item" href="#">{% trans "Filtration" %}</a>
-          <a class="dropdown-item" href="#">{% trans "Extraction" %}</a>
-          <a class="dropdown-item" href="#">{% trans "qPCR" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:sample_list'  %}">{% trans "Field" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:filter_list'  %}">{% trans "Filtration" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:extract_list'  %}">{% trans "Extraction" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:pcr_list'  %}">{% trans "qPCR" %}</a>
         </div>
       </div>
 

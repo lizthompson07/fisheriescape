@@ -207,6 +207,22 @@ class Sample(MetadataFields):
     def species(self):
         return SpeciesObservation.objects.filter(pcr__extract__filter__sample=self)
 
+    @property
+    def filter_count(self):
+        return self.filters.count()
+
+    @property
+    def extract_count(self):
+        return self.extracts.count()
+
+    @property
+    def pcr_count(self):
+        return self.pcrs.count()
+
+    @property
+    def species_count(self):
+        return self.species.count()
+
 
 class Batch(models.Model):
     datetime = models.DateTimeField(default=timezone.now, verbose_name=_("start date/time"))
@@ -232,6 +248,7 @@ class FiltrationBatch(Batch):
     def filter_count(self):
         return self.filters.count()
 
+
 class Filter(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("filtration batch"))
@@ -251,6 +268,30 @@ class Filter(MetadataFields):
     def __str__(self):
         return f"f{self.id}"
 
+    @property
+    def display(self):
+        return str(self)
+
+    @property
+    def pcrs(self):
+        return PCR.objects.filter(extract__filter=self)
+
+    @property
+    def species(self):
+        return SpeciesObservation.objects.filter(pcr__extract__filter=self)
+
+    @property
+    def extract_count(self):
+        return self.extracts.count()
+
+    @property
+    def pcr_count(self):
+        return self.pcrs.count()
+
+    @property
+    def species_count(self):
+        return self.species.count()
+
 
 class ExtractionBatch(Batch):
     class Meta:
@@ -266,10 +307,11 @@ class ExtractionBatch(Batch):
     def extract_count(self):
         return self.extracts.count()
 
+
 class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
-    filter = models.ForeignKey(Filter, on_delete=models.DO_NOTHING, blank=True, null=True)
+    filter = models.ForeignKey(Filter, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='extracts')
     extraction_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("extraction number"))
     start_datetime = models.DateTimeField(verbose_name=_("extraction date/time"))
     dna_extraction_protocol = models.ForeignKey(DNAExtractionProtocol, on_delete=models.DO_NOTHING, verbose_name=_("extraction protocol"))
@@ -283,6 +325,27 @@ class DNAExtract(MetadataFields):
 
     def __str__(self):
         return f"x{self.id}"
+
+    @property
+    def display(self):
+        return str(self)
+
+    @property
+    def species(self):
+        return SpeciesObservation.objects.filter(pcr__extract=self)
+
+    @property
+    def pcr_count(self):
+        return self.pcrs.count()
+
+    @property
+    def species_count(self):
+        return self.species.count()
+
+    @property
+    def sample(self):
+        if self.filter:
+            return self.filter.sample
 
 
 class PCRBatch(Batch):
@@ -303,18 +366,18 @@ class PCRBatch(Batch):
 class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
-    extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extract Id"))
-    start_datetime = models.DateTimeField(verbose_name=_("start time"))
-    pcr_number_prefix = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("PCR number prefix"))
-    pcr_number_suffix = models.IntegerField(blank=True, null=True, verbose_name=_("PCR number suffix"))
-    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("plate Id"))
+    extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extract"))
+    start_datetime = models.DateTimeField(verbose_name=_("qPCR date/time"))
+    # pcr_number_prefix = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("PCR number prefix"))
+    # pcr_number_suffix = models.IntegerField(blank=True, null=True, verbose_name=_("PCR number suffix"))
+    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR plate ID"))
     position = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("position"))
     ipc_added = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("IPC added"))
     qpcr_ipc = models.FloatField(blank=True, null=True, verbose_name=_("qPCR IPC"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ["pcr_batch", "extract", "pcr_number_suffix"]
+        ordering = ["id"]
 
     def save(self, *args, **kwargs):
         # get the last PCR number suffix in the system
@@ -326,6 +389,15 @@ class PCR(MetadataFields):
     @property
     def pcr_number(self):
         return f'{nz(self.pcr_number_prefix, "")}:{nz(self.pcr_number_suffix, "")}'
+
+    @property
+    def display(self):
+        return str(self)
+
+    @property
+    def sample(self):
+        if self.extract and self.extract.filter:
+            return self.extract.filter.sample
 
 
 class SpeciesObservation(MetadataFields):
