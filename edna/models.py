@@ -306,6 +306,7 @@ class Filter(MetadataFields):
             mystr += f" ({self.tube_id})"
         return mystr
 
+
 class ExtractionBatch(Batch):
     class Meta:
         verbose_name_plural = _("DNA Extraction Batches")

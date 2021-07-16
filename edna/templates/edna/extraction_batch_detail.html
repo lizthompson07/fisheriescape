@@ -62,7 +62,10 @@
           <th class="px-1 py-1" style="width: 175px">${labels.dna_extraction_protocol}</th>
           <th class="px-1 py-1" style="width: 175px">${labels.storage_location}</th>
           <th class="px-1 py-1" style="width: 125px">${labels.extraction_plate_id}</th>
-          <th class="px-1 py-1" style="width: 130px">${labels.extraction_plate_well}</th>
+          <th class="px-1 py-1" style="width: 130px">
+            ${labels.extraction_plate_well}<br>
+            <button class="btn btn-xs btn-danger" @click="populateWells">{% trans "Populate!" %}</button>
+          </th>
           <th class="px-1 py-1">${labels.comments}</th>
         </tr>
         </thead>
@@ -189,6 +192,26 @@
       unsavedChanges: false
     },
     methods: {
+      populateWells() {
+        let well;
+        let wellArray = [];
+        let letters = ["A", "B", "C", "D", "E", "F", "G", "H",];
+        for (var i = 1; i <= 12; i++) {
+          for (var j = 0; j < letters.length; j++) {
+            well = `${i}${letters[j]}`;
+            wellArray.push(well);
+          }
+        }
+        let e;
+        for (var i = 0; i < this.extracts.length; i++) {
+          if (wellArray[i]) {
+            e = this.extracts[i];
+            e.extraction_plate_well = wellArray[i];
+            this.updateExtract(e);
+          }
+        }
+
+      },
       setPosition(i, j) {
         this.row = i;
         this.col = j;
