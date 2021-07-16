@@ -16,7 +16,15 @@
     {% endfor %}
   </table>
 
-  <div id="app" class="mt-5">
+  <div id="app" class="mt-5"
+       @keydown.enter.prevent="goDown"
+       @keydown.shift.right.prevent="goRight"
+       @keydown.shift.left.prevent="goLeft"
+       @keydown.up.prevent="goUp"
+       @keydown.down.prevent="goDown"
+  >
+    {% include 'edna/_table_navigation.html' %}
+
     <div class="mb-3">
       <p class="h3">{% trans "Filters" %}</p>
       <button @click="addFilter(null)" class="btn btn-sm btn-primary">{% trans "Add a Filter" %}</button>
@@ -51,49 +59,115 @@
       <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
         <thead>
         <tr>
-          <th class="px-1 py-1">#</th>
-          <th class="px-1 py-1">Filter Id</th>
-          <th class="px-1 py-1" style="width: 120px">{% trans "Sample ID" %}</th>
-          <th class="px-1 py-1" style="width: 220px">${labels.start_datetime} (yyyy-mm-dd HH:MM:SS)</th>
-          <th class="px-1 py-1" style="width: 210px">${labels.filtration_type}</th>
-          <th class="px-1 py-1" style="width: 110px">${labels.filtration_volume_ml}</th>
+          <th class="px-1 py-1" style="width: 100px">{% trans "Filter ID" %}</th>
+          <th class="px-1 py-1" style="width: 100px">{% trans "Sample ID" %}</th>
+          <th class="px-1 py-1" style="width: 100px">${labels.tube_id}</th>
+          <th class="px-1 py-1" style="width: 200px">${labels.filtration_type}</th>
+          <th class="px-1 py-1" style="width: 200px">${labels.start_datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
           <th class="px-1 py-1" style="width: 110px">${labels.duration_min}</th>
+          <th class="px-1 py-1" style="width: 110px">${labels.filtration_volume_ml}</th>
           <th class="px-1 py-1" style="width: 175px">${labels.storage_location}</th>
+          <th class="px-1 py-1" style="width: 175px">${labels.filtration_ipc}</th>
           <th class="px-1 py-1">${labels.comments}</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(f, index) in filters" :key="f.id">
-          <td class="px-1 py-0 text-muted" tabindex="-1">${index+1}</td>
-          <td class="px-1  py-0 text-muted" tabindex="-1">${f.display}</td>
+        <tr v-for="(obj, index) in filters" :key="obj.id">
+          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.display}</td>
           <td class="px-0 py-0">
-            <select v-model="f.sample" class="no-borders" @change="updateFilter(f)">
-              <option value="">{% trans "Blank" %}</option>
-              <option v-for="(obj, index) in sampleChoices" :value="obj.value">${obj.text}</option>
-            </select>
+            <text-input-cell
+              type="select"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="sample"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+              :options="sampleChoices"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.start_datetime" @change="updateFilter(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="tube_id"
+              :col="1"
+              :ref="`row_${index}_col_1`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <select v-model="f.filtration_type" class="no-borders" @change="updateFilter(f)">
-              <option v-for="(obj, index) in filtrationTypeChoices" :value="obj.value">${obj.text}</option>
-            </select>
+            <text-input-cell
+              type="select"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="filtration_type"
+              :col="2"
+              :ref="`row_${index}_col_2`"
+              :options="filtrationTypeChoices"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.filtration_volume_ml" @change="updateFilter(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="datetime_display"
+              :col="3"
+              :ref="`row_${index}_col_3`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.duration_min" @change="updateFilter(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              type="number"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="duration_min"
+              :col="4"
+              :ref="`row_${index}_col_4`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.storage_location" @change="updateFilter(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              type="number"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="filtration_volume_ml"
+              :col="5"
+              :ref="`row_${index}_col_5`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="f.comments" @change="updateFilter(f)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="storage_location"
+              :col="6"
+              :ref="`row_${index}_col_6`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <button class="btn py-0" @click="deleteFilter(f)"><span class="h5 mdi mdi-delete"></span></button>
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="filtration_ipc"
+              :col="7"
+              :ref="`row_${index}_col_7`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateFilter" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="comments"
+              :col="8"
+              :ref="`row_${index}_col_8`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <button class="btn py-0" @click="deleteFilter(obj)"><span class="h5 mdi mdi-delete"></span></button>
           </td>
         </tr>
         </tbody>
@@ -108,6 +182,7 @@
 {% block body_js %}
 
   {{ block.super }}
+  {% include "edna/components/text-input-cell.html" %}
   <script type="application/javascript">
   let filterBatchId = {{ object.id }};
   var app = new Vue({
@@ -127,6 +202,76 @@
 
     },
     methods: {
+      setPosition(i, j) {
+        this.row = i;
+        this.col = j;
+      },
+      goRight() {
+        this.col += 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.col -= 1
+      },
+      goLeft() {
+        this.col -= 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.col += 1
+      },
+      goDown() {
+        this.row += 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.row -= 1
+      },
+      goUp() {
+        this.row -= 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.row += 1
+      },
+      copyDown(filter, field, input) {
+        this.unsavedChanges = true;
+        // copy the value for the field into the next row
+        let index = this.filters.indexOf(filter) + 1;
+        if (this.filters[index]) this.filters[index][field] = input;
+        this.updateFilter(this.filters[index])
+      },
+      copyDoubleDown(filter, field, input) {
+        this.unsavedChanges = true;
+        // copy the value for the field into the next row
+        let startingIndex = this.filters.indexOf(filter) + 1;
+        let endingIndex = this.filters.length - 1;
+        for (var i = startingIndex; i <= endingIndex; i++) {
+          if (this.filters[i]) this.filters[i][field] = input;
+          this.updateFilter(this.filters[i])
+        }
+      },
+
       addFilter(howMany) {
         if (!howMany) howMany = Number(prompt("{% trans 'How many filters do you want to add?' %}"));
         if (howMany) {
@@ -195,11 +340,12 @@
               this.loading = false;
               if (response.length && response[0].id) {
                 for (var i = 0; i < response.length; i++) {
-                  response[i].start_datetime = response[i].start_datetime.replace("T", " ").replace("Z", "")
                   if (!response[i].sample) response[i].sample = "";
-
                 }
                 this.filters = response;
+                this.$nextTick(() => {
+                  this.$refs.row_0_col_0[0].$refs.input.focus();
+                })
               }
             })
       },
@@ -229,7 +375,6 @@
         apiService(endpoint, "POST", data)
             .then(response => {
               if (response.id) {
-                response.start_datetime = response.start_datetime.replace("T", " ").replace("Z", "")
                 if (!response.sample) response.sample = "";
                 this.filters.push(response)
                 // refresh the sample choices
@@ -237,13 +382,27 @@
               }
             })
       },
+      getFilter(filter) {
+        endpoint = `/api/edna/filters/${filter.id}/`;
+        apiService(endpoint, "GET")
+            .then(response => {
+              this.$set(this.filters, this.filters.indexOf(filter), response);
+              this.unsavedChanges = false;
+            })
+      },
       updateFilter(filter) {
         this.filterErrorMsg = null;
         endpoint = `/api/edna/filters/${filter.id}/`;
+        filter.start_datetime = filter.datetime_display
         apiService(endpoint, "PUT", filter)
             .then(response => {
-              if (!response.id) this.filterErrorMsg = groomJSON(response);
-              else this.unsavedChanges = false;
+              if (!response.id) {
+                this.filterErrorMsg = groomJSON(response);
+                this.getFilter(filter)
+              } else {
+                this.unsavedChanges = false;
+                this.$set(this.filters, this.filters.indexOf(filter), response);
+              }
             })
       },
     },

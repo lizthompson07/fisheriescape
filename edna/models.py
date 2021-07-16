@@ -7,7 +7,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from shapely.geometry import Polygon, Point
 
-from edna.utils import get_next_bottle_id
 from lib.functions.custom_functions import listrify, nz, fiscal_year
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
@@ -84,7 +83,7 @@ class Collection(UnilingualSimpleLookup, MetadataFields):
 
     def save(self, *args, **kwargs):
         qs = self.samples.all()
-        if qs.exists():
+        if qs.filter(datetime__isnull=False).exists():
             self.start_date = qs.order_by("datetime").first().datetime
             self.end_date = qs.order_by("datetime").last().datetime
             self.fiscal_year_id = fiscal_year(self.end_date, sap_style=True)
@@ -152,16 +151,16 @@ class File(models.Model):
 
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
-    sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"), blank=True, null=True)
-    bottle_id = models.IntegerField( unique=True, verbose_name=_("bottle ID"), blank=True, null=True)
+    sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
+    bottle_id = models.IntegerField(unique=True, verbose_name=_("bottle ID"), blank=True, null=True)
     location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)
     site = models.CharField(max_length=255, verbose_name=_("site"), blank=True, null=True)
     station = models.TextField(verbose_name=_("station"), blank=True, null=True)
-    datetime = models.DateTimeField(verbose_name=_("collection date/time"), blank=False, null=True)
+    datetime = models.DateTimeField(verbose_name=_("collection date/time"), blank=False, null=True, auto_now_add=True)
     samplers = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("collector name"))
     latitude = models.FloatField(blank=False, null=True, verbose_name=_("latitude"))
     longitude = models.FloatField(blank=False, null=True, verbose_name=_("longitude"))
-    comments = models.TextField(null=True, blank=True, verbose_name=_("field comments"))
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
     # calc
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_created_by')
     updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='edna_samples_updated_by')
@@ -229,16 +228,21 @@ class FiltrationBatch(Batch):
     def get_absolute_url(self):
         return reverse('edna:filtration_batch_detail', kwargs={'pk': self.id})
 
+    @property
+    def filter_count(self):
+        return self.filters.count()
 
 class Filter(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("filtration batch"))
     sample = models.ForeignKey(Sample, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("field sample"), blank=True, null=True)
+    tube_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("tube ID"))
     filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="filters", verbose_name=_("filtration type"), default=1)
-    start_datetime = models.DateTimeField(verbose_name=_("start time"))
-    duration_min = models.IntegerField(verbose_name=_("duration (min)"), blank=True, null=True)
+    start_datetime = models.DateTimeField(verbose_name=_("filtration date/time"))
+    duration_min = models.IntegerField(verbose_name=_("filtration duration (min)"), blank=True, null=True)
     filtration_volume_ml = models.FloatField(blank=True, null=True, verbose_name=_("volume (ml)"))
-    storage_location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("storage location"))
+    storage_location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("filter storage location"))
+    filtration_ipc = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("filtration IPC"))
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
@@ -246,6 +250,7 @@ class Filter(MetadataFields):
 
     def __str__(self):
         return f"f{self.id}"
+
 
 class ExtractionBatch(Batch):
     class Meta:
@@ -257,11 +262,14 @@ class ExtractionBatch(Batch):
     def get_absolute_url(self):
         return reverse('edna:extraction_batch_detail', kwargs={'pk': self.id})
 
+    @property
+    def extract_count(self):
+        return self.extracts.count()
 
 class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
-    filter = models.OneToOneField(Filter, on_delete=models.CASCADE, blank=True, null=True)
+    filter = models.OneToOneField(Filter, on_delete=models.DO_NOTHING, blank=True, null=True)
     start_datetime = models.DateTimeField(verbose_name=_("start time"))
     dna_extraction_protocol = models.ForeignKey(DNAExtractionProtocol, on_delete=models.DO_NOTHING, verbose_name=_("extraction protocol"))
     storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("storage location"))
@@ -273,6 +281,7 @@ class DNAExtract(MetadataFields):
     def __str__(self):
         return f"x{self.id}"
 
+
 class PCRBatch(Batch):
     class Meta:
         verbose_name_plural = _("PCR Batches")
@@ -283,11 +292,15 @@ class PCRBatch(Batch):
     def get_absolute_url(self):
         return reverse('edna:pcr_batch_detail', kwargs={'pk': self.id})
 
+    @property
+    def pcr_count(self):
+        return self.pcrs.count()
+
 
 class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
-    extract = models.ForeignKey(DNAExtract, on_delete=models.CASCADE, blank=True, null=True, related_name="pcrs", verbose_name=_("extract Id"))
+    extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extract Id"))
     start_datetime = models.DateTimeField(verbose_name=_("start time"))
     pcr_number_prefix = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("PCR number prefix"))
     pcr_number_suffix = models.IntegerField(blank=True, null=True, verbose_name=_("PCR number suffix"))

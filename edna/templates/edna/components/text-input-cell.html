@@ -4,17 +4,8 @@
 <script type="text/x-template" id="text-input-cell-template">
 
 <div @mouseover="mouseover" @mouseleave="mouseleave">
-  <input type="text" class="no-borders"
-         v-if="type==='text'"
-         v-model="input"
-         @change="update"
-         @keypress="$emit('keypress')"
-         @focus="focus"
-         @blur="unfocus"
-         ref="input"
-  >
   <select class="no-borders"
-          v-else-if="type==='select'"
+          v-if="type==='select'"
           v-model="input"
           @change="update"
           @keypress="$emit('keypress')"
@@ -25,6 +16,15 @@
     <option value="">{% trans "-----" %}</option>
     <option v-for="(option, index) in options" :value="option.value">${option.text}</option>
   </select>
+  <input :type="type" class="no-borders"
+         v-else
+         v-model="input"
+         @change="update"
+         @keypress="$emit('keypress')"
+         @focus="focus"
+         @blur="unfocus"
+         ref="input"
+  >
   <div class="float-right" v-if="isFocused || hover">
     <span class="mdi mdi-chevron-down pointy text-primary" @click="$emit('copy-down',sample, field, input)"></span>
     <span class="mdi mdi-chevron-double-down pointy text-primary" @click="$emit('copy-double-down',sample, field, input)"></span>

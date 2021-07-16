@@ -219,11 +219,16 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         sample_field_list = [
             'display|sample ID',
+            "sample_type",
             'bottle_id',
             'datetime',
-            'site_identifier',
+            "samplers",
+            "location",
+            "station",
+            "site",
             'coordinates',
-            # 'observation_count|{}'.format(_("lobster count")),
+            "comments",
+
         ]
         context["sample_field_list"] = sample_field_list
         return context
@@ -300,6 +305,7 @@ class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonDetailView):
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
     container_class = "container-fluid"
+    active_page_name_crumb = gettext_lazy("Data Entry")
 
     def get_parent_crumb(self):
         return {"title": self.get_collection(), "url": reverse("edna:collection_detail", args=[self.get_collection().id])}
@@ -503,6 +509,7 @@ class FiltrationBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
+        {"name": 'filter_count|{}'.format(gettext_lazy("filters")), "class": "", "width": ""},
     ]
 
 
@@ -579,6 +586,8 @@ class ExtractionBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
+        {"name": 'extract_count|{}'.format(gettext_lazy("Extractions")), "class": "", "width": ""},
+
     ]
 
 
@@ -655,6 +664,7 @@ class PCRBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
+        {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
     ]
 
 

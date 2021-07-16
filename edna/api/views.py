@@ -76,7 +76,9 @@ class FilterViewSet(viewsets.ModelViewSet):
         raise ValidationError(_("You need to specify a batch"))
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj.start_datetime = obj.filtration_batch.datetime
+        obj.save()
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)

@@ -11,22 +11,13 @@
   <div v-cloak
        id="app"
        class="mt-5"
-       @keydown.enter.prevent="goRight"
+       @keydown.enter.prevent="goDown"
        @keydown.shift.right.prevent="goRight"
        @keydown.shift.left.prevent="goLeft"
        @keydown.up.prevent="goUp"
        @keydown.down.prevent="goDown"
   >
-    <div class="alert alert-primary w-25 float-right" role="alert">
-      <p class="lead text-muted">Navigation Tips</p>
-      <ul>
-        <li class="py-1"> {% trans "Move right" %} &rarr; <kbd>Shift + Right</kbd> or <kbd>Tab</kbd> or <kbd>Enter</kbd></li>
-        <li class="py-1"> {% trans "Move left" %} &rarr; <kbd>Shift + Left</kbd> or <kbd>Shift + Tab</kbd>
-        <li class="py-1"> {% trans "Move up" %} &rarr; <kbd>Up</kbd>
-        <li class="py-1"> {% trans "Move down" %} &rarr; <kbd>Down</kbd>
-      </ul>
-    </div>
-
+    {% include 'edna/_table_navigation.html' %}
     <p class="h2">{% trans "Tabular Edit Mode" %}</p>
     <div class="mb-3">
       <button @click="addSample(null)" class="btn btn-sm btn-primary">{% trans "Add a Sample" %}</button>
@@ -194,7 +185,7 @@
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <button class="btn py-0" @click="deleteSample(f)" tabindex="-1"><span class="h5 mdi mdi-delete"></span></button>
+            <button class="btn py-0" @click="deleteSample(obj)" tabindex="-1"><span class="h5 mdi mdi-delete"></span></button>
           </td>
         </tr>
         </tbody>
@@ -219,7 +210,7 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: null,
-      default_sample_type: null,
+      default_sample_type: 1,
       sampleErrorMsg: null,
       samples: [],
       sampleTypeChoices: [],
@@ -251,7 +242,6 @@
         //console.log(sample, field, input, index, this.samples[index], this.samples[index][field])
       },
       setPosition(i, j) {
-        console.log(i, j)
         this.row = i;
         this.col = j;
       },
@@ -350,11 +340,6 @@
             .then(response => {
               this.loading = false;
               if (response.length && response[0].id) {
-                for (var i = 0; i < response.length; i++) {
-                  //response[i].datetime = response[i].datetime.replace("T", " ").replace("Z", "")
-                  //if (!response[i].sample) response[i].sample = "";
-
-                }
                 this.samples = response;
                 this.$nextTick(() => {
                   this.$refs.row_0_col_0[0].$refs.input.focus();
@@ -387,7 +372,6 @@
         endpoint = `/api/edna/samples/${sample.id}/`;
         sample.datetime = sample.datetime_display
         if (sample.bottle_id === "") sample.bottle_id = null;
-        sample.datetime = sample.datetime_display
         apiService(endpoint, "PUT", sample)
             .then(response => {
               if (!response.id) {
