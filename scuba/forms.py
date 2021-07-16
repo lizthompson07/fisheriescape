@@ -98,6 +98,13 @@ class DiveForm(forms.ModelForm):
             msg = gettext(gettext('This must occur on the same day as the sample: {}').format(date(sample.datetime)))
             self.add_error('start_descent', msg)
 
+        transect = cleaned_data.get("transect")
+        width_m = cleaned_data.get("width_m")
+        if transect and not width_m:
+            msg = gettext(gettext('If there is a transect associated with this dive, you must provide a width.'))
+            self.add_error('width_m', msg)
+
+
 
 class SectionForm(forms.ModelForm):
     class Meta:

@@ -226,7 +226,7 @@ class Dive(MetadataFields):
 
     heading = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
     side = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("side"), choices=side_choices)
-    width_m = models.FloatField(verbose_name=_("width (m)"))
+    width_m = models.FloatField(verbose_name=_("width (m)"), blank=True, null=True)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     def save(self, *args, **kwargs):
