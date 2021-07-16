@@ -16,7 +16,7 @@
     <option value="">{% trans "-----" %}</option>
     <option v-for="(option, index) in options" :value="option.value">${option.text}</option>
   </select>
-  <input :type="type" class="no-borders"
+  <input :type="type" class="no-borders" step="any"
          v-else
          v-model="input"
          @change="update"

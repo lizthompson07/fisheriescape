@@ -114,7 +114,9 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
         raise ValidationError(_("You need to specify a batch"))
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj.start_datetime = obj.extraction_batch.datetime
+        obj.save()
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
@@ -128,7 +130,7 @@ class DNAExtractModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['filter_choices'] = [dict(text=item.id, value=item.id, has_extract=hasattr(item, 'extract')) for item in models.Filter.objects.all()]
+        data['filter_choices'] = [dict(text=str(item), value=item.id, has_extract=hasattr(item, 'extract')) for item in models.Filter.objects.all()]
         data['dna_extraction_protocol_choices'] = [dict(text=item.name, value=item.id) for item in models.DNAExtractionProtocol.objects.all()]
 
         return Response(data)
@@ -151,7 +153,9 @@ class PCRViewSet(viewsets.ModelViewSet):
         raise ValidationError(_("You need to specify a batch"))
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj.start_datetime = obj.pcr_batch.datetime
+        obj.save()
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)

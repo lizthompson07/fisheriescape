@@ -34,9 +34,9 @@
           {% trans "Lab Services" %}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="{% url 'edna:filtration_batch_list' %}">Sample Filtration</a>
-          <a class="dropdown-item" href="{% url 'edna:extraction_batch_list' %}">DNA Extraction</a>
-          <a class="dropdown-item" href="{% url 'edna:pcr_batch_list' %}">qPCR</a>
+          <a class="dropdown-item" href="{% url 'edna:filtration_batch_list' %}">{% trans "Filtration" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:extraction_batch_list' %}">{% trans "DNA Extraction" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:pcr_batch_list' %}">{% trans "qPCR" %}</a>
         </div>
       </div>
       <div class="btn-group mr-5">

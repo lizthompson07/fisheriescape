@@ -270,9 +270,11 @@ class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
     filter = models.OneToOneField(Filter, on_delete=models.DO_NOTHING, blank=True, null=True)
-    start_datetime = models.DateTimeField(verbose_name=_("start time"))
+    start_datetime = models.DateTimeField(verbose_name=_("extraction date/time"))
     dna_extraction_protocol = models.ForeignKey(DNAExtractionProtocol, on_delete=models.DO_NOTHING, verbose_name=_("extraction protocol"))
-    storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("storage location"))
+    storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("DNA storage location"))
+    extraction_plate_id = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("extraction plate ID"))
+    extraction_plate_well = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("extraction plate well"))
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
