@@ -2,31 +2,35 @@
 {% load verbose_names %}
 {% load i18n %}
 
+{% block title_area %}
+
+{% endblock %}
+
 {% block subcontent %}
-
-  <div class="btns mb-3">
-    <a href="{% url 'edna:collection_detail' object.id %}" class="btn btn-success btn-sm">{% trans "Back" %}</a>
-
-  </div>
-
-  <table class="table table-sm">
-    {% for field in field_list %}
-      {% verbose_td_display object field th_width="200px" %}
-    {% endfor %}
-  </table>
 
   <div v-cloak
        id="app"
        class="mt-5"
-       @keydown.tab.prevent=""
-       @keydown.right.prevent="goRight"
-       @keydown.left.prevent="goLeft"
+       @keydown.enter.prevent="goRight"
+       @keydown.shift.right.prevent="goRight"
+       @keydown.shift.left.prevent="goLeft"
        @keydown.up.prevent="goUp"
        @keydown.down.prevent="goDown"
   >
+    <div class="alert alert-primary w-25 float-right" role="alert">
+      <p class="lead text-muted">Navigation Tips</p>
+      <ul>
+        <li class="py-1"> {% trans "Move right" %} &rarr; <kbd>Shift + Right</kbd> or <kbd>Tab</kbd> or <kbd>Enter</kbd></li>
+        <li class="py-1"> {% trans "Move left" %} &rarr; <kbd>Shift + Left</kbd> or <kbd>Shift + Tab</kbd>
+        <li class="py-1"> {% trans "Move up" %} &rarr; <kbd>Up</kbd>
+        <li class="py-1"> {% trans "Move down" %} &rarr; <kbd>Down</kbd>
+      </ul>
+    </div>
+
+    <p class="h2">{% trans "Tabular Edit Mode" %}</p>
     <div class="mb-3">
-      <p class="h3">{% trans "Samples" %}</p>
       <button @click="addSample(null)" class="btn btn-sm btn-primary">{% trans "Add a Sample" %}</button>
+      <a href="{% url 'edna:collection_detail' object.id %}" class="btn btn-success btn-sm">{% trans "Back" %}</a>
     </div>
 
     <div class="row mb-3 px-1 py-1 w-25">
@@ -42,6 +46,7 @@
       {#        <input type="text" class="form-control form-control-sm" v-model="default_filtration_volume_ml">#}
       {#      </div>#}
     </div>
+
 
     <div v-if="loading" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
@@ -76,17 +81,19 @@
           <td class="px-1  py-0 text-muted" tabindex="-1">${obj.display}</td>
 
           <td class="px-0 py-0">
-            <select-input-cell
+            <text-input-cell
+              type="select"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="sample_type"
               :col="0"
               :ref="`row_${index}_col_0`"
               :options="sampleTypeChoices"
-            ></select-input-cell>
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="bottle_id"
@@ -98,6 +105,7 @@
 
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample.sync="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="location"
@@ -109,6 +117,7 @@
 
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="site"
@@ -119,6 +128,7 @@
           </td>
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="station"
@@ -129,6 +139,7 @@
           </td>
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="datetime_display"
@@ -139,6 +150,7 @@
           </td>
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="samplers"
@@ -150,6 +162,7 @@
           </td>
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="latitude"
@@ -160,6 +173,7 @@
           </td>
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="longitude"
@@ -170,6 +184,7 @@
           </td>
           <td class="px-0 py-0">
             <text-input-cell
+              type="text"
               :sample="obj" :row="index"
               @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="comments"
@@ -196,7 +211,6 @@
   </script>
   {{ block.super }}
   {% include "edna/components/text-input-cell.html" %}
-  {% include "edna/components/select-input-cell.html" %}
 
   <script type="application/javascript">
   let collectionId = {{ object.id }};
@@ -227,7 +241,14 @@
       },
       copyDoubleDown(sample, field, input) {
         this.unsavedChanges = true;
-        console.log(sample, field, input, 1231231234)
+        // copy the value for the field into the next row
+        let startingIndex = this.samples.indexOf(sample) + 1;
+        let endingIndex = this.samples.length - 1;
+        for (var i = startingIndex; i <= endingIndex; i++) {
+          if (this.samples[i]) this.samples[i][field] = input;
+          this.updateSample(this.samples[i])
+        }
+        //console.log(sample, field, input, index, this.samples[index], this.samples[index][field])
       },
       setPosition(i, j) {
         console.log(i, j)

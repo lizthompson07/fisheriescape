@@ -4,11 +4,30 @@
 <script type="text/x-template" id="text-input-cell-template">
 
 <div @mouseover="mouseover" @mouseleave="mouseleave">
-  <input type="text" class="no-borders" v-model="input" @change="update" @keypress="$emit('keypress')" @focus="focus" @blur="unfocus"
-         ref="input">
+  <input type="text" class="no-borders"
+         v-if="type==='text'"
+         v-model="input"
+         @change="update"
+         @keypress="$emit('keypress')"
+         @focus="focus"
+         @blur="unfocus"
+         ref="input"
+  >
+  <select class="no-borders"
+          v-else-if="type==='select'"
+          v-model="input"
+          @change="update"
+          @keypress="$emit('keypress')"
+          @focus="focus"
+          @blur="unfocus"
+          ref="input"
+  >
+    <option value="">{% trans "-----" %}</option>
+    <option v-for="(option, index) in options" :value="option.value">${option.text}</option>
+  </select>
   <div class="float-right" v-if="isFocused || hover">
-    <span class="mdi mdi-chevron-down pointy" @click="$emit('copy-down',sample, field, input)"></span>
-    <span class="mdi mdi-chevron-double-down pointy" @click="$emit('copy-double-down',sample, field, input)"></span>
+    <span class="mdi mdi-chevron-down pointy text-primary" @click="$emit('copy-down',sample, field, input)"></span>
+    <span class="mdi mdi-chevron-double-down pointy text-primary" @click="$emit('copy-double-down',sample, field, input)"></span>
   </div>
 </div>
 
@@ -29,6 +48,10 @@ Vue.component("text-input-cell", {
       type: String,
       required: true
     },
+    type: {
+      type: String,
+      required: true
+    },
     row: {
       type: Number,
       required: true
@@ -36,6 +59,10 @@ Vue.component("text-input-cell", {
     col: {
       type: Number,
       required: true
+    },
+    options: {
+      type: Array,
+      required: false
     },
   },
   data() {
