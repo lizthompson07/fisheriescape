@@ -322,6 +322,7 @@ class SampleDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dive_field_list = [
+            'is_training|{}'.format(_("Training?")),
             'transect',
             'diver',
             'heading',
@@ -423,6 +424,7 @@ class DiveDetailView(ScubaCRUDAccessRequiredMixin, CommonDetailView):
     grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container curvy"
     field_list = [
+        'is_training',
         'transect',
         'diver',
         'dive_distance|{}'.format(_("dive distance (m)")),

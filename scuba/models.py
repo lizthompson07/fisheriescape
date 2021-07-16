@@ -12,6 +12,11 @@ from shared_models.models import SimpleLookup, UnilingualSimpleLookup, Unilingua
 from shared_models.utils import decdeg2dm, dm2decdeg
 
 
+YES_NO_CHOICES = (
+    (True, gettext("Yes")),
+    (False, gettext("No")),
+)
+
 class Region(UnilingualLookup):
     abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='scuba_regions', blank=True, null=True)
@@ -209,8 +214,10 @@ class Dive(MetadataFields):
         ('r', _("Right")),
     )
     sample = models.ForeignKey(Sample, related_name='dives', on_delete=models.CASCADE, verbose_name=_("sample"), editable=False)
-    transect = models.ForeignKey(Transect, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("transect"))
+    transect = models.ForeignKey(Transect, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("transect"), blank=True, null=True,
+                                 help_text=_("Leave blank if training"))
     diver = models.ForeignKey(Diver, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("diver"))
+    is_training = models.BooleanField(default=False, verbose_name=_("Was this a training dive?"), choices=YES_NO_CHOICES)
     start_descent = models.DateTimeField(verbose_name=_("start descent"), blank=True, null=True)
     bottom_time = models.FloatField(verbose_name=_("bottom time (min)"), blank=True, null=True)
     max_depth_ft = models.FloatField(verbose_name=_("max depth (ft)"), blank=True, null=True)
@@ -269,10 +276,10 @@ class Section(MetadataFields):
     dive = models.ForeignKey(Dive, related_name='sections', on_delete=models.CASCADE, verbose_name=_("dive"))
     interval = models.IntegerField(verbose_name=_("5m interval [1-20]"), validators=(MinValueValidator(1), MaxValueValidator(20)), choices=interval_choices)
     depth_ft = models.FloatField(verbose_name=_("depth (ft)"), blank=True, null=True)
+    percent_algae = models.FloatField(default=0, verbose_name=_("algae [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_sand = models.FloatField(default=0, verbose_name=_("sand [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_mud = models.FloatField(default=0, verbose_name=_("mud [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_hard = models.FloatField(default=0, verbose_name=_("hard [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
-    percent_algae = models.FloatField(default=0, verbose_name=_("algae [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_gravel = models.FloatField(default=0, verbose_name=_("gravel [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_cobble = models.FloatField(default=0, verbose_name=_("cobble [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_pebble = models.FloatField(default=0, verbose_name=_("pebble [0-1]"), validators=(MinValueValidator(0), MaxValueValidator(1)))
@@ -330,9 +337,9 @@ class Observation(MetadataFields):
         (0, _("0 - uncertain")),
     )
     section = models.ForeignKey(Section, related_name='observations', on_delete=models.CASCADE, verbose_name=_("section"))
+    carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
     sex = models.CharField(max_length=2, verbose_name=_("sex"), choices=sex_choices)
     egg_status = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("egg status"), choices=egg_status_choices)
-    carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
     certainty_rating = models.IntegerField(verbose_name=_("length certainty"), default=1, choices=certainty_rating_choices)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 

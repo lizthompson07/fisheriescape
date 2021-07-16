@@ -15,7 +15,9 @@
   <div class="btns mb-3">
     <a href="{% url 'scuba:dive_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'scuba:dive_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
-    <a href="{% url 'scuba:dive_data_entry' object.id %}" class="btn btn-primary btn-sm">{% trans "Data Entry Mode" %}</a>
+    {% if object.transect %}
+      <a href="{% url 'scuba:dive_data_entry' object.id %}" class="btn btn-primary btn-sm">{% trans "Data Entry Mode" %}</a>
+    {% endif %}
   </div>
 
   <div class="mb-3 row">
@@ -30,7 +32,11 @@
           {% elif "transect" in field %}
             <tr>
               <th>{% get_verbose_label object field %}</th>
-              <td><a href="{% url 'scuba:site_detail' object.transect.site.id %}">{% trans "Transect" %} {{ object.transect }}</a></td>
+              {% if object.transect %}
+                <td><a href="{% url 'scuba:site_detail' object.transect.site.id %}">{% trans "Transect" %} {{ object.transect }}</a></td>
+              {% else %}
+                <td>n/a</td>
+              {% endif %}
             </tr>
           {% else %}
             {% verbose_td_display object field %}
