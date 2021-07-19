@@ -1751,6 +1751,9 @@ class ReleaseSiteCode(BioLookup):
     max_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MAX_LONGITUDE",
                                   verbose_name=_("Max Longitude"))
 
+    class Meta:
+        ordering = ['name']
+
     @property
     def bbox(self):
         # lon = x, lat = y
