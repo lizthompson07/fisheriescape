@@ -731,11 +731,15 @@ class CommonDetails(DetailView):
     # URL linking the details page back to the proper list
     list_url = None
     update_url = None
+    delete_url = None
 
     # By default detail objects are editable, set to false to remove update buttons
     editable = True
 
     img = False
+
+    def __getattr__(self, item):
+        return None
 
     def get_auth(self):
         if self.admin_only:
@@ -764,6 +768,9 @@ class CommonDetails(DetailView):
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
         context['auth'] = self.get_auth()
+        if hasattr(self, "deletable"):
+            if self.get_auth() and self.deletable:
+                context["delete_url"] = "bio_diversity:delete_{}".format(self.key)
         context['editable'] = context['auth'] and self.editable
         context["model_key"] = self.key
 
@@ -3031,6 +3038,10 @@ class CommonDelete(SiteLoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+class EvntDelete(mixins.EvntMixin, CommonDelete):
+    success_url = reverse_lazy("bio_diversity:list_evnt")
 
 
 class IndvDelete(mixins.IndvMixin, CommonDelete):

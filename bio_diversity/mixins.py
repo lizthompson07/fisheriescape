@@ -180,6 +180,7 @@ class EvntMixin:
     model = models.Event
     title = _("Event")
     admin_only = False
+    deletable = True
 
 
 class EvntcMixin:
@@ -316,6 +317,7 @@ class IndvMixin:
     model = models.Individual
     title = _("Individual")
     admin_only = False
+    deletable = True
 
 
 class IndvdMixin:
@@ -444,6 +446,7 @@ class PairMixin:
     form_class = forms.PairForm
     title = _("Pairing")
     admin_only = False
+
 
 class PercMixin:
     key = 'perc'

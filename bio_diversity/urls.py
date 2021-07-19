@@ -132,7 +132,8 @@ urlpatterns = [
     path('details/evnt/<str:back>/<int:back_id>/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
     path('list/evnt/', views.EvntList.as_view(), name="list_evnt"),
     path('update/evnt/<int:pk>/', views.EvntUpdate.as_view(), name="update_evnt"),
-                  
+    path('delete/evnt/<int:pk>/', views.EvntDelete.as_view(), name="delete_evnt"),
+
     path('create/evntc/', views.EvntcCreate.as_view(), name="create_evntc"),
     path('details/evntc/<int:pk>/', views.EvntcDetails.as_view(), name="details_evntc"),
     path('list/evntc/', views.EvntcList.as_view(), name="list_evntc"),
@@ -275,6 +276,7 @@ urlpatterns = [
     path('details/loc/<str:back>/<int:back_id>/<int:pk>/', views.LocDetails.as_view(), name="details_loc"),
     path('list/loc/', views.LocList.as_view(), name="list_loc"),
     path('update/loc/<int:pk>/', views.LocUpdate.as_view(), name="update_loc"),
+
 
     path('create/locc/', views.LoccCreate.as_view(), name="create_locc"),
     path('details/locc/<int:pk>/', views.LoccDetails.as_view(), name="details_locc"),
