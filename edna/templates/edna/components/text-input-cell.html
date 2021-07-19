@@ -82,13 +82,15 @@ Vue.component("text-input-cell", {
       this.isFocused = true;
     },
     unfocus() {
-      this.isFocused = false;
+      setTimeout(() => {
+        this.isFocused = false;
+      }, 200)
     },
     mouseover() {
-      this.hover = true;
+      //this.hover = true;
     },
     mouseleave() {
-      this.hover = false;
+      //this.hover = false;
     },
     update() {
       this.sample[this.field] = this.input
@@ -101,8 +103,8 @@ Vue.component("text-input-cell", {
     }
   },
   computed: {
-    blankOption(){
-      if(this.blank_option) return this.blank_option;
+    blankOption() {
+      if (this.blank_option) return this.blank_option;
       else return "-----";
     }
   }
