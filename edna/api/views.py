@@ -171,11 +171,11 @@ class PCRModelMetaAPIView(APIView):
         # we want to get a list of filters for which there has been no PCRs
         data['extract_choices'] = [dict(text=item.id, value=item.id, has_pcr=item.pcrs.exists()) for item in models.DNAExtract.objects.all()]
 
-        qs = models.PCR.objects.filter(pcr_number_suffix__isnull=False).order_by("pcr_number_suffix")
-        last_pcr_number = 0
-        if qs.exists():
-            last_pcr_number = qs.last().pcr_number_suffix
-        data['last_pcr_number'] = last_pcr_number
+        # qs = models.PCR.objects.filter(pcr_number_suffix__isnull=False).order_by("pcr_number_suffix")
+        # last_pcr_number = 0
+        # if qs.exists():
+        #     last_pcr_number = qs.last().pcr_number_suffix
+        # data['last_pcr_number'] = last_pcr_number
 
         return Response(data)
 
