@@ -210,27 +210,18 @@
               if (!wellArray.includes(input)) {
                 alert("{% trans "Sorry, you have entered an invalid well number. We were expecting something amongst the following:" %} " + groomJSON(wellArray))
               } else {
-
-
-                // david, it should be cyclical
-
                 let startingIndex = wellArray.indexOf(input);
                 let extract;
                 let pos;
-
                 for (let i = 0; i < this.extracts.length; i++) {
                   extract = this.extracts[i];
                   pos = startingIndex + i;
-
                   if (pos >= wellArray.length) pos = pos % wellArray.length;
                   extract.extraction_plate_well = wellArray[pos];
                   this.updateExtract(extract);
-
                 }
               }
             }
-
-
           },
           setPosition(i, j) {
             this.row = i;
@@ -414,6 +405,7 @@
             endpoint = `/api/edna/extracts/${extract.id}/`;
             apiService(endpoint, "GET")
                 .then(response => {
+                  if (!response.filter) response.filter = "";
                   this.$set(this.extracts, this.extracts.indexOf(extract), response);
                   this.unsavedChanges = false;
                 })
@@ -428,6 +420,7 @@
                     this.extractErrorMsg = groomJSON(response);
                     this.getExtract(extract)
                   } else {
+                    if (!response.filter) response.filter = "";
                     this.unsavedChanges = false;
                     this.$set(this.extracts, this.extracts.indexOf(extract), response);
                   }

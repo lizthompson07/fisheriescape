@@ -372,10 +372,12 @@
       updateSample(sample) {
         this.sampleErrorMsg = null;
         endpoint = `/api/edna/samples/${sample.id}/`;
+        console.log(sample)
         sample.datetime = sample.datetime_display
         if (sample.bottle_id === "") sample.bottle_id = null;
         apiService(endpoint, "PUT", sample)
             .then(response => {
+              console.log(response)
               if (!response.id) {
                 this.sampleErrorMsg = groomJSON(response);
                 this.getSample(sample)

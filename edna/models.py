@@ -152,11 +152,11 @@ class File(models.Model):
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
-    bottle_id = models.IntegerField(unique=True, verbose_name=_("bottle ID"), blank=True, null=True)
+    bottle_id = models.CharField(unique=True, verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
     location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)
     site = models.CharField(max_length=255, verbose_name=_("site"), blank=True, null=True)
     station = models.TextField(verbose_name=_("station"), blank=True, null=True)
-    datetime = models.DateTimeField(verbose_name=_("collection date/time"), blank=False, null=True, auto_now_add=True)
+    datetime = models.DateTimeField(verbose_name=_("collection date/time"), blank=False, null=True, default=timezone.now)
     samplers = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("collector name"))
     latitude = models.FloatField(blank=False, null=True, verbose_name=_("latitude"))
     longitude = models.FloatField(blank=False, null=True, verbose_name=_("longitude"))
