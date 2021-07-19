@@ -24,6 +24,7 @@ from . import mixins, filters, utils, models, reports
 import pytz
 from django.utils.translation import gettext_lazy as _
 
+from .static.calculation_constants import collection_evntc_list
 from .utils import get_cont_evnt
 
 
@@ -321,7 +322,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
                              "master entry", "egg development", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
-            elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
+            elif evnt_code in collection_evntc_list:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
             elif evnt_code in ["mortality", "movement"]:
                 template_url = None
@@ -3378,9 +3379,9 @@ class TemplFormView(mixins.TemplMixin, BioCommonFormView):
         facility_code = facic_id.name
 
         if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                             "master entry", "egg development", "adult collection"]:
+                         "master entry", "egg development", "adult collection"]:
             template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
-        elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
+        elif evnt_code in collection_evntc_list:
             template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
         else:
             template_url = 'data_templates/measuring.xlsx'

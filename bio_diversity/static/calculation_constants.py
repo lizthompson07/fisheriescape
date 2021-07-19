@@ -18,3 +18,7 @@ prio_dict = {"H": "High",
              "P": "Pairwise"}
 
 sfa_nums = [15, 16, 17, 18, 19, 20, 21, 22, 23]
+
+collection_evntc_list = ["electrofishing", "bypass collection", "smolt wheel collection", "smolt collection",
+                         "fall parr collection"]
+
