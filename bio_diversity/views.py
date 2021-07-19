@@ -6,8 +6,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.staticfiles import finders
 from django.db.models import F, Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.templatetags.static import static
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
 from shapely.geometry import box
@@ -3361,6 +3363,35 @@ def grp_report_file(request):
                 response['Content-Disposition'] = f'inline; filename="group_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
                 return response
     raise Http404
+
+
+class TemplFormView(mixins.TemplMixin, BioCommonFormView):
+    h1 = _("Default Templates")
+
+    def get_initial(self):
+        self.get_form_class().base_fields["evntc_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+
+    def form_valid(self, form):
+        evntc_id = form.cleaned_data["evntc_id"]
+        facic_id = form.cleaned_data["facic_id"]
+        evnt_code = evntc_id.name.lower()
+        facility_code = facic_id.name
+
+        if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
+                             "master entry", "egg development", "adult collection"]:
+            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+        elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
+            template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
+        else:
+            template_url = 'data_templates/measuring.xlsx'
+
+        file_url = finders.find(template_url)
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="{facility_code}_{evnt_code}_({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+                return response
+        raise Http404
 
 
 class PlotView(CommonTemplateView):

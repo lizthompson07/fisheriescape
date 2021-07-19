@@ -650,6 +650,13 @@ class TeamMixin:
     admin_only = True
 
 
+class TemplMixin:
+    key = 'templ'
+    form_class = forms.TemplForm
+    title = _("Templates")
+    admin_only = False
+
+
 class TrayMixin:
     key = 'tray'
     model = models.Tray

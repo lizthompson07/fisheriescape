@@ -470,6 +470,8 @@ urlpatterns = [
     path('list/team/', views.TeamList.as_view(), name="list_team"),
     path('update/team/<int:pk>/', views.TeamUpdate.as_view(), name="update_team"),
 
+    path('create/templ/', views.TemplFormView.as_view(), name="create_templ"),
+
     path('create/tray/', views.TrayCreate.as_view(), name="create_tray"),
     path('create/tray/<int:evnt>/<str:pop>/', views.TrayCreate.as_view(), name="create_tray"),
     path('details/tray/<int:pk>/', views.TrayDetails.as_view(), name="details_tray"),

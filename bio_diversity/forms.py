@@ -1118,6 +1118,11 @@ class TeamForm(CreatePrams):
         exclude = []
 
 
+class TemplForm(forms.Form):
+    facic_id = forms.ModelChoiceField(required=True, queryset=models.FacilityCode.objects.all(), label=_("Facility"))
+    evntc_id = forms.ModelChoiceField(required=True, queryset=models.EventCode.objects.all(), label=_("Template Type"))
+
+
 class TrayForm(CreateDatePrams):
     class Meta:
         model = models.Tray

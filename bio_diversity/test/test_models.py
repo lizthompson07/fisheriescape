@@ -174,7 +174,6 @@ class TestLocModel(CommonTest):
         self.loc.save()
         self.assertEqual(self.loc.relc_id, self.relc)
 
-
     def test_point_in_two_relc(self):
         # test that when a point is in two relc it uses the smaller one:
         self.loc.loc_lat = self.relc.min_lat
