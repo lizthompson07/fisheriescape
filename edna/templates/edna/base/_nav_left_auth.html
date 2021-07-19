@@ -19,6 +19,9 @@
       <a class="dropdown-item" href="{% url 'edna:species_list' %}">
         {% trans "Species" %}
       </a>
+      <a class="dropdown-item" href="{% url 'edna:assay_list' %}">
+        {% trans "qPCR / IPC Assays" %}
+      </a>
        <a class="dropdown-item" href="{% url 'edna:manage_tags' %}">
         {% trans "Tags" %}
       </a>
@@ -30,6 +33,9 @@
       </a>
       <a class="dropdown-item" href="{% url 'edna:manage_sample_types' %}">
         {% trans "Sample Types" %}
+      </a>
+      <a class="dropdown-item" href="{% url 'edna:manage_master_mixes' %}">
+        {% trans "Master Mixes" %}
       </a>
     </div>
   </li>

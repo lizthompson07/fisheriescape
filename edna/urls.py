@@ -17,12 +17,23 @@ urlpatterns = [
     path('settings/sample-types/', views.SampleTypeFormsetView.as_view(), name="manage_sample_types"),  # TODO: test
     path('settings/sample-type/<int:pk>/delete/', views.SampleTypeHardDeleteView.as_view(), name="delete_sample_type"),  # TODO: test
 
+    path('settings/master-mixes/', views.MasterMixFormsetView.as_view(), name="manage_master_mixes"),
+    path('settings/master-mix/<int:pk>/delete/', views.MasterMixHardDeleteView.as_view(), name="delete_master_mix"),
+
+
     # species
     path('species/', views.SpeciesListView.as_view(), name="species_list"),  # tested
     path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),  # tested
     path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),  # tested
     path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),  # tested
     path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),  # tested
+
+    # assays
+    path('assays/', views.AssayListView.as_view(), name="assay_list"),  # tested
+    path('assays/new/', views.AssayCreateView.as_view(), name="assay_new"),  # tested
+    path('assays/<int:pk>/edit/', views.AssayUpdateView.as_view(), name="assay_edit"),  # tested
+    path('assays/<int:pk>/delete/', views.AssayDeleteView.as_view(), name="assay_delete"),  # tested
+    path('assays/<int:pk>/view/', views.AssayDetailView.as_view(), name="assay_detail"),  # tested
 
     # collections
     path('collections/', views.CollectionListView.as_view(), name="collection_list"),  # tested

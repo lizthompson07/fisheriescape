@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from shapely.geometry import Polygon, Point
 
-from lib.functions.custom_functions import listrify, nz, fiscal_year
+from lib.functions.custom_functions import listrify, fiscal_year
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup, FiscalYear, Region, MetadataFields
 from shared_models.utils import format_coordinates
@@ -26,6 +26,10 @@ class Tag(SimpleLookup):
 
 
 class SampleType(SimpleLookup):
+    pass
+
+
+class MasterMix(SimpleLookup):
     pass
 
 
@@ -63,6 +67,25 @@ class Species(models.Model):
     @property
     def formatted_scientific(self):
         return f"<em>{self.scientific_name}</em>"
+
+
+class Assay(UnilingualSimpleLookup, MetadataFields):
+    lod = models.FloatField(blank=True, null=True, verbose_name=_("LOD value"))
+    loq = models.FloatField(blank=True, null=True, verbose_name=_("LOQ value"))
+    a_coef = models.FloatField(blank=True, null=True, verbose_name=_("formula A coefficient"))
+    b_coef = models.FloatField(blank=True, null=True, verbose_name=_("formula B coefficient"))
+    is_ipc = models.BooleanField(default=False, verbose_name=_("is this assay being used as an IPC?"))
+    species = models.ManyToManyField(Species, verbose_name=_("species"), blank=True)
+
+    def __str__(self):
+        mystr = self.name
+        if self.is_ipc:
+            mystr += ' (IPC)'
+        return mystr
+
+    class Meta:
+        verbose_name_plural = "Assays"
+        ordering = ["name", ]
 
 
 class Collection(UnilingualSimpleLookup, MetadataFields):
@@ -203,9 +226,9 @@ class Sample(MetadataFields):
     def pcrs(self):
         return PCR.objects.filter(extract__filter__sample=self)
 
-    @property
-    def species(self):
-        return SpeciesObservation.objects.filter(pcr__extract__filter__sample=self)
+    # @property
+    # def species(self):
+    #     return SpeciesObservation.objects.filter(pcr__extract__filter__sample=self)
 
     @property
     def filter_count(self):
@@ -232,7 +255,7 @@ class Sample(MetadataFields):
 
 
 class Batch(models.Model):
-    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("start date/time"))
+    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("start date"))
     operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
@@ -283,9 +306,9 @@ class Filter(MetadataFields):
     def pcrs(self):
         return PCR.objects.filter(extract__filter=self)
 
-    @property
-    def species(self):
-        return SpeciesObservation.objects.filter(pcr__extract__filter=self)
+    # @property
+    # def species(self):
+    #     return SpeciesObservation.objects.filter(pcr__extract__filter=self)
 
     @property
     def extract_count(self):
@@ -295,9 +318,9 @@ class Filter(MetadataFields):
     def pcr_count(self):
         return self.pcrs.count()
 
-    @property
-    def species_count(self):
-        return self.species.count()
+    # @property
+    # def species_count(self):
+    #     return self.species.count()
 
     @property
     def full_display(self):
@@ -344,17 +367,17 @@ class DNAExtract(MetadataFields):
     def display(self):
         return str(self)
 
-    @property
-    def species(self):
-        return SpeciesObservation.objects.filter(pcr__extract=self)
+    # @property
+    # def species(self):
+    #     return SpeciesObservation.objects.filter(pcr__extract=self)
 
     @property
     def pcr_count(self):
         return self.pcrs.count()
 
-    @property
-    def species_count(self):
-        return self.species.count()
+    # @property
+    # def species_count(self):
+    #     return self.species.count()
 
     @property
     def sample(self):
@@ -363,6 +386,15 @@ class DNAExtract(MetadataFields):
 
 
 class PCRBatch(Batch):
+    control_status_choices = (
+        (0, _("Ok")),
+        (1, _("No good")),
+    )
+    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR plate ID"))
+    machine_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR machine number"))
+    run_program = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR run program"))
+    control_status = models.IntegerField(blank=True, null=True, choices=control_status_choices, verbose_name=_("control status"))
+
     class Meta:
         verbose_name_plural = _("PCR Batches")
 
@@ -381,13 +413,8 @@ class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
     extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extraction ID"))
-    start_datetime = models.DateTimeField(verbose_name=_("qPCR date/time"))
-    # pcr_number_prefix = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("PCR number prefix"))
-    # pcr_number_suffix = models.IntegerField(blank=True, null=True, verbose_name=_("PCR number suffix"))
-    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR plate ID"))
-    position = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("position"))
-    ipc_added = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("IPC added"))
-    qpcr_ipc = models.FloatField(blank=True, null=True, verbose_name=_("qPCR IPC"))
+    plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR plate well"))
+    master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     class Meta:
@@ -399,10 +426,6 @@ class PCR(MetadataFields):
 
     def __str__(self):
         return f"q{self.id}"
-
-    @property
-    def pcr_number(self):
-        return f'{nz(self.pcr_number_prefix, "")}:{nz(self.pcr_number_suffix, "")}'
 
     @property
     def display(self):
@@ -423,17 +446,20 @@ class PCR(MetadataFields):
         return self.observations.count()
 
 
-class SpeciesObservation(MetadataFields):
-    pcr = models.ForeignKey(PCR, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
-    species = models.ForeignKey(Species, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("species"))
+class PCRAssay(MetadataFields):
+    pcr = models.ForeignKey(PCR, related_name='qcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
+    assay = models.ForeignKey(PCRBatch, related_name='qcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
     ct = models.FloatField(blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
-    edna_conc = models.FloatField(blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"))
+    threshold = models.FloatField(blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
     is_undetermined = models.BooleanField(default=False, verbose_name=_("undetermined?"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
-    class Meta:
-        ordering = ["pcr", "species"]
-        unique_together = (("pcr", "species"),)
+    # calculated
+    edna_conc = models.FloatField(blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"), editable=False)
 
-    def __str__(self):
-        return str(self.species)
+    class Meta:
+        ordering = ["id"]
+        unique_together = (("pcr", "assay"),)
+
+    # def __str__(self):
+    #     return str(self.species)

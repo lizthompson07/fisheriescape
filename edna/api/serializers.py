@@ -59,15 +59,15 @@ class DNAExtractSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class SpeciesObservationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.SpeciesObservation
-        fields = "__all__"
-
-    species_display = serializers.SerializerMethodField()
-
-    def get_species_display(self, instance):
-        return str(instance.species)
+# class SpeciesObservationSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.SpeciesObservation
+#         fields = "__all__"
+#
+#     species_display = serializers.SerializerMethodField()
+#
+#     def get_species_display(self, instance):
+#         return str(instance.species)
 
 
 class PCRSerializer(serializers.ModelSerializer):
@@ -76,7 +76,7 @@ class PCRSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     pcr_number = serializers.SerializerMethodField()
-    observations = SpeciesObservationSerializer(many=True, read_only=True)
+    # observations = SpeciesObservationSerializer(many=True, read_only=True)
     display = serializers.SerializerMethodField()
     datetime_display = serializers.SerializerMethodField()
 

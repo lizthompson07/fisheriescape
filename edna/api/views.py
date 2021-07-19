@@ -180,36 +180,36 @@ class PCRModelMetaAPIView(APIView):
         return Response(data)
 
 
-class SpeciesObservationViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.SpeciesObservationSerializer
-    permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.SpeciesObservation.objects.all()
-
-    # pagination_class = StandardResultsSetPagination
-
-    def list(self, request, *args, **kwargs):
-        qp = request.query_params
-        if qp.get("pcr"):
-            pcr = get_object_or_404(models.PCR, pk=qp.get("pcr"))
-            qs = pcr.observations.all()
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
-        raise ValidationError(_("You need to specify a PCR"))
-
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user, updated_by=self.request.user)
-
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
-
-
-class SpeciesObservationModelMetaAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    model = models.SpeciesObservation
-
-    def get(self, request):
-        data = dict()
-        data['labels'] = get_labels(self.model)
-        # we want to get a list of filters for which there has been no SpeciesObservations
-        data['species_choices'] = [dict(text=str(item), value=item.id) for item in models.Species.objects.all()]
-        return Response(data)
+# class SpeciesObservationViewSet(viewsets.ModelViewSet):
+#     serializer_class = serializers.SpeciesObservationSerializer
+#     permission_classes = [eDNACRUDOrReadOnly]
+#     queryset = models.SpeciesObservation.objects.all()
+#
+#     # pagination_class = StandardResultsSetPagination
+#
+#     def list(self, request, *args, **kwargs):
+#         qp = request.query_params
+#         if qp.get("pcr"):
+#             pcr = get_object_or_404(models.PCR, pk=qp.get("pcr"))
+#             qs = pcr.observations.all()
+#             serializer = self.get_serializer(qs, many=True)
+#             return Response(serializer.data)
+#         raise ValidationError(_("You need to specify a PCR"))
+#
+#     def perform_create(self, serializer):
+#         serializer.save(created_by=self.request.user, updated_by=self.request.user)
+#
+#     def perform_update(self, serializer):
+#         serializer.save(updated_by=self.request.user)
+#
+#
+# class SpeciesObservationModelMetaAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     model = models.SpeciesObservation
+#
+#     def get(self, request):
+#         data = dict()
+#         data['labels'] = get_labels(self.model)
+#         # we want to get a list of filters for which there has been no SpeciesObservations
+#         data['species_choices'] = [dict(text=str(item), value=item.id) for item in models.Species.objects.all()]
+#         return Response(data)
