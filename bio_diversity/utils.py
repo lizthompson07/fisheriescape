@@ -465,12 +465,16 @@ def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp
 
 def get_relc_from_point(shapely_geom):
     relc_qs = models.ReleaseSiteCode.objects.all()
+    relc_final = None
     for relc in relc_qs:
         # need to add infinitesimal buffer to deal with rounding issue
         if relc.bbox:
             if relc.bbox.buffer(1e-14).intersects(shapely_geom):
-                return relc
-    return None
+                if not relc_final:
+                    relc_final = relc
+                elif relc.area < relc_final.area:
+                    relc_final = relc
+    return relc_final
 
 
 def get_row_date(row, get_time=False):

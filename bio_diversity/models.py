@@ -1754,6 +1754,13 @@ class ReleaseSiteCode(BioLookup):
     class Meta:
         ordering = ['name']
 
+    def clean(self):
+        super(ReleaseSiteCode, self).clean()
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
+            if float(self.min_lon) > float(self.max_lon) or float(self.min_lat) > float(self.max_lat):
+                raise ValidationError("Max lat/lon must be greater than min lat/lon")
+
+
     @property
     def bbox(self):
         # lon = x, lat = y
@@ -1767,6 +1774,17 @@ class ReleaseSiteCode(BioLookup):
             return bbox
         else:
             return
+
+    @property
+    def area(self):
+        # lon = x, lat = y
+        corr_factor = 8 / 11
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
+            delta_y = corr_factor * (float(self.max_lat) - float(self.min_lat))
+            delta_x = float(self.max_lon) - float(self.min_lon)
+            return delta_x * delta_y
+        else:
+            return 0
 
 
 class RiverCode(BioLookup):

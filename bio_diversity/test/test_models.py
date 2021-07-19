@@ -173,3 +173,17 @@ class TestLocModel(CommonTest):
         self.loc.loc_lon = new_relc.min_lon
         self.loc.save()
         self.assertEqual(self.loc.relc_id, self.relc)
+
+
+    def test_point_in_two_relc(self):
+        # test that when a point is in two relc it uses the smaller one:
+        self.loc.loc_lat = self.relc.min_lat
+        self.loc.loc_lon = self.relc.min_lon
+        small_relc = self.relc
+        small_relc.id = None
+        small_relc.name = BioFactoryFloor.RelcFactory.build_valid_data()["name"]
+        small_relc.max_lat = self.loc.loc_lat + 0.001
+        small_relc.max_lon = self.loc.loc_lon + 0.001
+        small_relc.save()
+        self.loc.save()
+        self.assertEqual(self.loc.relc_id, small_relc)

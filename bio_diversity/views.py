@@ -1718,6 +1718,9 @@ class RelcDetails(mixins.RelcMixin, CommonDetails):
                                           "objects_list": obj_set,
                                           "field_list": obj_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
+        context["calculated_properties"] = {}
+
+        context["calculated_properties"]["Area"] = self.object.area
 
         return context
 
