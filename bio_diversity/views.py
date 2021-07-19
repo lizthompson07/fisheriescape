@@ -2324,6 +2324,7 @@ class PercList(mixins.PercMixin, GenericList):
     field_list = [
         {"name": 'perc_first_name', "class": "", "width": ""},
         {"name": 'perc_last_name', "class": "", "width": ""},
+        {"name": 'initials', "class": "", "width": ""},
         {"name": 'perc_valid', "class": "", "width": ""},
     ]
     filterset_class = filters.PercFilter

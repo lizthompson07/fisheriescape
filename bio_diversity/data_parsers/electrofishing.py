@@ -45,7 +45,7 @@ class ElectrofishingParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.rive_key, self.prio_key, self.coll_key, self.tank_key, self.crew_key,
-                                    self.fish_caught_key, self.fish_obs_key])
+                                    self.fish_caught_key, self.fish_obs_key, self.site_key])
         self.mandatory_filled_keys.extend([self.rive_key, self.coll_key])
         super(ElectrofishingParser, self).load_data()
 
