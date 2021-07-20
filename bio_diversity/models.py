@@ -1938,9 +1938,14 @@ class StockCode(BioLookup):
 
 class SubRiverCode(BioLookup):
     # subr tag
+    # make name not unique
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), db_column="RIVER_ID")
     trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True, db_column="TRIB_ID",
                                 verbose_name=_("Tributary"))
+
+    class Meta:
+        unique_together = (('name', 'rive_id', 'trib_id'),)
 
 
 class Tank(BioCont):
@@ -2033,7 +2038,14 @@ class TrayDet(BioContainerDet):
 
 class Tributary(BioLookup):
     # trib tag
+    # make name not unique
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), db_column="RIVER_ID")
+    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True,
+                                db_column="SUBRIVER_ID", verbose_name=_("Subriver"))
+
+    class Meta:
+        unique_together = (('name', 'rive_id', 'subr_id'),)
 
 
 class Trough(BioCont):
