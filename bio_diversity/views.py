@@ -595,13 +595,13 @@ class RelcCreate(mixins.RelcMixin, CommonCreate):
     def get_initial(self):
         initial = super().get_initial()
         if 'n' in self.kwargs:
-            initial['max_lat'] = round(float(self.kwargs['n']), 5)
+            initial['max_lat'] = round(float(self.kwargs['n']), 6)
         if 's' in self.kwargs:
-            initial['min_lat'] = round(float(self.kwargs['s']), 5)
+            initial['min_lat'] = round(float(self.kwargs['s']), 6)
         if 'w' in self.kwargs:
-            initial['min_lon'] = round(float(self.kwargs['w']), 5)
+            initial['min_lon'] = round(float(self.kwargs['w']), 6)
         if 'e' in self.kwargs:
-            initial['max_lon'] = round(float(self.kwargs['e']), 5)
+            initial['max_lon'] = round(float(self.kwargs['e']), 6)
         return initial
 
 

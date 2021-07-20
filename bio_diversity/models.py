@@ -1444,13 +1444,13 @@ class Location(BioModel):
                                 verbose_name=_("SubRiver Code"))
     relc_id = models.ForeignKey('ReleaseSiteCode', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Site Code"), related_name="locations", db_column="SITE_ID")
-    loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="LATITUDE",
+    loc_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="LATITUDE",
                                   verbose_name=_("Latitude"))
-    loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="LONGITUDE",
+    loc_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="LONGITUDE",
                                   verbose_name=_("Longitude"))
-    end_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="END_LATITUDE",
+    end_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="END_LATITUDE",
                                   verbose_name=_("End Latitude"))
-    end_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="END_LONGITUDE",
+    end_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="END_LONGITUDE",
                                   verbose_name=_("End Longitude"))
     loc_date = models.DateTimeField(verbose_name=_("Start date"), db_column="LOCATION_DATE")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
@@ -1742,13 +1742,13 @@ class ReleaseSiteCode(BioLookup):
                                 verbose_name=_("Tributary"))
     subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True, db_column="SUBRIVER_ID",
                                 verbose_name=_("SubRiver Code"))
-    min_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="MIN_LATITUDE",
+    min_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="MIN_LATITUDE",
                                   verbose_name=_("Min Latitude"))
-    max_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="MAX_LATITUDE",
+    max_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="MAX_LATITUDE",
                                   verbose_name=_("Max Latitude"))
-    min_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MIN_LONGITUDE",
+    min_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="MIN_LONGITUDE",
                                   verbose_name=_("Min Longitude"))
-    max_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MAX_LONGITUDE",
+    max_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="MAX_LONGITUDE",
                                   verbose_name=_("Max Longitude"))
 
     class Meta:
@@ -1955,6 +1955,14 @@ class SubRiverCode(BioLookup):
     class Meta:
         unique_together = (('name', 'rive_id', 'trib_id'),)
 
+    def clean(self):
+        super(SubRiverCode, self).clean()
+        if self.trib_id and self.rive_id != self.trib_id:
+            raise ValidationError({
+                "trib_id": ValidationError("Tributary River {} must match River {}"
+                                           .format(self.trib_id.rive_id, self.rive_id))
+            })
+
 
 class Tank(BioCont):
     # tank tag
@@ -2054,6 +2062,15 @@ class Tributary(BioLookup):
 
     class Meta:
         unique_together = (('name', 'rive_id', 'subr_id'),)
+
+    def clean(self):
+        super(Tributary, self).clean()
+        if self.subr_id and self.rive_id != self.subr_id.rive_id:
+            raise ValidationError({
+                "subr_id": ValidationError("Sub River river {} must match River {}"
+                                           .format(self.subr_id.rive_id, self.rive_id))
+            })
+
 
 
 class Trough(BioCont):
