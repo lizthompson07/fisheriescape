@@ -2484,7 +2484,6 @@ class SubrFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ('name',)
 
     rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
-    trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
     description_en = factory.lazy_attribute(lambda o: faker.text())
@@ -2496,13 +2495,11 @@ class SubrFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         rive = RiveFactory()
-        trib = TribFactory()
         obj = SubrFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'rive_id': rive.pk,
-            'trib_id': trib.pk,
             'name': obj.name,
             'nom': obj.nom,
             'description_en': obj.description_en,
