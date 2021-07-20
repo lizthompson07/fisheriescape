@@ -27,8 +27,9 @@
 
     <div class="mb-3">
       <p class="h3">{% trans "Filters" %}</p>
-      <button @click="addFilter(null)" class="btn btn-sm btn-primary">{% trans "Add a Filter" %}</button>
-      <button @click="addAllFilters" class="btn btn-sm btn-warning">{% trans "Import un-filtered samples" %}</button>
+
+      <button @click="addFilter(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a Filter" %}</button>
+      <sample-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-samples="addSamples"></sample-import-overlay>
     </div>
 
     <div class="row mb-3 px-1 py-1" style="width: 30%">
@@ -186,6 +187,7 @@
 
   {{ block.super }}
   {% include "edna/components/text-input-cell.html" %}
+  {% include "edna/components/sample_import_overlay.html" %}
   <script type="application/javascript">
   let filterBatchId = {{ object.id }};
   var app = new Vue({
@@ -283,20 +285,20 @@
           }
         }
       },
-      addAllFilters() {
-        howMany = 0;
-        for (var i = 0; i < this.sampleChoices.length; i++) {
-          if (!this.sampleChoices[i].has_filter) {
-            howMany += 1;
-          }
-        }
-        if (howMany) {
-          sampleArray = this.getQueuedSamples(howMany);
-          for (let i = 0; i < sampleArray.length; i++) {
-            this.newFilter(sampleArray[i]);
-          }
-        }
-      },
+      //addAllFilters() {
+      //  howMany = 0;
+      //  for (var i = 0; i < this.sampleChoices.length; i++) {
+      //    if (!this.sampleChoices[i].has_filter) {
+      //      howMany += 1;
+      //    }
+      //  }
+      //  if (howMany) {
+      //    sampleArray = this.getQueuedSamples(howMany);
+      //    for (let i = 0; i < sampleArray.length; i++) {
+      //      this.newFilter(sampleArray[i]);
+      //    }
+      //  }
+      //},
       deleteFilter(filter) {
         userInput = confirm("{% trans 'Are you sure you want to delete this filter?' %}");
         if (userInput) {
@@ -352,25 +354,30 @@
               }
             })
       },
-      getQueuedSamples(howMany) {
-        let samples = [...this.sampleChoices];
-        console.log(samples)
-        myArray = []
-        let result;
-        for (let i = 0; i < howMany; i++) {
-          result = "";
-          for (let j = 0; j < samples.length; j++) {
-            let sample = samples[j];
-            if (!sample.has_filter) {
-              let index = samples.indexOf(sample);
-              result = samples.splice(index, 1)[0].value;
-              break;
-            }
-          }
-          myArray.push(result);
+      //getQueuedSamples(howMany) {
+      //  let samples = [...this.sampleChoices];
+      //  console.log(samples)
+      //  myArray = []
+      //  let result;
+      //  for (let i = 0; i < howMany; i++) {
+      //    result = "";
+      //    for (let j = 0; j < samples.length; j++) {
+      //      let sample = samples[j];
+      //      if (!sample.has_filter) {
+      //        let index = samples.indexOf(sample);
+      //        result = samples.splice(index, 1)[0].value;
+      //        break;
+      //      }
+      //    }
+      //    myArray.push(result);
+      //  }
+      //  // return the results array
+      //  return myArray;
+      //},
+      addSamples(sampleArray) {
+        for (const sample of sampleArray) {
+          this.newFilter(sample);
         }
-        // return the results array
-        return myArray;
       },
       newFilter(sample) {
         endpoint = `/api/edna/filters/`;

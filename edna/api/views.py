@@ -1,4 +1,5 @@
 from django.utils.translation import gettext as _
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -23,12 +24,26 @@ class CurrentUserAPIView(APIView):
         return Response(data)
 
 
+class CollectionViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CollectionSerializer
+    permission_classes = [eDNACRUDOrReadOnly]
+    queryset = models.Collection.objects.all()
+
+
 class SampleViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SampleSerializer
     permission_classes = [eDNACRUDOrReadOnly]
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('id', "collection", "filters")
     queryset = models.Sample.objects.all()
 
-    # pagination_class = StandardResultsSetPagination
+    def get_queryset(self):
+        qs = models.Sample.objects.all()
+        qp = self.request.query_params
+        if qp.get("has_filter"):
+            has_filter = qp.get("has_filter") == "true"
+            qs = qs.filter(filters__isnull=(not has_filter))
+        return qs
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
@@ -37,7 +52,8 @@ class SampleViewSet(viewsets.ModelViewSet):
             qs = collection.samples.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        raise ValidationError(_("You need to specify a collection"))
+        # raise ValidationError(_("You need to specify a collection"))
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user, updated_by=self.request.user)
@@ -178,7 +194,6 @@ class PCRModelMetaAPIView(APIView):
         # data['last_pcr_number'] = last_pcr_number
 
         return Response(data)
-
 
 # class SpeciesObservationViewSet(viewsets.ModelViewSet):
 #     serializer_class = serializers.SpeciesObservationSerializer

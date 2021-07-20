@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from lib.functions.custom_functions import listrify
 from .. import models
 
 
@@ -12,8 +13,11 @@ class UserDisplaySerializer(serializers.ModelSerializer):
 
 class SampleSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
-
     datetime_display = serializers.SerializerMethodField()
+    collection_display = serializers.SerializerMethodField()
+
+    def get_collection_display(self, instance):
+        return str(instance.collection)
 
     def get_datetime_display(self, instance):
         if instance.datetime:
@@ -89,3 +93,9 @@ class PCRSerializer(serializers.ModelSerializer):
 
     def get_pcr_number(self, instance):
         return instance.pcr_number
+
+
+class CollectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Collection
+        fields = "__all__"

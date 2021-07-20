@@ -5,7 +5,6 @@ from django.contrib.auth.models import Group
 from django.utils.translation import gettext as _
 
 
-
 def in_edna_admin_group(user):
     # make sure the following group exist:
     admin_group, created = Group.objects.get_or_create(name="edna_admin")
@@ -66,6 +65,14 @@ def get_batch_field_list():
     my_list = [
         "datetime",
         "operators",
+    ]
+    return my_list
+
+
+def get_pcr_batch_field_list():
+    my_list = [
+        "datetime",
+        "operators",
         "plate_id",
         "machine_number",
         "run_program",
@@ -73,6 +80,7 @@ def get_batch_field_list():
         "comments",
     ]
     return my_list
+
 
 def get_next_bottle_id():
     from .models import Sample
