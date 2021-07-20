@@ -1829,6 +1829,14 @@ class Sample(BioModel):
         else:
             return None
 
+    def samp_detail(self, anidc_name="Length"):
+        latest_indvd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self).first()
+        if latest_indvd:
+            return latest_indvd.det_val
+        else:
+            return None
+
+
 
 class SampleCode(BioLookup):
     # sampc tag
