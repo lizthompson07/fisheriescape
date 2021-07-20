@@ -387,12 +387,12 @@ class DNAExtract(MetadataFields):
 
 class PCRBatch(Batch):
     control_status_choices = (
-        (0, _("Ok")),
-        (1, _("No good")),
+        (1, _("OK")),
+        (0, _("Bad")),
     )
-    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR plate ID"))
-    machine_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR machine number"))
-    run_program = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR run program"))
+    plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate ID"))
+    machine_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR machine number"))
+    run_program = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR run program"))
     control_status = models.IntegerField(blank=True, null=True, choices=control_status_choices, verbose_name=_("control status"))
 
     class Meta:
@@ -441,20 +441,26 @@ class PCR(MetadataFields):
         if self.extract:
             return self.extract.filter
 
-    @property
-    def species_count(self):
-        return self.observations.count()
+    # @property
+    # def species_count(self):
+    #     return self.species.count()
 
 
 class PCRAssay(MetadataFields):
-    pcr = models.ForeignKey(PCR, related_name='qcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
-    assay = models.ForeignKey(PCRBatch, related_name='qcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
+    result_choices = (
+        (1, _("positive")),
+        (0, _("negative")),
+        (9, _("undetermined")),
+    )
+
+    pcr = models.ForeignKey(PCR, related_name='pcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
+    assay = models.ForeignKey(PCRBatch, related_name='pcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("qPCR batch"))
     ct = models.FloatField(blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
     threshold = models.FloatField(blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
-    is_undetermined = models.BooleanField(default=False, verbose_name=_("undetermined?"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     # calculated
+    result = models.IntegerField(verbose_name=_("result"), choices=result_choices, blank=True, null=True, editable=False)
     edna_conc = models.FloatField(blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"), editable=False)
 
     class Meta:

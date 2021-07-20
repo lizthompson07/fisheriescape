@@ -113,6 +113,16 @@ class ExtractionBatchForm(forms.ModelForm):
 
 
 class PCRBatchForm(forms.ModelForm):
+    field_order = [
+        "datetime",
+        "operators",
+        "plate_id",
+        "machine_number",
+        "run_program",
+        "control_status",
+        "comments",
+    ]
+
     class Meta:
         model = models.PCRBatch
         fields = "__all__"

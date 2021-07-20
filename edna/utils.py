@@ -64,10 +64,13 @@ def get_collection_field_list(collection):
 
 def get_batch_field_list():
     my_list = [
-        'id',
-        'datetime',
-        'operators',
-        'comments',
+        "datetime",
+        "operators",
+        "plate_id",
+        "machine_number",
+        "run_program",
+        "control_status",
+        "comments",
     ]
     return my_list
 

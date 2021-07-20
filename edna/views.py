@@ -773,6 +773,10 @@ class PCRBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'datetime', "class": "", "width": ""},
         {"name": 'operators', "class": "", "width": ""},
+        {"name": 'plate_id', "class": "", "width": ""},
+        {"name": 'machine_number', "class": "", "width": ""},
+        {"name": 'run_program', "class": "", "width": ""},
+        {"name": 'control_status', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
     ]
@@ -809,14 +813,6 @@ class PCRBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        sample_field_list = [
-            'bottle_id',
-            'datetime',
-            'site_identifier',
-            'coordinates',
-            # 'observation_count|{}'.format(_("lobster count")),
-        ]
-        context["sample_field_list"] = sample_field_list
         return context
 
 
