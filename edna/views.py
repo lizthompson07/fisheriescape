@@ -334,7 +334,7 @@ class CollectionDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
 class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
     form_class = forms.FileImportForm
     template_name = 'edna/sample_import_form.html'
-    home_url_name = "index"
+    home_url_name = "edna:index"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
 
@@ -385,7 +385,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
 class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonDetailView):
     model = models.Collection
     template_name = 'edna/sample_data_entry.html'
-    home_url_name = "index"
+    home_url_name = "edna:index"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
     h1 = ' '
     container_class = "container-fluid"

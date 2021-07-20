@@ -21,6 +21,8 @@ class SampleFilter(django_filters.FilterSet):
             'sample_type': ['exact'],
             'bottle_id': ['exact'],
             'collection': ['exact'],
+            'location': ['icontains'],
+            'filters': ['isnull'],
         }
 
     def __init__(self, *args, **kwargs):

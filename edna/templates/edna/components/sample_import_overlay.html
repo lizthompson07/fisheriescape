@@ -31,6 +31,12 @@
                     <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">
                   </div>
                   <div class="col">
+                    <input type="text" class="form-control" placeholder="{% trans "Bottle Id" %}" v-model="filterBottleId">
+                  </div>
+                  <div class="col">
+                    <input type="text" class="form-control" placeholder="{% trans "Location (any part)" %}" v-model="filterLocation">
+                  </div>
+                  <div class="col">
                     <select class="form-control" v-model="filterCollection">
                       <option :value="null">{% trans "Filter by collection" %}</option>
                       <option v-for="collection in collections" :key="collection.id" :value="collection.id">
@@ -51,7 +57,9 @@
               <div class="mb-3">
                 <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedSamples" ref="sample_box">
                   <option v-for="sample in samples" :key="sample.id" :value="sample.id">
-                    ${sample.display} <span v-if="sample.bottle_id">|| ${sample.bottle_id}</span> || ${sample.collection_display}
+                    ${sample.display} &emsp;||&emsp;
+                    {% trans "Bottle" %} &rarr; ${sample.bottle_id | nz("n/a")} &emsp;||&emsp;
+                    {% trans "Collection" %} &rarr; ${sample.collection_display}
                   </option>
                 </select>
                 <p class="lead text-muted">
@@ -92,7 +100,9 @@ Vue.component("sample-import-overlay", {
 
       filterUnfiltered: true,
       filterSampleId: null,
+      filterBottleId: null,
       filterCollection: null,
+      filterLocation: null,
       loadingSamples: true,
       loadingCollections: true,
     };
@@ -103,6 +113,7 @@ Vue.component("sample-import-overlay", {
       this.overlay = true;
       this.filterUnfiltered = true;
       this.filterSampleId = null;
+      this.filterBottleId = null;
       this.filterCollection = null;
       this.getSamples();
     },
@@ -120,8 +131,10 @@ Vue.component("sample-import-overlay", {
       this.loadingSamples = true;
       let endpoint = '/api/edna/samples/?'
       if (this.filterSampleId && this.filterSampleId !== "") endpoint += `id=${this.filterSampleId}&`;
+      if (this.filterBottleId && this.filterBottleId !== "") endpoint += `bottle_id=${this.filterBottleId}&`;
+      if (this.filterLocation && this.filterLocation !== "") endpoint += `location__icontains=${this.filterLocation}&`;
       if (this.filterCollection && this.filterCollection !== "") endpoint += `collection=${this.filterCollection}&`;
-      if (this.filterUnfiltered) endpoint += `has_filter=false&`;
+      if (this.filterUnfiltered) endpoint += `filters__isnull=true&`;
       apiService(endpoint).then(response => {
         this.loadingSamples = false;
         this.samples = response;
@@ -139,6 +152,9 @@ Vue.component("sample-import-overlay", {
       });
     }
 
+  },
+  filters: {
+    nz: vueFiltersObject["nz"],
   },
   created() {
     this.getCollections();

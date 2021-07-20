@@ -15,6 +15,9 @@ from .. import models
 
 # USER
 #######
+from ..filters import SampleFilter
+
+
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -30,30 +33,21 @@ class CollectionViewSet(viewsets.ModelViewSet):
     queryset = models.Collection.objects.all()
 
 
+
+# class SampleFilter(filters.FilterSet):
+#     location = filters.NumberFilter(field_name="price", lookup_expr='gte')
+#     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
+#
+#     class Meta:
+#         model = Sample
+#         fields =  ('id', "collection", "bottle_id", "location")
+
 class SampleViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SampleSerializer
     permission_classes = [eDNACRUDOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('id', "collection", "filters")
+    filterset_class = SampleFilter
     queryset = models.Sample.objects.all()
-
-    def get_queryset(self):
-        qs = models.Sample.objects.all()
-        qp = self.request.query_params
-        if qp.get("has_filter"):
-            has_filter = qp.get("has_filter") == "true"
-            qs = qs.filter(filters__isnull=(not has_filter))
-        return qs
-
-    def list(self, request, *args, **kwargs):
-        qp = request.query_params
-        if qp.get("collection"):
-            collection = get_object_or_404(models.Collection, pk=qp.get("collection"))
-            qs = collection.samples.all()
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
-        # raise ValidationError(_("You need to specify a collection"))
-        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user, updated_by=self.request.user)
