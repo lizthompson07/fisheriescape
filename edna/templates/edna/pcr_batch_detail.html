@@ -24,12 +24,12 @@
        @keydown.down.prevent="goDown"
   >
     {% include 'edna/_table_navigation.html' %}
-
     <div class="mb-3">
       <p class="h3">{% trans "PCRs" %}</p>
-      <button @click="addPCR(null)" class="btn btn-sm btn-primary">{% trans "Add a PCR" %}</button>
-      <button @click="addAllPCRs" class="btn btn-sm btn-warning">{% trans "Import un-filtered samples" %}</button>
+      <button @click="addPCR(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a PCR" %}</button>
+      <extract-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-extracts="addExtracts"></extract-import-overlay>
     </div>
+
 
     <div class="row mb-3 px-1 py-1" style="width: 30%">
       <div class="col">
@@ -186,8 +186,9 @@
 
   {{ block.super }}
   {% include "edna/components/text-input-cell.html" %}
+  {% include "edna/components/extract_import_overlay.html" %}
   <script type="application/javascript">
-  let filterBatchId = {{ object.id }};
+  let batchId = {{ object.id }};
   var app = new Vue({
     el: '#app',
     delimiters: ["${", "}"],
@@ -307,10 +308,10 @@
               })
         }
       },
-      getBlankPCR(sample) {
+      getBlankPCR(extract) {
         let now = new Date(Date.now());
         return {
-          pcr_batch: filterBatchId,
+          pcr_batch: batchId,
           sample: sample,
           pcr_type: this.default_pcr_type,
           start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
@@ -337,7 +338,7 @@
       },
       getPCRs() {
         this.loading = true;
-        endpoint = `/api/edna/filters/?batch=${filterBatchId}`;
+        endpoint = `/api/edna/pcrs/?batch=${batchId}`;
         apiService(endpoint)
             .then(response => {
               this.loading = false;
@@ -372,6 +373,12 @@
         // return the results array
         return myArray;
       },
+
+      addExtracts(extractArray) {
+            for (const extract of extractArray) {
+              this.newPCR(extract);
+            }
+          },
       newPCR(sample) {
         endpoint = `/api/edna/filters/`;
         data = this.getBlankPCR(sample)

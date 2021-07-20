@@ -59,6 +59,7 @@ class DNAExtractFilter(django_filters.FilterSet):
             'filter__sample': ['exact'],
             'extraction_number': ['exact'],
             'extraction_batch': ['exact'],
+            'pcrs': ['isnull'],
         }
 
     def __init__(self, *args, **kwargs):

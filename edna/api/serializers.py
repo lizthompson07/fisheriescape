@@ -86,20 +86,11 @@ class PCRSerializer(serializers.ModelSerializer):
         model = models.PCR
         fields = "__all__"
 
-    pcr_number = serializers.SerializerMethodField()
-    # observations = SpeciesObservationSerializer(many=True, read_only=True)
     display = serializers.SerializerMethodField()
-    datetime_display = serializers.SerializerMethodField()
-
-    def get_datetime_display(self, instance):
-        if instance.start_datetime:
-            return instance.start_datetime.strftime("%Y-%m-%d %H:%M")
 
     def get_display(self, instance):
         return str(instance)
 
-    def get_pcr_number(self, instance):
-        return instance.pcr_number
 
 
 class CollectionSerializer(serializers.ModelSerializer):

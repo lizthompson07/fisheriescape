@@ -13,7 +13,7 @@ from .permissions import eDNACRUDOrReadOnly
 from .. import models
 # USER
 #######
-from ..filters import SampleFilter, FilterFilter
+from ..filters import SampleFilter, FilterFilter, DNAExtractFilter
 
 
 class CurrentUserAPIView(APIView):
@@ -122,8 +122,8 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DNAExtractSerializer
     permission_classes = [eDNACRUDOrReadOnly]
     queryset = models.DNAExtract.objects.all()
-
-    # pagination_class = StandardResultsSetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DNAExtractFilter
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
@@ -132,11 +132,10 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
             qs = batch.extracts.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        raise ValidationError(_("You need to specify a batch"))
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
-        obj.start_datetime = obj.extraction_batch.datetime
         obj.save()
 
     def perform_update(self, serializer):
