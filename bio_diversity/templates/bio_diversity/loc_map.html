@@ -349,6 +349,7 @@
                 var start_date =  $("#id_start_date").attr("value");
                 var end_date =  $("#id_end_date").attr("value");
 
+                // lon = x, lat = y
                 var contentString = '<a href="{% url 'bio_diversity:loc_map' %}n/' + ne.lat() + '/s/' + sw.lat() + '/e/' + ne.lng() + '/w/' + sw.lng() + '/?start=' + start_date + '&end=' + end_date + '&' + '" class="btn btn-small btn-primary">Search this area!</a>' +
                     '<br>' +
                     '<br>' +

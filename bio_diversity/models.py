@@ -1444,13 +1444,13 @@ class Location(BioModel):
                                 verbose_name=_("SubRiver Code"))
     relc_id = models.ForeignKey('ReleaseSiteCode', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Site Code"), related_name="locations", db_column="SITE_ID")
-    loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="LATITUDE",
+    loc_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="LATITUDE",
                                   verbose_name=_("Latitude"))
-    loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="LONGITUDE",
+    loc_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="LONGITUDE",
                                   verbose_name=_("Longitude"))
-    end_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="END_LATITUDE",
+    end_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="END_LATITUDE",
                                   verbose_name=_("End Latitude"))
-    end_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="END_LONGITUDE",
+    end_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="END_LONGITUDE",
                                   verbose_name=_("End Longitude"))
     loc_date = models.DateTimeField(verbose_name=_("Start date"), db_column="LOCATION_DATE")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
@@ -1742,14 +1742,24 @@ class ReleaseSiteCode(BioLookup):
                                 verbose_name=_("Tributary"))
     subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True, db_column="SUBRIVER_ID",
                                 verbose_name=_("SubRiver Code"))
-    min_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="MIN_LATITUDE",
+    min_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="MIN_LATITUDE",
                                   verbose_name=_("Min Latitude"))
-    max_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="MAX_LATITUDE",
+    max_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="MAX_LATITUDE",
                                   verbose_name=_("Max Latitude"))
-    min_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MIN_LONGITUDE",
+    min_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="MIN_LONGITUDE",
                                   verbose_name=_("Min Longitude"))
-    max_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MAX_LONGITUDE",
+    max_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="MAX_LONGITUDE",
                                   verbose_name=_("Max Longitude"))
+
+    class Meta:
+        ordering = ['name']
+
+    def clean(self):
+        super(ReleaseSiteCode, self).clean()
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
+            if float(self.min_lon) > float(self.max_lon) or float(self.min_lat) > float(self.max_lat):
+                raise ValidationError("Max lat/lon must be greater than min lat/lon")
+
 
     @property
     def bbox(self):
@@ -1764,6 +1774,17 @@ class ReleaseSiteCode(BioLookup):
             return bbox
         else:
             return
+
+    @property
+    def area(self):
+        # lon = x, lat = y
+        corr_factor = 8 / 11
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
+            delta_y = corr_factor * (float(self.max_lat) - float(self.min_lat))
+            delta_x = float(self.max_lon) - float(self.min_lon)
+            return delta_x * delta_y
+        else:
+            return 0
 
 
 class RiverCode(BioLookup):
@@ -1807,6 +1828,14 @@ class Sample(BioModel):
             return self.anix_id.evnt_id.start_date
         else:
             return None
+
+    def samp_detail(self, anidc_name="Length"):
+        latest_indvd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self).first()
+        if latest_indvd:
+            return latest_indvd.det_val
+        else:
+            return None
+
 
 
 class SampleCode(BioLookup):
@@ -1917,9 +1946,22 @@ class StockCode(BioLookup):
 
 class SubRiverCode(BioLookup):
     # subr tag
+    # make name not unique
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), db_column="RIVER_ID")
     trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True, db_column="TRIB_ID",
                                 verbose_name=_("Tributary"))
+
+    class Meta:
+        unique_together = (('name', 'rive_id', 'trib_id'),)
+
+    def clean(self):
+        super(SubRiverCode, self).clean()
+        if self.trib_id and self.rive_id != self.trib_id:
+            raise ValidationError({
+                "trib_id": ValidationError("Tributary River {} must match River {}"
+                                           .format(self.trib_id.rive_id, self.rive_id))
+            })
 
 
 class Tank(BioCont):
@@ -2012,7 +2054,23 @@ class TrayDet(BioContainerDet):
 
 class Tributary(BioLookup):
     # trib tag
+    # make name not unique
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), db_column="RIVER_ID")
+    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True,
+                                db_column="SUBRIVER_ID", verbose_name=_("Subriver"))
+
+    class Meta:
+        unique_together = (('name', 'rive_id', 'subr_id'),)
+
+    def clean(self):
+        super(Tributary, self).clean()
+        if self.subr_id and self.rive_id != self.subr_id.rive_id:
+            raise ValidationError({
+                "subr_id": ValidationError("Sub River river {} must match River {}"
+                                           .format(self.subr_id.rive_id, self.rive_id))
+            })
+
 
 
 class Trough(BioCont):

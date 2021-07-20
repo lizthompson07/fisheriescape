@@ -45,7 +45,7 @@ class ElectrofishingParser(DataParser):
 
     def load_data(self):
         self.mandatory_keys.extend([self.rive_key, self.prio_key, self.coll_key, self.tank_key, self.crew_key,
-                                    self.fish_caught_key, self.fish_obs_key])
+                                    self.fish_caught_key, self.fish_obs_key, self.site_key])
         self.mandatory_filled_keys.extend([self.rive_key, self.coll_key])
         super(ElectrofishingParser, self).load_data()
 
@@ -158,8 +158,8 @@ class ElectrofishingParser(DataParser):
             if len(relc_qs) == 1:
                 relc_id = relc_qs.get()
 
-        start_lat = utils.round_no_nan(row.get(self.lat_key), 5)
-        start_lon = utils.round_no_nan(row.get(self.lon_key), 5)
+        start_lat = utils.round_no_nan(row.get(self.lat_key), 6)
+        start_lon = utils.round_no_nan(row.get(self.lon_key), 6)
         if not relc_id and not (start_lat and start_lon):
             raise Exception("Site code not found and lat-long not given for site on row")
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -168,8 +168,8 @@ class ElectrofishingParser(DataParser):
                               relc_id=relc_id,
                               loc_lat=start_lat,
                               loc_lon=start_lon,
-                              end_lat=utils.round_no_nan(row.get(self.end_lat), 5),
-                              end_lon=utils.round_no_nan(row.get(self.end_lon), 5),
+                              end_lat=utils.round_no_nan(row.get(self.end_lat), 6),
+                              end_lon=utils.round_no_nan(row.get(self.end_lon), 6),
                               loc_date=row_datetime,
                               comments=utils.nan_to_none(row.get(self.comment_key)),
                               created_by=cleaned_data["created_by"],

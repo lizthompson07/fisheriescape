@@ -6,8 +6,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.staticfiles import finders
 from django.db.models import F, Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.templatetags.static import static
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, DeleteView
 from shapely.geometry import box
@@ -22,6 +24,7 @@ from . import mixins, filters, utils, models, reports
 import pytz
 from django.utils.translation import gettext_lazy as _
 
+from .static.calculation_constants import collection_evntc_list
 from .utils import get_cont_evnt
 
 
@@ -319,7 +322,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
                              "master entry", "egg development", "adult collection"]:
                 template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
-            elif evnt_code in ["electrofishing", "bypass collection", "smolt wheel collection"]:
+            elif evnt_code in collection_evntc_list:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
             elif evnt_code in ["mortality", "movement"]:
                 template_url = None
@@ -592,13 +595,13 @@ class RelcCreate(mixins.RelcMixin, CommonCreate):
     def get_initial(self):
         initial = super().get_initial()
         if 'n' in self.kwargs:
-            initial['max_lat'] = round(float(self.kwargs['n']), 5)
+            initial['max_lat'] = round(float(self.kwargs['n']), 6)
         if 's' in self.kwargs:
-            initial['min_lat'] = round(float(self.kwargs['s']), 5)
+            initial['min_lat'] = round(float(self.kwargs['s']), 6)
         if 'w' in self.kwargs:
-            initial['min_lon'] = round(float(self.kwargs['w']), 5)
+            initial['min_lon'] = round(float(self.kwargs['w']), 6)
         if 'e' in self.kwargs:
-            initial['max_lon'] = round(float(self.kwargs['e']), 5)
+            initial['max_lon'] = round(float(self.kwargs['e']), 6)
         return initial
 
 
@@ -731,11 +734,15 @@ class CommonDetails(DetailView):
     # URL linking the details page back to the proper list
     list_url = None
     update_url = None
+    delete_url = None
 
     # By default detail objects are editable, set to false to remove update buttons
     editable = True
 
     img = False
+
+    def __getattr__(self, item):
+        return None
 
     def get_auth(self):
         if self.admin_only:
@@ -764,6 +771,9 @@ class CommonDetails(DetailView):
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
         context['auth'] = self.get_auth()
+        if hasattr(self, "deletable"):
+            if self.get_auth() and self.deletable:
+                context["delete_url"] = "bio_diversity:delete_{}".format(self.key)
         context['editable'] = context['auth'] and self.editable
         context["model_key"] = self.key
 
@@ -1711,6 +1721,9 @@ class RelcDetails(mixins.RelcMixin, CommonDetails):
                                           "objects_list": obj_set,
                                           "field_list": obj_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
+        context["calculated_properties"] = {}
+
+        context["calculated_properties"]["Area"] = self.object.area
 
         return context
 
@@ -2324,6 +2337,7 @@ class PercList(mixins.PercMixin, GenericList):
     field_list = [
         {"name": 'perc_first_name', "class": "", "width": ""},
         {"name": 'perc_last_name', "class": "", "width": ""},
+        {"name": 'initials', "class": "", "width": ""},
         {"name": 'perc_valid', "class": "", "width": ""},
     ]
     filterset_class = filters.PercFilter
@@ -3032,6 +3046,10 @@ class CommonDelete(SiteLoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class EvntDelete(mixins.EvntMixin, CommonDelete):
+    success_url = reverse_lazy("bio_diversity:list_evnt")
+
+
 class IndvDelete(mixins.IndvMixin, CommonDelete):
     success_url = reverse_lazy("bio_diversity:list_indv")
 
@@ -3195,10 +3213,8 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             grp_pk = int(form.cleaned_data["grp_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
         elif report == 6:
-            arg_str = "?facic_pk="
-            if form.cleaned_data["facic_id"]:
-                facic_pk = int(form.cleaned_data["facic_id"].pk)
-                arg_str += f"{facic_pk}"
+            facic_pk = int(form.cleaned_data["facic_id"].pk)
+            arg_str = f"?facic_pk={facic_pk}"
             if form.cleaned_data["stok_id"]:
                 stok_pk = int(form.cleaned_data["stok_id"].pk)
                 arg_str += f"&stok_pk={stok_pk}"
@@ -3346,6 +3362,35 @@ def grp_report_file(request):
                 response['Content-Disposition'] = f'inline; filename="group_report_ ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
                 return response
     raise Http404
+
+
+class TemplFormView(mixins.TemplMixin, BioCommonFormView):
+    h1 = _("Default Templates")
+
+    def get_initial(self):
+        self.get_form_class().base_fields["evntc_id"].widget = forms.Select(attrs={"class": "chosen-select-contains"})
+
+    def form_valid(self, form):
+        evntc_id = form.cleaned_data["evntc_id"]
+        facic_id = form.cleaned_data["facic_id"]
+        evnt_code = evntc_id.name.lower()
+        facility_code = facic_id.name
+
+        if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
+                         "master entry", "egg development", "adult collection"]:
+            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+        elif evnt_code in collection_evntc_list:
+            template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
+        else:
+            template_url = 'data_templates/measuring.xlsx'
+
+        file_url = finders.find(template_url)
+        if os.path.exists(file_url):
+            with open(file_url, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = f'inline; filename="{facility_code}_{evnt_code}_({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+                return response
+        raise Http404
 
 
 class PlotView(CommonTemplateView):
