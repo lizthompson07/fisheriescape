@@ -1022,6 +1022,18 @@ class ReportForm(forms.Form):
         self.fields["on_date"].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
                                                                "class": "fp-date"})
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not self.is_valid():
+            return cleaned_data
+
+        if cleaned_data["report"] == "6":
+            # mort report, facic is required
+            if not cleaned_data["facic_id"]:
+                self.add_error('facic_id', gettext("Facic Id is required"))
+        return cleaned_data
+
 
 class RiveForm(CreatePrams):
     class Meta:

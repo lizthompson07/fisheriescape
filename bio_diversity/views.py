@@ -3213,10 +3213,8 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             grp_pk = int(form.cleaned_data["grp_id"].pk)
             return HttpResponseRedirect(reverse("bio_diversity:grp_report_file") + f"?grp_pk={grp_pk}")
         elif report == 6:
-            arg_str = "?facic_pk="
-            if form.cleaned_data["facic_id"]:
-                facic_pk = int(form.cleaned_data["facic_id"].pk)
-                arg_str += f"{facic_pk}"
+            facic_pk = int(form.cleaned_data["facic_id"].pk)
+            arg_str = f"?facic_pk={facic_pk}"
             if form.cleaned_data["stok_id"]:
                 stok_pk = int(form.cleaned_data["stok_id"].pk)
                 arg_str += f"&stok_pk={stok_pk}"
