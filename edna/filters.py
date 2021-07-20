@@ -36,8 +36,10 @@ class FilterFilter(django_filters.FilterSet):
         fields = {
             'id': ['exact'],
             'sample': ['exact'],
-            'tube_id': ['icontains'],
+            'tube_id': ['exact'],
             'filtration_batch': ['exact'],
+            'extracts': ['isnull'],
+
         }
 
     def __init__(self, *args, **kwargs):
@@ -45,7 +47,7 @@ class FilterFilter(django_filters.FilterSet):
         self.filters["id"].label = _("Filter ID")
         self.filters["sample"].field.widget = forms.NumberInput()
         self.filters["sample"].label = _("Sample ID")
-        self.filters["tube_id__icontains"].label = _("Tube ID (any part)")
+        self.filters["tube_id"].label = _("Tube ID")
 
 
 class DNAExtractFilter(django_filters.FilterSet):

@@ -27,7 +27,6 @@
 
     <div class="mb-3">
       <p class="h3">{% trans "Filters" %}</p>
-
       <button @click="addFilter(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a Filter" %}</button>
       <sample-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-samples="addSamples"></sample-import-overlay>
     </div>

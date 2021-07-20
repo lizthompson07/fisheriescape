@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from lib.functions.custom_functions import listrify
 from .. import models
 
 
@@ -34,6 +33,10 @@ class SampleSerializer(serializers.ModelSerializer):
 class FilterSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     datetime_display = serializers.SerializerMethodField()
+    batch_display = serializers.SerializerMethodField()
+
+    def get_batch_display(self, instance):
+        return instance.filtration_batch.datetime.strftime("%Y-%m-%d")
 
     def get_datetime_display(self, instance):
         if instance.start_datetime:
@@ -50,6 +53,10 @@ class FilterSerializer(serializers.ModelSerializer):
 class DNAExtractSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     datetime_display = serializers.SerializerMethodField()
+    batch_display = serializers.SerializerMethodField()
+
+    def get_batch_display(self, instance):
+        return instance.extraction_batch.datetime.strftime("%Y-%m-%d")
 
     def get_datetime_display(self, instance):
         if instance.start_datetime:
@@ -98,4 +105,26 @@ class PCRSerializer(serializers.ModelSerializer):
 class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Collection
+        fields = "__all__"
+
+
+class ExtractionBatchSerializer(serializers.ModelSerializer):
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return instance.datetime.strftime("%Y-%m-%d")
+
+    class Meta:
+        model = models.ExtractionBatch
+        fields = "__all__"
+
+
+class FiltrationBatchSerializer(serializers.ModelSerializer):
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return instance.datetime.strftime("%Y-%m-%d")
+
+    class Meta:
+        model = models.FiltrationBatch
         fields = "__all__"

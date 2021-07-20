@@ -4,6 +4,8 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'collections', views.CollectionViewSet)
+router.register(r'filtration-batches', views.FiltrationBatchViewSet)
+router.register(r'extraction-batches', views.ExtractionBatchViewSet)
 router.register(r'samples', views.SampleViewSet)
 router.register(r'filters', views.FilterViewSet)
 router.register(r'extracts', views.DNAExtractViewSet)

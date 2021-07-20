@@ -11,11 +11,9 @@ from shared_models.utils import get_labels
 from . import serializers
 from .permissions import eDNACRUDOrReadOnly
 from .. import models
-
-
 # USER
 #######
-from ..filters import SampleFilter
+from ..filters import SampleFilter, FilterFilter
 
 
 class CurrentUserAPIView(APIView):
@@ -32,6 +30,17 @@ class CollectionViewSet(viewsets.ModelViewSet):
     permission_classes = [eDNACRUDOrReadOnly]
     queryset = models.Collection.objects.all()
 
+
+class FiltrationBatchViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.FiltrationBatchSerializer
+    permission_classes = [eDNACRUDOrReadOnly]
+    queryset = models.FiltrationBatch.objects.all()
+
+
+class ExtractionBatchViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.ExtractionBatchSerializer
+    permission_classes = [eDNACRUDOrReadOnly]
+    queryset = models.ExtractionBatch.objects.all()
 
 
 # class SampleFilter(filters.FilterSet):
@@ -73,6 +82,8 @@ class FilterViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FilterSerializer
     permission_classes = [eDNACRUDOrReadOnly]
     queryset = models.Filter.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = FilterFilter
 
     # pagination_class = StandardResultsSetPagination
 
@@ -83,7 +94,7 @@ class FilterViewSet(viewsets.ModelViewSet):
             qs = batch.filters.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
-        raise ValidationError(_("You need to specify a batch"))
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
