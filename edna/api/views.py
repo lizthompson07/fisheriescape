@@ -203,10 +203,7 @@ class PCRAssayModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.all()]
-
         return Response(data)
-
-
 
 
 class PCRAssayViewSet(viewsets.ModelViewSet):
@@ -225,7 +222,6 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
-        obj.start_datetime = obj.pcr_batch.datetime
         obj.save()
 
     def perform_update(self, serializer):

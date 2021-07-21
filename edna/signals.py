@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from edna.models import File, Sample
+from edna.models import File, Sample, PCRAssay
 
 
 @receiver(models.signals.post_delete, sender=File)
@@ -47,4 +47,9 @@ def auto_save_edna_collection_on_sample_save(sender, instance, **kwargs):
 def auto_save_edna_collection_on_sample_delete(sender, instance, **kwargs):
     instance.collection.save()
 
+
+@receiver(models.signals.post_delete, sender=PCRAssay)
+def auto_remove_pcr_with_no_assays(sender, instance, **kwargs):
+    if not instance.pcr.pcr_assays.exists():
+        instance.pcr.delete()
 

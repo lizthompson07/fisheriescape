@@ -9,8 +9,8 @@
     <a href="{% url 'edna:filtration_batch_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
 
   </div>
-
-  <table class="table table-sm">
+  {% include 'edna/_table_navigation.html' %}
+  <table class="table table-sm w-50">
     {% for field in field_list %}
       {% verbose_td_display object field th_width="200px" %}
     {% endfor %}
@@ -23,7 +23,6 @@
        @keydown.up.prevent="goUp"
        @keydown.down.prevent="goDown"
   >
-    {% include 'edna/_table_navigation.html' %}
 
     <div class="mb-3">
       <p class="h3">{% trans "Filters" %}</p>

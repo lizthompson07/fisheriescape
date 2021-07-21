@@ -1,0 +1,92 @@
+<!-- template for the modal component -->
+{% load i18n %}
+
+<script type="text/x-template" id="add-pcr-overlay-template">
+<div class="">
+
+  <button class="btn btn-sm btn-primary" @click="openDialog">
+    <span class="mdi mdi-plus mr-1 text-light"></span> {% trans "Add a qPCR" %}
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 1000px">
+          <div class="modal-header">
+            <h4> {% trans "Add a qPCR" %}</h4>
+          </div>
+          <div class="modal-body">
+            <div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="">{% trans "# to add" %}</label>
+                  <input type="number" class="form-control" placeholder="" v-model="numberToAdd" ref="starting_box">
+                </div>
+                <div class="col">
+                  <label for="">{% trans "Which assays to test?" %}</label>
+                  <select name="" id="" multiple="true" class="form-control w-100" style="height: 100px" v-model="selectedAssays">
+                    <option v-for="(option, index) in assayChoices" :value="option.value">${option.text}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button v-if="canProceed" class="btn btn-primary" @click="add">{% trans "Add" %}</button>
+            <button v-else class="btn btn-primary disabled">{% trans "Add" %}</button>
+            <button class="btn btn-secondary" @click="overlay = false">{% trans "Back" %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+</script>
+
+<script type="application/javascript">
+
+Vue.component("add-pcr-overlay", {
+  template: "#add-pcr-overlay-template",
+  delimiters: ["${", "}"],
+  name: "add-pcr-overlay",
+  props: {
+  },
+  data() {
+    return {
+      overlay: false,
+      error: null,
+      numberToAdd: 1,
+      selectedAssays: [],
+      assayChoices: [],
+    };
+  },
+  methods: {
+    openDialog() {
+      this.error = null;
+      this.overlay = true;
+        this.$nextTick(() => {
+          this.$refs.starting_box.focus();
+        });
+    },
+    add() {
+        this.$emit("add", this.numberToAdd, this.selectedAssays)
+        this.overlay = false;
+    },
+    getPCRMetadata() {
+      let endpoint;
+      endpoint = `/api/edna/meta/models/pcr-assay/`;
+      apiService(endpoint).then(data => {
+        this.assayChoices = data.assay_choices;
+      });
+    },
+  },
+  created() {
+    this.getPCRMetadata();
+  },
+  computed: {
+    canProceed() {
+      if (this.numberToAdd && this.selectedAssays.length) return true;
+    }
+  }
+});
+</script>

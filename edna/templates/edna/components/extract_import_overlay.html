@@ -63,10 +63,27 @@
                   {% trans "Extracts: " %} ${extracts.length} || {% trans "Selected: " %} ${selectedExtracts.length}
                 </p>
               </div>
+
+
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="">{% trans "# of technical replicates" %}</label>
+                  <input type="number" class="form-control" placeholder="" v-model="numberOfTechReps">
+                </div>
+                <div class="col">
+                  <label for="">{% trans "Which assays to test?" %}</label>
+                  <select name="" id="" multiple="true" class="form-control w-100" style="height: 100px" v-model="selectedAssays">
+                    <option v-for="(option, index) in assayChoices" :value="option.value">${option.text}</option>
+                  </select>
+                </div>
+              </div>
+
+
             </div>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-primary" @click="importExtracts">{% trans "Import" %}</button>
+            <button v-if="canProceed" class="btn btn-primary" @click="importExtracts">{% trans "Import" %}</button>
+            <button v-else class="btn btn-primary disabled">{% trans "Import" %}</button>
             <button class="btn btn-secondary" @click="overlay = false">{% trans "Back" %}</button>
           </div>
         </div>
@@ -101,6 +118,10 @@ Vue.component("extract-import-overlay", {
       filterBatch: null,
       loadingExtracts: true,
       loadingBatches: true,
+
+      numberOfTechReps: 3,
+      selectedAssays: [],
+      assayChoices: [],
     };
   },
   methods: {
@@ -118,7 +139,7 @@ Vue.component("extract-import-overlay", {
         let msg = "{% trans "You did not select any extracts to import!" %}";
         alert(msg);
       } else {
-        this.$emit("add-extracts", this.selectedExtracts)
+        this.$emit("add-extracts", this.selectedExtracts, this.numberOfTechReps, this.selectedAssays)
         this.overlay = false;
       }
     },
@@ -145,7 +166,14 @@ Vue.component("extract-import-overlay", {
         this.loadingBatches = false;
         this.batches = response;
       });
-    }
+    },
+    getPCRMetadata() {
+      let endpoint;
+      endpoint = `/api/edna/meta/models/pcr-assay/`;
+      apiService(endpoint).then(data => {
+        this.assayChoices = data.assay_choices;
+      });
+    },
 
   },
   filters: {
@@ -153,7 +181,13 @@ Vue.component("extract-import-overlay", {
   },
   created() {
     this.getBatches();
+    this.getPCRMetadata();
   },
-  computed: {}
+  computed: {
+    canProceed() {
+      if (this.numberOfTechReps && this.selectedAssays.length) return true;
+    }
+
+  }
 });
 </script>

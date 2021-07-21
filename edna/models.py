@@ -475,7 +475,7 @@ class PCRAssay(MetadataFields):
     edna_conc = models.FloatField(blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"), editable=False)
 
     class Meta:
-        ordering = ["pcr", "id"]
+        ordering = ["pcr__extract", "pcr", "assay"]
         unique_together = (("pcr", "assay"),)
 
     # def __str__(self):
