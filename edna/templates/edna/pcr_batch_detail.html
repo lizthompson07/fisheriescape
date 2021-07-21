@@ -31,150 +31,142 @@
     </div>
 
 
-    <div class="row mb-3 px-1 py-1" style="width: 30%">
-      <div class="col">
-        <label for="">{% trans "Default filtration type" %}</label>
-        <select v-model="default_pcr_type" class="form-control form-control-sm">
-          <option v-for="(obj, index) in filtrationTypeChoices" :value="obj.value">${obj.text}</option>
-        </select>
-      </div>
-      <div class="col">
-        <label for="">{% trans "Default filtration volume (ml)" %}</label>
-        <input type="text" class="form-control form-control-sm" v-model="default_pcr_volume_ml">
-      </div>
-    </div>
-
     <div v-if="loading" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
       </div>
     </div>
-    <div v-else-if="!filters.length">
-      <em>{% trans "No filters have been added to this batch." %}</em>
+    <div v-else-if="!pcrAssays.length">
+      <em>{% trans "No qPCRs have been added to this batch." %}</em>
     </div>
     <div v-else>
-      <div class="alert alert-danger" role="alert" v-if="filterErrorMsg">
-        <p class="mb-0 lead" v-html="filterErrorMsg"></p>
+      <div class="alert alert-danger" role="alert" v-if="pcrErrorMsg">
+        <p class="mb-0 lead" v-html="pcrErrorMsg"></p>
       </div>
       <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
         <thead>
         <tr>
-          <th class="px-1 py-1" style="width: 100px">{% trans "PCR ID" %}</th>
-          <th class="px-1 py-1" style="width: 120px">{% trans "Sample ID" %}</th>
-          <th class="px-1 py-1" style="width: 100px">${labels.tube_id}</th>
-          <th class="px-1 py-1" style="width: 200px">${labels.pcr_type}</th>
-          <th class="px-1 py-1" style="width: 200px">${labels.start_datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
-          <th class="px-1 py-1" style="width: 110px">${labels.duration_min}</th>
-          <th class="px-1 py-1" style="width: 110px">${labels.pcr_volume_ml}</th>
-          <th class="px-1 py-1" style="width: 175px">${labels.storage_location}</th>
-          <th class="px-1 py-1" style="width: 175px">${labels.pcr_ipc}</th>
+          <th class="px-1 py-1" style="width: 100px">{% trans "qPCR ID" %}</th>
+          <th class="px-1 py-1" style="width: 100px">{% trans "Is Duplex?" %}</th>
+          <th class="px-1 py-1" style="width: 120px">{% trans "Extraction ID" %}</th>
+          <th class="px-1 py-1" style="width: 130px">
+            ${labels.plate_well}<br>
+            <button class="btn btn-xs btn-danger" @click="populateWells">{% trans "Populate!" %}</button>
+          </th>
+          <th class="px-1 py-1" style="width: 100px">${labels.master_mix}</th>
           <th class="px-1 py-1">${labels.comments}</th>
+          <th class="px-1 py-1" style="width: 200px">${pcrAssaylabels.assay}</th>
+          <th class="px-1 py-1" style="width: 200px">${pcrAssaylabels.ct}</th>
+          <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.threshold}</th>
+          <th class="px-1 py-1">${pcrAssaylabels.comments}</th>
+          <th class="px-1 py-1">${pcrAssaylabels.result}</th>
+          <th class="px-1 py-1">${pcrAssaylabels.edna_conc}</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(obj, index) in filters" :key="obj.id">
-          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.display}</td>
+        <tr v-for="(obj, index) in pcrAssays" :key="obj.id">
+          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.pcr_object.display}</td>
+          <td v-if="obj.pcr_object.is_duplex" class="px-1  py-0 text-muted" tabindex="-1">${obj.pcr_object.is_duplex | yesNo }</td>
+          <td v-else class="px-1  py-0 green-font" tabindex="-1">${obj.pcr_object.is_duplex | yesNo }</td>
           <td class="px-0 py-0">
             <text-input-cell
               type="select"
-              :sample.sync="obj" :row="index"
+              :sample.sync="obj.pcr_object" :row="index"
               @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="sample"
+              field="extract"
               :col="0"
               :ref="`row_${index}_col_0`"
-              :options="sampleChoices"
-              blank_option="{% trans "Blank" %}"
+              :options="extractChoices"
+              blank_option="{% trans "qPCR Blank" %}"
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
             <text-input-cell
               type="text"
-              :sample.sync="obj" :row="index"
+              :sample.sync="obj.pcr_object" :row="index"
               @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="tube_id"
-              :col="1"
-              :ref="`row_${index}_col_1`"
+              field="plate_well"
+              :col="0"
+              :ref="`row_${index}_col_0`"
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
             <text-input-cell
               type="select"
-              :sample.sync="obj" :row="index"
+              :sample.sync="obj.pcr_object" :row="index"
               @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="pcr_type"
-              :col="2"
-              :ref="`row_${index}_col_2`"
-              :options="filtrationTypeChoices"
+              field="master_mix"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+              :options="masterMixChoices"
+
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
             <text-input-cell
               type="text"
-              :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="datetime_display"
-              :col="3"
-              :ref="`row_${index}_col_3`"
-            ></text-input-cell>
-          </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="number"
-              :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="duration_min"
-              :col="4"
-              :ref="`row_${index}_col_4`"
-            ></text-input-cell>
-          </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="number"
-              :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="pcr_volume_ml"
-              :col="5"
-              :ref="`row_${index}_col_5`"
-            ></text-input-cell>
-          </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="text"
-              :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="storage_location"
-              :col="6"
-              :ref="`row_${index}_col_6`"
-            ></text-input-cell>
-          </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="text"
-              :sample.sync="obj" :row="index"
-              @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
-              field="pcr_ipc"
-              :col="7"
-              :ref="`row_${index}_col_7`"
-            ></text-input-cell>
-          </td>
-          <td class="px-0 py-0">
-            <text-input-cell
-              type="text"
-              :sample.sync="obj" :row="index"
+              :sample.sync="obj.pcr_object" :row="index"
               @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="comments"
-              :col="8"
-              :ref="`row_${index}_col_8`"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+            ></text-input-cell>
+          </td>
+          {# asssays #}
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="select"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="assay"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+              :options="assayChoices"
+
             ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <button class="btn py-0" @click="deletePCR(obj)"><span class="h5 mdi mdi-delete"></span></button>
+            <text-input-cell
+              type="number"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="ct"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="number"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="threshold"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+            ></text-input-cell>
+          </td>
+
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updatePCRAssay" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="comments"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+            ></text-input-cell>
+          </td>
+          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.result_display}</td>
+          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.edna_conc}</td>
+
+          <td class="px-0 py-0">
+            <button class="btn py-0" @click="deletePCRAssay(obj)"><span class="h5 mdi mdi-delete"></span></button>
           </td>
         </tr>
         </tbody>
       </table>
       <div class="my-3">
-        <p class="lead text-muted">TOTAL: ${filters.length}</p>
+        <p class="lead text-muted">TOTAL: ${pcrs.length}</p>
       </div>
     </div>
 
@@ -194,18 +186,51 @@
     delimiters: ["${", "}"],
     data: {
       currentUser: null,
-      default_pcr_type: 1,
-      default_pcr_volume_ml: 1000,
-      filterErrorMsg: null,
-      filters: [],
-      filtrationTypeChoices: [],
+      //default_pcr_type: 1,
+      //default_pcr_volume_ml: 1000,
+      pcrErrorMsg: null,
+      pcrAssays: [],
       labels: [],
+      pcrAssaylabels: [],
       loading: false,
-      sampleChoices: [],
+      extractChoices: [],
+      assayChoices: [],
+      masterMixChoices: [],
       unsavedChanges: false
 
     },
     methods: {
+      populateWells() {
+        let msg = "{% trans "What is your the first well number (e.g. 1A)?" %}";
+        let input = prompt(msg);
+        if (input) {
+          input = input.toUpperCase();
+
+          let well;
+          let wellArray = [];
+          let letters = ["A", "B", "C", "D", "E", "F", "G", "H",];
+          for (var i = 1; i <= 12; i++) {
+            for (var j = 0; j < letters.length; j++) {
+              well = `${i}${letters[j]}`;
+              wellArray.push(well);
+            }
+          }
+          if (!wellArray.includes(input)) {
+            alert("{% trans "Sorry, you have entered an invalid well number. We were expecting something amongst the following:" %} " + groomJSON(wellArray))
+          } else {
+            let startingIndex = wellArray.indexOf(input);
+            let extract;
+            let pos;
+            for (let i = 0; i < this.extracts.length; i++) {
+              extract = this.extracts[i];
+              pos = startingIndex + i;
+              if (pos >= wellArray.length) pos = pos % wellArray.length;
+              extract.extraction_plate_well = wellArray[pos];
+              this.updatePCR(extract);
+            }
+          }
+        }
+      },
       setPosition(i, j) {
         this.row = i;
         this.col = j;
@@ -258,53 +283,44 @@
           }
         } else this.row += 1
       },
-      copyDown(filter, field, input) {
+      copyDown(obj, field, input) {
         this.unsavedChanges = true;
         // copy the value for the field into the next row
-        let index = this.filters.indexOf(filter) + 1;
-        if (this.filters[index]) this.filters[index][field] = input;
-        this.updatePCR(this.filters[index])
+        console.log(obj)
+        let index = this.pcrAssays.indexOf(obj) + 1;
+        console.log(index)
+        console.log(this.pcrAssays[index])
+        if (this.pcrAssays[index]) this.pcrAssays[index].pcr_object[field] = input;
+        console.log(this.pcrAssays[index])
+        this.updatePCR(this.pcrAssays[index].pcr_object)
       },
-      copyDoubleDown(filter, field, input) {
+      copyDoubleDown(pcr, field, input) {
         this.unsavedChanges = true;
         // copy the value for the field into the next row
-        let startingIndex = this.filters.indexOf(filter) + 1;
-        let endingIndex = this.filters.length - 1;
+        let startingIndex = this.pcrs.indexOf(pcr) + 1;
+        let endingIndex = this.pcrs.length - 1;
         for (var i = startingIndex; i <= endingIndex; i++) {
-          if (this.filters[i]) this.filters[i][field] = input;
-          this.updatePCR(this.filters[i])
+          if (this.pcrs[i]) this.pcrs[i][field] = input;
+          this.updatePCR(this.pcrs[i])
         }
       },
 
       addPCR(howMany) {
-        if (!howMany) howMany = Number(prompt("{% trans 'How many filters do you want to add?' %}"));
+        if (!howMany) howMany = Number(prompt("{% trans 'How many qPCRs do you want to add?' %}"));
         if (howMany) {
           for (let i = 0; i < howMany; i++) {
             this.newPCR();
           }
         }
       },
-      addAllPCRs() {
-        howMany = 0;
-        for (var i = 0; i < this.sampleChoices.length; i++) {
-          if (!this.sampleChoices[i].has_filter) {
-            howMany += 1;
-          }
-        }
-        if (howMany) {
-          sampleArray = this.getQueuedSamples(howMany);
-          for (let i = 0; i < sampleArray.length; i++) {
-            this.newPCR(sampleArray[i]);
-          }
-        }
-      },
-      deletePCR(filter) {
-        userInput = confirm("{% trans 'Are you sure you want to delete this filter?' %}");
+      deletePCRAssay(pcrAssay) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this row?' %}");
         if (userInput) {
-          let endpoint = `/api/edna/filters/${filter.id}/`;
+          let endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/`;
           apiService(endpoint, "DELETE")
               .then(response => {
-                this.$delete(this.filters, this.filters.indexOf(filter))
+                //this.$delete(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay))
+                this.getPCRAssays();
               })
         }
       },
@@ -312,12 +328,7 @@
         let now = new Date(Date.now());
         return {
           pcr_batch: batchId,
-          sample: sample,
-          pcr_type: this.default_pcr_type,
-          start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
-          duration_min: null,
-          pcr_volume_ml: this.default_pcr_volume_ml,
-          storage_location: null,
+          extract: extract,
           comments: null,
         }
       },
@@ -329,97 +340,113 @@
             })
       },
       getPCRMetadata() {
-        let endpoint = `/api/edna/meta/models/filter/`;
+        let endpoint;
+        endpoint = `/api/edna/meta/models/pcr/`;
         apiService(endpoint).then(data => {
           this.labels = data.labels;
-          this.filtrationTypeChoices = data.pcr_type_choices;
-          this.sampleChoices = data.sample_choices;
+          this.extractChoices = data.extract_choices;
+          this.masterMixChoices = data.master_mix_choices;
+        });
+        endpoint = `/api/edna/meta/models/pcr-assay/`;
+        apiService(endpoint).then(data => {
+          this.pcrAssaylabels = data.labels;
+          this.assayChoices = data.assay_choices;
         });
       },
-      getPCRs() {
+      getPCRAssays() {
         this.loading = true;
-        endpoint = `/api/edna/pcrs/?batch=${batchId}`;
+        endpoint = `/api/edna/pcr-assays/?batch=${batchId}`;
         apiService(endpoint)
             .then(response => {
               this.loading = false;
               if (response.length && response[0].id) {
                 for (var i = 0; i < response.length; i++) {
-                  if (!response[i].sample) response[i].sample = "";
+                  if (!response[i].pcr_object.extract) response[i].pcr_object.extract = "";
                 }
-                this.filters = response;
+                this.pcrAssays = response;
                 this.$nextTick(() => {
                   this.$refs.row_0_col_0[0].$refs.input.focus();
                 })
               }
             })
       },
-      getQueuedSamples(howMany) {
-        let samples = [...this.sampleChoices];
-        console.log(samples)
-        myArray = []
-        let result;
-        for (let i = 0; i < howMany; i++) {
-          result = "";
-          for (let j = 0; j < samples.length; j++) {
-            let sample = samples[j];
-            if (!sample.has_filter) {
-              let index = samples.indexOf(sample);
-              result = samples.splice(index, 1)[0].value;
-              break;
-            }
-          }
-          myArray.push(result);
-        }
-        // return the results array
-        return myArray;
-      },
-
       addExtracts(extractArray) {
-            for (const extract of extractArray) {
-              this.newPCR(extract);
-            }
-          },
+        for (const extract of extractArray) {
+          this.newPCR(extract);
+        }
+      },
       newPCR(sample) {
-        endpoint = `/api/edna/filters/`;
+        endpoint = `/api/edna/pcrs/`;
         data = this.getBlankPCR(sample)
         apiService(endpoint, "POST", data)
             .then(response => {
               if (response.id) {
-                if (!response.sample) response.sample = "";
-                this.filters.push(response)
+                this.getPCRAssays();
                 // refresh the sample choices
                 this.getPCRMetadata();
               }
             })
       },
-      getPCR(filter) {
-        endpoint = `/api/edna/filters/${filter.id}/`;
+      getPCRAssay(pcrAssay) {
+        endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/`;
         apiService(endpoint, "GET")
             .then(response => {
-              this.$set(this.filters, this.filters.indexOf(filter), response);
+              this.$set(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay), response);
               this.unsavedChanges = false;
             })
       },
-      updatePCR(filter) {
-        this.filterErrorMsg = null;
-        endpoint = `/api/edna/filters/${filter.id}/`;
-        filter.start_datetime = filter.datetime_display
-        apiService(endpoint, "PUT", filter)
+      updatePCR(pcr) {
+        this.pcrErrorMsg = null;
+        endpoint = `/api/edna/pcrs/${pcr.id}/`;
+        apiService(endpoint, "PUT", pcr)
             .then(response => {
               if (!response.id) {
-                this.filterErrorMsg = groomJSON(response);
-                this.getPCR(filter)
+                this.pcrErrorMsg = groomJSON(response);
               } else {
                 this.unsavedChanges = false;
-                this.$set(this.filters, this.filters.indexOf(filter), response);
+              }
+              this.getPCRAssays();
+            })
+      },
+      updatePCRAssay(pcrAssay) {
+        console.log(pcrAssay)
+        this.pcrErrorMsg = null;
+        endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/`;
+        apiService(endpoint, "PUT", pcrAssay)
+            .then(response => {
+              if (!response.id) {
+                this.pcrErrorMsg = groomJSON(response);
+                this.getPCRAssay(pcrAssay)
+              } else {
+                this.unsavedChanges = false;
+                this.$set(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay), response);
               }
             })
       },
     },
+    filters: {
+      nz: vueFiltersObject["nz"],
+      yesNo: vueFiltersObject["yesNo"],
+    },
+    computed: {
+      pcrs() {
+        let payload = [];
+        for (const pcrAssay of this.pcrAssays) {
+          payload.push(pcrAssay.pcr_object);
+        }
+        var flags = [], output = [], l = payload.length, i;
+        for (i = 0; i < l; i++) {
+          if (flags[payload[i].id]) continue;
+          flags[payload[i].id] = true;
+          output.push(payload[i]);
+        }
+        return output;
+      }
+    },
     created() {
       this.getCurrentUser();
       this.getPCRMetadata();
-      this.getPCRs();
+      this.getPCRAssays();
     },
   });
   </script>

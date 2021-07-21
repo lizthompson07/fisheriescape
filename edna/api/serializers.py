@@ -87,10 +87,33 @@ class PCRSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     display = serializers.SerializerMethodField()
+    is_duplex = serializers.SerializerMethodField()
+
+    def get_is_duplex(self, instance):
+        return instance.is_duplex
 
     def get_display(self, instance):
         return str(instance)
 
+
+class PCRAssaySerializer(serializers.ModelSerializer):
+    pcr_object = serializers.SerializerMethodField()
+    result_display = serializers.SerializerMethodField()
+
+    def get_result_display(self, instance):
+        return instance.get_result_display()
+
+    def get_pcr_object(self, instance):
+        return PCRSerializer(instance.pcr).data
+
+    class Meta:
+        model = models.PCRAssay
+        fields = "__all__"
+
+    # display = serializers.SerializerMethodField()
+    #
+    # def get_display(self, instance):
+    #     return str(instance)
 
 
 class CollectionSerializer(serializers.ModelSerializer):

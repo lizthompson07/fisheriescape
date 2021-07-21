@@ -113,8 +113,7 @@ class FilterModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         data['filtration_type_choices'] = [dict(text=item.name, value=item.id) for item in models.FiltrationType.objects.all()]
-        data['sample_choices'] = [dict(text=item.full_display, value=item.id, has_filter=item.filters.exists()) for item in
-                                  models.Sample.objects.all()]
+        data['sample_choices'] = [dict(text=item.full_display, value=item.id) for item in models.Sample.objects.all()]
         return Response(data)
 
 
@@ -181,6 +180,8 @@ class PCRViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+
+
 class PCRModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.PCR
@@ -189,15 +190,46 @@ class PCRModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['extract_choices'] = [dict(text=item.id, value=item.id, has_pcr=item.pcrs.exists()) for item in models.DNAExtract.objects.all()]
+        data['extract_choices'] = [dict(text=item.full_display, value=item.id) for item in models.DNAExtract.objects.all()]
+        data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
+        return Response(data)
 
-        # qs = models.PCR.objects.filter(pcr_number_suffix__isnull=False).order_by("pcr_number_suffix")
-        # last_pcr_number = 0
-        # if qs.exists():
-        #     last_pcr_number = qs.last().pcr_number_suffix
-        # data['last_pcr_number'] = last_pcr_number
+
+class PCRAssayModelMetaAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    model = models.PCRAssay
+
+    def get(self, request):
+        data = dict()
+        data['labels'] = get_labels(self.model)
+        data['assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.all()]
 
         return Response(data)
+
+
+
+
+class PCRAssayViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.PCRAssaySerializer
+    permission_classes = [eDNACRUDOrReadOnly]
+    queryset = models.PCRAssay.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        qp = request.query_params
+        if qp.get("batch"):
+            batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
+            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        raise ValidationError(_("You need to specify a batch"))
+
+    def perform_create(self, serializer):
+        obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj.start_datetime = obj.pcr_batch.datetime
+        obj.save()
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 # class SpeciesObservationViewSet(viewsets.ModelViewSet):
 #     serializer_class = serializers.SpeciesObservationSerializer

@@ -384,6 +384,13 @@ class DNAExtract(MetadataFields):
         if self.filter:
             return self.filter.sample
 
+    @property
+    def full_display(self):
+        mystr = str(self)
+        if self.extraction_number:
+            mystr += f" | b{self.extraction_number}"
+        return mystr
+
 
 class PCRBatch(Batch):
     control_status_choices = (
@@ -411,17 +418,16 @@ class PCRBatch(Batch):
 
 class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
-    pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("PCR batch"))
+    pcr_batch = models.ForeignKey(PCRBatch, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_(" qPCR batch"))
     extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extraction ID"))
-    plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("qPCR plate well"))
+    plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
     master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+    comments = models.TextField(null=True, blank=True, verbose_name=_(" qPCR comments"))
 
     class Meta:
         ordering = ["id"]
 
     def save(self, *args, **kwargs):
-        # get the last PCR number suffix in the system
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -441,6 +447,10 @@ class PCR(MetadataFields):
         if self.extract:
             return self.extract.filter
 
+    @property
+    def is_duplex(self):
+        return self.pcr_assays.count() > 1
+
     # @property
     # def species_count(self):
     #     return self.species.count()
@@ -448,23 +458,24 @@ class PCR(MetadataFields):
 
 class PCRAssay(MetadataFields):
     result_choices = (
+        (8, _("in progress")),
         (1, _("positive")),
         (0, _("negative")),
         (9, _("undetermined")),
     )
 
     pcr = models.ForeignKey(PCR, related_name='pcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
-    assay = models.ForeignKey(PCRBatch, related_name='pcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("qPCR batch"))
-    ct = models.FloatField(blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
-    threshold = models.FloatField(blank=True, null=True, verbose_name=_("cycle threshold (ct)"))
+    assay = models.ForeignKey(Assay, related_name='pcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("assay"), blank=True, null=True)
+    ct = models.FloatField(blank=True, null=True, verbose_name=_("Ct"))
+    threshold = models.FloatField(blank=True, null=True, verbose_name=_("threshold"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     # calculated
-    result = models.IntegerField(verbose_name=_("result"), choices=result_choices, blank=True, null=True, editable=False)
+    result = models.IntegerField(verbose_name=_("result"), choices=result_choices, default=8, editable=False)
     edna_conc = models.FloatField(blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"), editable=False)
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["pcr", "id"]
         unique_together = (("pcr", "assay"),)
 
     # def __str__(self):
