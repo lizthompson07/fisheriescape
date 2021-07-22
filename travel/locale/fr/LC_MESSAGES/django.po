@@ -38,10 +38,10 @@ msgstr ""
 
 #: .\travel\api\serializers.py:366
 msgid ""
-"The end date of this request ({end_date}) must be within 10 days of the end "
+"The end date of this request ({end_date}) must be within 30 days of the end "
 "date of the selected trip ({trip_end_date})!"
 msgstr ""
-"La date de fin de cette demande ({end_date}) doit se situer dans les 10 "
+"La date de fin de cette demande ({end_date}) doit se situer dans les 30 "
 "jours suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
 
 #: .\travel\api\serializers.py:376
@@ -234,11 +234,11 @@ msgstr ""
 
 #: .\travel\forms.py:196
 msgid ""
-"The end date of this request ({request_end_date}) must be within 10 days of "
+"The end date of this request ({request_end_date}) must be within 30 days of "
 "the end date of the selected trip ({trip_end_date})!"
 msgstr ""
 "La date de fin de cette demande ({request_end_date}) doit se situer dans les "
-"10 jours suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
+"30 jours suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
 
 #: .\travel\forms.py:262
 msgid ""
