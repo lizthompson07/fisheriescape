@@ -70,6 +70,6 @@ class ProjectFilter(django_filters.FilterSet):
 
 
 class OMCostFilter(django_filters.FilterSet):
-    project = django_filters.NumberFilter(field_name='project_year__project', label=_("Project"), widget=forms.NumberInput())
-    year = django_filters.NumberFilter(field_name='project_year__fiscal_year', label=_("Project"), widget=forms.NumberInput())
-    region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name__icontains', label=_("Project"), widget=forms.TextInput())
+    project = django_filters.NumberFilter(field_name='project_year__project')
+    year = django_filters.NumberFilter(field_name='project_year__fiscal_year' )
+    region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name', lookup_expr="icontains")
