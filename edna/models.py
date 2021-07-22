@@ -1,3 +1,5 @@
+import math
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import date
@@ -448,10 +450,6 @@ class PCR(MetadataFields):
             return self.extract.filter
 
     @property
-    def is_duplex(self):
-        return self.assays.count() > 1
-
-    @property
     def assay_count(self):
         return self.assays.count()
 
@@ -461,20 +459,40 @@ class PCRAssay(MetadataFields):
         (8, _("in progress")),
         (1, _("positive")),
         (0, _("negative")),
-        (9, _("undetermined")),
+        (90, _("no assay :(")),
+        (91, _("LOD missing :(")),
     )
 
     pcr = models.ForeignKey(PCR, related_name='assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
     assay = models.ForeignKey(Assay, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("assay"), blank=True, null=True)
-    ct = models.FloatField(blank=True, null=True, verbose_name=_("Ct"))
     threshold = models.FloatField(blank=True, null=True, verbose_name=_("threshold"))
+    ct = models.FloatField(blank=True, null=True, verbose_name=_("Ct"))
+    is_undetermined = models.BooleanField(default=False, verbose_name=_("Undetermined?"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
     # calculated
     result = models.IntegerField(verbose_name=_("result"), choices=result_choices, default=8, editable=False)
-    edna_conc = models.FloatField(blank=True, null=True, verbose_name=_("eDNA concentration (Pg/L)"), editable=False)
+    edna_conc = models.FloatField(blank=True, null=True, verbose_name=_(" eDNA concentration (Pg/L)"), editable=False)
 
     class Meta:
         ordering = ["pcr__extract", "pcr", "assay"]
         unique_together = (("pcr", "assay"),)
 
+    def save(self, *args, **kwargs):
+        if self.is_undetermined:
+            self.result = 0
+        elif self.ct:
+            if not self.assay:
+                self.result = 90
+            elif not self.assay.lod:
+                self.result = 91
+            else:
+                if self.ct <= self.assay.lod:
+                    self.result = 1
+                else:
+                    self.result = 0
+
+            if self.assay and self.assay.a_coef and self.assay.b_coef:
+                self.edna_conc = self.assay.b_coef * math.log(self.ct) + self.assay.a_coef
+
+        super().save(*args, **kwargs)
