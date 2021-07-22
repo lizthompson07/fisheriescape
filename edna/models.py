@@ -226,9 +226,9 @@ class Sample(MetadataFields):
     def pcrs(self):
         return PCR.objects.filter(extract__filter__sample=self)
 
-    # @property
-    # def species(self):
-    #     return SpeciesObservation.objects.filter(pcr__extract__filter__sample=self)
+    @property
+    def assays(self):
+        return PCRAssay.objects.filter(pcr__extract__filter__sample=self)
 
     @property
     def filter_count(self):
@@ -243,8 +243,8 @@ class Sample(MetadataFields):
         return self.pcrs.count()
 
     @property
-    def species_count(self):
-        return self.species.count()
+    def assay_count(self):
+        return self.assays.count()
 
     @property
     def full_display(self):
@@ -306,9 +306,9 @@ class Filter(MetadataFields):
     def pcrs(self):
         return PCR.objects.filter(extract__filter=self)
 
-    # @property
-    # def species(self):
-    #     return SpeciesObservation.objects.filter(pcr__extract__filter=self)
+    @property
+    def assays(self):
+        return PCRAssay.objects.filter(pcr__extract__filter=self)
 
     @property
     def extract_count(self):
@@ -318,9 +318,9 @@ class Filter(MetadataFields):
     def pcr_count(self):
         return self.pcrs.count()
 
-    # @property
-    # def species_count(self):
-    #     return self.species.count()
+    @property
+    def assay_count(self):
+        return self.assays.count()
 
     @property
     def full_display(self):
@@ -367,17 +367,17 @@ class DNAExtract(MetadataFields):
     def display(self):
         return str(self)
 
-    # @property
-    # def species(self):
-    #     return SpeciesObservation.objects.filter(pcr__extract=self)
+    @property
+    def assays(self):
+        return PCRAssay.objects.filter(pcr__extract=self)
 
     @property
     def pcr_count(self):
         return self.pcrs.count()
 
-    # @property
-    # def species_count(self):
-    #     return self.species.count()
+    @property
+    def assay_count(self):
+        return self.assays.count()
 
     @property
     def sample(self):
@@ -451,9 +451,9 @@ class PCR(MetadataFields):
     def is_duplex(self):
         return self.pcr_assays.count() > 1
 
-    # @property
-    # def species_count(self):
-    #     return self.species.count()
+    @property
+    def pcr_assay_count(self):
+        return self.pcr_assays.count()
 
 
 class PCRAssay(MetadataFields):
@@ -478,5 +478,3 @@ class PCRAssay(MetadataFields):
         ordering = ["pcr__extract", "pcr", "assay"]
         unique_together = (("pcr", "assay"),)
 
-    # def __str__(self):
-    #     return str(self.species)

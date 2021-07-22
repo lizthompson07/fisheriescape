@@ -294,7 +294,7 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     template_name = 'edna/collection_detail.html'
     home_url_name = "edna:index"
     parent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
-    container_class = "container curvy"
+    container_class = "container-fluid"
 
     def get_field_list(self):
         return utils.get_collection_field_list(self.get_object())
@@ -311,6 +311,7 @@ class CollectionDetailView(eDNAAdminRequiredMixin, CommonDetailView):
             "station",
             "site",
             'coordinates',
+            'assay_count|{}'.format(gettext_lazy("assays tested")),
             "comments",
 
         ]
@@ -485,7 +486,7 @@ class SampleListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'filter_count|{}'.format(gettext_lazy("filters")), "class": "", "width": ""},
         {"name": 'extract_count|{}'.format(gettext_lazy("extractions")), "class": "", "width": ""},
         {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
-        {"name": 'species_count|{}'.format(gettext_lazy("species")), "class": "", "width": ""},
+        {"name": 'assay_count|{}'.format(gettext_lazy("assays tested")), "class": "", "width": ""},
     ]
 
 
@@ -561,20 +562,19 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     template_name = 'edna/sample_detail.html'
     home_url_name = "edna:index"
     grandparent_crumb = {"title": gettext_lazy("Collections"), "url": reverse_lazy("edna:collection_list")}
-    container_class = "container curvy"
+    container_class = "container-fluid"
     field_list = [
         'display|sample Id',
+        "sample_type",
         'bottle_id',
-        'site_identifier',
-        'site_description',
-        'samplers',
+        "location",
+        "site",
+        "station",
         'datetime',
+        'samplers',
         'coordinates',
-        'filters|filter IDs',
-        'extracts|extraction IDs',
-        'pcrs|PCR IDs',
-        'species|Species observed',
         'comments',
+        'metadata',
     ]
 
     def get_parent_crumb(self):
@@ -582,23 +582,7 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # section_field_list = [
-        #     'interval',
-        #     'depth_ft',
-        #     'substrate_profile|{}'.format(_("substrate profile")),
-        #     'comment',
-        # ]
-        # context["section_field_list"] = section_field_list
-        # observation_field_list = [
-        #     'id',
-        #     'sex_special_display|{}'.format("sex"),
-        #     'egg_status_special_display|{}'.format("egg status"),
-        #     'carapace_length_mm',
-        #     'certainty_rating_special_display|{}'.format("length certainty"),
-        #     'comment',
-        # ]
-        # context["observation_field_list"] = observation_field_list
-        # context["random_observation"] = models.Observation.objects.first()
+        context["assay_field_list"] = utils.get_assay_field_list()
         return context
 
 
@@ -849,7 +833,7 @@ class FilterListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'storage_location', "class": "", "width": ""},
         {"name": 'extract_count|{}'.format(gettext_lazy("extractions")), "class": "", "width": ""},
         {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
-        {"name": 'species_count|{}'.format(gettext_lazy("species")), "class": "", "width": ""},
+        {"name": 'assay_count|{}'.format(gettext_lazy("assays tested")), "class": "", "width": ""},
     ]
 
 
@@ -871,7 +855,7 @@ class FilterDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         "filtration_ipc",
         'extracts|extraction IDs',
         'pcrs|PCR IDs',
-        'species|Species observed',
+        'assays|assays tested',
         "comments",
     ]
 
@@ -898,7 +882,7 @@ class DNAExtractListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'start_datetime', "class": "", "width": ""},
         {"name": 'storage_location', "class": "", "width": ""},
         {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
-        {"name": 'species_count|{}'.format(gettext_lazy("species")), "class": "", "width": ""},
+        {"name": 'assay_count|{}'.format(gettext_lazy("assays tested")), "class": "", "width": ""},
     ]
 
 
@@ -919,7 +903,7 @@ class DNAExtractDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         "extraction_plate_id",
         "extraction_plate_well",
         'pcrs|PCR IDs',
-        'species|Species observed',
+        'assays|assays tested',
         "comments",
     ]
 
@@ -941,7 +925,7 @@ class PCRListView(eDNAAdminRequiredMixin, CommonFilterView):
     field_list = [
         {"name": 'display|qPCR ID', "class": "", "width": ""},
         {"name": 'pcr_batch', "class": "", "width": ""},
-        {"name": 'species_count|{}'.format(gettext_lazy("species")), "class": "", "width": ""},
+        {"name": 'assay_count|{}'.format(gettext_lazy("assays tested")), "class": "", "width": ""},
     ]
 
 

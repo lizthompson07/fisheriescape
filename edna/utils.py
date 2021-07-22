@@ -81,6 +81,23 @@ def get_pcr_batch_field_list():
     ]
     return my_list
 
+def get_assay_field_list():
+    my_list = [
+
+    "sample|{}".format(_("sample")),
+    "filter|{}".format(_("filter")),
+    "pcr.extract|{}".format(_("DNA extraction")),
+    "pcr| qPCR",
+    "assay",
+    "assay.species|{}".format(_("species")),
+    "ct",
+    "threshold",
+    "comments",
+    "result",
+    "edna_conc",
+    ]
+    return my_list
+
 
 def get_next_bottle_id():
     from .models import Sample
