@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from pandas import date_range
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView, \
     RetrieveUpdateAPIView
@@ -18,6 +18,7 @@ from shared_models.utils import get_labels
 from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays, emails
+from ..filters import OMCostFilter
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
     get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head
 from ..utils import is_management_or_admin
@@ -132,7 +133,6 @@ class ProjectListAPIView(ListAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("id",)
 
-
     def get_queryset(self):
         qs = models.Project.objects.order_by("id")
         if not is_management_or_admin(self.request.user):
@@ -191,7 +191,7 @@ def get_project_year_queryset(request):
         if input:
             if filter == "user":
                 qs = qs.filter(project__section__in=get_manageable_sections(request.user)).order_by("fiscal_year",
-                                                                                                         "project_id")
+                                                                                                    "project_id")
             elif filter == "is_hidden":
                 qs = qs.filter(project__is_hidden=True)
             elif filter == "status":
@@ -323,6 +323,29 @@ class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 # O&M
 #######
+
+
+class OMCostViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.OMCostSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+    queryset = models.OMCost.objects.all()
+    pagination_class = pagination.StandardResultsSetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = OMCostFilter
+
+    def perform_create(self, serializer):
+        obj = serializer.save(project_year_id=self.kwargs.get("project_year"))
+        obj.project_year.update_modified_by(self.request.user)
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        instance.project_year.update_modified_by(self.request.user)
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        obj.project_year.update_modified_by(self.request.user)
+
+
 class OMCostListCreateAPIView(ListCreateAPIView):
     queryset = models.OMCost.objects.all()
     serializer_class = serializers.OMCostSerializer
@@ -466,6 +489,7 @@ class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             new_activity.save()
             return Response(serializers.ActivitySerializer(new_activity).data, status=status.HTTP_200_OK)
         raise ValidationError("sorry, I am missing the query param for 'action' or 'clone'")
+
 
 # COLLABORATION
 ##############

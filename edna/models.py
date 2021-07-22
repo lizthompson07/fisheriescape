@@ -449,11 +449,11 @@ class PCR(MetadataFields):
 
     @property
     def is_duplex(self):
-        return self.pcr_assays.count() > 1
+        return self.assays.count() > 1
 
     @property
-    def pcr_assay_count(self):
-        return self.pcr_assays.count()
+    def assay_count(self):
+        return self.assays.count()
 
 
 class PCRAssay(MetadataFields):
@@ -464,8 +464,8 @@ class PCRAssay(MetadataFields):
         (9, _("undetermined")),
     )
 
-    pcr = models.ForeignKey(PCR, related_name='pcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
-    assay = models.ForeignKey(Assay, related_name='pcr_assays', on_delete=models.DO_NOTHING, verbose_name=_("assay"), blank=True, null=True)
+    pcr = models.ForeignKey(PCR, related_name='assays', on_delete=models.DO_NOTHING, verbose_name=_("PCR"))
+    assay = models.ForeignKey(Assay, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("assay"), blank=True, null=True)
     ct = models.FloatField(blank=True, null=True, verbose_name=_("Ct"))
     threshold = models.FloatField(blank=True, null=True, verbose_name=_("threshold"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))

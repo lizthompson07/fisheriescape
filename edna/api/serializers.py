@@ -55,6 +55,18 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     datetime_display = serializers.SerializerMethodField()
     batch_display = serializers.SerializerMethodField()
 
+    filter_display = serializers.SerializerMethodField()
+
+    sample_display = serializers.SerializerMethodField()
+
+    def get_sample_display(self, instance):
+        if instance.filter and instance.filter.sample:
+            return instance.filter.sample.display
+
+    def get_filter_display(self, instance):
+        if instance.filter:
+            return instance.filter.display
+
     def get_batch_display(self, instance):
         return instance.extraction_batch.datetime.strftime("%Y-%m-%d")
 

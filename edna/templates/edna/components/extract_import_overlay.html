@@ -15,7 +15,7 @@
           <div class="modal-header">
             <h4> {% trans "Import Extracts" %}</h4>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" @keydown.esc.prevent="overlay = false">
             <div v-if="loadingExtracts" class="loading mb-3 mt-3 mt-5">
               <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
                 <span class="sr-only"></span>
@@ -27,6 +27,12 @@
               </div>
               <form class="mb-3" @change="getExtracts">
                 <div class="row">
+                  <div class="col">
+                    <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">
+                  </div>
+                  <div class="col">
+                    <input type="number" class="form-control" placeholder="{% trans "Filter Id" %}" v-model="filterFilterId">
+                  </div>
                   <div class="col">
                     <input type="number" class="form-control" placeholder="{% trans "Extract Id" %}" v-model="filterExtractId">
                   </div>
@@ -45,7 +51,7 @@
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" id="unfiltered_only" v-model="filterUnprocessed">
                       <label class="form-check-label" for="unfiltered_only">
-                        {% trans "Unprocessed filters only" %}
+                        {% trans "Unprocessed DNA only" %}
                       </label>
                     </div>
                   </div>
@@ -56,13 +62,15 @@
                   <option v-for="extract in extracts" :key="extract.id" :value="extract.id">
                     ${extract.display} &emsp;||&emsp;
                     {% trans "Extraction Number" %} &rarr; ${extract.extraction_number | nz("n/a")} &emsp;||&emsp;
-                    {% trans "Batch" %} &rarr; ${extract.batch_display}
+                    {% trans "Batch" %} &rarr; ${extract.batch_display} ||
+                    ${extract.filter_display|nz } ||
+                    ${extract.sample_display|nz }
                   </option>
                 </select>
-                <p class="lead text-muted">
-                  {% trans "Extracts: " %} ${extracts.length} || {% trans "Selected: " %} ${selectedExtracts.length}
-                </p>
               </div>
+              <p class="lead text-muted">
+                {% trans "Extracts: " %} ${extracts.length} || {% trans "Selected: " %} ${selectedExtracts.length}
+              </p>
 
 
               <div class="row mb-3">
@@ -113,6 +121,8 @@ Vue.component("extract-import-overlay", {
       selectedExtracts: [],
 
       filterUnprocessed: true,
+      filterSampleId: null,
+      filterFilterId: null,
       filterExtractId: null,
       filterExtractionNumber: null,
       filterBatch: null,
@@ -129,6 +139,8 @@ Vue.component("extract-import-overlay", {
       this.error = null;
       this.overlay = true;
       this.filterUnprocessed = true;
+      this.filterSampleId = null;
+      this.filterFilterId = null;
       this.filterExtractId = null;
       this.filterExtractionNumber = null;
       this.filterBatch = null;
@@ -147,6 +159,8 @@ Vue.component("extract-import-overlay", {
       this.selectedExtracts = [];
       this.loadingExtracts = true;
       let endpoint = '/api/edna/extracts/?'
+      if (this.filterSampleId && this.filterSampleId !== "") endpoint += `filter__sample=${this.filterSampleId}&`;
+      if (this.filterFilterId && this.filterFilterId !== "") endpoint += `filter=${this.filterFilterId}&`;
       if (this.filterExtractId && this.filterExtractId !== "") endpoint += `id=${this.filterExtractId}&`;
       if (this.filterExtractionNumber && this.filterExtractionNumber !== "") endpoint += `extraction_number=${this.filterExtractionNumber}&`;
       if (this.filterBatch && this.filterBatch !== "") endpoint += `extraction_batch=${this.filterBatch}&`;

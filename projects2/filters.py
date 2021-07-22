@@ -69,4 +69,5 @@ class ProjectFilter(django_filters.FilterSet):
         self.filters['fiscal_years'] = django_filters.ChoiceFilter(field_name='fiscal_years', label=_("Fiscal year"), widget=forms.Select(), choices=fy_choices)
 
 
-
+class OMCostFilter(django_filters.FilterSet):
+    project = django_filters.NumberFilter(field_name='project_year__project', label=_("Project"), widget=forms.NumberInput())

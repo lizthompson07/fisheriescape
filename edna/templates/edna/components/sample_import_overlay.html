@@ -15,7 +15,7 @@
           <div class="modal-header">
             <h4> {% trans "Import Samples" %}</h4>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" @keydown.esc.prevent="overlay = false">
             <div v-if="loadingSamples" class="loading mb-3 mt-3 mt-5">
               <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
                 <span class="sr-only"></span>
@@ -62,10 +62,10 @@
                     {% trans "Collection" %} &rarr; ${sample.collection_display}
                   </option>
                 </select>
-                <p class="lead text-muted">
-                  {% trans "Samples: " %} ${samples.length} || {% trans "Selected: " %} ${selectedSamples.length}
-                </p>
               </div>
+              <p class="lead text-muted">
+                {% trans "Samples: " %} ${samples.length} || {% trans "Selected: " %} ${selectedSamples.length}
+              </p>
             </div>
           </div>
           <div class="modal-footer">

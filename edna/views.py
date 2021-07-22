@@ -944,13 +944,13 @@ class PCRDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     container_class = "container curvy"
     field_list = [
         'display|pcr Id',
-        "pcr_batch"
-        "sample"
-        "filter"
-        "extract"
-        "plate_well"
-        "master_mix"
-        "comments"
+        "pcr_batch",
+        "sample",
+        "filter",
+        "extract",
+        "plate_well",
+        "master_mix",
+        "comments",
         'metadata',
     ]
 

@@ -1,8 +1,7 @@
 {% load i18n %}
 {% load verbose_names %}
 
-{% if object.assays.exist %}
-
+{% if object.assays.exists %}
 
   <div class="card mb-3">
     <div class="card-header lead">
@@ -32,11 +31,23 @@
                 {% elif "pcr" in field %}
                   <a href="{% url 'edna:pcr_detail' obj.pcr.id %}" target="_blank">{{ obj.pcr }}</a>
                 {% elif "extract" in field %}
-                  <a href="{% url 'edna:extract_detail' obj.pcr.extract.id %}" target="_blank">{{ obj.pcr.extract }}</a>
+                  {% if obj.pcr.extract %}
+                    <a href="{% url 'edna:extract_detail' obj.pcr.extract.id %}" target="_blank">{{ obj.pcr.extract }}</a>
+                  {% else %}
+                    ---
+                  {% endif %}
                 {% elif "filter" in field %}
-                  <a href="{% url 'edna:filter_detail' obj.pcr.extract.filter.id %}" target="_blank">{{ obj.pcr.extract.filter }}</a>
+                  {% if obj.pcr.extract.filter %}
+                    <a href="{% url 'edna:filter_detail' obj.pcr.extract.filter.id %}" target="_blank">{{ obj.pcr.extract.filter }}</a>
+                  {% else %}
+                    ---
+                  {% endif %}
                 {% elif "sample" in field %}
-                  <a href="{% url 'edna:sample_detail' obj.pcr.extract.filter.sample.id %}" target="_blank">{{ obj.pcr.extract.filter.sample }}</a>
+                  {% if obj.pcr.extract.filter.sample %}
+                    <a href="{% url 'edna:sample_detail' obj.pcr.extract.filter.sample.id %}" target="_blank">{{ obj.pcr.extract.filter.sample }}</a>
+                  {% else %}
+                    ---
+                  {% endif %}
                 {% else %}
                   {% get_field_value obj field %}
                 {% endif %}
