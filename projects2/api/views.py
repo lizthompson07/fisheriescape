@@ -130,6 +130,7 @@ class ProjectListAPIView(ListAPIView):
     serializer_class = serializers.ProjectSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ("id",)
 
 
     def get_queryset(self):
