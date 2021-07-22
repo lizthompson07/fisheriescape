@@ -37,16 +37,10 @@
     </div>
   </div>
 
-  {% if object.assays.exists %}
-    {% include "edna/_assays.html" %}
-
-  {% else %}
-
-    {% include "edna/_filters.html" %}
-    {% include "edna/_extracts.html" %}
-    {% include "edna/_pcrs.html" %}
-
-  {% endif %}
+  {% include "edna/_filters.html" %}
+  {% include "edna/_extracts.html" %}
+  {% include "edna/_pcrs.html" %}
+  {% include "edna/_assays.html" %}
 
 
 

@@ -853,14 +853,17 @@ class FilterDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         "filtration_volume_ml",
         "storage_location",
         "filtration_ipc",
-        'extracts|extraction IDs',
-        'pcrs|PCR IDs',
-        'assays|assays tested',
         "comments",
+        'metadata',
     ]
 
     def get_parent_crumb(self):
         return {"title": self.get_object().filtration_batch, "url": reverse("edna:filter_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["assay_field_list"] = utils.get_assay_field_list()
+        return context
 
 
 # DNAExtracts #
@@ -902,13 +905,18 @@ class DNAExtractDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         "storage_location",
         "extraction_plate_id",
         "extraction_plate_well",
-        'pcrs|PCR IDs',
-        'assays|assays tested',
         "comments",
+        'metadata',
+
     ]
 
     def get_parent_crumb(self):
         return {"title": self.get_object().extraction_batch, "url": reverse("edna:extract_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["assay_field_list"] = utils.get_assay_field_list()
+        return context
 
 
 # PCRs #
@@ -936,16 +944,23 @@ class PCRDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     container_class = "container curvy"
     field_list = [
         'display|pcr Id',
-        "sample",
-        "filter",
-        "extract",
-        'pcr_batch',
-        'observations|Species observed',
-        'comments',
+        "pcr_batch"
+        "sample"
+        "filter"
+        "extract"
+        "plate_well"
+        "master_mix"
+        "comments"
+        'metadata',
     ]
 
     def get_parent_crumb(self):
         return {"title": self.get_object().pcr_batch, "url": reverse("edna:pcr_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["assay_field_list"] = utils.get_assay_field_list()
+        return context
 
 
 # REPORTS #

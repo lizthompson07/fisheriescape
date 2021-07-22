@@ -2,6 +2,7 @@ from copy import deepcopy
 
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from pandas import date_range
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -128,6 +129,8 @@ class ProjectListAPIView(ListAPIView):
     pagination_class = pagination.StandardResultsSetPagination
     serializer_class = serializers.ProjectSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+    filter_backends = (DjangoFilterBackend,)
+
 
     def get_queryset(self):
         qs = models.Project.objects.order_by("id")
