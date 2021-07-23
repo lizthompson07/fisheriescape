@@ -133,6 +133,11 @@ class CollectionSerializer(serializers.ModelSerializer):
         model = models.Collection
         fields = "__all__"
 
+    date_display = serializers.SerializerMethodField()
+
+    def get_date_display(self, instance):
+        return instance.start_date.strftime("%Y-%m-%d")
+
 
 class ExtractionBatchSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()

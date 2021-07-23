@@ -27,12 +27,12 @@
               </div>
               <form class="mb-3" @change="getExtracts">
                 <div class="row">
-                  <div class="col">
-                    <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">
-                  </div>
-                  <div class="col">
-                    <input type="number" class="form-control" placeholder="{% trans "Filter Id" %}" v-model="filterFilterId">
-                  </div>
+{#                  <div class="col">#}
+{#                    <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">#}
+{#                  </div>#}
+{#                  <div class="col">#}
+{#                    <input type="number" class="form-control" placeholder="{% trans "Filter Id" %}" v-model="filterFilterId">#}
+{#                  </div>#}
                   <div class="col">
                     <input type="number" class="form-control" placeholder="{% trans "Extract Id" %}" v-model="filterExtractId">
                   </div>
@@ -121,8 +121,8 @@ Vue.component("extract-import-overlay", {
       selectedExtracts: [],
 
       filterUnprocessed: true,
-      filterSampleId: null,
-      filterFilterId: null,
+      {#filterSampleId: null,#}
+      {#filterFilterId: null,#}
       filterExtractId: null,
       filterExtractionNumber: null,
       filterBatch: null,
@@ -139,8 +139,8 @@ Vue.component("extract-import-overlay", {
       this.error = null;
       this.overlay = true;
       this.filterUnprocessed = true;
-      this.filterSampleId = null;
-      this.filterFilterId = null;
+      {#this.filterSampleId = null;#}
+      {#this.filterFilterId = null;#}
       this.filterExtractId = null;
       this.filterExtractionNumber = null;
       this.filterBatch = null;
@@ -159,8 +159,8 @@ Vue.component("extract-import-overlay", {
       this.selectedExtracts = [];
       this.loadingExtracts = true;
       let endpoint = '/api/edna/extracts/?'
-      if (this.filterSampleId && this.filterSampleId !== "") endpoint += `filter__sample=${this.filterSampleId}&`;
-      if (this.filterFilterId && this.filterFilterId !== "") endpoint += `filter=${this.filterFilterId}&`;
+      {#if (this.filterSampleId && this.filterSampleId !== "") endpoint += `filter__sample=${this.filterSampleId}&`;#}
+      {#if (this.filterFilterId && this.filterFilterId !== "") endpoint += `filter=${this.filterFilterId}&`;#}
       if (this.filterExtractId && this.filterExtractId !== "") endpoint += `id=${this.filterExtractId}&`;
       if (this.filterExtractionNumber && this.filterExtractionNumber !== "") endpoint += `extraction_number=${this.filterExtractionNumber}&`;
       if (this.filterBatch && this.filterBatch !== "") endpoint += `extraction_batch=${this.filterBatch}&`;

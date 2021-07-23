@@ -28,7 +28,7 @@ class CurrentUserAPIView(APIView):
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CollectionSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.Collection.objects.all()
+    queryset = models.Collection.objects.order_by("name", "start_date")
 
 
 class FiltrationBatchViewSet(viewsets.ModelViewSet):
@@ -178,8 +178,6 @@ class PCRViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
-
 
 
 class PCRModelMetaAPIView(APIView):

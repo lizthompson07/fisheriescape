@@ -177,7 +177,7 @@ class File(models.Model):
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("collection"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
-    bottle_id = models.CharField(unique=True, verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
+    bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
     location = models.CharField(max_length=255, verbose_name=_("location"), blank=True, null=True)
     site = models.CharField(max_length=255, verbose_name=_("site"), blank=True, null=True)
     station = models.TextField(verbose_name=_("station"), blank=True, null=True)
@@ -197,6 +197,7 @@ class Sample(MetadataFields):
 
     class Meta:
         ordering = ["id"]
+        unique_together = (("bottle_id", "collection"))
 
     def get_absolute_url(self):
         return reverse("edna:sample_detail", args=[self.pk])
@@ -257,7 +258,7 @@ class Sample(MetadataFields):
 
 
 class Batch(models.Model):
-    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("start date"))
+    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
     operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
     comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
 
@@ -295,7 +296,7 @@ class Filter(MetadataFields):
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["sample", "id"]
 
     def __str__(self):
         return f"f{self.id}"
@@ -360,7 +361,7 @@ class DNAExtract(MetadataFields):
     comments = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["filter", "id"]
 
     def __str__(self):
         return f"x{self.id}"

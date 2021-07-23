@@ -259,12 +259,13 @@ class CollectionListView(eDNAAdminRequiredMixin, CommonFilterView):
     new_btn_text = gettext_lazy("Add a New Collection")
     container_class = "container-fluid curvy"
     field_list = [
-        {"name": 'fiscal_year', "class": "", "width": ""},
+        {"name": 'start_date|{}'.format(_("collection date")), "class": "", "width": ""},
         {"name": 'region', "class": "", "width": ""},
         {"name": 'name', "class": "", "width": ""},
         {"name": 'location_description', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
         {"name": 'sample_count|{}'.format(_("sample count")), "class": "", "width": ""},
+        {"name": 'fiscal_year', "class": "", "width": ""},
     ]
 
 

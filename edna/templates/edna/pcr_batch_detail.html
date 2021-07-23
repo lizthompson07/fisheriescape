@@ -127,7 +127,7 @@
 
             ></text-input-cell>
           </td>
-           <td class="px-0 py-0">
+          <td class="px-0 py-0">
             <text-input-cell
               type="number"
               :sample.sync="obj" :row="index"
@@ -137,7 +137,7 @@
               :ref="`row_${index}_col_5`"
             ></text-input-cell>
           </td>
-           <td class="px-0 py-0">
+          <td class="px-0 py-0">
             <text-input-cell
               type="checkbox"
               :sample.sync="obj" :row="index"
@@ -216,7 +216,7 @@
     },
     methods: {
       populateWells() {
-        let msg = "{% trans "What is your the first well number (e.g. 1A)?" %}";
+        let msg = "{% trans "What is your the first well number (e.g. A1)?" %}";
         let input = prompt(msg);
         if (input) {
           input = input.toUpperCase();
@@ -224,9 +224,9 @@
           let well;
           let wellArray = [];
           let letters = ["A", "B", "C", "D", "E", "F", "G", "H",];
-          for (var i = 1; i <= 12; i++) {
-            for (var j = 0; j < letters.length; j++) {
-              well = `${i}${letters[j]}`;
+          for (var j = 0; j < letters.length; j++) {
+            for (var i = 1; i <= 12; i++) {
+              well = `${letters[j]}${i}`;
               wellArray.push(well);
             }
           }
