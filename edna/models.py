@@ -352,7 +352,7 @@ class DNAExtract(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
     extraction_batch = models.ForeignKey(ExtractionBatch, related_name='extracts', on_delete=models.DO_NOTHING, verbose_name=_("extraction batch"))
     filter = models.ForeignKey(Filter, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='extracts', verbose_name=_("filter ID"))
-    extraction_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("extraction number"))
+    extraction_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("extraction number"), unique=True)
     start_datetime = models.DateTimeField(verbose_name=_("extraction date/time"))
     dna_extraction_protocol = models.ForeignKey(DNAExtractionProtocol, on_delete=models.DO_NOTHING, verbose_name=_("extraction protocol"))
     storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("DNA storage location"))
@@ -492,8 +492,9 @@ class PCRAssay(MetadataFields):
                     self.result = 1
                 else:
                     self.result = 0
-
             if self.assay and self.assay.a_coef and self.assay.b_coef:
                 self.edna_conc = self.assay.b_coef * math.log(self.ct) + self.assay.a_coef
+        else:
+            self.result = 8
 
         super().save(*args, **kwargs)
