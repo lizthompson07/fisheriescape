@@ -3609,7 +3609,15 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         context["sites_url"] = reverse("bio_diversity:site_report_file") + f"?file_url={report_file_url}"
 
         context["captured_locations_list"] = captured_locations_list
+        side_bar_len = 10
+        context["side_bar_len"] = side_bar_len
+        if len(captured_locations_list) > side_bar_len:
+            context["captured_locations_short_list"] = captured_locations_list[:side_bar_len]
+            context["loc_count"] = len(captured_locations_list)
         context["captured_site_list"] = captured_site_list
+        if len(captured_site_list) > side_bar_len:
+            context["captured_site_short_list"] = captured_site_list[:side_bar_len]
+            context["site_count"] = len(captured_site_list)
         return context
 
     def get_initial(self, *args, **kwargs):
