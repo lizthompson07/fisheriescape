@@ -316,7 +316,7 @@ class DataForm(CreatePrams):
         success = False
         parser = None
         try:
-            if not cleaned_data.get("evntc_d"):
+            if not cleaned_data.get("evntc_id"):
                 parser = SitesParser(cleaned_data)
                 log_data, success = parser.log_data, parser.success
 

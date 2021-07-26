@@ -80,7 +80,7 @@ class GenericIndvParser(DataParser):
                                                       self.ani_health_anidc_id.pk, "Precocity")
         if utils.nan_to_none(row.get(self.mort_key)):
             if utils.y_n_to_bool(row[self.mort_key]):
-                mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_date)
+                mort_evnt, mort_anix, mort_entered = utils.enter_mortality(indv, self.cleaned_data, row_datetime)
                 self.row_entered += mort_entered
 
         in_tank = None

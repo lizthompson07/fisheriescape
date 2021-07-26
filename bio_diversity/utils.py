@@ -1151,8 +1151,13 @@ def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=Non
 
 
 def enter_mortality(indv, cleaned_data, mort_date):
+    # Get/creat a mortality event
+    # link to indv
+    # record indvd on indv
+    # remove indv from container
     data_entered = False
     mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
+    mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
     mortality_evnt = models.Event(evntc_id=mort_evntc,
                                   facic_id=cleaned_data["evnt_id"].facic_id,
                                   prog_id=cleaned_data["evnt_id"].prog_id,
@@ -1176,6 +1181,7 @@ def enter_mortality(indv, cleaned_data, mort_date):
     new_cleaned_data = cleaned_data.copy()
     new_cleaned_data["evnt_id"] = mortality_evnt
     anix, anix_entered = enter_anix(new_cleaned_data, indv_pk=indv.pk)
+    data_entered += enter_indvd(anix.pk, new_cleaned_data, mort_date, None, mort_anidc.pk)
     data_entered += anix_entered
     for cont in indv.current_cont(at_date=mort_date):
         data_entered += enter_contx(cont, new_cleaned_data, False, indv.pk)
@@ -1195,6 +1201,8 @@ def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
     salmon_pk = models.SpeciesCode.objects.filter(name__icontains="Salmon").get().pk
     mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
     mort_sampc = models.SampleCode.objects.filter(name="Mortality Sample").get().pk
+    mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
+
     mortality_evnt = models.Event(evntc_id=mort_evntc,
                                   facic_id=cleaned_data["evnt_id"].facic_id,
                                   prog_id=cleaned_data["evnt_id"].prog_id,
@@ -1234,6 +1242,7 @@ def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
     samp, samp_entered = enter_samp(new_cleaned_data, samp_num, salmon_pk, mort_sampc, anix_pk=samp_anix.pk)
     data_entered += samp_entered
 
+    data_entered += enter_sampd(samp.pk, new_cleaned_data, mort_date, None, mort_anidc.pk)
     # one count per cont per mortality event, count up similar samples:
     cnt_val = models.Sample.objects.filter(anix_id__evnt_id=mortality_evnt,
                                            anix_id__grp_id=grp,
