@@ -82,6 +82,7 @@ urlpatterns = [
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
 
     path('create/data/', views.DataCreate.as_view(), name="create_data"),
+    path('create/data/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
     path('create/data/<int:evnt>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
 
     path('log/data/', views.DataLog.as_view(), name="data_log"),

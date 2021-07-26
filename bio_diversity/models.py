@@ -482,9 +482,9 @@ class CupDet(BioContainerDet):
 
 class DataLoader(BioModel):
     # data tag
-    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"))
-    evntc_id = models.ForeignKey('EventCode', on_delete=models.CASCADE, verbose_name=_("Data Format"))
-    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Data Format"))
+    evnt_id = models.ForeignKey('Event', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Event"))
+    evntc_id = models.ForeignKey('EventCode', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Data Format"))
+    facic_id = models.ForeignKey('FacilityCode', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Data Format"))
     data_csv = models.FileField(upload_to="", null=True, blank=True, verbose_name=_("Datafile"))
 
 

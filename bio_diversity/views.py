@@ -269,22 +269,23 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
     def get_initial(self):
         init = super().get_initial()
+        self.get_form_class().base_fields["data_csv"].required = True
+        self.get_form_class().base_fields["trof_id"].required = False
+        self.get_form_class().base_fields["pickc_id"].required = False
+        self.get_form_class().base_fields["adsc_id"].required = False
+
+        self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
+
         if 'evnt' in self.kwargs:
             evnt = models.Event.objects.filter(pk=self.kwargs["evnt"]).select_related("evntc_id", "facic_id").get()
             init['evnt_id'] = self.kwargs['evnt']
             evntc = evnt.evntc_id
             init['evntc_id'] = evntc
             init['facic_id'] = evnt.facic_id
-            self.get_form_class().base_fields["data_csv"].required = True
-            self.get_form_class().base_fields["trof_id"].required = False
-            self.get_form_class().base_fields["pickc_id"].required = False
-            self.get_form_class().base_fields["adsc_id"].required = False
-
-            self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
-            self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
-            self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
-            self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
-            self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
 
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
@@ -308,16 +309,24 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                                                                                    label=_("Type of data entry"))
                 self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
                     attrs={"class": "chosen-select-contains"})
+        else:
+            self.get_form_class().base_fields["evnt_id"].required = False
+            self.get_form_class().base_fields["evntc_id"].required = False
+            self.get_form_class().base_fields["facic_id"].required = False
+            self.get_form_class().base_fields["data_type"].required = False
+            self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+
         return init
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['java_script'] = 'bio_diversity/_entry_data_js.html'
+        allow_entry = True
+
         if 'evnt' in self.kwargs:
             evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
-            allow_entry = True
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
                              "master entry", "egg development", "adult collection"]:
@@ -329,11 +338,16 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 allow_entry = False
             else:
                 template_url = 'data_templates/measuring.xlsx'
+            template_name = "{}-{}".format(facility_code, evnt_code)
+        else:
+            context["title"] = "Add Sites"
+            template_url = "data_templates/sites_entry.xlsx"
+            template_name = "Sites Entry"
 
-            context["template_url"] = template_url
-            context["allow_entry"] = allow_entry
+        context["template_url"] = template_url
+        context["allow_entry"] = allow_entry
 
-            context["template_name"] = "{}-{}".format(facility_code, evnt_code)
+        context["template_name"] = template_name
         return context
 
     def get_success_url(self):
