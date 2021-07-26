@@ -446,11 +446,11 @@ def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp
 
     # identify all unique groups in the table, grp_data is also a df:
     grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, grp_key],
-                                dropna=False, sort=False).size().reset_index()
+                          dropna=False, sort=False).size().reset_index()
 
     # for each row in this smaller df, find the grp_id, and then make a dictionary out of these
     grp_data["grp_id"] = grp_data.apply(lambda row: get_grp(row[stok_key], row[grp_year], row[grp_coll], row[cont_key],
-                                                            at_date=row[datetime_key], prog_str=row[prio_key],
+                                                            at_date=row[datetime_key], prog_str=nan_to_none(row[prio_key]),
                                                             fail_on_not_found=True)[0], axis=1)
 
     grp_dict = dict(zip(grp_data[grp_key], grp_data["grp_id"]))
