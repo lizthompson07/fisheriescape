@@ -49,7 +49,7 @@ class DistributionParser(DataParser):
     sheet_name = "Groups"
 
     def load_data(self):
-        self.mandatory_keys.extend([self.stok_key, self.year_coll_key, self.prog_key, self.num_key])
+        self.mandatory_keys.extend([self.stok_key, self.num_key])
         super(DistributionParser, self).load_data()
 
     def data_preper(self):
@@ -67,28 +67,7 @@ class DistributionParser(DataParser):
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
 
-        # need to find contanier and group for row:
-        cont_id = None
-        if utils.nan_to_none(row[self.tank_key]):
-            if "," in str(row[self.tank_key]):
-                tank_list = str(row[self.tank_key]).split(",")
-                # TODO
-
-            cont_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
-        elif utils.nan_to_none(row[self.trof_key]):
-            if "," in row[self.trof_key]:
-                trof_list = row[self.trof_key].split(",")
-                # TODO
-
-            cont_id = models.Trough.objects.filter(name__iexact=row[self.trof_key], facic_id__name=cleaned_data["facic_id"]).get()
-        grp_year, coll = utils.year_coll_splitter(row[self.year_coll_key])
-        grp_list = utils.get_grp(row[self.stok_key], grp_year, coll, cont=cont_id, at_date=row_date, prog_str=row[self.prog_key])
-        if not grp_list:
-            raise Exception("\n No group found in container: {}".format(cont_id.__str__()))
-        grp_id = grp_list[0]
-        self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-        self.row_entered += utils.enter_contx(cont_id, cleaned_data)
-
+        # set location:
         relc_id = None
         rive_id = models.RiverCode.objects.filter(name__icontains=row[self.stok_key]).get()
         if utils.nan_to_none(row[self.site_key]):
@@ -116,7 +95,35 @@ class DistributionParser(DataParser):
                                                  relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
 
-        self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
+
+        # get contanier row:
+        cont_id = None
+        if utils.nan_to_none(row[self.tank_key]):
+            if "," in str(row[self.tank_key]):
+                tank_list = str(row[self.tank_key]).split(",")
+                # TODO
+
+            cont_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
+        elif utils.nan_to_none(row[self.trof_key]):
+            if "," in row[self.trof_key]:
+                trof_list = row[self.trof_key].split(",")
+                # TODO
+
+            cont_id = models.Trough.objects.filter(name__iexact=row[self.trof_key], facic_id__name=cleaned_data["facic_id"]).get()
+
+        contx, contx_entered = utils.enter_contx(cont_id, cleaned_data, None, return_contx=True)
+        self.row_entered += contx_entered
+
+        # GET GROUP
+        if True:
+            grp_year, coll = utils.year_coll_splitter(row[self.year_coll_key])
+            grp_list = utils.get_grp(row[self.stok_key], grp_year, coll, cont=cont_id, at_date=row_date, prog_str=row[self.prog_key])
+            if not grp_list:
+                raise Exception("\n No group found in container: {}".format(cont_id.__str__()))
+            grp_id = grp_list[0]
+            self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
+            self.row_entered += utils.enter_contx(cont_id, cleaned_data)
+            self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
 
         if utils.nan_to_none(row.get(self.crew_key)):
             self.team_parser(row[self.crew_key], row, loc_id=loc)
@@ -139,6 +146,10 @@ class DistributionParser(DataParser):
                                            cnt_code="Fish Distributed")
         self.row_entered += cnt_entered
 
+        if utils.nan_to_none(row.get(self.prog_key)):
+            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.prog_key], "Program Group",
+                                                    row[self.prog_key])
+
         if utils.nan_to_none(row.get(self.len_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.len_key], self.len_anidc_id.name)
         if utils.nan_to_none(row.get(self.len_key_mm)):
@@ -150,6 +161,13 @@ class DistributionParser(DataParser):
         if utils.nan_to_none(row.get(self.weight_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.weight_key], self.weight_anidc_id.name)
 
+        if utils.nan_to_none(row.get(self.lifestage_key)):
+            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
+                                                    self.lifestage_anidc_id.pk, row[self.lifestage_key])
+
+        if utils.nan_to_none(row.get(self.lifestage_key)):
+            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
+                                                    self.lifestage_anidc_id.pk, row[self.lifestage_key])
         if utils.nan_to_none(row.get(self.lifestage_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
                                                     self.lifestage_anidc_id.pk, row[self.lifestage_key])

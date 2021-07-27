@@ -24,7 +24,7 @@ from . import mixins, filters, utils, models, reports
 import pytz
 from django.utils.translation import gettext_lazy as _
 
-from .static.calculation_constants import collection_evntc_list
+from .static.calculation_constants import collection_evntc_list, egg_dev_evntc_list
 from .utils import get_cont_evnt
 
 
@@ -330,7 +330,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
                              "master entry", "egg development", "adult collection"]:
-                template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+                template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
             elif evnt_code in collection_evntc_list:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
             elif evnt_code in ["mortality", "movement"]:
@@ -1528,7 +1528,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"].extend(["env", "team", "locd","samp", "grp", "indv", "cnt"])
+        context["table_list"].extend(["env", "team", "locd", "samp", "grp", "indv", "cnt"])
 
         env_set = self.object.env_condition.all()
         env_field_list = ["envc_id", "env_val", "start_datetime|Date", ]
@@ -3391,10 +3391,12 @@ class TemplFormView(mixins.TemplMixin, BioCommonFormView):
         facility_code = facic_id.name
 
         if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                         "master entry", "egg development", "adult collection"]:
-            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+                         "master entry", "adult collection"]:
+            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
         elif evnt_code in collection_evntc_list:
             template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
+        elif evnt_code in egg_dev_evntc_list:
+            template_url = 'data_templates/{}-egg_development.xlsx'.format(facility_code)
         else:
             template_url = 'data_templates/measuring.xlsx'
 

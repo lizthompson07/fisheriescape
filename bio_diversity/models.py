@@ -1782,7 +1782,7 @@ class ReleaseSiteCode(BioLookup):
         if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             delta_y = corr_factor * (float(self.max_lat) - float(self.min_lat))
             delta_x = float(self.max_lon) - float(self.min_lon)
-            return delta_x * delta_y
+            return abs(delta_x * delta_y)
         else:
             return 0
 
