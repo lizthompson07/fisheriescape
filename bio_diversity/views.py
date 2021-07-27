@@ -3065,6 +3065,10 @@ class EvntDelete(mixins.EvntMixin, CommonDelete):
     success_url = reverse_lazy("bio_diversity:list_evnt")
 
 
+class LocDelete(mixins.LocMixin, CommonDelete):
+    success_url = reverse_lazy("bio_diversity:list_loc")
+
+
 class IndvDelete(mixins.IndvMixin, CommonDelete):
     success_url = reverse_lazy("bio_diversity:list_indv")
 

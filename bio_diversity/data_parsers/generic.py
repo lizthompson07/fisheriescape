@@ -253,7 +253,7 @@ class GenericGrpParser(DataParser):
         if row_samp:
             if utils.nan_to_none(row.get(self.sex_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date,
-                                                      self.sex_dict[row[self.sex_key]], self.sex_anidc_id.pk)
+                                                      self.sex_dict[row[self.sex_key].upper()], self.sex_anidc_id.pk)
             if utils.nan_to_none(row.get(self.len_key)):
                 self.row_entered += utils.enter_sampd(row_samp.pk, cleaned_data, row_date, row[self.len_key],
                                                       self.len_anidc_id.pk, )
