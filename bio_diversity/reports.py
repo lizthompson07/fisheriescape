@@ -133,13 +133,27 @@ def generate_facility_tank_report(facic_id):
     return report.target_url
 
 
-def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
     # report is given a stock code and returns location of all associated fish
     report = ExcelReport()
     report.load_wb("stock_code_report_template.xlsx")
 
-    indv_qs = models.Individual.objects.filter(stok_id=stok_id).select_related("stok_id", "coll_id")
-    grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
+    indv_qs = models.Individual.objects.all()
+    grp_qs = models.Group.objects.filter(grp_valid=True)
+
+    if stok_id:
+        indv_qs = indv_qs.filter(stok_id=stok_id)
+        grp_qs = grp_qs.filter(stok_id=stok_id)
+    if coll_id:
+        indv_qs = indv_qs.filter(coll_id=coll_id)
+        grp_qs = grp_qs.filter(coll_id=coll_id)
+    if year:
+        indv_qs = indv_qs.filter(indv_year=year)
+        grp_qs = grp_qs.filter(grp_year=year)
+
+    indv_qs = indv_qs.select_related("stok_id", "coll_id")
+    grp_qs = grp_qs.select_related("stok_id", "coll_id")
+
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from

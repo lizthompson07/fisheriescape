@@ -3210,10 +3210,17 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
         elif report == 2:
             stok_pk = int(form.cleaned_data["stok_id"].pk)
+
+            arg_str = f"?stok_pk={stok_pk}"
+            if form.cleaned_data["coll_id"]:
+                coll_pk = int(form.cleaned_data["coll_id"].pk)
+                arg_str += f"&coll_pk={coll_pk}"
+            if form.cleaned_data["year"]:
+                year = int(form.cleaned_data["year"])
+                arg_str += f"&year={year}"
             if form.cleaned_data["on_date"]:
-                return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}&on_date={form.cleaned_data['on_date']}")
-            else:
-                return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}")
+                arg_str += f"&on_date={form.cleaned_data['on_date']}"
+            return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + arg_str)
         elif report == 3:
             adsc_pk = int(form.cleaned_data["adsc_id"].pk)
             if form.cleaned_data["stok_id"]:
@@ -3265,15 +3272,20 @@ def facility_tank_report(request):
 
 @login_required()
 def stock_code_report(request):
-    stok_pk = request.GET.get("stok_pk")
     on_date = request.GET.get("on_date")
-    stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
-    file_url = None
-    if stok_id and on_date:
-        on_date = datetime.strptime(on_date, "%Y-%m-%d").replace(tzinfo=pytz.UTC)
-        file_url = reports.generate_stock_code_report(stok_id, on_date)
-    elif stok_id:
-        file_url = reports.generate_stock_code_report(stok_id)
+    if not on_date:
+        on_date = datetime.now().replace(tzinfo=pytz.UTC)
+    stok_pk = request.GET.get("stok_pk")
+    stok_id = None
+    if stok_pk:
+        stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
+    coll_pk = request.GET.get("coll_pk")
+    coll_id = None
+    if coll_pk:
+        coll_id = models.Collection.objects.filter(pk=coll_pk).get()
+    year = request.GET.get("year")
+
+    file_url = reports.generate_stock_code_report(stok_id, coll_id, year, on_date)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
