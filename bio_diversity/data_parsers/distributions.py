@@ -64,14 +64,19 @@ class DistributionParser(DataParser):
         self.driver_role_id = models.RoleCode.objects.filter(name__iexact="Driver").get()
 
     def row_parser(self, row):
+
+        # set a location
+        # link to a list of containers
+        # for each container, look for the group inside, if yes, link it to the evnt + location
+        # link all details to the location, num fish, etc.
+
         cleaned_data = self.cleaned_data
         row_date = utils.get_row_date(row)
 
         # set location:
         relc_id = None
-        rive_id = models.RiverCode.objects.filter(name__icontains=row[self.stok_key]).get()
-        if utils.nan_to_none(row[self.site_key]):
-            relc_id = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key], rive_id=rive_id).get()
+        relc_id = models.ReleaseSiteCode.objects.filter(name__iexact=row[self.site_key]).get()
+        rive_id = relc_id.rive_id
 
         loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
                               locc_id=self.locc_id,
@@ -95,41 +100,13 @@ class DistributionParser(DataParser):
                                                  relc_id=loc.relc_id, loc_lat=loc.loc_lat,
                                                  loc_lon=loc.loc_lon, loc_date=loc.loc_date).get()
 
-
-        # get contanier row:
-        cont_id = None
-        if utils.nan_to_none(row[self.tank_key]):
-            if "," in str(row[self.tank_key]):
-                tank_list = str(row[self.tank_key]).split(",")
-                # TODO
-
-            cont_id = models.Tank.objects.filter(name__iexact=row[self.tank_key], facic_id__name=cleaned_data["facic_id"]).get()
-        elif utils.nan_to_none(row[self.trof_key]):
-            if "," in row[self.trof_key]:
-                trof_list = row[self.trof_key].split(",")
-                # TODO
-
-            cont_id = models.Trough.objects.filter(name__iexact=row[self.trof_key], facic_id__name=cleaned_data["facic_id"]).get()
-
-        contx, contx_entered = utils.enter_contx(cont_id, cleaned_data, None, return_contx=True)
-        self.row_entered += contx_entered
-
-        # GET GROUP
-        if True:
-            grp_year, coll = utils.year_coll_splitter(row[self.year_coll_key])
-            grp_list = utils.get_grp(row[self.stok_key], grp_year, coll, cont=cont_id, at_date=row_date, prog_str=row[self.prog_key])
-            if not grp_list:
-                raise Exception("\n No group found in container: {}".format(cont_id.__str__()))
-            grp_id = grp_list[0]
-            self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
-            self.row_entered += utils.enter_contx(cont_id, cleaned_data)
-            self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
-
+        # --------Personel details--------------
         if utils.nan_to_none(row.get(self.crew_key)):
             self.team_parser(row[self.crew_key], row, loc_id=loc)
         if utils.nan_to_none(row.get(self.driver_key)):
             self.team_parser(row[self.driver_key], row, loc_id=loc, role_id=self.driver_role_id)
 
+        # ------------Location details-----------
         if utils.nan_to_none(row.get(self.temp_key)):
             self.row_entered += utils.enter_env(row[self.temp_key], row_date, cleaned_data, self.temp_envc_id,
                                                 loc_id=loc)
@@ -142,8 +119,22 @@ class DistributionParser(DataParser):
         if utils.nan_to_none(row.get(self.acclimation_key)):
             self.row_entered += utils.enter_locd(loc.pk, cleaned_data, row_date, row[self.acclimation_key],
                                                  self.acclimation_locdc_id.pk, None)
+
+
+        # ----------Count and count details----------------
+        cnt_year = None
+        coll_id = None
+        stok_id = None
+        coll = None
+        if utils.nan_to_none(row.get(self.year_coll_key)):
+            cnt_year, coll = utils.year_coll_splitter(row[self.year_coll_key])
+            coll_id = utils.coll_getter(coll)
+        if utils.nan_to_none(row.get(self.stok_key)):
+            stok_id = models.StockCode.objects.filter(name__iexact=row[self.stok_key]).get()
+
         cnt, cnt_entered = utils.enter_cnt(cleaned_data, cnt_value=row[self.num_key], loc_pk=loc.pk,
-                                           cnt_code="Fish Distributed")
+                                           cnt_code="Fish Distributed", cnt_year=cnt_year, coll_id=coll_id,
+                                           stok_id=stok_id)
         self.row_entered += cnt_entered
 
         if utils.nan_to_none(row.get(self.prog_key)):
@@ -163,14 +154,43 @@ class DistributionParser(DataParser):
 
         if utils.nan_to_none(row.get(self.lifestage_key)):
             self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
-                                                    self.lifestage_anidc_id.pk, row[self.lifestage_key])
+                                                    self.lifestage_anidc_id.name, row[self.lifestage_key])
 
-        if utils.nan_to_none(row.get(self.lifestage_key)):
-            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
-                                                    self.lifestage_anidc_id.pk, row[self.lifestage_key])
-        if utils.nan_to_none(row.get(self.lifestage_key)):
-            self.row_entered += utils.enter_cnt_det(cleaned_data, cnt, row[self.lifestage_key],
-                                                    self.lifestage_anidc_id.pk, row[self.lifestage_key])
+        # get contanier row:
+        tank_list = []
+        if utils.nan_to_none(row[self.tank_key]):
+            tank_list = str(row[self.tank_key]).split(",")
+
+        for tank in tank_list:
+            tank = tank.replace(" ", "")
+            cont_id = models.Tank.objects.filter(name__iexact=tank, facic_id__name=cleaned_data["facic_id"]).get()
+            contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
+            self.row_entered += data_entered
+            grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
+                                     prog_str=utils.nan_to_none(row.get(self.prog_key)))
+            if grp_list:
+                grp_id = grp_list[0]
+                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
+                self.row_entered += utils.enter_contx(cont_id, cleaned_data)
+                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk, return_sucess=True)
+
+        trof_list = []
+        if utils.nan_to_none(row[self.trof_key]):
+            trof_list = row[self.trof_key].split(",")
+
+        for trof in trof_list:
+            trof = trof.replace(" ", "")
+            cont_id = utils.get_cont_from_dot(trof, cleaned_data, row_date, get_trof=True)
+            contx, data_entered = utils.enter_contx(cont_id, cleaned_data, return_contx=True)
+            self.row_entered += data_entered
+            grp_list = utils.get_grp(utils.nan_to_none(row[self.stok_key]), cnt_year, coll, cont_id, row_date,
+                                     prog_str=utils.nan_to_none(row.get(self.prog_key)))
+            if grp_list:
+                grp_id = grp_list[0]
+                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, return_sucess=True)
+                self.row_entered += utils.enter_contx(cont_id, cleaned_data)
+                self.row_entered += utils.enter_anix(cleaned_data, grp_pk=grp_id.pk, loc_pk=loc.pk,
+                                                     return_sucess=True)
 
 
 class DistributionIndvParser(DataParser):

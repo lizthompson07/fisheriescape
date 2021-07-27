@@ -900,7 +900,8 @@ class AdscDetails(mixins.AdscMixin, CommonDetails):
 
 
 class CntDetails(mixins.CntMixin, CommonDetails):
-    fields = ["loc_id", "cntc_id", "spec_id", "cnt", "est", "comments", "created_by", "created_date", ]
+    fields = ["loc_id", "cntc_id", "spec_id", "cnt_year", "stok_id", "coll_id", "cnt", "est", "comments", "created_by",
+              "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -1550,7 +1551,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
         samp_set = self.object.samples.all().select_related("sampc_id")
         samp_field_list = ["samp_num", "sampc_id", "comments"]
         obj_mixin = mixins.SampMixin
-        context["context_dict"]["cnt"] = {"div_title": "{}s".format(obj_mixin.title),
+        context["context_dict"]["samp"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
                                           "objects_list": samp_set,
                                           "field_list": samp_field_list,
