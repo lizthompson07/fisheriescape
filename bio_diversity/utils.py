@@ -117,7 +117,7 @@ class DataParser:
                     self.row_entered = False
                     try:
                         self.row_parser(row)
-                    except IntegrityError as err:
+                    except Exception as err:
                         err_msg = common_err_parser(err)
                         self.log_data += "\nError:  {} \nError occured when parsing row: \n".format(err_msg)
                         self.log_data += str(row)
