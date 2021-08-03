@@ -72,6 +72,7 @@ class Species(models.Model):
 
 
 class Assay(UnilingualSimpleLookup, MetadataFields):
+    alias = models.CharField(max_length=50, verbose_name=_("target name / alias"), help_text=_("This is the name that will be used to reference this assay on import spreadsheets."))
     lod = models.FloatField(blank=True, null=True, verbose_name=_("LOD value"))
     loq = models.FloatField(blank=True, null=True, verbose_name=_("LOQ value"))
     a_coef = models.FloatField(blank=True, null=True, verbose_name=_("formula A coefficient"))
@@ -80,9 +81,9 @@ class Assay(UnilingualSimpleLookup, MetadataFields):
     species = models.ManyToManyField(Species, verbose_name=_("species"), blank=True)
 
     def __str__(self):
-        mystr = self.name
-        if self.is_ipc:
-            mystr += ' (IPC)'
+        mystr = f"{self.name} ({self.alias})"
+        # if self.is_ipc:
+        #     mystr += ' (IPC)'
         return mystr
 
     class Meta:
