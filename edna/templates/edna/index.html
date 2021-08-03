@@ -28,20 +28,32 @@
     <div class="mb-5"></div>
     <div class="text-right">
       <a href="{% url 'edna:collection_list' %}" class="btn btn-primary">{% trans "Collections" %}</a>
-      <div class="btn-group mr-5">
+      <div class="btn-group">
         <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
                 aria-expanded="false">
           {% trans "Lab Services" %}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="{% url 'edna:filtration_batch_list' %}">Sample Filtration</a>
-          <a class="dropdown-item" href="{% url 'edna:extraction_batch_list' %}">DNA Extraction</a>
-          <a class="dropdown-item" href="{% url 'edna:pcr_batch_list' %}">qPCR</a>
+          <a class="dropdown-item" href="{% url 'edna:filtration_batch_list' %}">{% trans "Filtration" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:extraction_batch_list' %}">{% trans "DNA Extraction" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:pcr_batch_list' %}">{% trans "qPCR" %}</a>
+        </div>
+      </div>
+      <div class="btn-group mr-5">
+        <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+          <span class="mdi mdi-magnify"></span>
+          {% trans "Find a Sample" %}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="{% url 'edna:sample_list'  %}">{% trans "Field" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:filter_list'  %}">{% trans "Filtration" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:extract_list'  %}">{% trans "Extraction" %}</a>
+          <a class="dropdown-item" href="{% url 'edna:pcr_list'  %}">{% trans "qPCR" %}</a>
         </div>
       </div>
 
-{#      <a href="#" class="btn btn-warning">{% trans "Start a Batch" %}</a>#}
-{#      <a href="#" class="btn btn-dark mr-5">{% trans "Find a Batch" %}</a>#}
+
       <a href="{% static 'edna/edna_sampling_fieldsheet.docx' %}" class="btn btn-outline-primary"><span
         class="mdi mdi-file-document mr-1 text-primary"></span>{% trans "Download eDNA Fieldsheet" %}</a>
     </div>

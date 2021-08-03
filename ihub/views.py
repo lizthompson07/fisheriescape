@@ -253,7 +253,6 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
         'province',
         'phone',
         'fax',
-        'notes_html|{}'.format(_("notes")),
         'grouping',
         'regions',
         'sectors',
@@ -278,6 +277,20 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
     home_url_name = "ihub:index"
     parent_crumb = {"title": gettext_lazy("Organizations"), "url": reverse_lazy("ihub:org_list")}
     container_class = "container-fluid"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # send in a dict with all the entries grouped by status
+        org = self.get_object()
+
+        entries_dict = dict()
+        if org.entries.exists():
+            entries = org.entries.all()
+            statuses = models.Status.objects.filter(entries__in=entries).distinct()
+            for status in statuses:
+                entries_dict[status] = entries.filter(status=status).order_by("initial_date", "title")
+        context["entries"] = entries_dict
+        return context
 
 
 class OrganizationUpdateView(iHubEditRequiredMixin, CommonUpdateView):
@@ -388,6 +401,7 @@ class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
     home_url_name = "ihub:index"
     h1 = gettext_lazy("Entries")
     container_class = "container-fluid"
+    open_row_in_new_tab = True
 
 
 class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
@@ -409,7 +423,7 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
             'entry_type',
             'initial_date',
             'anticipated_end_date',
-            'response_deadline',
+            'response_requested_by',
             'regions',
             "metadata|{}".format(gettext_lazy("metadata")),
         ]
@@ -815,7 +829,8 @@ def consultation_report(request):
     org_regions = request.GET["org_regions"]
     entry_regions = request.GET["entry_regions"]
 
-    file_url = reports.generate_consultation_report(orgs, sectors, statuses, from_date, to_date, entry_note_types, entry_note_statuses, org_regions, entry_regions)
+    file_url = reports.generate_consultation_report(orgs, sectors, statuses, from_date, to_date, entry_note_types, entry_note_statuses, org_regions,
+                                                    entry_regions)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:

@@ -1,7 +1,18 @@
 {% load i18n %}
 
-<div class="mb-5 px-2 py-2">
+<div v-if="!showSidebar">
+  <button class="btn btn-sm btn-warning ml-2" @click="showSidebar=true" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
+    <span class="mdi mdi-arrow-collapse-left "></span>
+  </button>
+  <p class="vertical lead my-5 p-0 mx-1">
+    {% trans "REVIEW PANEL" %}
+  </p>
+</div>
+<div v-else class="mb-5 px-2 py-2">
   <div class="mb-3">
+    <button class="btn btn-sm btn-warning float-right" @click="showSidebar=false" data-toggle="tooltip" title="{% trans "Open sidebar" %}">
+      <span class="mdi mdi-arrow-collapse-right "></span>
+    </button>
     <h4>{% trans "Review Panel" %}</h4>
     <hr>
   </div>

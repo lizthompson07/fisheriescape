@@ -10,17 +10,25 @@
 
   </div>
 
-  <table class="table table-sm">
+  {% include 'edna/_table_navigation.html' %}
+  <table class="table table-sm w-50">
     {% for field in field_list %}
       {% verbose_td_display object field th_width="200px" %}
     {% endfor %}
   </table>
 
-  <div id="app" class="mt-5">
+  <div id="app" class="mt-5" v-cloak
+       @keydown.enter.prevent="goDown"
+       @keydown.shift.right.prevent="goRight"
+       @keydown.shift.left.prevent="goLeft"
+       @keydown.up.prevent="goUp"
+       @keydown.down.prevent="goDown"
+  >
+
     <div class="mb-3">
       <p class="h3">{% trans "Tubes" %}</p>
-      <button @click="addExtract(null)" class="btn btn-sm btn-primary">{% trans "Add a Tube" %}</button>
-      <button @click="addAllExtracts()" class="btn btn-sm btn-warning">{% trans "Import all un-extracted filters" %}</button>
+      <button @click="addExtract(null)" class="btn btn-sm btn-primary neighbours">{% trans "Add a Tube" %}</button>
+      <filter-import-overlay class="neighbours" batch_id="{{ object.id }}" @add-filters="addFilters"></filter-import-overlay>
     </div>
 
     <div class="row mb-3 px-1 py-1" style="width: 30%">
@@ -47,46 +55,115 @@
       <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
         <thead>
         <tr>
-          <th class="px-1 py-1">#</th>
-          <th class="px-1 py-1">Id</th>
-          <th class="px-1 py-1" style="width: 120px">${labels.filter}</th>
-          <th class="px-1 py-1" style="width: 220px">${labels.start_datetime} (yyyy-mm-dd HH:MM:SS)</th>
-          <th class="px-1 py-1" style="width: 210px">${labels.dna_extraction_protocol}</th>
+          <th class="px-1 py-1" style="width: 100px">{% trans "Extraction ID" %}</th>
+          <th class="px-1 py-1" style="width: 125px">${labels.filter}</th>
+          <th class="px-1 py-1" style="width: 125px">${labels.extraction_number}</th>
+          <th class="px-1 py-1" style="width: 200px">${labels.start_datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
+          <th class="px-1 py-1" style="width: 175px">${labels.dna_extraction_protocol}</th>
           <th class="px-1 py-1" style="width: 175px">${labels.storage_location}</th>
+          <th class="px-1 py-1" style="width: 125px">${labels.extraction_plate_id}</th>
+          <th class="px-1 py-1" style="width: 130px">
+            ${labels.extraction_plate_well}<br>
+            <button class="btn btn-xs btn-danger" @click="populateWells">{% trans "Populate!" %}</button>
+          </th>
           <th class="px-1 py-1">${labels.comments}</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(e, index) in extracts" :key="e.id">
-          <td class="px-0 py-0 text-muted" tabindex="-1">${index+1}</td>
-          <td class="px-0  py-0 text-muted" tabindex="-1">${e.id}</td>
+        <tr v-for="(obj, index) in extracts" :key="obj.id">
+          <td class="px-0  py-0 text-muted" tabindex="-1">${obj.display}</td>
           <td class="px-0 py-0">
-            <select v-model="e.filter" class="no-borders" @change="updateExtract(e)">
-              <option value="">{% trans "Extraction Blank" %}</option>
-              <option v-for="(obj, index) in filterChoices" :value="obj.value">${obj.text}</option>
-            </select>
+            <text-input-cell
+              type="select"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="filter"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+              :options="filterChoices"
+              blank_option="{% trans "Extraction blank" %}"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="e.start_datetime" @change="updateExtract(e)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="extraction_number"
+              :col="1"
+              :ref="`row_${index}_col_1`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <select v-model="e.dna_extraction_protocol" class="no-borders" @change="updateExtract(e)">
-              <option v-for="(obj, index) in dnaExtractionProtocolChoices" :value="obj.value">${obj.text}</option>
-            </select>
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="datetime_display"
+              :col="2"
+              :ref="`row_${index}_col_2`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="e.storage_location" @change="updateExtract(e)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              type="select"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="dna_extraction_protocol"
+              :col="3"
+              :ref="`row_${index}_col_3`"
+              :options="dnaExtractionProtocolChoices"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <input type="text" class="no-borders" v-model="e.comments" @change="updateExtract(e)" @keypress="unsavedChanges=true">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="storage_location"
+              :col="4"
+              :ref="`row_${index}_col_4`"
+            ></text-input-cell>
           </td>
           <td class="px-0 py-0">
-            <button class="btn py-0" @click="deleteExtract(e)"><span class="h5 mdi mdi-delete"></span></button>
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="extraction_plate_id"
+              :col="5"
+              :ref="`row_${index}_col_5`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="extraction_plate_well"
+              :col="6"
+              :ref="`row_${index}_col_6`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateExtract" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="comments"
+              :col="7"
+              :ref="`row_${index}_col_7`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <button class="btn py-0" @click="deleteExtract(obj)"><span class="h5 mdi mdi-delete"></span></button>
           </td>
         </tr>
         </tbody>
       </table>
-
+      <div class="my-3">
+        <p class="lead text-muted">TOTAL: ${extracts.length}</p>
+      </div>
     </div>
 
   </div>
@@ -96,146 +173,274 @@
 {% block body_js %}
 
   {{ block.super }}
+  {% include "edna/components/text-input-cell.html" %}
+  {% include "edna/components/filter_import_overlay.html" %}
+
   <script type="application/javascript">
   let extractBatchId = {{ object.id }};
   var app = new Vue({
-    el: '#app',
-    delimiters: ["${", "}"],
-    data: {
-      currentUser: null,
-      default_dna_extraction_protocol: 1,
-      extractErrorMsg: null,
-      extracts: [],
-      labels: [],
-      loading: false,
-      filterChoices: [],
-      dnaExtractionProtocolChoices: [],
-      unsavedChanges: false
-    },
-    methods: {
-      addExtract(howMany) {
-        if (!howMany) howMany = Number(prompt("{% trans 'How many tubes do you want to add?' %}"));
-        if (howMany) {
-          for (let i = 0; i < howMany; i++) {
-            this.newExtract();
-          }
-        }
-      },
-      addAllExtracts() {
-        howMany = 0;
-        for (var i = 0; i < this.filterChoices.length; i++) {
-          if (!this.filterChoices[i].has_extract) {
-            howMany += 1;
-          }
-        }
-        if (howMany) {
-          filterArray = this.getQueuedFilters(howMany);
-          for (let i = 0; i < filterArray.length; i++) {
-            this.newExtract(filterArray[i]);
-          }
-        }
-      },
-      deleteExtract(extract) {
-        userInput = confirm("{% trans 'Are you sure you want to delete this tube?' %}");
-        if (userInput) {
-          let endpoint = `/api/edna/extracts/${extract.id}/`;
-          apiService(endpoint, "DELETE")
-              .then(response => {
-                this.$delete(this.extracts, this.extracts.indexOf(extract))
-              })
-        }
-      },
-      getBlankExtract(filter) {
-        let now = new Date(Date.now());
-        return {
-          extraction_batch: extractBatchId,
-          filter: filter,
-          dna_extraction_protocol: this.default_dna_extraction_protocol,
-          start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
-          storage_location: null,
-          comments: null,
-        }
-      },
-      getCurrentUser() {
-        let endpoint = `/api/edna/user/`;
-        apiService(endpoint)
-            .then(response => {
-              this.currentUser = response;
-            })
-      },
-      getExtractMetadata() {
-        let endpoint = `/api/edna/meta/models/extract/`;
-        apiService(endpoint).then(data => {
-          this.labels = data.labels;
-          this.dnaExtractionProtocolChoices = data.dna_extraction_protocol_choices;
-          this.filterChoices = data.filter_choices;
-        });
-      },
-      getExtracts() {
-        this.loading = true;
-        endpoint = `/api/edna/extracts/?batch=${extractBatchId}`;
-        apiService(endpoint)
-            .then(response => {
-              this.loading = false;
-              if (response.length && response[0].id) {
-                for (var i = 0; i < response.length; i++) {
-                  response[i].start_datetime = response[i].start_datetime.replace("T", " ").replace("Z", "")
-                  if (!response[i].filter) response[i].filter = "";
+        el: '#app',
+        delimiters: ["${", "}"],
+        data: {
+          currentUser: null,
+          default_dna_extraction_protocol: 1,
+          extractErrorMsg: null,
+          extracts: [],
+          labels: [],
+          loading: false,
+          filterChoices: [],
+          dnaExtractionProtocolChoices: [],
+          unsavedChanges: false
+        },
+        methods: {
+          populateWells() {
+            let msg = "{% trans "What is your the first well number (e.g. A1)?" %}";
+            let input = prompt(msg);
+            if (input) {
+              input = input.toUpperCase();
 
+              let well;
+              let wellArray = [];
+              let letters = ["A", "B", "C", "D", "E", "F", "G", "H",];
+              for (var j = 0; j < letters.length; j++) {
+                for (var i = 1; i <= 12; i++) {
+                  well = `${letters[j]}${i}`;
+                  wellArray.push(well);
                 }
-                this.extracts = response;
               }
-            })
-      },
-      getQueuedFilters(howMany) {
-        let filters = [...this.filterChoices];
-        myArray = []
-        let result;
-        for (let i = 0; i < howMany; i++) {
-          result = "";
-          for (let j = 0; j < filters.length; j++) {
-            let filter = filters[j];
-            if (!filter.has_extract) {
-              let index = filters.indexOf(filter);
-              result = filters.splice(index, 1)[0].value;
-              break;
+              if (!wellArray.includes(input)) {
+                alert("{% trans "Sorry, you have entered an invalid well number. We were expecting something amongst the following:" %} " + groomJSON(wellArray))
+              } else {
+                let startingIndex = wellArray.indexOf(input);
+                let extract;
+                let pos;
+                for (let i = 0; i < this.extracts.length; i++) {
+                  extract = this.extracts[i];
+                  pos = startingIndex + i;
+                  if (pos >= wellArray.length) pos = pos % wellArray.length;
+                  extract.extraction_plate_well = wellArray[pos];
+                  this.updateExtract(extract);
+                }
+              }
             }
-          }
-          myArray.push(result);
-        }
-        // return the results array
-        return myArray;
-      },
-      newExtract(filter) {
-        endpoint = `/api/edna/extracts/`;
-        data = this.getBlankExtract(filter)
-        apiService(endpoint, "POST", data)
-            .then(response => {
-              if (response.id) {
-                response.start_datetime = response.start_datetime.replace("T", " ").replace("Z", "")
-                if (!response.filter) response.filter = "";
-                this.extracts.push(response)
-                // refresh the filter choices
-                this.getExtractMetadata();
+          },
+          setPosition(i, j) {
+            this.row = i;
+            this.col = j;
+          },
+          goRight() {
+            this.col += 1;
+            let ref = `row_${this.row}_col_${this.col}`;
+            if (this.$refs[ref]) {
+              let component = this.$refs[ref];
+              if (component[0].$refs.input.type === "select-one") {
+                component[0].$refs.input.focus();
+              } else {
+                component[0].$refs.input.select();
               }
-            })
-      },
-      updateExtract(extract) {
-        this.extractErrorMsg = null;
-        endpoint = `/api/edna/extracts/${extract.id}/`;
-        apiService(endpoint, "PUT", extract)
-            .then(response => {
-              if (!response.id) this.extractErrorMsg = groomJSON(response);
-              else this.unsavedChanges = false;
-            })
-      },
-    },
-    created() {
-      this.getCurrentUser();
-      this.getExtractMetadata();
-      this.getExtracts();
-    },
-  });
+            } else this.col -= 1
+          },
+          goLeft() {
+            this.col -= 1;
+            let ref = `row_${this.row}_col_${this.col}`;
+            if (this.$refs[ref]) {
+              let component = this.$refs[ref];
+              if (component[0].$refs.input.type === "select-one") {
+                component[0].$refs.input.focus();
+              } else {
+                component[0].$refs.input.select();
+              }
+            } else this.col += 1
+          },
+          goDown() {
+            this.row += 1;
+            let ref = `row_${this.row}_col_${this.col}`;
+            if (this.$refs[ref]) {
+              let component = this.$refs[ref];
+              if (component[0].$refs.input.type === "select-one") {
+                component[0].$refs.input.focus();
+              } else {
+                component[0].$refs.input.select();
+              }
+            } else this.row -= 1
+          },
+          goUp() {
+            this.row -= 1;
+            let ref = `row_${this.row}_col_${this.col}`;
+            if (this.$refs[ref]) {
+              let component = this.$refs[ref];
+              if (component[0].$refs.input.type === "select-one") {
+                component[0].$refs.input.focus();
+              } else {
+                component[0].$refs.input.select();
+              }
+            } else this.row += 1
+          },
+          copyDown(extract, field, input) {
+            this.unsavedChanges = true;
+            // copy the value for the field into the next row
+            let index = this.extracts.indexOf(extract) + 1;
+            if (this.extracts[index]) this.extracts[index][field] = input;
+            this.updateExtract(this.extracts[index])
+          },
+          copyDoubleDown(extract, field, input) {
+            this.unsavedChanges = true;
+            // copy the value for the field into the next row
+            let startingIndex = this.extracts.indexOf(extract) + 1;
+            let endingIndex = this.extracts.length - 1;
+            for (var i = startingIndex; i <= endingIndex; i++) {
+              if (this.extracts[i]) this.extracts[i][field] = input;
+              this.updateExtract(this.extracts[i])
+            }
+          },
+          addFilters(filterArray) {
+            for (const filter of filterArray) {
+              this.newExtract(filter);
+            }
+          },
+          addExtract(howMany) {
+            if (!howMany) howMany = Number(prompt("{% trans 'How many tubes do you want to add?' %}"));
+            if (howMany) {
+              for (let i = 0; i < howMany; i++) {
+                this.newExtract();
+              }
+            }
+          },
+          addAllExtracts() {
+            howMany = 0;
+            for (var i = 0; i < this.filterChoices.length; i++) {
+              if (!this.filterChoices[i].has_extract) {
+                howMany += 1;
+              }
+            }
+            if (howMany) {
+              filterArray = this.getQueuedFilters(howMany);
+              for (let i = 0; i < filterArray.length; i++) {
+                this.newExtract(filterArray[i]);
+              }
+            }
+          },
+          deleteExtract(extract) {
+            userInput = confirm("{% trans 'Are you sure you want to delete this tube?' %}");
+            if (userInput) {
+              let endpoint = `/api/edna/extracts/${extract.id}/`;
+              apiService(endpoint, "DELETE")
+                  .then(response => {
+                    this.$delete(this.extracts, this.extracts.indexOf(extract))
+                  })
+            }
+          },
+          getBlankExtract(filter) {
+            let now = new Date(Date.now());
+            return {
+              extraction_batch: extractBatchId,
+              filter: filter,
+              dna_extraction_protocol: this.default_dna_extraction_protocol,
+              start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
+              storage_location: null,
+              comments: null,
+            }
+          },
+          getCurrentUser() {
+            let endpoint = `/api/edna/user/`;
+            apiService(endpoint)
+                .then(response => {
+                  this.currentUser = response;
+                })
+          },
+          getExtractMetadata() {
+            let endpoint = `/api/edna/meta/models/extract/`;
+            apiService(endpoint).then(data => {
+              this.labels = data.labels;
+              this.dnaExtractionProtocolChoices = data.dna_extraction_protocol_choices;
+              this.filterChoices = data.filter_choices;
+            });
+          },
+          getExtracts() {
+            this.loading = true;
+            endpoint = `/api/edna/extracts/?batch=${extractBatchId}`;
+            apiService(endpoint)
+                .then(response => {
+                  this.loading = false;
+                  if (response.length && response[0].id) {
+                    for (var i = 0; i < response.length; i++) {
+                      if (!response[i].filter) response[i].filter = "";
+                    }
+                    this.extracts = response;
+                    this.$nextTick(() => {
+                      this.$refs.row_0_col_0[0].$refs.input.focus();
+                    })
+                  }
+                })
+          },
+          getQueuedFilters(howMany) {
+            let filters = [...this.filterChoices];
+            myArray = []
+            let result;
+            for (let i = 0; i < howMany; i++) {
+              result = "";
+              for (let j = 0; j < filters.length; j++) {
+                let filter = filters[j];
+                if (!filter.has_extract) {
+                  let index = filters.indexOf(filter);
+                  result = filters.splice(index, 1)[0].value;
+                  break;
+                }
+              }
+              myArray.push(result);
+            }
+            // return the results array
+            return myArray;
+          },
+          newExtract(filter) {
+            endpoint = `/api/edna/extracts/`;
+            data = this.getBlankExtract(filter)
+            apiService(endpoint, "POST", data)
+                .then(response => {
+                  if (response.id) {
+                    if (!response.filter) response.filter = "";
+                    this.extracts.push(response)
+                    // refresh the filter choices
+                    this.getExtractMetadata();
+                  } else {
+                    console.log(response)
+                  }
+                })
+          },
+          getExtract(extract) {
+            endpoint = `/api/edna/extracts/${extract.id}/`;
+            apiService(endpoint, "GET")
+                .then(response => {
+                  if (!response.filter) response.filter = "";
+                  this.$set(this.extracts, this.extracts.indexOf(extract), response);
+                  this.unsavedChanges = false;
+                })
+          },
+          updateExtract(extract) {
+            this.extractErrorMsg = null;
+            endpoint = `/api/edna/extracts/${extract.id}/`;
+            extract.start_datetime = extract.datetime_display
+            apiService(endpoint, "PUT", extract)
+                .then(response => {
+                  if (!response.id) {
+                    this.extractErrorMsg = groomJSON(response);
+                    this.getExtract(extract)
+                  } else {
+                    if (!response.filter) response.filter = "";
+                    this.unsavedChanges = false;
+                    this.$set(this.extracts, this.extracts.indexOf(extract), response);
+                  }
+                })
+          },
+        },
+        created() {
+          this.getCurrentUser();
+          this.getExtractMetadata();
+          this.getExtracts();
+        }
+        ,
+      })
+  ;
   </script>
 
 {% endblock %}

@@ -25,6 +25,19 @@ TagFormset = modelformset_factory(
 )
 
 
+class SampleTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.SampleType
+        fields = "__all__"
+
+
+SampleTypeFormset = modelformset_factory(
+    model=models.SampleType,
+    form=SampleTypeForm,
+    extra=1,
+)
+
+
 class FiltrationTypeForm(forms.ModelForm):
     class Meta:
         model = models.FiltrationType
@@ -57,6 +70,12 @@ class SpeciesForm(forms.ModelForm):
         fields = "__all__"
 
 
+class AssayForm(forms.ModelForm):
+    class Meta:
+        model = models.Assay
+        fields = "__all__"
+
+
 class CollectionForm(forms.ModelForm):
     class Meta:
         model = models.Collection
@@ -82,6 +101,7 @@ class FiltrationBatchForm(forms.ModelForm):
             "operators": forms.SelectMultiple(attrs=chosen_js),
         }
 
+
 class ExtractionBatchForm(forms.ModelForm):
     class Meta:
         model = models.ExtractionBatch
@@ -93,6 +113,16 @@ class ExtractionBatchForm(forms.ModelForm):
 
 
 class PCRBatchForm(forms.ModelForm):
+    field_order = [
+        "datetime",
+        "operators",
+        "plate_id",
+        "machine_number",
+        "run_program",
+        "control_status",
+        "comments",
+    ]
+
     class Meta:
         model = models.PCRBatch
         fields = "__all__"
@@ -101,12 +131,13 @@ class PCRBatchForm(forms.ModelForm):
             "operators": forms.SelectMultiple(attrs=chosen_js),
         }
 
+
 class SampleForm(forms.ModelForm):
     add_another = forms.BooleanField(required=False)
 
     class Meta:
         model = models.Sample
-        fields = "__all__"
+        exclude = ["collection"]
         widgets = {
             "datetime": forms.DateTimeInput(attrs=dict(type="datetime"))
         }
@@ -115,10 +146,19 @@ class SampleForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if kwargs.get("instance"):
             del self.fields["add_another"]
-        # elif kwargs.get("initial"):
-        #     self.fields["transect"].queryset = models.Collection.objects.get(pk=kwargs.get("initial").get("sample")).site.transects.all()
-        #
-        # self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
+
+
+class MasterMixForm(forms.ModelForm):
+    class Meta:
+        model = models.MasterMix
+        fields = "__all__"
+
+
+MasterMixFormset = modelformset_factory(
+    model=models.MasterMix,
+    form=MasterMixForm,
+    extra=1,
+)
 
 
 #
@@ -199,7 +239,6 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))
-
 
 
 class FileImportForm(forms.Form):

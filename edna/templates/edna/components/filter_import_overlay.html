@@ -1,0 +1,159 @@
+<!-- template for the modal component -->
+{% load i18n %}
+
+<script type="text/x-template" id="filter-import-overlay-template">
+<div class="">
+
+  <button class="btn btn-sm btn-warning" @click="openDialog">
+    <span class="mdi mdi-import mr-1"></span> {% trans "Import Filters" %}
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 1000px">
+          <div class="modal-header">
+            <h4> {% trans "Import Filters" %}</h4>
+          </div>
+          <div class="modal-body" @keydown.esc.prevent="overlay = false">
+            <div v-if="loadingFilters" class="loading mb-3 mt-3 mt-5">
+              <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+            <div v-else>
+              <div class="mb-3">
+                <p>{% trans "Please select the filters you wish to import from the list below" %}</p>
+              </div>
+              <form class="mb-3" @change="getFilters">
+                <div class="row">
+                  <div class="col">
+                    <input type="number" class="form-control" placeholder="{% trans "Filter Id" %}" v-model="filterFilterId">
+                  </div>
+                  <div class="col">
+                    <input type="text" class="form-control" placeholder="{% trans "Tube Id" %}" v-model="filterTubeId">
+                  </div>
+                  <div class="col">
+                    <select class="form-control" v-model="filterBatch">
+                      <option :value="null">{% trans "Filter by batch" %}</option>
+                      <option v-for="batch in batches" :key="batch.id" :value="batch.id">
+                        ${batch.display}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-auto my-1">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="unfiltered_only" v-model="filterUnextracted">
+                      <label class="form-check-label" for="unfiltered_only">
+                        {% trans "Unextracted filters only" %}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <div class="mb-3">
+                <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedFilters" ref="filter_box">
+                  <option v-for="filter in filters" :key="filter.id" :value="filter.id">
+                    ${filter.display} &emsp;||&emsp;
+                    {% trans "Tube" %} &rarr; ${filter.tube_id | nz("n/a")} &emsp;||&emsp;
+                    {% trans "Batch" %} &rarr; ${filter.batch_display}
+                  </option>
+                </select>
+              </div>
+              <p class="lead text-muted">
+                {% trans "Filters: " %} ${filters.length} || {% trans "Selected: " %} ${selectedFilters.length}
+              </p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" @click="importFilters">{% trans "Import" %}</button>
+            <button class="btn btn-secondary" @click="overlay = false">{% trans "Back" %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+</script>
+
+<script type="application/javascript">
+
+Vue.component("filter-import-overlay", {
+  template: "#filter-import-overlay-template",
+  delimiters: ["${", "}"],
+  name: "filter-import-overlay",
+  props: {
+    batch_id: {
+      required: true,
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      error: null,
+      filters: [],
+      batches: [],
+      selectedFilters: [],
+
+      filterUnextracted: true,
+      filterFilterId: null,
+      filterTubeId: null,
+      filterBatch: null,
+      loadingFilters: true,
+      loadingBatches: true,
+    };
+  },
+  methods: {
+    openDialog() {
+      this.error = null;
+      this.overlay = true;
+      this.filterUnextracted = true;
+      this.filterFilterId = null;
+      this.filterTubeId = null;
+      this.filterBatch = null;
+      this.getFilters();
+    },
+    importFilters() {
+      if (!this.selectedFilters.length) {
+        let msg = "{% trans "You did not select any filters to import!" %}";
+        alert(msg);
+      } else {
+        this.$emit("add-filters", this.selectedFilters)
+        this.overlay = false;
+      }
+    },
+    getFilters() {
+      this.selectedFilters = [];
+      this.loadingFilters = true;
+      let endpoint = '/api/edna/filters/?'
+      if (this.filterFilterId && this.filterFilterId !== "") endpoint += `id=${this.filterFilterId}&`;
+      if (this.filterTubeId && this.filterTubeId !== "") endpoint += `tube_id=${this.filterTubeId}&`;
+      if (this.filterBatch && this.filterBatch !== "") endpoint += `filtration_batch=${this.filterBatch}&`;
+      if (this.filterUnextracted) endpoint += `extracts__isnull=true&`;
+      apiService(endpoint).then(response => {
+        this.loadingFilters = false;
+        this.filters = response;
+        this.$nextTick(() => {
+          this.$refs.filter_box.focus();
+        });
+      });
+    },
+    getBatches() {
+      this.loadingBatches = true;
+      let endpoint = '/api/edna/filtration-batches/'
+      apiService(endpoint).then(response => {
+        this.loadingBatches = false;
+        this.batches = response;
+      });
+    }
+
+  },
+  filters: {
+    nz: vueFiltersObject["nz"],
+  },
+  created() {
+    this.getBatches();
+  },
+  computed: {}
+});
+</script>

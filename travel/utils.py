@@ -785,27 +785,29 @@ def get_trip_field_list(trip=None):
     return my_list
 
 
-def get_all_admins(region):
+def get_all_admins(region, branch_only=False):
     to_list = list()
-    # region_admins = [obj.admin.email for obj in Region.objects.filter(admin__isnull=False, admin__email__isnull=False)]
     branch_admins = [obj.admin.email for obj in Branch.objects.filter(region=region, admin__isnull=False, admin__email__isnull=False)]
-    division_admins = [obj.admin.email for obj in Division.objects.filter(branch__region=region, admin__isnull=False, admin__email__isnull=False)]
-    section_admins = [obj.admin.email for obj in Section.objects.filter(division__branch__region=region, admin__isnull=False, admin__email__isnull=False)]
-
-    # now we have to add special reviewers (but only in the reviewer role)
-    section_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(sections__isnull=False, sections__division__branch__region=region)]
-    division_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(divisions__isnull=False, divisions__branch__region=region)]
     branch_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(branches__isnull=False, branches__region=region)]
-
     to_list.extend(branch_admins)
-    to_list.extend(division_admins)
-    to_list.extend(section_admins)
-    to_list.extend(section_special_reviewers)
-    to_list.extend(division_special_reviewers)
     to_list.extend(branch_special_reviewers)
+
+    if not branch_only:
+        division_admins = [obj.admin.email for obj in Division.objects.filter(branch__region=region, admin__isnull=False, admin__email__isnull=False)]
+        section_admins = [obj.admin.email for obj in Section.objects.filter(division__branch__region=region, admin__isnull=False, admin__email__isnull=False)]
+
+        # now we have to add special reviewers (but only in the reviewer role)
+        section_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(sections__isnull=False, sections__division__branch__region=region)]
+        division_special_reviewers = [obj.user.email for obj in models.DefaultReviewer.objects.filter(divisions__isnull=False, divisions__branch__region=region)]
+
+        to_list.extend(division_admins)
+        to_list.extend(section_admins)
+        to_list.extend(section_special_reviewers)
+        to_list.extend(division_special_reviewers)
+
     # just adding amelie to all emails for now.
     try:
-        to_list.append(User.objects.get(email__iexact="amelie.robichaud@dfo-mpo.gc.ca").email)
+        to_list.append(User.objects.filter(groups__name="travel_adm_admin").email)
     except:
         pass
     return list(set(to_list))

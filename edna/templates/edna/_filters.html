@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<div class="card mb-3">
+  <div class="card-header lead">
+    {% trans "Filters" %}
+  </div>
+  <div class="card-body">
+    {% for obj in object.filters.all %}
+      <a href="{% url 'edna:filter_detail' obj.id %}">{{ obj }}</a>,
+    {% endfor %}
+    <p class="mt-3 mb-1 text-muted">
+      {% trans "Total:" %} {{ object.filters.count }}
+    </p>
+  </div>
+</div>

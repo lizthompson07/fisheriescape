@@ -1,0 +1,112 @@
+{% load i18n %}
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="text-input-cell-template">
+
+<div @mouseover="mouseover" @mouseleave="mouseleave">
+  <select class="no-borders"
+          v-if="type==='select'"
+          v-model="input"
+          @change="update"
+          @keypress="$emit('keypress')"
+          @focus="focus"
+          @blur="unfocus"
+          ref="input"
+  >
+    <option value="">${blankOption}</option>
+    <option v-for="(option, index) in options" :value="option.value">${option.text}</option>
+  </select>
+  <input :type="type" class="no-borders" step="any"
+         v-else
+         v-model="input"
+         @change="update"
+         @keypress="$emit('keypress')"
+         @focus="focus"
+         @blur="unfocus"
+         ref="input"
+  >
+  <div class="float-right" v-if="isFocused || hover">
+    <span class="mdi mdi-chevron-down pointy text-primary" @click="$emit('copy-down',sample, field, input)"></span>
+    <span class="mdi mdi-chevron-double-down pointy text-primary" @click="$emit('copy-double-down',sample, field, input)"></span>
+  </div>
+</div>
+
+
+</script>
+<script type=" application/javascript">
+
+Vue.component("text-input-cell", {
+  template: "#text-input-cell-template",
+  delimiters: ["${", "}"],
+  name: "text-input-cell",
+  props: {
+    sample: {
+      type: Object,
+      required: true
+    },
+    field: {
+      type: String,
+      required: true
+    },
+    type: {
+      type: String,
+      required: true
+    },
+    row: {
+      type: Number,
+      required: true
+    },
+    col: {
+      type: Number,
+      required: true
+    },
+    options: {
+      type: Array,
+      required: false
+    },
+    blank_option: {
+      type: String,
+      required: false
+    },
+  },
+  data() {
+    return {
+      input: this.sample[this.field],
+      isFocused: false,
+      hover: false,
+    };
+  },
+  methods: {
+    focus() {
+      this.$emit('setposition', this.row, this.col);
+      this.isFocused = true;
+    },
+    unfocus() {
+      setTimeout(() => {
+        this.isFocused = false;
+      }, 200)
+    },
+    mouseover() {
+      //this.hover = true;
+    },
+    mouseleave() {
+      //this.hover = false;
+    },
+    update() {
+      this.sample[this.field] = this.input
+      this.$emit("change", this.sample)
+    }
+  },
+  watch: {
+    sample() {
+      this.input = this.sample[this.field];
+    }
+  },
+  computed: {
+    blankOption() {
+      if (this.blank_option) return this.blank_option;
+      else return "-----";
+    }
+  }
+});
+</script>

@@ -3,56 +3,43 @@
 {% load i18n %}
 {% load custom_filters %}
 
-<div class="">
-    <h3>
-        {% trans "Organization Members:" %}
-    </h3>
-</div>
-<a class="" href="#"
-   onclick="return popitup('{% url 'ihub:member_new' object.id %}','popoutWindow')">
-    {% trans "(Add members)" %}
-</a>
-
-{% if object.members.count == 0 %}
-    <em>
+<div class="card entry-card mb-3">
+  <div class="card-header">
+    <div class="float-right">
+      <a class="btn btn-sm btn-primary" href="#" pop-href='{% url 'ihub:member_new' object.id %}'>
+        {% trans "Add Member" %}
+      </a>
+    </div>
+    <h5 class="card-title"> {% trans "Organization Members:" %}</h5>
+  </div>
+  <div class="card-body">
+    {% if object.members.count == 0 %}
+      <em>
         {% trans "No members have been added to this organization" %}
-    </em><br>
-{% else %}
-
-
-    <table class="table table-hover table-sm" style="width: auto">
+      </em><br>
+    {% else %}
+      <table class="table table-hover table-sm" style="width: auto">
         <tr>
-            <th>
-                {% trans "Name" %}
-            </th>
-            <th>
-                {% trans "Role" %}
-            </th>
-            <th>
-                {% trans "Notes" %}
-            </th>
-            <th>
-                {% trans "Last modified" %}
-            </th>
-
+          <th class="w-25"> {% trans "Name" %} </th>
+          <th class="w-25"> {% trans "Role" %} </th>
+          <th class="w-25"> {% trans "Notes" %} </th>
+          <th class="w-25"> {% trans "Last modified" %} </th>
         </tr>
         <tbody>
         {% for obj in object.members.all %}
-            <tr href="{% url 'ihub:member_edit' obj.id %}" pop>
-                <td>
-                    {{ obj.person.first_name }} {{ obj.person.last_name|nz:'' }}
-                </td>
-                <td>
-                        {{ obj.role|nz }}
-                </td>
-                <td>{{ obj.notes|nz:"" }}</td>
-                <td>{{ obj.date_last_modified|date:"Y-m-d" }}</td>
-
-            </tr>
+          <tr href="{% url 'ihub:member_edit' obj.id %}" pop>
+            <td>
+              {{ obj.person.first_name }} {{ obj.person.last_name|nz:'' }}
+            </td>
+            <td>
+              {{ obj.role|nz }}
+            </td>
+            <td>{{ obj.notes|nz:"" }}</td>
+            <td>{{ obj.date_last_modified|date:"Y-m-d" }}</td>
+          </tr>
         {% endfor %}
         </tbody>
-    </table>
-{% endif %}
-<br>
-<br>
-<br>
+      </table>
+    {% endif %}
+  </div>
+</div>

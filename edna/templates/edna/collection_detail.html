@@ -73,6 +73,7 @@
     <div class="float-right">
       <a href="{% url 'edna:sample_new' object.id %}" class="btn btn-sm btn-success"> {% trans "New Sample" %}</a>
       <a href="{% url 'edna:import_samples' object.id %}" class="btn btn-sm btn-dark"> {% trans "Import Samples from CSV" %}</a>
+      <a href="{% url 'edna:sample_data_entry' object.id %}" class="btn btn-sm btn-warning"> <span class="mdi mdi-table"> </span> {% trans "Tabular Edit" %}</a>
     </div>
     <h3>{% trans "Field Samples" %}</h3>
 

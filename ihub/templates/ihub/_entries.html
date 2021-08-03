@@ -3,20 +3,29 @@
 {% load i18n %}
 {% load custom_filters %}
 
-<h3>
-    {% trans "iHub Entries:" %}
-</h3>
+<div class="card entry-card">
+  <div class="card-header">
+    <h5 class="card-title"> {% trans "iHub Entries:" %}</h5>
+  </div>
+  <div class="card-body">
 
-<ul>
-    {% for entry in object.entries.all %}
-        <li>
-            <a href="{% url 'ihub:entry_detail'  entry.id %}">{{ entry.title }} </a>
-        </li>
+    {% for status in entries %}
+      <div class="mb-3">
+        <p class="h6"><span style="background-color: {{ status.color }}" class="p-1">{{ status }}</span></p>
+        <ul>
+          {% for entry in entries|lookup:status %}
+            <li>
+              <a href="{% url 'ihub:entry_detail'  entry.id %}">{{ entry.title }} </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     {% empty %}
-        <em>
-            {% trans "There are no iHub entries for this organization." %}
-        </em>
+      <em>
+        {% trans "There are no iHub entries for this organization." %}
+      </em>
     {% endfor %}
 
-</ul>
+  </div>
+</div>
 

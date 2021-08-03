@@ -93,7 +93,7 @@ class SampleFactory(factory.django.DjangoModelFactory):
         model = models.Sample
 
     collection = factory.SubFactory(CollectionFactory)
-    unique_sample_identifier = factory.lazy_attribute(lambda o: faker.pyint(1, 100000))
+    bottle_id = factory.lazy_attribute(lambda o: faker.pyint(1, 100000))
     datetime = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     latitude = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
     longitude = factory.lazy_attribute(lambda o: faker.pyfloat())
@@ -102,7 +102,7 @@ class SampleFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'collection': CollectionFactory().id,
-            'unique_sample_identifier': faker.pyint(1, 100000),
+            'bottle_id': faker.pyint(1, 100000),
             'datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
             'latitude': faker.pyfloat(positive=True),
             'longitude': faker.pyfloat(),

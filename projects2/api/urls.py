@@ -1,8 +1,13 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from . import views
+router = DefaultRouter()
+router.register(r'costs', views.OMCostViewSet)
 
 urlpatterns = [
+    path("ppt/", include(router.urls)),  # tested
+
     path("project-planning/user/", views.CurrentUserAPIView.as_view(), name="projects2-current-user"),  # tested
     path("project-planning/fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="projects2-fte-breakdown"),  # tested
 
