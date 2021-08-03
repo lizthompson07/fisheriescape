@@ -267,7 +267,7 @@ class EDHUParser(DataParser):
         if not utils.y_n_to_bool(row[self.final_key]):
             # NEW GROUPS TAKEN FROM INITIAL
             out_cnt = utils.enter_cnt(cleaned_data, 0, hu_contx.pk, cnt_code="Eggs Removed")[0]
-            utils.enter_cnt_det(cleaned_data, out_cnt, row[self.cnt_key], "Program Group", row[self.prog_key])
+            utils.enter_cnt_det(cleaned_data, out_cnt, row[self.cnt_key], "Program Group Split", row[self.prog_key])
 
             indv, final_grp = cont.fish_in_cont(row_date)
             if not final_grp:
@@ -315,7 +315,7 @@ class EDHUParser(DataParser):
             cnt = utils.enter_cnt(move_cleaned_data, row[self.cnt_key], cnt_contx.pk, cnt_code="Eggs Added", )[0]
             if utils.nan_to_none(self.weight_key):
                 utils.enter_cnt_det(move_cleaned_data, cnt, row[self.weight_key], "Weight")
-            utils.enter_cnt_det(move_cleaned_data, cnt, row[self.cnt_key], "Program Group", row[self.prog_key])
+            utils.enter_cnt_det(move_cleaned_data, cnt, row[self.cnt_key], "Program Group Split", row[self.prog_key])
         else:
             # Move main group to drawer, and add end date to tray:
             if cont:

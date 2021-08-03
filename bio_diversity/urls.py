@@ -82,6 +82,7 @@ urlpatterns = [
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
 
     path('create/data/', views.DataCreate.as_view(), name="create_data"),
+    path('create/data/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
     path('create/data/<int:evnt>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
 
     path('log/data/', views.DataLog.as_view(), name="data_log"),
@@ -276,7 +277,7 @@ urlpatterns = [
     path('details/loc/<str:back>/<int:back_id>/<int:pk>/', views.LocDetails.as_view(), name="details_loc"),
     path('list/loc/', views.LocList.as_view(), name="list_loc"),
     path('update/loc/<int:pk>/', views.LocUpdate.as_view(), name="update_loc"),
-
+    path('delete/loc/<int:pk>/', views.LocDelete.as_view(), name="delete_loc"),
 
     path('create/locc/', views.LoccCreate.as_view(), name="create_locc"),
     path('details/locc/<int:pk>/', views.LoccDetails.as_view(), name="details_locc"),

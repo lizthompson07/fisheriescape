@@ -39,29 +39,51 @@ class BioModel(models.Model):
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
         self.clean_fields()
-
-        uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                  if isinstance(constraint, models.UniqueConstraint)]
-        for constraint in uniqueness_constraints:
-            # from stackoverflow
-            unique_filter = {}
-            unique_fields = []
-            null_found = False
-            for field_name in constraint.fields:
-                field_value = getattr(self, field_name)
-                if getattr(self, field_name) is None:
-                    unique_filter['%s__isnull' % field_name] = True
-                    null_found = True
-                else:
-                    unique_filter['%s' % field_name] = field_value
-                    unique_fields.append(field_name)
-            if null_found:
-                unique_queryset = self.__class__.objects.filter(**unique_filter)
-                if self.pk:
-                    unique_queryset = unique_queryset.exclude(pk=self.pk)
-                if unique_queryset.exists():
-                    msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                    raise ValidationError(msg, code="unique_together")
+        if self._meta.constraints:
+            uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                      if isinstance(constraint, models.UniqueConstraint)]
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint.fields:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg, code="unique_together")
+        elif self._meta.unique_together:
+            uniqueness_constraints = [constraint for constraint in self._meta.unique_together]
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg, code="unique_together")
 
 
 class BioContainerDet(BioModel):
@@ -141,28 +163,53 @@ class BioLookup(shared_models.Lookup):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioLookup, self).clean()
-        uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                  if isinstance(constraint, models.UniqueConstraint)]
-        for constraint in uniqueness_constraints:
-            # from stackoverflow
-            unique_filter = {}
-            unique_fields = []
-            null_found = False
-            for field_name in constraint.fields:
-                field_value = getattr(self, field_name)
-                if getattr(self, field_name) is None:
-                    unique_filter['%s__isnull' % field_name] = True
-                    null_found = True
-                else:
-                    unique_filter['%s' % field_name] = field_value
-                    unique_fields.append(field_name)
-            if null_found:
-                unique_queryset = self.__class__.objects.filter(**unique_filter)
-                if self.pk:
-                    unique_queryset = unique_queryset.exclude(pk=self.pk)
-                if unique_queryset.exists():
-                    msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                    raise ValidationError(msg)
+        if self._meta.constraints:
+            uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                      if isinstance(constraint, models.UniqueConstraint)]
+
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint.fields:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg)
+
+        elif self._meta.unique_together:
+            uniqueness_constraints = [constraint for constraint in self._meta.unique_together]
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg, code="unique_together")
 
 
 class BioTimeModel(BioModel):
@@ -400,14 +447,18 @@ class Count(BioModel):
                                  verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
     cntc_id = models.ForeignKey("CountCode", on_delete=models.CASCADE, verbose_name=_("Count Code"), db_column="CNT_ID")
     spec_id = models.ForeignKey("SpeciesCode", on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
+    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"),
+                                db_column="STOCK_ID", blank=True, null=True)
+    cnt_year = models.IntegerField(verbose_name=_("Collection year"), default=None, db_column="YEAR",
+                                   validators=[MinValueValidator(2000), MaxValueValidator(2100)], blank=True, null=True)
+    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"),
+                                db_column="COLLECTION_ID", blank=True, null=True)
     cnt = models.DecimalField(max_digits=6, decimal_places=0, verbose_name=_("Count"), db_column="COUNT")
     est = models.BooleanField(verbose_name=_("Estimated?"), db_column="ESTIMATED")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'contx_id', 'cntc_id', 'spec_id'], name='Count_Uniqueness')
-        ]
+        unique_together = (('loc_id', 'contx_id', 'cntc_id', 'spec_id', 'cnt_year', 'coll_id', 'stok_id'),)
 
     def __str__(self):
         return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
@@ -482,9 +533,9 @@ class CupDet(BioContainerDet):
 
 class DataLoader(BioModel):
     # data tag
-    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"))
-    evntc_id = models.ForeignKey('EventCode', on_delete=models.CASCADE, verbose_name=_("Data Format"))
-    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Data Format"))
+    evnt_id = models.ForeignKey('Event', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Event"))
+    evntc_id = models.ForeignKey('EventCode', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Data Format"))
+    facic_id = models.ForeignKey('FacilityCode', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Data Format"))
     data_csv = models.FileField(upload_to="", null=True, blank=True, verbose_name=_("Datafile"))
 
 
@@ -1782,7 +1833,7 @@ class ReleaseSiteCode(BioLookup):
         if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             delta_y = corr_factor * (float(self.max_lat) - float(self.min_lat))
             delta_x = float(self.max_lon) - float(self.min_lon)
-            return delta_x * delta_y
+            return abs(delta_x * delta_y)
         else:
             return 0
 

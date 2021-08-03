@@ -15,10 +15,12 @@ sex_dict = {"M": "Male",
 prio_dict = {"H": "High",
              "M": "Medium",
              "L": "Low",
-             "P": "Pairwise"}
+             "P": "Pairwise",
+             "E": "Extra Male"}
 
 sfa_nums = [15, 16, 17, 18, 19, 20, 21, 22, 23]
 
 collection_evntc_list = ["electrofishing", "bypass collection", "smolt wheel collection", "smolt collection",
                          "fall parr collection"]
 
+egg_dev_evntc_list = ["egg development", "heath unit transfer", "picking", "shocking"]
