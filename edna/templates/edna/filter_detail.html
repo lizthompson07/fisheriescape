@@ -1,0 +1,23 @@
+{% extends 'edna/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+
+  <div class="mb-3 row">
+    <div class="col">
+      <table class="table table-sm">
+        {% for field in field_list %}
+          {% verbose_td_display object field th_width="200px" display_time=True %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+
+  {% include "edna/_extracts.html" %}
+  {% include "edna/_pcrs.html" %}
+  {% include "edna/_assays.html" %}
+
+
+{% endblock %}

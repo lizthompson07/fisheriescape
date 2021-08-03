@@ -82,6 +82,7 @@ urlpatterns = [
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
 
     path('create/data/', views.DataCreate.as_view(), name="create_data"),
+    path('create/data/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
     path('create/data/<int:evnt>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
 
     path('log/data/', views.DataLog.as_view(), name="data_log"),
@@ -132,7 +133,8 @@ urlpatterns = [
     path('details/evnt/<str:back>/<int:back_id>/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
     path('list/evnt/', views.EvntList.as_view(), name="list_evnt"),
     path('update/evnt/<int:pk>/', views.EvntUpdate.as_view(), name="update_evnt"),
-                  
+    path('delete/evnt/<int:pk>/', views.EvntDelete.as_view(), name="delete_evnt"),
+
     path('create/evntc/', views.EvntcCreate.as_view(), name="create_evntc"),
     path('details/evntc/<int:pk>/', views.EvntcDetails.as_view(), name="details_evntc"),
     path('list/evntc/', views.EvntcList.as_view(), name="list_evntc"),
@@ -275,6 +277,7 @@ urlpatterns = [
     path('details/loc/<str:back>/<int:back_id>/<int:pk>/', views.LocDetails.as_view(), name="details_loc"),
     path('list/loc/', views.LocList.as_view(), name="list_loc"),
     path('update/loc/<int:pk>/', views.LocUpdate.as_view(), name="update_loc"),
+    path('delete/loc/<int:pk>/', views.LocDelete.as_view(), name="delete_loc"),
 
     path('create/locc/', views.LoccCreate.as_view(), name="create_locc"),
     path('details/locc/<int:pk>/', views.LoccDetails.as_view(), name="details_locc"),
@@ -383,6 +386,7 @@ urlpatterns = [
     path('reports/site_report_file/', views.site_report_file, name="site_report_file"),
     path('reports/individual_report_file/', views.individual_report_file, name="individual_report_file"),
     path('reports/grp_report_file/', views.grp_report_file, name="grp_report_file"),
+    path('reports/mort_report_file/', views.mort_report_file, name="mort_report_file"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
@@ -466,6 +470,8 @@ urlpatterns = [
     path('details/team/<str:back>/<int:back_id>/<int:pk>/', views.TeamDetails.as_view(), name="details_team"),
     path('list/team/', views.TeamList.as_view(), name="list_team"),
     path('update/team/<int:pk>/', views.TeamUpdate.as_view(), name="update_team"),
+
+    path('create/templ/', views.TemplFormView.as_view(), name="create_templ"),
 
     path('create/tray/', views.TrayCreate.as_view(), name="create_tray"),
     path('create/tray/<int:evnt>/<str:pop>/', views.TrayCreate.as_view(), name="create_tray"),

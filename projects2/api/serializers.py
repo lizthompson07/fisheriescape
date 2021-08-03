@@ -98,7 +98,7 @@ class ProjectYearSerializerLITE(serializers.ModelSerializer):
     status_class = serializers.SerializerMethodField()
 
     def get_status_class(self, instance):
-        return slugify(instance.get_status_display)
+        return slugify(instance.get_status_display())
 
     def get_status_display(self, instance):
         return instance.get_status_display()
@@ -313,6 +313,10 @@ class OMCostSerializer(serializers.ModelSerializer):
     om_category_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
     category_type = serializers.SerializerMethodField()
+    project_id = serializers.SerializerMethodField()
+
+    def get_project_id(self, instance):
+        return instance.project_year.project_id
 
     def get_funding_source_display(self, instance):
         return str(instance.funding_source)

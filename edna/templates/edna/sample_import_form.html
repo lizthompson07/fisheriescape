@@ -48,7 +48,7 @@
 
 
       <tr>
-        <th class="py-1 px-1 red-font">unique_sample_identifier</th>
+        <th class="py-1 px-1 red-font">bottle_id</th>
         <th class="py-1 px-1">site_identifier</th>
         <th class="py-1 px-1">site_description</th>
         <th class="py-1 px-1">samplers</th>
@@ -115,7 +115,7 @@
       <table>
         <thead>
         <tr>
-          <th class="py-1 px-1">unique_sample_identifier</th>
+          <th class="py-1 px-1">bottle_id</th>
           <th class="py-1 px-1">site_identifier</th>
           <th class="py-1 px-1">site_description</th>
           <th class="py-1 px-1">samplers</th>
@@ -127,7 +127,7 @@
         </thead>
         {% for item in example_obj %}
           <tr>
-            <td class="py-1 px-1">{{ item.unique_sample_identifier }}</td>
+            <td class="py-1 px-1">{{ item.bottle_id }}</td>
             <td class="py-1 px-1">{{ item.site_identifier }}</td>
             <td class="py-1 px-1">{{ item.site_description }}</td>
             <td class="py-1 px-1">{{ item.samplers }}</td>

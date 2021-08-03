@@ -1,0 +1,158 @@
+<!-- template for the modal component -->
+{% load i18n %}
+
+<script type="text/x-template" id="sample-import-overlay-template">
+<div class="">
+
+  <button class="btn btn-sm btn-warning" @click="openDialog">
+    <span class="mdi mdi-import mr-1"></span> {% trans "Import Samples" %}
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 1000px">
+          <div class="modal-header">
+            <h4> {% trans "Import Samples" %}</h4>
+          </div>
+          <div class="modal-body" @keydown.esc.prevent="overlay = false">
+            <div v-if="loadingSamples" class="loading mb-3 mt-3 mt-5">
+              <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+            <div v-else>
+              <div class="mb-3">
+                <p>{% trans "Please select the samples you wish to import from the list below" %}</p>
+              </div>
+              <form class="mb-3" @change="getSamples">
+                <div class="row">
+                  <div class="col">
+                    <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">
+                  </div>
+                  <div class="col">
+                    <input type="text" class="form-control" placeholder="{% trans "Location (any part)" %}" v-model="filterLocation">
+                  </div>
+                  <div class="col">
+                    <select class="form-control" v-model="filterCollection">
+                      <option :value="null">{% trans "Filter by collection" %}</option>
+                      <option v-for="collection in collections" :key="collection.id" :value="collection.id">
+                        ${collection.name} (${collection.date_display})
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-auto my-1">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="unfiltered_only" v-model="filterUnfiltered">
+                      <label class="form-check-label" for="unfiltered_only">
+                        {% trans "Unfiltered samples only" %}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <div class="mb-3">
+                <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedSamples" ref="sample_box">
+                  <option v-for="sample in samples" :key="sample.id" :value="sample.id">
+                    ${sample.display} &emsp;||&emsp;
+                    {% trans "Bottle" %} &rarr; ${sample.bottle_id | nz("n/a")} &emsp;||&emsp;
+                    {% trans "Collection" %} &rarr; ${sample.collection_display}
+                  </option>
+                </select>
+              </div>
+              <p class="lead text-muted">
+                {% trans "Samples: " %} ${samples.length} || {% trans "Selected: " %} ${selectedSamples.length}
+              </p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" @click="importSamples">{% trans "Import" %}</button>
+            <button class="btn btn-secondary" @click="overlay = false">{% trans "Back" %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+</script>
+
+<script type="application/javascript">
+
+Vue.component("sample-import-overlay", {
+  template: "#sample-import-overlay-template",
+  delimiters: ["${", "}"],
+  name: "sample-import-overlay",
+  props: {
+    batch_id: {
+      required: true,
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      error: null,
+      samples: [],
+      collections: [],
+      selectedSamples: [],
+
+      filterUnfiltered: true,
+      filterSampleId: null,
+      filterCollection: null,
+      filterLocation: null,
+      loadingSamples: true,
+      loadingCollections: true,
+    };
+  },
+  methods: {
+    openDialog() {
+      this.error = null;
+      this.overlay = true;
+      this.filterUnfiltered = true;
+      this.filterSampleId = null;
+      this.filterCollection = null;
+      this.getSamples();
+    },
+    importSamples() {
+      if (!this.selectedSamples.length) {
+        let msg = "{% trans "You did not select any samples to import!" %}";
+        alert(msg);
+      } else {
+        this.$emit("add-samples", this.selectedSamples)
+        this.overlay = false;
+      }
+    },
+    getSamples() {
+      this.selectedSamples = [];
+      this.loadingSamples = true;
+      let endpoint = '/api/edna/samples/?'
+      if (this.filterSampleId && this.filterSampleId !== "") endpoint += `id=${this.filterSampleId}&`;
+      if (this.filterLocation && this.filterLocation !== "") endpoint += `location__icontains=${this.filterLocation}&`;
+      if (this.filterCollection && this.filterCollection !== "") endpoint += `collection=${this.filterCollection}&`;
+      if (this.filterUnfiltered) endpoint += `filters__isnull=true&`;
+      apiService(endpoint).then(response => {
+        this.loadingSamples = false;
+        this.samples = response;
+        this.$nextTick(() => {
+          this.$refs.sample_box.focus();
+        });
+      });
+    },
+    getCollections() {
+      this.loadingCollections = true;
+      let endpoint = '/api/edna/collections/'
+      apiService(endpoint).then(response => {
+        this.loadingCollections = false;
+        this.collections = response;
+      });
+    }
+
+  },
+  filters: {
+    nz: vueFiltersObject["nz"],
+  },
+  created() {
+    this.getCollections();
+  },
+  computed: {}
+});
+</script>
