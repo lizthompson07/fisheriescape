@@ -12,10 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveConstraint(
-            model_name='count',
-            name='Count_Uniqueness',
-        ),
+        # migrations.RemoveConstraint(
+        #     model_name='count',
+        #     name='Count_Uniqueness',
+        # ),
         migrations.AddField(
             model_name='count',
             name='cnt_year',
