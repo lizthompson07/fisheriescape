@@ -156,7 +156,7 @@
             <td class="pr-3">
               <ul>
                 <li>name of master mix used</li>
-                <li>must be an exact match of one of the below (case insensitive)</li>
+                <li>must be an exact match of one of the below (not case sensitive)</li>
                 <ul>
                   {% for obj in master_mixes %}
                     <li>{{ obj }}</li>
@@ -178,7 +178,7 @@
             <td class="pr-3">
               <ul>
                 <li>name of assay / target used</li>
-                <li>must be an exact match of one of the below (case insensitive)</li>
+                <li>must be an exact match of one of the below (not case sensitive)</li>
                 <ul>
                   {% for obj in assays %}
                     <li>{{ obj.alias }}</li>
@@ -202,7 +202,7 @@
               <ul>
                 <li>float</li>
                 <li>the observed Ct value</li>
-                <li>undetermined observation may have the following values (case insensitive):</li>
+                <li>undetermined observation may have the following values (not case sensitive):</li>
                 <ul>
                   <li>na</li>
                   <li>undetermined</li>
