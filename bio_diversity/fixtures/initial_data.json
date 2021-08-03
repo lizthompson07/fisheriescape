@@ -320,6 +320,22 @@
     }
 },
 {
+    "model": "bio_diversity.animaldetcode",
+    "pk": 23,
+    "fields": {
+        "name": "Program Group Split",
+        "nom": null,
+        "description_en": "Records how many individuals from each program is included in a count. ",
+        "description_fr": "",
+        "created_by": "quentin.stoyel@dfo-mpo.gc.ca",
+        "created_date": "2021-04-06",
+        "min_val": "0.00000",
+        "max_val": "100000.00000",
+        "unit_id": 11,
+        "ani_subj_flag": false
+    }
+},
+{
     "model": "bio_diversity.anidetsubjcode",
     "pk": 2,
     "fields": {

@@ -384,6 +384,7 @@ class LocMixin:
     title = _("Location")
     admin_only = False
     img = True
+    deletable = True
 
 
 class LoccMixin:

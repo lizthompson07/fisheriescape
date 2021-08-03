@@ -321,7 +321,7 @@ def get_cont_from_anix(anix, cont_key):
         return None
 
 
-def get_cont_from_dot(dot_string, cleaned_data, start_date):
+def get_cont_from_dot(dot_string, cleaned_data, start_date, get_trof=False):
     dot_string = str(dot_string)
     cup = get_cup_from_dot(dot_string, cleaned_data, start_date)
     if cup:
@@ -330,6 +330,12 @@ def get_cont_from_dot(dot_string, cleaned_data, start_date):
         draw = get_draw_from_dot(dot_string, cleaned_data)
         if draw:
             return draw
+        elif get_trof:
+            trof_qs = models.Trough.objects.filter(name__icontains=dot_string)
+            if len(trof_qs) == 1:
+                return trof_qs.get()
+            else:
+                return None
         else:
             tank_qs = models.Tank.objects.filter(name__icontains=dot_string)
             if len(tank_qs) == 1:
@@ -381,18 +387,27 @@ def get_grp(stock_str, grp_year, coll_str, cont=None, at_date=datetime.now().rep
     if nan_to_none(prog_str):
         prog_grp = models.AniDetSubjCode.objects.filter(name__iexact=prog_str).get()
 
-    coll_id = coll_getter(coll_str)
+    coll_id = None
+    if nan_to_none(coll_str):
+        coll_id = coll_getter(coll_str)
 
     if nan_to_none(cont):
         indv_list, grp_list =cont.fish_in_cont(at_date, select_fields=["grp_id__coll_id", "grp_id__stok_id"])
-        grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str and coll_id == grp.coll_id
-                    and grp.grp_year == grp_year]
+        if nan_to_none(stock_str):
+            grp_list = [grp for grp in grp_list if grp.stok_id.name == stock_str]
+        if nan_to_none(coll_id):
+            grp_list = [grp for grp in grp_list if coll_id == grp.coll_id]
+        if nan_to_none(grp_year):
+            grp_list = [grp for grp in grp_list if grp.grp_year == grp_year]
 
     else:
-        grp_qs = models.Group.objects.filter(stok_id__name=stock_str,
-                                             coll_id=coll_id,
-                                             grp_year=grp_year)
-
+        grp_qs = models.Group.objects.all()
+        if nan_to_none(stock_str):
+            grp_qs = grp_qs.filter(stok_id__name=stock_str)
+        if nan_to_none(coll_id):
+            grp_qs = grp_qs.filter( coll_id=coll_id)
+        if nan_to_none(grp_year):
+            grp_qs = grp_qs.filter(grp_year=grp_year)
         grp_list = [grp for grp in grp_qs]
 
     final_grp_list = grp_list.copy()
@@ -446,11 +461,11 @@ def set_row_grp(df, stok_key, yr_coll_key, prio_key, cont_key, datetime_key, grp
 
     # identify all unique groups in the table, grp_data is also a df:
     grp_data = df.groupby([stok_key, grp_year, grp_coll, cont_key, prio_key, datetime_key, grp_key],
-                                dropna=False, sort=False).size().reset_index()
+                          dropna=False, sort=False).size().reset_index()
 
     # for each row in this smaller df, find the grp_id, and then make a dictionary out of these
     grp_data["grp_id"] = grp_data.apply(lambda row: get_grp(row[stok_key], row[grp_year], row[grp_coll], row[cont_key],
-                                                            at_date=row[datetime_key], prog_str=row[prio_key],
+                                                            at_date=row[datetime_key], prog_str=nan_to_none(row[prio_key]),
                                                             fail_on_not_found=True)[0], axis=1)
 
     grp_dict = dict(zip(grp_data[grp_key], grp_data["grp_id"]))
@@ -835,7 +850,8 @@ def enter_anix_contx(tank, cleaned_data):
         return anix_contx
 
 
-def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fish in Container", est=False):
+def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fish in Container", est=False,
+              stok_id=None, coll_id=None, cnt_year=None):
     cnt = False
     entered = False
     if cnt_value is None:
@@ -846,6 +862,9 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
                            spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                            cntc_id=models.CountCode.objects.filter(name__iexact=cnt_code).get(),
                            cnt=int(cnt_value),
+                           coll_id=coll_id,
+                           stok_id=stok_id,
+                           cnt_year=cnt_year,
                            est=est,
                            created_by=cleaned_data["created_by"],
                            created_date=cleaned_data["created_date"],
@@ -855,7 +874,8 @@ def enter_cnt(cleaned_data, cnt_value, contx_pk=None, loc_pk=None, cnt_code="Fis
             cnt.save()
             entered = True
         except ValidationError:
-            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, contx_id=cnt.contx_id, cntc_id=cnt.cntc_id).get()
+            cnt = models.Count.objects.filter(loc_id=cnt.loc_id, contx_id=cnt.contx_id, cntc_id=cnt.cntc_id,
+                                              cnt_year=cnt.cnt_year, stok_id=cnt.stok_id, coll_id=cnt.coll_id).get()
             if cnt_code == "Mortality":
                 cnt.cnt += 1
                 cnt.save()
@@ -895,7 +915,7 @@ def enter_cnt_det(cleaned_data, cnt, det_val, det_code, det_subj_code=None, qual
             row_entered = False
 
         # update count total if needed:
-        if det_code == "Program Group":
+        if det_code == "Program Group Split":
             new_cnt = sum([float(cnt) for cnt in models.CountDet.objects.filter(cnt_id=cnt, anidc_id__name__iexact=det_code).values_list('det_val', flat=True)])
             if new_cnt > cnt.cnt:
                 cnt.cnt = int(new_cnt)
@@ -1082,8 +1102,8 @@ def enter_bulk_indvd(anix, cleaned_data, det_date, len=None, len_mm=None, weight
     if nan_to_none(gender):
         sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
         sex_dict = calculation_constants.sex_dict
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, sex_dict[gender],
-                                    sex_anidc_id.pk, adsc_str=sex_dict[gender])
+        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, sex_dict[gender.upper()],
+                                    sex_anidc_id.pk, adsc_str=sex_dict[gender.upper()])
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
             data_entered += enter_indvd(anix.pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
@@ -1151,8 +1171,13 @@ def enter_locd(loc_pk, cleaned_data, det_date, det_value, locdc_pk, ldsc_str=Non
 
 
 def enter_mortality(indv, cleaned_data, mort_date):
+    # Get/creat a mortality event
+    # link to indv
+    # record indvd on indv
+    # remove indv from container
     data_entered = False
     mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
+    mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
     mortality_evnt = models.Event(evntc_id=mort_evntc,
                                   facic_id=cleaned_data["evnt_id"].facic_id,
                                   prog_id=cleaned_data["evnt_id"].prog_id,
@@ -1176,6 +1201,7 @@ def enter_mortality(indv, cleaned_data, mort_date):
     new_cleaned_data = cleaned_data.copy()
     new_cleaned_data["evnt_id"] = mortality_evnt
     anix, anix_entered = enter_anix(new_cleaned_data, indv_pk=indv.pk)
+    data_entered += enter_indvd(anix.pk, new_cleaned_data, mort_date, None, mort_anidc.pk)
     data_entered += anix_entered
     for cont in indv.current_cont(at_date=mort_date):
         data_entered += enter_contx(cont, new_cleaned_data, False, indv.pk)
@@ -1195,6 +1221,8 @@ def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
     salmon_pk = models.SpeciesCode.objects.filter(name__icontains="Salmon").get().pk
     mort_evntc = models.EventCode.objects.filter(name="Mortality").get()
     mort_sampc = models.SampleCode.objects.filter(name="Mortality Sample").get().pk
+    mort_anidc = models.AnimalDetCode.objects.filter(name="Mortality Observation").get()
+
     mortality_evnt = models.Event(evntc_id=mort_evntc,
                                   facic_id=cleaned_data["evnt_id"].facic_id,
                                   prog_id=cleaned_data["evnt_id"].prog_id,
@@ -1234,6 +1262,7 @@ def enter_grp_mortality(grp, samp_num, cleaned_data, mort_date, cont=None):
     samp, samp_entered = enter_samp(new_cleaned_data, samp_num, salmon_pk, mort_sampc, anix_pk=samp_anix.pk)
     data_entered += samp_entered
 
+    data_entered += enter_sampd(samp.pk, new_cleaned_data, mort_date, None, mort_anidc.pk)
     # one count per cont per mortality event, count up similar samples:
     cnt_val = models.Sample.objects.filter(anix_id__evnt_id=mortality_evnt,
                                            anix_id__grp_id=grp,

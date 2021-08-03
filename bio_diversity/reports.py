@@ -133,13 +133,27 @@ def generate_facility_tank_report(facic_id):
     return report.target_url
 
 
-def generate_stock_code_report(stok_id, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+def generate_stock_code_report(stok_id, coll_id, year, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
     # report is given a stock code and returns location of all associated fish
     report = ExcelReport()
     report.load_wb("stock_code_report_template.xlsx")
 
-    indv_qs = models.Individual.objects.filter(stok_id=stok_id).select_related("stok_id", "coll_id")
-    grp_qs = models.Group.objects.filter(stok_id=stok_id, grp_valid=True)
+    indv_qs = models.Individual.objects.all()
+    grp_qs = models.Group.objects.filter(grp_valid=True)
+
+    if stok_id:
+        indv_qs = indv_qs.filter(stok_id=stok_id)
+        grp_qs = grp_qs.filter(stok_id=stok_id)
+    if coll_id:
+        indv_qs = indv_qs.filter(coll_id=coll_id)
+        grp_qs = grp_qs.filter(coll_id=coll_id)
+    if year:
+        indv_qs = indv_qs.filter(indv_year=year)
+        grp_qs = grp_qs.filter(grp_year=year)
+
+    indv_qs = indv_qs.select_related("stok_id", "coll_id")
+    grp_qs = grp_qs.select_related("stok_id", "coll_id")
+
 
     # to order workshees so the first sheet comes before the template sheet, rename the template and then copy the
     # renamed sheet, then rename the copy to template so it exists for other sheets to be created from
@@ -454,13 +468,14 @@ def generate_individual_report(indv_id):
     true_false_dict = {True: "Yes", False: "No"}
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
-        conts = ', '.join([cont.__str__() for cont in grp_id.current_cont()])
-        ws_hist['A' + str(row_count)].value = grp_tuple[2]
-        ws_hist['B' + str(row_count)].value = grp_tuple[0]
-        ws_hist['C' + str(row_count)].value = grp_id.__str__()
-        ws_hist['D' + str(row_count)].value = true_false_dict[grp_id.grp_valid]
-        ws_hist['E' + str(row_count)].value = conts
-        row_count += 1
+        if grp_id:
+            conts = ', '.join([cont.__str__() for cont in grp_id.current_cont()])
+            ws_hist['A' + str(row_count)].value = grp_tuple[2]
+            ws_hist['B' + str(row_count)].value = grp_tuple[0]
+            ws_hist['C' + str(row_count)].value = grp_id.__str__()
+            ws_hist['D' + str(row_count)].value = true_false_dict[grp_id.grp_valid]
+            ws_hist['E' + str(row_count)].value = conts
+            row_count += 1
 
     # -----------Events Sheet------------------
     # put in start and end dates
@@ -484,20 +499,21 @@ def generate_individual_report(indv_id):
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
-        start_date = utils.naive_to_aware(grp_id.start_date())
-        end_date = utils.naive_to_aware(grp_tuple[2])
-        anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                     evnt_id__start_datetime__gte=start_date)\
-            .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
-                                                                'evnt_id__prog_id', 'evnt_id__perc_id')
-        evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
-        for evnt in evnt_list:
-            ws_evnt['A' + str(row_count)].value = evnt.start_date
-            ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
-            ws_evnt['C' + str(row_count)].value = grp_id.__str__()
-            ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
-            row_count += 1
+        if grp_id:
+            start_date = utils.naive_to_aware(grp_id.start_date())
+            end_date = utils.naive_to_aware(grp_tuple[2])
+            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
+                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                         evnt_id__start_datetime__gte=start_date)\
+                .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
+                                                                    'evnt_id__prog_id', 'evnt_id__perc_id')
+            evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
+            for evnt in evnt_list:
+                ws_evnt['A' + str(row_count)].value = evnt.start_date
+                ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
+                ws_evnt['C' + str(row_count)].value = grp_id.__str__()
+                ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+                row_count += 1
 
     # -----------------Container Sheet------------------------
     anix_evnt_set = indv_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
@@ -510,16 +526,17 @@ def generate_individual_report(indv_id):
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
-        start_date = utils.naive_to_aware(grp_id.start_date())
-        end_date = utils.naive_to_aware(grp_tuple[2])
-        anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                     evnt_id__start_datetime__gte=start_date)\
-            .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
-            .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
-        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-        cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
-        treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
+        if grp_id:
+            start_date = utils.naive_to_aware(grp_id.start_date())
+            end_date = utils.naive_to_aware(grp_tuple[2])
+            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                         evnt_id__start_datetime__gte=start_date)\
+                .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
+                .select_related('contx_id', 'contx_id__evnt_id__evntc_id', 'contx_id__evnt_id')
+            contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+            cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+            treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count, end_date=treat_end_date)[2]
 
     # -----------------Details Sheet------------------------
     indvd_set = models.IndividualDet.objects.filter(anix_id__indv_id=indv_id).distinct().\
@@ -566,13 +583,14 @@ def generate_grp_report(grp_id):
     true_false_dict = {True: "Yes", False: "No"}
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
-        conts = ', '.join([cont.__str__() for cont in grp_id.current_cont()])
-        ws_hist['A' + str(row_count)].value = grp_tuple[2]
-        ws_hist['B' + str(row_count)].value = grp_tuple[0]
-        ws_hist['C' + str(row_count)].value = grp_id.__str__()
-        ws_hist['D' + str(row_count)].value = true_false_dict[grp_id.grp_valid]
-        ws_hist['E' + str(row_count)].value = conts
-        row_count += 1
+        if grp_id:
+            conts = ', '.join([cont.__str__() for cont in grp_id.current_cont()])
+            ws_hist['A' + str(row_count)].value = grp_tuple[2]
+            ws_hist['B' + str(row_count)].value = grp_tuple[0]
+            ws_hist['C' + str(row_count)].value = grp_id.__str__()
+            ws_hist['D' + str(row_count)].value = true_false_dict[grp_id.grp_valid]
+            ws_hist['E' + str(row_count)].value = conts
+            row_count += 1
 
     # -----------Events Sheet------------------
     # put in start and end dates
@@ -596,20 +614,21 @@ def generate_grp_report(grp_id):
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
-        start_date = utils.naive_to_aware(grp_id.start_date())
-        end_date = utils.naive_to_aware(grp_tuple[2])
-        anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                     evnt_id__start_datetime__gte=start_date)\
-            .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
-                                                                 'evnt_id__prog_id', 'evnt_id__perc_id')
-        evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
-        for evnt in evnt_list:
-            ws_evnt['A' + str(row_count)].value = evnt.start_date
-            ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
-            ws_evnt['C' + str(row_count)].value = grp_id.__str__()
-            ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
-            row_count += 1
+        if grp_id:
+            start_date = utils.naive_to_aware(grp_id.start_date())
+            end_date = utils.naive_to_aware(grp_tuple[2])
+            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
+                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                         evnt_id__start_datetime__gte=start_date)\
+                .order_by("-evnt_id__start_datetime").select_related('evnt_id', 'evnt_id__evntc_id', 'evnt_id__facic_id',
+                                                                     'evnt_id__prog_id', 'evnt_id__perc_id')
+            evnt_list = list(dict.fromkeys([anix.evnt_id for anix in anix_evnt_set]))
+            for evnt in evnt_list:
+                ws_evnt['A' + str(row_count)].value = evnt.start_date
+                ws_evnt['B' + str(row_count)].value = evnt.evntc_id.name
+                ws_evnt['C' + str(row_count)].value = grp_id.__str__()
+                ws_evnt['D' + str(row_count)].value = grp_id.current_cont(at_date=utils.naive_to_aware(evnt.start_date))[0].name
+                row_count += 1
 
     # -----------------Container Sheet------------------------
     anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True, pair_id__isnull=True)\
@@ -622,16 +641,17 @@ def generate_grp_report(grp_id):
 
     for grp_tuple in prnt_grp_set:
         grp_id = grp_tuple[1]
-        start_date = utils.naive_to_aware(grp_id.start_date())
-        end_date = utils.naive_to_aware(grp_tuple[2])
-        anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                     pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
-                                                     evnt_id__start_datetime__gte=start_date)\
-            .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
-            .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
-        contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
-        cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
-        treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
+        if grp_id:
+            start_date = utils.naive_to_aware(grp_id.start_date())
+            end_date = utils.naive_to_aware(grp_tuple[2])
+            anix_evnt_set = grp_id.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
+                                                         pair_id__isnull=True, evnt_id__start_datetime__lte=end_date,
+                                                         evnt_id__start_datetime__gte=start_date)\
+                .order_by("-evnt_id__start_datetime", "-final_contx_flag")\
+                .select_related('contx_id', 'contx_id__evnt_id__evntc_id','contx_id__evnt_id')
+            contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
+            cont_evnt_list = [utils.get_cont_evnt(contx) for contx in contx_tuple_set]
+            treat_end_date = cont_treat_writer(ws_cont, cont_evnt_list, row_count, treat_row_count)[2]
 
     report.save_wb()
 

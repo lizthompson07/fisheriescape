@@ -24,7 +24,7 @@ from . import mixins, filters, utils, models, reports
 import pytz
 from django.utils.translation import gettext_lazy as _
 
-from .static.calculation_constants import collection_evntc_list
+from .static.calculation_constants import collection_evntc_list, egg_dev_evntc_list
 from .utils import get_cont_evnt
 
 
@@ -269,22 +269,23 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
     def get_initial(self):
         init = super().get_initial()
+        self.get_form_class().base_fields["data_csv"].required = True
+        self.get_form_class().base_fields["trof_id"].required = False
+        self.get_form_class().base_fields["pickc_id"].required = False
+        self.get_form_class().base_fields["adsc_id"].required = False
+
+        self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
+        self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
+
         if 'evnt' in self.kwargs:
             evnt = models.Event.objects.filter(pk=self.kwargs["evnt"]).select_related("evntc_id", "facic_id").get()
             init['evnt_id'] = self.kwargs['evnt']
             evntc = evnt.evntc_id
             init['evntc_id'] = evntc
             init['facic_id'] = evnt.facic_id
-            self.get_form_class().base_fields["data_csv"].required = True
-            self.get_form_class().base_fields["trof_id"].required = False
-            self.get_form_class().base_fields["pickc_id"].required = False
-            self.get_form_class().base_fields["adsc_id"].required = False
-
-            self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
-            self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
-            self.get_form_class().base_fields["facic_id"].widget = forms.HiddenInput()
-            self.get_form_class().base_fields["trof_id"].widget = forms.HiddenInput()
-            self.get_form_class().base_fields["adsc_id"].widget = forms.HiddenInput()
 
             if evntc.__str__() == "Egg Development":
                 self.get_form_class().base_fields["trof_id"].widget = forms.Select(
@@ -308,20 +309,28 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                                                                                    label=_("Type of data entry"))
                 self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
                     attrs={"class": "chosen-select-contains"})
+        else:
+            self.get_form_class().base_fields["evnt_id"].required = False
+            self.get_form_class().base_fields["evntc_id"].required = False
+            self.get_form_class().base_fields["facic_id"].required = False
+            self.get_form_class().base_fields["data_type"].required = False
+            self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
+
         return init
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['java_script'] = 'bio_diversity/_entry_data_js.html'
+        allow_entry = True
+
         if 'evnt' in self.kwargs:
             evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
             facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
             context["title"] = "Add {} data".format(evnt_code)
-            allow_entry = True
 
             if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
                              "master entry", "egg development", "adult collection"]:
-                template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+                template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
             elif evnt_code in collection_evntc_list:
                 template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
             elif evnt_code in ["mortality", "movement"]:
@@ -329,11 +338,16 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 allow_entry = False
             else:
                 template_url = 'data_templates/measuring.xlsx'
+            template_name = "{}-{}".format(facility_code, evnt_code)
+        else:
+            context["title"] = "Add Sites"
+            template_url = "data_templates/sites_entry.xlsx"
+            template_name = "Sites Entry"
 
-            context["template_url"] = template_url
-            context["allow_entry"] = allow_entry
+        context["template_url"] = template_url
+        context["allow_entry"] = allow_entry
 
-            context["template_name"] = "{}-{}".format(facility_code, evnt_code)
+        context["template_name"] = template_name
         return context
 
     def get_success_url(self):
@@ -886,7 +900,8 @@ class AdscDetails(mixins.AdscMixin, CommonDetails):
 
 
 class CntDetails(mixins.CntMixin, CommonDetails):
-    fields = ["loc_id", "cntc_id", "spec_id", "cnt", "est", "comments", "created_by", "created_date", ]
+    fields = ["loc_id", "cntc_id", "spec_id", "cnt_year", "stok_id", "coll_id", "cnt", "est", "comments", "created_by",
+              "created_date", ]
 
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
@@ -1514,7 +1529,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["table_list"].extend(["env", "team", "locd","samp", "grp", "indv", "cnt"])
+        context["table_list"].extend(["env", "team", "locd", "samp", "grp", "indv", "cnt"])
 
         env_set = self.object.env_condition.all()
         env_field_list = ["envc_id", "env_val", "start_datetime|Date", ]
@@ -1536,7 +1551,7 @@ class LocDetails(mixins.LocMixin, CommonDetails):
         samp_set = self.object.samples.all().select_related("sampc_id")
         samp_field_list = ["samp_num", "sampc_id", "comments"]
         obj_mixin = mixins.SampMixin
-        context["context_dict"]["cnt"] = {"div_title": "{}s".format(obj_mixin.title),
+        context["context_dict"]["samp"] = {"div_title": "{}s".format(obj_mixin.title),
                                           "sub_model_key": obj_mixin.key,
                                           "objects_list": samp_set,
                                           "field_list": samp_field_list,
@@ -3050,6 +3065,10 @@ class EvntDelete(mixins.EvntMixin, CommonDelete):
     success_url = reverse_lazy("bio_diversity:list_evnt")
 
 
+class LocDelete(mixins.LocMixin, CommonDelete):
+    success_url = reverse_lazy("bio_diversity:list_loc")
+
+
 class IndvDelete(mixins.IndvMixin, CommonDelete):
     success_url = reverse_lazy("bio_diversity:list_indv")
 
@@ -3195,10 +3214,17 @@ class ReportFormView(mixins.ReportMixin, BioCommonFormView):
             return HttpResponseRedirect(reverse("bio_diversity:facic_tank_report") + f"?facic_pk={facic_pk}")
         elif report == 2:
             stok_pk = int(form.cleaned_data["stok_id"].pk)
+
+            arg_str = f"?stok_pk={stok_pk}"
+            if form.cleaned_data["coll_id"]:
+                coll_pk = int(form.cleaned_data["coll_id"].pk)
+                arg_str += f"&coll_pk={coll_pk}"
+            if form.cleaned_data["year"]:
+                year = int(form.cleaned_data["year"])
+                arg_str += f"&year={year}"
             if form.cleaned_data["on_date"]:
-                return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}&on_date={form.cleaned_data['on_date']}")
-            else:
-                return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + f"?stok_pk={stok_pk}")
+                arg_str += f"&on_date={form.cleaned_data['on_date']}"
+            return HttpResponseRedirect(reverse("bio_diversity:stock_code_report") + arg_str)
         elif report == 3:
             adsc_pk = int(form.cleaned_data["adsc_id"].pk)
             if form.cleaned_data["stok_id"]:
@@ -3250,15 +3276,20 @@ def facility_tank_report(request):
 
 @login_required()
 def stock_code_report(request):
-    stok_pk = request.GET.get("stok_pk")
     on_date = request.GET.get("on_date")
-    stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
-    file_url = None
-    if stok_id and on_date:
-        on_date = datetime.strptime(on_date, "%Y-%m-%d").replace(tzinfo=pytz.UTC)
-        file_url = reports.generate_stock_code_report(stok_id, on_date)
-    elif stok_id:
-        file_url = reports.generate_stock_code_report(stok_id)
+    if not on_date:
+        on_date = datetime.now().replace(tzinfo=pytz.UTC)
+    stok_pk = request.GET.get("stok_pk")
+    stok_id = None
+    if stok_pk:
+        stok_id = models.StockCode.objects.filter(pk=stok_pk).get()
+    coll_pk = request.GET.get("coll_pk")
+    coll_id = None
+    if coll_pk:
+        coll_id = models.Collection.objects.filter(pk=coll_pk).get()
+    year = request.GET.get("year")
+
+    file_url = reports.generate_stock_code_report(stok_id, coll_id, year, on_date)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -3377,10 +3408,12 @@ class TemplFormView(mixins.TemplMixin, BioCommonFormView):
         facility_code = facic_id.name
 
         if evnt_code in ["pit tagging", "treatment", "spawning", "distribution", "water quality record",
-                         "master entry", "egg development", "adult collection"]:
-            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+                         "master entry", "adult collection"]:
+            template_url = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code.replace(" ", "_"))
         elif evnt_code in collection_evntc_list:
             template_url = 'data_templates/{}-collection.xlsx'.format(facility_code)
+        elif evnt_code in egg_dev_evntc_list:
+            template_url = 'data_templates/{}-egg_development.xlsx'.format(facility_code)
         else:
             template_url = 'data_templates/measuring.xlsx'
 
@@ -3595,7 +3628,15 @@ class LocMapTemplateView(mixins.MapMixin, SiteLoginRequiredMixin, CommonFormView
         context["sites_url"] = reverse("bio_diversity:site_report_file") + f"?file_url={report_file_url}"
 
         context["captured_locations_list"] = captured_locations_list
+        side_bar_len = 10
+        context["side_bar_len"] = side_bar_len
+        if len(captured_locations_list) > side_bar_len:
+            context["captured_locations_short_list"] = captured_locations_list[:side_bar_len]
+            context["loc_count"] = len(captured_locations_list)
         context["captured_site_list"] = captured_site_list
+        if len(captured_site_list) > side_bar_len:
+            context["captured_site_short_list"] = captured_site_list[:side_bar_len]
+            context["site_count"] = len(captured_site_list)
         return context
 
     def get_initial(self, *args, **kwargs):
