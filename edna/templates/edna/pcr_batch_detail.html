@@ -47,29 +47,29 @@
       <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
         <thead>
         <tr>
-          <th class="px-1 py-1" style="width: 100px">{% trans "qPCR ID" %}</th>
-          <th class="px-1 py-1" style="width: 100px">{% trans "Type" %}</th>
-          <th class="px-1 py-1" style="width: 120px">{% trans "Extraction ID" %}</th>
-          <th class="px-1 py-1" style="width: 130px">
+          <th class="px-1 py-1" style="width: 75px">{% trans "qPCR ID" %}</th>
+          <th class="px-1 py-1" style="width: 75px">{% trans "Type" %}</th>
+          <th class="px-1 py-1" style="width: 130px">{% trans "Extraction ID" %}</th>
+          <th class="px-1 py-1" style="width: 115px">
             ${labels.plate_well}<br>
             <button class="btn btn-xs btn-danger" @click="populateWells">{% trans "Populate!" %}</button>
           </th>
           <th class="px-1 py-1" style="width: 100px">${labels.master_mix}</th>
-          <th class="px-1 py-1">${labels.comments}</th>
+          <th class="px-1 py-1" style="width: 100px">${labels.comments}</th>
           <th class="px-1 py-1" style="width: 200px">${pcrAssaylabels.assay}</th>
-          <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.threshold}</th>
-          <th class="px-1 py-1" style="width: 200px">${pcrAssaylabels.is_undetermined}</th>
-          <th class="px-1 py-1" style="width: 200px">${pcrAssaylabels.ct}</th>
+          <th class="px-1 py-1" style="width: 100px">${pcrAssaylabels.threshold}</th>
+          <th class="px-1 py-1" style="width: 100px">${pcrAssaylabels.is_undetermined}</th>
+          <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.ct}</th>
           <th class="px-1 py-1">${pcrAssaylabels.comments}</th>
-          <th class="px-1 py-1">${pcrAssaylabels.result}</th>
-          <th class="px-1 py-1">${pcrAssaylabels.edna_conc}</th>
+          <th class="px-1 py-1" style="width: 125px">${pcrAssaylabels.result}</th>
+          <th class="px-1 py-1"  style="width: 110px">${pcrAssaylabels.edna_conc}</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="(obj, index) in pcrAssays" :key="obj.id">
-          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.pcr_object.display}</td>
-          <td v-if="obj.pcr_object.assay_count === 1" class="px-1  py-0 text-muted" tabindex="-1">{% trans "Simplex" %}</td>
-          <td v-else class="px-1 py-0 draw-attention" tabindex="-1">{% trans "Duplex" %}</td>
+          <td class="px-1 py-0 text-muted greyed" tabindex="-1">${obj.pcr_object.display}</td>
+          <td v-if="obj.pcr_object.assay_count === 1" class="px-1  py-0 text-muted greyed" tabindex="-1">{% trans "Simplex" %}</td>
+          <td v-else class="px-1 py-0 greyed purple-font" tabindex="-1">{% trans "Duplex" %}</td>
           <td class="px-0 py-0">
             <text-input-cell
               type="select"
@@ -171,7 +171,7 @@
           <td v-else-if="obj.result === 0" class="px-1  py-0 bad" tabindex="-1">${obj.result_display}</td>
           <td v-else class="px-1  py-0 highlight" tabindex="-1">${obj.result_display}</td>
 
-          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.edna_conc}</td>
+          <td class="px-1  py-0 text-muted greyed" tabindex="-1">${obj.edna_conc|floatformat(3)}</td>
 
           <td class="px-0 py-0">
             <button class="btn py-0" @click="deletePCRAssay(obj)"><span class="h5 mdi mdi-delete"></span></button>
@@ -451,6 +451,7 @@
     filters: {
       nz: vueFiltersObject["nz"],
       yesNo: vueFiltersObject["yesNo"],
+      floatformat: vueFiltersObject["floatformat"],
     },
     computed: {
       pcrs() {

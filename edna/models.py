@@ -72,7 +72,8 @@ class Species(models.Model):
 
 
 class Assay(UnilingualSimpleLookup, MetadataFields):
-    alias = models.CharField(max_length=50, verbose_name=_("target name / alias"), help_text=_("This is the name that will be used to reference this assay on import spreadsheets."))
+    alias = models.CharField(max_length=50, verbose_name=_("target name / alias"),
+                             help_text=_("This is the name that will be used to reference this assay on import spreadsheets."))
     lod = models.FloatField(blank=True, null=True, verbose_name=_("LOD value"))
     loq = models.FloatField(blank=True, null=True, verbose_name=_("LOQ value"))
     a_coef = models.FloatField(blank=True, null=True, verbose_name=_("formula A coefficient"))
@@ -429,7 +430,7 @@ class PCR(MetadataFields):
     comments = models.TextField(null=True, blank=True, verbose_name=_(" qPCR comments"))
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["pcr_batch", "plate_well"]
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -477,7 +478,7 @@ class PCRAssay(MetadataFields):
     edna_conc = models.FloatField(blank=True, null=True, verbose_name=_(" eDNA concentration (Pg/L)"), editable=False)
 
     class Meta:
-        ordering = ["pcr__extract", "pcr", "assay"]
+        ordering = ["pcr", "assay"]
         unique_together = (("pcr", "assay"),)
 
     def save(self, *args, **kwargs):
