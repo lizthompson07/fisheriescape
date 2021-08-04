@@ -39,6 +39,22 @@
                      {{ object.response_date }}
                   </td>
                 </tr>
+            {% elif field == "data_folder" %}
+                <tr>
+                  <th>
+                    {% get_verbose_label instance=object field_name=field %}
+                  </th>
+                  <td>
+{#                      Wanted to try to open local file explorer tab to navigate directly to location on shared drive #}
+{#                     {{ object.data_folder }}#}
+{#                     <input type=button onClick="parent.location='file:///C:/Users/' " value='Open Location'>#}
+{#                       <a href="{{ object.data_folder}}" >#}
+{#                            Open Location#}
+{#                       </a>#}
+                          <input type="text" READONLY id="select-this" value="{{ object.data_folder}}")>
+                        <input type=button id="clickMe" value="Click to Copy">
+                  </td>
+                </tr>
             {% else %}
                 {% verbose_td_display object field %}
           {% endif %}
@@ -58,16 +74,27 @@
 {% endblock %}
 
 {% block body_js %}
-  {{ block.super }}
-  <script>
+    {{ block.super }}
+    <script>
 
-  let pointObj = {{ object.get_leaflet_dict | safe }};
-  let allPointObj = {{ all_incidents | safe }};
-  let resightObj = {{ obj_resights | safe }};
-  let mapboxApiKey = '{{ mapbox_api_key }}';
+    let pointObj = {{ object.get_leaflet_dict | safe }};
+    let allPointObj = {{ all_incidents | safe }};
+    let resightObj = {{ obj_resights | safe }};
+    let mapboxApiKey = '{{ mapbox_api_key }}';
 
-  </script>
+    </script>
 
-  <script src="{% static 'whalebrary/map3.js' %}?version=1.9"></script>
+    <script src="{% static 'whalebrary/map3.js' %}?version=2.1"></script>
+
+    <script>
+
+    let button = document.getElementById('clickMe');
+
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.execCommand('copy', false, document.getElementById('select-this').select());
+    });
+
+    </script>
 
 {% endblock %}

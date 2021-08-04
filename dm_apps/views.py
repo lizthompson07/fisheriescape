@@ -148,7 +148,7 @@ def get_app_dict(request):
         app_dict["scuba"] = {
             "title": _("SCUBA"),
             "description": _("Lobster SCUBA survey data entry and archiving tool."),
-            "status": "dev",
+            "status": "prod",
             "access": "login-required",
             "url": reverse('scuba:index'),
             "icon_path": 'img/icons/diving-mask.png',

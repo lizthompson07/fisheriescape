@@ -202,7 +202,6 @@ class TestAnixDetailView(CommonTest):
         context_vars = [
             "evnt_id",
             "loc_id",
-            "indvt_id",
             "indv_id",
             "pair_id",
             "grp_id",

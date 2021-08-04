@@ -63,6 +63,7 @@ class Entry(models.Model):
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
                                            limit_choices_to={'grouping__is_indigenous': True}, verbose_name=_("organizations"))
     initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
+    response_requested_by = models.DateTimeField(verbose_name=_("response requested by"), blank=True, null=True)
     anticipated_end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
     is_faa_required = models.BooleanField(null=True, blank=True, verbose_name=_("is an FAA required?"))
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
@@ -76,7 +77,6 @@ class Entry(models.Model):
     # funding
     funding_program = models.ForeignKey(FundingProgram, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding program"), related_name="entries")
-
     fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
     funding_needed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("is funding needed?"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
@@ -219,8 +219,8 @@ class EntryNote(models.Model):
             self.get_type_display().upper(),
             self.note,
             self.status,
-            self.author.first_name,
-            self.author.last_name,
+            self.author.first_name if self.author else "n/a",
+            self.author.last_name if self.author else "n/a",
             self.creation_date.strftime("%Y-%m-%d"),
         )
         return my_str

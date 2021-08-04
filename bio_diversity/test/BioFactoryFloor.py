@@ -55,7 +55,6 @@ class AnixFactory(factory.django.DjangoModelFactory):
     contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
     final_contx_flag = factory.lazy_attribute(lambda o: faker.boolean())
     loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
-    indvt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtFactory")
     indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
     pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
@@ -68,7 +67,6 @@ class AnixFactory(factory.django.DjangoModelFactory):
         evnt = EvntFactory()
         contx = ContxFactory()
         loc = LocFactory()
-        indvt = IndvtFactory()
         indv = IndvFactory()
         pair = PairFactory()
         grp = GrpFactory()
@@ -80,7 +78,6 @@ class AnixFactory(factory.django.DjangoModelFactory):
             'contx_id': contx.pk,
             'final_contx_flag': obj.final_contx_flag,
             'loc_id': loc.pk,
-            'indvt_id': indvt.pk,
             'indv_id': indv.pk,
             'pair_id': pair.pk,
             'grp_id': grp.pk,
@@ -663,6 +660,10 @@ class EnvtFactory(factory.django.DjangoModelFactory):
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     duration = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     comments = factory.lazy_attribute(lambda o: faker.text())
+    start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
+                                                                              tzinfo=pytz.UTC))
+    end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
+                                                                            tzinfo=pytz.UTC))
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
@@ -676,7 +677,6 @@ class EnvtFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-
             'contx_id': contx.pk,
             'envtc_id': envtc.pk,
             'lot_num': obj.lot_num,
@@ -684,6 +684,8 @@ class EnvtFactory(factory.django.DjangoModelFactory):
             'unit_id': unit.pk,
             'duration': obj.duration,
             'comments': obj.comments,
+            'start_datetime': obj.start_datetime,
+            'end_datetime': obj.end_datetime,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
@@ -1328,6 +1330,7 @@ class IndvtFactory(factory.django.DjangoModelFactory):
         model = models.IndTreatment
 
     indvtc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtcFactory")
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
     lot_num = factory.lazy_attribute(lambda o: faker.word())
     dose = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
@@ -1343,13 +1346,14 @@ class IndvtFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         indvtc = IndvtcFactory()
+        anix = AnixFactory()
         unit = UnitFactory()
         obj = IndvtFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
-
             'indvtc_id': indvtc.pk,
+            'anix_id': anix.pk,
             'lot_num': obj.lot_num,
             'dose': obj.dose,
             'unit_id': unit.pk,
@@ -2480,7 +2484,6 @@ class SubrFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ('name',)
 
     rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
-    trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
     description_en = factory.lazy_attribute(lambda o: faker.text())
@@ -2492,13 +2495,11 @@ class SubrFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         rive = RiveFactory()
-        trib = TribFactory()
         obj = SubrFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'rive_id': rive.pk,
-            'trib_id': trib.pk,
             'name': obj.name,
             'nom': obj.nom,
             'description_en': obj.description_en,

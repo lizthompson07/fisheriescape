@@ -4,6 +4,12 @@
 
 <div class="card entry-card mb-3">
   <div class="card-header">
+    <div class="float-right">
+      <a href="#" pop-href="{% url 'ihub:file_new' object.id %}" class="btn btn-sm btn-primary">
+        {% trans "Add File" %}
+      </a>
+    </div>
+
     <h5 class="card-title"> {% trans "Files" %}</h5>
   </div>
   <div class="card-body">
@@ -59,8 +65,6 @@
         </tbody>
       </table>
     {% endif %}
-    <div class="mt-3">
-      <a href="#" pop-href="{% url 'ihub:file_new' object.id %}">      {% trans "(Add file)" %}    </a>
-    </div>
+
   </div>
 </div>

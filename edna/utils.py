@@ -63,9 +63,46 @@ def get_collection_field_list(collection):
 
 def get_batch_field_list():
     my_list = [
-        'id',
-        'datetime',
-        'operators',
-        'comments',
+        "datetime",
+        "operators",
     ]
     return my_list
+
+
+def get_pcr_batch_field_list():
+    my_list = [
+        "datetime",
+        "operators",
+        "plate_id",
+        "machine_number",
+        "run_program",
+        "control_status",
+        "comments",
+    ]
+    return my_list
+
+def get_assay_field_list():
+    my_list = [
+
+    "sample|{}".format(_("sample")),
+    "filter|{}".format(_("filter")),
+    "pcr.extract|{}".format(_("DNA extraction")),
+    "pcr| qPCR",
+    "assay",
+    "assay.species|{}".format(_("species")),
+    "ct",
+    "threshold",
+    "comments",
+    "result",
+    "edna_conc",
+    ]
+    return my_list
+
+
+def get_next_bottle_id():
+    from .models import Sample
+
+    samples = Sample.objects.filter(bottle_id__isnull=False).order_by("bottle_id")
+    if not samples.exists():
+        return 1
+    return samples.last().bottle_id + 1

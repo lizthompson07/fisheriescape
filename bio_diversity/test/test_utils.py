@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from django.test import tag
 from bio_diversity.test import BioFactoryFloor
-from bio_diversity import models, utils
+from bio_diversity import utils
 from shared_models.test.common_tests import CommonTest
 from random import randint
 
@@ -68,19 +68,19 @@ class TestGrpMove(CommonTest):
     def test_fix_jumped_tanks(self):
         # simulate accidentally recording group in wrong tank and correcting:
         # ie A->B, C->D (fish is in both B and D) ->E should correct this
-        tank_a = BioFactoryFloor.TankFactory()
+        tank_a = BioFactoryFloor.TankFactory(name="A")
         tank_a.facic_id = self.evnt.facic_id
         tank_a.save()
-        tank_b = BioFactoryFloor.TankFactory()
+        tank_b = BioFactoryFloor.TankFactory(name="B")
         tank_b.facic_id = self.evnt.facic_id
         tank_b.save()
-        tank_c = BioFactoryFloor.TankFactory()
+        tank_c = BioFactoryFloor.TankFactory(name="C")
         tank_c.facic_id = self.evnt.facic_id
         tank_c.save()
-        tank_d = BioFactoryFloor.TankFactory()
+        tank_d = BioFactoryFloor.TankFactory(name="D")
         tank_d.facic_id = self.evnt.facic_id
         tank_d.save()
-        tank_e = BioFactoryFloor.TankFactory()
+        tank_e = BioFactoryFloor.TankFactory(name="E")
         tank_e.facic_id = self.evnt.facic_id
         tank_e.save()
         # need three dates to ensure unique moving events, to keep django test env happy
@@ -96,6 +96,26 @@ class TestGrpMove(CommonTest):
         self.assertIn(tank_e, self.grp.current_cont())
         self.assertNotIn(tank_c, self.grp.current_cont())
         self.assertNotIn(tank_d, self.grp.current_cont())
+
+    def test_origin_only_tank(self):
+        #  move group with only origin, make sure group is still in original tank
+        utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk)
+        move_date = datetime.now().date()
+
+        utils.create_movement_evnt(self.final_tank, None, self.cleaned_data, move_date, grp_pk=self.grp.pk)
+
+        indv_list, grp_list = self.tank.fish_in_cont()
+        self.assertIn(self.grp, grp_list)
+
+    def test_origin_destination_tank(self):
+        #  move group with origin == destination, make sure group is in original tank:
+        utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk)
+        move_date = datetime.now().date()
+
+        utils.create_movement_evnt(self.final_tank, self.final_tank, self.cleaned_data, move_date, grp_pk=self.grp.pk)
+
+        indv_list, grp_list = self.tank.fish_in_cont()
+        self.assertIn(self.grp, grp_list)
 
 
 @tag("Grp", "Cnt", "Utils")
@@ -120,7 +140,8 @@ class TestGrpCnt(CommonTest):
             "created_by": self.evnt.created_by,
             "created_date": self.evnt.created_date,
         }
-        self.contx, data_entered = utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
+        self.contx, data_entered = utils.enter_contx(self.tank, self.cleaned_data, True, grp_pk=self.grp.pk,
+                                                     return_contx=True)
 
     def test_zero_cnt(self):
         # test that with no details present, count returns zero
@@ -136,7 +157,12 @@ class TestGrpCnt(CommonTest):
         # add two counts in different containers and make sure group record proper count
         cnt_val = randint(0, 100)
         utils.enter_cnt(self.cleaned_data, cnt_val, self.contx.pk, cnt_code="Fish in Container")
-        contx, data_entered = utils.enter_contx(self.final_tank, self.cleaned_data, True, grp_pk=self.grp.pk, return_contx=True)
+        # sometimes factories will reuse an event/tank which will prevent new contx's and cnt's from being entered.
+        # this loop ensures that new data does get added
+        data_entered = False
+        while not data_entered:
+            contx, data_entered = utils.enter_contx(self.final_tank, self.cleaned_data, True, grp_pk=self.grp.pk,
+                                                    return_contx=True)
         utils.enter_cnt(self.cleaned_data, cnt_val, contx.pk, cnt_code="Fish in Container")
         self.assertEqual(self.grp.count_fish_in_group(), 2 * cnt_val)
 
@@ -147,8 +173,8 @@ class TestGrpCnt(CommonTest):
         cnt_two_val = randint(0, 100)
         utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
         cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")[0]
-        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
-        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_two_val, "Program Group", "PEQU")
+        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group Split", "EQU")
+        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_two_val, "Program Group Split", "PEQU")
         self.assertEqual(self.grp.count_fish_in_group(), init_cnt - cnt_one_val - cnt_two_val)
 
     def test_aboslute_cnt(self):
@@ -162,12 +188,32 @@ class TestGrpCnt(CommonTest):
         next_day_evnt.save()
         new_cleaned_data = self.cleaned_data.copy()
         new_cleaned_data["evnt_id"] = next_day_evnt
-        end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, None, grp_pk=self.grp.pk, return_contx=True)
+        end_contx, data_entered = utils.enter_contx(self.tank, new_cleaned_data, None, grp_pk=self.grp.pk,
+                                                    return_contx=True)
 
         utils.enter_cnt(self.cleaned_data, init_cnt, self.contx.pk, cnt_code="Eggs Added")
         cnt = utils.enter_cnt(self.cleaned_data, 0, self.contx.pk, cnt_code="Eggs Removed")[0]
-        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group", "EQU")
+        utils.enter_cnt_det(self.cleaned_data, cnt, cnt_one_val, "Program Group Split", "EQU")
         utils.enter_cnt(new_cleaned_data, cnt_final_val, end_contx.pk, cnt_code="Egg Count")
         self.assertEqual(self.grp.count_fish_in_group(), cnt_final_val)
 
 
+@tag("Utils")
+class TestCollGetter(CommonTest):
+    fixtures = ["initial_data.json"]
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+
+    def test_ints_found(self):
+        coll_id = utils.coll_getter("FP")
+        self.assertIsNotNone(coll_id)
+
+    def test_name_found(self):
+        coll_id = utils.coll_getter("Fall Parr")
+        self.assertIsNotNone(coll_id)
+
+    def test_WP_found(self):
+        # WP is redundent case, appears in both Wild Parr and wild pre smolt
+        coll_id = utils.coll_getter("WP")
+        self.assertEqual(coll_id.name, "Wild Parr (WP)", coll_id.name)

@@ -1,8 +1,24 @@
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
+
+    # SETTINGS #
+    ############
+    path('settings/statuses/', views.StatusFormsetView.as_view(), name="manage_statuses"),
+    path('settings/status/<int:pk>/delete/', views.StatusHardDeleteView.as_view(), name="delete_status"),
+    path('settings/sexes/', views.SexFormsetView.as_view(), name="manage_sexes"),
+    path('settings/sexes/<int:pk>/delete/', views.SexHardDeleteView.as_view(), name="delete_sex"),
+    path('settings/life-stages/', views.LifeStageFormsetView.as_view(), name="manage_life_stages"),
+    path('settings/life-stage/<int:pk>/delete/', views.LifeStageHardDeleteView.as_view(), name="delete_life_stage"),
+    path('settings/origins/', views.OriginFormsetView.as_view(), name="manage_origins"),
+    path('settings/origin/<int:pk>/delete/', views.OriginHardDeleteView.as_view(), name="delete_origin"),
+    path('settings/maturities/', views.MaturityFormsetView.as_view(), name="manage_maturities"),
+    path('settings/maturities/<int:pk>/delete/', views.MaturityHardDeleteView.as_view(), name="delete_maturity"),
+    path('settings/electrofishers/', views.ElectrofisherFormsetView.as_view(), name="manage_electrofishers"),
+    path('settings/electrofisher/<int:pk>/delete/', views.ElectrofisherHardDeleteView.as_view(), name="delete_electrofisher"),
 
     # SPECIES #
     ###########
@@ -15,37 +31,55 @@ urlpatterns = [
     # RIVER #
     #########
     path('rivers/', views.RiverListView.as_view(), name="river_list"),
-    path('river/new/', views.RiverCreateView.as_view(), name="river_new"),
-    path('river/<int:pk>/view/', views.RiverDetailView.as_view(), name="river_detail"),
-    path('river/<int:pk>/edit/', views.RiverUpdateView.as_view(), name="river_edit"),
-    path('river/<int:pk>/delete/', views.RiverDeleteView.as_view(), name="river_delete"),
+    path('rivers/new/', views.RiverCreateView.as_view(), name="river_new"),
+    path('rivers/<int:pk>/view/', views.RiverDetailView.as_view(), name="river_detail"),
+    path('rivers/<int:pk>/edit/', views.RiverUpdateView.as_view(), name="river_edit"),
+    path('rivers/<int:pk>/delete/', views.RiverDeleteView.as_view(), name="river_delete"),
 
     # RIVER SITE #
     ##############
-    path('river/<int:river>/site/new/', views.RiverSiteCreateView.as_view(), name="site_new"),
-    path('site/new/', views.RiverSiteCreateView.as_view(), name="site_new"),
-    path('site/<int:pk>/view/', views.RiverSiteDetailView.as_view(), name="site_detail"),
-    path('site/<int:pk>/edit/', views.RiverSiteUpdateView.as_view(), name="site_edit"),
-    path('site/<int:pk>/delete/', views.RiverSiteDeleteView.as_view(), name="site_delete"),
+    path('rivers/<int:river>/new-site/', views.RiverSiteCreateView.as_view(), name="site_new"),
+    path('sites/new/', views.RiverSiteCreateView.as_view(), name="site_new"),
+    path('sites/<int:pk>/view/', views.RiverSiteDetailView.as_view(), name="site_detail"),
+    path('sites/<int:pk>/edit/', views.RiverSiteUpdateView.as_view(), name="site_edit"),
+    path('sites/<int:pk>/delete/', views.RiverSiteDeleteView.as_view(), name="site_delete"),
 
     # SAMPLE #
     ##########
-    path('samples/', views.SampleListView.as_view(), name="trap_list"),
-    path('sample/new/', views.SampleCreateView.as_view(), name="trap_new"),
-    path('sample/<int:pk>/view/', views.SampleDetailView.as_view(), name="trap_detail"),
-    path('sample/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="trap_edit"),
-    path('sample/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="trap_delete"),
+    path('samples/', views.SampleListView.as_view(), name="sample_list"),
+    path('samples/new/', views.SampleCreateView.as_view(), name="sample_new"),
+    path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
+    path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
+    path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
 
-    # ENTRY #
+    # SWEEPS #
+    ###############
+    path('samples/<int:sample>/new-sweep/', views.SweepCreateView.as_view(), name='sweep_new'),
+    path('sweeps/<int:pk>/view/', views.SweepDetailView.as_view(), name="sweep_detail"),
+    path('sweeps/<int:pk>/edit/', views.SweepUpdateView.as_view(), name="sweep_edit"),
+    path('sweeps/<int:pk>/delete/', views.SweepDeleteView.as_view(), name="sweep_delete"),
+
+    # DATA ENTRY #
+    ##############
+    path('samples/<int:sample>/data-entry/', views.DataEntryVueJSView.as_view(), name="sample_data_entry"),
+    path('sweeps/<int:sweep>/data-entry/', views.DataEntryVueJSView.as_view(), name="sweep_data_entry"),
+
+    # OBSERVATION #
+    ###############
+    path('observations/', views.ObservationListView.as_view(), name="obs_list"),
+    path('observations/<int:pk>/view/', views.ObservationDetailView.as_view(), name="obs_detail"),
+    path('observations/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="obs_edit"),
+    path('observations/<int:pk>/delete/', views.ObservationDeleteView.as_view(), name="obs_delete"),
+
+    # FILES #
     #########
-    path('sample/<int:sample>/entry/insert/', views.EntryInsertView.as_view(), name="obs_insert"),
-    path('sample/<int:sample>/new-entry/add/species/<int:species>/', views.EntryCreateView.as_view(), name="obs_new"),
-    path('entry/<int:pk>/edit/', views.EntryUpdateView.as_view(), name="obs_edit"),
-    path('entry/<int:pk>/delete/', views.species_observation_delete, name="obs_delete"),
+    path('observations/<int:obs>/new-file/', views.FileCreateView.as_view(), name='file_new'),
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
+    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 
     # Reports #
     ###########
-    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/samples/<str:year>/<str:sites>/', views.export_sample_data, name="sample_report"),
     path('reports/entries/<str:year>/<str:sites>/', views.export_entry_data, name="entry_report"),
     path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),

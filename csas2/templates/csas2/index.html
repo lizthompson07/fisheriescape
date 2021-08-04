@@ -44,7 +44,7 @@
               <p class="card-text">{% trans "Create, modify or view the status of a CSAS Processes" %}</p>
               <a href="{% url 'csas2:process_list' %}" class="btn btn-primary" data-toggle="tooltip" title="{% trans "All CSAS processes" %}"><span class="mdi mdi-format-list-bulleted text-light"></span></a>
               <a href="{% url 'csas2:process_list' %}?personalized=true" class="btn btn-warning" data-toggle="tooltip" title="{% trans "CSAS processes connected to you" %}"><span class="mdi mdi-heart"></span></a>
-              <a href="{% url 'csas2:request_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New process" %}"><span class="mdi mdi-plus text-light"></span></a>
+              <a href="{% url 'csas2:process_new' %}" class="btn btn-success" data-toggle="tooltip" title="{% trans "New process" %}"><span class="mdi mdi-plus text-light"></span></a>
             </div>
           </div>
         </div>

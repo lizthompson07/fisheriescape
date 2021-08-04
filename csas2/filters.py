@@ -31,11 +31,11 @@ class PersonFilter(django_filters.FilterSet):
 
 
 class CSASRequestFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title / Reference Number"))
+    search_term = django_filters.CharFilter(field_name='search_term', lookup_expr='icontains', label=_("Title / ref number"))
     request_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
     fiscal_year = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
-    branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact')
+    branch = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / sector"), lookup_expr='exact')
     has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
     status = django_filters.MultipleChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"),
                                                  widget=forms.SelectMultiple(attrs=chosen_js), choices=request_status_choices)
@@ -54,7 +54,7 @@ class CSASRequestFilter(django_filters.FilterSet):
                                                                           label=_("Fiscal year"), widget=forms.SelectMultiple(attrs=chosen_js))
         self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact',
                                                              choices=region_choices)
-        self.filters['branch'] = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact',
+        self.filters['branch'] = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / sector"), lookup_expr='exact',
                                                              choices=branch_choices)
         self.filters['client'] = django_filters.ChoiceFilter(field_name="client", label=_("Client"), lookup_expr='exact', choices=client_choices)
 
@@ -62,7 +62,7 @@ class CSASRequestFilter(django_filters.FilterSet):
             if self.data["region"] != "":
                 my_region_id = int(self.data["region"])
                 branch_choices = [my_set for my_set in utils.get_branch_choices() if Branch.objects.get(pk=my_set[0]).region_id == my_region_id]
-                self.filters['branch'] = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / Sector"), lookup_expr='exact',
+                self.filters['branch'] = django_filters.ChoiceFilter(field_name="section__division__branch", label=_("Branch / sector"), lookup_expr='exact',
                                                                      choices=branch_choices)
 
                 section_choices = [my_set for my_set in utils.get_section_choices() if

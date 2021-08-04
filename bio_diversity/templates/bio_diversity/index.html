@@ -20,7 +20,7 @@
                         <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:list_evnt'%}">{% trans "Event" %}</a>
                     </div>
                     <div class="container pt-3">
-                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:create_evnt'%}">{% trans "Quick Entry" %}</a>
+                        <a class="btn btn-secondary btn-lg" href="{% url 'bio_diversity:create_evnt'%}">{% trans "Quick Entry (New Event)" %}</a>
                     </div>
                     <hr>
                 </div>
@@ -32,6 +32,9 @@
                     <hr>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg"  href="{% url 'bio_diversity:create_repr'%}">{% trans "Generate reports" %}</a>
+                    </div>
+                    <div class="container pt-3">
+                        <a class="btn btn-secondary btn-lg"  href="{% url 'bio_diversity:create_templ'%}">{% trans "Templates" %}</a>
                     </div>
                     <div class="container pt-3">
                         <a class="btn btn-secondary btn-lg"  href="{% url 'bio_diversity:loc_map'%}">{% trans "Maps" %}</a>

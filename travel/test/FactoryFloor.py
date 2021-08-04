@@ -85,7 +85,9 @@ class TripRequestFactory(factory.django.DjangoModelFactory):
             'trip': TripFactory().id,
             "section": SectionFactory().id,
             "created_by": UserFactory().id,
-            "late_justification": faker.text()
+            "late_justification": faker.text(),
+            'needs_gov_vehicle': faker.pybool(),
+
         }
         return valid_data
 

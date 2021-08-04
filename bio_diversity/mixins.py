@@ -180,6 +180,7 @@ class EvntMixin:
     model = models.Event
     title = _("Event")
     admin_only = False
+    deletable = True
 
 
 class EvntcMixin:
@@ -226,6 +227,13 @@ class FeedMixin:
     key = "feed"
     form_class = forms.FeedForm
     model = models.Feeding
+    title = _("Feeding")
+    admin_only = False
+
+
+class FeedHandlerMixin:
+    key = "feedh"
+    form_class = forms.FeedHandlerForm
     title = _("Feeding")
     admin_only = False
 
@@ -309,6 +317,7 @@ class IndvMixin:
     model = models.Individual
     title = _("Individual")
     admin_only = False
+    deletable = True
 
 
 class IndvdMixin:
@@ -375,6 +384,7 @@ class LocMixin:
     title = _("Location")
     admin_only = False
     img = True
+    deletable = True
 
 
 class LoccMixin:
@@ -437,6 +447,7 @@ class PairMixin:
     form_class = forms.PairForm
     title = _("Pairing")
     admin_only = False
+
 
 class PercMixin:
     key = 'perc'
@@ -537,7 +548,7 @@ class SampMixin:
     key = 'samp'
     model = models.Sample
     form_class = forms.SampForm
-    title = _("Sample ")
+    title = _("Sample")
     admin_only = False
 
 
@@ -638,6 +649,13 @@ class TeamMixin:
     form_class = forms.TeamForm
     title = _("Team")
     admin_only = True
+
+
+class TemplMixin:
+    key = 'templ'
+    form_class = forms.TemplForm
+    title = _("Templates")
+    admin_only = False
 
 
 class TrayMixin:

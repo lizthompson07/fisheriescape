@@ -1,50 +1,281 @@
-{% extends "trapnet/trapnet_base.html" %}
-{% load static %}
+{% extends 'trapnet/form.html' %}
+
 {% load bootstrap4 %}
-{% block content %}
-    <style>
-    label{
-        font-weight: bold;
-    }
-    </style>
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:index' %}"> Home </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_list' %}"> Samples </a></li>
-            {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'trapnet:trap_detail' object.id %}"> {{ object }} </a></li>
-                <li class="breadcrumb-item active" aria-current="page"> Edit</li>
-            {% else %}
-                <li class="breadcrumb-item active" aria-current="page"> New</li>
-            {% endif %}
-
-        </ol>
-    </nav>
+{% load i18n %}
+{% load custom_tags %}
 
 
-    <div class="container">
+{% block form_fields %}
 
-        <h1>
-            {% if object %}
-                {{ object }}
-            {% else %}
-                <h1>NEW TRAP</h1>
-            {% endif %}
-        </h1>
+  {% if not object or object.sample_type == 1 %}
+    {% echo "disabled" as electro_disabled_var %}
+    {% trans "These fields are only for electrofishing samples" as electro_tip %}
+  {% endif %}
 
-        <form method="post" class="form">
-            {% csrf_token %}
-            {% for field in form %}
-                {% bootstrap_field field %}
-            {% endfor %}
+  {% if  not object or object.sample_type == 2 %}
+    {% echo "disabled" as rst_disabled_var %}
+    {% trans "These fields are only for RST samples" as rst_tip %}
+  {% endif %}
 
-            {% buttons %}
-                <button type="submit" class="btn btn-success">Submit</button>
-                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">Cancel</a>
-            {% endbuttons %}
-        </form>
+  <div class="card info-card mb-5">
+    <div class="card-header bg-primary text-light">
+      <h4 class="card-title">
+        {% trans "General" %}
+      </h4>
+    </div>
+    <div class="card-body">
+      {% bootstrap_field form.site placeholder="" %}
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field form.arrival_date placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field form.departure_date placeholder="" %}
+        </div>
+      </div>
+      {% bootstrap_field form.sample_type placeholder="" %}
+      {% if not object.sample_type %}
+        <div class="red-font mb-4">
+          {% blocktrans %}
+            Certain field will only open up after a sample type has been selected. Click
+            <button id="save" type="button" class="btn btn-sm btn-link px-0">here</button> to save and continue editing.
+          {% endblocktrans %}
+        </div>
+      {% endif %}
+
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field form.air_temp_arrival placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field form.min_air_temp placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field form.max_air_temp placeholder="" %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field form.water_temp_c placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field form.percent_cloud_cover placeholder="" %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field form.precipitation_category placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field form.precipitation_comment placeholder="" %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field form.wind_speed placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field form.wind_direction placeholder="" %}
+        </div>
+      </div>
+      {% bootstrap_field form.notes placeholder="" %}
+    </div>
+  </div>
+
+  {% if object.sample_type == 1 %}
+    <div class="card info-card mb-5">
+      <div class="card-header bg-primary text-light">
+        <h4 class="card-title">
+          {% trans "Rotary Screw Trap Specific" %}
+        </h4>
+      </div>
+      <div class="card-body">
+        {% bootstrap_field form.water_temp_trap_c placeholder="" %}
+        <div class="row">
+          <div class="col">
+            {% bootstrap_field form.water_depth_m placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.water_level_delta_m placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.discharge_m3_sec placeholder="" %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {% bootstrap_field form.rpm_arrival placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.rpm_departure placeholder="" %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {% bootstrap_field form.operating_condition placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.operating_condition_comment placeholder="" %}
+          </div>
+        </div>
+        {% bootstrap_field form.samplers placeholder="" %}
+      </div>
     </div>
 
+  {% elif object.sample_type == 2 %}
 
-{% endblock content %}
+
+    <div class="card info-card mb-5">
+      <div class="card-header bg-primary text-light">
+        <h4 class="card-title">
+          {% trans "Electrofishing Specific" %}
+        </h4>
+      </div>
+      <div class="card-body">
+
+
+        <label for="">{% trans "Site characterization (0-1)" %}</label>
+        <table class="table table-bordered w-75">
+          <tr>
+            <td>{{ form.percent_riffle.label }}</td>
+            <td>{{ form.percent_run.label }}</td>
+            <td>{{ form.percent_flat.label }}</td>
+            <td>{{ form.percent_pool.label }}</td>
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.percent_riffle show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_run show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_flat show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_pool show_label=False placeholder="" %}</td>
+          </tr>
+        </table>
+
+
+        <label for="">{% trans "River Description" %}</label>
+        <table class="table table-bordered w-75">
+          <tr>
+            <td></td>
+            <td>{% trans "Bank length (m)" %}</td>
+            <td>{% trans "Overhanging vegetation (%)" %}</td>
+            <td>{% trans "Max overhanging vegetation (m)" %}</td>
+          </tr>
+          <tr>
+            <td>{% trans "Left side" %}</td>
+            <td>{% bootstrap_field form.bank_length_left show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.overhanging_veg_left show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.max_overhanging_veg_left show_label=False placeholder="" %}</td>
+          </tr>
+          <tr>
+            <td>{% trans "Right side" %}</td>
+            <td>{% bootstrap_field form.bank_length_right show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.overhanging_veg_right show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.max_overhanging_veg_right show_label=False placeholder="" %}</td>
+
+          </tr>
+        </table>
+
+
+        <label for="">{% trans "River width and depth" %}</label>
+        <table class="table table-bordered w-75">
+          <tr>
+            <td rowspan="2"></td>
+            <td rowspan="2" style="vertical-align: bottom">{% trans "Stream Width (m)" %}</td>
+            <td colspan="3" class="text-center">{% trans "Depth (cm)" %}</td>
+          </tr>
+          <tr>
+            <td>{% trans "#1" %}</td>
+            <td>{% trans "#2" %}</td>
+            <td>{% trans "#3" %}</td>
+          </tr>
+          <tr>
+            <td>{% trans "Lower" %}</td>
+            <td>{% bootstrap_field form.width_lower show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_2_lower show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_1_lower show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_3_lower show_label=False placeholder="" %}</td>
+          </tr>
+          <tr>
+            <td>{% trans "Middle" %}</td>
+            <td>{% bootstrap_field form.width_middle show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_2_middle show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_1_middle show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_3_middle show_label=False placeholder="" %}</td>
+          </tr>
+          <tr>
+            <td>{% trans "Upper" %}</td>
+            <td>{% bootstrap_field form.width_upper show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_2_upper show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_1_upper show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.depth_3_upper show_label=False placeholder="" %}</td>
+          </tr>
+        </table>
+
+        {% bootstrap_field form.water_cond placeholder="" %}
+
+        <label for="">{% trans "Substrate characterization (0-1)" %}</label>
+        <table class="table table-bordered">
+          <tr>
+            <td>{{ form.percent_fine.label }}</td>
+            <td>{{ form.percent_sand.label }}</td>
+            <td>{{ form.percent_gravel.label }}</td>
+            <td>{{ form.percent_pebble.label }}</td>
+            <td>{{ form.percent_cobble.label }}</td>
+            <td>{{ form.percent_rocks.label }}</td>
+            <td>{{ form.percent_boulder.label }}</td>
+            <td>{{ form.percent_bedrock.label }}</td>
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.percent_fine show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_sand show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_gravel show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_pebble show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_cobble show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_rocks show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_boulder show_label=False placeholder="" %}</td>
+            <td>{% bootstrap_field form.percent_bedrock show_label=False placeholder="" %}</td>
+          </tr>
+        </table>
+
+        {% bootstrap_field form.electrofisher placeholder="" %}
+        <div class="row">
+          <div class="col">
+            {% bootstrap_field form.electrofisher_voltage placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.electrofisher_output placeholder="" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field form.electrofisher_frequency placeholder="" %}
+          </div>
+        </div>
+        {% bootstrap_field form.crew_probe placeholder="" %}
+        {% bootstrap_field form.crew_seine placeholder="" %}
+        {% bootstrap_field form.crew_dipnet placeholder="" %}
+        {% bootstrap_field form.crew_extras placeholder="" %}
+      </div>
+    </div>
+  {% endif %}
+
+
+  {% bootstrap_field form.stay_on_page %}
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  <script type="application/javascript">
+  $("#save").click(function () {
+    $("#id_stay_on_page").val(1);
+    $("form").submit();
+  });
+
+  $("#id_arrival_date").change(function () {
+    var startDate = $(this).val();
+    if (startDate != null) {
+      $("#id_departure_date").val(startDate);
+    }
+  });
+
+  </script>
+{% endblock %}

@@ -69,6 +69,9 @@ class DiveForm(forms.ModelForm):
     class Meta:
         model = models.Dive
         fields = "__all__"
+        widgets = {
+            "start_descent": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,7 +80,7 @@ class DiveForm(forms.ModelForm):
         elif kwargs.get("initial"):
             self.fields["transect"].queryset = models.Sample.objects.get(pk=kwargs.get("initial").get("sample")).site.transects.all()
 
-        self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
+        # self.fields["start_descent"].label += " (yyyy-mm-dd HH:MM:SS)"
 
     def clean(self):
         if hasattr(self.instance, "sample"):
@@ -94,6 +97,13 @@ class DiveForm(forms.ModelForm):
                               start_descent.day != sample.datetime.day):
             msg = gettext(gettext('This must occur on the same day as the sample: {}').format(date(sample.datetime)))
             self.add_error('start_descent', msg)
+
+        transect = cleaned_data.get("transect")
+        width_m = cleaned_data.get("width_m")
+        if transect and not width_m:
+            msg = gettext(gettext('If there is a transect associated with this dive, you must provide a width.'))
+            self.add_error('width_m', msg)
+
 
 
 class SectionForm(forms.ModelForm):
@@ -140,7 +150,7 @@ class ObservationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         klass = "form-control form-control-sm"
         self.fields["sex"].widget.attrs = {"v-model": "obs.sex", "@change": "updateObservation(obs)", "class": klass}
-        self.fields["egg_status"].widget.attrs = {"v-model": "obs.egg_status", "@change": "updateObservation(obs)", "class": klass, ":disabled":"obs.sex!='f'"}
+        self.fields["egg_status"].widget.attrs = {"v-model": "obs.egg_status", "@change": "updateObservation(obs)", "class": klass, ":disabled": "obs.sex!='f'"}
         self.fields["carapace_length_mm"].widget.attrs = {"v-model": "obs.carapace_length_mm", "@change": "updateObservation(obs)", "class": klass}
         self.fields["certainty_rating"].widget.attrs = {"v-model": "obs.certainty_rating", "@change": "updateObservation(obs)", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "obs.comment", "@change": "updateObservation(obs)", "class": klass}
@@ -158,9 +168,11 @@ class NewObservationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         klass = "form-control form-control-sm"
-        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "ref": "top_of_form1", "class": klass, "@change":"updateEggStatus(new_observation)"}
+        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "ref": "top_of_form1", "class": klass,
+                                           "@change": "updateEggStatus(new_observation)"}
         self.fields["egg_status"].widget.attrs = {"v-model": "new_observation.egg_status", "class": klass}
-        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm", "class": klass, "@change":"updateLengthCertainty(new_observation)"}
+        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm", "class": klass,
+                                                          "@change": "updateLengthCertainty(new_observation)"}
         self.fields["certainty_rating"].widget.attrs = {"v-model": "new_observation.certainty_rating", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "new_observation.comment", "row": 3, "class": klass}
 

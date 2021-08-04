@@ -1,0 +1,19 @@
+<script type="application/javascript">
+    $("#plot_btn").click(function (e) {
+        onPlotCLick();
+    })
+
+    function onPlotCLick() {
+        var e = document.getElementById("id_plot");
+        var plotUrl = e.value;
+        console.log(plotUrl)
+
+        if ( plotUrl==0 ) {
+            return;
+        }
+        else {
+            window.open(plotUrl, '_blank', 'fullscreen=no');
+        }
+
+    }
+</script>

@@ -82,6 +82,7 @@ urlpatterns = [
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
 
     path('create/data/', views.DataCreate.as_view(), name="create_data"),
+    path('create/data/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
     path('create/data/<int:evnt>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
 
     path('log/data/', views.DataLog.as_view(), name="data_log"),
@@ -132,7 +133,8 @@ urlpatterns = [
     path('details/evnt/<str:back>/<int:back_id>/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
     path('list/evnt/', views.EvntList.as_view(), name="list_evnt"),
     path('update/evnt/<int:pk>/', views.EvntUpdate.as_view(), name="update_evnt"),
-                  
+    path('delete/evnt/<int:pk>/', views.EvntDelete.as_view(), name="delete_evnt"),
+
     path('create/evntc/', views.EvntcCreate.as_view(), name="create_evntc"),
     path('details/evntc/<int:pk>/', views.EvntcDetails.as_view(), name="details_evntc"),
     path('list/evntc/', views.EvntcList.as_view(), name="list_evntc"),
@@ -163,9 +165,13 @@ urlpatterns = [
              
     path('create/feed/', views.FeedCreate.as_view(), name="create_feed"),
     path('details/feed/<int:pk>/', views.FeedDetails.as_view(), name="details_feed"),
+    path('details/feed/<str:back>/<int:back_id>/<int:pk>/', views.FeedDetails.as_view(), name="details_feed"),
     path('list/feed/', views.FeedList.as_view(), name="list_feed"),
     path('update/feed/<int:pk>/', views.FeedUpdate.as_view(), name="update_feed"),
-             
+
+    path('create/feedh/<str:cont_type>/<int:cont_id>/<str:pop>/', views.FeedHandlerFormView.as_view(),
+         name="create_feedh"),
+
     path('create/feedc/', views.FeedcCreate.as_view(), name="create_feedc"),
     path('details/feedc/<int:pk>/', views.FeedcDetails.as_view(), name="details_feedc"),
     path('list/feedc/', views.FeedcList.as_view(), name="list_feedc"),
@@ -236,6 +242,7 @@ urlpatterns = [
 
     path('create/indvt/', views.IndvtCreate.as_view(), name="create_indvt"),
     path('details/indvt/<int:pk>/', views.IndvtDetails.as_view(), name="details_indvt"),
+    path('details/indvt/<str:back>/<int:back_id>/<int:pk>/', views.IndvtDetails.as_view(), name="details_indvt"),
     path('list/indvt/', views.IndvtList.as_view(), name="list_indvt"),
     path('update/indvt/<int:pk>/', views.IndvtUpdate.as_view(), name="update_indvt"),
 
@@ -270,6 +277,7 @@ urlpatterns = [
     path('details/loc/<str:back>/<int:back_id>/<int:pk>/', views.LocDetails.as_view(), name="details_loc"),
     path('list/loc/', views.LocList.as_view(), name="list_loc"),
     path('update/loc/<int:pk>/', views.LocUpdate.as_view(), name="update_loc"),
+    path('delete/loc/<int:pk>/', views.LocDelete.as_view(), name="delete_loc"),
 
     path('create/locc/', views.LoccCreate.as_view(), name="create_locc"),
     path('details/locc/<int:pk>/', views.LoccDetails.as_view(), name="details_locc"),
@@ -294,9 +302,6 @@ urlpatterns = [
     
     path('map/', views.LocMapTemplateView.as_view(), name="loc_map"),
     path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/', views.LocMapTemplateView.as_view(), name="loc_map"),
-    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/riv/<str:rive_id>/', views.LocMapTemplateView.as_view(), name="loc_map"),
-    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/start/<str:start>/end/<str:end>/', views.LocMapTemplateView.as_view(), name="loc_map"),
-    path('map/n/<str:n>/s/<str:s>/e/<str:e>/w/<str:w>/start/<str:start>/end/<str:end>/riv/<str:rive_id>/', views.LocMapTemplateView.as_view(), name="loc_map"),
 
     path('create/mort/<str:iorg>/<int:pk>/', views.MortFormView.as_view(), name="create_mort"),
     path('create/mort/<str:iorg>/<int:pk>/<str:pop>/', views.MortFormView.as_view(), name="create_mort"),
@@ -324,6 +329,8 @@ urlpatterns = [
     path('plot/growth/<str:iorg>/<int:pk>/<str:pop>/', views.GrowthChartView.as_view(), name="plot_growth"),
     path('plot/maturity/<str:cont>/<int:pk>/<str:pop>/', views.MaturityRateView.as_view(), name="plot_maturity_rate"),
     path('plot/tempdata/<str:cont>/<int:pk>/<str:pop>/', views.PlotTempData.as_view(), name="plot_temp_data"),
+    path('plot/oxydata/<str:cont>/<int:pk>/<str:pop>/', views.PlotOxyData.as_view(), name="plot_oxy_data"),
+    path('plot/data/<int:envc_pk>/<str:cont>/<int:pk>/<str:pop>/', views.PlotEnvData.as_view(), name="plot_env_data"),
     path('plots/plot_data_file/', views.plot_data_file, name="plot_data_file"),
 
     path('create/prio/', views.PrioCreate.as_view(), name="create_prio"),
@@ -375,8 +382,11 @@ urlpatterns = [
     path('create/repr/', views.ReportFormView.as_view(), name="create_repr"),
     path('reports/facility_tank_report/', views.facility_tank_report, name="facic_tank_report"),
     path('reports/stock_code_report/', views.stock_code_report, name="stock_code_report"),
+    path('reports/detail_report/', views.detail_report, name="detail_report"),
     path('reports/site_report_file/', views.site_report_file, name="site_report_file"),
-    path('reports/individual_report_file/', views.indvidual_report_file, name="individual_report_file"),
+    path('reports/individual_report_file/', views.individual_report_file, name="individual_report_file"),
+    path('reports/grp_report_file/', views.grp_report_file, name="grp_report_file"),
+    path('reports/mort_report_file/', views.mort_report_file, name="mort_report_file"),
 
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
@@ -460,6 +470,8 @@ urlpatterns = [
     path('details/team/<str:back>/<int:back_id>/<int:pk>/', views.TeamDetails.as_view(), name="details_team"),
     path('list/team/', views.TeamList.as_view(), name="list_team"),
     path('update/team/<int:pk>/', views.TeamUpdate.as_view(), name="update_team"),
+
+    path('create/templ/', views.TemplFormView.as_view(), name="create_templ"),
 
     path('create/tray/', views.TrayCreate.as_view(), name="create_tray"),
     path('create/tray/<int:evnt>/<str:pop>/', views.TrayCreate.as_view(), name="create_tray"),

@@ -13,7 +13,7 @@
     {% endif %}
     <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:plot_growth' 'indv' object.pk  'pop'%}')" title="{% trans 'Plot Growth Chart' %}">{% trans 'Plot Growth Chart' %}</a>
     {% if report_url %}
-        <a class="btn btn-primary" href={{report_url}} title="{% trans 'Create Individual Report' %}">{% trans 'Create Individual Report' %}</a>
+        <a class="btn btn-primary" href={{report_url}} title="{% trans 'Individual Report' %}">{% trans 'Individual Report' %}</a>
     {% endif %}
 {% endblock model_buttons %}
 
@@ -32,6 +32,7 @@
                 <tbody>
                 {% for obj in heritage_set %}
                 {# the 1 is to select the group object from obj, which is a tuple #}
+                {% if obj.1 %}
                 <tr href="{% url 'bio_diversity:details_grp' 'indv' object.id obj.1.id %}">
                     {% for field in obj %}
                     <td>
@@ -39,6 +40,7 @@
                     </td>
                     {% endfor %}
                 </tr>
+                {% endif %}
                 {% endfor %}
                 </tbody>
             </table>

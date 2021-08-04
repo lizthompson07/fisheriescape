@@ -1,0 +1,207 @@
+<!-- template for the modal component -->
+{% load i18n %}
+
+<script type="text/x-template" id="extract-import-overlay-template">
+<div class="">
+
+  <button class="btn btn-sm btn-warning" @click="openDialog">
+    <span class="mdi mdi-import mr-1"></span> {% trans "Import DNA Extracts" %}
+  </button>
+
+  <transition v-if="overlay" name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" style="width: 1000px">
+          <div class="modal-header">
+            <h4> {% trans "Import Extracts" %}</h4>
+          </div>
+          <div class="modal-body" @keydown.esc.prevent="overlay = false">
+            <div v-if="loadingExtracts" class="loading mb-3 mt-3 mt-5">
+              <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+            <div v-else>
+              <div class="mb-3">
+                <p>{% trans "Please select the extracts you wish to import from the list below" %}</p>
+              </div>
+              <form class="mb-3" @change="getExtracts">
+                <div class="row">
+{#                  <div class="col">#}
+{#                    <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">#}
+{#                  </div>#}
+{#                  <div class="col">#}
+{#                    <input type="number" class="form-control" placeholder="{% trans "Filter Id" %}" v-model="filterFilterId">#}
+{#                  </div>#}
+                  <div class="col">
+                    <input type="number" class="form-control" placeholder="{% trans "Extract Id" %}" v-model="filterExtractId">
+                  </div>
+                  <div class="col">
+                    <input type="text" class="form-control" placeholder="{% trans "Extraction Number" %}" v-model="filterExtractionNumber">
+                  </div>
+                  <div class="col">
+                    <select class="form-control" v-model="filterBatch">
+                      <option :value="null">{% trans "Filter by batch" %}</option>
+                      <option v-for="batch in batches" :key="batch.id" :value="batch.id">
+                        ${batch.display}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-auto my-1">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="unfiltered_only" v-model="filterUnprocessed">
+                      <label class="form-check-label" for="unfiltered_only">
+                        {% trans "Unprocessed DNA only" %}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <div class="mb-3">
+                <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedExtracts" ref="extract_box">
+                  <option v-for="extract in extracts" :key="extract.id" :value="extract.id">
+                    ${extract.display} &emsp;||&emsp;
+                    {% trans "Extraction Number" %} &rarr; ${extract.extraction_number | nz("n/a")} &emsp;||&emsp;
+                    {% trans "Batch" %} &rarr; ${extract.batch_display} ||
+                    ${extract.filter_display|nz } ||
+                    ${extract.sample_display|nz }
+                  </option>
+                </select>
+              </div>
+              <p class="lead text-muted">
+                {% trans "Extracts: " %} ${extracts.length} || {% trans "Selected: " %} ${selectedExtracts.length}
+              </p>
+
+
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="">{% trans "# of technical replicates" %}</label>
+                  <input type="number" class="form-control" placeholder="" v-model="numberOfTechReps">
+                </div>
+                <div class="col">
+                  <label for="">{% trans "Which assays to test?" %}</label>
+                  <select name="" id="" multiple="true" class="form-control w-100" style="height: 100px" v-model="selectedAssays">
+                    <option v-for="(option, index) in assayChoices" :value="option.value">${option.text}</option>
+                  </select>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button v-if="canProceed" class="btn btn-primary" @click="importExtracts">{% trans "Import" %}</button>
+            <button v-else class="btn btn-primary disabled">{% trans "Import" %}</button>
+            <button class="btn btn-secondary" @click="overlay = false">{% trans "Back" %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+</script>
+
+<script type="application/javascript">
+
+Vue.component("extract-import-overlay", {
+  template: "#extract-import-overlay-template",
+  delimiters: ["${", "}"],
+  name: "extract-import-overlay",
+  props: {
+    batch_id: {
+      required: true,
+    }
+  },
+  data() {
+    return {
+      overlay: false,
+      error: null,
+      extracts: [],
+      batches: [],
+      selectedExtracts: [],
+
+      filterUnprocessed: true,
+      {#filterSampleId: null,#}
+      {#filterFilterId: null,#}
+      filterExtractId: null,
+      filterExtractionNumber: null,
+      filterBatch: null,
+      loadingExtracts: true,
+      loadingBatches: true,
+
+      numberOfTechReps: 3,
+      selectedAssays: [],
+      assayChoices: [],
+    };
+  },
+  methods: {
+    openDialog() {
+      this.error = null;
+      this.overlay = true;
+      this.filterUnprocessed = true;
+      {#this.filterSampleId = null;#}
+      {#this.filterFilterId = null;#}
+      this.filterExtractId = null;
+      this.filterExtractionNumber = null;
+      this.filterBatch = null;
+      this.getExtracts();
+    },
+    importExtracts() {
+      if (!this.selectedExtracts.length) {
+        let msg = "{% trans "You did not select any extracts to import!" %}";
+        alert(msg);
+      } else {
+        this.$emit("add-extracts", this.selectedExtracts, this.numberOfTechReps, this.selectedAssays)
+        this.overlay = false;
+      }
+    },
+    getExtracts() {
+      this.selectedExtracts = [];
+      this.loadingExtracts = true;
+      let endpoint = '/api/edna/extracts/?'
+      {#if (this.filterSampleId && this.filterSampleId !== "") endpoint += `filter__sample=${this.filterSampleId}&`;#}
+      {#if (this.filterFilterId && this.filterFilterId !== "") endpoint += `filter=${this.filterFilterId}&`;#}
+      if (this.filterExtractId && this.filterExtractId !== "") endpoint += `id=${this.filterExtractId}&`;
+      if (this.filterExtractionNumber && this.filterExtractionNumber !== "") endpoint += `extraction_number=${this.filterExtractionNumber}&`;
+      if (this.filterBatch && this.filterBatch !== "") endpoint += `extraction_batch=${this.filterBatch}&`;
+      if (this.filterUnprocessed) endpoint += `pcrs__isnull=true&`;
+      apiService(endpoint).then(response => {
+        this.loadingExtracts = false;
+        this.extracts = response;
+        this.$nextTick(() => {
+          this.$refs.extract_box.focus();
+        });
+      });
+    },
+    getBatches() {
+      this.loadingBatches = true;
+      let endpoint = '/api/edna/extraction-batches/'
+      apiService(endpoint).then(response => {
+        this.loadingBatches = false;
+        this.batches = response;
+      });
+    },
+    getPCRMetadata() {
+      let endpoint;
+      endpoint = `/api/edna/meta/models/pcr-assay/`;
+      apiService(endpoint).then(data => {
+        this.assayChoices = data.assay_choices;
+      });
+    },
+
+  },
+  filters: {
+    nz: vueFiltersObject["nz"],
+  },
+  created() {
+    this.getBatches();
+    this.getPCRMetadata();
+  },
+  computed: {
+    canProceed() {
+      if (this.numberOfTechReps && this.selectedAssays.length) return true;
+    }
+
+  }
+});
+</script>

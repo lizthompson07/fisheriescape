@@ -248,7 +248,6 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     template_name = 'csas2/request_detail/main.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-    container_class = ""
 
     def get_active_page_name_crumb(self):
         return "{} {}".format(_("Request"), self.get_object().id)
@@ -571,14 +570,15 @@ class ProcessCreateView(CsasAdminRequiredMixin, CommonCreateView):
 
             # add the chair
             chair_roles = models.InviteeRole.objects.filter(category=1)
+            chair = form.cleaned_data.get("chair")
             if chair_roles.exists():
-                chair = form.cleaned_data.get("chair")
-                invitee = models.Invitee.objects.get_or_create(
-                    meeting=meeting,
-                    person_id=chair,
-                    region=obj.lead_region,
-                )[0]
-                invitee.roles.add(chair_roles.first())
+                if chair:
+                    invitee = models.Invitee.objects.get_or_create(
+                        meeting=meeting,
+                        person_id=chair,
+                        region=obj.lead_region,
+                    )[0]
+                    invitee.roles.add(chair_roles.first())
             else:
                 messages.error(self.request, _("Cannot add invitees to meeting because there is not a 'chair' role in the system."))
         return super().form_valid(form)

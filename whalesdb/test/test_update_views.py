@@ -92,7 +92,11 @@ class TestEcaUpdate(CommonUpdateTest, TestCase):
 
         self.data = Factory.EcaFactory.get_valid_data()
 
-        obj = Factory.EcaFactory()
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        emm = Factory.EmmFactory(eqt=eqt)
+        eca_hydrophone = Factory.EqpFactory(emm=emm)
+
+        obj = Factory.EcaFactory(eca_hydrophone=eca_hydrophone)
 
         self.test_url = reverse_lazy('whalesdb:update_eca', args=(obj.pk,))
 
@@ -218,7 +222,11 @@ class TestEtrUpdate(CommonUpdateTest, TestCase):
 
         self.data = Factory.EtrFactory.get_valid_data()
 
-        obj = Factory.EtrFactory()
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        emm = Factory.EmmFactory(eqt=eqt)
+        eca_hydrophone = Factory.EqpFactory(emm=emm)
+
+        obj = Factory.EtrFactory(hyd=eca_hydrophone)
 
         self.test_url = reverse_lazy('whalesdb:update_etr', args=(obj.pk,))
 

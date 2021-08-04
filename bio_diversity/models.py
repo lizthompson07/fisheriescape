@@ -39,29 +39,51 @@ class BioModel(models.Model):
         # eg. should only be allowed one instance of a=5, b=null
         super(BioModel, self).clean()
         self.clean_fields()
-
-        uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                  if isinstance(constraint, models.UniqueConstraint)]
-        for constraint in uniqueness_constraints:
-            # from stackoverflow
-            unique_filter = {}
-            unique_fields = []
-            null_found = False
-            for field_name in constraint.fields:
-                field_value = getattr(self, field_name)
-                if getattr(self, field_name) is None:
-                    unique_filter['%s__isnull' % field_name] = True
-                    null_found = True
-                else:
-                    unique_filter['%s' % field_name] = field_value
-                    unique_fields.append(field_name)
-            if null_found:
-                unique_queryset = self.__class__.objects.filter(**unique_filter)
-                if self.pk:
-                    unique_queryset = unique_queryset.exclude(pk=self.pk)
-                if unique_queryset.exists():
-                    msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                    raise ValidationError(msg, code="unique_together")
+        if self._meta.constraints:
+            uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                      if isinstance(constraint, models.UniqueConstraint)]
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint.fields:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg, code="unique_together")
+        elif self._meta.unique_together:
+            uniqueness_constraints = [constraint for constraint in self._meta.unique_together]
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg, code="unique_together")
 
 
 class BioContainerDet(BioModel):
@@ -141,28 +163,53 @@ class BioLookup(shared_models.Lookup):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
         super(BioLookup, self).clean()
-        uniqueness_constraints = [constraint for constraint in self._meta.constraints
-                                  if isinstance(constraint, models.UniqueConstraint)]
-        for constraint in uniqueness_constraints:
-            # from stackoverflow
-            unique_filter = {}
-            unique_fields = []
-            null_found = False
-            for field_name in constraint.fields:
-                field_value = getattr(self, field_name)
-                if getattr(self, field_name) is None:
-                    unique_filter['%s__isnull' % field_name] = True
-                    null_found = True
-                else:
-                    unique_filter['%s' % field_name] = field_value
-                    unique_fields.append(field_name)
-            if null_found:
-                unique_queryset = self.__class__.objects.filter(**unique_filter)
-                if self.pk:
-                    unique_queryset = unique_queryset.exclude(pk=self.pk)
-                if unique_queryset.exists():
-                    msg = self.unique_error_message(self.__class__, tuple(unique_fields))
-                    raise ValidationError(msg)
+        if self._meta.constraints:
+            uniqueness_constraints = [constraint for constraint in self._meta.constraints
+                                      if isinstance(constraint, models.UniqueConstraint)]
+
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint.fields:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg)
+
+        elif self._meta.unique_together:
+            uniqueness_constraints = [constraint for constraint in self._meta.unique_together]
+            for constraint in uniqueness_constraints:
+                # from stackoverflow
+                unique_filter = {}
+                unique_fields = []
+                null_found = False
+                for field_name in constraint:
+                    field_value = getattr(self, field_name)
+                    if getattr(self, field_name) is None:
+                        unique_filter['%s__isnull' % field_name] = True
+                        null_found = True
+                    else:
+                        unique_filter['%s' % field_name] = field_value
+                        unique_fields.append(field_name)
+                if null_found:
+                    unique_queryset = self.__class__.objects.filter(**unique_filter)
+                    if self.pk:
+                        unique_queryset = unique_queryset.exclude(pk=self.pk)
+                    if unique_queryset.exists():
+                        msg = self.unique_error_message(self.__class__, tuple(unique_fields))
+                        raise ValidationError(msg, code="unique_together")
 
 
 class BioTimeModel(BioModel):
@@ -243,6 +290,19 @@ class BioCont(BioLookup):
     def degree_days(self, start_date, end_date):
         return []
 
+    def cont_feed(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        feed_contx = self.contxs.filter(evnt_id__evntc_id__name="Feeding", evnt_id__start_datetime__lte=at_date).order_by("-evnt_id__start_datetime").first()
+        if feed_contx:
+            cont_feed = feed_contx.feeding_set.select_related("feedc_id", "feedm_id").all()
+        else:
+            cont_feed = []
+        return cont_feed
+
+    def cont_treatments(self, start_date=datetime.now().replace(tzinfo=pytz.UTC), end_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        filter_arg = "contx_id__{}_id".format(self.key)
+        envt_qs = EnvTreatment.objects.filter(**{filter_arg: self}, start_datetime__gte=start_date, start_datetime__lte=end_date)
+        return envt_qs
+
 
 class AnimalDetCode(BioLookup):
     # anidc tag
@@ -273,8 +333,6 @@ class AniDetailXref(BioModel):
                                            null=True, db_column="FINAL_CONTAINER_FLAG")
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, db_column="LOCATION_ID",
                                related_name="animal_details", verbose_name=_("Location"))
-    indvt_id = models.ForeignKey("IndTreatment", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
-                                 verbose_name=_("Individual Treatment"), db_column="IND_TREATMENT_ID")
     indv_id = models.ForeignKey("Individual", on_delete=models.CASCADE, null=True, blank=True, db_column="INDIV_ID",
                                 related_name="animal_details", verbose_name=_("Individual"))
     pair_id = models.ForeignKey("Pairing", on_delete=models.CASCADE, null=True, blank=True, related_name="animal_details",
@@ -286,13 +344,13 @@ class AniDetailXref(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indvt_id', 'indv_id', 'pair_id',
+            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indv_id', 'pair_id',
                                             'grp_id', 'team_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
         ]
 
     def clean(self):
         super(AniDetailXref, self).clean()
-        if not (self.contx_id or self.loc_id or self.indvt_id or self.indv_id or self.pair_id or self.grp_id):
+        if not (self.contx_id or self.loc_id or self.indv_id or self.pair_id or self.grp_id):
             raise ValidationError("You must specify at least one item to reference to the event")
 
     def __str__(self):
@@ -359,12 +417,26 @@ class ContainerXRef(BioModel):
         ]
 
     def __str__(self):
-        return "Container X Ref for {}".format(self.evnt_id.__str__())
+        return "{}-{}".format(self.evnt_id.__str__(), self.container)
 
     def clean(self):
         super(ContainerXRef, self).clean()
         if not (self.tank_id or self.tray_id or self.trof_id or self.heat_id or self.draw_id or self.cup_id):
             raise ValidationError("You must specify at least one container to reference to the event")
+
+    @property
+    def container(self):
+        cnt = 0
+        cont = None
+        for cont_id in [self.cup_id, self.draw_id, self.tray_id, self.tank_id, self.trof_id, self.heat_id]:
+            if cont_id:
+                cont = cont_id
+                cnt += 1
+        if cnt == 1:
+            return cont
+        else:
+            return None
+
 
 
 class Count(BioModel):
@@ -375,14 +447,18 @@ class Count(BioModel):
                                  verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
     cntc_id = models.ForeignKey("CountCode", on_delete=models.CASCADE, verbose_name=_("Count Code"), db_column="CNT_ID")
     spec_id = models.ForeignKey("SpeciesCode", on_delete=models.CASCADE, verbose_name=_("Species"), db_column="SPEC_ID")
+    stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"),
+                                db_column="STOCK_ID", blank=True, null=True)
+    cnt_year = models.IntegerField(verbose_name=_("Collection year"), default=None, db_column="YEAR",
+                                   validators=[MinValueValidator(2000), MaxValueValidator(2100)], blank=True, null=True)
+    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, verbose_name=_("Collection"),
+                                db_column="COLLECTION_ID", blank=True, null=True)
     cnt = models.DecimalField(max_digits=6, decimal_places=0, verbose_name=_("Count"), db_column="COUNT")
     est = models.BooleanField(verbose_name=_("Estimated?"), db_column="ESTIMATED")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'contx_id', 'cntc_id', 'spec_id'], name='Count_Uniqueness')
-        ]
+        unique_together = (('loc_id', 'contx_id', 'cntc_id', 'spec_id', 'cnt_year', 'coll_id', 'stok_id'),)
 
     def __str__(self):
         return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
@@ -457,9 +533,9 @@ class CupDet(BioContainerDet):
 
 class DataLoader(BioModel):
     # data tag
-    evnt_id = models.ForeignKey('Event', on_delete=models.CASCADE, verbose_name=_("Event"))
-    evntc_id = models.ForeignKey('EventCode', on_delete=models.CASCADE, verbose_name=_("Data Format"))
-    facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Data Format"))
+    evnt_id = models.ForeignKey('Event', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Event"))
+    evntc_id = models.ForeignKey('EventCode', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Data Format"))
+    facic_id = models.ForeignKey('FacilityCode', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Data Format"))
     data_csv = models.FileField(upload_to="", null=True, blank=True, verbose_name=_("Datafile"))
 
 
@@ -488,8 +564,10 @@ class Drawer(BioCont):
 
 class EnvCode(BioLookup):
     # envc tag
-    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"), db_column="MIN_VAL")
-    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"), db_column="MAX_VAL")
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Minimum Value"), db_column="MIN_VAL")
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Maximum Value"), db_column="MAX_VAL")
     unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Units"),
                                 db_column="UNIT_ID")
     env_subj_flag = models.BooleanField(verbose_name=_("Objective observation?"), db_column="ENV_SUBJ_FLAG")
@@ -531,12 +609,19 @@ class EnvCondition(BioTimeModel):
 
     def clean(self):
         super(EnvCondition, self).clean()
-        if self.env_val > self.envc_id.max_val or self.env_val < self.envc_id.min_val:
-            raise ValidationError({
-                "env_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
-                                                                                              self.envc_id.max_val,
-                                                                                              self.envc_id.min_val))
-            })
+        if self.is_numeric() and self.env_val is not None:
+            if float(self.env_val) > float(self.envc_id.max_val) or float(self.env_val) < float(self.envc_id.min_val):
+                raise ValidationError({
+                    "env_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
+                                                                                                  self.envc_id.max_val,
+                                                                                                  self.envc_id.min_val))
+                })
+
+    def is_numeric(self):
+        if self.envc_id.min_val is not None and self.envc_id.max_val is not None:
+            return True
+        else:
+            return False
 
 
 def envcf_directory_path(instance, filename):
@@ -601,7 +686,7 @@ class EnvTreatCode(BioLookup):
     manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"), db_column="MANUFACTURER")
 
 
-class EnvTreatment(BioModel):
+class EnvTreatment(BioTimeModel):
     # envt tag
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, related_name="env_treatment",
                                  verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
@@ -621,9 +706,14 @@ class EnvTreatment(BioModel):
         return "{}-{}".format(self.contx_id.__str__(), self.envtc_id.__str__())
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'envtc_id'], name='Environment_Treatment_Uniqueness')
-        ]
+        unique_together = (('contx_id', 'envtc_id', 'start_datetime'),)
+
+    @property
+    def cont(self):
+        for cont_id in [self.contx_id.cup_id, self.contx_id.draw_id, self.contx_id.tray_id, self.contx_id.tank_id, self.contx_id.trof_id, self.contx_id.heat_id]:
+            if cont_id:
+                return cont_id
+        return None
 
     @property
     def concentration_str(self):
@@ -654,7 +744,7 @@ class Event(BioTimeModel):
             return False
 
     def __str__(self):
-        return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.start_date)
+        return "{}-{}".format(self.evntc_id.__str__(), self.start_date)
 
     class Meta:
         constraints = [
@@ -662,6 +752,21 @@ class Event(BioTimeModel):
                                     name='Event_Uniqueness')
         ]
         ordering = ['-start_datetime']
+
+    def fecu_dict(self):
+        fecu_dict = {}
+        stok_coll_set = Individual.objects.filter(animal_details__evnt_id=self).values("stok_id", "coll_id",
+                                                                                       "stok_id__name",
+                                                                                       "coll_id__name").distinct()
+        for stok_coll in stok_coll_set:
+            key = "Alpha, Beta for {}-{}".format(stok_coll["stok_id__name"], stok_coll["coll_id__name"])
+            fecu_id = Fecundity.objects.filter(stok_id_id=stok_coll["stok_id"], coll_id_id=stok_coll["coll_id"]).first()
+            value = ""
+            if fecu_id:
+                value = "{}, {}".format(fecu_id.alpha, fecu_id.beta)
+            fecu_dict[key] = value
+
+        return fecu_dict
 
 
 @receiver(post_save, sender=Event)
@@ -761,8 +866,8 @@ class Fecundity(BioDateModel):
 
 class Feeding(BioModel):
     # feed tag
-    contx_id = models.OneToOneField('ContainerXRef', unique=True, on_delete=models.CASCADE,
-                                    verbose_name=_("Container Cross Reference"), db_column="CONTAINER_XREF_ID")
+    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.CASCADE, verbose_name=_("Container Cross Reference"),
+                                 db_column="CONTAINER_XREF_ID")
     feedm_id = models.ForeignKey('FeedMethod', on_delete=models.CASCADE, verbose_name=_("Feeding Method"),
                                  db_column="FEEDMETHOD_ID")
     feedc_id = models.ForeignKey('FeedCode', on_delete=models.CASCADE, verbose_name=_("Feeding Code"),
@@ -778,6 +883,10 @@ class Feeding(BioModel):
 
     def __str__(self):
         return "{}-{}-{}".format(self.contx_id.__str__(), self.feedc_id.__str__(), self.feedm_id.__str__())
+
+    @property
+    def feed_date(self):
+        return self.contx_id.evnt_id.start_date
 
 
 class FeedCode(BioLookup):
@@ -830,11 +939,20 @@ class Group(BioModel):
     def current_trof(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
         return self.current_cont_by_key('trof', at_date)
 
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), valid_only=True, get_string=False):
         current_cont_list = []
+        if not self.grp_valid and valid_only:
+            if get_string:
+                return ""
+            return current_cont_list
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
+        if get_string:
+            cont_str = ""
+            for cont in current_cont_list:
+                cont_str += "{}, ".format(cont.name)
+            return cont_str
         return current_cont_list
 
     def count_fish_in_group(self, at_date=datetime.now(tz=timezone.get_current_timezone())):
@@ -846,8 +964,8 @@ class Group(BioModel):
                                        Q(loc_id__animal_details__grp_id=self, loc_id__loc_date__lte=at_date))\
             .select_related("cntc_id").distinct().order_by('contx_id__evnt_id__start_datetime')
 
-        absolute_codes = ["Egg Count", ]
-        add_codes = ["Fish in Container", "Counter Count", "Photo Count", "Eggs Added", "Fish Caught"]
+        absolute_codes = ["Egg Count", "Fish Count", "Counter Count", ]
+        add_codes = ["Fish in Container", "Photo Count", "Eggs Added", "Fish Caught"]
         subtract_codes = ["Mortality", "Pit Tagged", "Egg Picks", "Shock Loss", "Cleaning Loss", "Spawning Loss", "Eggs Removed",
                           "Fish Removed from Container", "Fish Distributed"]
 
@@ -905,7 +1023,7 @@ class Group(BioModel):
 
         dev += sum([utils.daily_dev(float(degree_day)) for degree_day in degree_days])
 
-        return dev
+        return utils.round_no_nan(dev, 5)
 
     def get_parent_grp(self, at_date=utils.naive_to_aware(datetime.now())):
         # gets parent groups this group came from.
@@ -923,8 +1041,10 @@ class Group(BioModel):
         depth = 1
         while True:
             for grpd in grpd_qs:
-                parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
-                new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
+                # recursion catch
+                if grpd.frm_grp_id.pk != self.pk:
+                    parent_grps.append((depth, grpd.frm_grp_id, grpd.detail_date))
+                    new_grpd_qs.extend(grpd.frm_grp_id.get_parent_grp(at_date=grpd.detail_date))
             if new_grpd_qs:
                 grpd_qs = new_grpd_qs
                 depth += 1
@@ -933,13 +1053,21 @@ class Group(BioModel):
 
         return parent_grps
 
-    def prog_group(self):
+    def prog_group(self, get_string=False):
         # gets program groups this group may be a part of.
         grpd_set = GroupDet.objects.filter(anix_id__grp_id=self,
                                            anidc_id__name="Program Group",
                                            adsc_id__isnull=False,
                                            ).select_related("adsc_id")
-        return [grpd.adsc_id for grpd in grpd_set]
+        prog_grp_list = [grpd.adsc_id for grpd in grpd_set]
+        if get_string:
+            prog_str = ""
+            for prog_grp in prog_grp_list:
+                prog_str += "{}, ".format(prog_grp.name)
+
+            return prog_str
+        else:
+            return prog_grp_list
 
     def start_date(self):
         first_evnt = self.animal_details.order_by("-evnt_id__start_date").first()
@@ -986,6 +1114,10 @@ class GroupDet(BioDet):
                     self.grpd_valid = False
 
         super(GroupDet, self).save(*args, **kwargs)
+
+    @property
+    def evnt(self):
+        return self.anix_id.evnt_id
 
 
 class HeathUnit(BioCont):
@@ -1129,7 +1261,7 @@ class Individual(BioModel):
     stok_id = models.ForeignKey('StockCode', on_delete=models.CASCADE, verbose_name=_("Stock Code"), db_column="STOCK_ID")
     indv_year = models.IntegerField(verbose_name=_("Collection year"), default=2000, db_column="YEAR",
                                     validators=[MinValueValidator(2000), MaxValueValidator(2100)])
-    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, null=True, blank=True, db_column="COLLECTION_ID",
+    coll_id = models.ForeignKey('Collection', on_delete=models.CASCADE, default=25, db_column="COLLECTION_ID",
                                 verbose_name=_("Collection"))
     # ufid = unique FISH id
     ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("ABL Fish UFID"),
@@ -1169,11 +1301,20 @@ class Individual(BioModel):
                 cont_list.append(cont)
         return cont_list
 
-    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC)):
+    def current_cont(self, at_date=datetime.now().replace(tzinfo=pytz.UTC), valid_only=False, get_string=False):
         current_cont_list = []
+        if not self.indv_valid and valid_only:
+            if get_string:
+                return ""
+            return current_cont_list
         cont_type_list = ["tank", "tray", "trof", "cup", "heat", "draw"]
         for cont_type in cont_type_list:
             current_cont_list += self.current_cont_by_key(cont_type, at_date)
+        if get_string:
+            cont_str = ""
+            for cont in current_cont_list:
+                cont_str += "{} ".format(cont.name)
+            return cont_str
         return current_cont_list
 
     def get_parent_history(self):
@@ -1189,27 +1330,46 @@ class Individual(BioModel):
         else:
             return None
 
-    def individual_detail(self, anidc_name="Length"):
-        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").first()
+    def individual_detail(self, anidc_name="Length", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                    detail_date__lte=before_date).order_by("-detail_date").first()
         if latest_indvd:
             return latest_indvd.det_val
         else:
             return None
 
-    def individual_subj_detail(self, anidc_name="Animal Health"):
-        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self).order_by("-detail_date").select_related("adsc_id").first()
+    def individual_subj_detail(self, anidc_name="Animal Health", before_date=datetime.now().replace(tzinfo=pytz.UTC)):
+        latest_indvd = IndividualDet.objects.filter(anidc_id__name__icontains=anidc_name, anix_id__indv_id=self,
+                                                    detail_date__lte=before_date, adsc_id__isnull=False).order_by("-detail_date").select_related("adsc_id").first()
         if latest_indvd:
             return latest_indvd.adsc_id.name
         else:
             return None
 
-    def prog_group(self):
+    def individual_evnt_details(self, evnt_id):
+        indvd_qs = IndividualDet.objects.filter(anix_id__indv_id=self, adsc_id__isnull=False,
+                                                anix_id__evnt_id=evnt_id).order_by("-detail_date").select_related("adsc_id")
+        out_str = ""
+        for indvd in indvd_qs:
+            out_str += indvd.adsc_id__name + ", "
+        return out_str
+
+    def prog_group(self, get_string=False):
         # gets program groups this group may be a part of.
         indvd_set = IndividualDet.objects.filter(anix_id__indv_id=self,
                                                  anidc_id__name="Program Group",
                                                  adsc_id__isnull=False,
                                                  ).select_related("adsc_id")
-        return [indvd.adsc_id for indvd in indvd_set]
+
+        prog_grp_list = [indvd.adsc_id for indvd in indvd_set]
+        if get_string:
+            prog_str = ""
+            for prog_grp in prog_grp_list:
+                prog_str += "{}, ".format(prog_grp.name)
+
+            return prog_str
+        else:
+            return prog_grp_list
 
 
 class IndividualDet(BioDet):
@@ -1251,6 +1411,10 @@ class IndividualDet(BioDet):
 
         super(IndividualDet, self).save(*args, **kwargs)
 
+    @property
+    def evnt(self):
+        return self.anix_id.evnt_id
+
 
 class IndTreatCode(BioLookup):
     # indvtc tag
@@ -1260,15 +1424,23 @@ class IndTreatCode(BioLookup):
 
 class IndTreatment(BioTimeModel):
     # indvt tag
+    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.CASCADE, related_name="individual_treatments",
+                                verbose_name=_("Animal Detail Cross Reference"), db_column="ANI_DET_XREF_ID")
     indvtc_id = models.ForeignKey('IndTreatCode', on_delete=models.CASCADE, db_column="IND_TEART_ID",
                                   verbose_name=_("Individual Treatment Code"))
-    lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"), db_column="LOT_NUMBER")
+    lot_num = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Lot Number"), db_column="LOT_NUMBER")
     dose = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"), db_column="DOSE")
     unit_id = models.ForeignKey('UnitCode', on_delete=models.CASCADE, verbose_name=_("Units"), db_column="UNIT_ID")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
 
     def __str__(self):
         return "{}-{}".format(self.indvtc_id.__str__(), self.lot_num)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['anix_id', 'indvtc_id'],
+                                    name='Individual_Treatment_Uniqueness')
+        ]
 
 
 class Instrument(BioModel):
@@ -1323,13 +1495,13 @@ class Location(BioModel):
                                 verbose_name=_("SubRiver Code"))
     relc_id = models.ForeignKey('ReleaseSiteCode', on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name=_("Site Code"), related_name="locations", db_column="SITE_ID")
-    loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="LATITUDE",
+    loc_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="LATITUDE",
                                   verbose_name=_("Latitude"))
-    loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="LONGITUDE",
+    loc_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="LONGITUDE",
                                   verbose_name=_("Longitude"))
-    end_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="END_LATITUDE",
+    end_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="END_LATITUDE",
                                   verbose_name=_("End Latitude"))
-    end_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="END_LONGITUDE",
+    end_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="END_LONGITUDE",
                                   verbose_name=_("End Longitude"))
     loc_date = models.DateTimeField(verbose_name=_("Start date"), db_column="LOCATION_DATE")
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"), db_column="COMMENTS")
@@ -1621,19 +1793,29 @@ class ReleaseSiteCode(BioLookup):
                                 verbose_name=_("Tributary"))
     subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True, db_column="SUBRIVER_ID",
                                 verbose_name=_("SubRiver Code"))
-    min_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="MIN_LATITUDE",
+    min_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="MIN_LATITUDE",
                                   verbose_name=_("Min Latitude"))
-    max_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True, db_column="MAX_LATITUDE",
+    max_lat = models.DecimalField(max_digits=8, decimal_places=6, null=True, blank=True, db_column="MAX_LATITUDE",
                                   verbose_name=_("Max Latitude"))
-    min_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MIN_LONGITUDE",
+    min_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="MIN_LONGITUDE",
                                   verbose_name=_("Min Longitude"))
-    max_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True, db_column="MAX_LONGITUDE",
+    max_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, db_column="MAX_LONGITUDE",
                                   verbose_name=_("Max Longitude"))
+
+    class Meta:
+        ordering = ['name']
+
+    def clean(self):
+        super(ReleaseSiteCode, self).clean()
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
+            if float(self.min_lon) > float(self.max_lon) or float(self.min_lat) > float(self.max_lat):
+                raise ValidationError("Max lat/lon must be greater than min lat/lon")
+
 
     @property
     def bbox(self):
         # lon = x, lat = y
-        if self.min_lat and self.min_lon and self.max_lat and self.max_lon:
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
             bbox = box(
                     float(self.min_lon),
                     float(self.min_lat),
@@ -1643,6 +1825,17 @@ class ReleaseSiteCode(BioLookup):
             return bbox
         else:
             return
+
+    @property
+    def area(self):
+        # lon = x, lat = y
+        corr_factor = 8 / 11
+        if None not in [self.min_lat, self.min_lon, self.max_lat, self.max_lon]:
+            delta_y = corr_factor * (float(self.max_lat) - float(self.min_lat))
+            delta_x = float(self.max_lon) - float(self.min_lon)
+            return abs(delta_x * delta_y)
+        else:
+            return 0
 
 
 class RiverCode(BioLookup):
@@ -1660,7 +1853,7 @@ class RoleCode(BioLookup):
 class Sample(BioModel):
     # samp tag
     loc_id = models.ForeignKey('Location', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Location"),
-                               db_column="LOCATION_ID")
+                               db_column="LOCATION_ID", related_name="samples")
     anix_id = models.ForeignKey('AniDetailXref', null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Animal Detail X Ref"),
                                 db_column="ANI_DET_X_REF_ID")
     samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"), db_column="SAMPLE_FISHNO")
@@ -1686,6 +1879,14 @@ class Sample(BioModel):
             return self.anix_id.evnt_id.start_date
         else:
             return None
+
+    def samp_detail(self, anidc_name="Length"):
+        latest_indvd = SampleDet.objects.filter(anidc_id__name__icontains=anidc_name, samp_id=self).first()
+        if latest_indvd:
+            return latest_indvd.det_val
+        else:
+            return None
+
 
 
 class SampleCode(BioLookup):
@@ -1796,9 +1997,22 @@ class StockCode(BioLookup):
 
 class SubRiverCode(BioLookup):
     # subr tag
+    # make name not unique
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), db_column="RIVER_ID")
     trib_id = models.ForeignKey('Tributary', on_delete=models.CASCADE, null=True, blank=True, db_column="TRIB_ID",
                                 verbose_name=_("Tributary"))
+
+    class Meta:
+        unique_together = (('name', 'rive_id', 'trib_id'),)
+
+    def clean(self):
+        super(SubRiverCode, self).clean()
+        if self.trib_id and self.rive_id != self.trib_id:
+            raise ValidationError({
+                "trib_id": ValidationError("Tributary River {} must match River {}"
+                                           .format(self.trib_id.rive_id, self.rive_id))
+            })
 
 
 class Tank(BioCont):
@@ -1891,7 +2105,23 @@ class TrayDet(BioContainerDet):
 
 class Tributary(BioLookup):
     # trib tag
+    # make name not unique
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.CASCADE, verbose_name=_("River"), db_column="RIVER_ID")
+    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.CASCADE, null=True, blank=True,
+                                db_column="SUBRIVER_ID", verbose_name=_("Subriver"))
+
+    class Meta:
+        unique_together = (('name', 'rive_id', 'subr_id'),)
+
+    def clean(self):
+        super(Tributary, self).clean()
+        if self.subr_id and self.rive_id != self.subr_id.rive_id:
+            raise ValidationError({
+                "subr_id": ValidationError("Sub River river {} must match River {}"
+                                           .format(self.subr_id.rive_id, self.rive_id))
+            })
+
 
 
 class Trough(BioCont):

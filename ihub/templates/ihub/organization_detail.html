@@ -3,9 +3,10 @@
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load i18n %}
+
 {% block subcontent %}
 
-  <div class="row">
+  <div class="row mb-5">
     <div class="col">
       <div class="btns">
         <a class="btn btn-sm btn-warning" href="{% url 'ihub:org_edit' object.id %}">
@@ -30,38 +31,35 @@
     </div>
   </div>
 
-  <br><br>
 
-  <div class="row">
+
+  <div class="row mb-5">
     <div class="col">
-      <h3>
-        {% trans "Organization Detail:" %}
-      </h3>
-      <table class="table table-sm table-striped">
-        {% for field in field_list %}
 
-          {% if field == "orgs" %}
-            <tr>
-              <th>
-                {% get_verbose_label instance=object field_name=field %}
-              </th>
-              <td>
-                {% for org in object.orgs.all %}
-                  <a href="{% url 'ihub:org_detail' org.id %}" target="_blank">
-                    {{ org }}
-                  </a><br>
-                {% endfor %}
-              </td>
-            </tr>
-          {% else %}
+      <div class="card entry-card">
+        <div class="card-header">
+          <h5 class="card-title"> {% trans "Organization Detail:" %}</h5>
+        </div>
+        <div class="card-body">
+          <table class="table table-sm ">
+            {% for field in field_list %}
 
-            {% verbose_td_display object field %}
-          {% endif %}
-        {% endfor %}
-      </table>
-      <br>
-
-
+              {% if field == "orgs" %}
+                <tr>
+                  <th class="w-25"> {% get_verbose_label instance=object field_name=field %} </th>
+                  <td>
+                    {% for org in object.orgs.all %}
+                      <a href="{% url 'ihub:org_detail' org.id %}" target="_blank">{{ org }}</a><br>
+                    {% endfor %}
+                  </td>
+                </tr>
+              {% else %}
+                {% verbose_td_display object field %}
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+      </div>
     </div>
     <div class="col-5">
       {% include "ihub/_members.html" %}
@@ -72,7 +70,18 @@
     </div>
   </div>
 
-
+  <div class="card entry-card mt-5 w-75">
+    <div class="card-header">
+      <h5 class="card-title"> {% trans "Notes" %}</h5>
+    </div>
+    <div class="card-body">
+      {% if object.notes %}
+        {{ object.notes_html }}
+      {% else %}
+        <em> {% trans "There are no notes on file." %} </em>
+      {% endif %}
+    </div>
+  </div>
 
 {% endblock %}
 

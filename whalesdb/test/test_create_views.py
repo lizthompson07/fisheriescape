@@ -85,7 +85,11 @@ class TestEccCreate(CommonCreateTest, TestCase):
 
     def setUp(self):
         super().setUp()
-        self.eca = Factory.EcaFactory()
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        emm = Factory.EmmFactory(eqt=eqt)
+        eca_hydrophone = Factory.EqpFactory(emm=emm)
+
+        self.eca = Factory.EcaFactory(eca_hydrophone=eca_hydrophone)
 
         self.data = Factory.EccFactory.get_valid_data()
 

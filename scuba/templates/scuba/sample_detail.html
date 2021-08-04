@@ -24,15 +24,25 @@
 
   <div class="mb-3 row">
     <div class="col">
-      <table class="table table-sm" style="width: 50%">
+      <table class="table table-sm w-75">
         {% for field in field_list %}
           {% verbose_td_display object field %}
         {% endfor %}
       </table>
     </div>
     <div class="col">
-      <div id="map">
-      </div>
+      {% if object.site.get_coordinates %}
+        <div id="map"></div>
+      {% else %}
+        <div class="alert alert-danger lead mb-3" role="alert">
+          {% url 'scuba:site_detail' object.site.id as site_url %}
+          <span class="mdi mdi-emoticon-confused-outline h3 mr-2"></span>
+          {% blocktrans with transect_url=transect_url %}
+            The site associated with this sample is missing coordinates. Please add some <a href="{{ site_url }}" target="_blank">here</a>.
+          {% endblocktrans %}
+
+        </div>
+      {% endif %}
     </div>
   </div>
 
@@ -81,24 +91,26 @@
   </div>
   {% if object.site.get_coordinates %}
 
-
     <script type="application/javascript">
     function initialize() {
+
       map = new L.Map("map", {
-        center: new L.LatLng({{ object.site.get_coordinates.x }}, {{ object.site.get_coordinates.y }}),
-        zoom: 14,
+        zoom: 10,
       });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map)
 
+      var coords = [];
+      latLong = [{{object.site.get_coordinates.x}}, {{ object.site.get_coordinates.y }}];
       L.marker(
-          [{{object.site.latitude}}, {{ object.site.longitude }}],
-          {
-            title: '{{object.site}}',
-          }
+          latLong, {title: '{{object.site}}',}
       ).addTo(map).bindPopup("<b>Site name:</b> {{object.site.name}}");
+      coords.push(latLong)
+
+      map.fitBounds(coords);
+      if (coords.length === 1) map.setZoom(12);
 
     }
 

@@ -19,12 +19,11 @@
 
 {% block subcontent %}
   <div id="app" v-cloak>
-    <div v-if="canModify && request.review && request.review.id" class="sidebar">
+    <div v-if="canModify && request.review && request.review.id" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">
       {% include "csas2/request_detail/_review.html" %}
-      123
     </div>
-    <div class="row mb-5">
-      <div :class="{'col-10':canModify && request.review, 'col':!review.review}">
+    <div class="row">
+      <div>
         <div>
           {% include "shared_models/_generic_breadcrumbs.html" %}
           <div class="mb-3">
@@ -60,9 +59,9 @@
 
           </div>
 
-          <div :class="{'row':!canModify || !request.review}">
-            <div :class="{'col-8':!canModify || !request.review}">
+          <div class="row">
 
+            <div class="col">
               <table class="table table-sm">
                 <tr>
                   <th class="text-left w250" v-html="requestLabels.fiscal_year"></th>
@@ -182,7 +181,7 @@
               </table>
             </div>
             {# Notes #}
-            <div :class="{'col':!canModify || !request.review}">
+            <div class="col-4">
               <note-pad v-if="request.id" parent_name="csas_request" :parent_id="request.id" :notes="notes" @update-notes="getNotes"></note-pad>
             </div>
           </div>
@@ -221,6 +220,7 @@
       prioritizationChoices: [],
       decisionChoices: [],
       notes: [],
+      showSidebar: false,
     },
     methods: {
       getCurrentUser() {

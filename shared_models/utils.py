@@ -156,3 +156,8 @@ def get_labels(model):
         if hasattr(field, "name") and hasattr(field, "verbose_name"):
             labels[field.name] = special_capitalize(field.verbose_name)
     return labels
+
+
+def remove_nulls(my_list):
+    while None in my_list:
+        my_list.remove(None)

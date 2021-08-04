@@ -67,3 +67,9 @@ class ProjectFilter(django_filters.FilterSet):
         else:
             fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projectyear_set.exists()]
         self.filters['fiscal_years'] = django_filters.ChoiceFilter(field_name='fiscal_years', label=_("Fiscal year"), widget=forms.Select(), choices=fy_choices)
+
+
+class OMCostFilter(django_filters.FilterSet):
+    project = django_filters.NumberFilter(field_name='project_year__project')
+    year = django_filters.NumberFilter(field_name='project_year__fiscal_year' )
+    region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name', lookup_expr="icontains")

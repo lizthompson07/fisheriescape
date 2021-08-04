@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import percentage
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields, LatLongFields, UnilingualSimpleLookup
+from shared_models.models import MetadataFields, LatLongFields, UnilingualSimpleLookup, SimpleLookup
 
 YES_NO_CHOICES = (
     (True, "Yes"),
@@ -685,20 +685,20 @@ class GCProbeMeasurement(MetadataFields):
         return "Probe measurement {}".format(self.id)
 
 
+class Bait(UnilingualSimpleLookup):
+    pass
+
+
 class Trap(MetadataFields, LatLongFields):
     # Choices for trap_type
     TRAP_TYPE_CHOICES = (
         (1, 'Fukui'),
         (2, 'Minnow'),
     )
-    # Choices for bait_type
-    BAIT_TYPE_CHOICES = (
-        (1, 'Herring'),
-    )
     sample = models.ForeignKey(GCSample, related_name='traps', on_delete=models.DO_NOTHING, editable=False)
     trap_number = models.IntegerField()
     trap_type = models.IntegerField(default=1, choices=TRAP_TYPE_CHOICES)
-    bait_type = models.IntegerField(default=1, choices=BAIT_TYPE_CHOICES)
+    bait_type = models.ForeignKey(Bait, related_name='traps', on_delete=models.DO_NOTHING)
     depth_at_set_m = models.FloatField(blank=True, null=True, verbose_name="depth at set (m)")
     gps_waypoint = models.IntegerField(blank=True, null=True, verbose_name="GPS waypoint")
     notes = models.TextField(blank=True, null=True)
