@@ -1,13 +1,9 @@
 # from accounts import models as account_models
-from gettext import gettext as _
 from django import forms
 import django_filters
-from django.db.models import Q
+
 
 from . import models
-from masterlist import models as ml_models
-from shared_models import models as shared_models
-from sar_search import models as sar_models
 
 YES_NO_CHOICES = (
     (True, "Yes"),
@@ -31,7 +27,7 @@ class PersonFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Person
-        fields = []
+        fields = ['province', 'organizations', 'role',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,8 +39,8 @@ class ProjectFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Project
-        fields = ['species', 'region', 'cu_name', 'smu_name', 'project_stage',
-                  'project_scale', 'project_sub_type', 'monitoring_approach',
+        fields = ['species', 'region', 'cu_name', 'smu_name', 'project_stage','ecosystem_type',
+                  'project_type', 'project_sub_type', 'monitoring_approach',
                   'project_theme', 'core_component', 'supportive_component',
                   'government_organization', 'DFO_link',]
 
@@ -58,7 +54,7 @@ class ObjectiveFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Objective
-        fields = ['sample_type']
+        fields = ['species', 'objective_category',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,7 +65,7 @@ class MethodFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Method
-        fields = []
+        fields = ['planning_method_type', 'field_work_method_type', 'sample_processing_method_type', 'data_entry_method_type',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -80,7 +76,7 @@ class DataFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Data
-        fields = []
+        fields = ['species_data', 'samples_collected', 'data_products', 'data_products_database', 'sample_format', 'data_programs',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,7 +98,7 @@ class ReportsFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Reports
-        fields = []
+        fields = ['report_timeline', 'report_type', ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

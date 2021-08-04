@@ -339,6 +339,7 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
         app_dict["fisheriescape"] = {
             "title": _("Fisheries Landscape Tool"),
             "description": _("Tool for mapping fisheries landscapes for marine species at risk"),

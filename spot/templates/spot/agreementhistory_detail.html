@@ -18,15 +18,11 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'spot:reports_list' %}">Report List</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
-        </ol>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Project List</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Projects</a></li>
             <li class="breadcrumb-item"><a href="{% url 'spot:project_detail' object.project.id %}">{{ object.project }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
+
     </nav>
 
     <div class="container-fluid">
@@ -35,11 +31,11 @@
 
 
         <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'spot:reports_edit' object.id %}">
-                {% trans "Edit" %}
-            </a>
-            <a class="btn btn-danger " href="{% url 'spot:reports_delete' object.id %}">
+            <a class="btn btn-danger " href="{% url 'spot:agreementhistory_delete' object.id %}">
                 {% trans "Delete" %}
+            </a>
+            <a class="btn btn-warning" href="{% url 'spot:agreementhistory_edit' object.id %}">
+                {% trans "Edit" %}
             </a>
         </div>
         <br><br>
@@ -60,7 +56,3 @@
 
     </div>
 {% endblock content %}
-
-
-
-

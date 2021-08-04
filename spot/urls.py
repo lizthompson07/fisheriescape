@@ -1,16 +1,11 @@
 from django.urls import path
 from . import views
-from .admin import spot_admin_site
 
 app_name = 'spot'
 
 urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
-
-    # SPOT-ADMIN #
-    ##############
-    path('spot-admin/', spot_admin_site.urls),
 
     # ORGANIZATION #
     ################
@@ -39,7 +34,7 @@ urlpatterns = [
     # Objectives #
     ##############
     path('objs/', views.ObjectiveListView.as_view(), name="obj_list"),
-    path('obj/new/', views.ObjectiveCreateView.as_view(), name="obj_new"),
+    path('project/<int:project>/obj/new/', views.ObjectiveCreateView.as_view(), name="obj_new"),
     path('obj/<int:pk>/view/', views.ObjectiveDetailView.as_view(), name="obj_detail"),
     path('obj/<int:pk>/edit/', views.ObjectiveUpdateView.as_view(), name="obj_edit"),
     path('obj/<int:pk>/delete/', views.ObjectiveDeleteView.as_view(), name="obj_delete"),
@@ -47,7 +42,7 @@ urlpatterns = [
     # Methods #
     ###########
     path('meths/', views.MethodListView.as_view(), name="meth_list"),
-    path('meth/new/', views.MethodCreateView.as_view(), name="meth_new"),
+    path('project/<int:project>/meth/new/', views.MethodCreateView.as_view(), name="meth_new"),
     path('meth/<int:pk>/view/', views.MethodDetailView.as_view(), name="meth_detail"),
     path('meth/<int:pk>/edit/', views.MethodUpdateView.as_view(), name="meth_edit"),
     path('meth/<int:pk>/delete/', views.MethodDeleteView.as_view(), name="meth_delete"),
@@ -55,7 +50,7 @@ urlpatterns = [
     # Databases #
     #############
     path('datas/', views.DataListView.as_view(), name="data_list"),
-    path('data/new/', views.DataCreateView.as_view(), name="data_new"),
+    path('project/<int:project>/data/new/', views.DataCreateView.as_view(), name="data_new"),
     path('data/<int:pk>/view/', views.DataDetailView.as_view(), name="data_detail"),
     path('data/<int:pk>/edit/', views.DataUpdateView.as_view(), name="data_edit"),
     path('data/<int:pk>/delete/', views.DataDeleteView.as_view(), name="data_delete"),
@@ -67,7 +62,7 @@ urlpatterns = [
     path('feedback/<int:pk>/view/', views.FeedbackDetailView.as_view(), name="feedback_detail"),
     path('feedback/<int:pk>/delete/', views.FeedbackDeleteView.as_view(), name="feedback_delete"),
 
-    # Databases #
+    # Meetings #
     #############
     path('meetings/', views.MeetingsListView.as_view(), name="meetings_list"),
     path('meeting/new/', views.MeetingsCreateView.as_view(), name="meetings_new"),
@@ -78,9 +73,53 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/', views.ReportsListView.as_view(), name="reports_list"),
-    path('report/new/', views.ReportsCreateView.as_view(), name="reports_new"),
+    path('project/<int:project>/report/new/', views.ReportsCreateView.as_view(), name="reports_new"),
     path('report/<int:pk>/view/', views.ReportsDetailView.as_view(), name="reports_detail"),
     path('report/<int:pk>/edit/', views.ReportsUpdateView.as_view(), name="reports_edit"),
     path('report/<int:pk>/delete/', views.ReportsDeleteView.as_view(), name="reports_delete"),
 
+    # Agreement History #
+    #####################
+    path('project/<int:project>/agreementhistory/new/', views.AgreementHistoryCreateView.as_view(), name="agreementhistory_new"),
+    path('agreementhistory/<int:pk>/view/', views.AgreementHistoryDetailView.as_view(), name="agreementhistory_detail"),
+    path('agreementhistory/<int:pk>/edit/', views.AgreementHistoryUpdateView.as_view(), name="agreementhistory_edit"),
+    path('agreementhistory/<int:pk>/delete/', views.AgreementHistoryDeleteView.as_view(), name="agreementhistory_delete"),
+
+    # Objective Data Type Quality #
+    ###############################
+    path('obj/<int:obj>/objectivedatatypequality/new/', views.ObjectiveDataTypeQualityCreateView.as_view(), name="objectivedatatypequality_new"),
+    path('objectivedatatypequality/<int:pk>/edit/', views.ObjectiveDataTypeQualityUpdateView.as_view(), name="objectivedatatypequality_edit"),
+    path('objectivedatatypequality/<int:pk>/delete/', views.ObjectiveDataTypeQualityDeleteView.as_view(), name="objectivedatatypequality_delete"),
+
+    # Objective Outcome #
+    ###############################
+    path('obj/<int:obj>/objectiveoutcome/new/', views.ObjectiveOutcomeCreateView.as_view(), name="objectiveoutcome_new"),
+    path('objectiveoutcome/<int:pk>/edit/', views.ObjectiveOutcomeUpdateView.as_view(), name="objectiveoutcome_edit"),
+    path('objectiveoutcome/<int:pk>/delete/', views.ObjectiveOutcomeDeleteView.as_view(), name="objectiveoutcome_delete"),
+
+    # River #
+    ##########
+    path('rivers/', views.RiverListView.as_view(), name="river_list"),
+    path('river/new/', views.RiverCreateView.as_view(), name="river_new"),
+    path('river/<int:pk>/view/', views.RiverDetailView.as_view(), name="river_detail"),
+    path('river/<int:pk>/edit/', views.RiverUpdateView.as_view(), name="river_edit"),
+    path('river/<int:pk>/delete/', views.RiverDeleteView.as_view(), name="river_delete"),
+
+    # Watershed #
+    ##########
+    path('watersheds/', views.WaterShedListView.as_view(), name="watershed_list"),
+    path('watershed/new/', views.WaterShedCreateView.as_view(), name="watershed_new"),
+    path('watershed/<int:pk>/view/', views.WaterShedDetailView.as_view(), name="watershed_detail"),
+    path('watershed/<int:pk>/edit/', views.WaterShedUpdateView.as_view(), name="watershed_edit"),
+    path('watershed/<int:pk>/delete/', views.WaterShedDeleteView.as_view(), name="watershed_delete"),
+
+    # LakeSystem #
+    ##########
+    path('lakesystems/', views.LakeSystemListView.as_view(), name="lakesystem_list"),
+    path('lakesystem/new/', views.LakeSystemCreateView.as_view(), name="lakesystem_new"),
+    path('lakesystem/<int:pk>/view/', views.LakeSystemDetailView.as_view(), name="lakesystem_detail"),
+    path('lakesystem/<int:pk>/edit/', views.LakeSystemUpdateView.as_view(), name="lakesystem_edit"),
+    path('lakesystem/<int:pk>/delete/', views.LakeSystemDeleteView.as_view(), name="lakesystem_delete"),
+
 ]
+

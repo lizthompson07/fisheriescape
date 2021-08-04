@@ -72,13 +72,13 @@ class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
 class OrganizationListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/organization_list.html'
     filterset_class = filters.OrganizationFilter
-    model = models.Organization #ml_
+    model = models.Organization
     queryset = models.Organization.objects.annotate(
-        search_term=Concat('name', 'id', output_field=TextField())) #ml_
+        search_term=Concat('name', 'id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Organization.objects.first() #ml_
+        context["my_object"] = models.Organization.objects.first()
         context["field_list"] = [
             'name',
             'province',
@@ -90,7 +90,7 @@ class OrganizationListView(SpotAccessRequiredMixin, FilterView):
 
 class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
     template_name = 'spot/organization_detail.html'
-    model = models.Organization #ml_
+    model = models.Organization
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -113,7 +113,7 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
 
 class OrganizationUpdateView(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/organization_form.html'
-    model = models.Organization #ml_
+    model = models.Organization
     form_class = forms.OrganizationForm
 
     def get_initial(self):
@@ -126,7 +126,7 @@ class OrganizationUpdateView(SpotAccessRequiredMixin, UpdateView):
 
 class OrganizationCreateView(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/organization_form.html'
-    model = models.Organization #ml_
+    model = models.Organization
     form_class = forms.OrganizationForm
 
     def get_initial(self):
@@ -139,7 +139,7 @@ class OrganizationCreateView(SpotAccessRequiredMixin, CreateView):
 
 class OrganizationDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/organization_confirm_delete.html'
-    model = models.Organization #ml_
+    model = models.Organization
     success_url = reverse_lazy('spot:org_list')
     success_message = 'The organization was deleted successfully!'
 
@@ -153,13 +153,13 @@ class OrganizationDeleteView(SpotAccessRequiredMixin, DeleteView):
 class PersonListView(SpotAccessRequiredMixin, FilterView):
     template_name = 'spot/person_list.html'
     filterset_class = filters.PersonFilter
-    model = models.Person #ml_
+    model = models.Person
     queryset = models.Person.objects.annotate(
-        search_term=Concat('first_name', 'last_name', 'id', output_field=TextField())) #ml_
+        search_term=Concat('first_name', 'last_name', 'id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Person.objects.first() #ml_
+        context["my_object"] = models.Person.objects.first()
         context["field_list"] = [
             'first_name',
             'last_name',
@@ -172,7 +172,7 @@ class PersonListView(SpotAccessRequiredMixin, FilterView):
 
 
 class PersonDetailView(SpotAccessRequiredMixin, DetailView):
-    model = models.Person #ml_
+    model = models.Person
     template_name = 'spot/person_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -196,7 +196,7 @@ class PersonDetailView(SpotAccessRequiredMixin, DetailView):
 
 
 class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
-    model = models.Person #ml_
+    model = models.Person
     template_name = 'spot/person_form.html'
     form_class = forms.PersonForm
 
@@ -211,7 +211,7 @@ class PersonUpdateView(SpotAccessRequiredMixin, UpdateView):
 
 class PersonCreateView(SpotAccessRequiredMixin, CreateView):
     template_name = 'spot/person_form.html'
-    model = models.Person #ml_
+    model = models.Person
     form_class = forms.PersonForm
 
     def get_initial(self):
@@ -263,16 +263,12 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'agreement_number',
-            'agreement_database',
-            'agreement_status',
-            'agreement_status_comment',
-            'funding_sources',
-            'funding_years',
             'name',
             'project_description',
             'start_date',
             'end_date',
             'region',
+            'ecosystem_type',
             'primary_river',
             'secondary_river',
             'lake_system',
@@ -283,32 +279,34 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'cu_name',
             'species',
             'salmon_life_cycle',
+
+            'project_stage',
             'project_type',
             'project_sub_type',
-            'project_stage',
-            'project_scale',
             'monitoring_approach',
             'project_theme',
             'core_component',
             'supportive_component',
+            'project_purpose',
             'category_comments',
+
             'DFO_link',
             'DFO_program_reference',
             'government_organization',
             'government_reference',
-            'strategic_agreement_link',
+
             'DFO_project_authority',
+            'DFO_area_chief',
             'DFO_aboriginal_AAA',
             'DFO_resource_manager',
             'tribal_council',
             'primary_first_nations_contact',
             'primary_first_nations_contact_role',
-            'FN_relationship_level',
-            'other_first_nations_contact',
-            'other_first_nations_contact_role',
             'DFO_technicians',
-            'third_party_organization',
-            'primary_third_party_contact',
+            'contractor',
+            'primary_contact_contractor',
+            'partner',
+            'primary_contact_partner',
             'date_last_modified',
             'last_modified_by',
         ]
@@ -365,7 +363,7 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Objective.objects.first()
         context["field_list"] = [
-            'number',
+            'project',
             'key_element',
             'activity',
             'location',
@@ -380,8 +378,7 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'number',
-            'work_plan_section',
+            'project',
             'task_description',
             'key_element',
             'activity',
@@ -390,24 +387,22 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
             'pst_requirement',
             'location',
             'objective_category',
-            'duration',
             'species',
-            'target_sample_num',
+            'target_sample_number',
             'sample_type',
-            'salmon_stage',
             'sil_requirement',
             'expected_results',
             'dfo_report',
-            'scientific_outcome',
-            'outcomes_category',
-            'outcomes_deadline',
+            'outcome_deadline_met',
             'outcomes_contact',
-            'data_quality_type',
-            'data_quality_level',
+            'outcomes_comment',
+            'outcome_barrier',
+            'capacity_building',
+            'key_lesson',
+            'missed_opportunities',
             'report_reference',
             'date_last_modified',
             'last_modified_by',
-
         ]
         return context
 
@@ -431,7 +426,11 @@ class ObjectiveCreateView(SpotAccessRequiredMixin, CreateView):
     form_class = forms.ObjectiveForm
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user}
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
 
     def form_valid(self, form):
         my_obj = form.save()
@@ -441,8 +440,11 @@ class ObjectiveCreateView(SpotAccessRequiredMixin, CreateView):
 class ObjectiveDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/objective_confirm_delete.html'
     model = models.Objective
-    success_url = reverse_lazy('spot:obj_list')
     success_message = 'The objective was deleted successfully!'
+
+    def get_success_url(self):
+        my_project = models.Objective.objects.get(pk=self.kwargs['pk']).project
+        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -462,6 +464,7 @@ class MethodListView(SpotAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Method.objects.first()
         context["field_list"] = [
+            'project',
             'project_core_component',
             'planning_method_type',
             'field_work_method_type',
@@ -485,13 +488,19 @@ class MethodDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
-            'project_core_component',
+            'project',
             'planning_method_type',
             'field_work_method_type',
             'sample_processing_method_type',
             'data_entry_method_type',
             'data_analysis_method_type',
             'reporting_method_type',
+            'scale_processing_location',
+            'otolith_processing_location',
+            'DNA_processing_location',
+            'heads_processing_location',
+            'instrument_data_processing_location',
+            'shared_drive',
             'method_document_type',
             'authors',
             'publication_year',
@@ -514,6 +523,10 @@ class MethodUpdateView(SpotAccessRequiredMixin, UpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
     def form_valid(self, form):
         my_meth = form.save()
         return HttpResponseRedirect(reverse_lazy("spot:meth_detail", kwargs={"pk": my_meth.id}))
@@ -525,7 +538,17 @@ class MethodCreateView(SpotAccessRequiredMixin, CreateView):
     form_class = forms.MethodForm
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user}
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
 
     def form_valid(self, form):
         my_meth = form.save()
@@ -535,8 +558,11 @@ class MethodCreateView(SpotAccessRequiredMixin, CreateView):
 class MethodDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/method_confirm_delete.html'
     model = models.Method
-    success_url = reverse_lazy('spot:meth_list')
     success_message = 'The Method was deleted successfully!'
+
+    def get_success_url(self):
+        my_project = models.Method.objects.get(pk=self.kwargs['pk']).project
+        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -556,14 +582,14 @@ class DataListView(SpotAccessRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Data.objects.first()
         context["field_list"] = [
+            'project',
             'species_data',
-            'database',
-            'primary_data_contact',
-            'data_format',
-            'data_program',
-            'data_program',
-            'data_quality_type',
-            'data_quality_level',
+            'samples_collected',
+            'samples_collected_database',
+            'sample_format',
+            'data_products',
+            'data_products_database',
+            'data_programs',
         ]
         return context
 
@@ -575,19 +601,23 @@ class DataDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'project',
             'species_data',
-            'data_type',
-            'data_subtype',
-            'data_type_comment',
-            'sample_types_included',
-            'primary_data_contact',
-            'database',
-            'data_program',
-            'data_format',
-            'data_quality_type',
-            'data_quality_level',
-            'DFO_analysts',
-            'non_DFO_analysts',
+            'samples_collected',
+            'samples_collected_comment',
+            'samples_collected_database',
+            'samples',
+            'sample_barrier',
+            'sample_entered_database',
+            'data_quality_check',
+            'data_quality_person',
+            'barrier_data_check_entry',
+            'sample_format',
+            'data_products',
+            'data_products_database',
+            'data_products_comment',
+            'data_programs',
+            'data_communication_recipient',
             'date_last_modified',
             'last_modified_by',
         ]
@@ -602,6 +632,10 @@ class DataUpdateView(SpotAccessRequiredMixin, UpdateView):
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
     def form_valid(self, form):
         my_data = form.save()
         return HttpResponseRedirect(reverse_lazy("spot:data_detail", kwargs={"pk": my_data.id}))
@@ -613,7 +647,17 @@ class DataCreateView(SpotAccessRequiredMixin, CreateView):
     form_class = forms.DataForm
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user}
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
 
     def form_valid(self, form):
         my_data = form.save()
@@ -623,8 +667,11 @@ class DataCreateView(SpotAccessRequiredMixin, CreateView):
 class DataDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/database_confirm_delete.html'
     model = models.Data
-    success_url = reverse_lazy('spot:data_list')
     success_message = 'The Database was deleted successfully!'
+
+    def get_success_url(self):
+        my_project = models.Data.objects.get(pk=self.kwargs['pk']).project
+        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -794,15 +841,10 @@ class ReportsDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'project',
             'report_timeline',
             'report_type',
-            'report_topic_program_level',
-            'report_format_project_level',
-            'report_format_program_level',
-            'fishery_support_link',
-            'report_problem_addressed_content',
-            'report_purpose',
-            'report_client',
+            'report_concerns',
             'document_name',
             'document_author',
             'document_location',
@@ -820,7 +862,17 @@ class ReportsCreateView(SpotAccessRequiredMixin, CreateView):
     form_class = forms.ReportsForm
 
     def get_initial(self):
-        return {'last_modified_by': self.request.user}
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
 
     def form_valid(self, form):
         my_data = form.save()
@@ -832,19 +884,396 @@ class ReportsUpdateView(SpotAccessRequiredMixin, UpdateView):
     model = models.Reports
     form_class = forms.ReportsForm
 
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
-
     def form_valid(self, form):
-        my_data = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:reports_detail", kwargs={"pk": my_data.id}))
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:reports_detail", kwargs={"pk": my_object.id}))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
 
 
 class ReportsDeleteView(SpotAccessRequiredMixin, DeleteView):
     template_name = 'spot/reports_confirm_delete.html'
     model = models.Reports
-    success_url = reverse_lazy('spot:reports_list')
     success_message = 'The Report was deleted successfully!'
+
+    def get_success_url(self):
+        my_project = models.Reports.objects.get(pk=self.kwargs['pk']).project
+        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# Agreement History #
+########
+class AgreementHistoryCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.AgreementHistory
+    template_name = 'spot/agreementhistory_form.html'
+    form_class = forms.AgreementHistoryForm
+
+    def get_initial(self):
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        return {
+            'project': my_project,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_project = models.Project.objects.get(pk=self.kwargs['project'])
+        context['project'] = my_project
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:agreementhistory_detail", kwargs={"pk": my_object.id}))
+
+
+class AgreementHistoryUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.AgreementHistory
+    template_name = 'spot/agreementhistory_form.html'
+    form_class = forms.AgreementHistoryForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:agreementhistory_detail", kwargs={"pk": my_object.id}))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class AgreementHistoryDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/agreementhistory_confirm_delete.html'
+    model = models.AgreementHistory
+    success_message = 'The Agreement History was successfully removed!'
+
+    def get_success_url(self):
+        my_project = models.AgreementHistory.objects.get(pk=self.kwargs['pk']).project
+        return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class AgreementHistoryDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.AgreementHistory
+    template_name = 'spot/agreementhistory_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'history',
+            'agreement_database',
+            'agreement_status_comment',
+            'funding_sources',
+            'agreement_type',
+            'project_lead_organization',
+            'agreement_cost',
+            'salmon_relevant_cost',
+            'funding_years',
+            'date_last_modified',
+            'last_modified_by',
+        ]
+        return context
+
+
+# ObjectiveDataTypeQuality #
+class ObjectiveDataTypeQualityCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.ObjectiveDataTypeQuality
+    template_name = 'spot/objective_data_type_quality_popout.html'
+    form_class = forms.ObjectiveDataTypeQualityForm
+
+    def get_initial(self):
+        my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
+        return {
+            'objective': my_objective,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
+        context['obj'] = my_objective
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+
+class ObjectiveDataTypeQualityUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.ObjectiveDataTypeQuality
+    template_name = 'spot/objective_data_type_quality_popout.html'
+    form_class = forms.ObjectiveDataTypeQualityForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class ObjectiveDataTypeQualityDeleteView(SpotAccessRequiredMixin, DeleteView):
+    model = models.ObjectiveDataTypeQuality
+    success_message = 'The Sample Type was successfully removed!'
+    template_name = 'spot/objective_data_type_quality_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('spot:close_me')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# OBJECTIVE OUTCOME #
+class ObjectiveOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
+    model = models.ObjectiveOutcome
+    template_name = 'spot/objective_outcome_popout.html'
+    form_class = forms.ObjectiveOutcomeForm
+
+    def get_initial(self):
+        my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
+        return {
+            'objective': my_objective,
+            'last_modified_by': self.request.user
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
+        context['obj'] = my_objective
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+
+class ObjectiveOutcomeUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.ObjectiveOutcome
+    template_name = 'spot/objective_outcome_popout.html'
+    form_class = forms.ObjectiveOutcomeForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:close_me"))
+
+    def get_initial(self):
+        return {
+            'last_modified_by': self.request.user
+        }
+
+
+class ObjectiveOutcomeDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/objective_outcome_confirm_delete.html'
+    model = models.ObjectiveOutcome
+    success_message = 'The Outcome was successfully removed!'
+
+    def get_success_url(self):
+        return reverse_lazy('spot:close_me')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# RIVER #
+#########
+class RiverListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/river_list.html'
+    #filterset_class = filters.PersonFilter
+    model = models.River
+    queryset = models.River.objects.annotate(
+        search_term=Concat('name', 'id', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.River.objects.first()
+        context["field_list"] = [
+            'name',
+            'latitude',
+            'longitude',
+        ]
+        return context
+
+
+class RiverDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.River
+    template_name = 'spot/river_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'name',
+            'latitude',
+            'longitude',
+        ]
+        return context
+
+
+class RiverUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.River
+    template_name = 'spot/river_form.html'
+    form_class = forms.RiverForm
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse_lazy("spot:river_detail", kwargs={"pk": self.kwargs["pk"]})
+
+
+class RiverCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/river_form.html'
+    model = models.River
+    form_class = forms.RiverForm
+
+    def form_valid(self, form):
+        my_river = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:river_detail", kwargs={"pk": my_river.id}))
+
+
+class RiverDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/river_confirm_delete.html'
+    model = models.River
+    success_url = reverse_lazy('spot:river_list')
+    success_message = 'The River was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# Watershed #
+#############
+class WaterShedListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/watershed_list.html'
+    #filterset_class = filters.PersonFilter
+    model = models.Watershed
+    queryset = models.Watershed.objects.annotate(
+        search_term=Concat('name', 'id', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Watershed.objects.first()
+        context["field_list"] = [
+            'name',
+        ]
+        return context
+
+
+class WaterShedDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.Watershed
+    template_name = 'spot/watershed_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'name',
+        ]
+        return context
+
+
+class WaterShedUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.Watershed
+    template_name = 'spot/watershed_form.html'
+    form_class = forms.WatershedForm
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse_lazy("spot:watershed_detail", kwargs={"pk": self.kwargs["pk"]})
+
+
+class WaterShedCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/watershed_form.html'
+    model = models.Watershed
+    form_class = forms.WatershedForm
+
+    def form_valid(self, form):
+        my_watershed = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:watershed_detail", kwargs={"pk": my_watershed.id}))
+
+
+class WaterShedDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/watershed_confirm_delete.html'
+    model = models.Watershed
+    success_url = reverse_lazy('spot:watershed_list')
+    success_message = 'The Watershed was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+# Lake System #
+###############
+class LakeSystemListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/lakesystem_list.html'
+    #filterset_class = filters.PersonFilter
+    model = models.LakeSystem
+    queryset = models.LakeSystem.objects.annotate(
+        search_term=Concat('name', 'id', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.LakeSystem.objects.first()
+        context["field_list"] = [
+            'name',
+        ]
+        return context
+
+
+class LakeSystemDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.LakeSystem
+    template_name = 'spot/lakesystem_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'name',
+        ]
+        return context
+
+
+class LakeSystemUpdateView(SpotAccessRequiredMixin, UpdateView):
+    model = models.LakeSystem
+    template_name = 'spot/lakesystem_form.html'
+    form_class = forms.LakeSystemForm
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse_lazy("spot:lakesystem_detail", kwargs={"pk": self.kwargs["pk"]})
+
+
+class LakeSystemCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/lakesystem_form.html'
+    model = models.LakeSystem
+    form_class = forms.LakeSystemForm
+
+    def form_valid(self, form):
+        my_lakesystem = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:lakesystem_detail", kwargs={"pk": my_lakesystem.id}))
+
+
+class LakeSystemDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/lakesystem_confirm_delete.html'
+    model = models.LakeSystem
+    success_url = reverse_lazy('spot:lakesystem_list')
+    success_message = 'The Lake System was deleted successfully!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

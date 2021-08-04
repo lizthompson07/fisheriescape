@@ -27,13 +27,13 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Databases</li>
+            <li class="breadcrumb-item active" aria-current="page">Lake System</li>
         </ol>
     </nav>
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Databases</h1>
+        <h1 class="big-header">Lake System </h1>
         <p>TOTAL: {{ object_list.count }}</p>
 
         <form class="form" action="." method="get" id="filter-form">
@@ -64,6 +64,10 @@
                 {% show_pages %}
                 <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
             </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'spot:lakesystem_new' %}" class="btn btn-sm btn-primary">New Lake System</a>
+
+            </div>
         </div>
 
         <table class="table table-sm table-hover sortable">
@@ -80,7 +84,7 @@
             </thead>
             <tbody>
             {% for object in filter_list %}
-                {% url 'spot:data_detail' object.id as my_url %}
+                {% url 'spot:lakesystem_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
                         {% if field == "status" %}

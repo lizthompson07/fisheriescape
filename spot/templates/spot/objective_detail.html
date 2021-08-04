@@ -18,7 +18,13 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'spot:obj_list' %}">Objectives</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:obj_list' %}">Objective List</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+        </ol>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Project List</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:project_detail' object.project.id %}">{{ object.project }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -35,10 +41,6 @@
             <a class="btn btn-danger " href="{% url 'spot:obj_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
-{#            <a class="btn btn-success" href="{% url 'spot:report_q' object.id %}">#}
-{#                {% trans "Cue Card" %}#}
-{#            </a>#}
-
         </div>
         <br><br>
 
@@ -47,10 +49,13 @@
                 <h3>
                     Detail:
                 </h3>
-
                 {% for field in field_list %}
                     {% verbose_field_display object field %}
+                    {% if field == 'sil_requirement' %}
+                        {% include "spot/_objective_quality.html" %}
+                    {% endif %}
                 {% endfor %}
+                {% include "spot/_objective_outcome.html" %}
                 <br>
 
             </div>

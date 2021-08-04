@@ -1,0 +1,92 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="">
+    <h4>
+        {% trans "Select Project Method:" %}
+    </h4>
+</div>
+
+{% if object.project_method.count == 0 %}
+    <em>
+        {% trans "No Project Methods have been entered" %}
+
+    </em><br>
+{% else %}
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th style="width: 120px">
+                {% trans "Planning Method Type" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Field Work Method Type" %}
+            </th>
+             <th style="width: 120px">
+                {% trans "Sample Processing Method Type" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Data Entry Method Type)" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Data Analysis Method Type" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Data Reporting Method Type" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Author" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Publication Year" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Title" %}
+            </th>
+            <th class="width: 120px">
+                {% trans "Reference Number" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.project_method.all %}
+            <tr href="{% url 'spot:meth_detail' obj.id  %}" data-toggle="tooltip" title="click to edit this method">
+                <td>
+                    {{ obj.planning_method_type }}
+                </td>
+                <td>
+                    {{ obj.field_work_method_type }}
+                </td>
+                <td>
+                    {{ obj.sample_processing_method_type }}
+                </td>
+                <td>
+                    {{ obj.data_entry_method_type }}
+                </td>
+                <td>
+                    {{ obj.data_analysis_method_type }}
+                </td>
+                <td>
+                    {{ obj.reporting_method_type }}
+                </td>
+                <td>
+                    {{ obj.authors}}
+                </td>
+                <td>
+                    {{ obj.publication_year }}
+                </td>
+                <td>
+                    {{ obj.title }}
+                </td>
+                <td>
+                    {{ obj.reference_number }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+    <a class="" href="{% url 'spot:meth_new' object.id  %}">
+        {% trans "(Add Project Method)" %}
+    </a>
+<br><br>

@@ -10,29 +10,14 @@
         .ms-container {
             width: 100%;
         }
-
-        label {
-            font-weight: bold;
-        }
-
-        select:invalid {
-            height: 0px !important;
-            opacity: 0 !important;
-            {#position: absolute !important;#}
-            display: flex !important;
-        }
-
-        select:invalid[multiple] {
-            margin-top: 15px !important;
-        }
     </style>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'spot:project_list' %}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:river_list' %}">Rivers</a></li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'spot:project_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'spot:river_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">New</li>
@@ -46,31 +31,33 @@
             {% if object %}
                 {{ object }}
             {% else %}
-                New Project
+                New River
             {% endif %}
         </h1>
 
         <br><br>
 
         <form method="post" class="form">
-            {% bootstrap_form_errors form %}
             {% csrf_token %}
-            {% for field in form %}
-                {% bootstrap_field field placeholder="" %}
-            {% endfor %}
 
+            {% bootstrap_form form %}
             {% buttons %}
                 {% if object %}
                     <button type="submit" class="btn btn-success">Submit</button>
-                    <a class="btn btn-secondary" href="{% url 'spot:project_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'spot:river_detail' object.id %}">Cancel</a>
                 {% else %}
                     <button type="submit" class="btn btn-success">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'spot:project_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'spot:river_list' %}">Cancel</a>
                 {% endif %}
             {% endbuttons %}
         </form>
 
     </div>
-    <script src="{% static 'lou-multi-select-e052211/js/jquery.multi-select.js' %}" type="text/javascript"></script>
-    <script type="application/javascript"></script>
+    <script>
+        $(document).ready(function() {
+        $('.has-popover').popover({'trigger':'hover'});
+        });
+    </script>
+
 {% endblock content %}
+

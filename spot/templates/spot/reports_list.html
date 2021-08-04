@@ -64,10 +64,6 @@
                 {% show_pages %}
                 <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
             </div>
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'spot:reports_new' %}" class="btn btn-sm btn-primary">New Report</a>
-
-            </div>
         </div>
 
         <table class="table table-sm table-hover sortable">

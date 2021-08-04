@@ -23,6 +23,7 @@
         </ol>
     </nav>
 
+
     <div class="container-fluid">
 
         <h1>{{ object }}</h1>
@@ -41,21 +42,117 @@
 
         </div>
         <br><br>
-
-        <div class="row">
-            <div class="col-3">
-                <h3>
-                    Detail:
-                </h3>
-
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-                <br>
-
+        <div id="accordion">
+              <div class="card">
+                <div class="card-header" id="headingOne">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      {% trans "Project Details" %}
+                    </button>
+                  </h2>
+                </div>
+                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
+                 <div class="card-body">
+                <div class="col">
+                     <table class="table table-sm table-bordered" style="width: auto">
+                        <h2><u>Project Information</u></h2>
+                         {% for field in field_list %}
+                            {% verbose_field_display object field %}
+                            {% if field == 'salmon_life_cycle' %}
+                                <h2><u>Project Categorization</u></h2>
+                            {% elif field == 'category_comments' %}
+                                <h2><u>Project Links</u></h2>
+                            {% elif field == 'government_reference' %}
+                                <h2><u>Project Contacts</u></h2>
+                            {% endif %}
+                        {% endfor %}
+                        <br>
+                     </table>
+                    </div>
+                </div>
+                 </div>
+                </div>
+            <div class="card">
+                <div class="card-header" id="headingTwo">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                      {% trans "Agreement Lineage" %}
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo">
+                 <div class="card-body">
+                <div>
+                     {% include "spot/_agreement_lineage.html" %}
+                </div>
+                 </div>
+                </div>
             </div>
+            <div class="card">
+                <div class="card-header" id="headingThree">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                      {% trans "Data" %}
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseThree" class="collapse show" aria-labelledby="headingThree">
+                 <div class="card-body">
+                <div>
+                     {% include "spot/_data.html" %}
+                </div>
+                 </div>
+                </div>
+            </div>
+            <div class="card">
+                    <div class="card-header" id="headingFour">
+                      <h2 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                          {% trans "Methods" %}
+                        </button>
+                      </h2>
+                    </div>
+                    <div id="collapseFour" class="collapse show" aria-labelledby="headingFour">
+                     <div class="card-body">
+                    <div>
+                         {% include "spot/_methods.html" %}
+                    </div>
+                     </div>
+                    </div>
+                </div>
         </div>
-
+        <div class="card">
+                    <div class="card-header" id="headingFive">
+                      <h2 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                          {% trans "Reports" %}
+                        </button>
+                      </h2>
+                    </div>
+                    <div id="collapseFive" class="collapse show" aria-labelledby="headingFive">
+                     <div class="card-body">
+                    <div>
+                         {% include "spot/_reports.html" %}
+                    </div>
+                     </div>
+                        </div>
+            </div>
+        <div class="card">
+                    <div class="card-header" id="headingSix">
+                      <h2 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+                          {% trans "Objectives" %}
+                        </button>
+                      </h2>
+                    </div>
+                    <div id="collapseSix" class="collapse show" aria-labelledby="headingSix">
+                     <div class="card-body">
+                    <div>
+                         {% include "spot/_objectives.html" %}
+                    </div>
+                     </div>
+                        </div>
+            </div>
     </div>
 {% endblock content %}
 
