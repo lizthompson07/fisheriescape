@@ -526,6 +526,9 @@ class TripRequest(models.Model):
     updated_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_requests_updated_by", blank=True, null=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
+    def get_absolute_url(self):
+        return reverse('travel:request_detail', args=[self.id])
+
     def unsubmit(self):
         self.submitted = None
         self.status = 8
