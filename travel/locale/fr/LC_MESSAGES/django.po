@@ -1670,7 +1670,7 @@ msgid ""
 msgstr ""
 "Vous êtes sur le point d'approuver ce voyageur comme un cas unique parmi "
 "l'ensemble de la délégation. Êtes-vous certain de vouloir continuer ? \\n"
-"\\nVeuillez taper \"oui\" pour confirmer :"
+"\\nVeuillez taper «oui» pour confirmer :"
 
 #: .\travel\templates\travel\common\_trip_script.html:8
 msgid ""
@@ -1678,8 +1678,8 @@ msgid ""
 "certain you wish to proceed? \\n\\nPlease type 'yes' to confirm:"
 msgstr ""
 "Vous êtes sur le point d'approuver tous les voyageurs ELIGIBLES de ce "
-"voyage. Êtes-vous certain de vouloir continuer ? \\n\\nVeuillez taper \"oui"
-"\" pour confirmer :"
+"voyage. Êtes-vous certain de vouloir continuer ? \\n\\nVeuillez taper «oui»"
+" pour confirmer :"
 
 #: .\travel\templates\travel\default_reviewer\default_reviewer_confirm_delete.html:12
 #: .\travel\templates\travel\default_reviewer\default_reviewer_form.html:18
