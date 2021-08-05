@@ -76,6 +76,7 @@ urlpatterns = [
     path('pcr-batches/<int:pk>/edit/', views.PCRBatchUpdateView.as_view(), name="pcr_batch_edit"),  # tested
     path('pcr-batches/<int:pk>/delete/', views.PCRBatchDeleteView.as_view(), name="pcr_batch_delete"),  # tested
     path('pcr-batches/<int:pk>/view/', views.PCRBatchDetailView.as_view(), name="pcr_batch_detail"),  # tested
+    path('pcr-batches/import/', views.ImportPCRView.as_view(), name="import_pcrs"),
 
     # filters
     path('filters/', views.FilterListView.as_view(), name="filter_list"),

@@ -1,0 +1,18 @@
+year,2021,,,,,,
+month,7,,,,,,
+day,24,,,,,,
+hour,11,,,,,,
+minute,59,,,,,,
+comments,This is a sample import sheet,,,,,,
+plate_id,my special plate,,,,,,
+machine_number,GFC -MBU-123,,,,,,
+run_program,TaqPath-FAM-HEX-ANNEXT60-40cycles or TaqPath-FAM-HEX-ANNEXT60-50cycles,,,,,,
+,,,,,,,
+,,,,,,,
+plate_well,extract,extraction_number,master_mix,assay,threshold,ct,comments
+A1,,r21:2935,TaqPath ProAmp,smallmouth bass,0.069203496,38.12411118,
+A2,x129,,TaqPath ProAmp,smallmouth bass,0.069203496,21.16767502,
+A3,x133,,TaqPath ProAmp,smallmouth bass,0.069203496,21.88,duplex
+A3,,,TaqPath ProAmp,panda,0.069203496,undetermined,duplex
+A4,,,TaqPath ProAmp,smallmouth bass,0.069203496,na,
+A5,,,TAQPath ProAmp,smallmouth bass,0.069203496,NA,import is not sensitive to capitalization

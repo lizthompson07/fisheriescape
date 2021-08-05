@@ -67,19 +67,23 @@
             {% endif %}
           </div>
           {% block new_object_button %}
-            {% if new_object_url %}
-              <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
-              </div>
-            {% endif %}
-            {% if extra_button_dict1 %}
-              <a href="{{ extra_button_dict1.url }}"
-                 class="btn btn-sm {{ extra_button_dict1.class|nz:"btn-outline-primary" }}">{{ extra_button_dict1.name|safe }}</a>
-            {% endif %}
-            {% if extra_button_dict2 %}
-              <a href="{{ extra_button_dict2.url }}"
-                 class="btn btn-sm {{ extra_button_dict2.class|nz:"btn-outline-primary" }}">{{ extra_button_dict2.name|safe }}</a>
-            {% endif %}
+            <div class="col" style="text-align: right">
+              {% if new_object_url %}
+                <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">
+                  {{ new_btn_text|nz:default_new_btn_text }}
+                </a>
+              {% endif %}
+              {% if extra_button_dict1 %}
+                <a href="{{ extra_button_dict1.url }}"
+                   class="btn btn-sm {{ extra_button_dict1.class|nz:"btn-outline-primary" }}">{{ extra_button_dict1.name|safe }}
+                </a>
+              {% endif %}
+              {% if extra_button_dict2 %}
+                <a href="{{ extra_button_dict2.url }}"
+                   class="btn btn-sm {{ extra_button_dict2.class|nz:"btn-outline-primary" }}">{{ extra_button_dict2.name|safe }}
+                </a>
+              {% endif %}
+            </div>
           {% endblock %}
         </div>
       {% endblock %}

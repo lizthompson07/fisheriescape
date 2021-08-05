@@ -335,7 +335,7 @@ class TravellerSerializer(serializers.ModelSerializer):
 
         # make sure that the user is not already attending this trip from another request!
         if user and models.Traveller.objects.filter(~Q(request=trip_request)).filter(request__trip=trip, user=user).exists():
-            msg = _('This user is cannot be added here because they are listed on another request!')
+            msg = _('This user cannot be added here because they are listed on another request!')
             raise ValidationError(msg)
 
         # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
