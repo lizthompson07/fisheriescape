@@ -1101,9 +1101,9 @@ def enter_bulk_indvd(anix, cleaned_data, det_date, len=None, len_mm=None, weight
         data_entered += enter_indvd(anix.pk, cleaned_data, det_date, scale_envelope, envelope_anidc_id.pk, None)
     if nan_to_none(gender):
         sex_anidc_id = models.AnimalDetCode.objects.filter(name="Gender").get()
-        sex_dict = calculation_constants.sex_dict
-        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, sex_dict[gender.upper()],
-                                    sex_anidc_id.pk, adsc_str=sex_dict[gender.upper()])
+        func_sex_dict = calculation_constants.sex_dict
+        data_entered += enter_indvd(anix.pk, cleaned_data, det_date, func_sex_dict[gender.upper()],
+                                    sex_anidc_id.pk, adsc_str=func_sex_dict[gender.upper()])
     if nan_to_none(tissue_yn):
         if y_n_to_bool(tissue_yn):
             data_entered += enter_indvd(anix.pk, cleaned_data, det_date, None, health_anidc_id, "Tissue Sample")
