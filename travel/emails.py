@@ -177,7 +177,7 @@ class TripReviewEmail(Email):
     subject_fr = "L'examen de voyage par le SMA a commencé"
 
     def get_recipient_list(self):
-        return utils.get_all_admins(region=self.region)
+        return utils.get_all_admins(region=self.region, branch_only=True)
 
     def get_context_data(self):
         context = super().get_context_data()

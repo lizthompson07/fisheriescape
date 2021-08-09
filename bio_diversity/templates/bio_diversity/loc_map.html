@@ -55,29 +55,53 @@
         <div class="col-3 card">
             <h3>Location Report:</h3>
 
-            <h5>List of locations intersecting with bounding box:</h5>
-            <ul>
-                {% for loc in captured_locations_list %}
-                    <li>
-                        <a href="{% url 'bio_diversity:details_loc' loc.id%}" target="_blank">{{ loc.evnt_id.evntc_id }} at {{ loc.relc_id }} in {{loc.start_date.year}}</a>
-                    </li>
-                {% empty %}
-                    <em>No locations to display...</em>
-                {% endfor %}
+            {% if loc_count %}
+                <h5>List of first {{side_bar_len}} locations of {{loc_count}} intersecting with bounding box:</h5>
+                <ul>
+                    {% for loc in captured_locations_short_list %}
+                        <li>
+                            <a href="{% url 'bio_diversity:details_loc' loc.id%}" target="_blank">{{ loc.evnt_id.evntc_id }} at {{ loc.relc_id }} in {{loc.start_date.year}}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5>List of locations intersecting with bounding box:</h5>
+                <ul>
+                    {% for loc in captured_locations_list %}
+                        <li>
+                            <a href="{% url 'bio_diversity:details_loc' loc.id%}" target="_blank">{{ loc.evnt_id.evntc_id }} at {{ loc.relc_id }} in {{loc.start_date.year}}</a>
+                        </li>
+                    {% empty %}
+                        <em>No locations to display...</em>
+                    {% endfor %}
             </ul>
+            {% endif %}
+
             <br>
             <h3>Site Report:</h3>
 
-            <h5>List of sites intersecting with bounding box:</h5>
-            <ul>
-                {% for site in captured_site_list %}
-                    <li>
-                        <a href="{% url 'bio_diversity:details_relc' site.id%}" target="_blank">{{ site.name }} on {{ site.rive_id.name }}</a>
-                    </li>
-                {% empty %}
-                    <em>No locations to display...</em>
-                {% endfor %}
+            {% if site_count %}
+                <h5>List of first {{side_bar_len}} sites of {{site_count}} intersecting with bounding box:</h5>
+                <ul>
+                    {% for site in captured_site_short_list %}
+                        <li>
+                            <a href="{% url 'bio_diversity:details_relc' site.id%}" target="_blank">{{ site.name }} on {{ site.rive_id.name }}</a>
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            {% else %}
+                <h5>List of sites intersecting with bounding box:</h5>
+                <ul>
+                    {% for site in captured_site_list %}
+                        <li>
+                            <a href="{% url 'bio_diversity:details_relc' site.id%}" target="_blank">{{ site.name }} on {{ site.rive_id.name }}</a>
+                        </li>
+                    {% empty %}
+                        <em>No sites to display...</em>
+                    {% endfor %}
             </ul>
+            {% endif %}
             <br>
             <h3>Layer Toggles:</h3>
 
@@ -349,6 +373,7 @@
                 var start_date =  $("#id_start_date").attr("value");
                 var end_date =  $("#id_end_date").attr("value");
 
+                // lon = x, lat = y
                 var contentString = '<a href="{% url 'bio_diversity:loc_map' %}n/' + ne.lat() + '/s/' + sw.lat() + '/e/' + ne.lng() + '/w/' + sw.lng() + '/?start=' + start_date + '&end=' + end_date + '&' + '" class="btn btn-small btn-primary">Search this area!</a>' +
                     '<br>' +
                     '<br>' +

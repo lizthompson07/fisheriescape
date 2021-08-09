@@ -24,19 +24,24 @@
     <a href="{% url 'edna:sample_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
   </div>
 
-  <div class="mb-3 row">
-    <div class="col">
+  <div class="card mb-3 w-50">
+    <div class="card-header lead">
+      {% trans "Sample Detail" %}
+    </div>
+    <div class="card-body">
       <table class="table table-sm">
         {% for field in field_list %}
           {% verbose_td_display object field th_width="200px" display_time=True %}
         {% endfor %}
       </table>
     </div>
-    <div class="col-4">
-      <div id="map">
-      </div>
-    </div>
   </div>
+
+  {% include "edna/_filters.html" %}
+  {% include "edna/_extracts.html" %}
+  {% include "edna/_pcrs.html" %}
+  {% include "edna/_assays.html" %}
+
 
 
   <script type="application/javascript">

@@ -64,7 +64,9 @@ class EntryForm(forms.ModelForm):
         self.fields["organizations"].choices = org_choices_all
         sector_choices = [(obj.id, f"{obj.region} - {obj.tname}") for obj in ml_models.Sector.objects.all()]
         self.fields["sectors"].choices = sector_choices
-
+        self.fields['initial_date'].widget.format = '%Y-%m-%d'
+        self.fields['anticipated_end_date'].widget.format = '%Y-%m-%d'
+        self.fields['response_requested_by'].widget.format = '%Y-%m-%d'
 
 class NoteForm(forms.ModelForm):
     class Meta:

@@ -1,0 +1,1602 @@
+{% extends 'edna/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+
+  <div class="btns mb-3">
+    <a href="{% url 'edna:collection_detail' object.id %}" class="btn btn-success btn-sm">{% trans "Back" %}</a>
+
+  </div>
+
+  <div id="app" class="mt-5">
+    <vue-table
+      v-model="products"
+      :headers="headers"
+      :custom-options="customOptions"
+      :style-wrap-vue-table="styleWrapVueTable"
+      :disable-cells="disableCells"
+      :disable-sort-thead="disableSortThead"
+      :loading="loading"
+      :parent-scroll-element="parentScrollElement"
+      :select-position="selectPosition"
+      :submenu-tbody="submenuTbody"
+      :submenu-thead="submenuThead"
+      :tbody-data="products"
+      @tbody-checked-row="checkedData"
+      @tbody-all-checked-row="checkedAllData"
+      @tbody-change-data="changeData"
+      @tbody-submenu-click-change-color="changeColorTbody"
+      @tbody-submenu-click-change-value="changeValueTbody"
+      @thead-submenu-click-change-color="changeColorThead"
+      @thead-submenu-click-change-value="changeValueThead"
+      @thead-td-sort="sortProduct"
+    >
+      <div slot="header">{% trans "Samples" %}</div>
+    </vue-table>
+
+  </div>
+
+{% endblock %}
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script type="text/javascript" src="https://bundle.run/spreadsheet-vuejs@1.3.4"></script>
+
+  <script type="application/javascript">
+  let collectionId = {{ object.id }};
+  Vue.component('vue-table', spreadsheetVuejs.default);
+
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: null,
+      default_sample_type: null,
+      sampleErrorMsg: null,
+      samples: [],
+      sampleTypeChoices: [],
+      labels: [],
+      sampleChoices: [],
+      unsavedChanges: false,
+
+      customOptions: {
+        tbodyIndex: true,
+        tbodyCheckbox: true,
+        sortHeader: true,
+        trad: {
+          lang: "fr",
+          en: {
+            select: {
+              placeholder: "Search by typing"
+            }
+          },
+          fr: {
+            select: {
+              placeholder: "Taper pour chercher"
+            }
+          }
+        },
+        newData: {
+          type: "input",
+          value: "",
+          active: false,
+          style: {
+            color: "#000"
+          }
+        },
+        fuseOptions: {
+          shouldSort: true,
+          threshold: 0.2,
+          location: 0,
+          distance: 30,
+          maxPatternLength: 64,
+          minMatchCharLength: 1,
+          findAllMatches: false,
+          tokenize: false,
+          keys: ["value"]
+        }
+      },
+      loading: false,
+      disableCells: ["a"],
+      parentScrollElement: {
+        attribute: "html",
+        positionTop: 0
+      },
+      selectPosition: {
+        top: 0,
+        left: 0
+      },
+      disableSortThead: ["a"],
+      styleWrapVueTable: {
+        height: "400px",
+        overflow: "visible",
+        fontSize: "12px",
+        comment: {
+          borderColor: "#696969",
+          borderSize: "8px",
+          widthBox: "120px",
+          heightBox: "80px"
+        }
+      },
+      headers: [
+        {
+          headerName: "A",
+          headerKey: "a",
+          style: {
+            width: "200px",
+            minWidth: "200px",
+            color: "#000"
+          }
+        },
+        {
+          headerName: "B",
+          headerKey: "b",
+          style: {
+            width: "200px",
+            minWidth: "200px",
+            color: "#000"
+          }
+        },
+        {
+          headerName: "C",
+          headerKey: "c",
+          style: {
+            width: "200px",
+            minWidth: "200px",
+            color: "#000"
+          }
+        },
+        {
+          headerName: "D",
+          headerKey: "d",
+          style: {
+            width: "200px",
+            minWidth: "200px",
+            color: "#000"
+          }
+        },
+        {
+          headerName: "E",
+          headerKey: "e",
+          style: {
+            width: "200px",
+            minWidth: "200px",
+            color: "#000"
+          }
+        },
+        {
+          headerName: "F",
+          headerKey: "f",
+          style: {
+            width: "200px",
+            minWidth: "200px",
+            color: "#000"
+          }
+        },
+        {
+          headerName: "G",
+          headerKey: "g",
+          style: {
+            width: "200px",
+            minWidth: "200px",
+            color: "#000"
+          }
+        }
+      ],
+      products: [
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          c: {
+            type: "input",
+            value:
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis nec aliquam magna. Sed consequat amet..",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#eee"
+            },
+            selectOptions: [
+              {
+                value: "Harry Potter",
+                label: "harry potter"
+              },
+              {
+                value: "Hermione Granger",
+                label: "hermione granger"
+              },
+              {
+                value: "Ron Whisley",
+                label: "ron whisley"
+              },
+              {
+                value: "Dobby",
+                label: "dobby"
+              },
+              {
+                value: "Hagrid",
+                label: "hagrid"
+              },
+              {
+                value: "Professeur Rogue",
+                label: "professeur rogue"
+              },
+              {
+                value: "Professeur Mcgonagal",
+                label: "professeur mcgonagal"
+              },
+              {
+                value: "Professeur Dumbledor",
+                label: "professeur dumbledor"
+              }
+            ],
+            value: "professeur dumbledor",
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#eee"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#eee"
+            },
+            selectOptions: [
+              {
+                value: "Harry Potter",
+                label: "harry potter"
+              },
+              {
+                value: "Hermione Granger",
+                label: "hermione granger"
+              },
+              {
+                value: "Ron Whisley",
+                label: "ron whisley"
+              },
+              {
+                value: "Dobby",
+                label: "dobby"
+              },
+              {
+                value: "Hagrid",
+                label: "hagrid"
+              },
+              {
+                value: "Professeur Rogue",
+                label: "professeur rogue"
+              },
+              {
+                value: "Professeur Mcgonagal",
+                label: "professeur mcgonagal"
+              },
+              {
+                value: "Professeur Dumbledor",
+                label: "professeur dumbledor"
+              }
+            ],
+            value: "Harry Potter",
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#eee"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: "Harry Potter",
+                label: "harry potter"
+              },
+              {
+                value: "Hermione Granger",
+                label: "hermione granger"
+              },
+              {
+                value: "Ron Whisley",
+                label: "ron whisley"
+              },
+              {
+                value: "Dobby",
+                label: "dobby"
+              },
+              {
+                value: "Hagrid",
+                label: "hagrid"
+              },
+              {
+                value: "Professeur Rogue",
+                label: "professeur rogue"
+              },
+              {
+                value: "Professeur Mcgonagal",
+                label: "professeur mcgonagal"
+              },
+              {
+                value: "Professeur Dumbledor",
+                label: "professeur dumbledor"
+              }
+            ],
+            value: "Hermione Granger",
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: "Harry Potter",
+                label: "harry potter"
+              },
+              {
+                value: "Hermione Granger",
+                label: "hermione granger"
+              },
+              {
+                value: "Ron Whisley",
+                label: "ron whisley"
+              },
+              {
+                value: "Dobby",
+                label: "dobby"
+              },
+              {
+                value: "Hagrid",
+                label: "hagrid"
+              },
+              {
+                value: "Professeur Rogue",
+                label: "professeur rogue"
+              },
+              {
+                value: "Professeur Mcgonagal",
+                label: "professeur mcgonagal"
+              },
+              {
+                value: "Professeur Dumbledor",
+                label: "professeur dumbledor"
+              }
+            ],
+            value: "Professeur Rogue",
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: "Harry Potter",
+                label: "harry potter"
+              },
+              {
+                value: "Hermione Granger",
+                label: "hermione granger"
+              },
+              {
+                value: "Ron Whisley",
+                label: "ron whisley"
+              },
+              {
+                value: "Dobby",
+                label: "dobby"
+              },
+              {
+                value: "Hagrid",
+                label: "hagrid"
+              },
+              {
+                value: "Professeur Rogue",
+                label: "professeur rogue"
+              },
+              {
+                value: "Professeur Mcgonagal",
+                label: "professeur mcgonagal"
+              },
+              {
+                value: "Professeur Dumbledor",
+                label: "professeur dumbledor"
+              }
+            ],
+            value: "Dobby",
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: "Harry Potter",
+                label: "harry potter"
+              },
+              {
+                value: "Hermione Granger",
+                label: "hermione granger"
+              },
+              {
+                value: "Ron Whisley",
+                label: "ron whisley"
+              },
+              {
+                value: "Dobby",
+                label: "dobby"
+              },
+              {
+                value: "Hagrid",
+                label: "hagrid"
+              },
+              {
+                value: "Professeur Rogue",
+                label: "professeur rogue"
+              },
+              {
+                value: "Professeur Mcgonagal",
+                label: "professeur mcgonagal"
+              },
+              {
+                value: "Professeur Dumbledor",
+                label: "professeur dumbledor"
+              }
+            ],
+            value: "Professeur Dumbledor",
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 26,
+                label: 26
+              },
+              {
+                value: 27,
+                label: 27
+              },
+              {
+                value: 28,
+                label: 28
+              },
+              {
+                value: 29,
+                label: 29
+              },
+              {
+                value: 30,
+                label: 30,
+                active: true
+              }
+            ],
+            value: 30,
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 26,
+                label: 26
+              },
+              {
+                value: 27,
+                label: 27
+              },
+              {
+                value: 28,
+                label: 28
+              },
+              {
+                value: 29,
+                label: 29
+              },
+              {
+                value: 30,
+                label: 30,
+                active: true
+              }
+            ],
+            value: 30,
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 26,
+                label: 26
+              },
+              {
+                value: 27,
+                label: 27
+              },
+              {
+                value: 28,
+                label: 28
+              },
+              {
+                value: 29,
+                label: 29
+              },
+              {
+                value: 30,
+                label: 30,
+                active: true
+              }
+            ],
+            value: 30,
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 26,
+                label: 26
+              },
+              {
+                value: 27,
+                label: 27
+              },
+              {
+                value: 28,
+                label: 28
+              },
+              {
+                value: 29,
+                label: 29
+              },
+              {
+                value: 30,
+                label: 30,
+                active: true
+              }
+            ],
+            value: 30,
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        },
+        {
+          a: {
+            type: "img",
+            value: "https://via.placeholder.com/350x150",
+            active: false
+          },
+          b: {
+            type: "input",
+            value: "Jane",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          c: {
+            type: "input",
+            value: "Paris",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          d: {
+            type: "input",
+            value: "France",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          e: {
+            type: "input",
+            value: "Boe",
+            active: false,
+            style: {
+              color: "#000"
+            }
+          },
+          f: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 26,
+                label: 26
+              },
+              {
+                value: 27,
+                label: 27
+              },
+              {
+                value: 28,
+                label: 28
+              },
+              {
+                value: 29,
+                label: 29
+              },
+              {
+                value: 30,
+                label: 30,
+                active: true
+              }
+            ],
+            value: 30,
+            active: false
+          },
+          g: {
+            type: "select",
+            handleSearch: true,
+            comment: {
+              value: "comment",
+              borderColor: "#000"
+            },
+            selectOptions: [
+              {
+                value: 1980,
+                label: 1980
+              },
+              {
+                value: 1981,
+                label: 1981
+              },
+              {
+                value: 1982,
+                label: 1982
+              },
+              {
+                value: 1983,
+                label: 1983,
+                active: true
+              },
+              {
+                value: 1984,
+                label: 1984
+              }
+            ],
+            value: 1983,
+            active: false
+          }
+        }
+      ],
+      submenuThead: [
+        {
+          type: "button",
+          value: "change color",
+          function: "change-color",
+          disabled: ["a"]
+        },
+        {
+          type: "select",
+          disabled: ["a"],
+          subtitle: "Select state:",
+          selectOptions: [
+            {
+              value: "new-york",
+              label: "new-york"
+            },
+            {
+              value: "france",
+              label: "france"
+            }
+          ],
+          value: "new-york",
+          buttonOption: {
+            value: "change city",
+            function: "change-city",
+            style: {
+              display: "block"
+            }
+          }
+        },
+        {
+          type: "button",
+          value: "change value",
+          function: "change-value",
+          disabled: ["a", "b"]
+        }
+      ],
+      submenuTbody: [
+        {
+          type: "button",
+          value: "change color",
+          function: "change-color",
+          disabled: ["img"]
+        },
+        {
+          type: "button",
+          value: "change value",
+          function: "change-value",
+          disabled: ["img", "name"]
+        }
+      ]
+
+
+    },
+    methods: {
+
+      checkedAllData(isChecked) {
+        console.log("checked all data", isChecked);
+      },
+      checkedData(row) {
+        console.log("checked data", row);
+      },
+      changeData(row, header) {
+        console.log(row, header);
+      },
+      sortProduct(event, header, colIndex) {
+        console.log("sort product");
+      },
+      // callback
+      changeColorThead(event, header, colIndex) {
+        this.headers[colIndex].style.color = "#e40000";
+      },
+      changeValueThead(event, header, colIndex) {
+        this.headers[colIndex].headerName = "T-shirt";
+      },
+      changeColorTbody(event, header, rowIndex, colIndex) {
+        this.products[rowIndex][header].style = {};
+        this.products[rowIndex][header].style.color = "#e40000";
+      },
+      changeValueTbody(event, header, rowIndex, colIndex) {
+        this.products[rowIndex][header].value = "T-shirt";
+      },
+
+      addSample(howMany) {
+        if (!howMany) howMany = Number(prompt("{% trans 'How many samples do you want to add?' %}"));
+        if (howMany) {
+          for (let i = 0; i < howMany; i++) {
+            this.newSample();
+          }
+        }
+      },
+      addAllSamples() {
+        howMany = 0;
+        for (var i = 0; i < this.sampleChoices.length; i++) {
+          if (!this.sampleChoices[i].has_sample) {
+            howMany += 1;
+          }
+        }
+        if (howMany) {
+          sampleArray = this.getQueuedSamples(howMany);
+          for (let i = 0; i < sampleArray.length; i++) {
+            this.newSample(sampleArray[i]);
+          }
+        }
+      },
+      deleteSample(sample) {
+        userInput = confirm("{% trans 'Are you sure you want to delete this sample?' %}");
+        if (userInput) {
+          let endpoint = `/api/edna/samples/${sample.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                this.$delete(this.samples, this.samples.indexOf(sample))
+              })
+        }
+      },
+      getBlankSample(sample) {
+        //let now = new Date(Date.now());
+        return {
+          collection: collectionId,
+          sample_type: this.default_sample_type,
+        }
+      },
+      getCurrentUser() {
+        let endpoint = `/api/edna/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      getSampleMetadata() {
+        let endpoint = `/api/edna/meta/models/sample/`;
+        apiService(endpoint).then(data => {
+          this.labels = data.labels;
+          this.sampleTypeChoices = data.sample_type_choices;
+          {#this.sampleChoices = data.sample_choices;#}
+        });
+      },
+      getSamples() {
+        this.loading = true;
+        endpoint = `/api/edna/samples/?collection=${collectionId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.loading = false;
+              if (response.length && response[0].id) {
+                for (var i = 0; i < response.length; i++) {
+                  //response[i].datetime = response[i].datetime.replace("T", " ").replace("Z", "")
+                  //if (!response[i].sample) response[i].sample = "";
+
+                }
+                this.samples = response;
+              }
+            })
+      },
+      getQueuedSamples(howMany) {
+        let samples = [...this.sampleChoices];
+        console.log(samples)
+        myArray = []
+        let result;
+        for (let i = 0; i < howMany; i++) {
+          result = "";
+          for (let j = 0; j < samples.length; j++) {
+            let sample = samples[j];
+            if (!sample.has_sample) {
+              let index = samples.indexOf(sample);
+              result = samples.splice(index, 1)[0].value;
+              break;
+            }
+          }
+          myArray.push(result);
+        }
+        // return the results array
+        return myArray;
+      },
+      newSample(sample) {
+        endpoint = `/api/edna/samples/`;
+        data = this.getBlankSample(sample)
+        apiService(endpoint, "POST", data)
+            .then(response => {
+              if (response.id) {
+                this.samples.push(response)
+              } else {
+                console.log(response)
+              }
+            })
+      },
+      updateSample(sample) {
+        this.sampleErrorMsg = null;
+        endpoint = `/api/edna/samples/${sample.id}/`;
+        sample.datetime = sample.datetime_display
+        if (sample.bottle_id === "") sample.bottle_id = null;
+        sample.datetime = sample.datetime_display
+        apiService(endpoint, "PUT", sample)
+            .then(response => {
+              if (!response.id) this.sampleErrorMsg = groomJSON(response);
+              else this.unsavedChanges = false;
+            })
+      },
+    },
+    created() {
+      this.getCurrentUser();
+      this.getSampleMetadata();
+      this.getSamples();
+    },
+  });
+  </script>
+
+{% endblock %}

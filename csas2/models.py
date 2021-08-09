@@ -602,6 +602,7 @@ class MeetingCost(GenericCost):
 class MeetingFile(GenericFile):
     meeting = models.ForeignKey(Meeting, related_name="files", on_delete=models.CASCADE, editable=False)
     file = models.FileField(upload_to=meeting_directory_path)
+    is_somp = models.BooleanField(default=False, verbose_name=_("is this the SoMP?"))
 
 
 class InviteeRole(SimpleLookup):

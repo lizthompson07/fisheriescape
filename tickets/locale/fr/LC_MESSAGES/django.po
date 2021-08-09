@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-17 13:15-0300\n"
+"POT-Creation-Date: 2021-08-05 12:06-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -173,6 +173,14 @@ msgstr ""
 
 #: .\tickets\templates\tickets\base\_app_title.html:2
 msgid "Tickets"
+msgstr ""
+
+#: .\tickets\templates\tickets\file_detail_popout.html:14
+msgid "View"
+msgstr ""
+
+#: .\tickets\templates\tickets\file_detail_popout.html:14
+msgid "Download"
 msgstr ""
 
 #: .\tickets\templates\tickets\ticket_form_popout.html:33

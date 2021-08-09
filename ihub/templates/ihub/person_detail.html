@@ -22,49 +22,49 @@
 
   <div class="row">
     <div class="col">
-      <h3>
-        {% trans "Person Detail:" %}
-      </h3>
-      <table class="table table-sm table-striped">
-        {% for field in field_list %}
-          {% verbose_td_display object field %}
-        {% endfor %}
-      </table>
-      <br>
-
+      <div class="card entry-card">
+        <div class="card-header">
+          <h5 class="card-title"> {% trans "Person Detail:" %}</h5>
+        </div>
+        <div class="card-body">
+          <table class="table table-sm">
+            {% for field in field_list %}
+              {% verbose_td_display object field th_width="25%" %}
+            {% endfor %}
+          </table>
+        </div>
+      </div>
     </div>
     <div class="col">
-      <h3>
-        {% trans "Membership:" %}
-      </h3>
-      <ul>
-        {% for member in object.memberships.all %}
-          <li>
-            {# This code is problematic since an org can have many groupings and only 1 might be indigenous #}
-            {% if member.organization.is_indigenous %}
-              <a href="{% url 'ihub:org_detail'  member.organization.id %}">{{ member.organization }} </a>,
-              {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
-                {{ "<em>missing role</em>"|safe }}{% endif %}
-            {% else %}
-{#              <a href="{% url 'ihub:org_detail'  member.organization.id %}"#}
-{#                 target="_blank">{{ member.organization }} </a>#}
-              {{ member.organization }},
-              {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
-                {{ "<em>missing role</em>"|safe }}{% endif %}
-              - {% trans "(Will open in Master List in separate tab)" %}
-            {% endif %}
-          </li>
-        {% empty %}
-          <em>
-            {% trans "person is not part of any organizations" %}
-          </em>
-        {% endfor %}
-
-      </ul>
-
+      <div class="card entry-card">
+        <div class="card-header">
+          <h5 class="card-title"> {% trans "Membership:" %}</h5>
+        </div>
+        <div class="card-body">
+          <ul>
+            {% for member in object.memberships.all %}
+              <li>
+                {# This code is problematic since an org can have many groupings and only 1 might be indigenous #}
+                {% if member.organization.is_indigenous %}
+                  <a href="{% url 'ihub:org_detail'  member.organization.id %}">{{ member.organization }}</a> &rarr;
+                  {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
+                    {{ "<em>missing role</em>"|safe }}{% endif %}
+                {% else %}
+                  {{ member.organization }}
+                  {% if member.role %}{{ member.role|nz:"(missing role)" }}{% else %}
+                    {{ "<em>missing role</em>"|safe }}{% endif %}
+                  - {% trans "(Will open in Master List in separate tab)" %}
+                {% endif %}
+              </li>
+            {% empty %}
+              <em>
+                {% trans "This contact is not part of any organizations" %}
+              </em>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
     </div>
-
   </div>
-
 
 {% endblock %}

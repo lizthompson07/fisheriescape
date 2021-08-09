@@ -248,7 +248,6 @@ class CSASRequestDetailView(LoginAccessRequiredMixin, CommonDetailView):
     template_name = 'csas2/request_detail/main.html'
     home_url_name = "csas2:index"
     parent_crumb = {"title": gettext_lazy("CSAS Requests"), "url": reverse_lazy("csas2:request_list")}
-    container_class = ""
 
     def get_active_page_name_crumb(self):
         return "{} {}".format(_("Request"), self.get_object().id)

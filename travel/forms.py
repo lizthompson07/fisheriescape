@@ -178,9 +178,9 @@ class TripRequestForm(forms.ModelForm):
             # is the start date of the travel request equal to or before the start date of the trip?
             if trip_start_date:
                 delta = abs(request_start_date - trip_start_date)
-                if delta.days > 10:
+                if delta.days > 30:
                     msg = _(
-                        "The start date of this request ({request_start_date}) has to be within 10 days of the start date of the selected trip ({trip_start_date})!").format(
+                        "The start date of this request ({request_start_date}) has to be within 30 days of the start date of the selected trip ({trip_start_date})!").format(
                         request_start_date=request_start_date.strftime("%Y-%m-%d"),
                         trip_start_date=trip_start_date.strftime("%Y-%m-%d"),
                     )
@@ -191,9 +191,9 @@ class TripRequestForm(forms.ModelForm):
             # is the end_date of the travel request equal to or after the end date of the trip?
             if trip_end_date:
                 delta = abs(request_end_date - trip_end_date)
-                if delta.days > 10:
+                if delta.days > 30:
                     msg = _(
-                        "The end date of this request ({request_end_date}) must be within 10 days of the end date of the selected trip ({trip_end_date})!").format(
+                        "The end date of this request ({request_end_date}) must be within 30 days of the end date of the selected trip ({trip_end_date})!").format(
                         request_end_date=request_end_date.strftime("%Y-%m-%d"),
                         trip_end_date=trip_end_date.strftime("%Y-%m-%d"),
                     )

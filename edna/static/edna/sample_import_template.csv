@@ -1,4 +1,4 @@
-unique_sample_identifier,site_identifier,site_description,samplers,datetime,latitude,longitude,comments
+bottle_id,site_identifier,site_description,samplers,datetime,latitude,longitude,comments
 100,Site 993,Miramichi Lake,Jane Doe,2020-08-21 12:30,46.463301,-66.989402,Rainy
 101,Site 993,Miramichi Lake,Jane Doe,2020-08-21 12:47,46.459786,-66.967846,
 102,Site 993,Miramichi Lake,Jane Doe,2020-08-21 12:47,46.459786,-66.967846,
