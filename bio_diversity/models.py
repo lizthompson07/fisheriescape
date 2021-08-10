@@ -951,7 +951,7 @@ class Group(BioModel):
         if get_string:
             cont_str = ""
             for cont in current_cont_list:
-                cont_str += "{}, ".format(cont.name)
+                cont_str += "{}, ".format(cont.__str__())
             return cont_str
         return current_cont_list
 
@@ -1313,7 +1313,7 @@ class Individual(BioModel):
         if get_string:
             cont_str = ""
             for cont in current_cont_list:
-                cont_str += "{} ".format(cont.name)
+                cont_str += "{} ".format(cont.__str__())
             return cont_str
         return current_cont_list
 

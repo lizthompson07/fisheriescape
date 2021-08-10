@@ -17,7 +17,7 @@ from bio_diversity.static.calculation_constants import sfa_nums
 
 from bio_diversity import models
 from bio_diversity import utils
-from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser
+from bio_diversity.data_parsers.generic import GenericIndvParser, GenericGrpParser, GenericUntaggedParser
 from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
 from bio_diversity.data_parsers.picks import EDInitParser, EDPickParser, EDHUParser, EDShockingParser
 from bio_diversity.data_parsers.spawning import MactaquacSpawningParser, ColdbrookSpawningParser
@@ -391,6 +391,8 @@ class DataForm(CreatePrams):
             elif cleaned_data["evntc_id"].__str__() in ["Measuring", "Mortality", "Scanning", "Movement", "Maturity Sorting" ]:
                 if cleaned_data["data_type"].__str__() == "Individual":
                     parser = GenericIndvParser(cleaned_data)
+                elif cleaned_data["data_type"].__str__() == "Untagged":
+                    parser = GenericUntaggedParser(cleaned_data)
                 elif cleaned_data["data_type"].__str__() == "Group":
                     parser = GenericGrpParser(cleaned_data)
                 log_data = parser.log_data

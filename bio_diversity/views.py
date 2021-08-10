@@ -304,7 +304,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
                 self.get_form_class().base_fields["data_type"].required = True
-                data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
+                data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),
+                              ('Group', 'Group'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
                 self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
@@ -1300,7 +1301,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
-        context["calculated_properties"]["Current Tank"] = self.object.current_cont(get_string=True)
+        context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()
 
@@ -1461,7 +1462,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         indv_weight = self.object.individual_detail("Weight")
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
-        context["calculated_properties"]["Current Tank"] = self.object.current_cont(get_string=True)
+        context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Length (cm)"] = indv_len
         context["calculated_properties"]["Weight (g)"] = indv_weight
         context["calculated_properties"]["Condition Factor"] = utils.round_no_nan(utils.condition_factor

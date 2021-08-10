@@ -134,7 +134,7 @@ class SpawningParser(DataParser):
 
         self.row_entered += utils.enter_anix(cleaned_data, pair_pk=pair.pk, return_sucess=True)
 
-        # fecu/dud
+        # fecu/dud/extra male
         if row[self.egg_est_key] > 0:
             self.row_entered += utils.enter_spwnd(pair.pk, cleaned_data, int(row[self.egg_est_key]),
                                                   self.fecu_spwndc_id.pk, None, "Calculated")

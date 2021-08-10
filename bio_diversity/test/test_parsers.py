@@ -9,7 +9,7 @@ from datetime import datetime
 from bio_diversity import forms, models
 from bio_diversity.data_parsers.distributions import DistributionIndvParser
 from bio_diversity.data_parsers.electrofishing import MactaquacElectrofishingParser, ColdbrookElectrofishingParser
-from bio_diversity.data_parsers.generic import GenericGrpParser, GenericIndvParser
+from bio_diversity.data_parsers.generic import GenericUntaggedParser, GenericIndvParser
 from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
 from bio_diversity.data_parsers.tagging import MactaquacTaggingParser, ColdbrookTaggingParser
 from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser
@@ -70,7 +70,7 @@ class TestMactaquacParsers(CommonTest):
         self.cleaned_data["evnt_id"] = self.measuring_evnt
         self.cleaned_data["evntc_id"] = self.measuring_evntc
         self.cleaned_data["data_csv"] = self.measuring_test_data
-        parser = GenericGrpParser(self.cleaned_data)
+        parser = GenericUntaggedParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
 
         # Generic Individual parser
