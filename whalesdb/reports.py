@@ -58,7 +58,7 @@ def report_deployment_summary(query_params):
         for dep_evt in staion_events:
             lat = dep_evt.ste_lat_mcal if dep_evt.ste_lat_mcal else dep_evt.ste_lat_ship
             lon = dep_evt.ste_lon_mcal if dep_evt.ste_lon_mcal else dep_evt.ste_lon_ship
-            depth = dep_evt.ste_depth_mcal if dep_evt.ste_depth_mcal else dep_evt.ste_lon_ship
+            depth = dep_evt.ste_depth_mcal if dep_evt.ste_depth_mcal else dep_evt.ste_depth_ship
 
             hydro = q.eqp.hydrophones.all()
 
