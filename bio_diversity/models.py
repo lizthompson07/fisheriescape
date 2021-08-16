@@ -1565,14 +1565,9 @@ class Location(BioModel):
             self.trib_id = self.relc_id.trib_id
         if self.relc_id and not self.subr_id:
             self.sube_id = self.relc_id.subr_id
-        self.set_relc_latlng()
-        if not self.relc_id and not (self.loc_lon and self.loc_lat):
-            raise ValidationError("Location must have either lat-long specified or site chosen")
+        # if not self.relc_id and not (self.loc_lon and self.loc_lat):
+        #    raise ValidationError("Location must have either lat-long specified or site chosen")
         super(Location, self).clean(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.set_relc_latlng()
-        super(Location, self).save(*args, **kwargs)
 
 
 class LocCode(BioLookup):

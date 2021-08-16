@@ -330,10 +330,6 @@ class GenericGrpParser(DataParser):
         self.prnt_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Parent Group").get()
         self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
 
-        # The following steps are to set additional columns on each row to facilitate parsing.
-        # In particular,  columns set will be: "datetime", "grp_year", "grp_coll", "start_tank_id",
-        # "end_tank_id".
-
         # set date
         self.data = utils.set_row_datetime(self.data)
         # split year-coll
@@ -344,7 +340,6 @@ class GenericGrpParser(DataParser):
         self.data = utils.set_row_tank(self.data, cleaned_data, self.start_tank_key, col_name="start_tank_id")
         self.data = utils.set_row_tank(self.data, cleaned_data, self.end_tank_key, col_name="end_tank_id")
         self.data_dict = self.data.to_dict("records")
-
 
     def row_parser(self, row):
         cleaned_data = self.cleaned_data
@@ -383,7 +378,7 @@ class GenericGrpParser(DataParser):
                 end_grp_anix, anix_entered = utils.enter_anix(cleaned_data, grp_pk=row_end_grp.pk)
                 self.row_entered += anix_entered
                 self.row_entered += utils.enter_grpd(end_grp_anix.pk, cleaned_data, row_date, None,
-                                                     self.prnt_grp_anidc_id, frm_grp_id=row_start_grp)
+                                                     self.prnt_grp_anidc_id.pk, frm_grp_id=row_start_grp)
                 cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk)
                 self.row_entered = cnt_entered
 

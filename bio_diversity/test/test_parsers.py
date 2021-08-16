@@ -99,7 +99,7 @@ class TestColdbrookParsers(CommonTest):
         self.dist_evntc = models.EventCode.objects.filter(name="Distribution").get()
 
         # used to get the full path from the static directory
-        self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing.xlsx")
+        self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing-cb.xlsx")
         self.tagging_test_data = finders.find("test\\parser_test_files\\test-tagging-cb.xlsx")
 
         self.electrofishing_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.electrofishing_evntc, facic_id=coldbrook_facic)

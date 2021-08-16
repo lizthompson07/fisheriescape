@@ -90,7 +90,6 @@ class DistributionParser(DataParser):
                               created_date=cleaned_data["created_date"],
                               )
         try:
-            loc.set_relc_latlng()
             loc.clean()
             loc.save()
             self.row_entered = True
@@ -290,7 +289,6 @@ class DistributionIndvParser(DataParser):
                               created_date=cleaned_data["created_date"],
                               )
         try:
-            loc.set_relc_latlng()
             loc.clean()
             loc.save()
             self.row_entered = True

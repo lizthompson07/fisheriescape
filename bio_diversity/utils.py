@@ -210,8 +210,8 @@ def year_coll_splitter(full_str):
         coll = full_str.lstrip(' 0123456789')
         year = int(full_str[:len(full_str) - len(coll)])
     except Exception:
-        raise Exception("Collection column must be formated: YYYY AA, where AA is the collection name/acronym.  Collction entered:"
-                        " {}".format(full_str))
+        raise Exception("Collection column must be formated: YYYY AA, where AA is the collection name/acronym.  "
+                        "Collction entered: {}".format(full_str))
 
     return year, coll.strip()
 
