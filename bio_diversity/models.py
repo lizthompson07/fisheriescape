@@ -438,7 +438,6 @@ class ContainerXRef(BioModel):
             return None
 
 
-
 class Count(BioModel):
     # cnt tag
     loc_id = models.ForeignKey("Location", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Location"),
