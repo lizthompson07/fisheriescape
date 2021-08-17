@@ -1247,11 +1247,11 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                           "field_list": loc_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
-        anix_set = self.object.animal_details.filter(team_id__isnull=False) \
-            .select_related('team_id__role_id', 'team_id__perc_id', 'team_id__evnt_id')
+        anix_set = self.object.animal_details.filter(team_id__isnull=False)
 
         evnt_team_anix_set = models.TeamXRef.objects.filter(evnt_id__in=evnt_list, perc_id=F("evnt_id__perc_id"),
-                                                            role_id__isnull=True, loc_id__isnull=True)
+                                                            role_id__isnull=True, loc_id__isnull=True)\
+            .select_related('role_id', 'perc_id', 'evnt_id')
 
         obj_list = [anix.team_id for anix in anix_set]
         obj_list.extend(evnt_team_anix_set)
@@ -1265,7 +1265,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          pair_id__isnull=True)
+                                                          pair_id__isnull=True).select_related("contx_id")
 
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
@@ -1277,7 +1277,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         ]
 
         anix_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                     pair_id__isnull=False).select_related('pair_id')
+                                                     pair_id__isnull=False).select_related('pair_id', 'pair_id__prio_id',
+                                                                                           'pair_id__indv_id')
         pair_list = [anix.pair_id for anix in anix_set]
         pair_field_list = ["start_date", "indv_id", "cross", "prio_id"]
         obj_mixin = mixins.PairMixin
