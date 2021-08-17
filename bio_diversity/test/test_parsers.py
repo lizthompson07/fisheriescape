@@ -9,7 +9,7 @@ from datetime import datetime
 from bio_diversity import forms, models
 from bio_diversity.data_parsers.distributions import DistributionIndvParser
 from bio_diversity.data_parsers.electrofishing import MactaquacElectrofishingParser, ColdbrookElectrofishingParser
-from bio_diversity.data_parsers.generic import GenericGrpParser, GenericIndvParser
+from bio_diversity.data_parsers.generic import GenericUntaggedParser, GenericIndvParser, GenericGrpParser
 from bio_diversity.data_parsers.master import MasterIndvParser, MasterGrpParser
 from bio_diversity.data_parsers.tagging import MactaquacTaggingParser, ColdbrookTaggingParser
 from bio_diversity.data_parsers.treatment import MactaquacTreatmentParser
@@ -34,6 +34,7 @@ class TestMactaquacParsers(CommonTest):
         # used to get the full path from the static directory
         self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing.xlsx")
         self.tagging_test_data = finders.find("test\\parser_test_files\\test-tagging.xlsx")
+        self.measuring_test_data = finders.find("test\\parser_test_files\\test-generic-untagged.xlsx")
         self.measuring_test_data = finders.find("test\\parser_test_files\\test-generic-group.xlsx")
         self.measuring_indv_test_data = finders.find("test\\parser_test_files\\test-generic-indv.xlsx")
         self.dist_indv_test_data = finders.find("test\\parser_test_files\\test-indv-distribution.xlsx")
@@ -41,6 +42,7 @@ class TestMactaquacParsers(CommonTest):
         self.electrofishing_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.electrofishing_evntc, facic_id=mactaquac_facic)
         self.tagging_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.tagging_evntc, facic_id=mactaquac_facic)
         self.measuring_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.measuring_evntc, facic_id=mactaquac_facic)
+        self.grp_measuring_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.measuring_evntc, facic_id=mactaquac_facic)
         self.dist_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.dist_evntc, facic_id=mactaquac_facic)
 
         self.cleaned_data = {
@@ -66,8 +68,15 @@ class TestMactaquacParsers(CommonTest):
         parser = MactaquacTaggingParser(self.cleaned_data)
         self.assertTrue(parser.success, parser.log_data)
 
-        # Generic Group Parser
+        # Generic Untagged Parser
         self.cleaned_data["evnt_id"] = self.measuring_evnt
+        self.cleaned_data["evntc_id"] = self.measuring_evntc
+        self.cleaned_data["data_csv"] = self.measuring_test_data
+        parser = GenericUntaggedParser(self.cleaned_data)
+        self.assertTrue(parser.success, parser.log_data)
+
+        # Generic Group Parser
+        self.cleaned_data["evnt_id"] = self.grp_measuring_evnt
         self.cleaned_data["evntc_id"] = self.measuring_evntc
         self.cleaned_data["data_csv"] = self.measuring_test_data
         parser = GenericGrpParser(self.cleaned_data)
@@ -99,7 +108,7 @@ class TestColdbrookParsers(CommonTest):
         self.dist_evntc = models.EventCode.objects.filter(name="Distribution").get()
 
         # used to get the full path from the static directory
-        self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing.xlsx")
+        self.electrofishing_test_data = finders.find("test\\parser_test_files\\test-electrofishing-cb.xlsx")
         self.tagging_test_data = finders.find("test\\parser_test_files\\test-tagging-cb.xlsx")
 
         self.electrofishing_evnt = BioFactoryFloor.EvntFactory(evntc_id=self.electrofishing_evntc, facic_id=coldbrook_facic)

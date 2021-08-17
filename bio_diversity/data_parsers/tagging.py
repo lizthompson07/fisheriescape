@@ -122,21 +122,14 @@ class TaggingParser(DataParser):
                 self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.group_key],
                                                       self.prog_grp_anidc_id.pk, adsc_str=row[self.group_key])
 
-        if utils.nan_to_none(row.get(self.len_key_mm)):
-            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key_mm] / 10.0,
-                                                  self.len_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.len_key)):
-            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.len_key],
-                                                  self.len_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.weight_key_kg)):
-            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, 1000 * row[self.weight_key_kg],
-                                                  self.weight_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.weight_key)):
-            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.weight_key],
-                                                  self.weight_anidc_id.pk, None)
-        if utils.nan_to_none(row.get(self.vial_key)):
-            self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, row[self.vial_key],
-                                                  self.vial_anidc_id.pk, None)
+        utils.enter_bulk_indvd(anix_indv, self.cleaned_data, row_date,
+                               len_mm=row.get(self.len_key_mm),
+                               len=row.get(self.len_key),
+                               weight=row.get(self.weight_key),
+                               weight_kg=row.get(self.weight_key_kg),
+                               vial=row.get(self.vial_key),
+                               )
+
         if utils.nan_to_none(row.get(self.precocity_key)):
             self.row_entered += utils.enter_indvd(anix_indv.pk, cleaned_data, row_date, None,
                                                   self.ani_health_anidc_id.pk, "Precocity")

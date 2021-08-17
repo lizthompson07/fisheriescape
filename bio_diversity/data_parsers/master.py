@@ -68,9 +68,9 @@ class MasterIndvParser(DataParser):
         anix, anix_entered = utils.enter_anix(cleaned_data, indv_pk=indv.pk)
         self.row_entered += anix_entered
         if utils.nan_to_none(row.get(self.sex_key)):
-            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date,
-                                                  self.sex_dict[row[self.sex_key].upper()],
-                                                  self.sex_anidc_id.pk, None, None)
+            indv_sex = self.sex_dict[row[self.sex_key].upper()]
+            self.row_entered += utils.enter_indvd(anix.pk, self.cleaned_data, row_date, indv_sex, self.sex_anidc_id.pk,
+                                                  None, adsc_str=indv_sex)
         if utils.nan_to_none(row.get(self.comment_key)):
             comments_parsed, data_entered = utils.comment_parser(row[self.comment_key], anix,
                                                                  det_date=row_datetime.date())
@@ -108,7 +108,6 @@ class MasterGrpParser(DataParser):
         cleaned_data = self.cleaned_data
         year, coll = utils.year_coll_splitter(row[self.year_coll_key])
         row_datetime = utils.get_row_date(row)
-        row_date = row_datetime.date()
         comments = None
         if utils.nan_to_none(row.get(self.comment_key)):
             comments = utils.nan_to_none(row[self.comment_key])
