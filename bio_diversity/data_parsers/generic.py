@@ -313,6 +313,8 @@ class GenericGrpParser(DataParser):
     nfish_key = "Number of Fish"
     abs_key = "Whole group (Y/N)"
     comment_key = "Comments"
+    vax_key = "Vaccinated"
+    mark_key = "Mark Applied"
 
     header = 2
     sheet_name = "Group"
@@ -322,6 +324,8 @@ class GenericGrpParser(DataParser):
 
     prnt_grp_anidc_id = None
     prog_grp_anidc_id = None
+    vax_anidc_id = None
+    mark_anidc_id = None
 
     def load_data(self):
         self.mandatory_keys.extend([self.yr_coll_key, self.rive_key, self.prio_key])
@@ -331,6 +335,8 @@ class GenericGrpParser(DataParser):
         cleaned_data = self.cleaned_data
         self.prnt_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Parent Group").get()
         self.prog_grp_anidc_id = models.AnimalDetCode.objects.filter(name="Program Group").get()
+        self.vax_anidc_id = models.AnimalDetCode.objects.filter(name="Vaccination").get()
+        self.mark_anidc_id = models.AnimalDetCode.objects.filter(name="Mark").get()
 
         # set date
         self.data = utils.set_row_datetime(self.data)
@@ -353,6 +359,7 @@ class GenericGrpParser(DataParser):
         self.row_entered += contx_entered
 
         whole_grp = utils.y_n_to_bool(row[self.abs_key])
+        det_anix = None
         if not whole_grp:
             row["start_contx_pk"] = start_contx.pk
         else:
@@ -361,7 +368,7 @@ class GenericGrpParser(DataParser):
         if row["end_tank_id"]:
             # 4 possible cases here: group in tank or not and whole group move or not:
             row_end_grp_list = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["end_tank_id"],
-                                        row_date, prog_str=row[self.prio_key])
+                                             row_date, prog_str=row[self.prio_key])
             row_end_grp = None
             if not whole_grp and not row_end_grp_list:
                 # splitting fish group, create end group:
@@ -387,8 +394,10 @@ class GenericGrpParser(DataParser):
                 cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk)
                 self.row_entered = cnt_entered
 
+                det_anix = end_grp_anix
 
             else:
+                det_anix = start_anix
                 move_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
                                                         row_date, grp_pk=row_start_grp.pk, return_end_contx=True)
                 cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk,
@@ -399,6 +408,18 @@ class GenericGrpParser(DataParser):
             cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], start_contx.pk,
                                                cnt_code="Fish Count")
             self.row_entered = cnt_entered
+
+
+        # add details to det_anix:
+
+        if utils.nan_to_none(row.get(self.vax_key)):
+            self.row_entered += utils.enter_grpd(det_anix.pk, cleaned_data, row_date, None, self.vax_anidc_id.pk,
+                                                 adsc_str=row[self.vax_key])
+        if utils.nan_to_none(row.get(self.mark_key)):
+            self.row_entered += utils.enter_grpd(det_anix.pk, cleaned_data, row_date, None, self.mark_anidc_id.pk,
+                                                 adsc_str=row[self.mark_key])
+
+
 
     def clean_data(self):
         contx_df = DataFrame(self.data_dict)
