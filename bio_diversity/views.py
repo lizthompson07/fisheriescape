@@ -1322,8 +1322,7 @@ class GrpdDetails(mixins.GrpdMixin, CommonDetails):
 
 
 class HeatDetails(mixins.HeatMixin, CommonDetails):
-    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "manufacturer", "serial_number",
-              "inservice_date", "created_by", "created_date", ]
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2179,9 +2178,6 @@ class HeatList(mixins.HeatMixin, GenericList):
     field_list = [
         {"name": 'name', "class": "", "width": ""},
         {"name": 'nom', "class": "", "width": ""},
-        {"name": 'manufacturer', "class": "", "width": ""},
-        {"name": 'serial_number', "class": "", "width": ""},
-        {"name": 'inservice_date', "class": "", "width": ""},
     ]
     filterset_class = filters.HeatFilter
 

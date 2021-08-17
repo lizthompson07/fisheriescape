@@ -1139,9 +1139,6 @@ class HeathUnit(BioCont):
     # heat tag
     key = "heat"
 
-    manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"), db_column="MANUFACTURER")
-    inservice_date = models.DateField(verbose_name=_("Date unit was put into service"), db_column="INSERVICE_DATE")
-    serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"), db_column="SERIAL_NUMBER")
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.CASCADE, verbose_name=_("Facility"), db_column="FAC_ID")
 
     class Meta:

@@ -223,7 +223,7 @@ class HeatFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.HeathUnit
-        fields = ["name", "nom", "facic_id", "manufacturer", "serial_number", "inservice_date",
+        fields = ["name", "nom", "facic_id",
                   ]
 
 
