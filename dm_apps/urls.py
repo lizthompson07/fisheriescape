@@ -240,6 +240,11 @@ if settings.INSTALLED_APPS.count("bio_diversity"):
 else:
     print("not connecting bio_diversity app")
 
+if settings.INSTALLED_APPS.count("maret"):
+    urlpatterns += i18n_patterns(path('maret/', include('maret.urls')), prefix_default_language=True)
+else:
+    print("not connecting maret app")
+
 if settings.INSTALLED_APPS.count("fisheriescape"):
     urlpatterns += i18n_patterns(path('fisheriescape/', include('fisheriescape.urls')),
                                  prefix_default_language=True)

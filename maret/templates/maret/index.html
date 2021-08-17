@@ -1,0 +1,23 @@
+{% extends "maret/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load custom_tags %}
+
+{% block header %}
+  {{ block.super }}
+  {% include "maret/_background_img.html" %}
+{% endblock %}
+
+{% block content %}
+
+  {% echo "btn btn-outline-dark " as btn_class %}
+  {% echo "btn btn-outline-secondary " as admin_btn_class %}
+  <br>
+  <div class="container curvy mb-3 mt-5 shadowbox">
+    <div class="">
+      <h1 class="text-center mt-3 mb-5">
+        {% trans "Welcome to the Maritime Engagement Tracker (MarET)" %}
+      </h1>
+    </div>
+  </div>
+{% endblock %}

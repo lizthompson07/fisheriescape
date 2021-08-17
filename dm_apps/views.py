@@ -431,6 +431,19 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["maret"] = {
+            "title": _("Maritimes Engagement Tracker (MarET)"),
+            "description": _("Tool for tracking Policy and Economics Engagement"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('maret:index'),
+            "icon_path": 'img/icons/plug.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["projects"] = {
             "title": _("Project Planning (ARCHIVE ONLY)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
