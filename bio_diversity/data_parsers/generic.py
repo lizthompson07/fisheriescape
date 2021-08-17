@@ -1,5 +1,7 @@
 import copy
 
+from pandas import DataFrame
+
 from bio_diversity import models
 from bio_diversity import utils
 from bio_diversity.static import calculation_constants
@@ -346,12 +348,15 @@ class GenericGrpParser(DataParser):
         row_date = row["datetime"].date()
         row_start_grp = utils.get_grp(row[self.rive_key], row["grp_year"], row["grp_coll"], row["start_tank_id"],
                                       row_date, prog_str=row[self.prio_key], fail_on_not_found=True)[0]
-
         start_anix, self.row_entered = utils.enter_anix(cleaned_data, grp_pk=row_start_grp.pk)
         start_contx, contx_entered = utils.enter_contx(row["start_tank_id"], cleaned_data, None, return_contx=True)
         self.row_entered += contx_entered
 
         whole_grp = utils.y_n_to_bool(row[self.abs_key])
+        if not whole_grp:
+            row["start_contx_pk"] = start_contx.pk
+        else:
+            row["start_contx_pk"] = None
 
         if row["end_tank_id"]:
             # 4 possible cases here: group in tank or not and whole group move or not:
@@ -382,9 +387,6 @@ class GenericGrpParser(DataParser):
                 cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], move_contx.pk)
                 self.row_entered = cnt_entered
 
-                cnt, cnt_entered = utils.enter_cnt(cleaned_data, row[self.nfish_key], start_contx.pk,
-                                                   cnt_code="Fish Removed from Container")
-                self.row_entered = cnt_entered
 
             else:
                 move_contx = utils.create_movement_evnt(row["start_tank_id"], row["end_tank_id"], cleaned_data,
@@ -398,8 +400,13 @@ class GenericGrpParser(DataParser):
                                                cnt_code="Fish Count")
             self.row_entered = cnt_entered
 
-
-
-
-
+    def clean_data(self):
+        contx_df = DataFrame(self.data_dict)
+        cnt_df = contx_df.groupby("start_contx_pk", as_index=False).sum()
+        for row in cnt_df.to_dict('records'):
+            if utils.nan_to_none(row["start_contx_pk"]):
+                cnt, cnt_entered = utils.enter_cnt(self.cleaned_data, 0, int(row["start_contx_pk"]),
+                                                   cnt_code="Fish Removed from Container")
+                cnt.cnt = row[self.nfish_key]
+                cnt.save()
 
