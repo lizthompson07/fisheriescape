@@ -1117,9 +1117,6 @@ class HeatFactory(factory.django.DjangoModelFactory):
     facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
-    manufacturer = factory.lazy_attribute(lambda o: faker.word())
-    inservice_date = factory.lazy_attribute(lambda o: faker.date())
-    serial_number = factory.lazy_attribute(lambda o: faker.word())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
@@ -1135,9 +1132,6 @@ class HeatFactory(factory.django.DjangoModelFactory):
             'facic_id': facic.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
-            'manufacturer': obj.manufacturer,
-            'inservice_date': obj.inservice_date,
-            'serial_number': obj.serial_number,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

@@ -304,7 +304,8 @@ class DataCreate(mixins.DataMixin, CommonCreate):
                 self.get_form_class().base_fields["data_type"].widget = forms.HiddenInput()
             else:
                 self.get_form_class().base_fields["data_type"].required = True
-                data_types = ((None, "---------"), ('Individual', 'Individual'), ('Group', 'Group'))
+                data_types = ((None, "---------"), ('Individual', 'Individual'), ('Untagged', 'Untagged'),
+                              ('Group', 'Group'))
                 self.get_form_class().base_fields["data_type"] = forms.ChoiceField(choices=data_types,
                                                                                    label=_("Type of data entry"))
                 self.get_form_class().base_fields["adsc_id"].widget = forms.SelectMultiple(
@@ -1246,11 +1247,11 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                           "field_list": loc_field_list,
                                           "single_object": obj_mixin.model.objects.first()}
 
-        anix_set = self.object.animal_details.filter(team_id__isnull=False) \
-            .select_related('team_id__role_id', 'team_id__perc_id', 'team_id__evnt_id')
+        anix_set = self.object.animal_details.filter(team_id__isnull=False)
 
         evnt_team_anix_set = models.TeamXRef.objects.filter(evnt_id__in=evnt_list, perc_id=F("evnt_id__perc_id"),
-                                                            role_id__isnull=True, loc_id__isnull=True)
+                                                            role_id__isnull=True, loc_id__isnull=True)\
+            .select_related('role_id', 'perc_id', 'evnt_id')
 
         obj_list = [anix.team_id for anix in anix_set]
         obj_list.extend(evnt_team_anix_set)
@@ -1264,7 +1265,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
                                            "single_object": obj_mixin.model.objects.first()}
 
         anix_evnt_set = self.object.animal_details.filter(contx_id__isnull=False, loc_id__isnull=True,
-                                                          pair_id__isnull=True)
+                                                          pair_id__isnull=True).select_related("contx_id")
 
         contx_tuple_set = list(dict.fromkeys([(anix.contx_id, anix.final_contx_flag) for anix in anix_evnt_set]))
         context["cont_evnt_list"] = [get_cont_evnt(contx) for contx in contx_tuple_set]
@@ -1276,7 +1277,8 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         ]
 
         anix_set = self.object.animal_details.filter(contx_id__isnull=True, loc_id__isnull=True,
-                                                     pair_id__isnull=False).select_related('pair_id')
+                                                     pair_id__isnull=False).select_related('pair_id', 'pair_id__prio_id',
+                                                                                           'pair_id__indv_id')
         pair_list = [anix.pair_id for anix in anix_set]
         pair_field_list = ["start_date", "indv_id", "cross", "prio_id"]
         obj_mixin = mixins.PairMixin
@@ -1300,7 +1302,7 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
 
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
-        context["calculated_properties"]["Current Tank"] = self.object.current_cont(get_string=True)
+        context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Development"] = self.object.get_development()
         context["calculated_properties"]["Fish in group"] = self.object.count_fish_in_group()
 
@@ -1320,8 +1322,7 @@ class GrpdDetails(mixins.GrpdMixin, CommonDetails):
 
 
 class HeatDetails(mixins.HeatMixin, CommonDetails):
-    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "manufacturer", "serial_number",
-              "inservice_date", "created_by", "created_date", ]
+    fields = ["facic_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1461,7 +1462,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         indv_weight = self.object.individual_detail("Weight")
         context["calculated_properties"] = {}
         context["calculated_properties"]["Programs"] = self.object.prog_group(get_string=True)
-        context["calculated_properties"]["Current Tank"] = self.object.current_cont(get_string=True)
+        context["calculated_properties"]["Current container"] = self.object.current_cont(get_string=True)
         context["calculated_properties"]["Length (cm)"] = indv_len
         context["calculated_properties"]["Weight (g)"] = indv_weight
         context["calculated_properties"]["Condition Factor"] = utils.round_no_nan(utils.condition_factor
@@ -2177,9 +2178,6 @@ class HeatList(mixins.HeatMixin, GenericList):
     field_list = [
         {"name": 'name', "class": "", "width": ""},
         {"name": 'nom', "class": "", "width": ""},
-        {"name": 'manufacturer', "class": "", "width": ""},
-        {"name": 'serial_number', "class": "", "width": ""},
-        {"name": 'inservice_date', "class": "", "width": ""},
     ]
     filterset_class = filters.HeatFilter
 
