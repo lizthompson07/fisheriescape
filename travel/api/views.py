@@ -400,10 +400,12 @@ class CostViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        serializer.save()
+        obj = serializer.save()
+        utils.manage_trip_warning(obj.traveller.request.trip, self.request)
 
     def perform_update(self, serializer):
-        serializer.save()
+        obj = serializer.save()
+        utils.manage_trip_warning(obj.traveller.request.trip, self.request)
 
 
 # LOOKUPS

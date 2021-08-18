@@ -388,6 +388,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
 
         # No matter what business was done, we will call this function to sort through reviewer and request statuses
         utils.approval_seeker(my_object, False, self.request)
+        utils.manage_trip_warning(my_object.trip, self.request)
 
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs) + self.get_query_string())
 
