@@ -279,7 +279,7 @@ msgstr "Texte en français"
 # please never touch this translation!!
 #: .\travel\models.py:40 .\travel\models.py:41
 msgid "eng_text"
-msgstr "eng_text"
+msgstr "fra_text"
 
 #: .\travel\models.py:52 .\travel\models.py:932 .\travel\models.py:995
 #: .\travel\test\test_models.py:84 .\travel\test\test_models.py:691
