@@ -16,11 +16,31 @@
     <div class="mb-3 mt-3" v-if="trip">
       <h2>${trip.display}</h2>
     </div>
-    <div v-if="isNCRAdmin || isRegionalAdmin" class="alert alert-primary no-print py-2" role="alert" style="width: 60%">
+    <div v-if="isNCRAdmin || (isRegionalAdmin && !trip.is_adm_approval_required)" class="alert alert-primary no-print py-2" role="alert" style="width: 60%">
       <p class="mb-0">
         <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">{% trans "You are viewing this trip as an admin user." %}</span>
       </p>
     </div>
+
+    <div v-else-if="trip.is_adm_approval_required" class="alert alert-warning no-print py-2 w-75" role="alert">
+      <p class="mb-0">
+        <span class="h5 mdi mdi-pencil-off mr-3"></span> <span class="h6">
+        {% blocktrans %}
+          If you would like to make any modifications to this trip, please contact the <a href="mailto:DFO.ScienceTravel-VoyagesSciences.MPO@dfo-mpo.gc.ca?subject={{ object }}">NCR travel coordinator</a>.
+        {% endblocktrans %}
+        </span>
+      </p>
+    </div>
+    <div v-else class="alert alert-warning no-print py-2 w-75" role="alert">
+      <p class="mb-0">
+        <span class="h5 mdi mdi-pencil-off mr-3"></span> <span class="h6">
+        {% blocktrans %}
+          If you would like to make any modifications to this trip, please contact your regional travel administrator.
+        {% endblocktrans %}
+        </span>
+      </p>
+    </div>
+
     {# warnings #}
     <div v-if="trip.id">
 
@@ -64,7 +84,7 @@
       <a v-if="canModify && trip.requests.length === 0" class="btn btn-danger" href="{% url 'travel:trip_delete' object.id %}{{ view.get_query_string }}">
         {% trans "Delete" %}
       </a>
-      <a class="btn btn-success" href="{% url 'travel:request_new' %}{{ view.get_query_string }}&trip={{ object.id }}">
+      <a class="btn btn-success" href="{% url 'travel:request_new' %}?{{ view.get_query_string }}&trip={{ object.id }}">
         {% trans "Start a Request" %}
       </a>
     </div>
